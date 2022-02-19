@@ -699,7 +699,7 @@ class OTS(FCStorage):
 
     @log_elapsed
     def collect(self, min_chunk_size=0, use_serialize=True, partition=None, dispersal=True, page_limit=None,
-                debug_info=None) -> list:
+                debug_info=None, only_key=False) -> list:
         """
             get all data
         Parameters
@@ -712,7 +712,8 @@ class OTS(FCStorage):
             distribute the data in each partition
         page_limit: int
             page size limit
-        debug_info
+        debug_info:
+        only_key:
 
         Returns
         -------

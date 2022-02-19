@@ -75,21 +75,21 @@ public class Env {
          * 所以正常情况下不应会让这里出现0
          */
         for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
-            if (dataSetItem.dataSet.getLabeledCount() < 1) {
+            if (dataSetItem.dataResource.getLabeledCount() < 1) {
                 StatusCode
                         .PARAMETER_VALUE_INVALID
                         .throwException(
                                 "成员【" + CacheObjects.getMemberName(dataSetItem.memberId) + "】的数据集("
-                                        + dataSetItem.dataSet.getName() + ")已标注样本量为 0，"
+                                        + dataSetItem.dataResource.getName() + ")已标注样本量为 0，"
                                         + "请检查各成员的数据集在 union 中的标注量是否正确。"
                         );
             }
         }
 
         // 以所有样本集中最小样本数为基数，用于计算各成员需要的 worker 数。
-        long min = imageDataIoParam.dataSetList
+        double min = imageDataIoParam.dataSetList
                 .stream()
-                .mapToLong(x -> x.dataSet.getLabeledCount())
+                .mapToLong(x -> x.dataResource.getLabeledCount())
                 .min()
                 .orElse(0);
 
@@ -101,7 +101,7 @@ public class Env {
         for (ImageDataIOComponent.DataSetItem dataSetItem : imageDataIoParam.dataSetList) {
             int workerCount = Convert.toInt(
                     Math.round(
-                            new Double(dataSetItem.dataSet.getLabeledCount()) / min
+                            dataSetItem.dataResource.getLabeledCount() / min
                     )
             );
 

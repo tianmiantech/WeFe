@@ -16,6 +16,11 @@
 
 package com.welab.wefe.serving.service;
 
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -27,14 +32,12 @@ import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
+import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.MemberService;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author hunter.zhao
@@ -97,22 +100,21 @@ public class Serving {
 		/**
 		 * Find signature information
 		 */
-		// TODO
-//		MemberService memberService = Launcher.CONTEXT.getBean(MemberService.class);
-//		MemberMySqlModel member = memberService.findOne(signedApiInput.getMemberId());
-//
-//		if (member == null) {
-//			throw new StatusCodeWithException("Invalid member_id：" + signedApiInput.getMemberId(),
-//					StatusCode.PARAMETER_VALUE_INVALID);
-//		}
-//
-//		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
-//				RSAUtil.getPublicKey(member.getPublicKey()), signedApiInput.getSign());
-//		if (!verified) {
-//			throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
-//		}
+		ClientService clientService = Launcher.CONTEXT.getBean(ClientService.class);
+		ClientMysqlModel clientMysqlModel = clientService.queryByCode(signedApiInput.getCustomerId());
 
+		if (clientMysqlModel == null) {
+			throw new StatusCodeWithException("Invalid customer_id：" + signedApiInput.getCustomerId(),
+					StatusCode.PARAMETER_VALUE_INVALID);
+		}
+
+		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
+				RSAUtil.getPublicKey(clientMysqlModel.getPubKey()), signedApiInput.getSign());
+		if (!verified) {
+			throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+		}
 		params.putAll(JSONObject.parseObject(signedApiInput.getData()));
+		// params.putAll(JSONObject.parseObject(RSAUtil.decryptByPublicKey(signedApiInput.getData(), clientMysqlModel.getPubKey())));
 		params.put("customer_id", signedApiInput.getCustomerId());
 	}
 

@@ -38,7 +38,7 @@ public abstract class AbstractHttpTransferVariable {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHttpTransferVariable.class);
 
     public <T> T query(Object request, String apiName, CommunicationConfig config, Class<T> clz) {
-        String url = config.getServerUrl() + config.getApiName();
+        String url = config.getServerUrl() + apiName;
         JSONObject data = (JSONObject) JSONObject.toJSON(request);
         return JSON.parseObject(query(url, data, config), clz);
     }
@@ -61,9 +61,9 @@ public abstract class AbstractHttpTransferVariable {
             body.put("data", params);
             data = body.toJSONString();
         }
-        logger.debug("request:" + data);
+        logger.info("request:" + data + ",url="+url);
         HttpResponse response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
-        logger.debug("response:" + response);
+        logger.info("response:" + response);
         while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);

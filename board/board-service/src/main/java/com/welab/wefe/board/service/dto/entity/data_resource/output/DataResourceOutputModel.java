@@ -19,9 +19,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.DataResourceStorageType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
-import com.welab.wefe.common.wefe.enums.DataSetStorageType;
 
 /**
  * @author zane
@@ -37,7 +37,7 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "标签")
     private String tags;
     @Check(name = "存储类型")
-    private DataSetStorageType storageType;
+    private DataResourceStorageType storageType;
     @Check(name = "资源在存储中的命名空间;库名、目录路径）")
     private String storageNamespace;
     @Check(name = "资源在存储中的名称;表名、文件名）")
@@ -116,11 +116,11 @@ public class DataResourceOutputModel extends AbstractOutputModel {
         this.tags = tags;
     }
 
-    public DataSetStorageType getStorageType() {
+    public DataResourceStorageType getStorageType() {
         return storageType;
     }
 
-    public void setStorageType(DataSetStorageType storageType) {
+    public void setStorageType(DataResourceStorageType storageType) {
         this.storageType = storageType;
     }
 

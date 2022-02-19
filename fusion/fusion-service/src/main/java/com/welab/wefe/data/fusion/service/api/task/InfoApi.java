@@ -28,7 +28,7 @@ import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/info", name = "删除合作方", desc = "删除合作方", login = true)
+@Api(path = "task/info", name = "删除合作方", desc = "删除合作方")
 public class InfoApi extends AbstractApi<InfoApi.Input, JObject> {
 
 

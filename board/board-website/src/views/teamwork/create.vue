@@ -70,7 +70,7 @@
                 <el-button
                     v-if="form.projectType !== 'DeepLearning'"
                     class="ml20"
-                    size="mini"
+                    size="small"
                     @click="showSelectMemberDialog('promoter')"
                 >
                     + 添加更多发起方
@@ -227,7 +227,7 @@
                 协作方
                 <el-button
                     class="ml20"
-                    size="mini"
+                    size="small"
                     @click="showSelectMemberDialog('provider')"
                 >
                     + 添加更多协作方
@@ -389,11 +389,11 @@
                 },
                 typeList: [
                     {
-                        label: 'MachineLearning',
+                        label: '机器学习',
                         value: 'MachineLearning',
                     },
                     {
-                        label: 'DeepLearning',
+                        label: '视觉处理',
                         value: 'DeepLearning',
                     },
                 ],
@@ -436,7 +436,7 @@
                 this.promoter.member_name = data.member_name;
             }
 
-            await this.checkAllService();
+            this.checkAllService();
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -511,7 +511,6 @@
                     url:  '/member/available',
                     data: {
                         member_id,
-                        requestFromRefresh: true,
                     },
                 });
 

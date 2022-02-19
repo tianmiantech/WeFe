@@ -119,4 +119,49 @@ public class PrimaryKeyUtils {
         return builder.toString();
     }
 
+    public static String hashFunction(List<FieldInfo> fieldInfos) {
+        StringBuilder builder = new StringBuilder();
+        fieldInfos.forEach(x -> {
+            switch (x.getOptions()) {
+                case MD5:
+                    builder.append(md5HashStr(x.getColumnList()) + "+");
+                    break;
+                case SHA1:
+                    builder.append(shaHashStr(x.getColumnList()) + "+");
+                    break;
+                case NONE:
+                    builder.append(noneHashStr(x.getColumnList()) + "+");
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        return builder.substring(0, builder.length() - 1);
+    }
+
+
+    private static String md5HashStr(List<String> columnList) {
+        StringBuilder builder = new StringBuilder(16);
+        columnList.forEach(
+                x -> builder.append(x + "+")
+        );
+        return "MD5(" + builder.substring(0, builder.length() - 1) + ")";
+    }
+
+    private static String shaHashStr(List<String> columnList) {
+        StringBuilder builder = new StringBuilder(16);
+        columnList.forEach(
+                x -> builder.append(x + "+")
+        );
+        return "SHA(" + builder.substring(0, builder.length() - 1) + ")";
+    }
+
+    private static String noneHashStr(List<String> columnList) {
+        StringBuilder builder = new StringBuilder(16);
+        columnList.forEach(
+                x -> builder.append(x + "+")
+        );
+        return builder.substring(0, builder.length() - 1);
+    }
 }

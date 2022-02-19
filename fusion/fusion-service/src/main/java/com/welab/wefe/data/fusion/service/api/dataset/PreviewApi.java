@@ -68,7 +68,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     protected DataSource dataSource;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
         DataResourceSource dataResourceSource = input.getDataResourceSource();
         Output output = new Output();
         if (dataResourceSource == null) {
@@ -77,30 +77,25 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Data not available");
             }
 
-            boolean isStoraged = dataSetMySqlModel.isStoraged();
-            String rows = dataSetMySqlModel.getRows();
-            List<String> rows_list = Arrays.asList(rows.split(","));
+            List<String> rowsList = input.getRows();
 
-            if (isStoraged) {
-                if(dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)){
-                    String tbName = "data_fusion_" + dataSetMySqlModel.getId();
-                    //                String sql = "Select * from " + tbName;
-                    try {
-                        output = readFromDB(input.sql);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                } else if (dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)){
-                    File file = dataSetService.getDataSetFile(dataSetMySqlModel.getDataResourceSource(), dataSetMySqlModel.getSourcePath());
-                    try {
-                        output = readFile(file);
-                    } catch (IOException e) {
-                        LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                        throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
-                    }
+            if(dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)){
+                String sql = dataSetMySqlModel.getStatement();
+                //                String sql = "Select * from " + tbName;
+                try {
+                    output = readFromDB(dataSetMySqlModel.getDataSourceId(), sql, rowsList);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else if (dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)){
+                File file = dataSetService.getDataSetFile(dataSetMySqlModel.getDataResourceSource(), dataSetMySqlModel.getSourcePath());
+                try {
+                    output = readFile(file,rowsList);
+                } catch (IOException e) {
+                    LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+                    throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
                 }
             }
-
         } else if (dataResourceSource.equals(DataResourceSource.UploadFile) || dataResourceSource.equals(DataResourceSource.LocalFile)) {
             File file = dataSetService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
             try {
@@ -154,6 +149,51 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         try {
             // Obtain column head
             headRowConsumer.accept(reader.getHeader());
+            // Read data row
+            reader.read(dataRowConsumer, 10000, 25_000);
+        } finally {
+            reader.close();
+        }
+
+        output.setMetadataList(new ArrayList<>(metadata.values()));
+
+
+        return output;
+    }
+
+    /**
+     * Parse the dataset file
+     */
+    private Output readFile(File file, List<String> rowsList) throws IOException, StatusCodeWithException {
+
+
+        Output output = new Output();
+        Map<String, DataSetColumnOutputModel> metadata = new LinkedHashMap<>();
+
+
+        output.header = rowsList;
+
+        // Method to consume the first row of a column
+        Consumer<List<String>> headRowConsumer = row -> {
+            for (String name : output.header) {
+                DataSetColumnOutputModel column = new DataSetColumnOutputModel();
+                column.setName(name);
+                metadata.put(name, column);
+            }
+        };
+
+        // Data line consumer
+        DataRowConsumer dataRowConsumer = new DataRowConsumer(metadata, output);
+
+
+        AbstractDataSetReader reader = file.getName().endsWith("csv")
+                ? new CsvDataSetReader(file)
+                : new ExcelDataSetReader(file);
+
+        try {
+            reader.getHeader(rowsList);
+            // Obtain column head
+            headRowConsumer.accept(rowsList);
             // Read data row
             reader.read(dataRowConsumer, 10000, 25_000);
         } finally {
@@ -241,13 +281,16 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         }
     }
 
-    private Output readFromDB(String sql) throws StatusCodeWithException, SQLException {
-
+    private Output readFromDB(String dataSourceId, String sql, List<String> rowList) throws Exception {
+        DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
+        if (model == null) {
+            throw new StatusCodeWithException("Inferred data type", StatusCode.DATA_NOT_FOUND);
+        }
 
         JdbcManager jdbcManager = new JdbcManager();
-        Connection conn = dataSource.getConnection();
+        Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort()
+                , model.getUserName(), model.getPassword(), model.getDatabaseName());
         // The total number of rows based on the query statement
-        long rowCountFromDB = jdbcManager.count(conn, sql);
 
         // Gets the data set column header
         List<String> header = jdbcManager.getRowHeaders(conn, sql);
@@ -255,19 +298,9 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             throw new StatusCodeWithException("The dataset contains duplicate fields. Please handle and re-upload.", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        // Convert capital Y to lowercase Y
-        header = header.stream().map(x -> "Y".equals(x) ? "y" : x).collect(Collectors.toList());
-
-        boolean containsY = header.contains("y");
-        int yIndex = header.indexOf("y");
-
-        if (containsY) {
-            ListUtil.moveElement(header, yIndex, 1);
-        }
-
         Output output = new Output();
         LinkedHashMap<String, DataSetColumnOutputModel> metadata = new LinkedHashMap<>();
-        output.setHeader(header);
+        output.setHeader(rowList);
 
         for (String name : output.header) {
             DataSetColumnOutputModel column = new DataSetColumnOutputModel();
@@ -278,7 +311,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         // Data line consumer
         DataRowConsumer dataRowConsumer = new DataRowConsumer(metadata, output);
 
-        jdbcManager.readWithFieldRow(conn, sql, dataRowConsumer, 10);
+        jdbcManager.readWithFieldRow(conn, sql, dataRowConsumer, 10, rowList);
 
 
         output.setMetadataList(new ArrayList<>(metadata.values()));
@@ -286,7 +319,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         return output;
     }
 
-    private Output readFromSoruceDB(String dataSourceId, String sql) throws StatusCodeWithException {
+    private Output readFromSoruceDB(String dataSourceId, String sql) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
@@ -344,6 +377,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private String sql;
 
+        private List<String> rows;
+
         public String getId() {
             return id;
         }
@@ -374,6 +409,14 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         public void setSql(String sql) {
             this.sql = sql;
+        }
+
+        public List<String> getRows() {
+            return rows;
+        }
+
+        public void setRows(List<String> rows) {
+            this.rows = rows;
         }
     }
 

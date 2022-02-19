@@ -1,0 +1,83 @@
+@import "./_variable.scss";
+@import "./_element-ui.scss";
+@import "./_reset.scss";
+@import "./_main.scss";
+@import "./_font.scss";
+
+#app {
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* global router view animate */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease-in;
+}
+
+.fade-enter,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.plr{position: relative;}
+.pla{position: absolute;}
+.float-left{float: left;}
+.float-right{float: right;}
+.p-id {
+    color: #666;
+    font-weight: 200;
+    font-size: 12px;
+    line-height:18px;
+}
+
+/* container */
+.el-container{min-height: 100vh;}
+.base-container {
+    overflow-x: hidden;
+    position: relative;
+    padding-top: 50px;
+}
+
+.base-wrapper{
+    min-height: calc(100vh - 80px);
+    &>.fade-enter-active,
+    &>.fade-leave-active {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+    }
+}
+
+.page{min-height: calc(100vh - 80px);}
+
+.el-dialog__header,
+.el-message-box__header{background:#F5F7FA;}
+.el-dialog__body{padding: 20px;}
+
+fieldset legend {
+    color: $color-link-base;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* reset scrollbar style for windows */
+.customed-scrollbar{
+    ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background: rgba(0,0,0,0.1);
+    }
+    ::-webkit-scrollbar-track {
+        border-radius: 0;
+        background: rgba(0,0,0,0.05);
+    }
+    ::-webkit-scrollbar-corner{background: rgba(0,0,0,0.1);}
+}
+.popper-max-width{max-width: 70%;}
+.small-width{max-width:500px;}
+.mid-width{max-width:700px;}
+.large-width{max-width:1000px;}

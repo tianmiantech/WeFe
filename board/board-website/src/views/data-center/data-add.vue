@@ -102,7 +102,7 @@
                         <el-form-item>
                             <div v-if="form.publicLevel === 'PublicWithMemberList'">
                                 <el-button
-                                    size="mini"
+                                    size="small"
                                     @click="showSelectMemberDialog"
                                 >
                                     选择可见成员
@@ -277,7 +277,7 @@
                         <el-select
                             v-model="dataTypeFillVal"
                             class="float-right"
-                            size="mini"
+                            size="small"
                             clearable
                             style="width: 140px;"
                             placeholder="数据类型缺失填充"
@@ -394,7 +394,7 @@
 
             <!-- bloom filter -->
             <div v-if="addDataType === 'BloomFilter' && raw_data_list.length" class="mt40">
-                <p class="f16">设置主键 hash 方式 (上传后不可更改)：
+                <p class="f14">设置主键 hash 方式 (上传后不可更改)：
                     <el-tooltip placement="top" effect="light">
                         <template #content>
                             对融合字段的处理方式，如 md5(id)+md5(tel), <p>规则是 id 字段的 md5 加上 tel 字段的 md5 处理</p>
@@ -447,7 +447,7 @@
                     <p class="mb5">已处理样本量：<span>{{uploadTask.added_row_count}}</span></p>
                     <p class="mb10" v-if="uploadTask.repeat_id_row_count">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
                     <p class="mb10" v-if="uploadTask.invalid_data_count">错误条数：<span>{{uploadTask.invalid_data_count}}</span></p>
-                    <p v-if="uploadTask.error_message" class="mb10">错误信息：<span class="color-danger">{{uploadTask.error_message}}</span></p>
+                    <p v-if="uploadTask.error_message" class="mb10"><span class="color-danger">{{uploadTask.error_message}}</span></p>
                     <strong v-if="uploadTask.repeat_id_row_count" class="color-danger">!!! 包含重复主键的数据资源上传效率会急剧下降，建议在本地去重后执行上传。</strong>
                 </div>
                 <p class="mt10 mb10">预计剩余时间: {{ timeFormat(uploadTask.estimate_time) }}</p>
@@ -582,7 +582,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '',
+                        token: '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -691,7 +691,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token,
+                        token: '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -726,7 +726,13 @@
         created() {
             this.addDataType = this.$route.query.type || 'csv';
 
-            this.search.dataResourceType = this.addDataType === 'csv' ? 'TableDataSet' : this.addDataType === 'img' ? 'ImageDataSet' : this.addDataType;
+            const map = {
+                csv:         'TableDataSet',
+                img:         'ImageDataSet',
+                BloomFilter: 'BloomFilter',
+            };
+
+            this.search.dataResourceType = map[this.addDataType];
             if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
                 this.form.publicLevel = 'OnlyMyself';
             }
@@ -737,6 +743,10 @@
                 this.getDataSouceList();
                 this.getList();
             });
+            this.file_upload_options.headers.token = this.userInfo.token;
+            this.img_upload_options.headers.token = this.userInfo.token;
+            this.file_upload_options.target = this.file_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
+            this.img_upload_options.target = this.img_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -900,11 +910,16 @@
 
                 this.form.filename = this.form.data_set_add_method === 'HttpUpload' ? this.http_upload_filename : this.local_filename;
 
+                const { data_set_add_method } = this.form;
                 const params = {
-                    filename:            this.form.filename,
-                    data_set_add_method: this.form.data_set_add_method,
+                    filename: this.form.filename,
                 };
 
+                if(this.addDataType === 'BloomFilter') {
+                    params.bloomfilterAddMethod = data_set_add_method;
+                } else {
+                    params.data_set_add_method = data_set_add_method;
+                }
                 if(this.form.data_set_add_method === 'Database') {
                     params.sql = this.form.sql;
                     this.dataSource.dataSourceList.find(item => {
@@ -914,7 +929,7 @@
                     });
                 }
                 const { code, data } = await this.$http.get({
-                    url: '/table_data_set/preview',
+                    url: this.addDataType === 'BloomFilter' ? '/bloom_filter/preview': '/table_data_set/preview',
                     params,
                 });
 
@@ -977,15 +992,15 @@
             async fileUploadCompleteImage() {
                 this.loading = true;
                 this.data_preview_finished = true;
-                const file = arguments[0].file;
 
-                this.img_upload_options.headers.token = JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token;
+                const file = arguments[0].file;
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
                     params:  {
-                        filename:         file.name,
-                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                        filename:          file.name,
+                        uniqueIdentifier:  arguments[0].uniqueIdentifier,
+                        uploadFileUseType: 'Add' + this.search.dataResourceType,
                     },
                 })
                     .catch(err => {
@@ -1001,15 +1016,15 @@
             async fileUploadComplete() {
                 this.loading = true;
                 this.data_preview_finished = false;
-                const file = arguments[0].file;
 
-                this.file_upload_options.headers.token = localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '';
+                const file = arguments[0].file;
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
                     params:  {
-                        filename:         file.name,
-                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                        filename:          file.name,
+                        uniqueIdentifier:  arguments[0].uniqueIdentifier,
+                        uploadFileUseType: 'Add' + this.search.dataResourceType,
                     },
                 })
                     .catch(err => {
@@ -1023,7 +1038,7 @@
                 }
             },
 
-            async showSelectMemberDialog() {
+            showSelectMemberDialog() {
                 const ref = this.$refs['SelectMemberDialog'];
 
                 ref.show = true;
@@ -1096,7 +1111,6 @@
                     return;
                 }
 
-                this.loading = true;
                 this.form.public_member_list = ids.join(',');
                 this.form.metadata_list = this.metadata_list;
 
@@ -1126,18 +1140,20 @@
                         }
                     }
 
-                    url = 'bloom_filter/add';
+                    url = '/bloom_filter/add';
                     params = {
                         ...this.form,
                         field_info_list,
                         hash_function:        $ref.hash_func,
                         BloomfilterAddMethod: this.form.data_set_add_method,
                     };
+                    delete params.data_set_add_method;
                 } else {
                     url = this.addDataType === 'csv' ? '/table_data_set/add': '/image_data_set/add';
                     params = this.addDataType === 'img' ? Object.assign(this.form, { filename: this.http_upload_filename }) : this.form;
                 }
 
+                this.loading = true;
                 const { code, data } = await this.$http.post({
                     url,
                     timeout: 1000 * 60 * 24 * 30,
@@ -1181,9 +1197,9 @@
                         this.uploadTask.error_message = error_message;
 
                         // error in uploading, stop refreshing the interface
-                        if (data.error_message || repeat_id_row_count) {
+                        if (status === 'failed') {
                             this.isCanClose = true;
-                            if(data.error_message) return;
+                            return;
                         } else {
                             this.isCanClose = false;
                         }

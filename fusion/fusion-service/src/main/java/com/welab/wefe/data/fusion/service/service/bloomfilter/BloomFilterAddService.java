@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
 
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -79,7 +80,7 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     FieldInfoService fieldInfoService;
 
-    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws StatusCodeWithException, IOException {
+    public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
         List<FieldInfo> fieldInfos = input.getFieldInfoList();
         int count = 0;
         for (FieldInfo info : fieldInfos) {
@@ -87,7 +88,7 @@ public class BloomFilterAddService extends AbstractService {
         }
 
         if (count > 5) {
-            throw new StatusCodeWithException("选择字段数量不宜超过5", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("加密组合不宜过于复杂", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         BloomFilterMySqlModel model = bloomFilterRepository.findOne("id", input.getId(), BloomFilterMySqlModel.class);
@@ -108,7 +109,8 @@ public class BloomFilterAddService extends AbstractService {
         }
 
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
-            readAndSaveFromDB(model, input.getName(), input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
+            model.setStatement(input.getSql());
+            readAndSaveFromDB(model, input.getRows());
             model.setStatement(input.getSql());
         } else {
 
@@ -116,7 +118,7 @@ public class BloomFilterAddService extends AbstractService {
             // Parse and save the dataset file
             try {
                 //Read from the data file and generate a filter
-                readAndSaveFile(model, input.getName(), file, input.getRows(), input.isDeduplication());
+                readAndSaveFile(model, file, input.getRows());
                 model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
@@ -137,28 +139,20 @@ public class BloomFilterAddService extends AbstractService {
     /**
      * Parse the dataset file and save it to mysql
      *
-     * @param deduplication Whether the data set needs to be deduplicated
      * @return Returns the number of repeated rows of data in a dataset
      */
-    private int readAndSaveFile(BloomFilterMySqlModel model, String name, File file, List<String> rows, boolean deduplication) throws IOException, StatusCodeWithException {
+    private int readAndSaveFile(BloomFilterMySqlModel model, File file, List<String> rows) throws IOException, StatusCodeWithException {
         long startTime = System.currentTimeMillis();
         LOG.info("Start parsing the data set：" + model.getId());
 
         long fileLength = file.length();
         LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
         lineNumberReader.skip(fileLength);
-        int rowsCount = lineNumberReader.getLineNumber() - 1;
+        int rowCount = lineNumberReader.getLineNumber() - 1;
         lineNumberReader.close();
         BloomFilterRepository bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
-        bloomFilterRepository.updateById(model.getId(), "process", Progress.Ready, BloomFilterMySqlModel.class);
-        bloomFilterRepository.updateById(model.getId(), "rowCount", rowsCount, BloomFilterMySqlModel.class);
-
-        BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());
-        int processCount = 0;
-        if (bloomFilterMySqlModel != null) {
-            processCount = bloomFilterMySqlModel.getProcessCount();
-        }
-
+        bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
+        model.setRowCount(rowCount);
         boolean isCsv = file.getName().endsWith("csv");
 
         AbstractDataSetReader dataSetReader = isCsv
@@ -167,39 +161,40 @@ public class BloomFilterAddService extends AbstractService {
 
         List<String> headers = dataSetReader.getHeader();
 
-        String src = filterDir + name;
+        String src = filterDir + model.getName();
+        model.setSrc(src);
         File outFile = new File(filterDir);
 
         if (!outFile.exists() && !outFile.isDirectory()) {
             outFile.mkdir();
         }
 
-        BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, deduplication, file, rowsCount, processCount, rows, src);
+        BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, file);
         // Read all rows of data
-        dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, processCount);
+
+        int finalProcessCount = model.getProcessCount();
+        CommonThreadPool.run(() -> {
+            try {
+                dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, finalProcessCount);
+            } catch (StatusCodeWithException e) {
+
+            } catch (IOException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            }
+
+        });
 
         System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
-
         //Verify generated filters
-        String id = model.getId();
-        List<Object> CheckData = bloomFilterAddServiceDataRowConsumer.getCheckData();
-        BigInteger N = bloomFilterAddServiceDataRowConsumer.getN();
-        BigInteger e = bloomFilterAddServiceDataRowConsumer.getE();
-        BigInteger d = bloomFilterAddServiceDataRowConsumer.getD();
-        BloomFilters bf = bloomFilterAddServiceDataRowConsumer.getBf();
-        boolean checkFlag = CheckFilter(id, N, e, d, CheckData, bf);
+//        String id = model.getId();
+//        List<Object> CheckData = bloomFilterAddServiceDataRowConsumer.getCheckData();
+//        BigInteger N = bloomFilterAddServiceDataRowConsumer.getN();
+//        BigInteger e = bloomFilterAddServiceDataRowConsumer.getE();
+//        BigInteger d = bloomFilterAddServiceDataRowConsumer.getD();
+//        BloomFilters bf = bloomFilterAddServiceDataRowConsumer.getBf();
+//        boolean checkFlag = CheckFilter(id, N, e, d, CheckData, bf);
 
-        if (checkFlag) {
-            model.setD(bloomFilterAddServiceDataRowConsumer.getD().toString());
-            model.setN(bloomFilterAddServiceDataRowConsumer.getN().toString());
-            model.setE(bloomFilterAddServiceDataRowConsumer.getE().toString());
-            model.setSrc(src);
-            System.out.println("Generating filter：" + bloomFilterAddServiceDataRowConsumer.getBf());
-
-            return rowsCount;
-        } else {
-            return 0;
-        }
+        return rowCount;
     }
 
 
@@ -207,17 +202,16 @@ public class BloomFilterAddService extends AbstractService {
      * Read data from the specified database according to SQL and save to mysql
      *
      * @param model
-     * @param sql
      * @throws StatusCodeWithException
      */
-    public int readAndSaveFromDB(BloomFilterMySqlModel model, String name, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws StatusCodeWithException, IOException {
+    public int readAndSaveFromDB(BloomFilterMySqlModel model, List<String> headers) throws Exception {
         long startTime = System.currentTimeMillis();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());
-        int processCount = bloomFilterMySqlModel.getProcessCount();
+//        int processCount = bloomFilterMySqlModel.getProcessCount();
 
 
-        DataSourceMySqlModel dsModel = dataSetService.getDataSourceById(dataSourceId);
+        DataSourceMySqlModel dsModel = dataSetService.getDataSourceById(model.getDataSourceId());
         if (dsModel == null) {
             throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }
@@ -226,25 +220,33 @@ public class BloomFilterAddService extends AbstractService {
         Connection conn = jdbcManager.getConnection(dsModel.getDatabaseType(), dsModel.getHost(), dsModel.getPort()
                 , dsModel.getUserName(), dsModel.getPassword(), dsModel.getDatabaseName());
 
-        int rowsCount = (int) jdbcManager.count(conn, sql);
+        String sql_script = model.getStatement();
+        int rowCount = (int) jdbcManager.count(conn, sql_script);
         BloomFilterRepository bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         bloomFilterRepository.updateById(model.getId(), "process", Progress.Ready, BloomFilterMySqlModel.class);
-        bloomFilterRepository.updateById(model.getId(), "rowCount", rowsCount, BloomFilterMySqlModel.class);
+        bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
+        model.setRowCount(rowCount);
 
-        String src = filterDir + name;
         File outFile = new File(filterDir);
         //Create a folder if it does not exist
         if (!outFile.exists() && !outFile.isDirectory()) {
             outFile.mkdir();
         }
 
-        BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, deduplication, rowsCount, processCount, headers, src);
-        jdbcManager.readWithSelectRow(conn, sql, bloomFilterAddServiceDataRowConsumer, headers);
+        String src = filterDir + model.getName();
+        model.setSrc(src);
 
-        bloomFilterAddServiceDataRowConsumer.waitForFinishAndClose();
+        BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model,null);
+
+
+        CommonThreadPool.run(() -> {
+            jdbcManager.readWithSelectRow(conn, sql_script, bloomFilterAddServiceDataRowConsumer, headers);
+        });
+
+//        bloomFilterAddServiceDataRowConsumer.waitForFinishAndClose();
         System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
 
-        return rowsCount;
+        return rowCount;
     }
 
 

@@ -7,7 +7,7 @@
                     <div class="flex_box">
                         <el-col :span="12">
                             <el-form-item label="环境：">
-                                <el-radio-group v-model="vData.form.calculation_engine_config.backend" size="mini">
+                                <el-radio-group v-model="vData.form.calculation_engine_config.backend" size="small">
                                     <el-radio label="SPARK"></el-radio>
                                     <el-radio label="FC"></el-radio>
                                 </el-radio-group>
@@ -52,7 +52,6 @@
                 v-loading="vData.loading"
                 class="save-btn mt10"
                 type="primary"
-                size="medium"
                 :disabled="!vData.userInfo.admin_role"
                 @click="methods.update"
             >

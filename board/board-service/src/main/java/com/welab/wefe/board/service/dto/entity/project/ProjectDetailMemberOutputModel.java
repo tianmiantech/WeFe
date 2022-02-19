@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.dto.entity.project;
 
-import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 
 import java.util.List;
 
@@ -24,16 +24,16 @@ import java.util.List;
  * @author zane.luo
  */
 public class ProjectDetailMemberOutputModel extends ProjectMemberOutputModel {
-    private List<ProjectDataSetOutputModel> dataSetList;
+    private List<ProjectDataResourceOutputModel> dataResourceList;
 
     //region getter/setter
 
-    public List<ProjectDataSetOutputModel> getDataSetList() {
-        return dataSetList;
+    public List<ProjectDataResourceOutputModel> getDataResourceList() {
+        return dataResourceList;
     }
 
-    public void setDataSetList(List<ProjectDataSetOutputModel> dataSetList) {
-        this.dataSetList = dataSetList;
+    public void setDataResourceList(List<ProjectDataResourceOutputModel> dataResourceList) {
+        this.dataResourceList = dataResourceList;
     }
 
 

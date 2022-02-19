@@ -32,6 +32,7 @@ import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
+import com.welab.wefe.data.fusion.service.service.DataStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
@@ -55,6 +56,8 @@ public class DataSetService {
     @Autowired
     DataSourceRepository dataSourceRepo;
 
+    @Autowired
+    private DataStorageService dataStorageService;
 
     @Autowired
     DataSetRepository dataSetRepository;
@@ -208,8 +211,9 @@ public class DataSetService {
         System.out.println("ThreadCount:" + ThreadCount);
         CommonThreadPool.stop();
 
-
         dataSetRepository.deleteById(input.getId());
+        dataStorageService.dropTable("data_fusion_"+model.getId());
+
     }
 
 

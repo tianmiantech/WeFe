@@ -60,9 +60,10 @@ public class ReflectionsUtil {
     /**
      * 获取指定接口的实现类
      */
-    public static <T> List<Class<?>> getClassesImplementing(Class<T> clazz) {
+    public static <T> List<Class<?>> getClassesImplementing(Class<T> clazz, final String... packageNames) {
         try (
                 ScanResult scanResult = new ClassGraph()
+                        .whitelistPackages(packageNames)
                         .enableAllInfo()
                         .scan()
         ) {

@@ -35,8 +35,7 @@ public class GlobalSettingMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Default alignment open socket port
      */
-    Integer openSocketPort = 8080;
-
+//    Integer openSocketPort = 8080;
     public String getPartnerId() {
         return partnerId;
     }
@@ -69,11 +68,4 @@ public class GlobalSettingMySqlModel extends AbstractBaseMySqlModel {
         this.rsaPublicKey = rsaPublicKey;
     }
 
-    public Integer getOpenSocketPort() {
-        return openSocketPort;
-    }
-
-    public void setOpenSocketPort(Integer openSocketPort) {
-        this.openSocketPort = openSocketPort;
-    }
 }

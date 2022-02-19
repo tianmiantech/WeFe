@@ -42,7 +42,7 @@
                     class="member-service-item"
                 >
                     <el-tag
-                        size="mini"
+                        size="small"
                         effect="dark"
                         :type="item.available ? 'success' : 'danger'"
                     >
@@ -79,7 +79,7 @@
                     class="member-service-item"
                 >
                     <el-tag
-                        size="mini"
+                        size="small"
                         effect="dark"
                         :type="item.available ? 'success' : 'danger'"
                     >

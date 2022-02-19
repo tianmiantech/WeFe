@@ -5,10 +5,11 @@
         title="请选择成员"
         destroy-on-close
         :close-on-click-modal="false"
+        top="10vh"
     >
         <el-form
             inline
-            size="mini"
+            size="small"
             @submit.prevent
         >
             <el-form-item
@@ -133,9 +134,8 @@
                 show:       false,
                 getListApi: '/union/member/query',
                 search:     {
-                    id:                 '',
-                    name:               '',
-                    requestFromRefresh: true,
+                    id:   '',
+                    name: '',
                 },
                 mutipleMembers:  [],
                 watchRoute:      false,

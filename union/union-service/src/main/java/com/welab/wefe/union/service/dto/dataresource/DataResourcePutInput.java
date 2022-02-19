@@ -7,7 +7,6 @@ import com.welab.wefe.union.service.dto.base.BaseInput;
 public class DataResourcePutInput extends BaseInput {
     @Check(require = true)
     protected String dataResourceId;
-    @Check(require = true)
     protected String memberId;
     protected String name;
     protected String description;

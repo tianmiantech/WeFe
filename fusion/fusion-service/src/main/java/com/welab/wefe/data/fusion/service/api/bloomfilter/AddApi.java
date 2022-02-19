@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.api.bloomfilter;
 
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -27,6 +28,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterAddService;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -42,7 +44,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
     private BloomFilterAddService filterAddService;
 
     @Override
-    protected ApiResult<BloomfilterAddOutput> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<BloomfilterAddOutput> handle(Input input) throws Exception {
         return success(filterAddService.addFilter(input));
     }
 
@@ -76,6 +78,14 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
 
         @Check(name = "id")
         private String id ;
+
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            if(CollectionUtils.isEmpty(fieldInfoList)){
+                throw new StatusCodeWithException("请设置主键！", StatusCode.PARAMETER_VALUE_INVALID);
+            }
+        }
 
         public String getName() {
             return name;

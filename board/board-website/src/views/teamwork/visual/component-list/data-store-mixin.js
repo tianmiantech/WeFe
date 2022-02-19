@@ -45,7 +45,7 @@ export default {
                     if (code === 0) {
                         const { params } = data || {};
 
-                        if (params) {
+                        if (Object.keys(params).length) {
                             if (methods.formatter) {
                                 methods.formatter(params);
                             } else {

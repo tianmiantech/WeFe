@@ -328,6 +328,7 @@ class TaskExecutor(object):
     def session_options(task_config: dict):
         options = {}
         fc_partition_key = "fc_partition"
+        spark_partition_key = "spark_partition"
         features_count_key = "features_count"
 
         # default partition
@@ -362,6 +363,9 @@ class TaskExecutor(object):
                 options[fc_partition_key] = max_partitions
             elif fc_partitions > 0:
                 options[fc_partition_key] = fc_partitions
+
+        # at present, the two parameters are consistent
+        options[spark_partition_key] = options[fc_partition_key]
 
         return options
 

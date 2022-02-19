@@ -4,9 +4,8 @@
         style="min-height: 200px;"
     >
         <el-table
-            v-loading="tableLoading"
-            max-height="500"
             :data="table_data.rows"
+            max-height="500"
             stripe
             border
         >

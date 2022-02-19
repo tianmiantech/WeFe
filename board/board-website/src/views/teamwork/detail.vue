@@ -58,7 +58,7 @@
                         </p>
                         <p class="project-desc-value">
                             <span class="project-desc-key">项目类型：</span>
-                            <span class="f14">{{ form.project_type }}</span>
+                            <span class="f14">{{ form.project_type === 'DeepLearning' ? '视觉处理' : form.project_type === 'MachineLearning' ? '机器学习' : '' }}</span>
                         </p>
                         <p class="project-desc-time f13 ml10">
                             <template v-if="form.isCreator">由 {{ project.creator_nickname }}</template> 创建于 {{ dateFormat(project.created_time) }}
@@ -344,7 +344,7 @@
                     this.promoter.member_id = promoter.member_id;
                     this.promoter.member_role = promoter.member_role;
                     this.promoter.member_name = promoter.member_name;
-                    this.promoter.$data_set = promoter.data_set_list;
+                    this.promoter.$data_set = promoter.data_resource_list;
 
                     const members = {};
                     const { providerService, promoterService } = this;
@@ -356,7 +356,7 @@
                         if(!members[key]) {
                             members[key] = [];
                         }
-                        member.data_set_list.forEach(dataSet => {
+                        member.data_resource_list.forEach(dataSet => {
                             dataSet.$keywords = dataSet.data_set_keys;
                             members[key].push(dataSet);
                         });
@@ -379,7 +379,7 @@
                         if(!members[midx]) {
                             members[midx] = [];
                         }
-                        member.data_set_list.forEach(dataSet => {
+                        member.data_resource_list.forEach(dataSet => {
                             dataSet.$keywords = dataSet.data_set_keys;
                             members[midx].push(dataSet);
                         });

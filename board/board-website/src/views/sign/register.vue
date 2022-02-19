@@ -120,7 +120,6 @@
                 <el-divider />
                 <el-button
                     v-loading="submitting"
-                    size="medium"
                     type="primary"
                     native-type="submit"
                     class="btn-submit ml10"
