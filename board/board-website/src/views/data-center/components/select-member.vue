@@ -4,6 +4,7 @@
         width="750px"
         v-model="show"
         destroy-on-close
+        top="10vh"
     >
         <div v-loading="loading" class="dialog-wrapper">
             <el-form

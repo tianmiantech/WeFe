@@ -163,7 +163,7 @@
             color:$color-text-disabled;
         }
     }
-    .el-switch{vertical-align: text-bottom;}
+    .el-switch{top:-2px;}
     .el-icon-warning{
         cursor:pointer;
         top:2px;
