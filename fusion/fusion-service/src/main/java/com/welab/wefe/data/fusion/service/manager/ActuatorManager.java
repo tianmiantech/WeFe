@@ -16,9 +16,13 @@
 
 package com.welab.wefe.data.fusion.service.manager;
 
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
+import com.welab.wefe.data.fusion.service.enums.TaskStatus;
+import com.welab.wefe.data.fusion.service.service.TaskService;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
-import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +42,12 @@ public class ActuatorManager {
      * taskId : task
      */
     private static final ConcurrentHashMap<String, AbstractTask> ACTUATORS = new ConcurrentHashMap<>();
+
+    private static final TaskService taskService;
+
+    static {
+        taskService = Launcher.CONTEXT.getBean(TaskService.class);
+    }
 
     public static AbstractTask get(String businessId) {
         return ACTUATORS.get(businessId);
@@ -59,7 +69,7 @@ public class ActuatorManager {
         ACTUATORS.remove(businessId);
     }
 
-    public synchronized static List<JObject> dashboard() {
+    public synchronized static List<JObject> dashboard() throws StatusCodeWithException {
 
         List<JObject> list = new ArrayList<>();
         Object[] keys = ACTUATORS.keySet().toArray();
@@ -76,27 +86,39 @@ public class ActuatorManager {
         return list;
     }
 
-    public static JObject getTaskInfo(String businessId) {
+    public static JObject getTaskInfo(String businessId) throws StatusCodeWithException {
         AbstractTask actuator = ACTUATORS.get(businessId);
         if (actuator == null) {
-            return null;
+            TaskMySqlModel taskMySqlModel = taskService.findByBusinessId(businessId);
+
+            return JObject
+                    .create()
+                    .append("business_id", businessId)
+                    .append("fusion_count", taskMySqlModel.getFusionCount())
+                    .append("processed_count", taskMySqlModel.getProcessedCount())
+                    .append("data_count", taskMySqlModel.getDataCount())
+                    .append("spend", taskMySqlModel.getSpend())
+                    .append("progress", Double.valueOf(
+                            taskMySqlModel.getProcessedCount().doubleValue() / taskMySqlModel.getDataCount().doubleValue() * 100
+                    ).intValue())
+                    .append("status", taskMySqlModel.getStatus());
         }
 
-        JObject info = JObject
+        return JObject
                 .create()
                 .append("business_id", businessId)
-//                .append("fusion_count", actuator.getFusionCount())
-//                .append("processed_count", actuator.getProcessedCount())
-//                .append("data_count", actuator.getDataCount())
+                .append("fusion_count", actuator.getFusionCount())
+                .append("processed_count", actuator.getProcessedCount())
+                .append("data_count", actuator.getDataCount())
                 .append("spend", actuator.getSpend())
                 .append("stimated_spend", actuator.getEstimatedSpend())
-                .append("progress", actuator.progress());
-
-        return info;
+                .append("progress", actuator.progress())
+                .append("status", TaskStatus.Running);
     }
 
     /**
      * Number of tasks
+     *
      * @return Number of tasks
      */
     public static int size() {

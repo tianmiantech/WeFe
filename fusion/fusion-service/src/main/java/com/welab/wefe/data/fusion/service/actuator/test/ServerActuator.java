@@ -121,18 +121,18 @@ public class ServerActuator extends AbstractPsiServerActuator {
 
         TaskService taskService = Launcher.CONTEXT.getBean(TaskService.class);
 
-        switch (status) {
-            case success:
-                taskService.updateByBusinessId(businessId, TaskStatus.Success, fusionCount.intValue(), getSpend());
-                break;
-            case falsify:
-            case running:
-                taskService.updateByBusinessId(businessId, TaskStatus.Interrupt, fusionCount.intValue(), getSpend());
-                break;
-            default:
-                taskService.updateByBusinessId(businessId, TaskStatus.Failure, fusionCount.intValue(), getSpend());
-                break;
-        }
+//        switch (status) {
+//            case success:
+//                taskService.updateByBusinessId(businessId, TaskStatus.Success, fusionCount.intValue(), getSpend());
+//                break;
+//            case falsify:
+//            case running:
+//                taskService.updateByBusinessId(businessId, TaskStatus.Interrupt, fusionCount.intValue(), getSpend());
+//                break;
+//            default:
+//                taskService.updateByBusinessId(businessId, TaskStatus.Failure, fusionCount.intValue(), getSpend());
+//                break;
+//        }
 
         ActuatorManager.remove(businessId);
 
