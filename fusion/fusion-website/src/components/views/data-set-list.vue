@@ -33,7 +33,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData />
+                <TableEmptyData/>
             </div>
             <el-table-column
                 label="名称 / Id"
@@ -69,9 +69,13 @@
 
             <el-table-column
                 label="来源"
-                prop="data_resource_source"
                 min-width="120"
-            />
+            >
+                <template slot-scope="scope">
+                    <p>{{ dataResourceSource[scope.row.data_resource_source] }}</p>
+                </template>
+
+            </el-table-column>
 
             <el-table-column
                 label="上传时间"
@@ -101,7 +105,7 @@
                             type="info"
                             @click="showDataSetPreview(scope.row)"
                         >
-                            <i class="el-icon-view" />
+                            <i class="el-icon-view"/>
                         </el-button>
                     </el-tooltip>
                     <el-button
@@ -135,7 +139,7 @@
             :visible.sync="show_data_set_preview_dialog"
             append-to-body
         >
-            <DataSetPreview ref="DataSetPreview" />
+            <DataSetPreview ref="DataSetPreview"/>
         </el-dialog>
     </div>
 </template>
@@ -149,15 +153,22 @@ export default {
         DataSetPreview,
     },
     mixins: [table],
-    props:  {
+    props: {
         // api:         Object,
         // containsY:   String,
         // auditStatus: Boolean,
         searchField: {
-            type:    Object,
-            default: _ => {},
+            type: Object,
+            default: _ => {
+            },
         },
         emitEventName: String,
+        dataResourceSource: {
+            'LocalFile': '本地上传',
+            'UploadFile': '服务器文件上传',
+            'Sql': '数据库上传',
+
+        },
         // dataSets:      Array,
     },
     data() {
@@ -172,11 +183,11 @@ export default {
     },
     methods: {
 
-        showDataSetPreview(item){
+        showDataSetPreview(item) {
             this.show_data_set_preview_dialog = true;
 
 
-            this.$nextTick(() =>{
+            this.$nextTick(() => {
                 this.$refs['DataSetPreview'].loadData(item.id);
             });
         },
@@ -218,18 +229,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .data-add{
-        width:200px;
-        height:34px;
-        line-height:34px;
-        text-align:right;
-    }
-    .pagination{
-        display: flex;
-        margin-top: 20px;
-    }
-    .btns{
-        text-align: right;
-        flex: 1;
-    }
+.data-add {
+    width: 200px;
+    height: 34px;
+    line-height: 34px;
+    text-align: right;
+}
+
+.pagination {
+    display: flex;
+    margin-top: 20px;
+}
+
+.btns {
+    text-align: right;
+    flex: 1;
+}
 </style>
