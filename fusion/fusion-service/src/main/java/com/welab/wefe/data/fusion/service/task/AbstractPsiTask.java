@@ -57,14 +57,14 @@ public abstract class AbstractPsiTask<T extends AbstractPsiActuator> extends Abs
 
         switch (actuator.status) {
             case success:
-                taskService.updateByBusinessId(businessId, TaskStatus.Success, getFusionCount(), getSpend());
+                taskService.updateByBusinessId(businessId, TaskStatus.Success, getFusionCount(), getProcessedCount(), getSpend());
                 break;
             case falsify:
             case running:
-                taskService.updateByBusinessId(businessId, TaskStatus.Interrupt, getFusionCount(), getSpend());
+                taskService.updateByBusinessId(businessId, TaskStatus.Interrupt, getFusionCount(), getProcessedCount(), getSpend());
                 break;
             default:
-                taskService.updateByBusinessId(businessId, TaskStatus.Failure, getFusionCount(), getSpend());
+                taskService.updateByBusinessId(businessId, TaskStatus.Failure, getFusionCount(), getProcessedCount(), getSpend());
                 break;
         }
 
