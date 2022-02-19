@@ -22,7 +22,7 @@ import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUp
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceUploadTaskRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.DataSetTaskOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceUploadTaskOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_resource.AbstractDataResourceUpdateInputModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.Convert;
@@ -171,13 +171,13 @@ public class DataResourceUploadTaskService extends AbstractService {
         dataResourceUploadTaskRepository.save(dataSetTask);
     }
 
-    public PagingOutput<DataSetTaskOutputModel> query(DataResourceUploadTaskQueryApi.Input input) {
+    public PagingOutput<DataResourceUploadTaskOutputModel> query(DataResourceUploadTaskQueryApi.Input input) {
         Specification<DataResourceUploadTaskMysqlModel> where = Where
                 .create()
                 .greaterThan("updatedTime", DateUtil.getDate(System.currentTimeMillis() - TimeSpan.fromMinute(10).toMs()))
                 .build(DataResourceUploadTaskMysqlModel.class);
 
-        return dataResourceUploadTaskRepository.paging(where, input, DataSetTaskOutputModel.class);
+        return dataResourceUploadTaskRepository.paging(where, input, DataResourceUploadTaskOutputModel.class);
     }
 
     /**
