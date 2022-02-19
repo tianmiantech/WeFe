@@ -107,14 +107,14 @@ export default {
     created() {
         this.id = this.$route.query.id;
         this.name = this.$route.query.name;
-        this.getDataSetDetail();
-        this.getDataSetPreview();
+        this.getDataSetDetail()
+
     },
     methods: {
         async getDataSetDetail() {
             this.loading = true;
             const {code, data} = await this.$http.post({
-                url: '/data_set/query',
+                url: '/data_set/detail',
                 data: {
                     id: this.id,
                     name: this.name,
@@ -122,13 +122,14 @@ export default {
             });
 
             if (code === 0) {
-                if (data && data.list) {
-                    this.selectedCol = data.rows
-                    this.dataInfo = data.list[0];
-                }
+                this.dataInfo = data
+                this.selectedCol = data.rows
+                this.getDataSetPreview()
+
             }
             this.loading = false;
         },
+
         async getDataSetPreview() {
             const {code, data} = await this.$http.get({
                 url: '/data_set/preview',

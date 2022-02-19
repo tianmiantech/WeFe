@@ -136,6 +136,33 @@ public class EmailService extends AbstractService {
         return new HashSet<>(16);
     }
 
+    /**
+     * Send multiple emails
+     *
+     * @param from    Sender
+     * @param to      Recipient
+     * @param subject subject
+     * @param content content
+     */
+    public void sendMail(String from, String to, String subject, String content) throws Exception {
+        JavaMailSenderImpl javaMailSender = getMailSender();
+
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mineHelper = new MimeMessageHelper(mimeMessage, true);
+        mineHelper.setFrom(from);
+        mineHelper.setTo(to);
+        mineHelper.setSubject(subject);
+        mineHelper.setText(content, true);
+
+        try {
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            LOG.error("Sending mail exception：", e);
+            throw e;
+        }
+    }
+
+
 
     /**
      * Get message sender
