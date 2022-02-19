@@ -122,7 +122,7 @@
                                 <el-dropdown-item divided>
                                     <el-button
                                         type="text"
-                                        class="btn-danger"
+                                        class="color-danger"
                                         @click="deleteFlow(scope.row, scope.$index)"
                                     >
                                         删除流程
@@ -671,7 +671,6 @@
         border:1px solid #ebebeb;
     }
     .link{text-decoration: none;}
-    .btn-danger{color: #F85564;}
     .el-switch{
         :deep(.el-switch__label){
             color: #999;

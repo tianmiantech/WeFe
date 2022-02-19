@@ -713,6 +713,7 @@
                     vData[role].hash_func = rest.hash_func;
                     vData.field_info_list = rest.encryptionList.map((x, i) => {
                         return {
+                            ...x,
                             columns: x.features.join(','),
                             options: x.encryption,
                         };

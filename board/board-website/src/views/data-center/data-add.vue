@@ -582,7 +582,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '',
+                        token: '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -691,7 +691,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token,
+                        token: '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -743,6 +743,8 @@
                 this.getDataSouceList();
                 this.getList();
             });
+            this.file_upload_options.headers.token = this.userInfo.token;
+            this.img_upload_options.headers.token = this.userInfo.token;
             this.file_upload_options.target = this.file_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
             this.img_upload_options.target = this.img_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
         },
@@ -990,9 +992,8 @@
             async fileUploadCompleteImage() {
                 this.loading = true;
                 this.data_preview_finished = true;
-                const file = arguments[0].file;
 
-                this.img_upload_options.headers.token = JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token;
+                const file = arguments[0].file;
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
@@ -1015,9 +1016,8 @@
             async fileUploadComplete() {
                 this.loading = true;
                 this.data_preview_finished = false;
-                const file = arguments[0].file;
 
-                this.file_upload_options.headers.token = localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '';
+                const file = arguments[0].file;
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
