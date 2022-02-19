@@ -71,7 +71,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             if (bloomFilterMySqlModel == null) {
                 throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Filter not found");
             }
-            String rows = bloomFilterMySqlModel.getRows();
+
+            String rows = input.getRows();
             List<String> rowsList = Arrays.asList(rows.split(","));
 
             if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)) {
@@ -84,7 +85,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             }else if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)){
                 File file = dataSourceService.getDataSetFile(bloomFilterMySqlModel.getDataResourceSource(), bloomFilterMySqlModel.getSourcePath());
                 try {
-                    output = readFile(file);
+                    output = readFile(file, rowsList);
                 } catch (IOException e) {
                     LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                     throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
@@ -365,6 +366,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private String sql;
 
+        private String rows;
+
 
         public String getId() {
             return id;
@@ -396,6 +399,14 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         public void setSql(String sql) {
             this.sql = sql;
+        }
+
+        public String getRows() {
+            return rows;
+        }
+
+        public void setRows(String rows) {
+            this.rows = rows;
         }
     }
 
