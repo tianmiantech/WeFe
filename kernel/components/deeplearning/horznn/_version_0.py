@@ -227,7 +227,7 @@ def client_align_labels(self, data_inst):
                 return
 
     if self.config_type == "keras":
-        layers = self.nn_define["layers"]
+        layers = self.nn_define["config"]["layers"]
         for layer in reversed(layers):
             if layer["class_name"] == "Dense":
                 output_dim = layer["config"].get("units", None)
