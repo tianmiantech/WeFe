@@ -410,7 +410,8 @@ export default {
             addLoading:       false,
             timer:            null,
             processData:      {
-                text: '正在存储数据集...',
+                text:       '正在存储数据集...',
+                percentage: 0,
             },
         };
     },

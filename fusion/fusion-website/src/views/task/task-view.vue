@@ -189,11 +189,11 @@
                 <el-table-column
                     type="index"
                     label="编号"
-                    width="45px"
+                    width="45"
                 />
                 <el-table-column
                     label="名称 / ID"
-                    min-width="154px"
+                    min-width="150"
                 >
                     <template slot-scope="scope">
                         <strong>{{ scope.row.member_name }}</strong>
@@ -201,15 +201,15 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column
+                <!-- <el-table-column
                     label="数据量"
                     prop="rows_count"
                     width="100px"
-                />
+                /> -->
                 <el-table-column
                     label="调用域名"
                     prop="base_url"
-                    min-width="200px"
+                    min-width="200"
                 />
             </el-table>
         </el-card>
@@ -224,7 +224,7 @@
             <el-form>
                 <el-form-item
                     label="状态："
-                    label-width="150px"
+                    label-width="100px"
                 >
                     <TaskStatusTag
                         v-if="task.status"
@@ -234,7 +234,7 @@
 
                 <el-form-item
                     label="融合量："
-                    label-width="150px"
+                    label-width="100px"
                 >
                     {{ task.fusion_count }}
                 </el-form-item>
@@ -242,7 +242,7 @@
                 <el-form-item
                     v-if="task.status=='Success'"
                     label="任务进度："
-                    label-width="150px"
+                    label-width="100px"
                 >
                     <el-progress
                         :percentage="100"
@@ -256,7 +256,7 @@
                 <el-form-item
                     v-if="task.status === 'Failure' || task.status === 'Interrupt'"
                     label="任务进度："
-                    label-width="150px"
+                    label-width="100px"
                 >
                     <el-progress
                         :percentage="50"
@@ -270,7 +270,7 @@
                 <el-form-item
                     v-if="task.status === 'Running'"
                     label="任务进度："
-                    label-width="150px"
+                    label-width="100px"
                 >
                     <el-progress :percentage="task_info.progress || 0" />
                     <p class="id">
@@ -280,7 +280,7 @@
 
                 <el-form-item
                     v-if="task.status === 'Success'"
-                    label-width="150px"
+                    label-width="100px"
                     label="耗时："
                 >
                     {{ dateFormatter(task.spend) }}
@@ -288,7 +288,7 @@
 
                 <el-form-item
                     v-if="task.status !== 'Success'"
-                    label-width="150px"
+                    label-width="100px"
                     label="耗时："
                 >
                     {{ dateFormatter(task_info.spend) }}
@@ -409,7 +409,6 @@
                 }
             },
 
-
             async getTaskInfo () {
                 const { code, data } = await this.$http.get({
                     url:    '/task/info',
@@ -420,7 +419,12 @@
 
                 if (code === 0) {
                     this.task_info = data;
-                    this.timer = setTimeout(this.getTaskInfo, 3000);
+                    this.task.status = data.status;
+                    if(data.status !== 'Running') {
+                        clearTimeout(this.timer);
+                    } else {
+                        this.timer = setTimeout(this.getTaskInfo, 3000);
+                    }
                 }
             },
 

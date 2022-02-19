@@ -124,8 +124,7 @@
             align="center"
         />
         <el-table-column
-            label="上传者"
-            prop="creator_nickname"
+            label="上传时间"
             min-width="160"
             align="center"
         >
