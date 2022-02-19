@@ -52,7 +52,6 @@
                 v-loading="vData.loading"
                 class="save-btn mt10"
                 type="primary"
-                size="medium"
                 :disabled="!vData.userInfo.admin_role"
                 @click="methods.update"
             >

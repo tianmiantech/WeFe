@@ -65,6 +65,7 @@
                         if(fields && fields.length) {
                             $ref.vData.encryptionList = fields.map(x => {
                                 return {
+                                    ...x,
                                     features:   x.column_list,
                                     encryption: x.options,
                                 };

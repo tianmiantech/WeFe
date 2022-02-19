@@ -108,7 +108,6 @@
                                 type="primary"
                                 class="login-btn"
                                 native-type="submit"
-                                size="medium"
                                 @click="submit"
                             >
                                 立即登录

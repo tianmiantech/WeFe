@@ -4,7 +4,10 @@
  */
 
 import axios from 'axios';
-import { baseLogout } from '@src/router/auth';
+import {
+    baseLogout,
+    clearUserInfo,
+} from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
 
 function setStorage () {
@@ -72,6 +75,7 @@ httpInstance.interceptors.response.use(
 
                 // login dialog
                 if (data.code === 10006) {
+                    clearUserInfo();
                     window.$app.config.globalProperties.$bus.$emit('show-login-dialog');
 
                     if (new Date().valueOf() - lastErrorMessageTime > 2000) {
