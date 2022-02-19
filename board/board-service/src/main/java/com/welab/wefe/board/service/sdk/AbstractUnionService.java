@@ -34,7 +34,6 @@ import com.welab.wefe.common.http.HttpContentType;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.*;
-import com.welab.wefe.common.wefe.enums.SmsBusinessType;
 import net.jodah.expiringmap.ExpiringMap;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
@@ -202,49 +201,6 @@ public abstract class AbstractUnionService extends AbstractService {
         return request("member/query", params);
     }
 
-    public void sendVerificationCode(String mobile, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
-        if (!StringUtil.checkPhoneNumber(mobile)) {
-            throw new StatusCodeWithException("非法的手机号", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-        JObject params = JObject.create()
-                .append("mobile", mobile)
-                .append("smsBusinessType", smsBusinessType);
-        try {
-            request("sms/send_verification_code", params, true);
-        } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
-        } catch (Exception e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
-
-    /**
-     * Check verification code
-     */
-    public void checkVerificationCode(String mobile, String code, SmsBusinessType smsBusinessType) throws StatusCodeWithException {
-        JObject params = JObject.create()
-                .append("mobile", mobile)
-                .append("code", code)
-                .append("smsBusinessType", smsBusinessType);
-        try {
-            request("sms/check_verification_code", params, true);
-        } catch (StatusCodeWithException e) {
-            throw new StatusCodeWithException(getUnionOrigExceptionMsg(e), StatusCode.SYSTEM_ERROR);
-        } catch (Exception e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-    }
-
-    private String getUnionOrigExceptionMsg(StatusCodeWithException e) {
-        String errorMsg = e.getMessage();
-        if (StringUtil.isNotEmpty(errorMsg)) {
-            int index = errorMsg.indexOf("：");
-            if (index != -1) {
-                errorMsg = errorMsg.substring(index + 1);
-            }
-        }
-        return errorMsg;
-    }
 
     public JSONObject request(String api) throws StatusCodeWithException {
         return request(api, null, true);
