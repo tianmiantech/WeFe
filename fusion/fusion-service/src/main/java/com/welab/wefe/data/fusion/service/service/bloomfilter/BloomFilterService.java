@@ -114,7 +114,7 @@ public class BloomFilterService {
 
 
     /**
-     * Delete filter
+     *  Filter Detail
      *
      * @param input
      */
