@@ -34,8 +34,16 @@ export default router => {
 
         inited == null ? inited = false : inited = JSON.parse(inited);
 
-        if (inited && to.name === 'init') {
-            next({ name: 'index', replace: true });
+        if(isLogin) {
+            if (inited) {
+                if (to.name === 'init') {
+                    next({ name: 'index', replace: true });
+                }
+            } else if(to.name === 'init') {
+                return next();
+            } else {
+                next({ name: 'init', replace: true });
+            }
         }
 
         // matched is all path

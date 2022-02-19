@@ -127,7 +127,7 @@ export default {
         },
         async getDataSetPreview() {
             const { code, data } = await this.$http.get({
-                url:    '/data_set/preview',
+                url:    '/data_set/detail',
                 params: { id: this.id },
             });
 
