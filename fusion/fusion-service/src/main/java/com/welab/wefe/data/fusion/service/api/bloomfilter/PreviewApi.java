@@ -72,8 +72,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Filter not found");
             }
 
-            String rows = input.getRows();
-            List<String> rowsList = Arrays.asList(rows.split(","));
+            List<String> rowsList = input.getRows();
 
             if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)) {
                 String sql = bloomFilterMySqlModel.getStatement();
@@ -366,7 +365,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private String sql;
 
-        private String rows;
+        private List<String> rows;
 
 
         public String getId() {
@@ -401,11 +400,11 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             this.sql = sql;
         }
 
-        public String getRows() {
+        public List<String> getRows() {
             return rows;
         }
 
-        public void setRows(String rows) {
+        public void setRows(List<String> rows) {
             this.rows = rows;
         }
     }

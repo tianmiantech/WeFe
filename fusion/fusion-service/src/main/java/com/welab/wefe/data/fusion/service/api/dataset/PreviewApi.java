@@ -77,8 +77,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Data not available");
             }
 
-            String rows = input.getRows();
-            List<String> rowsList = Arrays.asList(rows.split(","));
+            List<String> rowsList = input.getRows();
 
             if(dataSetMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)){
                 String sql = dataSetMySqlModel.getStatement();
@@ -378,7 +377,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private String sql;
 
-        private String rows;
+        private List<String> rows;
 
         public String getId() {
             return id;
@@ -412,11 +411,11 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             this.sql = sql;
         }
 
-        public String getRows() {
+        public List<String> getRows() {
             return rows;
         }
 
-        public void setRows(String rows) {
+        public void setRows(List<String> rows) {
             this.rows = rows;
         }
     }
