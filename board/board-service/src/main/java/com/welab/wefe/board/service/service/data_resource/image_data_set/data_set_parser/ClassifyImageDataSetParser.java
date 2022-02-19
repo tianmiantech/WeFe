@@ -105,9 +105,9 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
             // 输出标注信息
             int index = labelList.indexOf(sample.getLabelList());
             labeledListString
-                    .append(sample.getFileName())
-                    .append(" ")
                     .append(index)
+                    .append(" ")
+                    .append(sample.getFileName())
                     .append(System.lineSeparator());
         }
         // 标注信息写文件
