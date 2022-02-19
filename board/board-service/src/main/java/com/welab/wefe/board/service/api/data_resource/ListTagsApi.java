@@ -21,7 +21,6 @@ import com.welab.wefe.board.service.database.repository.data_resource.TableDataS
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -29,33 +28,34 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * @author Zane
  */
 @Api(path = "data_resource/tags", name = "all of the table data set tags")
-public class ListTagsApi extends AbstractApi<ListTagsApi.Input, TreeMap<String, Long>> {
+public class ListTagsApi extends AbstractApi<ListTagsApi.Input, ListTagsApi.Output> {
 
     @Autowired
     TableDataSetRepository repo;
 
     @Override
-    protected ApiResult<TreeMap<String, Long>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
-        Map<String, Long> result = CacheObjects
+        List<Item> list = CacheObjects
                 .getDataResourceTags(input.dataResourceType)
                 .entrySet()
                 .stream()
-                .filter(x -> {
-                    return StringUtil.isNotEmpty(input.tag) ||
-                            x.getKey().toLowerCase().contains(x.getKey().toLowerCase());
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .map(x -> new Item(x.getKey(), x.getValue()))
+                .collect(Collectors.toList());
 
-        return success(new TreeMap<>(result));
+        list.sort(Comparator.comparingInt(x -> x.count));
+        Collections.reverse(list);
+
+        return success(new Output(list));
     }
 
     public static class Input extends AbstractApiInput {
@@ -65,5 +65,29 @@ public class ListTagsApi extends AbstractApi<ListTagsApi.Input, TreeMap<String, 
         @Check(name = "资源类型")
         public DataResourceType dataResourceType;
 
+    }
+
+    public static class Output {
+        public List<Item> list;
+
+        public Output() {
+        }
+
+        public Output(List<Item> list) {
+            this.list = list;
+        }
+    }
+
+    public static class Item {
+        public int count;
+        public String tagName;
+
+        public Item() {
+        }
+
+        public Item(String tagName, int count) {
+            this.count = count;
+            this.tagName = tagName;
+        }
     }
 }

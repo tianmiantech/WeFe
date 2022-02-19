@@ -72,7 +72,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         MemberInfoModel member = Launcher.getBean(GlobalConfigService.class).getMemberInfo();
         if (publicLevel != DataSetPublicLevel.OnlyMyself) {
             if (!member.getMemberAllowPublicDataSet()) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("当前联邦成员不允许资源对外可见");
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("当前联邦成员不允许资源对外可见，请在[全局设置][成员设置]中开启。");
             }
 
             if (member.getMemberHidden()) {
