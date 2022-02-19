@@ -243,7 +243,7 @@ const baseRoutes = [
         name: 'login',
         meta: {
             title:          '登录',
-            requiresAuth:   false,
+            requiresAuth: false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/login.vue'),
@@ -253,7 +253,7 @@ const baseRoutes = [
         name: 'register',
         meta: {
             title:          '注册',
-            requiresAuth:   false,
+            requiresAuth: false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/register.vue'),
@@ -263,7 +263,7 @@ const baseRoutes = [
         name: 'find-password',
         meta: {
             title:          '找回密码',
-            requiresAuth:   false,
+            requiresAuth: false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/find-password.vue'),
