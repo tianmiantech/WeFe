@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.service;
 
 
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -25,23 +26,30 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.Sha1;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.LoginSecurityPolicy;
 import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.serving.service.api.account.AuditApi.Input;
+import com.welab.wefe.serving.service.api.account.AuditApi;
+import com.welab.wefe.serving.service.api.account.EnableApi;
 import com.welab.wefe.serving.service.api.account.LoginApi;
-import com.welab.wefe.serving.service.api.account.QueryApi.Output;
+import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
+import com.welab.wefe.serving.service.api.account.QueryApi;
 import com.welab.wefe.serving.service.api.account.RegisterApi;
+import com.welab.wefe.serving.service.api.account.UpdateApi;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
+import com.welab.wefe.serving.service.dto.PagingOutput;
 
 /**
  * @author Zane
@@ -155,6 +163,10 @@ public class AccountService {
             throw new StatusCodeWithException("Wrong mobile phone number or password！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
+        if (!model.getEnable()) {
+            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
+        }
+        
         // Check audit status
         if (model.getAuditStatus() != null) {
             switch (model.getAuditStatus()) {
@@ -205,13 +217,31 @@ public class AccountService {
         return Base64Util.encode(salt);
     }
 
+	public List<Output> queryAll() {
+		List<AccountMySqlModel> accounts = accountRepository.findAll();
+		return accounts.stream().map(x -> com.welab.wefe.common.web.util.ModelMapper.map(x, Output.class))
+				.collect(Collectors.toList());
+	}
+	
 	public List<Output> query() {
 		List<AccountMySqlModel> accounts = accountRepository.findAll();
 		return accounts.stream().map(x -> com.welab.wefe.common.web.util.ModelMapper.map(x, Output.class))
 				.collect(Collectors.toList());
 	}
 
-	public void audit(Input input) throws StatusCodeWithException {
+	/**
+	 * Paging query account
+	 */
+	public PagingOutput<QueryApi.Output> query(QueryApi.Input input) throws StatusCodeWithException {
+
+		Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", input.getPhoneNumber())
+				.equal("auditStatus", input.getAuditStatus()).contains("nickname", input.getNickname())
+				.orderBy("createdTime", OrderBy.desc).build(AccountMySqlModel.class);
+
+		return accountRepository.paging(where, input, QueryApi.Output.class);
+	}
+
+	public void audit(AuditApi.Input input) throws StatusCodeWithException {
 		AccountMySqlModel auditor = accountRepository.findById(CurrentAccount.id()).orElse(null);
         if (!auditor.getAdminRole()) {
             throw new StatusCodeWithException("您不是管理员，无权执行审核操作！", StatusCode.PARAMETER_VALUE_INVALID);
@@ -227,5 +257,70 @@ public class AccountService {
         account.setUpdatedBy(CurrentAccount.id());
         accountRepository.save(account);
 
+	}
+	
+	/**
+	 * Update the user's enable status
+	 */
+    public void enable(EnableApi.Input input) throws StatusCodeWithException {
+
+        if (!CurrentAccount.isAdmin() && !CurrentAccount.isSuperAdmin()) {
+            throw new StatusCodeWithException("普通用户无法进行此操作。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (input.getId().equals(CurrentAccount.id())) {
+            throw new StatusCodeWithException("无法对自己进行此操作。", StatusCode.PERMISSION_DENIED);
+        }
+
+        AccountMySqlModel account = accountRepository.findById(input.getId()).orElse(null);
+        if (account == null) {
+            throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
+        }
+
+        if (account.getAdminRole() && !CurrentAccount.isSuperAdmin()) {
+            throw new StatusCodeWithException("非超级管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
+        }
+
+        account.setEnable(input.getEnable());
+        account.setUpdatedBy(CurrentAccount.id());
+        account.setUpdatedTime(new Date());
+		account.setAuditComment(input.getEnable() ? "管理员启用了该账号" : "管理员禁用了该账号");
+
+        accountRepository.save(account);
+
+        CurrentAccount.logout(input.getId());
+    }
+    
+	/**
+	 * Update user basic information
+	 */
+	public void update(UpdateApi.Input input) throws StatusCodeWithException {
+
+		AccountMySqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
+
+		if (account == null) {
+			throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
+		}
+
+		if (StringUtil.isNotEmpty(input.getNickname())) {
+			account.setNickname(input.getNickname());
+		}
+
+		if (StringUtil.isNotEmpty(input.getEmail())) {
+			account.setEmail(input.getEmail());
+		}
+
+		// Set someone else to be an administrator
+		if (input.getAdminRole() != null) {
+			if (!CurrentAccount.isSuperAdmin()) {
+				throw new StatusCodeWithException("非超级管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
+			}
+			account.setAdminRole(input.getAdminRole());
+		}
+
+		account.setUpdatedBy(CurrentAccount.id());
+		account.setUpdatedTime(new Date());
+
+		accountRepository.save(account);
 	}
 }

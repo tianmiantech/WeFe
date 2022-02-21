@@ -214,6 +214,26 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}account`,
+        meta: {
+            title: '用户中心',
+            icon:  'el-icon-user-solid',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}account-list`,
+                name: 'account-list',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '用户列表',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/account/account-list'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}member`,
         meta: {
             title: 'member管理',
