@@ -3,6 +3,9 @@ package com.welab.wefe.manager.service.dto.dataresource;
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 
+/**
+ * @author yuxin.zhang
+ */
 public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
     private String dataResourceId;
     private String memberId;
