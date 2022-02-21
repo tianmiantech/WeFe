@@ -571,7 +571,7 @@
                             id:    x.id,
                         };
                     });
-
+					console.log(list);
                     cb(list);
                 }
             },
