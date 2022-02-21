@@ -181,13 +181,10 @@
                         content="查看与标注"
                         placement="top"
                     >
-                        <el-icon>
-                            <i
-                                title="查看与标注"
-                                class="iconfont icon-mark"
-                            />
-                        </el-icon>
-
+                        <i
+                            title="查看与标注"
+                            class="iconfont icon-mark"
+                        />
                     </el-tooltip>
                 </router-link>
             </template>
@@ -319,5 +316,9 @@
         height: 260px;
         line-height: 30px;
         padding:100px 0;
+    }
+    .icon-mark{
+        position: relative;
+        top: -2px;
     }
 </style>

@@ -132,6 +132,7 @@ public class TaskService extends AbstractService {
         task.setDescription(input.getDescription());
         task.setTrace(input.getTrace());
         task.setTraceColumn(input.getTraceColumn());
+        task.setMyRole(RoleType.promoter);
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -350,6 +351,7 @@ public class TaskService extends AbstractService {
         model.setPsiActuatorRole(input.getPsiActuatorRole());
         model.setAlgorithm(input.getAlgorithm());
         model.setDescription(input.getDescription());
+        model.setMyRole(RoleType.provider);
 
         taskRepository.save(model);
     }

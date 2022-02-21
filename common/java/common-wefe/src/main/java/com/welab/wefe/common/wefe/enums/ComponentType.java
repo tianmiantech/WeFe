@@ -17,12 +17,12 @@
 package com.welab.wefe.common.wefe.enums;
 
 
-import static com.welab.wefe.common.wefe.enums.FederatedLearningType.horizontal;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static com.welab.wefe.common.wefe.enums.FederatedLearningType.horizontal;
 
 /**
  * Component type
@@ -30,7 +30,10 @@ import java.util.List;
  * @author Zane
  */
 public enum ComponentType {
-	DataIO("选择数据集", null, "加载用于联邦建模的数据集"),
+    /**
+     * 加载数据集：TableDataSet
+     */
+    DataIO("选择数据集", null, "加载用于联邦建模的数据集"),
     Intersection("样本对齐", null, "将多个数据集使用 id 碰撞获取交集"),
     FeatureStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "纵向统计组件的各项指标"),
     HorzStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向统计组件的各项指标"),
@@ -78,9 +81,27 @@ public enum ComponentType {
     PaddleClassify("图像分类", Arrays.asList(horizontal), "图像分类"),
     PaddleDetection("图像目标检测", Arrays.asList(horizontal), "图像目标检测");
 
-    private static List<ComponentType> MODELING_TYPES = Arrays.asList(HorzLR, VertLR, HorzSecureBoost, VertSecureBoost, MixLR, MixSecureBoost, HorzNN, VertNN);
+    /**
+     * 建模算法组件列表
+     */
+    private static List<ComponentType> MODELING_TYPES = Arrays.asList(
+            HorzLR,
+            VertLR,
+            HorzSecureBoost,
+            VertSecureBoost,
+            MixLR,
+            MixSecureBoost, HorzNN,
+            VertNN
+    );
 
-    private static List<ComponentType> DeepLearningComponents = Arrays.asList(ImageDataIO, PaddleClassify, PaddleDetection);
+    /**
+     * 深度学习相关组件列表
+     */
+    private static List<ComponentType> DeepLearningComponents = Arrays.asList(
+            ImageDataIO,
+            PaddleClassify,
+            PaddleDetection
+    );
 
 
     /**

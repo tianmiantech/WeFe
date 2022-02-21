@@ -415,7 +415,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && data.params.dataset_list) {
                         const { dataset_list } = data.params;
 
                         for(const memberIndex in vData.member_list) {
@@ -788,13 +788,13 @@
                             dataset_list.push({
                                 member_id:         member.member_id,
                                 member_role:       member.member_role,
-                                data_set_id:       row[0].data_resource_id,
+                                data_set_id:       row[0].data_set_id,
                                 features:          row[0].$column_name_list,
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,
                                 contains_y:        row[0].contains_y,
                                 derived_from:      row[0].derived_from,
-                                row_count:         row[0].row_count ? row[0].row_count : row[0].total_data_count,
+                                row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
                             });
                         }
@@ -855,14 +855,17 @@
         }
         :deep(.el-form-item){
             display:flex;
-            margin-bottom:5px;
+            margin-bottom:0;
             flex-wrap: wrap;
             .el-form-item__label{
                 font-size: 12px;
                 text-align: left;
-                margin-bottom: 0;
+                line-height: 24px;
             }
-            .el-form-item__content{word-break:break-all;}
+            .el-form-item__content{
+                line-height: 22px;
+                word-break:break-all;
+            }
         }
     }
     .check-features{

@@ -526,9 +526,9 @@
                     vData.dataSetPreviewDialog = true;
                     nextTick(() =>{
                         if (props.form.project_type === 'MachineLearning') {
-                            DataSetPreviewRef.value.loadData(item.data_resource_id);
+                            DataSetPreviewRef.value.loadData(item.data_set_id);
                         } else if (props.form.project_type === 'DeepLearning') {
-                            PreviewImageListRef.value.methods.getSampleList(item.data_resource_id);
+                            PreviewImageListRef.value.methods.getSampleList(item.data_set_id);
                         }
                     });
                 },

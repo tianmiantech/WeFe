@@ -1,11 +1,11 @@
-/*
+/**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.service.sms;
+package com.welab.wefe.common.verification.code;
 
 import java.util.UUID;
 
 /**
+ * Response message after sending verification code
+ *
  * @author aaron.li
- * @Date 2021/10/20
+ * @date 2022/1/19 09:52
  **/
-public abstract class AbstractSmsResponse<T> {
-
+public abstract class AbstractResponse<T> {
+    /**
+     * Response entity data
+     */
     public T data;
 
-    public AbstractSmsResponse(T data) {
+    public AbstractResponse(T data) {
         this.data = data;
     }
 
+    /**
+     * Get request Id
+     */
     public String getReqId() {
         return UUID.randomUUID().toString().replace("-", "");
     }
@@ -48,6 +55,9 @@ public abstract class AbstractSmsResponse<T> {
      */
     public abstract String getRespBody();
 
+    /**
+     * Get response message
+     */
     public String getMessage() {
         return null;
     }

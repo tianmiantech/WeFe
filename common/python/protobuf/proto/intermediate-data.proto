@@ -7,6 +7,12 @@ message IntermediateDataItem {
   bytes value = 2;
 }
 
+message BatchSerializationData{
+  bytes value = 1;
+}
+
 message IntermediateData{
-  repeated IntermediateDataItem intermediateData = 1;
+  repeated IntermediateDataItem intermediateData = 1; // 多条kv数据集
+  int32 dataFlag = 2; // 数据存储类型：1=IntermediateDataItem，2=BatchSerializationData(适用于双方是函数计算的场景)
+  BatchSerializationData serializationData = 3; // 整个经过序列化后的数据集
 }
