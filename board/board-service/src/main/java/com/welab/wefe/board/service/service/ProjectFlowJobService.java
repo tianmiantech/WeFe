@@ -123,10 +123,8 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         JobMySqlModel lastJob = jobRepo.findLastByFlowId(flow.getFlowId(), project.getMyRole().name());
-        if (project.getProjectType() == ProjectType.MachineLearning) {
-            if (lastJob != null && !lastJob.getStatus().finished()) {
-                throw new StatusCodeWithException("请稍等，当前任务尚未结束，请等待其结束后重试。", StatusCode.PARAMETER_VALUE_INVALID);
-            }
+        if (lastJob != null && !lastJob.getStatus().finished()) {
+            throw new StatusCodeWithException("请稍等，当前任务尚未结束，请等待其结束后重试。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         JobArbiterInfo jobArbiterInfo = calcArbiterInfo(flow, input, project);
