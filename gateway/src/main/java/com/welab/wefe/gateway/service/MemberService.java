@@ -95,7 +95,7 @@ public class MemberService extends AbstractMemberService {
                 memberEntity.setPort(NumberUtils.toInt(memberGatewayUriArray[1]));
             }
         }
-        memberEntity.setSecretKeyType(memberInfo.getSecretKeyType());
+        memberEntity.setSecretKeyType(null == memberInfo.getSecretKeyType() ? SecretKeyType.rsa : memberInfo.getSecretKeyType());
         return memberEntity;
     }
 }
