@@ -83,7 +83,7 @@ public abstract class AbstractUnionService extends AbstractService {
                 .put("gateway_uri", model.getMemberGatewayUri())
                 .put("logo", model.getMemberLogo())
                 .put("hidden", model.getMemberHidden())
-                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa : model.getSecretKeyType().name());
+                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa.name() : model.getSecretKeyType().name());
 
         request("member/add", params, false);
     }
