@@ -105,6 +105,9 @@ public class Env {
                     )
             );
 
+            // 飞桨暂时不支持多 worker，暂时强制指定1个。
+            workerCount = 1;
+
             // 限制上限
             if (workerCount > 10) {
                 workerCount = 10;
