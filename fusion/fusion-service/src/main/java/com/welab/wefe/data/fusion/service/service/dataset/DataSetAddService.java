@@ -92,6 +92,7 @@ public class DataSetAddService extends AbstractService {
         dataSetRepository.save(model);
 
         File file = null;
+        CommonThreadPool.TASK_SWITCH = true;
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             model.setDataSourceId(input.getDataSourceId());
             //DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
@@ -109,6 +110,13 @@ public class DataSetAddService extends AbstractService {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
             }
+        }
+
+        if (CommonThreadPool.TASK_SWITCH) {
+            model.setUsedCount(0);
+            model.setRowCount(rowsCount);
+            model.setUpdatedTime(new Date());
+            dataSetRepository.save(model);
         }
 
         AddApi.DataSetAddOutput output = new AddApi.DataSetAddOutput();
