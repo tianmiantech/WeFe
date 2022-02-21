@@ -394,7 +394,7 @@
 
             <!-- bloom filter -->
             <div v-if="addDataType === 'BloomFilter' && raw_data_list.length" class="mt40">
-                <p class="f16">设置主键 hash 方式 (上传后不可更改)：
+                <p class="f14">设置主键 hash 方式 (上传后不可更改)：
                     <el-tooltip placement="top" effect="light">
                         <template #content>
                             对融合字段的处理方式，如 md5(id)+md5(tel), <p>规则是 id 字段的 md5 加上 tel 字段的 md5 处理</p>
@@ -582,7 +582,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '',
+                        token: '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -691,7 +691,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token,
+                        token: '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -727,9 +727,9 @@
             this.addDataType = this.$route.query.type || 'csv';
 
             const map = {
-                csv:    'TableDataSet',
-                img:    'ImageDataSet',
-                filter: 'BloomFilter',
+                csv:         'TableDataSet',
+                img:         'ImageDataSet',
+                BloomFilter: 'BloomFilter',
             };
 
             this.search.dataResourceType = map[this.addDataType];
@@ -743,6 +743,8 @@
                 this.getDataSouceList();
                 this.getList();
             });
+            this.file_upload_options.headers.token = this.userInfo.token;
+            this.img_upload_options.headers.token = this.userInfo.token;
             this.file_upload_options.target = this.file_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
             this.img_upload_options.target = this.img_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
         },
@@ -990,9 +992,8 @@
             async fileUploadCompleteImage() {
                 this.loading = true;
                 this.data_preview_finished = true;
-                const file = arguments[0].file;
 
-                this.img_upload_options.headers.token = JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token;
+                const file = arguments[0].file;
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
@@ -1015,9 +1016,8 @@
             async fileUploadComplete() {
                 this.loading = true;
                 this.data_preview_finished = false;
-                const file = arguments[0].file;
 
-                this.file_upload_options.headers.token = localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '';
+                const file = arguments[0].file;
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
@@ -1111,7 +1111,6 @@
                     return;
                 }
 
-                this.loading = true;
                 this.form.public_member_list = ids.join(',');
                 this.form.metadata_list = this.metadata_list;
 
@@ -1154,6 +1153,7 @@
                     params = this.addDataType === 'img' ? Object.assign(this.form, { filename: this.http_upload_filename }) : this.form;
                 }
 
+                this.loading = true;
                 const { code, data } = await this.$http.post({
                     url,
                     timeout: 1000 * 60 * 24 * 30,

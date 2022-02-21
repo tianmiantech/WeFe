@@ -25,6 +25,7 @@ import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.board.service.sdk.union.dto.MemberBaseInfo;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -58,6 +59,7 @@ public class CacheObjects {
     private static String RSA_PRIVATE_KEY;
     private static String RSA_PUBLIC_KEY;
     private static String MEMBER_NAME;
+    private static SecretKeyType SECRET_KEY_TYPE = null;
 
     /**
      * Data resource tags
@@ -251,6 +253,7 @@ public class CacheObjects {
         RSA_PUBLIC_KEY = model.getRsaPublicKey();
         RSA_PRIVATE_KEY = model.getRsaPrivateKey();
         MEMBER_NAME = model.getMemberName();
+        SECRET_KEY_TYPE = model.getSecretKeyType();
     }
 
     public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType) {
@@ -314,6 +317,13 @@ public class CacheObjects {
         MEMBER_MAP.clear();
         MEMBER_MAP = service.getMemberMap();
 
+    }
+
+    public static synchronized SecretKeyType getSecretKeyType() {
+        if (null == SECRET_KEY_TYPE) {
+            refreshMemberInfo();
+        }
+        return null == SECRET_KEY_TYPE ? SecretKeyType.rsa : SECRET_KEY_TYPE;
     }
 
 }

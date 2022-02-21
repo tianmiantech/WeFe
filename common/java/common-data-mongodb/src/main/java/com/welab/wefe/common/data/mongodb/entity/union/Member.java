@@ -38,11 +38,7 @@ public class Member extends AbstractBlockChainBusinessModel {
     private String gatewayUri;
     private String logo;
     private String lastActivityTime;
-
-
     private MemberExtJSON extJson = new MemberExtJSON();
-
-
 
 
     public String getMemberId() {

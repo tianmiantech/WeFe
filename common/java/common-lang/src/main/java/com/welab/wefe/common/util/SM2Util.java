@@ -30,7 +30,6 @@ public class SM2Util {
         try {
             ECGenParameterSpec sm2Spec = new ECGenParameterSpec("sm2p256v1");
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", new BouncyCastleProvider());
-            kpg.initialize(sm2Spec);
             kpg.initialize(sm2Spec, new SecureRandom());
             keyPair = kpg.generateKeyPair();
         } catch (InvalidAlgorithmParameterException e) {

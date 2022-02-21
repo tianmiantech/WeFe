@@ -361,7 +361,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && data.params.dataset_list) {
                         const { dataset_list, eval_type, pos_label } = data.params;
 
                         for(const memberIndex in vData.member_list) {
