@@ -56,7 +56,7 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
             return fail("密码错误, 请重新输入");
         }
 
-        if (user.isEnable()) {
+        if (!user.isEnable()) {
             throw new StatusCodeWithException("账号尚未启用，请联系管理员对您的账号启用后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
