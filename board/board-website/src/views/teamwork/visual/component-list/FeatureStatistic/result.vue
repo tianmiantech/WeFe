@@ -50,7 +50,7 @@
                                             <!--Continuous type-->
                                             <el-tab-pane v-if="JSON.stringify(props.row.unique_count) === '{}'" label="Statistics" name="statistics">
                                                 <div class="flexbox">
-                                                    <el-descriptions class="margin-top" title="Quantile statistics" :column="1" size="medium" border style="flex: 1">
+                                                    <el-descriptions class="margin-top" title="Quantile statistics" :column="1" size="small" border style="flex: 1">
                                                         <el-descriptions-item label="Minimum">{{props.row.min}}</el-descriptions-item>
                                                         <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="5-th percentile">{{props.row.percentile[5]}}</el-descriptions-item>
                                                         <el-descriptions-item v-if="reference !== 'HorzStatistic'" label="Q1">{{props.row.percentile[25]}}</el-descriptions-item>
@@ -60,7 +60,7 @@
                                                         <el-descriptions-item label="Maximum">{{props.row.max}}</el-descriptions-item>
                                                         <el-descriptions-item label="Variance">{{props.row.variance}}</el-descriptions-item>
                                                     </el-descriptions>
-                                                    <el-descriptions class="margin-top" title="Descriptive statistics" :column="1" size="medium" border style="flex: 1">
+                                                    <el-descriptions class="margin-top" title="Descriptive statistics" :column="1" size="small" border style="flex: 1">
                                                         <el-descriptions-item label="Standard deviation">{{props.row.std_variance}}</el-descriptions-item>
                                                         <el-descriptions-item label="Coefficient of variation（CV）">{{props.row.cv}}</el-descriptions-item>
                                                         <el-descriptions-item label="kurtosis">{{props.row.kurtosis}}</el-descriptions-item>

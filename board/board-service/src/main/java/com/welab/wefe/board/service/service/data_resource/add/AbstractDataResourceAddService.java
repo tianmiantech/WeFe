@@ -15,6 +15,8 @@
  */
 package com.welab.wefe.board.service.service.data_resource.add;
 
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
+import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
@@ -31,14 +33,11 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.FileUtil;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceCheckPointOutput;
+import com.welab.wefe.common.wefe.enums.DataResourceStorageType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetStorageType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.nio.file.Paths;
 
 /**
  * @author zane
@@ -75,7 +74,6 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         DataResourceUploadTaskMysqlModel task = dataResourceUploadTaskService.newTask(dataResourceType, input);
 
         DataResourceMysqlModel model = new ModelMapper().map(input, getMysqlModelClass());
-        model.setStorageResourceName("bloom_filter.data");
         model.setId(task.getDataResourceId());
         model.setCreatedBy(input);
         model.setDataResourceType(dataResourceType);
@@ -118,22 +116,25 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
                         .throwException("storage 服务访问失败：" + availableInfo.getMessage() + "，请检服务是否正常：" + config.getDbType());
             }
 
-            model.setStorageType(DataSetStorageType.StorageService);
+            model.setStorageType(DataResourceStorageType.StorageService);
             model.setStorageNamespace(DataSetStorageService.DATABASE_NAME);
             model.setStorageResourceName(dataSetStorageService.createRawDataSetTableName(model.getId()));
         }
         // image data set & bloom filter
         else {
-            model.setStorageType(DataSetStorageType.LocalFileSystem);
+            model.setStorageType(DataResourceStorageType.LocalFileSystem);
             model.setStorageNamespace(
-                    Paths.get(
-                                    config.getFileUploadDir(),
-                                    StringUtil.stringToUnderLineLowerCase(model.getDataResourceType().name()),
-                                    model.getId()
-                            )
+                    WeFeFileSystem
+                            .getFileDir(model.getDataResourceType())
+                            .resolve(model.getId())
                             .toAbsolutePath()
                             .toString()
             );
+
+            // 生成的过滤器文件统一文件名
+            if (mysqlModelClass == BloomFilterMysqlModel.class) {
+                model.setStorageResourceName("bloom_filter.data");
+            }
 
             FileUtil.createDir(model.getStorageNamespace());
         }

@@ -96,7 +96,7 @@ class FCCaller(object):
                             msg = item_result_dict['message']
                         if 'req_id' in item_result_dict:
                             req_id = item_result_dict['req_id']
-                        raise FCCommonError(message=f'函数执行异常:{msg}', fc_name=fc_name, req_id=req_id)
+                        raise FCCommonError(message=f'任务执行异常:{msg}', fc_name=fc_name, req_id=req_id)
                 else:
                     raise FCCommonError(message='函数执行异常，未正常响应')
         return check

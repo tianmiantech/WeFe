@@ -6,7 +6,7 @@ import Vue from 'vue';
 import http from '@src/http/http';
 import store from '@src/store/store';
 import router from '@src/router/index';
-import '@js/polyfill/requestAnimationFrame';
+// import '@js/polyfill/requestAnimationFrame';
 import filters from '@src/utils/filters';
 import components from './components';
 import App from './App.vue';

@@ -17,7 +17,9 @@
 package com.welab.wefe.union.service.mapper;
 
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
 import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
+import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -32,9 +34,14 @@ import org.mapstruct.Mappings;
 public interface DataResourceMapper {
 
     @Mappings({
-            @Mapping(target = "enable", expression = "java(String.valueOf(0))"),
+            @Mapping(target = "enable", expression = "java(String.valueOf(1))"),
+            @Mapping(source = "dataResourceType", target = "dataResourceType", defaultExpression = "java(java.util.Arrays.stream(DataResourceType.values()).collect(java.util.stream.Collectors.toList()))"),
     })
     DataResourceQueryInput transferInput(ApiDataResourceQueryInput entity);
 
 
+    @Mappings({
+            @Mapping(source = "curMemberId", target = "memberId")
+    })
+    DataResource transferPutInputToDataResource(DataResourcePutInput input);
 }

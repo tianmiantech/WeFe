@@ -4,6 +4,7 @@
         width="750px"
         v-model="show"
         destroy-on-close
+        top="10vh"
     >
         <div v-loading="loading" class="dialog-wrapper">
             <el-form
@@ -163,9 +164,8 @@
                     url:  'union/member/query',
                     data: {
                         ...this.search,
-                        page_index:         this.pagination.page_index - 1,
-                        page_size:          this.pagination.page_size,
-                        requestFromRefresh: true,
+                        page_index: this.pagination.page_index - 1,
+                        page_size:  this.pagination.page_size,
                     },
                 });
 

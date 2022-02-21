@@ -15,6 +15,8 @@
  */
 package com.welab.wefe.common.data.mongodb.entity.union.ext;
 
+import com.welab.wefe.common.constant.SecretKeyType;
+
 import java.util.List;
 
 /**
@@ -28,8 +30,10 @@ public class MemberExtJSON {
     private String principalName;
     private String authType;
     private String auditComment;
+    private long realNameAuthTime;
     private String description;
     private List<RealnameAuthFileInfo> realnameAuthFileInfoList;
+    private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
 
     public int getRealNameAuthStatus() {
@@ -88,5 +92,21 @@ public class MemberExtJSON {
 
     public void setReporter(String reporter) {
         this.reporter = reporter;
+    }
+
+    public long getRealNameAuthTime() {
+        return realNameAuthTime;
+    }
+
+    public void setRealNameAuthTime(long realNameAuthTime) {
+        this.realNameAuthTime = realNameAuthTime;
+    }
+
+    public SecretKeyType getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(SecretKeyType secretKeyType) {
+        this.secretKeyType = secretKeyType;
     }
 }

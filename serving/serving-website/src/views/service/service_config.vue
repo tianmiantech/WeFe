@@ -60,6 +60,7 @@
                 <template slot-scope="scope">
                     <el-switch
                         v-model="scope.row.$checked"
+                        :active-value="!checkedIds.includes(scope.row.id)"
                         :disabled="checkedIds.includes(scope.row.id)"
                         @change="rowChange(scope.row)"
                     />
@@ -95,6 +96,9 @@
 
     export default {
         mixins: [table],
+        props:  {
+            serviceType: String,
+        },
         data() {
             return {
                 visible: false,
@@ -120,6 +124,13 @@
         methods: {
             show(checkedIds) {
                 this.visible = true;
+                const type = +this.serviceType;
+
+                if(type === 6) {
+                    this.search.service_type = 1;
+                } else if(type === 5) {
+                    this.search.service_type = 2;
+                }
                 this.checkedIds = checkedIds;
                 this.checkedRows = [];
                 this.getList();

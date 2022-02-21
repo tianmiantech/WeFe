@@ -108,7 +108,7 @@
                                     任务信息: {{ scope.row.task.message.substr(0, 300) }}...
                                     <el-button
                                         type="primary"
-                                        size="mini"
+                                        size="small"
                                         @click="checkErrorDetail(scope.row.task.message)"
                                     >查看更多</el-button>
                                 </template>
@@ -275,10 +275,9 @@
                 const { code, data } = await this.$http.get({
                     url:    '/flow/job/detail',
                     params: {
-                        requestFromRefresh: true,
-                        jobId:              this.jobId,
-                        member_role:        this.member_role,
-                        needResult:         true,
+                        jobId:       this.jobId,
+                        member_role: this.member_role,
+                        needResult:  true,
                     },
                 });
 

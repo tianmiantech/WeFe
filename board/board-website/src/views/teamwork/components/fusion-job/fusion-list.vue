@@ -1,5 +1,6 @@
 <template>
     <el-card
+        v-if="form.project_type !== 'DeepLearning'"
         name="数据融合"
         class="nav-title mb30"
         shadow="never"

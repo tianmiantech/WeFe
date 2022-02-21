@@ -69,7 +69,7 @@
             const methods = {
                 editLabelStage(scaleX, scaleY) {
                     if (props.currentImage.item) {
-                        if (props.currentImage.item.label_info.labeled) {
+                        if (props.currentImage.item.labeled) {
                             const list = props.currentImage.item.label_info.objects;
 
                             list.forEach(item => {

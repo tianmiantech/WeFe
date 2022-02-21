@@ -16,6 +16,8 @@
 
 package com.welab.wefe.gateway.entity;
 
+import com.welab.wefe.common.constant.SecretKeyType;
+
 import java.io.Serializable;
 
 /**
@@ -52,6 +54,12 @@ public class MemberEntity implements Serializable {
      * Base address of board service
      */
     private String boardUri;
+
+    /**
+     * Secret key type
+     */
+    private SecretKeyType secretKeyType = SecretKeyType.rsa;
+
 
     public String getId() {
         return id;
@@ -107,5 +115,13 @@ public class MemberEntity implements Serializable {
 
     public void setBoardUri(String boardUri) {
         this.boardUri = boardUri;
+    }
+
+    public SecretKeyType getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(SecretKeyType secretKeyType) {
+        this.secretKeyType = secretKeyType;
     }
 }

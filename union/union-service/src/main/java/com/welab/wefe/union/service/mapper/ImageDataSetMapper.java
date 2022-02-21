@@ -55,8 +55,4 @@ public interface ImageDataSetMapper {
 
     DataResource transferPutInputToDataResource(PutApi.Input input);
 
-
-    DataResourcePutInput transferPutInputToDataResourcePutInput(PutApi.Input input);
-
-
 }

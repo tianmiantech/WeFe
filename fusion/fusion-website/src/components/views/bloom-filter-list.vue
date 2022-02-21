@@ -1,27 +1,5 @@
 <template>
     <div class="data-set-list">
-        <div class="flexbox">
-            <!-- <el-alert
-                v-if="containsY === 'true'"
-                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据集' : ''"
-                :closable="false"
-                type="warning"
-            />
-            <slot name="data-add">
-                <div
-                    class="data-add"
-                    :style="containsY != 'true' || containsY !== 'false' ? 'width: 100%;':''"
-                >
-                    <router-link
-                        :to="{ name: 'data-add' }"
-                        target="_blank"
-                    >
-                        添加数据集
-                        <i class="el-icon-right" />
-                    </router-link>
-                </div>
-            </slot> -->
-        </div>
         <el-table
             v-loading="tableLoading"
             max-height="500"
@@ -44,7 +22,6 @@
                 </template>
             </el-table-column>
 
-
             <el-table-column
                 label="列数"
                 prop="feature_count"
@@ -63,9 +40,14 @@
 
             <el-table-column
                 label="来源"
-                prop="data_resource_source"
+
                 min-width="120"
-            />
+            >
+
+                <template slot-scope="scope">
+                    <p>{{ dataResourceSource[scope.row.data_resource_source] }}</p>
+                </template>
+            </el-table-column>
 
             <el-table-column
                 label="上传时间"
@@ -82,7 +64,7 @@
             />
             <el-table-column
                 fixed="right"
-                label="选择数据集"
+                label="操作"
                 width="140px"
             >
                 <template slot-scope="scope">
@@ -159,6 +141,12 @@ export default {
             show_bloom_filter_preview_dialog: false,
 
             tableLoading: false,
+            dataResourceSource: {
+                'LocalFile': '本地上传',
+                'UploadFile': '服务器文件上传',
+                'Sql': '数据库上传',
+
+            },
         };
     },
     async created() {

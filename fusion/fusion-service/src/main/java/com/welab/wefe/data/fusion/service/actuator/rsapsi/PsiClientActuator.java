@@ -72,7 +72,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Fragment size, default 10000
      */
-    private int shard_size = 10000;
+    private int shard_size = 2000;
     private int current_index = 0;
 
     public List<String> columnList;
@@ -179,7 +179,13 @@ public class PsiClientActuator extends AbstractPsiActuator {
             threadPool.execute(() -> {
                 try {
                     fusion();
-                } catch (StatusCodeWithException e) {
+
+                    //TODO 临时代码
+                    Socket socket = socketQueue.take();
+                    if (socket != null) {
+                        receiveAndParseResult(socket);
+                    }
+                } catch (StatusCodeWithException | InterruptedException e) {
                     e.printStackTrace();
                     LOG.error("{} StatusCodeWithException : {}", getClass().getSimpleName(), e.getMessage());
                 } finally {
@@ -191,27 +197,27 @@ public class PsiClientActuator extends AbstractPsiActuator {
         /**
          * Alignment matching
          */
-        int socketQueueSize = count;
-        CountDownLatch socketLatch = new CountDownLatch(count);
-
-        while (socketQueueSize > 0) {
-            try {
-                Socket socket = socketQueue.take();
-                if (socket != null) {
-                    parseThreadPool.execute(() -> {
-                        receiveAndParseResult(socket);
-                        socketLatch.countDown();
-                    });
-                    socketQueueSize--;
-                }
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-        }
+//        int socketQueueSize = count;
+//        CountDownLatch socketLatch = new CountDownLatch(count);
+//
+//        while (socketQueueSize > 0) {
+//            try {
+//                Socket socket = socketQueue.take();
+//                if (socket != null) {
+//                    parseThreadPool.execute(() -> {
+//                        receiveAndParseResult(socket);
+//                        socketLatch.countDown();
+//                    });
+//                    socketQueueSize--;
+//                }
+//            } catch (InterruptedException e1) {
+//                e1.printStackTrace();
+//            }
+//        }
 
         try {
             latch.await();
-            socketLatch.await();
+//            socketLatch.await();
         } catch (InterruptedException e1) {
             e1.printStackTrace();
             LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());

@@ -87,7 +87,7 @@
                     </template>
                     <el-form-item label="选择特征：">
                         <el-button
-                            size="mini"
+                            size="small"
                             @click="methods.checkColumns(row, index)"
                         >
                             {{ row.$column_name_list.length }} / {{ row.feature_count }}
@@ -154,7 +154,7 @@
                     </el-checkbox>
                     <el-button
                         type="primary"
-                        size="mini"
+                        size="small"
                         class="ml10 revert-check-btn"
                         @click="methods.revertCheck"
                     >
@@ -284,13 +284,12 @@
                     name="derived"
                 >
                     <el-alert
-                        class="mb10"
                         effect="dark"
                         type="success"
                         :closable="false"
                         title="使用衍生数据资源将 自动替换 关联成员已选的数据资源"
                     />
-                    <el-form inline>
+                    <el-form class="mt10" inline>
                         <el-form-item label="名称">
                             <el-input
                                 v-model="vData.derivedSearch.name"
@@ -304,6 +303,7 @@
                             />
                         </el-form-item>
                         <el-button
+                            class="mb20"
                             type="primary"
                             @click="dataSetTabChange('derived')"
                         >
@@ -415,7 +415,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && data.params.dataset_list) {
                         const { dataset_list } = data.params;
 
                         for(const memberIndex in vData.member_list) {
@@ -424,7 +424,7 @@
 
                             if(~datasetIndex) {
                                 const item = dataset_list[datasetIndex];
-                                const column_name_list = item.source_type ? item.features : item.feature_name_list.split(',');
+                                const column_name_list = item.derived_from ? item.features : item.feature_name_list.split(',');
 
                                 member.$data_set_list.push({
                                     ...item,
@@ -561,6 +561,7 @@
                     refInstance.searchField.member_id = vData.memberId;
                     refInstance.searchField.member_role = vData.memberRole;
                     refInstance.searchField.contains_y = vData.rawSearch.contains_y;
+                    refInstance.searchField.data_resource_type = 'TableDataSet';
 
                     switch(ref.paneName) {
                     case 'raw':
@@ -581,13 +582,13 @@
                 /* add dataset to list */
                 selectDataSet(item) {
                     vData.showSelectDataSet = false;
-                    if(item.source_type) {
+                    if(item.data_resource.derived_from) {
                         // derived dataset
                         const memberIds = {}; // cache member_id
 
                         item.members.forEach(member => {
                             if(member.job_role === 'promoter' || member.job_role === 'provider') {
-                                const features = member.feature_name_list.split(',');
+                                const features = member.feature_name_list ? member.feature_name_list.split(',') : [];
 
                                 memberIds[member.member_id] = {
                                     member_role:       member.job_role,
@@ -595,9 +596,9 @@
                                     member_name:       member.member_name,
                                     feature_count:     member.feature_count,
                                     data_set_id:       item.data_set_id,
-                                    source_type:       item.source_type,
-                                    row_count:         item.row_count ? item.row_count : item.data_set.total_data_count,
-                                    name:              item.name,
+                                    derived_from:      item.data_resource.derived_from,
+                                    row_count:         item.row_count ? item.row_count : item.data_resource.total_data_count,
+                                    name:              item.data_resource.name,
                                     column_name_list:  features,
                                     $column_name_list: features,
                                 };
@@ -630,11 +631,11 @@
                     } else {
                         const currentMember = vData.member_list[vData.memberIndex];
                         const dataset_list = currentMember.$data_set_list[0];
-                        const features = item.data_set.feature_name_list && item.data_set.feature_name_list.split(',') ? item.data_set.feature_name_list.split(',') : [];
+                        const features = item.data_resource.feature_name_list && item.data_resource.feature_name_list.split(',') ? item.data_resource.feature_name_list.split(',') : [];
 
-                        item.data_set.data_resource_id = item.data_set_id;
+                        item.data_resource.data_resource_id = item.data_set_id;
                         const dataset = {
-                            ...item.data_set,
+                            ...item.data_resource,
                             column_name_list:  features,
                             $column_name_list: features,
                         };
@@ -787,13 +788,13 @@
                             dataset_list.push({
                                 member_id:         member.member_id,
                                 member_role:       member.member_role,
-                                data_set_id:       row[0].data_resource_id,
+                                data_set_id:       row[0].data_set_id,
                                 features:          row[0].$column_name_list,
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,
                                 contains_y:        row[0].contains_y,
-                                source_type:       row[0].source_type,
-                                row_count:         row[0].row_count ? row[0].row_count : row[0].total_data_count,
+                                derived_from:      row[0].derived_from,
+                                row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
                             });
                         }
@@ -854,14 +855,17 @@
         }
         :deep(.el-form-item){
             display:flex;
-            margin-bottom:5px;
+            margin-bottom:0;
             flex-wrap: wrap;
             .el-form-item__label{
                 font-size: 12px;
                 text-align: left;
-                margin-bottom: 0;
+                line-height: 24px;
             }
-            .el-form-item__content{word-break:break-all;}
+            .el-form-item__content{
+                line-height: 22px;
+                word-break:break-all;
+            }
         }
     }
     .check-features{

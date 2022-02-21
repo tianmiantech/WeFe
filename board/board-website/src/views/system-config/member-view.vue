@@ -164,7 +164,6 @@
                 v-loading="loading"
                 class="save-btn"
                 type="primary"
-                size="medium"
                 @click="update"
             >
                 更新
@@ -185,7 +184,7 @@
             />
             <br>
             <el-button
-                size="medium"
+                size="small"
                 @click="syncToUnion"
             >
                 同步数据到 Union
@@ -228,13 +227,15 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                 },
-                audit_comment: '',
+                enterpriseAuth: '',
+                audit_comment:  '',
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.getAuthStatus();
             this.getMemberDetail();
         },
         methods: {
@@ -275,6 +276,15 @@
                 }
 
                 this.loading = false;
+            },
+
+            async getAuthStatus() {
+                const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
+
+                if(code === 0) {
+                    this.enterpriseAuth = data.real_name_auth_status;
+                    this.audit_comment = data.audit_comment;
+                }
             },
 
             // upload avatar

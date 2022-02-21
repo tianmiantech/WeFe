@@ -13,6 +13,7 @@
             </el-form-item> -->
             <el-button
                 type="primary"
+                class="inline-block"
                 native-type="submit"
                 @click="getList({ resetPagination: true })"
             >
@@ -78,9 +79,8 @@
         data() {
             return {
                 search: {
+                    name: '',
                     // id: '',
-                    name:               '',
-                    requestFromRefresh: true,
                 },
                 defaultSearch: true,
                 getListApi:    '/union/member/query',

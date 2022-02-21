@@ -35,7 +35,7 @@
     }
     .el-range-editor.el-input__inner{display: flex;}
     .el-form-item{display: block;}
-    .el-button{vertical-align:top;}
+    /* .el-button{vertical-align:top;} */
 }
 .el-date-editor{
     .el-icon{line-height:2.3;}
@@ -94,3 +94,4 @@
 }
 .el-upload-list__item-thumbnail{object-fit: contain;}
 .el-badge.el-message__badge{position:absolute;}
+.el-tag--default{padding:4px 10px;}

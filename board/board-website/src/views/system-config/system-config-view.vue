@@ -142,7 +142,6 @@
                     v-loading="loading"
                     class="save-btn mt10"
                     type="primary"
-                    size="medium"
                     @click="update"
                 >
                     提交

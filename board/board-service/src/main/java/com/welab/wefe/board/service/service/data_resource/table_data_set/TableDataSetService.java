@@ -16,15 +16,8 @@
 
 package com.welab.wefe.board.service.service.data_resource.table_data_set;
 
-import java.io.File;
-import java.sql.Connection;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetDeleteApi;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
@@ -46,6 +39,14 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.sql.Connection;
 
 /**
  * @author Zane
@@ -75,7 +76,7 @@ public class TableDataSetService extends DataResourceService {
         File file = null;
         switch (method) {
             case HttpUpload:
-                file = new File(config.getFileUploadDir(), filename);
+                file = WeFeFileSystem.getFilePath(DataResourceType.TableDataSet, filename).toFile();
                 break;
             case LocalFile:
                 file = new File(filename);
@@ -197,15 +198,15 @@ public class TableDataSetService extends DataResourceService {
     }
 
 
-	public TableDataSetMysqlModel query(String sourceJobId, ComponentType componentType) {
-		Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
-				.equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
+    public TableDataSetMysqlModel query(String sourceJobId, ComponentType componentType) {
+        Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
+                .equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
 
-		return tableDataSetRepository.findOne(where).orElse(null);
-	}
+        return tableDataSetRepository.findOne(where).orElse(null);
+    }
 
 
-	public void save(TableDataSetMysqlModel newDataSetModel) {
-		tableDataSetRepository.save(newDataSetModel);
-	}
+    public void save(TableDataSetMysqlModel newDataSetModel) {
+        tableDataSetRepository.save(newDataSetModel);
+    }
 }

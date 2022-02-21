@@ -18,6 +18,7 @@
 package com.welab.wefe.mpc.sa.request;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 
 /**
  * @Author eval
@@ -28,6 +29,7 @@ public class QueryDiffieHellmanKeyRequest {
     private String p;
     private String g;
 
+    @JSONField(name="query_params")
     private JSONObject queryParams;
 
     public String getP() {

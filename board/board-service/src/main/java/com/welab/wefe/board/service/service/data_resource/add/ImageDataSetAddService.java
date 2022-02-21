@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.service.data_resource.add;
 
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,21 +61,22 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
         ImageDataSetAddInputModel input = (ImageDataSetAddInputModel) in;
         ImageDataSetMysqlModel model = (ImageDataSetMysqlModel) m;
 
-        File inputFile = new File(config.getFileUploadDir(), input.getFilename());
-
+        File inputFile = WeFeFileSystem.getFilePath(DataResourceType.ImageDataSet, input.getFilename()).toFile();
         LOG.info("{} 获取到图片数据集文件：{}", m.getId(), inputFile.getAbsolutePath());
 
         DecompressionResult fileDecompressionResult = null;
         List<ImageDataSetSampleMysqlModel> sampleList = null;
         try {
+            dataResourceUploadTaskService.updateMessageBeforeStart(model.getId(), "解压中...");
             fileDecompressionResult = SuperDecompressor.decompression(inputFile, true);
-            dataResourceUploadTaskService.updateProgress(model.getId(), fileDecompressionResult.files.size(), 1, 0);
+            dataResourceUploadTaskService.updateMessageBeforeStart(model.getId(), "解压完成，正在解析样本...");
             LOG.info("{} 完成解压，包含文件 {} 个", m.getId(), fileDecompressionResult.files.size());
 
             sampleList = AbstractImageDataSetParser
                     .getParser(input.forJobType)
                     .parseFilesToSamples(model, fileDecompressionResult.files);
             LOG.info("{} 完成样本解析，包含样本 {} 个", m.getId(), sampleList.size());
+            dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), 1, 0, "已完成样本解析");
 
             setImageDataSetModel(input, model, sampleList);
             dataResourceUploadTaskService.updateProgress(model.getId(), sampleList.size(), 2, 0);
@@ -98,7 +99,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
                         imageDataSetSampleRepository.save(sample);
                         count.incrementAndGet();
                         if (count.get() % 50 == 0) {
-                            dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0);
+                            dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0, "正在保存样本信息...");
                             LOG.info("{} 样本信息保存中，当前进度 {}/{}", m.getId(), count.get(), totalCount);
                         }
                     } catch (Exception e) {
@@ -126,7 +127,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
                 .stream()
                 .filter(x -> x.isLabeled())
                 .forEach(x ->
-                        labelSet.addAll(Arrays.asList(x.getLabelList().split(",")))
+                        labelSet.addAll(x.getLabelSet())
                 );
         dataSet.setLabelList(
                 StringUtil.joinByComma(labelSet)

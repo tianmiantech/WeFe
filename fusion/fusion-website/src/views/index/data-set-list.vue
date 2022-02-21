@@ -7,17 +7,11 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="数据集ID:"
-                label-width="80px"
-            >
+            <el-form-item label="ID:">
                 <el-input v-model="search.id" />
             </el-form-item>
 
-            <el-form-item
-                label="数据集:"
-                label-width="100px"
-            >
+            <el-form-item label="名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
 
@@ -29,6 +23,7 @@
             </el-button>
 
             <router-link
+                class="ml20"
                 :to="{name: 'data-set-view'}"
             >
                 <el-button>
@@ -45,41 +40,54 @@
             <el-table-column
                 type="index"
                 label="编号"
-                width="45px"
+                width="45"
             />
             <el-table-column
                 label="数据集"
-                min-width="154px"
+                min-width="154"
             >
                 <template slot-scope="scope">
                     <router-link :to="{name: 'data-set-detail', query: {id: scope.row.id, name: scope.row.name }}">
-                        {{ scope.row.id }}
+                        {{ scope.row.name }}
                     </router-link>
                     <br>
-                    {{ scope.row.name }}
+                    {{ scope.row.id }}
                 </template>
             </el-table-column>
 
             <el-table-column
-                label="数据量"
+                label="行数"
                 prop="row_count"
-                width="100px"
+                width="100"
             />
             <el-table-column
-                label="描述"
-                prop="description"
-                width="360px"
-            />
-
+                label="字段信息"
+                prop="rows"
+            >
+                <template
+                    v-if="scope.row.rows"
+                    slot-scope="scope"
+                >
+                    <el-tag
+                        v-for="item in scope.row.rows.split(',')"
+                        :key="item"
+                        :type="item"
+                        effect="plain"
+                        style="margin-left : 5px"
+                    >
+                        {{ item }}
+                    </el-tag>
+                </template>
+            </el-table-column>
             <el-table-column
                 label="使用次数"
                 prop="used_count"
-                width="100px"
+                width="100"
             />
 
             <el-table-column
                 label="创建时间"
-                min-width="50px"
+                min-width="140"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -88,7 +96,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="50px"
+                min-width="140"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -97,7 +105,7 @@
 
             <el-table-column
                 label="操作"
-                width="100px"
+                width="100"
                 fixed="right"
             >
                 <template slot-scope="scope">
@@ -110,7 +118,6 @@
                 </template>
             </el-table-column>
         </el-table>
-
 
         <div
             v-if="pagination.total"
@@ -126,13 +133,6 @@
                 @size-change="pageSizeChange"
             />
         </div>
-
-        <!--  <el-dialog
-                      :title="策略"
-                      :visible.sync="dataDialog"
-                  >
-                  <json-view :data="jsonData"/>
-           </el-dialog> -->
 
         <el-dialog
             :visible.sync="dataSet.editor"
@@ -170,7 +170,7 @@
                 <el-button
                     type="primary"
                     :disabled="!dataSet.name || !dataSet.partner_id || !dataSet.data_resource_id"
-                    @click="dataSet.id?editTask():addTask()"
+                    @click="dataSet.id ? editTask: addTask"
                 >确定</el-button>
             </span>
         </el-dialog>
@@ -179,7 +179,6 @@
 
 <script>
     import table from '@src/mixins/table.js';
-    // import jsonView from 'vue-json-views';
 
     export default {
         mixins: [table],
@@ -264,7 +263,7 @@
 
                     if (code === 0) {
                         this.$message('删除成功!');
-                        await this.getTableList();
+                        this.getTableList();
                     }
                 });
 
@@ -272,14 +271,3 @@
         },
     };
 </script>
-
-<style lang="scss">
-    .structure-table{
-        .ant-table-title{
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            font-size:16px;
-        }
-    }
-</style>

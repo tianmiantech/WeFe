@@ -32,6 +32,7 @@
                 />
             </el-form-item>
             <el-button
+                class="mb20"
                 type="primary"
                 @click="searchDeriveData"
             >
@@ -50,13 +51,13 @@
             >
                 <template v-slot="scope">
                     <router-link :to="{ name: 'data-view', query: { id: scope.row.data_set_id } }">
-                        {{ scope.row.name }}
+                        {{ scope.row.data_resource.name }}
                     </router-link>
-                    <el-tag v-if="scope.row.contains_y" class="ml5">
+                    <el-tag v-if="scope.row.data_resource.contains_y" class="ml5">
                         Y
                     </el-tag>
                     <br>
-                    <span class="p-id">{{ scope.row.data_set_id }}</span>
+                    <span class="p-id">{{ scope.row.data_resource.data_set_id }}</span>
                 </template>
             </el-table-column>
             <el-table-column
@@ -64,13 +65,13 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    {{ scope.row.source_type_cn }}
+                    {{ scope.row.data_resource.source_type_cn }}
                 </template>
             </el-table-column>
             <el-table-column
                 label="成员列表"
-                prop="name"
                 min-width="130"
+                prop="name"
             >
                 <template v-slot="scope">
                     <template
@@ -78,8 +79,8 @@
                         :key="`${item.member_id}-${item.member_role}`"
                     >
                         <el-tag
-                            class="mr10"
                             type="info"
+                            class="mr10"
                             effect="plain"
                         >
                             {{ item.member_name }}

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.project.dataset;
 
-import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 import com.welab.wefe.board.service.service.ProjectDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -42,7 +42,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataSetOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY, input.forJobType);
+        List<ProjectDataResourceOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY, input.forJobType);
         return success(new Output(list));
     }
 
@@ -119,17 +119,17 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
     }
 
     public static class Output {
-        private List<ProjectDataSetOutputModel> list;
+        private List<ProjectDataResourceOutputModel> list;
 
-        public Output(List<ProjectDataSetOutputModel> list) {
+        public Output(List<ProjectDataResourceOutputModel> list) {
             this.list = list;
         }
 
-        public List<ProjectDataSetOutputModel> getList() {
+        public List<ProjectDataResourceOutputModel> getList() {
             return list;
         }
 
-        public void setList(List<ProjectDataSetOutputModel> list) {
+        public void setList(List<ProjectDataResourceOutputModel> list) {
             this.list = list;
         }
     }
