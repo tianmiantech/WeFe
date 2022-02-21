@@ -28,9 +28,7 @@ nas_upload(){
     else
       echo "remote nas has no python environment, now upload to nas ..."
       s nas upload /data/environment/.s/python nas:///mnt/auto/ -r -o --debug
-      rm -rf .s/
     fi
-
   fi
 
   # delete remote dir
