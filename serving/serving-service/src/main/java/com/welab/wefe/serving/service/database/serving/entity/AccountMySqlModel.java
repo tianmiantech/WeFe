@@ -56,10 +56,12 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
      * 审核状态
      */
     @Enumerated(EnumType.STRING)
+    @Column(name = "audit_status")
     private AuditStatus auditStatus;
     /**
      * 审核意见
      */
+    @Column(name = "audit_comment")
     private String auditComment;
 
     /**
