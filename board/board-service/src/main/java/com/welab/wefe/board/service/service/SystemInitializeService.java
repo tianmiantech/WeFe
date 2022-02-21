@@ -30,8 +30,10 @@ import com.welab.wefe.board.service.database.repository.data_resource.TableDataS
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -115,9 +117,11 @@ public class SystemInitializeService extends AbstractService {
         model.setMemberHidden(false);
 
         try {
-            RSAUtil.RsaKeyPair pair = RSAUtil.generateKeyPair();
-            model.setRsaPrivateKey(pair.privateKey);
-            model.setRsaPublicKey(pair.publicKey);
+            input.setSecretKeyType(null == input.getSecretKeyType() ? SecretKeyType.rsa : input.getSecretKeyType());
+            SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(input.getSecretKeyType());
+            model.setRsaPrivateKey(keyPair.privateKey);
+            model.setRsaPublicKey(keyPair.publicKey);
+            model.setSecretKeyType(input.getSecretKeyType());
         } catch (NoSuchAlgorithmException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
@@ -167,9 +171,9 @@ public class SystemInitializeService extends AbstractService {
         MemberInfoModel model = globalConfigService.getMemberInfo();
 
         try {
-            RSAUtil.RsaKeyPair pair = RSAUtil.generateKeyPair();
-            model.setRsaPrivateKey(pair.privateKey);
-            model.setRsaPublicKey(pair.publicKey);
+            SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(model.getSecretKeyType());
+            model.setRsaPrivateKey(keyPair.privateKey);
+            model.setRsaPublicKey(keyPair.publicKey);
         } catch (NoSuchAlgorithmException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

@@ -110,7 +110,6 @@ export default {
     created() {
         this.id = this.$route.query.id;
         this.getDataSetDetail();
-        this.getDataSetPreview();
     },
     methods: {
 
@@ -127,6 +126,7 @@ export default {
                 if (data) {
                     this.selectedCol = data.rows
                     this.dataInfo = data
+                    this.getDataSetPreview()
                 }
             }
             this.loading = false;

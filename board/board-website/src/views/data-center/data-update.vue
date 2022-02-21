@@ -33,7 +33,6 @@
                             v-if="tagInputVisible"
                             ref="saveTagInput"
                             v-model="tagInputValue"
-                            :fetch-suggestions="getDataSetTags"
                             :trigger-on-focus="false"
                             :loading="loading"
                             class="input-new-tag"

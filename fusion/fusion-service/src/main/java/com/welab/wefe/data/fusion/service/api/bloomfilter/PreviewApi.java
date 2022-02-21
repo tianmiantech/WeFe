@@ -72,7 +72,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Filter not found");
             }
 
-            List<String> rowsList = input.getRows();
+            String rows = input.getRows();
+            List<String> rowsList = Arrays.asList(rows.split(","));
 
             if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)) {
                 String sql = bloomFilterMySqlModel.getStatement();
@@ -138,11 +139,11 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 : new ExcelDataSetReader(file);
 
         try {
-            reader.getHeader(rowsList);
+            reader.getHeader();
             // Obtain column head
             headRowConsumer.accept(rowsList);
             // Read data row
-            reader.read(dataRowConsumer, 10000, 25_000);
+            reader.readWithSelectRow(dataRowConsumer, -1, -1, rowsList);
         } finally {
             reader.close();
         }
@@ -325,6 +326,10 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         // Gets the data set column header
         List<String> header = jdbcManager.getRowHeaders(conn, sql);
+        if (header == null) {
+            throw new StatusCodeWithException("查询出错，请检查查询语句是否正确", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
         if (header.stream().distinct().count() != header.size()) {
             throw new StatusCodeWithException("The dataset contains duplicate fields. Please handle and re-upload.", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -365,7 +370,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private String sql;
 
-        private List<String> rows;
+        private String rows;
 
 
         public String getId() {
@@ -400,11 +405,11 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             this.sql = sql;
         }
 
-        public List<String> getRows() {
+        public String getRows() {
             return rows;
         }
 
-        public void setRows(List<String> rows) {
+        public void setRows(String rows) {
             this.rows = rows;
         }
     }

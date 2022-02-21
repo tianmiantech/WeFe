@@ -16,14 +16,16 @@
 
 package com.welab.wefe.gateway.sdk;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.config.ConfigProperties;
+import com.welab.wefe.gateway.entity.MemberEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,8 +97,11 @@ public class UnionHelper {
      * Generate request parameters
      */
     private static JObject generateReqParam(String verifyMemberId, String data) throws Exception {
+        MemberEntity selfMember = MemberCache.getInstance().getSelfMember();
+        SecretKeyType secretKeyType = selfMember.getSecretKeyType();
+        String privateKey = selfMember.getPrivateKey();
         return JObject.create()
-                .append("sign", RSAUtil.sign(data, MemberCache.getInstance().getSelfMember().getPrivateKey(), "UTF-8"))
+                .append("sign", SignUtil.sign(data, privateKey, secretKeyType))
                 .append("memberId", verifyMemberId)
                 .append("data", data);
     }

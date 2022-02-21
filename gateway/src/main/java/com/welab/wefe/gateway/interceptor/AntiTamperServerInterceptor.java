@@ -16,8 +16,10 @@
 
 package com.welab.wefe.gateway.interceptor;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -156,8 +159,10 @@ public class AntiTamperServerInterceptor extends AbstractServerInterceptor {
             return false;
         }
 
+        String publicKey = memberEntity.getPublicKey();
+        SecretKeyType secretKeyType = memberEntity.getSecretKeyType();
         try {
-            return RSAUtil.verify(signInfoObj.getString(GrpcConstant.SIGN_KEY_DATA).getBytes("UTF-8"), RSAUtil.getPublicKey(memberEntity.getPublicKey()), sign);
+             return SignUtil.verify(signInfoObj.getString(GrpcConstant.SIGN_KEY_DATA).getBytes(StandardCharsets.UTF_8.toString()), publicKey, sign, secretKeyType);
         } catch (Exception e) {
             LOG.error("Signature verification exception：", e);
         }
