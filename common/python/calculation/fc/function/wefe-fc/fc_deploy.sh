@@ -5,15 +5,8 @@ wefe_code_path=$1
 
 # upload files to nas
 nas_upload(){
-  # add config before nas init, and execute the first time it uses s tool
-#  s_config=`s config get -l`
-#  if [[ $s_config =~ 's-config' ]]
-#  then
-#    echo "already init s-config, update s-config"
-#    s config delete -a s-config
-#  else
-#    echo "does not init s-config, now start to init ..."
-#  fi
+
+  rm -rf .s/
 
   s clean --all
 
