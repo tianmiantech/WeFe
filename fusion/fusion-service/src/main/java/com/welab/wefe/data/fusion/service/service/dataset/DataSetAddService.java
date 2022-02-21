@@ -111,11 +111,6 @@ public class DataSetAddService extends AbstractService {
             }
         }
 
-        model.setUsedCount(0);
-        model.setRowCount(rowsCount);
-        model.setUpdatedTime(new Date());
-        dataSetRepository.save(model);
-
         AddApi.DataSetAddOutput output = new AddApi.DataSetAddOutput();
         output.setDataSourceId(model.getDataSourceId());
         output.setId(model.getId());
