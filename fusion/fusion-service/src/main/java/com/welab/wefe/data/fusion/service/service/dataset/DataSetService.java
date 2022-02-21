@@ -91,7 +91,7 @@ public class DataSetService {
 
 
     public DataSetMySqlModel findById(String id) {
-        return dataSetRepository.getOne(id);
+        return dataSetRepository.findOne("id", id, DataSetMySqlModel.class);
     }
 
     /**

@@ -89,22 +89,21 @@ public class DataSetAddService extends AbstractService {
         model.setUsedCount(0);
         model.setRowCount(rowsCount);
         model.setUpdatedTime(new Date());
+        model.setStatement(input.getSql());
+        model.setSourcePath(input.getFilename());
+        model.setDataSourceId(input.getDataSourceId());
         dataSetRepository.save(model);
+
+        CommonThreadPool.TASK_SWITCH = true;
 
         File file = null;
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
-            model.setDataSourceId(input.getDataSourceId());
-            //DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
-            //String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
-
             rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
-            model.setStatement(input.getSql());
+
         } else {
             file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
-
             try {
                 rowsCount = readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
-                model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
