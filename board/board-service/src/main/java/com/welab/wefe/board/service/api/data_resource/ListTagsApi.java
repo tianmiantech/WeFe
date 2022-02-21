@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.database.repository.data_resource.TableDataS
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -46,9 +47,15 @@ public class ListTagsApi extends AbstractApi<ListTagsApi.Input, ListTagsApi.Outp
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
         List<Item> list = CacheObjects
-                .getDataResourceTags(input.dataResourceType)
+                .getDataResourceTags(null)
                 .entrySet()
                 .stream()
+                .filter(x -> {
+                    if (StringUtil.isEmpty(input.tag)) {
+                        return true;
+                    }
+                    return x.getKey().contains(input.tag);
+                })
                 .map(x -> new Item(x.getKey(), x.getValue()))
                 .collect(Collectors.toList());
 
@@ -63,8 +70,7 @@ public class ListTagsApi extends AbstractApi<ListTagsApi.Input, ListTagsApi.Outp
         public String tag;
 
         @Check(name = "资源类型")
-        public DataResourceType dataResourceType;
-
+        public List<DataResourceType> dataResourceType;
     }
 
     public static class Output {
