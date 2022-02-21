@@ -17,8 +17,9 @@
 package com.welab.wefe.mpc.pir.server.flow;
 
 import com.alibaba.fastjson.JSON;
-import com.welab.wefe.mpc.cache.result.QueryDataResult;
-import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.commom.Conversion;
 import com.welab.wefe.mpc.pir.flow.BasePrivateInformationRetrieval;
 import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransferKey;
@@ -38,8 +39,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author eval
  */
-public class PrivateInformationRetrievalServer extends BasePrivateInformationRetrieval {
-    private static final Logger LOG = LoggerFactory.getLogger(PrivateInformationRetrievalServer.class);
+public class PrivateInformationRetrievalFlowServer extends BasePrivateInformationRetrieval {
+    private static final Logger LOG = LoggerFactory.getLogger(PrivateInformationRetrievalFlowServer.class);
 
     PrivateInformationRetrievalTransferVariable mTransferVariable = new CacheTransferVariable();
 
@@ -56,8 +57,8 @@ public class PrivateInformationRetrievalServer extends BasePrivateInformationRet
 
     public void process(List<Object> ids, String idCryptMethod) {
         LOG.info("uuid:{} start process data size:{}", uuid, ids.size());
-        QueryDataResult<Map<String, String>> queryDataResult = QueryDataResultFactory.getQueryDataResult();
-        CompletableFuture<Map<String, String>> cf = CompletableFuture.supplyAsync(() -> queryDataResult.query(uuid));
+        CacheOperation<Map<String, String>> queryDataResult = CacheOperationFactory.getCacheOperation();
+        CompletableFuture<Map<String, String>> cf = CompletableFuture.supplyAsync(() -> queryDataResult.get(uuid, Constants.RESULT));
         List<ObliviousTransferKey> keyList = mObliviousTransfer.keyDerivation(ids.size());
         LOG.info("uuid:{} keyDerivation finish", uuid);
         cf.join();

@@ -18,9 +18,6 @@ package com.welab.wefe.mpc.pir.server;
 
 import com.welab.wefe.mpc.cache.CacheInit;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
-import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
-import com.welab.wefe.mpc.cache.result.QueryDataResult;
-import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
 import com.welab.wefe.mpc.pir.server.thread.ProduceHauckTargetThread;
 
 /**
@@ -30,14 +27,14 @@ import com.welab.wefe.mpc.pir.server.thread.ProduceHauckTargetThread;
 public class PrivateInformationRetrievalServer {
 
     public static void init(int cacheCount) {
-        init(cacheCount, null, null);
+        init(cacheCount, null);
     }
 
-    public static void init(int cacheCount, CacheOperation operation, QueryDataResult queryDataResult) {
+    public static void init(int cacheCount, CacheOperation operation) {
         // 预生成 Huack 对象
         ProduceHauckTargetThread thread = new ProduceHauckTargetThread(cacheCount);
         thread.start();
 
-        CacheInit.init(operation, queryDataResult);
+        CacheInit.init(operation);
     }
 }
