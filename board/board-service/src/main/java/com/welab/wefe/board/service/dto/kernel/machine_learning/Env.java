@@ -16,7 +16,15 @@
 
 package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.dto.globalconfig.CalculationEngineConfigModel;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.JobBackendType;
 import com.welab.wefe.common.wefe.enums.env.EnvName;
 
@@ -30,6 +38,23 @@ public class Env {
     private int workMode;
     private EnvName name;
 
+
+    @JSONField(serialize = false)
+    public static Env get() throws StatusCodeWithException {
+        Env env = new Env();
+        CalculationEngineConfigModel calculationEngineConfig = Launcher.getBean(GlobalConfigService.class).getCalculationEngineConfig();
+        if (StringUtil.isEmpty(calculationEngineConfig.backend)) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("计算环境未选择，请在[全局设置][计算引擎设置]中指定计算环境。");
+        }
+
+        Config config = Launcher.getBean(Config.class);
+
+        env.setBackend(JobBackendType.valueOf(calculationEngineConfig.backend));
+        env.setDbType(config.getDbType());
+        env.setWorkMode(config.getWorkMode());
+        env.setName(config.getEnvName());
+        return env;
+    }
 
     //region getter/setter
 

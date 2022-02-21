@@ -123,10 +123,8 @@ public class ProjectFlowJobService extends AbstractService {
         }
 
         JobMySqlModel lastJob = jobRepo.findLastByFlowId(flow.getFlowId(), project.getMyRole().name());
-        if (project.getProjectType() == ProjectType.MachineLearning) {
-            if (lastJob != null && !lastJob.getStatus().finished()) {
-                throw new StatusCodeWithException("请稍等，当前任务尚未结束，请等待其结束后重试。", StatusCode.PARAMETER_VALUE_INVALID);
-            }
+        if (lastJob != null && !lastJob.getStatus().finished()) {
+            throw new StatusCodeWithException("请稍等，当前任务尚未结束，请等待其结束后重试。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         JobArbiterInfo jobArbiterInfo = calcArbiterInfo(flow, input, project);
@@ -560,12 +558,6 @@ public class ProjectFlowJobService extends AbstractService {
         Project project = new Project();
         project.setProjectId(job.getProjectId());
 
-        Env env = new Env();
-        env.setBackend(super.config.getBackend());
-        env.setDbType(super.config.getDbType());
-        env.setWorkMode(super.config.getWorkMode());
-        env.setName(super.config.getEnvName());
-
         List<JobDataSet> dataSets = listJobDataSets(job, nodes);
 
         jobInfo.setFederatedLearningType(job.getFederatedLearningType());
@@ -599,7 +591,7 @@ public class ProjectFlowJobService extends AbstractService {
             }
         }
 
-        jobInfo.setEnv(env);
+        jobInfo.setEnv(Env.get());
         jobInfo.setDataSets(dataSets);
 
         return jobInfo;
