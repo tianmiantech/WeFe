@@ -558,12 +558,6 @@ public class ProjectFlowJobService extends AbstractService {
         Project project = new Project();
         project.setProjectId(job.getProjectId());
 
-        Env env = new Env();
-        env.setBackend(super.config.getBackend());
-        env.setDbType(super.config.getDbType());
-        env.setWorkMode(super.config.getWorkMode());
-        env.setName(super.config.getEnvName());
-
         List<JobDataSet> dataSets = listJobDataSets(job, nodes);
 
         jobInfo.setFederatedLearningType(job.getFederatedLearningType());
@@ -597,7 +591,7 @@ public class ProjectFlowJobService extends AbstractService {
             }
         }
 
-        jobInfo.setEnv(env);
+        jobInfo.setEnv(Env.get());
         jobInfo.setDataSets(dataSets);
 
         return jobInfo;

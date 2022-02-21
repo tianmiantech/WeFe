@@ -156,7 +156,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws StatusCodeWithException {
         if (graph.getJob().getMyRole() == JobMemberRole.arbiter) {
             return null;
         }
@@ -645,22 +645,10 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
     }
 
 
-    private void updateKernelJob(TaskConfig taskConfig, Params params) {
+    private void updateKernelJob(TaskConfig taskConfig, Params params) throws StatusCodeWithException {
         KernelJob kernelJob = taskConfig.getJob();
-        kernelJob.setEnv(createEvn());
+        kernelJob.setEnv(Env.get());
         kernelJob.setFederatedLearningMode(FederatedLearningModel.oot);
-    }
-
-    /**
-     * Create sub component running environment
-     */
-    private Env createEvn() {
-        Env env = new Env();
-        env.setBackend(config.getBackend());
-        env.setDbType(config.getDbType());
-        env.setWorkMode(config.getWorkMode());
-        env.setName(config.getEnvName());
-        return env;
     }
 
 
