@@ -42,7 +42,7 @@ public class HauckRandomLegalService {
             String r = request.getR();
             mCacheOperation.save(uuid, Constants.PIR.R, r);
         }
-        String result = mCacheOperation.get(uuid, Constants.PIR.RESULT);
+        String result = mCacheOperation.get(uuid, Constants.ENCRYPT_RESULT);
 
         QueryRandomLegalResponse response = new QueryRandomLegalResponse();
         response.setUuid(uuid);
