@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-@Api(path = "user/update", name = "user update")
+@Api(path = "user/enable", name = "user enable")
 public class EnableApi extends AbstractApi<UserEnableInput, AbstractApiOutput> {
     @Autowired
     private UserService userService;
