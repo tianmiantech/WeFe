@@ -18,6 +18,7 @@ package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.GrpcConstant;
@@ -30,6 +31,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -124,7 +126,8 @@ public class SignVerifyServerInterceptor extends AbstractServerInterceptor {
         updateExpireUUIDCache(uuid);
 
         try {
-            return RSAUtil.verify(signInfoObj.getString(GrpcConstant.SIGN_KEY_DATA).getBytes("UTF-8"), RSAUtil.getPublicKey(memberEntity.getPublicKey()), sign);
+            byte[] data = signInfoObj.getString(GrpcConstant.SIGN_KEY_DATA).getBytes(StandardCharsets.UTF_8.toString());
+            return SignUtil.verify(data, memberEntity.getPublicKey(), sign, memberEntity.getSecretKeyType());
         } catch (Exception e) {
             LOG.error("Signature verification exception：", e);
         }
