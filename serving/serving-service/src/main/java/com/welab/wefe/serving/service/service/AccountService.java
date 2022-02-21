@@ -28,12 +28,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.LoginSecurityPolicy;
 import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.serving.service.api.account.AuditApi.Input;
 import com.welab.wefe.serving.service.api.account.LoginApi;
 import com.welab.wefe.serving.service.api.account.QueryApi.Output;
 import com.welab.wefe.serving.service.api.account.RegisterApi;
@@ -111,6 +114,19 @@ public class AccountService {
         model.setPassword(password);
         model.setSuperAdminRole(accountRepository.count() < 1);
         model.setAdminRole(model.getSuperAdminRole());
+        
+        
+        // Super administrator does not need to review
+        if (model.getSuperAdminRole()) {
+            model.setAuditStatus(AuditStatus.agree);
+            model.setAuditComment("超级管理员自动通过");
+            model.setEnable(true);
+        }
+        // Whether others want to review it depends on the configuration.
+        else {
+            model.setAuditStatus(AuditStatus.auditing);
+            model.setEnable(false);
+        }
         accountRepository.save(model);
 
         CacheObjects.refreshAccountMap();
@@ -139,6 +155,18 @@ public class AccountService {
             throw new StatusCodeWithException("Wrong mobile phone number or password！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
+        // Check audit status
+        if (model.getAuditStatus() != null) {
+            switch (model.getAuditStatus()) {
+                case auditing:
+                    AccountMySqlModel superAdmin = findSuperAdmin();
+                    throw new StatusCodeWithException("账号尚未审核，请联系管理员 " + superAdmin.getNickname() + " （或其他任意管理员）对您的账号进行审核后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
+                case disagree:
+                    throw new StatusCodeWithException("账号审核不通过：" + model.getAuditComment(), StatusCode.PARAMETER_VALUE_INVALID);
+                default:
+            }
+        }
+        
         String token = UUID.randomUUID().toString();
 
         LoginApi.Output output = new ModelMapper().map(model, LoginApi.Output.class);
@@ -152,6 +180,20 @@ public class AccountService {
         return output;
     }
 
+	/**
+	 * Query super administrator
+	 */
+	public AccountMySqlModel findSuperAdmin() {
+		List<AccountMySqlModel> list = accountRepository
+				.findAll(Where.create().equal("superAdminRole", true).build(AccountMySqlModel.class));
+
+		if (list.isEmpty()) {
+			return null;
+		}
+
+		return list.get(0);
+	}
+    
     /**
      * create salt
      */
@@ -167,5 +209,23 @@ public class AccountService {
 		List<AccountMySqlModel> accounts = accountRepository.findAll();
 		return accounts.stream().map(x -> com.welab.wefe.common.web.util.ModelMapper.map(x, Output.class))
 				.collect(Collectors.toList());
+	}
+
+	public void audit(Input input) throws StatusCodeWithException {
+		AccountMySqlModel auditor = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        if (!auditor.getAdminRole()) {
+            throw new StatusCodeWithException("您不是管理员，无权执行审核操作！", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        AccountMySqlModel account = accountRepository.findById(input.getAccountId()).orElse(null);
+        if (account.getAuditStatus() != AuditStatus.auditing) {
+            throw new StatusCodeWithException("该用户已被审核，请勿重复操作！", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        account.setEnable(true);
+        account.setAuditStatus(input.getAuditStatus());
+        account.setAuditComment(input.getAuditComment());
+        account.setUpdatedBy(CurrentAccount.id());
+        accountRepository.save(account);
+
 	}
 }
