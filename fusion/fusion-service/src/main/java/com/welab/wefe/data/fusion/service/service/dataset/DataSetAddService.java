@@ -151,7 +151,7 @@ public class DataSetAddService extends AbstractService {
                 : new ExcelDataSetReader(file);
 
         // Gets the data set column header
-        List<String> headers = dataSetReader.getHeader(rows);
+        List<String> headers = dataSetReader.getHeader();
 
         DataSetStorageHelper.createDataSetTable(model.getId(), rows);
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, file, rows);
