@@ -940,14 +940,17 @@ CREATE TABLE `table_data_set`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';
 
+
+-- bloom_filter definition
+
 DROP TABLE IF EXISTS `bloom_filter`;
 CREATE TABLE `bloom_filter`
 (
     `id`             varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`     varchar(32) COMMENT '创建人',
-    `created_time`   datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`     varchar(32) COMMENT '更新人',
-    `updated_time`   datetime(6) COMMENT '更新时间',
+    `created_by`     varchar(32)  DEFAULT NULL COMMENT '创建人',
+    `created_time`   datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`     varchar(32)  DEFAULT NULL COMMENT '更新人',
+    `updated_time`   datetime(6) DEFAULT NULL COMMENT '更新时间',
     `rsa_e`          text COMMENT '密钥e',
     `rsa_n`          text COMMENT '密钥n',
     `rsa_d`          text COMMENT '密钥e',
@@ -956,6 +959,149 @@ CREATE TABLE `bloom_filter`
     `hash_function`  text COMMENT '主键hash生成方法',
     `add_method`     varchar(255) DEFAULT NULL COMMENT '布隆过滤器添加方式',
     `sql_script`     varchar(255) DEFAULT NULL COMMENT 'sql语句',
+    `rsa_p`          text,
+    `rsa_q`          text,
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='布隆过滤器';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='布隆过滤器';
+
+
+-- bloom_filter_column definition
+
+DROP TABLE IF EXISTS `bloom_filter_column`;
+CREATE TABLE `bloom_filter_column`
+(
+    `id`                 varchar(32)  NOT NULL COMMENT '全局唯一标识',
+    `created_by`         varchar(32)  DEFAULT NULL COMMENT '创建人',
+    `created_time`       datetime(6) NOT NULL COMMENT '创建时间',
+    `updated_by`         varchar(32)  DEFAULT NULL COMMENT '更新人',
+    `updated_time`       datetime(6) DEFAULT NULL COMMENT '更新时间',
+    `bloom_filter_id`    varchar(32)  NOT NULL COMMENT '数据集Id',
+    `index`              int(32) NOT NULL COMMENT '序号',
+    `name`               varchar(255) NOT NULL COMMENT '字段名称',
+    `data_type`          varchar(32)  NOT NULL COMMENT '数据类型',
+    `comment`            varchar(255) DEFAULT NULL COMMENT '注释',
+    `empty_rows`         bigint(255) DEFAULT '0' COMMENT '空值数据行数',
+    `value_distribution` json         DEFAULT NULL COMMENT '数值分布',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='数据集字段';
+
+
+-- bloom_filter_task definition
+
+DROP TABLE IF EXISTS `bloom_filter_task`;
+CREATE TABLE `bloom_filter_task`
+(
+    `id`                  varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`          varchar(32)  DEFAULT NULL COMMENT '创建人',
+    `created_time`        datetime(6) NOT NULL COMMENT '创建时间',
+    `updated_by`          varchar(32)  DEFAULT NULL COMMENT '更新人',
+    `updated_time`        datetime(6) DEFAULT NULL COMMENT '更新时间',
+    `bloom_filter_name`   varchar(128) DEFAULT NULL COMMENT '过滤器名',
+    `bloom_filter_id`     varchar(32)  DEFAULT NULL COMMENT '过滤器id',
+    `total_row_count`     bigint(20) DEFAULT NULL COMMENT '总数据行数',
+    `added_row_count`     bigint(20) DEFAULT NULL COMMENT '已写入数据行数',
+    `progress`            int(10) DEFAULT NULL COMMENT '任务进度百分比',
+    `estimate_time`       int(64) DEFAULT NULL COMMENT '预计剩余耗时',
+    `repeat_id_row_count` int(64) DEFAULT NULL COMMENT '主键重复条数',
+    `error_message`       text,
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `index_unique_data_set_task` (`bloom_filter_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='添加数据集的任务表。';
+
+
+-- fusion_field_info definition
+
+DROP TABLE IF EXISTS `fusion_field_info`;
+CREATE TABLE `fusion_field_info`
+(
+    `id`           varchar(64)  NOT NULL,
+    `business_id`  varchar(64)  NOT NULL,
+    `columns`      varchar(255) NOT NULL COMMENT '字段集合',
+    `options`      varchar(32)  NOT NULL COMMENT '处理方式',
+    `frist_index`  int(11) DEFAULT NULL COMMENT '处理起始位',
+    `end_index`    int(11) DEFAULT NULL COMMENT '处理终止位',
+    `created_by`   varchar(32) DEFAULT NULL,
+    `updated_by`   varchar(32) DEFAULT NULL,
+    `created_time` datetime     NOT NULL,
+    `updated_time` datetime    DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    `position`     tinyint(1) NOT NULL,
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+-- fusion_task definition
+
+DROP TABLE IF EXISTS `fusion_task`;
+CREATE TABLE `fusion_task`
+(
+    `id`                         varchar(64)  NOT NULL,
+    `business_id`                varchar(64)  NOT NULL COMMENT '业务ID',
+    `name`                       varchar(255) NOT NULL COMMENT '任务名称',
+    `status`                     varchar(32)  NOT NULL COMMENT '任务状态',
+    `error`                      text COMMENT '任务错误信息',
+    `dst_member_id`              varchar(32)  NOT NULL COMMENT '合作伙伴id',
+    `data_resource_id`           varchar(32)   DEFAULT NULL COMMENT '数据集id',
+    `data_resource_type`         varchar(21)   DEFAULT NULL,
+    `partner_data_resource_id`   varchar(32)   DEFAULT NULL COMMENT '数据集id',
+    `partner_data_resource_type` varchar(21)   DEFAULT NULL,
+    `row_count`                  int(11) DEFAULT NULL COMMENT '对齐数据行数',
+    `psi_actuator_role`          varchar(32)   DEFAULT NULL,
+    `algorithm`                  varchar(32)   DEFAULT NULL,
+    `partner_row_count`          int(11) DEFAULT NULL COMMENT '处理总数',
+    `fusion_count`               int(11) DEFAULT NULL COMMENT '已融合数',
+    `spend`                      bigint(20) DEFAULT NULL,
+    `created_by`                 varchar(32)   DEFAULT NULL,
+    `updated_by`                 varchar(32)   DEFAULT NULL,
+    `created_time`               datetime     NOT NULL,
+    `updated_time`               datetime      DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    `description`                varchar(1024) DEFAULT NULL COMMENT '描述',
+    `is_trace`                   tinyint(1) NOT NULL DEFAULT '0',
+    `trace_column`               varchar(255)  DEFAULT NULL,
+    `comment`                    text,
+    `project_id`                 varchar(64)   DEFAULT NULL,
+    `my_role`                    varchar(100)  DEFAULT NULL,
+    `data_count`                 int(11) DEFAULT NULL,
+    `processed_count`            int(11) DEFAULT NULL,
+    `hash_function`              varchar(100)  DEFAULT NULL,
+    `partner_hash_function`      varchar(100)  DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+
+-- fusion_result_export_progress definition
+
+DROP TABLE IF EXISTS `fusion_result_export_progress`;
+CREATE TABLE `fusion_result_export_progress`
+(
+    `id`               varchar(64)  NOT NULL,
+    `business_id`      varchar(64)  NOT NULL COMMENT '融合任务businessId',
+    `table_name`       varchar(255) NOT NULL COMMENT '导出表名',
+    `progress`         int(11) NOT NULL COMMENT '进度',
+    `total_data_count` int(11) DEFAULT NULL COMMENT '导出总数',
+    `processed_count`  int(11) DEFAULT NULL COMMENT '已导出数量',
+    `status`           varchar(32) DEFAULT NULL COMMENT '状态',
+    `created_by`       varchar(32) DEFAULT NULL,
+    `updated_by`       varchar(32) DEFAULT NULL,
+    `created_time`     datetime     NOT NULL,
+    `updated_time`     datetime    DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    `finish_time`      bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+-- verification_code definition
+
+DROP TABLE IF EXISTS `verification_code`;
+CREATE TABLE `verification_code` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime(6) NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+  `mobile` varchar(30) NOT NULL COMMENT '手机号',
+  `code` varchar(30) NOT NULL COMMENT '验证码',
+  `success` varchar(10) DEFAULT NULL COMMENT 'true：成功，false：失败',
+  `send_channel` varchar(10) DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
+  `business_type` varchar(30) DEFAULT NULL COMMENT '业务类型，memberRegister：成员注册、accountForgetPassword：账号忘记密码',
+  `resp_content` varchar(500) DEFAULT NULL COMMENT '响应内容',
+  `biz_id` varchar(64) DEFAULT NULL COMMENT '业务ID',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';

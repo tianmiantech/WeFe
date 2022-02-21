@@ -233,9 +233,9 @@
     }
     .el-form-item{
         .smsCount{
-            width: 106px;
-            padding-left:27px;
+            width: 126px;
             line-height: 28px;
+            padding:2px 0 10px;
             background-color: var(--el-color-primary);
             color:#fff;
             &.is-disabled{

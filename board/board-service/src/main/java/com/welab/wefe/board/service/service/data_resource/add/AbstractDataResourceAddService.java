@@ -15,7 +15,7 @@
  */
 package com.welab.wefe.board.service.service.data_resource.add;
 
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceUploadTaskMysqlModel;
@@ -124,7 +124,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
         else {
             model.setStorageType(DataResourceStorageType.LocalFileSystem);
             model.setStorageNamespace(
-                    UploadFile
+                    WeFeFileSystem
                             .getFileDir(model.getDataResourceType())
                             .resolve(model.getId())
                             .toAbsolutePath()

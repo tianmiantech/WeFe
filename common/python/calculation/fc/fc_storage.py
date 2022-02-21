@@ -194,8 +194,8 @@ class FCStorage(object):
     def put_all(self, data: Iterable, debug_info=None):
         return self.storage.put_all(data, debug_info=debug_info)
 
-    def collect(self, partition=None, debug_info=None):
-        return self.storage.collect(partition=partition, debug_info=debug_info)
+    def collect(self, partition=None, debug_info=None, only_key=False):
+        return self.storage.collect(partition=partition, debug_info=debug_info, only_key=only_key)
 
     def take(self, n=1, partition=None):
         return self.storage.take(n, partition=partition)

@@ -21,8 +21,10 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.dataset.DeleteApi;
+import com.welab.wefe.data.fusion.service.api.dataset.DetailApi;
 import com.welab.wefe.data.fusion.service.api.dataset.QueryApi;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
@@ -32,6 +34,7 @@ import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
+import com.welab.wefe.data.fusion.service.service.DataStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
@@ -55,6 +58,8 @@ public class DataSetService {
     @Autowired
     DataSourceRepository dataSourceRepo;
 
+    @Autowired
+    private DataStorageService dataStorageService;
 
     @Autowired
     DataSetRepository dataSetRepository;
@@ -208,8 +213,9 @@ public class DataSetService {
         System.out.println("ThreadCount:" + ThreadCount);
         CommonThreadPool.stop();
 
-
         dataSetRepository.deleteById(input.getId());
+        dataStorageService.dropTable("data_fusion_"+model.getId());
+
     }
 
 
@@ -252,5 +258,20 @@ public class DataSetService {
         }
 
         return result;
+    }
+
+    /**
+     *  Data Set Detail
+     *
+     * @param input
+     */
+    public DataSetOutputModel detail(DetailApi.Input input) throws StatusCodeWithException {
+        DataSetMySqlModel model = dataSetRepository.findById(input.getId()).orElse(null);
+        if (model == null) {
+            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
+        }
+
+        DataSetOutputModel outputModel = ModelMapper.map(model, DataSetOutputModel.class);
+        return outputModel;
     }
 }

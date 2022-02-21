@@ -61,7 +61,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     private BloomFilterService bloomFilterService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
         DataResourceSource dataResourceSource = input.getDataResourceSource();
         Output output = new Output();
 
@@ -71,7 +71,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             if (bloomFilterMySqlModel == null) {
                 throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "Filter not found");
             }
-            String rows = bloomFilterMySqlModel.getRows();
+
+            String rows = input.getRows();
             List<String> rowsList = Arrays.asList(rows.split(","));
 
             if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.Sql)) {
@@ -84,7 +85,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             }else if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)){
                 File file = dataSourceService.getDataSetFile(bloomFilterMySqlModel.getDataResourceSource(), bloomFilterMySqlModel.getSourcePath());
                 try {
-                    output = readFile(file);
+                    output = readFile(file, rowsList);
                 } catch (IOException e) {
                     LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                     throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败");
@@ -273,7 +274,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         }
     }
 
-    private Output readFromDB(String dataSourceId, String sql, List<String> rowsList) throws StatusCodeWithException {
+    private Output readFromDB(String dataSourceId, String sql, List<String> rowsList) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("Inferred data type", StatusCode.DATA_NOT_FOUND);
@@ -284,7 +285,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 , model.getUserName(), model.getPassword(), model.getDatabaseName());
 
         // The total number of rows based on the query statement
-        long rowCountFromDB = jdbcManager.count(conn, sql);
+        //long rowCountFromDB = jdbcManager.count(conn, sql);
 
         // Gets the data set column header
         Output output = new Output();
@@ -309,7 +310,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
     }
 
 
-    private Output readFromSourceDB(String dataSourceId, String sql) throws StatusCodeWithException {
+    private Output readFromSourceDB(String dataSourceId, String sql) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
@@ -320,7 +321,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
                 , model.getUserName(), model.getPassword(), model.getDatabaseName());
 
         // The total number of rows based on the query statement
-        long rowCountFromDB = jdbcManager.count(conn, sql);
+//        long rowCountFromDB = jdbcManager.count(conn, sql);
 
 
         // Gets the data set column header
@@ -365,6 +366,8 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         private String sql;
 
+        private String rows;
+
 
         public String getId() {
             return id;
@@ -396,6 +399,14 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
         public void setSql(String sql) {
             this.sql = sql;
+        }
+
+        public String getRows() {
+            return rows;
+        }
+
+        public void setRows(String rows) {
+            this.rows = rows;
         }
     }
 

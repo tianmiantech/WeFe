@@ -76,7 +76,7 @@ public class CsvBloomFilterReader extends AbstractBloomFilterReader {
             FileReader fr = new FileReader(file);
             LineNumberReader lnr = new LineNumberReader(fr);
             lnr.skip(Long.MAX_VALUE);
-            totalRowCount = lnr.getLineNumber();
+            totalRowCount = lnr.getLineNumber() - 1L;
             lnr.close();
             fr.close();
         } catch (IOException e) {

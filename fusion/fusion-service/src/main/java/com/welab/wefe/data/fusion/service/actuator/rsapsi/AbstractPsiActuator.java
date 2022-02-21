@@ -45,7 +45,7 @@ public abstract class AbstractPsiActuator extends AbstractActuator {
 
     public volatile long lastLogTime = System.currentTimeMillis();
 
-    public long socketTimeout = 1800000;
+    public long socketTimeout = 600000;
 
 
     public AbstractPsiActuator(String businessId, Integer dataCount) {

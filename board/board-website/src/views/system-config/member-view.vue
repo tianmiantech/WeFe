@@ -164,7 +164,6 @@
                 v-loading="loading"
                 class="save-btn"
                 type="primary"
-                size="medium"
                 @click="update"
             >
                 更新
@@ -185,7 +184,7 @@
             />
             <br>
             <el-button
-                size="medium"
+                size="small"
                 @click="syncToUnion"
             >
                 同步数据到 Union

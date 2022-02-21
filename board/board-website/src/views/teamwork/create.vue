@@ -389,11 +389,11 @@
                 },
                 typeList: [
                     {
-                        label: 'MachineLearning',
+                        label: '机器学习',
                         value: 'MachineLearning',
                     },
                     {
-                        label: 'DeepLearning',
+                        label: '视觉处理',
                         value: 'DeepLearning',
                     },
                 ],

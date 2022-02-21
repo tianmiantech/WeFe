@@ -94,14 +94,15 @@ public class TaskService extends AbstractService {
         return taskRepository.findOne("businessId", businessId, TaskMySqlModel.class);
     }
 
-    public void updateByBusinessId(String businessId, TaskStatus status, Integer count, long spend) throws StatusCodeWithException {
+    public void updateByBusinessId(String businessId, TaskStatus status, Integer fusionCount, Integer processedCount, long spend) throws StatusCodeWithException {
         TaskMySqlModel model = findByBusinessId(businessId);
         if (model == null) {
-            throw new StatusCodeWithException("task does not exist，businessId：" + businessId, StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("任务不存在，检查参数businessId：" + businessId, StatusCode.DATA_NOT_FOUND);
         }
         model.setStatus(status);
         model.setUpdatedTime(new Date());
-        model.setFusionCount(count);
+        model.setFusionCount(fusionCount);
+        model.setProcessedCount(processedCount);
         model.setSpend(spend);
         taskRepository.save(model);
     }
@@ -109,9 +110,9 @@ public class TaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void add(AddApi.Input input) throws StatusCodeWithException {
         //If a task is being executed, add it after the task is completed
-        if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
-        }
+//        if (ActuatorManager.size() > 0) {
+//            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再添加", StatusCode.SYSTEM_BUSY);
+//        }
 
         String businessId = UUID.randomUUID().toString().replaceAll("-", "");
 
@@ -123,7 +124,7 @@ public class TaskService extends AbstractService {
         task.setBusinessId(businessId);
         task.setName(input.getName());
         task.setDataResourceId(input.getDataResourceId());
-        task.setPartnerId(input.getPartnerId());
+        task.setPartnerMemberId(input.getPartnerMemberId());
         task.setAlgorithm(input.getAlgorithm());
         task.setStatus(TaskStatus.Await);
         task.setDataResourceType(input.getDataResourceType());
@@ -131,6 +132,7 @@ public class TaskService extends AbstractService {
         task.setDescription(input.getDescription());
         task.setTrace(input.getTrace());
         task.setTraceColumn(input.getTraceColumn());
+        task.setMyRole(RoleType.promoter);
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -163,14 +165,14 @@ public class TaskService extends AbstractService {
         TaskMySqlModel task = taskRepository.findOne("id", input.getId(), TaskMySqlModel.class);
 
         if (task == null) {
-            throw new StatusCodeWithException("The task to update does not exist", DATA_NOT_FOUND);
+            throw new StatusCodeWithException("任务不存在！", DATA_NOT_FOUND);
         }
 
         //The update task
         task.setName(input.getName());
         task.setDataResourceId(input.getDataResourceId());
         task.setDataResourceType(input.getDataResourceType());
-        task.setPartnerId(input.getPartnerId());
+        task.setPartnerMemberId(input.getPartnerMemberId());
 
         if (AlgorithmType.RSA_PSI.equals(input.getAlgorithm()) && DataResourceType.BloomFilter.equals(input.getDataResourceType())) {
             task.setPsiActuatorRole(PSIActuatorRole.server);
@@ -197,18 +199,18 @@ public class TaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
         if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再添加", StatusCode.SYSTEM_BUSY);
         }
 
         TaskMySqlModel task = find(input.getId());
         if (task == null) {
-            throw new StatusCodeWithException("taskId error:" + input.getId(), DATA_NOT_FOUND);
+            throw new StatusCodeWithException("任务不存在！taskId:" + input.getId(), DATA_NOT_FOUND);
         }
 
         //Find partner information
-        PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerId());
+        PartnerMySqlModel partner = partnerService.findByPartnerId(task.getPartnerMemberId());
         if (partner == null) {
-            throw new StatusCodeWithException("No partner was found", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("未找到合作方！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 
@@ -217,7 +219,7 @@ public class TaskService extends AbstractService {
                 psi(input, task, partner);
                 break;
             default:
-                throw new RuntimeException("Unexpected enumeration values");
+                throw new RuntimeException("意料之外的枚举值，type: " + task.getAlgorithm());
         }
     }
 
@@ -248,7 +250,7 @@ public class TaskService extends AbstractService {
 
         DataSetMySqlModel dataSet = dataSetRepository.findOne("id", input.getDataResourceId(), DataSetMySqlModel.class);
         if (dataSet == null) {
-            throw new StatusCodeWithException("No corresponding dataset was found", DATA_NOT_FOUND);
+            throw new StatusCodeWithException("未查找到数据集", DATA_NOT_FOUND);
         }
 
         //Add fieldinfo
@@ -295,7 +297,7 @@ public class TaskService extends AbstractService {
          */
         BloomFilterMySqlModel bf = bloomFilterService.findById(input.getDataResourceId());
         if (bf == null) {
-            throw new StatusCodeWithException("Bloom filter not found", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("未查找到布隆过滤器", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         /**
@@ -314,7 +316,7 @@ public class TaskService extends AbstractService {
                 )
         );
 
-        //ActuatorManager.set(server);
+        ActuatorManager.set(server);
 
         server.run();
 
@@ -336,19 +338,20 @@ public class TaskService extends AbstractService {
     public void alignByPartner(ReceiveApi.Input input) throws StatusCodeWithException {
 
         if (PSIActuatorRole.server.equals(input.getPsiActuatorRole()) && input.getDataCount() <= 0) {
-            throw new StatusCodeWithException("The required parameter is missing", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("请求参数缺失", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         //Add tasks
         TaskMySqlModel model = new TaskMySqlModel();
         model.setBusinessId(input.getBusinessId());
-        model.setPartnerId(input.getPartnerId());
+        model.setPartnerMemberId(input.getMemberId());
         model.setName(input.getName());
         model.setStatus(TaskStatus.Pending);
         model.setDataCount(input.getDataCount());
         model.setPsiActuatorRole(input.getPsiActuatorRole());
         model.setAlgorithm(input.getAlgorithm());
         model.setDescription(input.getDescription());
+        model.setMyRole(RoleType.provider);
 
         taskRepository.save(model);
     }
@@ -360,6 +363,7 @@ public class TaskService extends AbstractService {
         Specification<TaskMySqlModel> where = Where.create()
                 .equal("businessId", input.getBusinessId())
                 .equal("status", input.getStatus())
+                .equal("myRole", input.getMyRole())
                 .build(TaskMySqlModel.class);
 
         PagingOutput<TaskMySqlModel> page = taskRepository.paging(where, input);
@@ -389,7 +393,9 @@ public class TaskService extends AbstractService {
         TaskMySqlModel model = taskRepository.findOne("id", taskId, TaskMySqlModel.class);
 
         TaskOutput output = ModelMapper.map(model, TaskOutput.class);
-
+        if (output == null) {
+            throw new StatusCodeWithException("数据不存在！", DATA_NOT_FOUND);
+        }
         setName(output);
         setDataResouceList(output);
         setPartnerList(output);
@@ -398,7 +404,7 @@ public class TaskService extends AbstractService {
     }
 
     private void setName(TaskOutput model) throws StatusCodeWithException {
-        model.setPartnerName(CacheObjects.getPartnerName(model.getPartnerId()));
+        model.setPartnerMemberName(CacheObjects.getPartnerName(model.getPartnerMemberId()));
 
         if (DataResourceType.BloomFilter.equals(model.getDataResourceType())) {
             model.setDataResourceName(CacheObjects.getBloomFilterName(model.getDataResourceId()));
@@ -441,7 +447,7 @@ public class TaskService extends AbstractService {
      * @throws StatusCodeWithException
      */
     private void setPartnerList(TaskOutput model) throws StatusCodeWithException {
-        PartnerOutputModel partner = ModelMapper.map(partnerService.findByPartnerId(model.getPartnerId()),
+        PartnerOutputModel partner = ModelMapper.map(partnerService.findByPartnerId(model.getPartnerMemberId()),
                 PartnerOutputModel.class);
 
         model.setPartnerList(Arrays.asList(partner));
@@ -473,4 +479,6 @@ public class TaskService extends AbstractService {
 
         return TaskOverviewOutput.of(allCount, promoterCount, providerCount, pendingCount, runningCount);
     }
+
+
 }

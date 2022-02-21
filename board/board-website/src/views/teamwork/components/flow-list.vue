@@ -27,7 +27,7 @@
         >
             <el-table-column
                 label="训练"
-                min-width="220px"
+                min-width="160px"
             >
                 <template v-slot="scope">
                     <FlowStatusTag
@@ -89,7 +89,7 @@
                         查看
                     </router-link>
                     <router-link
-                        v-if="form.project_type === 'DeepLearning'"
+                        v-if="form.project_type === 'DeepLearning' && scope.row.flow_status === 'success'"
                         class="link mr10"
                         :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id }}"
                     >
@@ -122,7 +122,7 @@
                                 <el-dropdown-item divided>
                                     <el-button
                                         type="text"
-                                        class="btn-danger"
+                                        class="color-danger"
                                         @click="deleteFlow(scope.row, scope.$index)"
                                     >
                                         删除流程
@@ -227,8 +227,7 @@
                 v-loading="loading"
                 class="model-list"
             >
-                <el-button
-                    type="text"
+                <div
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'vertical' })"
                 >
@@ -236,9 +235,8 @@
                         纵向
                     </span>
                     空白流程
-                </el-button>
-                <el-button
-                    type="text"
+                </div>
+                <div
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'horizontal' })"
                 >
@@ -246,9 +244,8 @@
                         横向
                     </span>
                     空白流程
-                </el-button>
-                <el-button
-                    type="text"
+                </div>
+                <div
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'mix' })"
                 >
@@ -256,7 +253,7 @@
                         混合
                     </span>
                     空白流程
-                </el-button>
+                </div>
 
                 <template
                     v-for="item in templateList"
@@ -267,9 +264,8 @@
                         :content="item.description"
                         effect="dark"
                     >
-                        <el-button
+                        <div
                             class="li"
-                            type="text"
                             @click="createFlow($event, item)"
                         >
                             <span class="model-img">
@@ -277,7 +273,7 @@
                             </span>
                             {{ item.name }}
                             {{ item.desc }}
-                        </el-button>
+                        </div>
                     </el-tooltip>
                 </template>
             </div>
@@ -296,24 +292,22 @@
                 v-loading="loading"
                 class="model-list"
             >
-                <el-button
-                    type="text"
+                <div
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'PaddleDetection' })"
                 >
                     <span class="model-img f30">
                         目标检测
                     </span>
-                </el-button>
-                <el-button
-                    type="text"
+                </div>
+                <div
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'PaddleClassify' })"
                 >
                     <span class="model-img f30">
                         图像分类
                     </span>
-                </el-button>
+                </div>
             </div>
         </el-dialog>
     </el-card>
@@ -518,6 +512,7 @@
                     const query = {
                         flow_id:       data.flow_id,
                         training_type: this.form.project_type === 'DeepLearning' ? opt.federated_learning_type : '',
+                        project_id:    this.project_id,
                     };
 
                     this.$router.push({
@@ -646,6 +641,7 @@
         flex-wrap: wrap;
     }
     .li{
+        cursor: pointer;
         margin: 0 20px 10px;
         text-align: center;
         &:hover{
@@ -670,7 +666,6 @@
         border:1px solid #ebebeb;
     }
     .link{text-decoration: none;}
-    .btn-danger{color: #F85564;}
     .el-switch{
         :deep(.el-switch__label){
             color: #999;

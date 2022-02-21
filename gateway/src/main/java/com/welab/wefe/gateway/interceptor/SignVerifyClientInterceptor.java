@@ -16,8 +16,10 @@
 
 package com.welab.wefe.gateway.interceptor;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.GrpcConstant;
 import com.welab.wefe.gateway.entity.MemberEntity;
@@ -71,10 +73,10 @@ public class SignVerifyClientInterceptor implements ClientInterceptor {
         signParam.put(GrpcConstant.SIGN_KEY_UUID, UUID.randomUUID().toString());
 
         String signParamStr = JObject.create(signParam).toString();
-
+        SecretKeyType secretKeyType = memberEntity.getSecretKeyType();
         try {
             return JObject.create()
-                    .append(GrpcConstant.SIGN_KEY_SIGN, RSAUtil.sign(signParamStr, privateKey, "UTF-8"))
+                    .append(GrpcConstant.SIGN_KEY_SIGN, SignUtil.sign(signParamStr, privateKey, secretKeyType))
                     .append(GrpcConstant.SIGN_KEY_DATA, signParamStr).toString();
         } catch (Exception e) {
             LOG.error("Failed to generate signature：", e);
