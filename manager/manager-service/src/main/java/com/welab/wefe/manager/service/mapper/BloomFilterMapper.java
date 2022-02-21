@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.mapper;
+package com.welab.wefe.manager.service.mapper;
 
-import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryInput;
-import com.welab.wefe.common.data.mongodb.entity.union.DataResource;
-import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryInput;
-import com.welab.wefe.union.service.dto.dataresource.DataResourcePutInput;
+import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
+import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.manager.service.dto.dataresource.ApiBloomFilterQueryOutput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -31,16 +30,15 @@ import org.mapstruct.Mappings;
  * @author yuxin.zhang
  **/
 @Mapper
-public interface DataResourceMapper {
-
-    @Mappings({
-            @Mapping(source = "dataResourceType", target = "dataResourceType", defaultExpression = "java(java.util.Arrays.stream(DataResourceType.values()).collect(java.util.stream.Collectors.toList()))"),
-    })
-    DataResourceQueryInput transferInput(ApiDataResourceQueryInput entity);
+public interface BloomFilterMapper {
 
 
     @Mappings({
-            @Mapping(source = "curMemberId", target = "memberId")
+            @Mapping(target = "extraData", expression = "java(com.welab.wefe.common.util.JObject.create(entity.getBloomFilter()).toJavaObject(ApiBloomFilterQueryOutput.ExtraData.class))"),
+            @Mapping(source = "createdTime", target = "createdTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
+            @Mapping(source = "updatedTime", target = "updatedTime", dateFormat = DateUtil.YYYY_MM_DD_HH_MM_SS2),
     })
-    DataResource transferPutInputToDataResource(DataResourcePutInput input);
+    ApiBloomFilterQueryOutput transferDetail(DataResourceQueryOutput entity);
+
+
 }

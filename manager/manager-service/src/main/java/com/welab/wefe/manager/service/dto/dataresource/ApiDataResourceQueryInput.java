@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.data.mongodb.dto.dataresource;
+package com.welab.wefe.manager.service.dto.dataresource;
 
-import com.welab.wefe.common.data.mongodb.dto.PageInput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
+import com.welab.wefe.manager.service.dto.base.PageInput;
 
 import java.util.List;
-
 
 /**
  * @author yuxin.zhang
  **/
-public class DataResourceQueryInput extends PageInput {
-    private String dataResourceId;
-    private String memberName;
-    private String name;
-    private String tag;
-    private String curMemberId;
-    private String memberId;
+public class ApiDataResourceQueryInput extends PageInput {
+    protected String dataResourceId;
+    protected String memberName;
+    protected String name;
+    protected String tag;
+    protected String memberId;
     private List<DataResourceType> dataResourceType;
     private DeepLearningJobType forJobType;
     private Boolean containsY;
@@ -71,12 +69,12 @@ public class DataResourceQueryInput extends PageInput {
         this.tag = tag;
     }
 
-    public String getCurMemberId() {
-        return curMemberId;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setCurMemberId(String curMemberId) {
-        this.curMemberId = curMemberId;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
     public List<DataResourceType> getDataResourceType() {
@@ -86,6 +84,7 @@ public class DataResourceQueryInput extends PageInput {
     public void setDataResourceType(List<DataResourceType> dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
+
     public DeepLearningJobType getForJobType() {
         return forJobType;
     }
@@ -102,12 +101,12 @@ public class DataResourceQueryInput extends PageInput {
         this.containsY = containsY;
     }
 
-    public String getMemberId() {
-        return memberId;
+    public Boolean getStatus() {
+        return status;
     }
 
-    public void setMemberId(String memberId) {
-        this.memberId = memberId;
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     public Boolean getEnable() {
@@ -116,13 +115,5 @@ public class DataResourceQueryInput extends PageInput {
 
     public void setEnable(Boolean enable) {
         this.enable = enable;
-    }
-
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
     }
 }

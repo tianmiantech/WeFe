@@ -17,12 +17,12 @@
 package com.welab.wefe.manager.service.service;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResourceDefaultTag;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.manager.service.contract.DataSetDefaultTagContract;
+import com.welab.wefe.manager.service.contract.DataResourceDefaultTagContract;
 import com.welab.wefe.manager.service.dto.tag.DataResourceDefaultTagUpdateInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
@@ -41,31 +41,31 @@ import java.util.List;
  * @author yuxin.zhang
  **/
 @Service
-public class DatSetDefaultTagContractService extends AbstractContractService {
-    private static final Logger LOG = LoggerFactory.getLogger(DatSetDefaultTagContractService.class);
+public class DataResourceDefaultTagContractService extends AbstractContractService {
+    private static final Logger LOG = LoggerFactory.getLogger(DataResourceDefaultTagContractService.class);
 
     @Autowired
-    private DataSetDefaultTagContract dataSetDefaultTagContract;
+    private DataResourceDefaultTagContract dataResourceDefaultTagContract;
     @Autowired
     private CryptoSuite cryptoSuite;
 
     /**
-     * add dataSetDefaultTag
+     * add dataResourceDefaultTag
      */
-    public void add(DataSetDefaultTag dataSetDefaultTag) throws StatusCodeWithException {
+    public void add(DataResourceDefaultTag dataResourceDefaultTag) throws StatusCodeWithException {
         try {
             // send transaction
-            TransactionReceipt transactionReceipt = dataSetDefaultTagContract.insert(
-                    generateParams(dataSetDefaultTag),
-                    JObject.toJSONString(dataSetDefaultTag.getExtJson())
+            TransactionReceipt transactionReceipt = dataResourceDefaultTagContract.insert(
+                    generateParams(dataResourceDefaultTag),
+                    JObject.toJSONString(dataResourceDefaultTag.getExtJson())
             );
 
             // get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataSetDefaultTagContract.ABI, DataSetDefaultTagContract.FUNC_INSERT, transactionReceipt);
+                    .decodeReceiptWithValues(DataResourceDefaultTagContract.ABI, DataResourceDefaultTagContract.FUNC_INSERT, transactionReceipt);
 
 
-            LOG.info("DatSetDefaultTag contract insert transaction, tagId id: {},  receipt response: {}", dataSetDefaultTag.getTagId(), JObject.toJSON(transactionResponse).toString());
+            LOG.info("DataResourceDefaultTag contract insert transaction, tagId id: {},  receipt response: {}", dataResourceDefaultTag.getTagId(), JObject.toJSON(transactionResponse).toString());
 
             transactionIsSuccess(transactionResponse);
 
@@ -73,15 +73,15 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
             LOG.error(e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LOG.error("add dataSetDefaultTag error: ", e);
-            throw new StatusCodeWithException("add dataSetDefaultTag error: ", StatusCode.SYSTEM_ERROR);
+            LOG.error("add dataResourceDefaultTag error: ", e);
+            throw new StatusCodeWithException("add dataResourceDefaultTag error: ", StatusCode.SYSTEM_ERROR);
         }
     }
 
 
     public void updateByTagId(DataResourceDefaultTagUpdateInput input) throws StatusCodeWithException {
         try {
-            TransactionReceipt transactionReceipt = dataSetDefaultTagContract.update(
+            TransactionReceipt transactionReceipt = dataResourceDefaultTagContract.update(
                     input.getTagId(),
                     input.getTagName(),
                     JObject.toJSONString(input.getExtJson()),
@@ -90,7 +90,7 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
 
             // get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataSetDefaultTagContract.ABI, DataSetDefaultTagContract.FUNC_UPDATE, transactionReceipt);
+                    .decodeReceiptWithValues(DataResourceDefaultTagContract.ABI, DataResourceDefaultTagContract.FUNC_UPDATE, transactionReceipt);
 
 
             transactionIsSuccess(transactionResponse);
@@ -102,11 +102,11 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
 
     public void deleteByTagId(String tagId) throws StatusCodeWithException {
         try {
-            TransactionReceipt transactionReceipt = dataSetDefaultTagContract.deleteByTagId(tagId);
+            TransactionReceipt transactionReceipt = dataResourceDefaultTagContract.deleteByTagId(tagId);
 
             // get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(DataSetDefaultTagContract.ABI, DataSetDefaultTagContract.FUNC_DELETEBYTAGID, transactionReceipt);
+                    .decodeReceiptWithValues(DataResourceDefaultTagContract.ABI, DataResourceDefaultTagContract.FUNC_DELETEBYTAGID, transactionReceipt);
 
 
             transactionIsSuccess(transactionResponse);
@@ -116,11 +116,11 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
     }
 
 
-    private List<String> generateParams(DataSetDefaultTag dataSetDefaultTag) {
+    private List<String> generateParams(DataResourceDefaultTag dataResourceDefaultTag) {
         List<String> list = new ArrayList<>();
-        list.add(dataSetDefaultTag.getTagId());
-        list.add(dataSetDefaultTag.getTagName());
-
+        list.add(dataResourceDefaultTag.getTagId());
+        list.add(dataResourceDefaultTag.getTagName());
+        list.add(dataResourceDefaultTag.getDataResourceType().toString());
         list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         list.add(DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()));
         return list;

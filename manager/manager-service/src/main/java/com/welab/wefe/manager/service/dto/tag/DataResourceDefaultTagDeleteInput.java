@@ -14,33 +14,25 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.base;
+package com.welab.wefe.manager.service.dto.tag;
 
-import com.welab.wefe.common.web.dto.AbstractApiInput;
-
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.manager.service.dto.base.BaseInput;
 
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class PageInput extends AbstractApiInput {
-    private int pageIndex = 0;
-    private int pageSize = 20;
+public class DataResourceDefaultTagDeleteInput extends BaseInput {
+    @Check(require = true)
+    private String tagId;
 
-    public int getPageIndex() {
-        return pageIndex;
+    public String getTagId() {
+        return tagId;
     }
 
-    public void setPageIndex(int pageIndex) {
-        this.pageIndex = pageIndex;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+    public void setTagId(String tagId) {
+        this.tagId = tagId;
     }
 }

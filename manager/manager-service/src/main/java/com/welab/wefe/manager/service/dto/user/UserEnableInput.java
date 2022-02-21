@@ -14,33 +14,31 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.base;
+package com.welab.wefe.manager.service.dto.user;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 
+public class UserEnableInput extends AbstractApiInput {
+    @Check(require = true)
+    private String userId;
 
-/**
- * @Description:
- * @author: yuxin.zhang
- * @date: 2021/10/19
- */
-public class PageInput extends AbstractApiInput {
-    private int pageIndex = 0;
-    private int pageSize = 20;
+    private boolean enable;
 
-    public int getPageIndex() {
-        return pageIndex;
+
+    public String getUserId() {
+        return userId;
     }
 
-    public void setPageIndex(int pageIndex) {
-        this.pageIndex = pageIndex;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public int getPageSize() {
-        return pageSize;
+    public boolean isEnable() {
+        return enable;
     }
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }
