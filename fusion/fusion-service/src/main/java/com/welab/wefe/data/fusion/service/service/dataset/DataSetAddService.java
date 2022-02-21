@@ -91,15 +91,13 @@ public class DataSetAddService extends AbstractService {
         model.setUpdatedTime(new Date());
         model.setStatement(input.getSql());
         model.setSourcePath(input.getFilename());
+        model.setDataSourceId(input.getDataSourceId());
         dataSetRepository.save(model);
 
         CommonThreadPool.TASK_SWITCH = true;
 
         File file = null;
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
-            model.setDataSourceId(input.getDataSourceId());
-            //DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
-            //String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
             rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
 
         } else {
