@@ -49,7 +49,6 @@ public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.P
 	@Override
 	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
 			VertOneHotComponent.Params params) throws FlowNodeException {
-		JSONObject taskParam = new JSONObject();
 		List<VertOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
 
 		List<String> transformColNames = new ArrayList<>();
@@ -63,10 +62,8 @@ public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.P
 				});
 			}
 		});
-		taskParam.put("params",
-				JObject.create().append("transform_col_names", transformColNames).append("save_dataset", true));
 
-		return taskParam;
+		return JObject.create().append("transform_col_names", transformColNames).append("save_dataset", true);
 	}
 
 	@Override
