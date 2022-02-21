@@ -63,7 +63,6 @@ class IvCalculator(object):
             labels = list(label_counts.keys())
             label_counts = [label_counts[k] for k in labels]
 
-        LOGGER.debug(f"cal_local_iv---data_instances={data_instances}")
         data_bin_table = Binning.get_data_bin_v2(data_instances, split_points, bin_cols_map)
         sparse_bin_points = Binning.get_sparse_bin_v2(bin_indexes, split_points, header)
         sparse_bin_points = {header[k]: v for k, v in sparse_bin_points.items()}

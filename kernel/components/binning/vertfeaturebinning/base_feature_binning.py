@@ -77,6 +77,7 @@ class BaseVertFeatureBinning(ModelBase):
 
         self.set_show_name("(Binning)")
         self.source_type = DataSetSourceType.BINNING
+        self.iv_calculator = None
 
     def _init_model(self, params: FeatureBinningParam):
         self.model_param = params
@@ -134,6 +135,19 @@ class BaseVertFeatureBinning(ModelBase):
         self.set_schema(data_instances)
         self.data_output = self.binning_obj.convert_feature_to_woe(data_instances)
 
+        return data_instances
+
+    def transform_v2(self, data_instances, bin_result=None):
+        self._setup_bin_inner_param(data_instances, self.model_param)
+        if self.transform_type != "woe":
+            data_instances = self.binning_obj.transform(data_instances, self.transform_type)
+        elif self.role == consts.PROVIDER:
+            raise ValueError("Woe transform is not available for provider parties.")
+        else:
+            data_instances = self.iv_calculator.woe_transformer(data_instances, self.bin_inner_param,
+                                                                bin_result)
+        self.set_schema(data_instances)
+        self.data_output = data_instances
         return data_instances
 
     def _get_meta(self):

@@ -168,7 +168,6 @@ class Binning(object):
              ]
         """
         # self._init_cols(data_instances)
-        LOGGER.debug(f"get_data_bin-----data_instances={data_instances}")
         is_sparse = data_util.is_sparse_data(data_instances)
         header = data_instances.schema.get('header')
 
@@ -543,9 +542,11 @@ class Binning(object):
             non_event_total += non_event_sum
 
         if event_total == 0:
-            raise ValueError("NO event label in target data")
+            # raise ValueError("NO event label in target data")
+            event_total = 1
         if non_event_total == 0:
-            raise ValueError("NO non-event label in target data")
+            # raise ValueError("NO non-event label in target data")
+            non_event_total = 1
 
         iv = 0
         event_count_array = []

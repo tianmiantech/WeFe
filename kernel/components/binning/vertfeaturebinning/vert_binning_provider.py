@@ -42,7 +42,7 @@ from kernel.components.binning.core.custom_binning import CustomBinning
 from kernel.components.binning.core.iv_calculator import IvCalculator
 from kernel.components.binning.core.quantile_binning import QuantileBinning
 from kernel.components.binning.vertfeaturebinning.base_feature_binning import BaseVertFeatureBinning
-from kernel.security.cipher_compressor.compressor import PackingCipherTensor
+from kernel.security.cipher_compressor.compressor import PackingCipherTensor, CipherCompressorProvider
 from kernel.utils import consts
 
 LOGGER = log_utils.get_logger()
@@ -119,22 +119,23 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
         encrypted_bin_sum = self.compressor.compress_dtable(encrypted_bin_sum)
         # LOGGER.debug("encrypted_bin_sum: {}".format(encrypted_bin_sum))
 
-        encode_name_f = functools.partial(self.bin_inner_param.encode_col_name_dict,
-                                          model=self,
-                                          col_name_maps=self.bin_inner_param.col_name_maps)
+        LOGGER.debug(f"encrypted_bin_sum={encrypted_bin_sum.first()}")
+        LOGGER.debug(f"bin_inner_param={self.bin_inner_param.col_name_maps}")
+        # encode_name_f = functools.partial(self.bin_inner_param.encode_col_name_dict,
+        #                                   col_name_dict=self.bin_inner_param.col_name_maps)
         # encrypted_bin_sum = self.bin_inner_param.encode_col_name_dict(encrypted_bin_sum, self)
-        encrypted_bin_sum = encrypted_bin_sum.map(encode_name_f)
+        # encrypted_bin_sum = encrypted_bin_sum.map(encode_name_f)
 
-        self.transfer_variable.encrypted_bin_sum.remote(encrypted_bin_sum,
-                                                        role=consts.PROMOTER,
-                                                        idx=0)
+        # self.transfer_variable.encrypted_bin_sum.remote(encrypted_bin_sum,
+        #                                                 role=consts.PROMOTER,
+        #                                                 idx=0)
 
         model_param = copy.deepcopy(self.model_param)
         model_param.category_names = []
         model_param.category_indexs = []
         model_param.bin_indexes = []
         send_result = {
-            "encrypted_bin_sum": encrypted_bin_sum.collect(),
+            "encrypted_bin_sum": list(encrypted_bin_sum.collect()),
             "category_names": self.bin_inner_param.encode_col_name_list(self.bin_inner_param.category_names),
             "model_param": model_param
             # "bin_method": self.model_param.method,
@@ -345,6 +346,9 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
                             # get the encrypted_label from promoter
                             encrypted_label_table = self.transfer_variable.encrypted_label.get(idx=0)
                             LOGGER.info("Get encrypted_label_table from promoter")
+
+                        if self.compressor is None:
+                            self.compressor = CipherCompressorProvider()
 
                         send_result = self._sync_init_bucket(encrypted_label_table, data_instances, split_points)
                         send_results.append(send_result)

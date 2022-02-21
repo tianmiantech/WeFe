@@ -33,6 +33,7 @@
 import copy
 import functools
 
+from common.python import session
 from common.python.utils import log_utils
 from kernel.base import statics
 from kernel.components.binning.core.bucket_binning import BucketBinning
@@ -94,12 +95,12 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
         self.federated_iv(data_instances=data_instances, label_table=label_table,
                           cipher=cipher, result_counts=label_counts_dict, label_elements=self.labels)
 
-        f = functools.partial(self.encrypt, cipher=cipher)
-        encrypted_label_table = label_table.mapValues(f, need_send=True)
+        # f = functools.partial(self.encrypt, cipher=cipher)
+        # encrypted_label_table = label_table.mapValues(f, need_send=True)
 
-        LOGGER.info("Sent encrypted_label_table to provider")
-        self.transfer_variable.encrypted_label.remote(encrypted_label_table, role=consts.PROVIDER, idx=-1)
-        LOGGER.info("Get encrypted_bin_sum from provider")
+        # LOGGER.info("Sent encrypted_label_table to provider")
+        # self.transfer_variable.encrypted_label.remote(encrypted_label_table, role=consts.PROVIDER, idx=-1)
+        # LOGGER.info("Get encrypted_bin_sum from provider")
 
         encrypted_bin_infos_list = self.transfer_variable.encrypted_bin_sum.get(idx=-1)
 
@@ -115,7 +116,7 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
 
         self.set_schema(data_instances)
         LOGGER.debug("Finish set_schema,data_instances{}".format(data_instances.first()))
-        self.transform(data_instances)
+        self.transform_v2(data_instances)
         LOGGER.debug("Finish feature binning fit and transform,data_output,{}".format(self.data_output))
         return self.data_output
 
@@ -208,13 +209,16 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                     self.binning_obj.params.method = self.model_param.method
                     self._setup_bin_inner_param(data_instances, self.model_param)
                     self.binning_obj.fit_split_points(data_instances)
-                    LOGGER.debug(f"data_instances={data_instances}")
-                    self.binning_obj.bin_results = self.iv_calculator.cal_local_iv(data_instances=data_instances,
-                                                                                   split_points=self.binning_obj.split_points,
-                                                                                   labels=self.labels,
-                                                                                   label_counts=label_counts,
-                                                                                   bin_cols_map=self.bin_inner_param.get_need_cal_iv_cols_map(),
-                                                                                   label_table=label_table)
+                    bin_results = self.iv_calculator.cal_local_iv(data_instances=data_instances,
+                                                                  split_points=self.binning_obj.split_points,
+                                                                  labels=self.labels,
+                                                                  label_counts=label_counts,
+                                                                  bin_cols_map=self.bin_inner_param.get_need_cal_iv_cols_map(),
+                                                                  label_table=label_table)
+                    LOGGER.debug(f"iv_calculator.bin_results={bin_results.bin_results[0].all_cols_results}")
+                    LOGGER.debug(f"binning_obj={self.binning_obj}")
+                    self.binning_obj.bin_results = bin_results.bin_results[0]
+                    LOGGER.debug(f"binning_obj.bin_results={self.binning_obj.bin_results}")
                     # self.binning_obj.cal_local_iv(data_instances, label_table=label_table)
                     LOGGER.debug("After cal_local_iv data_instances: {}".format(data_instances))
                     # print(self.binning_obj)
@@ -253,15 +257,17 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                 category_names = encrypted_bin_info['category_names']
                 provider_model_params = encrypted_bin_info['model_param']
 
-                result_counts_table = self._packer.decrypt_cipher_package_and_unpack(encrypted_bin_sum)
-                #  TODO
-                result_counts = result_counts_table
-                # result_counts = self.__decrypt_bin_sum(encrypted_bin_sum, cipher)
-                LOGGER.debug("result_counts: {}".format(result_counts_table))
-                LOGGER.debug(
-                    "Received provider {} result, length of buckets: {}".format(provider_idx, len(result_counts_table)))
-                # LOGGER.debug("category_name: {}, provider_bin_methods: {}".format(category_names, provider_bin_methods))
+                encrypted_bin_sum_source = session.parallelize(encrypted_bin_sum, include_key=True, partition=1)
+                result_counts_table = self._packer.decrypt_cipher_package_and_unpack(encrypted_bin_sum_source)
+                result_counts = dict(result_counts_table.collect())
 
+                # result_counts = self.__decrypt_bin_sum(encrypted_bin_sum, cipher)
+                LOGGER.debug(f"result_counts_table: {result_counts_table.first()}")
+                LOGGER.debug(
+                    "Received provider {} result, length of buckets: {}".format(provider_idx,
+                                                                                result_counts_table.count()))
+                # LOGGER.debug("category_name: {}, provider_bin_methods: {}".format(category_names, provider_bin_methods))
+                LOGGER.debug(f"result_counts={result_counts}")
                 if provider_model_params.method == consts.OPTIMAL:
 
                     self.binning_obj.event_total, self.binning_obj.non_event_total = self.get_histogram(data_instances)
@@ -294,4 +300,5 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                 per_provider_result_copy = copy.deepcopy(per_provider_result)
                 per_provider_results_list.append(per_provider_result_copy)
             all_provider_result_list.append(per_provider_results_list)
+            LOGGER.debug(f"per_provider_results_list={per_provider_results_list}")
         return all_provider_result_list
