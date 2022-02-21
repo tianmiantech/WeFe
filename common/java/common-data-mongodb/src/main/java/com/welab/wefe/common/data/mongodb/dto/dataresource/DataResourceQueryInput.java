@@ -36,7 +36,8 @@ public class DataResourceQueryInput extends PageInput {
     private List<DataResourceType> dataResourceType;
     private DeepLearningJobType forJobType;
     private Boolean containsY;
-    private String enable;
+    private Boolean enable;
+    private Boolean status;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -85,16 +86,6 @@ public class DataResourceQueryInput extends PageInput {
     public void setDataResourceType(List<DataResourceType> dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
-
-    public String getEnable() {
-        return enable;
-    }
-
-    public void setEnable(String enable) {
-        this.enable = enable;
-    }
-
-
     public DeepLearningJobType getForJobType() {
         return forJobType;
     }
@@ -117,5 +108,21 @@ public class DataResourceQueryInput extends PageInput {
 
     public void setMemberId(String memberId) {
         this.memberId = memberId;
+    }
+
+    public Boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }

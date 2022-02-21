@@ -34,6 +34,8 @@ public class ApiDataResourceQueryInput extends PageInput {
     private List<DataResourceType> dataResourceType;
     private DeepLearningJobType forJobType;
     private Boolean containsY;
+    private Boolean enable;
+    private Boolean status;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -97,5 +99,21 @@ public class ApiDataResourceQueryInput extends PageInput {
 
     public void setContainsY(Boolean containsY) {
         this.containsY = containsY;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public Boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
     }
 }
