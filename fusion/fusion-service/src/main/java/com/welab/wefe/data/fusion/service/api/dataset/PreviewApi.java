@@ -196,7 +196,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             // Obtain column head
             headRowConsumer.accept(rowsList);
             // Read data row
-            reader.read(dataRowConsumer, 10000, 25_000);
+            reader.readWithSelectRow(dataRowConsumer, -1, -1, rowsList);
         } finally {
             reader.close();
         }

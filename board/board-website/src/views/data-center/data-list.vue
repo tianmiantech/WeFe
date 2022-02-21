@@ -241,15 +241,16 @@
 
                 async getTags() {
                     const { code, data } = await $http.post({
-                        url:  '/union/data_resource/tags/query',
+                        url:  '/data_resource/tags',
                         data: {
-                            dataResourceType: vData.search.dataResourceType,
+                            dataResourceType: vData.search.dataResourceType ? Array.isArray(vData.search.dataResourceType) ? vData.search.dataResourceType : [vData.search.dataResourceType] : '',
+                            tag:              vData.search.tag,
                         },
                     });
 
                     nextTick(_=> {
                         if (code === 0) {
-                            vData.tagList = data;
+                            vData.tagList = data.list;
                         }
                     });
                 },
@@ -275,6 +276,7 @@
             const resourceTypeChange = () => {
                 vData.search.containsY = '';
                 vData.search.forJobType = '';
+                methods.getTags();
             };
 
             onMounted(async () => {

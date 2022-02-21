@@ -65,10 +65,10 @@ public class CacheObjects {
      * Data resource tags
      * tag : count
      */
-    private static final TreeMap<String, Long> DATA_RESOURCE_TAGS = new TreeMap<>();
-    private static final TreeMap<String, Long> TABLE_DATA_SET_TAGS = new TreeMap<>();
-    private static final TreeMap<String, Long> IMAGE_DATA_SET_TAGS = new TreeMap<>();
-    private static final TreeMap<String, Long> BLOOM_FILTER_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> DATA_RESOURCE_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> TABLE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> IMAGE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> BLOOM_FILTER_TAGS = new TreeMap<>();
 
     /**
      * accountId : nickname
@@ -138,8 +138,8 @@ public class CacheObjects {
         return MEMBER_NAME;
     }
 
-    public static TreeMap<String, Long> getDataResourceTags(DataResourceType dataResourceType) {
-        TreeMap<String, Long> map = null;
+    public static TreeMap<String, Integer> getDataResourceTags(DataResourceType dataResourceType) {
+        TreeMap<String, Integer> map = null;
 
         if (dataResourceType == null) {
             map = DATA_RESOURCE_TAGS;
@@ -257,11 +257,11 @@ public class CacheObjects {
     }
 
     public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType) {
-        TreeMap<String, Long> map = getDataResourceTags(dataResourceType);
+        TreeMap<String, Integer> map = getDataResourceTags(dataResourceType);
         refreshDataResourceTags(dataResourceType, map);
     }
 
-    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType, TreeMap<String, Long> map) {
+    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType, TreeMap<String, Integer> map) {
 
         // Query all tags from the database
         DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
@@ -273,10 +273,13 @@ public class CacheObjects {
         // Count the number of data sets corresponding to each tag
         for (Object[] row : rows) {
             List<String> tags = StringUtil.splitWithoutEmptyItem(String.valueOf(row[0]), ",");
-            long count = Convert.toLong(row[1]);
+            int count = Convert.toInt(row[1]);
             for (String tag : tags) {
+                if (StringUtil.isEmpty(tag)) {
+                    continue;
+                }
                 if (!map.containsKey(tag)) {
-                    map.put(tag, 0L);
+                    map.put(tag, 0);
                 }
                 map.put(tag, map.get(tag) + count);
             }
