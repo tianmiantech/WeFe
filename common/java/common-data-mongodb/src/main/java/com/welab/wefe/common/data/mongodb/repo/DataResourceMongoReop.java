@@ -279,7 +279,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     private List<MatchOperation> buildMatchOperations(DataResourceQueryInput dataResourceQueryInput) {
         List<MatchOperation> matchOperations = new ArrayList<>();
         Criteria dataResouceCriteria = new QueryBuilder()
-                .append("status", dataResourceQueryInput.getStatus() == null ? null : String.valueOf(dataResourceQueryInput.getStatus() ? 1 : 0))
+                .append("status", dataResourceQueryInput.getStatus() == null ? null : dataResourceQueryInput.getStatus() ? 1 : 0)
                 .append("enable", dataResourceQueryInput.getEnable() == null ? null : String.valueOf(dataResourceQueryInput.getEnable() ? 1 : 0))
                 .like("name", dataResourceQueryInput.getName())
                 .like("tags", dataResourceQueryInput.getTag())

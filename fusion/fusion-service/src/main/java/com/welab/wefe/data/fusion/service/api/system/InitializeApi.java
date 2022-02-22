@@ -23,7 +23,7 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.data.fusion.service.service.GlobalSettingService;
+import com.welab.wefe.data.fusion.service.service.SystemInitializeService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
 
     @Autowired
-    GlobalSettingService globalSettingService;
+    SystemInitializeService globalSettingService;
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {

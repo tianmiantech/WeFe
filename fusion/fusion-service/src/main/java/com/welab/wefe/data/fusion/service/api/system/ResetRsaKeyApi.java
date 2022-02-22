@@ -14,32 +14,28 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.data.fusion.service.api.system;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.user.UserRoleChangeInput;
-import com.welab.wefe.manager.service.service.UserService;
+import com.welab.wefe.data.fusion.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
-
 /**
- * @Description:
- * @author: yuxin.zhang
- * @date: 2021/11/5
+ * @author hunter.zhao
  */
-@Api(path = "user/role/change", name = "user role change")
-public class UserRoleChangeApi extends AbstractApi<UserRoleChangeInput, AbstractApiOutput> {
+@Api(path = "system/reset_rsa_key", name = "reset rsa key pair")
+public class ResetRsaKeyApi extends AbstractNoneInputApi {
     @Autowired
-    private UserService userService;
+    private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(UserRoleChangeInput input) throws StatusCodeWithException, IOException {
-        userService.changeUserRole(input.getUserId(), input.isAdminRole());
+    protected ApiResult<?> handle() throws StatusCodeWithException {
+
+        globalConfigService.updateMemberRsaKey();
         return success();
     }
+
 }

@@ -233,6 +233,7 @@ const baseRoutes = [
                 name: 'global-setting-view',
                 meta: {
                     title: '配置信息',
+                    loginAndRefresh: true,
                 },
                 component: () => import('@views/global_setting/global-setting-view.vue'),
             },
