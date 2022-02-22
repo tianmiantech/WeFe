@@ -6,8 +6,10 @@
         </div>
         <div class="top_side">
             <h4>过滤器简介</h4>
-            <p class="subtitle">上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了
-                <span>{{ dataInfo.used_count }}</span> 任务。</p>
+            <p class="subtitle">
+                上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了
+                <span>{{ dataInfo.used_count }}</span> 任务。
+            </p>
             <el-row :gutter="20">
                 <el-col :span="6">描述: {{ dataInfo.description }}</el-col>
                 <el-col :span="6">数据量: {{ dataInfo.row_count }}</el-col>
@@ -89,21 +91,21 @@
 export default {
     data() {
         return {
-            id: '',
-            name: '',
-            loading: false,
-            dataInfo: {},
-            list: [],
+            id:              '',
+            name:            '',
+            loading:         false,
+            dataInfo:        {},
+            list:            [],
             previewDataInfo: [],
-            table_data: {
+            table_data:      {
                 header: [],
-                rows: [],
+                rows:   [],
             },
             gridTheme: {
-                color: '#6C757D',
+                color:       '#6C757D',
                 borderColor: '#EBEEF5',
             },
-            gridHeight: 0,
+            gridHeight:  0,
             selectedCol: '',
         };
     },
@@ -115,8 +117,8 @@ export default {
 
         async getDataSetDetail() {
             this.loading = true;
-            const {code, data} = await this.$http.post({
-                url: '/filter/detail',
+            const { code, data } = await this.$http.post({
+                url:  '/filter/detail',
                 data: {
                     id: this.id,
                 },
@@ -124,24 +126,24 @@ export default {
 
             if (code === 0) {
                 if (data) {
-                    this.selectedCol = data.rows
-                    this.dataInfo = data
-                    this.getDataSetPreview()
+                    this.selectedCol = data.rows;
+                    this.dataInfo = data;
+                    this.getDataSetPreview();
                 }
             }
             this.loading = false;
         },
         async getDataSetPreview() {
-            const {code, data} = await this.$http.get({
-                url: '/filter/preview',
-                params: {id: this.id, rows: this.selectedCol},
+            const { code, data } = await this.$http.get({
+                url:    '/filter/preview',
+                params: { id: this.id, rows: this.selectedCol },
             });
 
             if (code === 0) {
                 if (data && data.header) {
                     this.previewDataInfo = data.metadata_list;
 
-                    let {length} = data.raw_data_list;
+                    let { length } = data.raw_data_list;
 
                     const rows = data.raw_data_list;
 

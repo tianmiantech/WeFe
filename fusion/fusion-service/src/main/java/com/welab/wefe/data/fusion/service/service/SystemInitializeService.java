@@ -37,7 +37,7 @@ import java.util.UUID;
  * @author hunter.zhao
  */
 @Service
-public class GlobalSettingService {
+public class SystemInitializeService {
     @Autowired
     AccountRepository accountRepository;
 

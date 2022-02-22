@@ -25,7 +25,7 @@ import com.welab.wefe.manager.service.dto.base.BaseInput;
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class DataSetDefaultTagUpdateInput extends BaseInput {
+public class DataResourceDefaultTagUpdateInput extends BaseInput {
     @Check(require = true)
     private String tagId;
     @Check(require = true)

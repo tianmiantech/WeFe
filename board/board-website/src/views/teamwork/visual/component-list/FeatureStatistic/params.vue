@@ -9,7 +9,7 @@
             :key="`${member.member_id}-${member.member_role}`"
         >
             <h4 class="f14 mb5">{{member.member_role === 'promoter' ? '发起方' : '协作方'}}:</h4>
-            <el-form-item v-if="member.show">
+            <div v-if="member.show" class="el-form-item">
                 <div class="el-form-item__label">
                     <span class="mr10">{{ member.member_name }}</span>
                     <el-button
@@ -44,7 +44,7 @@
                         查看更多
                     </el-button>
                 </div>
-            </el-form-item>
+            </div>
         </template>
 
         <div class="mt20">
@@ -119,6 +119,7 @@
                         type="primary"
                         size="small"
                         class="ml10"
+                        style="margin-top: -7px;"
                         @click="methods.revertCheck"
                     >
                         反选

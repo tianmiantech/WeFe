@@ -311,6 +311,9 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
 
     private Output readFromSourceDB(String dataSourceId, String sql) throws Exception {
+        if (sql == null) {
+            throw new StatusCodeWithException("查询出错，查询语句为空", StatusCode.PARAMETER_VALUE_INVALID);
+        }
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
             throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
@@ -323,9 +326,12 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         // The total number of rows based on the query statement
 //        long rowCountFromDB = jdbcManager.count(conn, sql);
 
-
         // Gets the data set column header
         List<String> header = jdbcManager.getRowHeaders(conn, sql);
+        if (header == null) {
+            throw new StatusCodeWithException("查询出错，请检查查询语句是否正确", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
         if (header.stream().distinct().count() != header.size()) {
             throw new StatusCodeWithException("The dataset contains duplicate fields. Please handle and re-upload.", StatusCode.PARAMETER_VALUE_INVALID);
         }

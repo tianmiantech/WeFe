@@ -18,16 +18,20 @@ package com.welab.wefe.mpc.commom;
 
 public class Constants {
 
+    public static final String RESULT = "mpc_origin_result";
+    public static final String ENCRYPT_RESULT = "mpc_encrypt_result";
+    public static final String UUID_FIRST_TIME = "mpc_first_time";
+
     public static class PIR {
         public static final String KEYS = "pir_keys";
         public static final String UUID = "pir_uuid";
 
+        public static final String UUID_FIRST_TIME = "pir_time";
         public static final String RANDOM = "pir_random";
         public static final String RANDOM_LEGAL = "pir_random_legal";
         public static final String ATTEMPT_COUNT = "pir_attempt_count";
         public static final String R = "pir_r";
 
-        public static final String RESULT = "pir_result";
         public static final String AES_IV = "pir_iv";
     }
 

@@ -30,6 +30,7 @@ public class RealnameAuthInfoQueryOutput {
     private String auditComment;
     private String authType;
     private String description;
+    private String realNameAuthUsefulLife;
     private List<String> fileIdList;
 
 
@@ -79,5 +80,13 @@ public class RealnameAuthInfoQueryOutput {
 
     public void setAuditComment(String auditComment) {
         this.auditComment = auditComment;
+    }
+
+    public String getRealNameAuthUsefulLife() {
+        return realNameAuthUsefulLife;
+    }
+
+    public void setRealNameAuthUsefulLife(String realNameAuthUsefulLife) {
+        this.realNameAuthUsefulLife = realNameAuthUsefulLife;
     }
 }

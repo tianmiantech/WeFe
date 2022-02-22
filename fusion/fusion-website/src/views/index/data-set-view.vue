@@ -133,7 +133,7 @@
                     @file-removed="fileRemoved"
                     @file-added="fileAdded"
                 >
-                    <uploader-unsupport/>
+                    <uploader-unsupport />
                     <uploader-drop v-if="file_upload_options.files.length === 0">
                         <p class="mb10">将文件（.csv .xls .xlsx）拖到此处</p>
                         或
@@ -143,7 +143,7 @@
                         >
                             点击上传
                         </uploader-btn>
-                        <uploader-list :file-list="file_upload_options.files.length"/>
+                        <uploader-list :file-list="file_upload_options.files.length" />
                     </uploader-drop>
 
                     <div class="el-upload__tip">
@@ -158,7 +158,7 @@
                             </li>
                         </ul>
                     </div>
-                    <uploader-list/>
+                    <uploader-list />
                 </uploader>
             </fieldset>
 
@@ -313,8 +313,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import progressBar from '../components/progressBar';
-import {mapGetters} from "vuex";
 
 export default {
     components: {
@@ -322,20 +322,20 @@ export default {
     },
     data() {
         return {
-            loading: false,
+            loading:                 false,
             // ui status
-            tagInputVisible: false,
-            tagInputValue: '',
-            options_tags: [],
+            tagInputVisible:         false,
+            tagInputValue:           '',
+            options_tags:            [],
             public_member_info_list: [],
             // preview
-            raw_data_list: [],
-            metadata_list: [],
-            data_set_header: [],
-            data_type_options: ['Integer', 'Long', 'Double', 'Enum', 'String'],
+            raw_data_list:           [],
+            metadata_list:           [],
+            data_set_header:         [],
+            data_type_options:       ['Integer', 'Long', 'Double', 'Enum', 'String'],
             // help: https://github.com/simple-uploader/Uploader/blob/develop/README_zh-CN.md#%E5%A4%84%E7%90%86-get-%E6%88%96%E8%80%85-test-%E8%AF%B7%E6%B1%82
-            file_upload_options: {
-                files: [],
+            file_upload_options:     {
+                files:  [],
                 target: window.api.baseUrl + '/file/upload',
 
                 headers: {
@@ -343,8 +343,8 @@ export default {
                 },
                 singleFile: true,
 
-                testChunks: true,
-                chunkSize: 8 * 1024 * 1024,
+                testChunks:          true,
+                chunkSize:           8 * 1024 * 1024,
                 simultaneousUploads: 4,
                 parseTimeRemaining(timeRemaining, parsedTimeRemaining) {
                     return parsedTimeRemaining
@@ -359,65 +359,68 @@ export default {
                 accept: '.csv,.xls,.xlsx',
             },
             http_upload_filename: '',
-            local_filename: '',
+            local_filename:       '',
             // model
-            form: {
-                publicLevel: 'Public',
-                name: '',
-                description: '',
+            form:                 {
+                publicLevel:        'Public',
+                name:               '',
+                description:        '',
                 public_member_list: [],
-                filename: '',
+                filename:           '',
                 dataResourceSource: 'UploadFile',
-                metadata_list: [],
-                deduplication: false,
-                row_list: [],
-                data_source_id: '',
-                sql: '',
+                metadata_list:      [],
+                deduplication:      false,
+                row_list:           [],
+                data_source_id:     '',
+                sql:                '',
             },
             metadata_pagination: {
-                list: [],
-                total: 0,
-                page_size: 20,
+                list:       [],
+                total:      0,
+                page_size:  20,
                 page_index: 1,
             },
             gridTheme: {
-                color: '#6C757D',
+                color:       '#6C757D',
                 borderColor: '#EBEEF5',
             },
             data_preview_finished: false,
-            gridHeight: 0,
-            search: {
+            gridHeight:            0,
+            search:                {
                 database_name: '',
-                tag: '',
-                source_type: '',
+                tag:           '',
+                source_type:   '',
             },
 
             dataSource: {
-                loading: false,
-                show: false,
-                name: '',
-                host: '',
-                port: '',
-                databaseName: '',
-                userName: '',
-                password: '',
-                databaseType: 'MySql',
-                databaseTypes: ['MySql', 'Hive', 'Impala'],
+                loading:        false,
+                show:           false,
+                name:           '',
+                host:           '',
+                port:           '',
+                databaseName:   '',
+                userName:       '',
+                password:       '',
+                databaseType:   'MySql',
+                databaseTypes:  ['MySql', 'Hive', 'Impala'],
                 dataSourceList: [],
-                dataset: [],
+                dataset:        [],
             },
 
             data_source_list: [],
-            data_source_id: '',
-            row_list: [],
-            isuploadok: false,
-            addLoading: false,
-            timer: null,
-            processData: {
-                text: '正在存储数据集...',
+            data_source_id:   '',
+            row_list:         [],
+            isuploadok:       false,
+            addLoading:       false,
+            timer:            null,
+            processData:      {
+                text:       '正在存储数据集...',
                 percentage: 0,
             },
         };
+    },
+    computed: {
+        ...mapGetters(['userInfo']),
     },
     watch: {
         'form.dataResourceSource': {
@@ -449,18 +452,13 @@ export default {
     },
     created() {
 
-        this.file_upload_options.headers.token = this.userInfo.token
+        this.file_upload_options.headers.token = this.userInfo.token;
         this.getDataSources();
-
-
     },
 
-    computed: {
-        ...mapGetters(['userInfo']),
-    },
     methods: {
         async getDataSources() {
-            const {code, data} = await this.$http.get('/data_source/query');
+            const { code, data } = await this.$http.get('/data_source/query');
 
             if (code === 0) {
                 this.data_source_list = data.list;
@@ -469,16 +467,16 @@ export default {
         // test db connect
         async pingTest() {
             this.dataSource.loading = true;
-            const {code} = await this.$http.post({
-                url: '/data_source/test_db_connect',
+            const { code } = await this.$http.post({
+                url:  '/data_source/test_db_connect',
                 data: {
                     databaseType: this.dataSource.databaseType,
                     databaseName: this.dataSource.databaseName,
-                    userName: this.dataSource.userName,
-                    password: this.dataSource.password,
-                    name: this.dataSource.name,
-                    host: this.dataSource.host,
-                    port: this.dataSource.port,
+                    userName:     this.dataSource.userName,
+                    password:     this.dataSource.password,
+                    name:         this.dataSource.name,
+                    host:         this.dataSource.host,
+                    port:         this.dataSource.port,
                 },
             });
 
@@ -491,16 +489,16 @@ export default {
         // add data source
         async addDatabaseType() {
             this.dataSource.loading = true;
-            const {code} = await this.$http.post({
-                url: '/data_source/add',
+            const { code } = await this.$http.post({
+                url:  '/data_source/add',
                 data: {
                     databaseType: this.dataSource.databaseType,
                     databaseName: this.dataSource.databaseName,
-                    userName: this.dataSource.userName,
-                    password: this.dataSource.password,
-                    name: this.dataSource.name,
-                    host: this.dataSource.host,
-                    port: this.dataSource.port,
+                    userName:     this.dataSource.userName,
+                    password:     this.dataSource.password,
+                    name:         this.dataSource.name,
+                    host:         this.dataSource.host,
+                    port:         this.dataSource.port,
                 },
             });
 
@@ -521,7 +519,7 @@ export default {
             });
         },
         metadataPageChange(val) {
-            const {page_size} = this.metadata_pagination;
+            const { page_size } = this.metadata_pagination;
 
             this.metadata_pagination.page_index = val;
             this.metadata_pagination.list = [];
@@ -552,10 +550,10 @@ export default {
 
             this.form.filename = this.form.dataResourceSource === 'UploadFile' ? this.http_upload_filename : this.local_filename;
 
-            const {code, data} = await this.$http.get({
-                url: '/data_set/preview',
+            const { code, data } = await this.$http.get({
+                url:    '/data_set/preview',
                 params: {
-                    filename: this.form.filename,
+                    filename:           this.form.filename,
                     id,
                     dataResourceSource: this.form.dataResourceSource,
                 },
@@ -594,13 +592,13 @@ export default {
 
             this.form.filename = this.form.dataResourceSource === 'UploadFile' ? this.http_upload_filename : this.local_filename;
 
-            const {code, data} = await this.$http.get({
-                url: '/data_set/preview',
+            const { code, data } = await this.$http.get({
+                url:    '/data_set/preview',
                 params: {
-                    filename: this.form.filename,
+                    filename:           this.form.filename,
                     dataResourceSource: this.form.dataResourceSource,
-                    sql: this.form.sql,
-                    id: this.form.data_source_id,
+                    sql:                this.form.sql,
+                    id:                 this.form.data_source_id,
                 },
             });
 
@@ -643,15 +641,15 @@ export default {
             this.loading = true;
             this.data_preview_finished = false;
             const file = arguments[0].file;
-            const {code, data} = await this.$http.get({
-                url: '/file/merge',
+            const { code, data } = await this.$http.get({
+                url:    '/file/merge',
                 params: {
-                    filename: file.name,
+                    filename:         file.name,
                     uniqueIdentifier: arguments[0].uniqueIdentifier,
                 },
                 headers: {
                     token: this.userInfo.token,
-                }
+                },
             })
                 .catch(err => {
                     console.log(err);
@@ -722,10 +720,10 @@ export default {
             this.addLoading = true;
             if (this.form.dataResourceSource !== 'LocalFile') this.getDataSetStatus();
 
-            const {code, data} = await this.$http.post({
-                url: '/data_set/add',
+            const { code, data } = await this.$http.post({
+                url:     '/data_set/add',
                 timeout: 1000 * 60 * 24 * 30,
-                data: this.form,
+                data:    this.form,
             });
 
             if (code === 0) {
@@ -745,9 +743,9 @@ export default {
         async getDataSetStatus(data_set_id = '') {
             this.$refs['progressRef'].showDialog();
             if (data_set_id) {
-                const {code, data} = await this.$http.post({
-                    url: '/data_set/get_state',
-                    data: {data_set_id},
+                const { code, data } = await this.$http.post({
+                    url:  '/data_set/get_state',
+                    data: { data_set_id },
                 });
 
                 if (code === 0) {
@@ -776,8 +774,8 @@ export default {
         async getDataSetTags(keyword, cb) {
             this.options_tags = [];
             if (keyword) {
-                const {code, data} = await this.$http.post({
-                    url: '/data_set/tags',
+                const { code, data } = await this.$http.post({
+                    url:  '/data_set/tags',
                     data: {
                         tag: keyword,
                     },
@@ -785,7 +783,7 @@ export default {
 
                 if (code === 0) {
                     for (const key in data) {
-                        this.options_tags.push({value: key, label: key});
+                        this.options_tags.push({ value: key, label: key });
                     }
                 }
             }

@@ -167,7 +167,8 @@
             async getChartsData() {
                 const { tabName } = this;
                 const { type } = this.charts[tabName].config;
-                const ref = this.$refs[this.tabName];
+                const $ref = this.$refs[this.tabName];
+                const ref = Array.isArray($ref) ? $ref[0] : $ref;
                 const Queue = [];
 
                 ref.loading = true;

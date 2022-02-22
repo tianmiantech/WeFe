@@ -19,8 +19,6 @@ package com.welab.wefe.mpc.sa.server.service;
 
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
-import com.welab.wefe.mpc.cache.result.QueryDataResult;
-import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.commom.Operator;
 import com.welab.wefe.mpc.sa.request.QuerySAResultRequest;
@@ -46,8 +44,8 @@ public class QueryResultService {
         BigInteger key = mCacheOperation.get(request.getUuid(), Constants.SA.SA_KEY);
         BigInteger p = new BigInteger(request.getP(), 16);
 
-        QueryDataResult<Double> queryDataResult = QueryDataResultFactory.getQueryDataResult();
-        Double dataResult = queryDataResult.query(request.getUuid());
+        CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
+        Double dataResult = queryResult.get(request.getUuid(), Constants.RESULT);
         List<String> diffieHellmanValues = request.getDiffieHellmanValues();
         int index = request.getIndex();
         Double result = dataResult;

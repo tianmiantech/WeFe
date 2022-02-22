@@ -2,7 +2,7 @@
     <div class="top-bar">
         <div class="toolbar">
             <!-- <el-tooltip
-                :open-delay="600"
+                :show-after="600"
                 content="回退操作"
                 placement="top"
             >
@@ -12,7 +12,7 @@
                 />
             </el-tooltip>
             <el-tooltip
-                :open-delay="600"
+                :show-after="600"
                 placement="top"
                 content="重做"
             >
@@ -24,7 +24,7 @@
             <template v-if="myRole === 'promoter' && isCreator">
                 <el-tooltip
                     v-if="vData.jobStatus === '' || jobStopStatus.includes(vData.jobStatus)"
-                    :open-delay="600"
+                    :show-after="600"
                     placement="top"
                     content="启动"
                 >
@@ -36,7 +36,7 @@
                 </el-tooltip>
                 <el-tooltip
                     v-if="!(vData.jobStatus === '' || jobStopStatus.includes(vData.jobStatus))"
-                    :open-delay="600"
+                    :show-after="600"
                     placement="top"
                     content="暂停"
                 >
@@ -50,7 +50,7 @@
 
             <template v-if="reference === 'main'">
                 <el-tooltip
-                    :open-delay="600"
+                    :show-after="600"
                     placement="top"
                     content="任务详情面板"
                 >
@@ -60,7 +60,7 @@
                     />
                 </el-tooltip>
                 <el-tooltip
-                    :open-delay="600"
+                    :show-after="600"
                     placement="top"
                     content="任务历史"
                 >
@@ -72,7 +72,7 @@
                 |
             </template>
             <el-tooltip
-                :open-delay="600"
+                :show-after="600"
                 placement="top"
                 content="重定位"
             >
@@ -82,7 +82,7 @@
                 />
             </el-tooltip>
             <el-tooltip
-                :open-delay="600"
+                :show-after="600"
                 placement="top"
                 content="1倍"
             >
@@ -92,7 +92,7 @@
                 />
             </el-tooltip>
             <el-tooltip
-                :open-delay="600"
+                :show-after="600"
                 placement="top"
                 content="缩小"
             >
@@ -102,7 +102,7 @@
                 />
             </el-tooltip>
             <el-tooltip
-                :open-delay="600"
+                :show-after="600"
                 placement="top"
                 content="放大"
             >
@@ -112,7 +112,7 @@
                 />
             </el-tooltip>
             <el-tooltip
-                :open-delay="600"
+                :show-after="600"
                 placement="top"
                 content="缩略图"
             >
@@ -124,7 +124,7 @@
 
             <template v-if="reference === 'main' && myRole === 'promoter' && isCreator">
                 <el-tooltip
-                    :open-delay="600"
+                    :show-after="600"
                     placement="top"
                     content="帮助"
                 >
@@ -135,7 +135,7 @@
                 </el-tooltip>
                 |
                 <el-tooltip
-                    :open-delay="600"
+                    :show-after="600"
                     placement="top"
                     content="保存"
                 >
