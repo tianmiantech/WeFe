@@ -23,7 +23,7 @@ import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.manager.service.contract.DataSetDefaultTagContract;
-import com.welab.wefe.manager.service.dto.tag.DataSetDefaultTagUpdateInput;
+import com.welab.wefe.manager.service.dto.tag.DataResourceDefaultTagUpdateInput;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
@@ -79,7 +79,7 @@ public class DatSetDefaultTagContractService extends AbstractContractService {
     }
 
 
-    public void updateByTagId(DataSetDefaultTagUpdateInput input) throws StatusCodeWithException {
+    public void updateByTagId(DataResourceDefaultTagUpdateInput input) throws StatusCodeWithException {
         try {
             TransactionReceipt transactionReceipt = dataSetDefaultTagContract.update(
                     input.getTagId(),

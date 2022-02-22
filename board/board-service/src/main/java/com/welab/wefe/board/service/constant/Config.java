@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.constant;
 
 import com.welab.wefe.common.data.storage.common.DBType;
-import com.welab.wefe.common.wefe.enums.JobBackendType;
 import com.welab.wefe.common.wefe.enums.env.EnvBranch;
 import com.welab.wefe.common.wefe.enums.env.EnvName;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,9 +42,6 @@ public class Config {
 
     @Value("${wefe.job.work_mode}")
     private Integer workMode;
-
-    @Value("${wefe.job.backend}")
-    private JobBackendType backend;
 
     @Value("${db.storage.type}")
     private DBType dbType;
@@ -116,14 +112,6 @@ public class Config {
 
     public void setWorkMode(Integer workMode) {
         this.workMode = workMode;
-    }
-
-    public JobBackendType getBackend() {
-        return backend;
-    }
-
-    public void setBackend(JobBackendType backend) {
-        this.backend = backend;
     }
 
     public DBType getDbType() {

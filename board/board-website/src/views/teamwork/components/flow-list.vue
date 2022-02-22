@@ -91,7 +91,7 @@
                     <router-link
                         v-if="form.project_type === 'DeepLearning' && scope.row.flow_status === 'success'"
                         class="link mr10"
-                        :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id }}"
+                        :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id, project_id: project_id }}"
                     >
                         校验
                     </router-link>

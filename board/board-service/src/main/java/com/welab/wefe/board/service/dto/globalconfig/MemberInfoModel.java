@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
@@ -46,6 +47,9 @@ public class MemberInfoModel {
 
     @Check(name = "成员隐身状态")
     private Boolean memberHidden;
+
+    @Check(name = "密钥类型")
+    private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
     //region getter/setter
 
@@ -129,5 +133,12 @@ public class MemberInfoModel {
         this.memberHidden = memberHidden;
     }
 
+    public SecretKeyType getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(SecretKeyType secretKeyType) {
+        this.secretKeyType = secretKeyType;
+    }
     //endregion
 }

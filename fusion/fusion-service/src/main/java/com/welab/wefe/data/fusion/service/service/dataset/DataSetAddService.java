@@ -89,34 +89,25 @@ public class DataSetAddService extends AbstractService {
         model.setUsedCount(0);
         model.setRowCount(rowsCount);
         model.setUpdatedTime(new Date());
+        model.setStatement(input.getSql());
+        model.setSourcePath(input.getFilename());
+        model.setDataSourceId(input.getDataSourceId());
         dataSetRepository.save(model);
 
-        File file = null;
         CommonThreadPool.TASK_SWITCH = true;
-        if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
-            model.setDataSourceId(input.getDataSourceId());
-            //DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
-            //String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
 
+        File file = null;
+        if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
-            model.setStatement(input.getSql());
+
         } else {
             file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
-
             try {
                 rowsCount = readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
-                model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
             }
-        }
-
-        if (CommonThreadPool.TASK_SWITCH) {
-            model.setUsedCount(0);
-            model.setRowCount(rowsCount);
-            model.setUpdatedTime(new Date());
-            dataSetRepository.save(model);
         }
 
         AddApi.DataSetAddOutput output = new AddApi.DataSetAddOutput();
@@ -151,7 +142,7 @@ public class DataSetAddService extends AbstractService {
                 : new ExcelDataSetReader(file);
 
         // Gets the data set column header
-        List<String> headers = dataSetReader.getHeader(rows);
+        List<String> headers = dataSetReader.getHeader();
 
         DataSetStorageHelper.createDataSetTable(model.getId(), rows);
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, file, rows);

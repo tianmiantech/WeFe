@@ -16,16 +16,23 @@
 
 package com.welab.wefe.manager.service.api.defaulttag;
 
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResourceDefaultTag;
 import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceDefaultTagMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
-import com.welab.wefe.manager.service.dto.tag.ApiDataSetDefaultTagQueryOutput;
+import com.welab.wefe.manager.service.dto.tag.ApiDataResourceDefaultTagQueryOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,26 +41,50 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/query", name = "default_tag_query")
-public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
+@Api(path = "data_resource/default_tag/query", name = "default_tag_query")
+public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
 
     @Autowired
-    protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
+    protected DataResourceDefaultTagMongoRepo dataResourceDefaultTagMongoRepo;
 
     @Override
-    protected ApiResult<JObject> handle(BaseInput input) {
-        List<DataSetDefaultTag> dataSetDefaultTagList = dataSetDefaultTagMongoRepo.findAll();
-        List<ApiDataSetDefaultTagQueryOutput> list = dataSetDefaultTagList
+    protected ApiResult<JObject> handle(Input input) throws StatusCodeWithException, IOException {
+        List<DataResourceDefaultTag> dataResourceDefaultTagList = dataResourceDefaultTagMongoRepo.findByDataResourceType(convertDataResourceType(input.dataResourceType));
+        List<ApiDataResourceDefaultTagQueryOutput> list = dataResourceDefaultTagList
                 .stream().map(x -> {
-                    ApiDataSetDefaultTagQueryOutput apiDataSetDefaultTagQueryOutput = new ApiDataSetDefaultTagQueryOutput();
-                    apiDataSetDefaultTagQueryOutput.setId(x.getTagId());
-                    apiDataSetDefaultTagQueryOutput.setTagName(x.getTagName());
-                    apiDataSetDefaultTagQueryOutput.setStatus(x.getStatus());
-                    apiDataSetDefaultTagQueryOutput.setExtJson(x.getExtJson());
-                    return apiDataSetDefaultTagQueryOutput;
+                    ApiDataResourceDefaultTagQueryOutput apiDataSetDefaultTagOutput = new ApiDataResourceDefaultTagQueryOutput();
+                    apiDataSetDefaultTagOutput.setId(x.getTagId());
+                    apiDataSetDefaultTagOutput.setTagName(x.getTagName());
+                    return apiDataSetDefaultTagOutput;
                 }).collect(Collectors.toList());
 
         return success(JObject.create("list", JObject.toJSON(list)));
+    }
+
+    private String convertDataResourceType(DataResourceType dataResourceType) throws StatusCodeWithException {
+        switch (dataResourceType) {
+            case BloomFilter:
+            case TableDataSet:
+                return DataResourceType.TableDataSet.name();
+            case ImageDataSet:
+                return DataResourceType.ImageDataSet.name();
+            default:
+                throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER,"dataResourceType");
+        }
+    }
+
+
+    public static class Input extends BaseInput {
+        @Check(require = true)
+        private DataResourceType dataResourceType;
+
+        public DataResourceType getDataResourceType() {
+            return dataResourceType;
+        }
+
+        public void setDataResourceType(DataResourceType dataResourceType) {
+            this.dataResourceType = dataResourceType;
+        }
     }
 
 }

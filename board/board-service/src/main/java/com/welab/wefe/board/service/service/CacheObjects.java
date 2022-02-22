@@ -25,6 +25,7 @@ import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.board.service.sdk.union.dto.MemberBaseInfo;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -58,15 +59,16 @@ public class CacheObjects {
     private static String RSA_PRIVATE_KEY;
     private static String RSA_PUBLIC_KEY;
     private static String MEMBER_NAME;
+    private static SecretKeyType SECRET_KEY_TYPE = null;
 
     /**
      * Data resource tags
      * tag : count
      */
-    private static final TreeMap<String, Long> DATA_RESOURCE_TAGS = new TreeMap<>();
-    private static final TreeMap<String, Long> TABLE_DATA_SET_TAGS = new TreeMap<>();
-    private static final TreeMap<String, Long> IMAGE_DATA_SET_TAGS = new TreeMap<>();
-    private static final TreeMap<String, Long> BLOOM_FILTER_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> DATA_RESOURCE_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> TABLE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> IMAGE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> BLOOM_FILTER_TAGS = new TreeMap<>();
 
     /**
      * accountId : nickname
@@ -136,8 +138,8 @@ public class CacheObjects {
         return MEMBER_NAME;
     }
 
-    public static TreeMap<String, Long> getDataResourceTags(DataResourceType dataResourceType) {
-        TreeMap<String, Long> map = null;
+    public static TreeMap<String, Integer> getDataResourceTags(DataResourceType dataResourceType) {
+        TreeMap<String, Integer> map = null;
 
         if (dataResourceType == null) {
             map = DATA_RESOURCE_TAGS;
@@ -251,14 +253,15 @@ public class CacheObjects {
         RSA_PUBLIC_KEY = model.getRsaPublicKey();
         RSA_PRIVATE_KEY = model.getRsaPrivateKey();
         MEMBER_NAME = model.getMemberName();
+        SECRET_KEY_TYPE = model.getSecretKeyType();
     }
 
     public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType) {
-        TreeMap<String, Long> map = getDataResourceTags(dataResourceType);
+        TreeMap<String, Integer> map = getDataResourceTags(dataResourceType);
         refreshDataResourceTags(dataResourceType, map);
     }
 
-    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType, TreeMap<String, Long> map) {
+    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType, TreeMap<String, Integer> map) {
 
         // Query all tags from the database
         DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
@@ -270,10 +273,13 @@ public class CacheObjects {
         // Count the number of data sets corresponding to each tag
         for (Object[] row : rows) {
             List<String> tags = StringUtil.splitWithoutEmptyItem(String.valueOf(row[0]), ",");
-            long count = Convert.toLong(row[1]);
+            int count = Convert.toInt(row[1]);
             for (String tag : tags) {
+                if (StringUtil.isEmpty(tag)) {
+                    continue;
+                }
                 if (!map.containsKey(tag)) {
-                    map.put(tag, 0L);
+                    map.put(tag, 0);
                 }
                 map.put(tag, map.get(tag) + count);
             }
@@ -311,6 +317,13 @@ public class CacheObjects {
         MEMBER_MAP.clear();
         MEMBER_MAP = service.getMemberMap();
 
+    }
+
+    public static synchronized SecretKeyType getSecretKeyType() {
+        if (null == SECRET_KEY_TYPE) {
+            refreshMemberInfo();
+        }
+        return null == SECRET_KEY_TYPE ? SecretKeyType.rsa : SECRET_KEY_TYPE;
     }
 
 }
