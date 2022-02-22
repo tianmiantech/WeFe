@@ -37,6 +37,7 @@ public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
     private String usageCountInProject;
     private String usageCountInMember;
     private String enable;
+    private int status;
     private DataResourceType dataResourceType;
 
 
@@ -160,6 +161,11 @@ public class ApiDataResourceQueryOutput extends AbstractTimedApiOutput {
         this.memberName = memberName;
     }
 
+    public int getStatus() {
+        return status;
+    }
 
-
+    public void setStatus(int status) {
+        this.status = status;
+    }
 }
