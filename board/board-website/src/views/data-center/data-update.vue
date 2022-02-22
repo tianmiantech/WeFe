@@ -460,9 +460,9 @@
 
                 this.loading = true;
                 const map = {
-                    csv:    '/table_data_set/update',
-                    img:    '/image_data_set/update',
-                    filter: '/bloom_filter/update',
+                    csv:         '/table_data_set/update',
+                    img:         '/image_data_set/update',
+                    BloomFilter: '/bloom_filter/update',
                 };
                 const { code } = await this.$http.post({
                     url:     map[this.addType],

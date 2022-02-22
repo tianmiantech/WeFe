@@ -72,7 +72,7 @@
                         </el-icon>
                     </el-form-item>
                     <el-form-item label="数据资源id：">
-                        {{ row.data_resource_id || row.data_set_id }}
+                        {{ row.data_set_id }}
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
                         {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
@@ -106,6 +106,7 @@
                         <el-button
                             v-if="row.$column_name_list.length > 20"
                             type="primary"
+                            size="small"
                             class="check-features"
                             @click="methods.checkFeatures(row)"
                         >
@@ -636,9 +637,9 @@
                         const dataset_list = currentMember.$data_set_list[0];
                         const features = item.data_resource.feature_name_list && item.data_resource.feature_name_list.split(',') ? item.data_resource.feature_name_list.split(',') : [];
 
-                        item.data_resource.data_resource_id = item.data_set_id;
                         const dataset = {
                             ...item.data_resource,
+                            data_set_id:       item.data_resource.data_resource_id,
                             column_name_list:  features,
                             $column_name_list: features,
                         };
@@ -791,7 +792,7 @@
                             dataset_list.push({
                                 member_id:         member.member_id,
                                 member_role:       member.member_role,
-                                data_set_id:       row[0].data_resource_id,
+                                data_set_id:       row[0].data_set_id,
                                 features:          row[0].$column_name_list,
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,
