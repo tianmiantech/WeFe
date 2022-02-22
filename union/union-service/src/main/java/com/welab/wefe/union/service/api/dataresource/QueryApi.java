@@ -60,7 +60,7 @@ public class QueryApi extends AbstractApi<ApiDataResourceQueryInput, PageOutput<
 
     @Override
     protected ApiResult<PageOutput<ApiDataResourceQueryOutput>> handle(ApiDataResourceQueryInput input) {
-        PageOutput<DataResourceQueryOutput> pageOutput = dataResourceMongoReop.findCurMemberCanSee(dataResourceMapper.transferInput(input));
+        PageOutput<DataResourceQueryOutput> pageOutput = dataResourceMongoReop.findOneByDataResourceId(dataResourceMapper.transferInput(input));
 
         List<ApiDataResourceQueryOutput> list = pageOutput.getList().stream()
                 .map(x -> {

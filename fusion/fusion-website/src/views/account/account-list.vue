@@ -6,7 +6,7 @@
         <el-form
             inline
             class="mb20"
-            @submit.prevent
+            @submit.native.prevent
         >
             <el-form-item
                 label="手机号："
@@ -73,7 +73,7 @@
             border
         >
             <template #empty>
-                <TableEmptyData/>
+                <TableEmptyData />
             </template>
             <el-table-column
                 label="姓名"
@@ -103,13 +103,13 @@
                         v-if="scope.row.admin_role"
                         class="super_admin_role"
                     >
-                        <i class="el-icon-check"></i>
+                        <i class="el-icon-check" />
                     </span>
                     <span
                         v-else
                         class="not_super_admin_role"
                     >
-                        <i class="el-icon-close"></i>
+                        <i class="el-icon-close" />
                     </span>
                 </template>
             </el-table-column>
@@ -124,13 +124,13 @@
                         v-if="scope.row.super_admin_role"
                         class="super_admin_role"
                     >
-                        <i class="el-icon-check"></i>
+                        <i class="el-icon-check" />
                     </span>
                     <span
                         v-else
                         class="not_super_admin_role"
                     >
-                        <i class="el-icon-close"></i>
+                        <i class="el-icon-close" />
                     </span>
                 </template>
             </el-table-column>
@@ -157,8 +157,8 @@
                         </el-button>
 
                         <el-button
-                            type="success"
                             v-else-if="scope.row.audit_status === 'disagree'"
+                            type="success"
                             @click="allowLogin(scope.row)"
                         >
                             允许登录
@@ -233,7 +233,7 @@
                     label="审核意见："
                     :label-width="formLabelWidth"
                 >
-                    <el-input v-model="form.audit_comment"/>
+                    <el-input v-model="form.audit_comment" />
                 </el-form-item>
                 <el-form-item
                     label="审核结果："
@@ -271,8 +271,8 @@
             destroy-on-close
         >
             将重置 <strong class="primary-color">
-            {{ resetPwDialog.nickname }}
-        </strong> 的登录密码!
+                {{ resetPwDialog.nickname }}
+            </strong> 的登录密码!
             <p class="mt10 mb10">原密码将失效, <strong class="color-danger">新密码仅可查看一次!</strong></p>
             <p>是否继续操作?</p>
             <template #footer>
@@ -308,8 +308,8 @@
             destroy-on-close
         >
             是否将 <strong>{{ userRoleDialog.nickname }}</strong> 设置为 <strong class="primary-color">
-            {{ userRoleDialog.admin_role ? '普通用户' : '管理员' }}
-        </strong>?
+                {{ userRoleDialog.admin_role ? '普通用户' : '管理员' }}
+            </strong>?
             <p class="f12 mt10 color-danger">* 只有管理员能对“全局设置”中的配置项进行变更<br>* 只有超级管理员能对“成员信息”中的配置项进行变更</p>
             <template #footer>
                 <el-button
@@ -394,9 +394,9 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
 import table from '@src/mixins/table.js';
-import {baseLogout} from '@src/router/auth';
+import { baseLogout } from '@src/router/auth';
 
 export default {
     mixins: [table],
@@ -404,48 +404,48 @@ export default {
     data() {
         return {
             dialogAuditAccountVisible: false,
-            allowLoginVisible: false,
-            formLabelWidth: '100px',
+            allowLoginVisible:         false,
+            formLabelWidth:            '100px',
 
             search: {
                 phone_number: '',
-                nickname: '',
+                nickname:     '',
                 audit_status: '',
             },
-            getListApi: '/account/query',
+            getListApi:     '/account/query',
             viewDataDialog: {
                 visible: false,
-                list: [],
+                list:    [],
             },
 
             form: {
-                account_id: '',
-                audit_status: 'agree',
+                account_id:    '',
+                audit_status:  'agree',
                 audit_comment: '',
             },
             resetPwDialog: {
-                visible: false,
-                id: '',
-                nickname: '',
-                result: false,
+                visible:      false,
+                id:           '',
+                nickname:     '',
+                result:       false,
                 new_password: '',
             },
             userRoleDialog: {
-                id: '',
-                nickname: '',
-                visible: false,
+                id:         '',
+                nickname:   '',
+                visible:    false,
                 admin_role: false,
             },
             disableUserDialog: {
-                visible: false,
-                enable: false,
+                visible:  false,
+                enable:   false,
                 nickname: '',
-                id: '',
+                id:       '',
             },
             transformSuperUserDialog: {
                 visible: false,
-                user: '',
-                id: '',
+                user:    '',
+                id:      '',
             },
         };
     },
@@ -461,7 +461,7 @@ export default {
 
             this.$alert('是否允许登录？', '警告', {
                 confirmButtonText: '确定',
-                callback: action => {
+                callback:          action => {
                     if (action === 'confirm') {
                         this.changeAuditStatus(row, $event);
                         setTimeout(() => {
@@ -473,19 +473,19 @@ export default {
         },
 
         async changeAuditStatus(row, $event) {
-            this.form.audit_status = 'agree'
-            this.form.account_id = row.id
+            this.form.audit_status = 'agree';
+            this.form.account_id = row.id;
 
-            const {code} = await this.$http.post({
-                url: '/account/audit',
-                data: this.form,
+            const { code } = await this.$http.post({
+                url:      '/account/audit',
+                data:     this.form,
                 btnState: {
                     target: $event,
                 },
             });
 
             if (code === 0) {
-                this.getList()
+                this.getList();
             }
         },
 
@@ -498,9 +498,9 @@ export default {
             this.dialogAuditAccountVisible = true;
         },
         async audit($event) {
-            const {code} = await this.$http.post({
-                url: '/account/audit',
-                data: this.form,
+            const { code } = await this.$http.post({
+                url:      '/account/audit',
+                data:     this.form,
                 btnState: {
                     target: $event,
                 },
@@ -518,8 +518,8 @@ export default {
             this.resetPwDialog.visible = true;
         },
         async confirmReset($event) {
-            const {code, data} = await this.$http.post({
-                url: '/account/reset/password',
+            const { code, data } = await this.$http.post({
+                url:  '/account/reset/password',
                 data: {
                     id: this.resetPwDialog.id,
                 },
@@ -541,10 +541,10 @@ export default {
             this.userRoleDialog.id = row.id;
         },
         async confirmChangeUserRole($event) {
-            const {code} = await this.$http.post({
-                url: '/account/update',
+            const { code } = await this.$http.post({
+                url:  '/account/update',
                 data: {
-                    id: this.userRoleDialog.id,
+                    id:        this.userRoleDialog.id,
                     adminRole: !this.userRoleDialog.admin_role,
                 },
                 btnState: {
@@ -565,10 +565,10 @@ export default {
             this.disableUserDialog.visible = true;
         },
         async confirmDisableUser($event) {
-            const {code} = await this.$http.post({
-                url: '/account/enable',
+            const { code } = await this.$http.post({
+                url:  '/account/enable',
                 data: {
-                    id: this.disableUserDialog.id,
+                    id:     this.disableUserDialog.id,
                     enable: !this.disableUserDialog.enable,
                 },
                 btnState: {
@@ -596,7 +596,7 @@ export default {
                 params.nickname = value;
             }
 
-            const {code, data} = await this.$http.get({
+            const { code, data } = await this.$http.get({
                 url: this.getListApi,
                 params,
             });
@@ -605,7 +605,7 @@ export default {
                 const list = data.list.map(x => {
                     return {
                         value: `${x.nickname} (${x.phone_number})`,
-                        id: x.id,
+                        id:    x.id,
                     };
                 });
 
@@ -625,8 +625,8 @@ export default {
         },
 
         async transformSuperUser($event) {
-            const {code} = await this.$http.post({
-                url: '/super/admin/change',
+            const { code } = await this.$http.post({
+                url:  '/super/admin/change',
                 data: {
                     id: this.transformSuperUserDialog.id,
                 },

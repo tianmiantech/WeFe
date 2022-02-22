@@ -5,7 +5,7 @@
     >
         <el-form
             inline
-            @submit.prevent
+            @submit.native.prevent
         >
             <el-form-item label="操作类型">
                 <el-input

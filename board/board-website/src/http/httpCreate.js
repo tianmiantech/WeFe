@@ -257,7 +257,10 @@ const policy = {
                 // insert loading element
                 const icon = document.createElement('i');
 
-                icon.classList.add('el-icon-loading');
+                icon.classList.add('el-loading-spinner');
+                icon.innerHTML = `<svg viewBox="25 25 50 50" class="circular">
+                    <circle cx="50" cy="50" r="20" fill="none" class="path"></circle>
+                </svg>`;
                 srcElement.insertBefore(icon, srcElement.children[0]);
                 // add to queue
                 btnQueue[locker] = srcElement;

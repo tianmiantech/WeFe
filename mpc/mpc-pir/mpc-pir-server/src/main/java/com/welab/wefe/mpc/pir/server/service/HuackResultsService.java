@@ -36,13 +36,12 @@ public class HuackResultsService {
 
     public QueryPIRResultsResponse handle(QueryPIRResultsRequest request) {
         CacheOperation<String> mCacheOperation = CacheOperationFactory.getCacheOperation();
-        // TODO
         long start = System.currentTimeMillis();
         QueryPIRResultsResponse response = new QueryPIRResultsResponse();
         String uuid = request.getUuid();
-        String result = mCacheOperation.get(uuid, Constants.PIR.RESULT);
+        String result = mCacheOperation.get(uuid, Constants.ENCRYPT_RESULT);
         while (result == null || result.isEmpty()) {
-            result = mCacheOperation.get(uuid, Constants.PIR.RESULT);
+            result = mCacheOperation.get(uuid, Constants.ENCRYPT_RESULT);
             try {
                 Thread.sleep(20);
             } catch (InterruptedException e) {

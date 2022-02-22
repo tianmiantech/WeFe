@@ -617,20 +617,16 @@ public class ProjectFlowJobService extends AbstractService {
      * 2. copy task_result
      */
     private List<TaskMySqlModel> copyMixTaskInfoFromLastJob(JobMySqlModel oldJob, JobMySqlModel newJob, FlowGraphNode node, boolean copyTask) {
-
         if (newJob == null) {
             return null;
         }
-
         List<TaskMySqlModel> oldTasks = taskService.findAll(oldJob.getJobId(), node.getNodeId(), oldJob.getMyRole());
-
         List<TaskMySqlModel> newTasks = new ArrayList<>();
         for (TaskMySqlModel oldTask : oldTasks) {
-            TaskMySqlModel newTask = null;
             int count = Integer.parseInt(oldTask.getTaskId().split("_")[oldTask.getTaskId().split("_").length - 1]);
             // copy task
             if (copyTask) {
-                newTask = new TaskMySqlModel();
+            	TaskMySqlModel newTask = new TaskMySqlModel();
                 BeanUtils.copyProperties(oldTask, newTask);
                 newTask.setId(new TaskMySqlModel().getId());
                 newTask.setRole(newJob.getMyRole());
@@ -640,71 +636,10 @@ public class ProjectFlowJobService extends AbstractService {
                 newTask.setTaskId(node.createTaskId(newJob, count));
                 newTask.setParentTaskIdList(node.createParentTaskIds(newJob, count));
                 taskRepository.save(newTask);
-
-                List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
-                // copy task_result
-                for (TaskResultMySqlModel oldResult : oldResults) {
-
-                    TaskResultMySqlModel newResult = new TaskResultMySqlModel();
-                    BeanUtils.copyProperties(oldResult, newResult);
-
-                    newResult.setId(new TaskResultMySqlModel().getId());
-                    newResult.setRole(newJob.getMyRole());
-                    newResult.setJobId(newJob.getJobId());
-                    newResult.setTaskId(node.createTaskId(newJob, count));
-                    taskResultRepository.save(newResult);
-                }
-
-                TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
-                if (dataSetModel != null) {
-                    TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
-                    BeanUtils.copyProperties(dataSetModel, newDataSetModel);
-                    newDataSetModel.setId(new TableDataSetMysqlModel().getId());
-                    newDataSetModel.setDerivedFromJobId(newJob.getJobId());
-                    newDataSetModel.setDerivedFrom(node.getComponentType());
-                    tableDataSetService.save(newDataSetModel);
+                if (newTask != null) {
+                    newTasks.add(newTask);
                 }
             }
-            if (newTask != null) {
-                newTasks.add(newTask);
-            }
-        }
-
-        return newTasks;
-    }
-
-    /**
-     * Copy the task information from the previous job
-     * <p>
-     * 1. copy task
-     * 2. copy task_result
-     */
-    private TaskMySqlModel copyNodeInfoFromLastJob(JobMySqlModel oldJob, JobMySqlModel newJob, FlowGraphNode node,
-                                                   boolean copyTask) {
-
-        if (newJob == null) {
-            return null;
-        }
-
-        TaskMySqlModel oldTask = taskService.findOne(oldJob.getJobId(), node.getNodeId(), oldJob.getMyRole());
-
-        TaskMySqlModel newTask = null;
-
-        // copy task
-        if (copyTask) {
-
-            newTask = new TaskMySqlModel();
-            BeanUtils.copyProperties(oldTask, newTask);
-
-            newTask.setId(new TaskMySqlModel().getId());
-            newTask.setRole(newJob.getMyRole());
-            newTask.setJobId(newJob.getJobId());
-            newTask.setDeep(node.getDeep());
-            newTask.setPosition(node.getPosition());
-            newTask.setTaskId(node.createTaskId(newJob));
-            newTask.setParentTaskIdList(node.createParentTaskIds(newJob));
-
-            taskRepository.save(newTask);
 
             List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
             // copy task_result
@@ -716,8 +651,7 @@ public class ProjectFlowJobService extends AbstractService {
                 newResult.setId(new TaskResultMySqlModel().getId());
                 newResult.setRole(newJob.getMyRole());
                 newResult.setJobId(newJob.getJobId());
-                newResult.setTaskId(node.createTaskId(newJob));
-
+                newResult.setTaskId(node.createTaskId(newJob, count));
                 taskResultRepository.save(newResult);
             }
 
@@ -731,6 +665,61 @@ public class ProjectFlowJobService extends AbstractService {
                 tableDataSetService.save(newDataSetModel);
             }
         }
+        return newTasks;
+    }
+
+    /**
+     * Copy the task information from the previous job
+     * <p>
+     * 1. copy task
+     * 2. copy task_result
+     */
+    private TaskMySqlModel copyNodeInfoFromLastJob(JobMySqlModel oldJob, JobMySqlModel newJob, FlowGraphNode node,
+                                                   boolean copyTask) {
+        if (newJob == null) {
+            return null;
+        }
+        TaskMySqlModel oldTask = taskService.findOne(oldJob.getJobId(), node.getNodeId(), oldJob.getMyRole());
+        TaskMySqlModel newTask = null;
+        // copy task
+        if (copyTask) {
+            newTask = new TaskMySqlModel();
+            BeanUtils.copyProperties(oldTask, newTask);
+            newTask.setId(new TaskMySqlModel().getId());
+            newTask.setRole(newJob.getMyRole());
+            newTask.setJobId(newJob.getJobId());
+            newTask.setDeep(node.getDeep());
+            newTask.setPosition(node.getPosition());
+            newTask.setTaskId(node.createTaskId(newJob));
+            newTask.setParentTaskIdList(node.createParentTaskIds(newJob));
+            taskRepository.save(newTask);
+        }
+
+        List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
+        // copy task_result
+        for (TaskResultMySqlModel oldResult : oldResults) {
+
+            TaskResultMySqlModel newResult = new TaskResultMySqlModel();
+            BeanUtils.copyProperties(oldResult, newResult);
+
+            newResult.setId(new TaskResultMySqlModel().getId());
+            newResult.setRole(newJob.getMyRole());
+            newResult.setJobId(newJob.getJobId());
+            newResult.setTaskId(node.createTaskId(newJob));
+
+            taskResultRepository.save(newResult);
+        }
+
+        TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
+        if (dataSetModel != null) {
+            TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
+            BeanUtils.copyProperties(dataSetModel, newDataSetModel);
+            newDataSetModel.setId(new TableDataSetMysqlModel().getId());
+            newDataSetModel.setDerivedFromJobId(newJob.getJobId());
+            newDataSetModel.setDerivedFrom(node.getComponentType());
+            tableDataSetService.save(newDataSetModel);
+        }
+        
         return newTask;
     }
 

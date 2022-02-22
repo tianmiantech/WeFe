@@ -253,11 +253,7 @@
 
                     const info = Object.assign({
                         ...this.userInfo,
-                    }, {
-                        member_logo:  data.member_logo,
-                        member_name:  this.form.member_name,
-                        member_email: this.form.member_email,
-                    });
+                    }, this.form);
 
                     this.$store.commit('UPDATE_USERINFO', info);
 
