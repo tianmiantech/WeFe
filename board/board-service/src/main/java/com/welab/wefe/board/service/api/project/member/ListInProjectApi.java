@@ -54,18 +54,17 @@ public class ListInProjectApi extends AbstractApi<ListInProjectApi.Input, ListIn
 
     public static class Input extends AbstractApiInput {
 
-        public Input() {
+        @Check(name = "项目Id", require = true)
+        private String projectId;
 
+        private String ootJobId;
+
+        public Input() {
         }
 
         public Input(String projectId) {
             this.projectId = projectId;
         }
-
-        @Check(name = "项目Id", require = true)
-        private String projectId;
-
-        private String ootJobId;
 
         //region getter/setter
 
@@ -90,9 +89,14 @@ public class ListInProjectApi extends AbstractApi<ListInProjectApi.Input, ListIn
     public static class Output {
         private List<ProjectMemberOutputModel> list;
 
+        public Output() {
+        }
+
         public Output(List<ProjectMemberOutputModel> list) {
             this.list = list;
         }
+
+        // region getter/setter
 
         public List<ProjectMemberOutputModel> getList() {
             return list;
@@ -101,5 +105,7 @@ public class ListInProjectApi extends AbstractApi<ListInProjectApi.Input, ListIn
         public void setList(List<ProjectMemberOutputModel> list) {
             this.list = list;
         }
+
+        // endregion
     }
 }

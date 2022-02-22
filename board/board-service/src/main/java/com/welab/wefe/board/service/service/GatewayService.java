@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.api.project.project.AddApi;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
+import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -292,7 +293,7 @@ public class GatewayService extends BaseGatewayService {
 
         ApiResult<?> apiResult = result.toJavaObject(ApiResult.class);
         if (!apiResult.success()) {
-            StatusCode.RPC_ERROR.throwException(apiResult.message);
+            throw new MemberGatewayException(dstMemberId, apiResult.message);
         }
 
         JSONObject data = result.getJSONObject("data");

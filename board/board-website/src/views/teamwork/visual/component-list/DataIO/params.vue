@@ -503,7 +503,7 @@
                     const list = [];
 
                     allList.forEach(row => {
-                        if(row.name.includes(name) && row.data_set_id.includes(data_set_id)) {
+                        if(row.data_resource.name.includes(name) && row.data_resource.data_resource_id.includes(data_set_id)) {
                             if(contains_y === '' || row.contains_y === contains_y) {
                                 list.push(row);
                             }
@@ -788,7 +788,7 @@
                             dataset_list.push({
                                 member_id:         member.member_id,
                                 member_role:       member.member_role,
-                                data_set_id:       row[0].data_set_id,
+                                data_set_id:       row[0].data_resource_id,
                                 features:          row[0].$column_name_list,
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,

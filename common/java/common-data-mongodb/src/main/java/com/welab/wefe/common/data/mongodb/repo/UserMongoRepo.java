@@ -80,6 +80,12 @@ public class UserMongoRepo extends AbstractMongoRepo {
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 
+    public void enableUser(String userId, boolean enable) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder().append("enable", enable).build();
+        mongoManagerTemplate.updateFirst(query, update, User.class);
+    }
+
     public void changePassword(String userId, String password,String salt) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder()

@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.tag;
-
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.manager.service.dto.base.BaseInput;
+package com.welab.wefe.common.data.mongodb.entity.union.ext;
 
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class DatSetDefaultTagAddInput extends BaseInput {
-    @Check(require = true)
-    private String tagName;
-
-    public String getTagName() {
-        return tagName;
-    }
-
-    public void setTagName(String tagName) {
-        this.tagName = tagName;
-    }
+public class DataResourceDefaultTagExtJSON {
 
 }

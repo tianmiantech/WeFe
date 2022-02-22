@@ -3,6 +3,6 @@ Content-Type: application/json
 token: {{token}}
 
 {
-  "projectId": "2dfa6474490f45bd8066553b3ca6a0ef",
+  "projectId": "58104fea3f2c4b0e8e07d30d560bbbca",
   "data_resource_type": "TableDataSet"
 }

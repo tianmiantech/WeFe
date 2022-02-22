@@ -17,27 +17,24 @@
 package com.welab.wefe.manager.service.dto.tag;
 
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.manager.service.dto.base.BaseInput;
 
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class DataSetDefaultTagUpdateInput extends BaseInput {
-    @Check(require = true)
-    private String tagId;
-    @Check(require = true)
+public class ApiDataResourceDefaultTagQueryOutput {
+    private String id;
     private String tagName;
-    private DataSetDefaultTagExtJSON extJson;
+    private int status;
 
-    public String getTagId() {
-        return tagId;
+
+    public String getId() {
+        return id;
     }
 
-    public void setTagId(String tagId) {
-        this.tagId = tagId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTagName() {
@@ -48,11 +45,12 @@ public class DataSetDefaultTagUpdateInput extends BaseInput {
         this.tagName = tagName;
     }
 
-    public DataSetDefaultTagExtJSON getExtJson() {
-        return extJson;
+
+    public int getStatus() {
+        return status;
     }
 
-    public void setExtJson(DataSetDefaultTagExtJSON extJson) {
-        this.extJson = extJson;
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

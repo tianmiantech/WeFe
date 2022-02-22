@@ -93,6 +93,14 @@ public class UserService {
         userMongoRepo.changePassword(userId, newPassword, salt);
     }
 
+    public void enableUser(String userId, boolean enable) throws StatusCodeWithException {
+        if (!CurrentAccount.isSuperAdmin()) {
+            throw new StatusCodeWithException("非超级管理员无法操作。", StatusCode.PERMISSION_DENIED);
+        }
+        userMongoRepo.enableUser(userId, enable);
+    }
+
+
     public void changeUserRole(String userId, boolean adminRole) throws StatusCodeWithException {
         if (!CurrentAccount.isSuperAdmin()) {
             throw new StatusCodeWithException("非超级管理员无法操作。", StatusCode.PERMISSION_DENIED);

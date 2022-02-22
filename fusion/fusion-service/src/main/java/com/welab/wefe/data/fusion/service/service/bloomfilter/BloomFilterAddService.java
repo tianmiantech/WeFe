@@ -108,6 +108,8 @@ public class BloomFilterAddService extends AbstractService {
             bloomFilterRepository.save(model);
         }
 
+        CommonThreadPool.TASK_SWITCH = true;
+
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             model.setStatement(input.getSql());
             readAndSaveFromDB(model, input.getRows());
