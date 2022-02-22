@@ -12,6 +12,7 @@
                         :jobDetail="jobDetail"
                         :showHistory="false"
                     />
+                    <p>job_id: {{jobId}}</p>
                     <p>任务详细信息：</p>
                     <ul>
                         <li v-for="item in memberJobDetailList" :key="item.member_id">
