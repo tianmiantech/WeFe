@@ -20,7 +20,7 @@
         "axios": "^0.21.1",
         "base64-url": "^2.3.3",
         "echarts": "^4.7.0",
-        "element-ui": "^2.13.2",
+        "element-ui": "^2.15.7",
         "js-cookie": "^2.2.1",
         "js-md5": "^0.7.3",
         "shelljs": "^0.8.4",

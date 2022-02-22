@@ -94,7 +94,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         Query query = new QueryBuilder()
                 .notRemoved()
                 .append("dataResourceId", dataResourceId)
-                .append("curMemberId", curMemberId)
+                .append("memberId", curMemberId)
                 .build();
         return mongoUnionTemplate.findOne(query, DataResource.class);
     }
@@ -116,8 +116,8 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String joinCollectionName) {
 
         String joinCollectionNameAlias = StringUtil.camelCaseToUnderLineCase(joinCollectionName);
-        if(joinCollectionNameAlias.startsWith("_")){
-            joinCollectionNameAlias = joinCollectionNameAlias.replaceFirst("_","");
+        if (joinCollectionNameAlias.startsWith("_")) {
+            joinCollectionNameAlias = joinCollectionNameAlias.replaceFirst("_", "");
         }
 
         LookupOperation lookupToDataImageDataSet = LookupOperation.newLookup().
@@ -219,7 +219,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    private List<MatchOperation> buildMatchOperations(DataResourceQueryInput dataResourceQueryInput) {
+    private List<MatchOperation> buildCurMemberCanSeeMatchOperations(DataResourceQueryInput dataResourceQueryInput) {
         List<MatchOperation> matchOperations = new ArrayList<>();
         Criteria dataResouceCriteria = new QueryBuilder()
                 .notRemoved()
@@ -234,6 +234,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         Criteria or = new Criteria();
         or.orOperator(
                 new QueryBuilder().append("public_level", "Public").getCriteria(),
+                new QueryBuilder().append("member_id", dataResourceQueryInput.getCurMemberId()).getCriteria(),
                 new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).getCriteria()
         );
         dataResouceCriteria.andOperator(or);
@@ -241,7 +242,57 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         MatchOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
         matchOperations.add(dataResourceMatch);
         Criteria memberCriteria = new QueryBuilder()
-                .like("member_name", dataResourceQueryInput.getMemberName())
+                .like("member.name", dataResourceQueryInput.getMemberName())
+                .append("member.hidden", "0")
+                .append("member.freezed", "0")
+                .append("member.lost_contact", "0")
+                .append("member.allow_open_data_set", "1")
+                .getCriteria();
+
+        MatchOperation memberMatch = Aggregation.match(memberCriteria);
+        matchOperations.add(memberMatch);
+
+        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.ImageDataSet)) {
+            String forJobType = dataResourceQueryInput.getForJobType() == null ? null : dataResourceQueryInput.getForJobType().name();
+            Criteria imageDataSetCriteria = new QueryBuilder()
+                    .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.IMAGE_DATASET) + ".for_job_type", forJobType)
+                    .getCriteria();
+            MatchOperation imageDataSetMatch = Aggregation.match(imageDataSetCriteria);
+            matchOperations.add(imageDataSetMatch);
+
+        }
+
+        if (dataResourceQueryInput.getDataResourceType().contains(DataResourceType.TableDataSet)
+                || dataResourceQueryInput.getDataResourceType().contains(DataResourceType.BloomFilter)) {
+            Criteria tableDataSetCriteria = new QueryBuilder()
+                    .append(StringUtil.camelCaseToUnderLineCase(MongodbTable.Union.TABLE_DATASET) + ".contains_y", null == dataResourceQueryInput.getContainsY() ? null : String.valueOf(dataResourceQueryInput.getContainsY() ? 1 : 0))
+                    .getCriteria();
+            MatchOperation tableDataSetMatch = Aggregation.match(tableDataSetCriteria);
+            matchOperations.add(tableDataSetMatch);
+        }
+
+
+        return matchOperations;
+    }
+
+
+    private List<MatchOperation> buildMatchOperations(DataResourceQueryInput dataResourceQueryInput) {
+        List<MatchOperation> matchOperations = new ArrayList<>();
+        Criteria dataResouceCriteria = new QueryBuilder()
+                .append("status", dataResourceQueryInput.getStatus() == null ? null : dataResourceQueryInput.getStatus() ? 1 : 0)
+                .append("enable", dataResourceQueryInput.getEnable() == null ? null : String.valueOf(dataResourceQueryInput.getEnable() ? 1 : 0))
+                .like("name", dataResourceQueryInput.getName())
+                .like("tags", dataResourceQueryInput.getTag())
+                .append("member_id", dataResourceQueryInput.getMemberId())
+                .append("data_resource_id", dataResourceQueryInput.getDataResourceId())
+                .in("data_resource_type", dataResourceQueryInput.getDataResourceType().stream().map(Enum::name).collect(Collectors.toList()))
+                .getCriteria();
+
+
+        MatchOperation dataResourceMatch = Aggregation.match(dataResouceCriteria);
+        matchOperations.add(dataResourceMatch);
+        Criteria memberCriteria = new QueryBuilder()
+                .like("member.name", dataResourceQueryInput.getMemberName())
                 .getCriteria();
 
         MatchOperation memberMatch = Aggregation.match(memberCriteria);
@@ -272,6 +323,16 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
 
 
     public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
+        return find(dataResourceQueryInput, false);
+    }
+
+
+    public PageOutput<DataResourceQueryOutput> findAll(DataResourceQueryInput dataResourceQueryInput) {
+        return find(dataResourceQueryInput, true);
+    }
+
+
+    public PageOutput<DataResourceQueryOutput> find(DataResourceQueryInput dataResourceQueryInput, boolean isQueryAll) {
         List<AggregationOperation> dataAggregationOperations = new ArrayList<>();
         List<AggregationOperation> totalAggregationOperations = new ArrayList<>();
 
@@ -283,11 +344,15 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         dataAggregationOperations.addAll(unwindOperations);
         totalAggregationOperations.addAll(unwindOperations);
 
+        List<MatchOperation> matchOperations;
+        if (isQueryAll) {
+            matchOperations = buildMatchOperations(dataResourceQueryInput);
+        } else {
+            matchOperations = buildCurMemberCanSeeMatchOperations(dataResourceQueryInput);
+        }
 
-        List<MatchOperation> matchOperations = buildMatchOperations(dataResourceQueryInput);
         dataAggregationOperations.addAll(matchOperations);
         totalAggregationOperations.addAll(matchOperations);
-
 
         Map<String, Object> addfieldsMap = new HashMap<>();
         addfieldsMap.put("member_name", "$member.name");
@@ -321,6 +386,5 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         }
         return new PageOutput<>(dataResourceQueryInput.getPageIndex(), total, dataResourceQueryInput.getPageSize(), list);
     }
-
 
 }

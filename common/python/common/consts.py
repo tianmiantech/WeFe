@@ -288,5 +288,13 @@ class AccelerationType(object):
     FPGA = "FPGA"
 
 
+class IntermediateDataFlag(object):
+    """
+    Intermediate data serialization type
+    """
+    ITEM_SERIALIZATION = 1
+    BATCH_SERIALIZATION = 2
+
+
 if __name__ == '__main__':
     print(BACKEND.__dict__.get("SPARK")[0])

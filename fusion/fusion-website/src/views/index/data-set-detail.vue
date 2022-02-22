@@ -6,7 +6,8 @@
         </div>
         <div class="top_side">
             <h4>数据集简介</h4>
-            <p class="subtitle">上传于 <span>{{ dataInfo.created_time }}</span> ，参与了 <span>{{ dataInfo.used_count }}</span> 任务。</p>
+            <p class="subtitle">上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了
+                <span>{{ dataInfo.used_count }}</span> 任务。</p>
             <el-row :gutter="20">
                 <el-col :span="6">描述: {{ dataInfo.description }}</el-col>
                 <el-col :span="6">数据量: {{ dataInfo.row_count }}</el-col>
@@ -14,7 +15,8 @@
                     v-if="dataInfo.rows"
                     :span="6"
                 >
-                    字段: <el-tag
+                    字段:
+                    <el-tag
                         v-for="item in dataInfo.rows.split(',')"
                         :key="item"
                         :type="item"
@@ -27,7 +29,11 @@
             </el-row>
         </div>
         <div class="bottom_side">
-            <el-tabs type="border-card">
+            <el-tabs
+                v-loading="loading"
+                type="border-card"
+                @tab-click="tabChange"
+            >
                 <el-tab-pane label="数据信息">
                     <el-table
                         :data="previewDataInfo"
@@ -46,11 +52,11 @@
                         </el-table-column>
                     </el-table>
                 </el-tab-pane>
-                <el-tab-pane label="数据预览">
-                    <div
-                        v-loading="loading"
-                        style="min-height: 200px;"
-                    >
+                <el-tab-pane
+                    label="数据预览"
+                    name="preview"
+                >
+                    <div style="min-height: 200px;">
                         <c-grid
                             v-if="!loading"
                             :theme="gridTheme"
@@ -81,66 +87,76 @@
 export default {
     data() {
         return {
-            currentItem:     {},
-            loading:         false,
-            dataInfo:        {},
+            id: '',
+            name: '',
+            loading: false,
+            dataInfo: {},
             previewDataInfo: [],
-            table_data:      {
+            table_data: {
                 header: [],
-                rows:   [],
+                rows: [],
             },
             gridTheme: {
-                color:       '#6C757D',
+                color: '#6C757D',
                 borderColor: '#EBEEF5',
             },
+            selectedCol: '',
             gridHeight: 0,
         };
     },
     created() {
-        this.currentItem.id = this.$route.query.id;
-        this.currentItem.name = this.$route.query.name;
-        this.getDataSetDetail();
-        this.getDataSetPreview();
+        this.id = this.$route.query.id;
+        this.name = this.$route.query.name;
+        this.getDataSetDetail()
+
     },
     methods: {
         async getDataSetDetail() {
             this.loading = true;
-            const { code, data } = await this.$http.post({
-                url:  '/data_set/query',
+            const {code, data} = await this.$http.post({
+                url: '/data_set/detail',
                 data: {
-                    id:   this.currentItem.id,
-                    name: this.currentItem.name,
+                    id: this.id,
+                    name: this.name,
                 },
             });
 
             if (code === 0) {
-                if (data && data.list) {
-                    this.dataInfo = data.list[0];
-                }
+                this.dataInfo = data
+                this.selectedCol = data.rows
+                this.getDataSetPreview()
+
             }
             this.loading = false;
         },
+
         async getDataSetPreview() {
-            const { code, data } = await this.$http.get({
-                url:    '/data_set/preview',
-                params: { id: this.currentItem.id },
+            const {code, data} = await this.$http.get({
+                url: '/data_set/preview',
+                params: {id: this.id, rows: this.selectedCol},
             });
 
             if (code === 0) {
                 if (data && data.header) {
                     this.previewDataInfo = data.metadata_list;
 
-                    let { length } = data.raw_data_list;
+                    let {length} = data.raw_data_list;
 
                     const rows = data.raw_data_list;
 
-                    if(length >= 15) length = 15;
-                    
+                    if (length >= 15) length = 15;
+
                     this.resize(length);
                     this.table_data.rows = rows;
                     this.table_data.header = data.header;
                 }
             }
+        },
+        tabChange() {
+            this.loading = true;
+            setTimeout(_ => {
+                this.loading = false;
+            }, 200);
         },
         resize(length) {
             this.gridHeight = 41 * (length + 1) + 1;
@@ -149,39 +165,44 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .header {
     text-align: center;
+
     h3 {
         font-size: 18px;
         margin: 10px 0;
     }
+
     p {
         font-size: 14px;
         color: #777;
     }
 }
+
 .top_side {
     .subtitle {
         font-size: 14px;
         font-weight: bold;
         margin: 10px 0;
     }
+
     .el-row {
         font-size: 14px;
         color: #606266;
         margin-bottom: 20px;
+
         &:last-child {
             margin-bottom: 0;
         }
     }
 }
+
 .bottom_side {
     margin-top: 20px;
 }
-</style>
-<style lang="scss" scoped>
- .c-grid {
+
+.c-grid {
     border: 1px solid #EBEEF5;
     position: relative;
     z-index: 1;

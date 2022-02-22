@@ -190,13 +190,15 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        <el-button
-                            type="primary"
-                            native-type="submit"
-                            @click="methods.dataSetSearch"
-                        >
-                            搜索
-                        </el-button>
+                        <el-form-item>
+                            <el-button
+                                type="primary"
+                                native-type="submit"
+                                @click="methods.dataSetSearch"
+                            >
+                                搜索
+                            </el-button>
+                        </el-form-item>
                     </el-form>
                     <DataSetList
                         ref="rawDataSetListRef"
@@ -218,13 +220,12 @@
                     name="derived"
                 >
                     <el-alert
-                        class="mb10"
                         effect="dark"
                         type="success"
                         :closable="false"
                         title="使用衍生数据资源将 自动替换 关联成员已选的数据资源"
                     />
-                    <el-form inline>
+                    <el-form class="mt10" inline>
                         <el-form-item label="名称">
                             <el-input
                                 v-model="vData.derivedSearch.name"
@@ -238,6 +239,7 @@
                             />
                         </el-form-item>
                         <el-button
+                            class="mb20"
                             type="primary"
                             @click="dataSetTabChange('derived')"
                         >
@@ -361,7 +363,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && data.params.dataset_list) {
                         const { dataset_list, eval_type, pos_label } = data.params;
 
                         for(const memberIndex in vData.member_list) {

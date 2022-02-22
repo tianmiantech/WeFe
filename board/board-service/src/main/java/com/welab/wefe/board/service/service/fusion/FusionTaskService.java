@@ -286,9 +286,9 @@ public class FusionTaskService extends AbstractService {
             return;
         }
 
-        if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
-        }
+//        if (ActuatorManager.size() > 0) {
+//            throw new StatusCodeWithException("If a task is being executed, add it after the task is completed", StatusCode.SYSTEM_BUSY);
+//        }
 
         switch (task.getAlgorithm()) {
             case RSA_PSI:
@@ -414,7 +414,7 @@ public class FusionTaskService extends AbstractService {
         //A non promoter cannot create a task
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
         if (!JobMemberRole.provider.equals(project.getMyRole())) {
-            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "Non providers do not receive creation requests");
+            throw new StatusCodeWithException("非发起方不能发起融合任务", StatusCode.UNSUPPORTED_HANDLE);
         }
 
         //Add tasks
@@ -426,13 +426,13 @@ public class FusionTaskService extends AbstractService {
         if (DataResourceType.TableDataSet.equals(input.getDataResourceType())) {
             TableDataSetMysqlModel tableDataSet = tableDataSetService.findOneById(model.getDataResourceId());
             if (tableDataSet == null) {
-                throw new StatusCodeWithException("Input parameter value invalid", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException("未查找到数据集！", StatusCode.PARAMETER_VALUE_INVALID);
             }
             model.setRowCount(tableDataSet.getTotalDataCount());
         } else {
             BloomFilterMysqlModel bloomFilter = bloomFilterService.findOne(model.getDataResourceId());
             if (bloomFilter == null) {
-                throw new StatusCodeWithException("Input parameter value invalid", StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException("未查找到过滤器！", StatusCode.PARAMETER_VALUE_INVALID);
             }
             model.setRowCount(bloomFilter.getTotalDataCount());
             model.setHashFunction(bloomFilter.getHashFunction());
@@ -470,7 +470,7 @@ public class FusionTaskService extends AbstractService {
     public FusionTaskOutput detail(String taskId) throws StatusCodeWithException {
         FusionTaskMySqlModel model = fusionTaskRepository.findOne("id", taskId, FusionTaskMySqlModel.class);
         if (model == null) {
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "id", taskId);
+            throw new StatusCodeWithException("融合任务不存在", DATA_NOT_FOUND);
         }
         FusionTaskOutput output = ModelMapper.map(model, FusionTaskOutput.class);
 

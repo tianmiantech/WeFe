@@ -20,30 +20,30 @@ package com.welab.wefe.data.fusion.service.dto.entity;
  * @author hunter.zhao
  */
 public class PartnerOutputModel extends AbstractOutputModel{
-    String partnerId;
+    String memberId;
 
-    String name;
+    String memberName;
 
     String rsaPublicKey;
 
     String baseUrl;
 
-    int openSocketPort;
+    int rowCount;
 
-    public String getPartnerId() {
-        return partnerId;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
-    public String getName() {
-        return name;
+    public String getMemberName() {
+        return memberName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
     }
 
     public String getRsaPublicKey() {
@@ -62,11 +62,11 @@ public class PartnerOutputModel extends AbstractOutputModel{
         this.baseUrl = baseUrl;
     }
 
-    public int getOpenSocketPort() {
-        return openSocketPort;
+    public int getRowCount() {
+        return rowCount;
     }
 
-    public void setOpenSocketPort(int openSocketPort) {
-        this.openSocketPort = openSocketPort;
+    public void setRowCount(int rowCount) {
+        this.rowCount = rowCount;
     }
 }

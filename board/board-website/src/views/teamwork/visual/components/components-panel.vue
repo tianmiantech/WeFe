@@ -266,7 +266,8 @@
             },
 
             tabChange({ paneName }) {
-                const child = this.$refs[`${this.componentType.split('-')[0]}-${paneName}`];
+                const ref = this.$refs[`${this.componentType.split('-')[0]}-${paneName}`];
+                const child = Array.isArray(ref) ? ref[0]: ref;
 
                 if(paneName === 'result') {
                     child.methods.readData(this.nodeModel);
@@ -402,9 +403,10 @@
             saveComponentData($event) {
                 if(this.currentObj.nodeId) {
                     const ref = this.$refs[this.componentType];
+                    const refInstance = Array.isArray(ref) ? ref[0]: ref;
 
-                    if(ref) {
-                        const formData = ref.methods.checkParams();
+                    if(refInstance) {
+                        const formData = refInstance.methods.checkParams();
 
                         if(formData) {
                             this.submitFormData($event, formData.params);
@@ -499,7 +501,6 @@
     height:100%;
     :deep(.el-form-item__label){
         color:#909399;
-        margin-bottom: 6px;
         font-size: 13px;
     }
     :deep(.el-input__inner),
@@ -515,8 +516,6 @@
             position: static !important;
         }
     }
-    :deep(.el-form-item__label),
-    :deep(.el-form-item__content){line-height: 20px;}
 }
 .el-tabs--border-card{
     box-shadow: none;

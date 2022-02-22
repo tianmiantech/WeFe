@@ -293,7 +293,7 @@ def get_session_id():
     return RuntimeInstance.SESSION.get_session_id()
 
 
-def get_data_table(name, namespace):
+def get_data_table(name, namespace, partition=1):
     """
     return data table instance by table name and table name space
 
@@ -303,6 +303,8 @@ def get_data_table(name, namespace):
       table name of data table
     namespace : string
       table name space of data table
+    partition : int
+      if talbe not exist then create
     
     returns
     -------
@@ -314,7 +316,7 @@ def get_data_table(name, namespace):
     >>> from common.python import session
     >>> session.get_data_table(name, namespace)
     """
-    return RuntimeInstance.SESSION.get_data_table(name=name, namespace=namespace)
+    return RuntimeInstance.SESSION.get_data_table(name=name, namespace=namespace, partition=partition)
 
 
 def save_data_table_meta(kv, data_table_name, data_table_namespace):

@@ -16,8 +16,38 @@
 
 package com.welab.wefe.data.fusion.service.api.dataset;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.api.base.AbstractApi;
+import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
+import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * @author hunter.zhao
  */
-public class DetailApi {
+@Api(path = "data_set/detail", name = "过滤器详情", desc = "过滤器详情", login = true)
+public class DetailApi extends AbstractApi<DetailApi.Input, DataSetOutputModel> {
+    @Autowired
+    private DataSetService dataSetService;
+
+    @Override
+    protected ApiResult<DataSetOutputModel> handle(Input input) throws Exception {
+        return success(dataSetService.detail(input));
+    }
+
+    public static class Input extends AbstractApiInput {
+        @Check(name = "id", require = true)
+        String id;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+    }
 }

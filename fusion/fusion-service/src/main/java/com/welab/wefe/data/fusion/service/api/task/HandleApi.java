@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/handle", name = "任务处理", desc = "任务处理", login = true)
+@Api(path = "task/handle", name = "任务处理", desc = "任务处理")
 public class HandleApi extends AbstractNoneOutputApi<HandleApi.Input> {
 
     @Autowired

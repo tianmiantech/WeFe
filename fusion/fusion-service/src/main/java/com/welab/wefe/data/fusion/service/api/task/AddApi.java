@@ -28,6 +28,7 @@ import com.welab.wefe.data.fusion.service.enums.AlgorithmType;
 import com.welab.wefe.data.fusion.service.enums.DataResourceType;
 import com.welab.wefe.data.fusion.service.service.TaskService;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -35,7 +36,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/add", name = "添加对齐任务", desc = "添加对齐任务", login = false)
+@Api(path = "task/add", name = "添加对齐任务", desc = "添加对齐任务")
 public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
 
     @Autowired
@@ -54,8 +55,8 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Check(name = "描述", regex = "^.{0,1024}$", messageOnInvalid = "你写的描述太多了~")
         private String description;
 
-        @Check(name = "合作方id", require = true)
-        private String partnerId;
+        @Check(name = "合作方成员id", require = true)
+        private String partnerMemberId;
 
         @Check(name = "数据资源id", require = true)
         private String dataResourceId;
@@ -90,6 +91,14 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
                 throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);
             }
 
+            if (isTrace && CollectionUtils.isNotEmpty(fieldInfoList)) {
+                for (int i = 0; i < fieldInfoList.size(); i++) {
+                    if (fieldInfoList.get(i).getColumnList().contains(traceColumn)) {
+                        throw new StatusCodeWithException("追溯字段不能为融合主键组成字段", StatusCode.PARAMETER_VALUE_INVALID);
+                    }
+                }
+            }
+
         }
 
         public String getName() {
@@ -100,12 +109,12 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
             this.name = name;
         }
 
-        public String getPartnerId() {
-            return partnerId;
+        public String getPartnerMemberId() {
+            return partnerMemberId;
         }
 
-        public void setPartnerId(String partnerId) {
-            this.partnerId = partnerId;
+        public void setPartnerMemberId(String partnerMemberId) {
+            this.partnerMemberId = partnerMemberId;
         }
 
         public String getDataResourceId() {

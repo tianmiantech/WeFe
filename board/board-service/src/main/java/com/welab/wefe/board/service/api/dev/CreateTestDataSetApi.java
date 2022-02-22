@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.dev;
 
-import com.welab.wefe.board.service.base.file_system.UploadFile;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -68,7 +68,7 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
                 + (input.hasY ? "-y" : "")
                 + ".csv";
 
-        File file = UploadFile.getBaseDir(UploadFile.UseType.AddTableDataSet).resolve(fileName).toFile();
+        File file = WeFeFileSystem.getBaseDir(WeFeFileSystem.UseType.AddTableDataSet).resolve(fileName).toFile();
 
         if (file.exists()) {
             FileUtils.deleteQuietly(file);

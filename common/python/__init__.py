@@ -65,7 +65,7 @@ class RuntimeInstance(object):
 
     @classmethod
     def get_spark_partition(cls):
-        pass
+        return cls.OPTIONS.get("spark_partition")
 
     @classmethod
     def get_features_count(cls):

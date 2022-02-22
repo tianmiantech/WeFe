@@ -36,8 +36,8 @@
     &>.fade-enter-active,
     &>.fade-leave-active {
         position: absolute;
-        left: 41px;
-        right: 41px;
+        left: 20px;
+        right: 20px;
     }
 }
 
@@ -56,4 +56,27 @@
         background: rgba(0,0,0,0.05);
     }
     ::-webkit-scrollbar-corner{ background: rgba(0,0,0,0.1); }
+}
+
+.block-form{
+    .el-form-item{
+        .el-form-item__label{
+            text-align: left;
+            display: block;
+            float: none;
+        }
+    }
+}
+.inline-form{
+    .el-form-item{
+        .el-form-item__label{
+            float: left;
+        }
+    }
+}
+
+fieldset legend {
+    color: $color-link-base;
+    padding-left: 8px;
+    padding-right: 8px;
 }

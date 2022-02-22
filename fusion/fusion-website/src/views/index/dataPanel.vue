@@ -88,7 +88,7 @@
                         v-for="item in partnerList"
                         :key="item.id"
                     >
-                        <p class="name">{{ item.name }}</p>
+                        <p class="name">{{ item.member_name }}</p>
                         <p class="time">{{ item.created_time | dateFormat }}加入</p>
                     </div>
                 </div>

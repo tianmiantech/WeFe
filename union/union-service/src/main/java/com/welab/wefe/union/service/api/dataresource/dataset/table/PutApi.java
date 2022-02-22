@@ -50,9 +50,9 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
         if (dataResource == null) {
             if (tableDataSet == null) {
                 tableDataSetContractService.add(tableDataSetMapper.transferPutInputToTableDataSet(input));
-                dataResourceContractService.add(tableDataSetMapper.transferPutInputToDataResource(input));
+                dataResourceContractService.add(dataResourceMapper.transferPutInputToDataResource(input));
             } else {
-                dataResourceContractService.add(tableDataSetMapper.transferPutInputToDataResource(input));
+                dataResourceContractService.add(dataResourceMapper.transferPutInputToDataResource(input));
             }
         } else {
             tableDataSet.setContainsY(input.containsY ? "1" : "0");

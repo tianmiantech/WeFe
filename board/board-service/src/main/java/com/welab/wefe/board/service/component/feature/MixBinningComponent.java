@@ -88,7 +88,6 @@ public class MixBinningComponent extends AbstractComponent<MixBinningComponent.P
 	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
 			Params params) throws FlowNodeException {
 
-		JSONObject taskParam = new JSONObject();
 		List<Member> members = params.members;
 		int bin_num = 10;
 		List<String> bin_names = new ArrayList<>();
@@ -103,9 +102,7 @@ public class MixBinningComponent extends AbstractComponent<MixBinningComponent.P
 		}
 		JObject binningParam = JObject.create().append("bin_num", bin_num).append("bin_names", bin_names);
 
-		taskParam.put("params", binningParam);
-
-		return taskParam;
+		return binningParam;
 	}
 
     @Override

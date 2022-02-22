@@ -47,7 +47,7 @@
 
             <div
                 v-if="member.audit_status === 'agree'"
-                class="data-set f14"
+                class="data-set"
             >
                 <el-form
                     v-for="row in member.$data_set_list"
@@ -255,13 +255,15 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        <el-button
-                            type="primary"
-                            native-type="submit"
-                            @click="methods.dataSetSearch"
-                        >
-                            搜索
-                        </el-button>
+                        <el-form-item>
+                            <el-button
+                                type="primary"
+                                native-type="submit"
+                                @click="methods.dataSetSearch"
+                            >
+                                搜索
+                            </el-button>
+                        </el-form-item>
                     </el-form>
                     <DataSetList
                         ref="rawDataSetListRef"
@@ -284,13 +286,12 @@
                     name="derived"
                 >
                     <el-alert
-                        class="mb10"
                         effect="dark"
                         type="success"
                         :closable="false"
                         title="使用衍生数据资源将 自动替换 关联成员已选的数据资源"
                     />
-                    <el-form inline>
+                    <el-form class="mt10" inline>
                         <el-form-item label="名称">
                             <el-input
                                 v-model="vData.derivedSearch.name"
@@ -304,6 +305,7 @@
                             />
                         </el-form-item>
                         <el-button
+                            class="mb20"
                             type="primary"
                             @click="dataSetTabChange('derived')"
                         >
@@ -415,7 +417,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && data.params.dataset_list) {
                         const { dataset_list } = data.params;
 
                         for(const memberIndex in vData.member_list) {
@@ -424,7 +426,7 @@
 
                             if(~datasetIndex) {
                                 const item = dataset_list[datasetIndex];
-                                const column_name_list = item.source_type ? item.features : item.feature_name_list.split(',');
+                                const column_name_list = item.derived_from ? item.features : item.feature_name_list.split(',');
 
                                 member.$data_set_list.push({
                                     ...item,
@@ -503,7 +505,7 @@
                     const list = [];
 
                     allList.forEach(row => {
-                        if(row.name.includes(name) && row.data_set_id.includes(data_set_id)) {
+                        if(row.data_resource.name.includes(name) && row.data_resource.data_resource_id.includes(data_set_id)) {
                             if(contains_y === '' || row.contains_y === contains_y) {
                                 list.push(row);
                             }
@@ -561,6 +563,7 @@
                     refInstance.searchField.member_id = vData.memberId;
                     refInstance.searchField.member_role = vData.memberRole;
                     refInstance.searchField.contains_y = vData.rawSearch.contains_y;
+                    refInstance.searchField.data_resource_type = 'TableDataSet';
 
                     switch(ref.paneName) {
                     case 'raw':
@@ -581,13 +584,13 @@
                 /* add dataset to list */
                 selectDataSet(item) {
                     vData.showSelectDataSet = false;
-                    if(item.source_type) {
+                    if(item.data_resource.derived_from) {
                         // derived dataset
                         const memberIds = {}; // cache member_id
 
                         item.members.forEach(member => {
                             if(member.job_role === 'promoter' || member.job_role === 'provider') {
-                                const features = member.feature_name_list.split(',');
+                                const features = member.feature_name_list ? member.feature_name_list.split(',') : [];
 
                                 memberIds[member.member_id] = {
                                     member_role:       member.job_role,
@@ -595,9 +598,9 @@
                                     member_name:       member.member_name,
                                     feature_count:     member.feature_count,
                                     data_set_id:       item.data_set_id,
-                                    source_type:       item.source_type,
-                                    row_count:         item.row_count ? item.row_count : item.data_set.total_data_count,
-                                    name:              item.name,
+                                    derived_from:      item.data_resource.derived_from,
+                                    row_count:         item.row_count ? item.row_count : item.data_resource.total_data_count,
+                                    name:              item.data_resource.name,
                                     column_name_list:  features,
                                     $column_name_list: features,
                                 };
@@ -630,11 +633,11 @@
                     } else {
                         const currentMember = vData.member_list[vData.memberIndex];
                         const dataset_list = currentMember.$data_set_list[0];
-                        const features = item.data_set.feature_name_list && item.data_set.feature_name_list.split(',') ? item.data_set.feature_name_list.split(',') : [];
+                        const features = item.data_resource.feature_name_list && item.data_resource.feature_name_list.split(',') ? item.data_resource.feature_name_list.split(',') : [];
 
-                        item.data_set.data_resource_id = item.data_set_id;
+                        item.data_resource.data_resource_id = item.data_set_id;
                         const dataset = {
-                            ...item.data_set,
+                            ...item.data_resource,
                             column_name_list:  features,
                             $column_name_list: features,
                         };
@@ -792,8 +795,8 @@
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,
                                 contains_y:        row[0].contains_y,
-                                source_type:       row[0].source_type,
-                                row_count:         row[0].row_count ? row[0].row_count : row[0].total_data_count,
+                                derived_from:      row[0].derived_from,
+                                row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
                             });
                         }
@@ -836,9 +839,8 @@
         font-size: 16px;
     }
     .revert-check-btn{
-        vertical-align: middle;
         position: relative;
-        top: -3px;
+        top: -7px;
     }
     .dialog-min-width{min-width: 800px;}
     .el-icon-circle-close{
@@ -854,14 +856,18 @@
         }
         :deep(.el-form-item){
             display:flex;
-            margin-bottom:5px;
+            margin-bottom:0;
             flex-wrap: wrap;
             .el-form-item__label{
                 font-size: 12px;
                 text-align: left;
-                margin-bottom: 0;
+                line-height: 24px;
             }
-            .el-form-item__content{word-break:break-all;}
+            .el-form-item__content{
+                font-size: 12px;
+                line-height: 22px;
+                word-break:break-all;
+            }
         }
     }
     .check-features{

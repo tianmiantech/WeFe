@@ -17,7 +17,6 @@
 package com.welab.wefe.serving.service.service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -36,7 +35,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +59,9 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.mpc.cache.result.QueryDataResult;
-import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
@@ -379,13 +381,22 @@ public class ServiceService {
 			res.append("message", "invalid request: url = " + serviceUrl);
 			return res;
 		} else {
-			ClientMysqlModel client = clientService.queryByClientId(input.getCustomerId());
-			ClientServiceMysqlModel clientServiceMysqlModel = clientService.queryByServiceIdAndClientId(service.getId(),
-					input.getCustomerId());
-			if (clientServiceMysqlModel == null || client == null || client.getStatus() != 1
-					|| clientServiceMysqlModel.getStatus() != 1) {
+			ClientMysqlModel client = clientService.queryByCode(input.getCustomerId());
+			if (client == null || client.getStatus() != 1) {
 				res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
-				res.append("message", "invalid request: url = " + serviceUrl);
+				res.append("message",
+						"invalid request: url = " + serviceUrl + ",customerId = " + input.getCustomerId());
+				long duration = System.currentTimeMillis() - start;
+				log(service, client, duration, clientIp, res.getIntValue("code"));
+				return res;
+			}
+			
+			ClientServiceMysqlModel clientServiceMysqlModel = clientService.queryByServiceIdAndClientId(service.getId(),
+					client.getId());
+			if (clientServiceMysqlModel == null || clientServiceMysqlModel.getStatus() != 1) {
+				res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
+				res.append("message",
+						"invalid request: url = " + serviceUrl + ",customerId=" + client.getCode());
 				long duration = System.currentTimeMillis() - start;
 				log(service, client, duration, clientIp, res.getIntValue("code"));
 				return res;
@@ -398,6 +409,19 @@ public class ServiceService {
 				return res;
 			}
 			int serviceType = service.getServiceType();
+			ClientMysqlModel currentClient = clientService.queryByClientName(CacheObjects.getMemberId());
+			if (serviceType == ServiceTypeEnum.MULTI_SA.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()
+					|| serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
+				if (currentClient == null) {
+					res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
+					res.append("message",
+							"invalid request: url = " + serviceUrl + ", not found currentClient, customerName = " + CacheObjects.getMemberId());
+					long duration = System.currentTimeMillis() - start;
+					log(service, client, duration, clientIp, res.getIntValue("code"));
+					return res;
+				}
+			}
+			
 			if (serviceType == ServiceTypeEnum.PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				QueryKeysResponse result = pir(ids, service);
@@ -419,19 +443,19 @@ public class ServiceService {
 				QueryDiffieHellmanKeyResponse result = sa(request, service);
 				res = JObject.create(result);
 			} else if (serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
-				Double result = sa_query(data, service);
+				Double result = sa_query(data, service, currentClient);
 				res = JObject.create("result", result);
 			} else if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 				List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
 				if(CollectionUtils.isEmpty(clientIds)) {
 					clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				}
-				List<String> result = multi_psi(clientIds, service);
+				List<String> result = multi_psi(clientIds, service, currentClient);
 				res = JObject.create("result", result);
 			} else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				int idx = data.getIntValue("index");
-				List<JObject> results = multi_pir(ids, idx,  service);
+				List<JObject> results = multi_pir(ids, idx,  service, currentClient);
 				res = JObject.create("result", results);
 			}
 			res.append("code", ServiceResultEnum.SUCCESS.getCode());
@@ -449,7 +473,7 @@ public class ServiceService {
 	/**
 	 * 0.参考 SecureAggregation.query 返回结果
 	 */
-	private Double sa_query(JObject data, ServiceMySqlModel model) {
+	private Double sa_query(JObject data, ServiceMySqlModel model, ClientMysqlModel currentClient) {
 		JObject userParams = data.getJObject("query_params");
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
@@ -458,7 +482,7 @@ public class ServiceService {
 
 		for (int i = 0; i < size; i++) {
 			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
-			String supplieId = serviceConfig.getString("member_id");
+//			String supplieId = serviceConfig.getString("member_id");
 			String apiName = serviceConfig.getString("api_name");
 			String base_url = serviceConfig.getString("base_url");
 			ServerConfig config = new ServerConfig();
@@ -469,9 +493,9 @@ public class ServiceService {
 			CommunicationConfig communicationConfig = new CommunicationConfig();
 			communicationConfig.setApiName(apiName);
 			communicationConfig.setServerUrl(base_url);
-			communicationConfig.setCommercialId(supplieId);
-			communicationConfig.setNeedSign(false);// TODO
-			communicationConfig.setSignPrivateKey("");// TODO
+			communicationConfig.setCommercialId(currentClient.getCode());
+			communicationConfig.setNeedSign(true);// TODO
+			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());// TODO
 			config.setCommunicationConfig(communicationConfig);
 			HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
 			transferVariables.add(httpTransferVariable);
@@ -514,9 +538,9 @@ public class ServiceService {
 			throw e;
 		}
 		QueryDiffieHellmanKeyResponse response = service.handle(request);
-		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-		QueryDataResult<Double> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(request.getUuid(), Double.valueOf(resultStr));
+		// 将 0 步骤查询的数据 保存到 CacheOperation -> LocalIntermediateCache
+		CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
+		queryResult.save(request.getUuid(), Constants.RESULT, Double.valueOf(resultStr));
 		return response;
 	}
 
@@ -556,21 +580,21 @@ public class ServiceService {
 		return response;
 	}
 	
-	private List<String> multi_psi(List<String> clientIds, ServiceMySqlModel model) {
+	private List<String> multi_psi(List<String> clientIds, ServiceMySqlModel model, ClientMysqlModel currentClient) {
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
 		List<CommunicationConfig> communicationConfigs = new LinkedList<>();
 		for (int i = 0; i < size; i++) {
 			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
-			String supplieId = serviceConfig.getString("member_id");
+//			String supplieId = serviceConfig.getString("member_id");
 			String apiName = serviceConfig.getString("api_name");
 			String base_url = serviceConfig.getString("base_url");
 			CommunicationConfig communicationConfig = new CommunicationConfig();
 			communicationConfig.setApiName(apiName);
 			communicationConfig.setServerUrl(base_url);
-			communicationConfig.setCommercialId(supplieId);
-			communicationConfig.setNeedSign(false);// TODO
-			communicationConfig.setSignPrivateKey("");// TODO
+			communicationConfig.setCommercialId(currentClient.getCode());
+			communicationConfig.setNeedSign(true);// TODO
+			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());// TODO
 			communicationConfigs.add(communicationConfig);
 		}
 
@@ -579,7 +603,7 @@ public class ServiceService {
 		return result;
 	}
 
-	private List<JObject> multi_pir(List<String> ids, int index, ServiceMySqlModel model) {
+	private List<JObject> multi_pir(List<String> ids, int index, ServiceMySqlModel model, ClientMysqlModel currentClient) {
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
 		List<JObject> results = new ArrayList<>();
@@ -592,9 +616,9 @@ public class ServiceService {
 			String base_url = serviceConfig.getString("base_url");
 
 			communicationConfig.setApiName(apiName);
-			communicationConfig.setNeedSign(false);// TODO
-			communicationConfig.setCommercialId(memberId);
-//			communicationConfig.setSignPrivateKey("");
+			communicationConfig.setNeedSign(true);// TODO
+			communicationConfig.setCommercialId(currentClient.getCode());
+			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());
 			communicationConfig.setServerUrl(base_url);
 
 			PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, 0, 10, null);
@@ -603,8 +627,6 @@ public class ServiceService {
 			try {
 				config.setTargetIndex(index); // right index
 				result = privateInformationRetrievalQuery.query(config, communicationConfig);
-				System.out.println("index = " + i);
-				System.out.println("result = " + result);
 				results.add(JObject.create("memberId", memberId).append("memberName", memberName).append("index", index)
 						.append("result", result));
 			} catch (Exception e) {
@@ -628,7 +650,7 @@ public class ServiceService {
 						Arrays.asList(resultfields.split(",")));
 				if (resultMap == null || resultMap.isEmpty()) {
 					resultMap = new HashMap<>();
-					resultMap.put("rand", "thisisrandomstring");
+					resultMap.put("rand", "thisisemptyresult");
 				}
 				String resultStr = JObject.toJSONString(resultMap);
 				LOG.info(id + "\t " + resultStr);
@@ -652,13 +674,13 @@ public class ServiceService {
 			e.printStackTrace();
 			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
 		}
-		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-		QueryDataResult<Map<String, String>> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(uuid, result);
+		// 将 0 步骤查询的数据 保存到 CacheOperation -> LocalIntermediateCache
+		CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
+		queryResult.save(uuid, Constants.RESULT, result);
 		return response;
 	}
 
-	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
+	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, IOException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
 		if (model == null) {
 			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
@@ -669,15 +691,21 @@ public class ServiceService {
 		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-pir-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			File readme = new File(basePath + "readme.md");
+			fillReadmeFile(model, readme);
+			fileList.add(readme);
 		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-psi-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			File readme = new File(basePath + "readme.md");
+			fillReadmeFile(model, readme);
+			fileList.add(readme);
 		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath + "mpc-sa-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			File readme = new File(basePath + "readme.md");
+			fillReadmeFile(model, readme);
+			fileList.add(readme);
 		}
 		String sdkZipName = "sdk.zip";
 		String outputPath = basePath + sdkZipName;
@@ -693,6 +721,19 @@ public class ServiceService {
 			e.printStackTrace();
 			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
 		}
+	}
+
+	private void fillReadmeFile(ServiceMySqlModel model, File readme) throws IOException {
+		Map<String, Object> valuesMap = new HashMap<>();
+		valuesMap.put("url", model.getUrl());
+		valuesMap.put("params", model.getQueryParams() == null ? "" : model.getQueryParams());
+		valuesMap.put("desc", model.getName());
+		valuesMap.put("method", "POST");
+		String templateString = "# url:\n" + "	${url}\n" + "	\n" + "# method:\n" + "	${method}\n" + "	\n" + "# params:\n"
+				+ "	${params}\n" + "	\n" + "# desc\n" + "	${desc}";
+		StringSubstitutor sub = new StringSubstitutor(valuesMap);
+		String content = sub.replace(templateString);
+		FileUtils.write(readme, content);
 	}
 
 	public ServiceMySqlModel queryById(QueryOneApi.Input input) {

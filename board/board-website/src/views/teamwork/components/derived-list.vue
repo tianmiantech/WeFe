@@ -32,6 +32,7 @@
                 />
             </el-form-item>
             <el-button
+                class="mb20"
                 type="primary"
                 @click="searchDeriveData"
             >
@@ -42,6 +43,7 @@
             :data="derived.list"
             max-height="520px"
             stripe
+            border
         >
             <el-table-column type="index" />
             <el-table-column
@@ -50,11 +52,11 @@
             >
                 <template v-slot="scope">
                     <router-link :to="{ name: 'data-view', query: { id: scope.row.data_set_id } }">
-                        {{ scope.row.name }}
+                        {{ scope.row.data_resource ? scope.row.data_resource.name : '' }}
+                        <el-tag v-if="scope.row.data_resource ? scope.row.data_resource.contains_y : false" class="ml5">
+                            Y
+                        </el-tag>
                     </router-link>
-                    <el-tag v-if="scope.row.contains_y" class="ml5">
-                        Y
-                    </el-tag>
                     <br>
                     <span class="p-id">{{ scope.row.data_set_id }}</span>
                 </template>
@@ -64,13 +66,13 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    {{ scope.row.source_type_cn }}
+                    {{ scope.row.data_resource ? scope.row.data_resource.derived_from_cn : '' }}
                 </template>
             </el-table-column>
             <el-table-column
                 label="成员列表"
-                prop="name"
                 min-width="130"
+                prop="name"
             >
                 <template v-slot="scope">
                     <template
@@ -78,8 +80,8 @@
                         :key="`${item.member_id}-${item.member_role}`"
                     >
                         <el-tag
-                            class="mr10"
                             type="info"
+                            class="mr10"
                             effect="plain"
                         >
                             {{ item.member_name }}
@@ -92,9 +94,11 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    特征量：{{ scope.row.feature_count }}
-                    <br>
-                    样本量：{{ scope.row.row_count }}
+                    <template v-if="scope.row.data_resource">
+                        特征量：{{ scope.row.data_resource.feature_count }}
+                        <br>
+                        样本量：{{ scope.row.data_resource.total_data_count }}
+                    </template>
                 </template>
             </el-table-column>
             <el-table-column
@@ -102,7 +106,7 @@
                 width="80"
             >
                 <template v-slot="scope">
-                    {{ scope.row.usage_count_in_job }}
+                    {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : '' }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -110,22 +114,25 @@
                 min-width="140"
             >
                 <template v-slot="scope">
-                    {{ dateFormat(scope.row.created_time) }}
+                    {{ scope.row.data_resource ? dateFormat(scope.row.data_resource.created_time) : '' }}
                 </template>
             </el-table-column>
             <el-table-column label="查看任务">
                 <template v-slot="scope">
-                    <router-link :to="{ name: 'project-job-detail', query: { job_id: scope.row.source_job_id, project_id, member_role: scope.row.member_role }}">
+                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.data_resource.source_job_id, project_id, member_role: scope.row.data_resource.member_role }}">
                         查看任务
                     </router-link>
                 </template>
             </el-table-column>
             <el-table-column
                 label="操作"
-                width="80"
+                width="100"
             >
                 <template v-slot="scope">
-                    <el-button @click="removeDataSet(scope.row)">
+                    <el-button
+                        type="danger"
+                        @click="removeDataSet(scope.row)"
+                    >
                         删除
                     </el-button>
                 </template>

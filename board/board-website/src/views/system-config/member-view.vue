@@ -164,7 +164,6 @@
                 v-loading="loading"
                 class="save-btn"
                 type="primary"
-                size="medium"
                 @click="update"
             >
                 更新
@@ -185,7 +184,7 @@
             />
             <br>
             <el-button
-                size="medium"
+                size="small"
                 @click="syncToUnion"
             >
                 同步数据到 Union
@@ -254,11 +253,7 @@
 
                     const info = Object.assign({
                         ...this.userInfo,
-                    }, {
-                        member_logo:  data.member_logo,
-                        member_name:  this.form.member_name,
-                        member_email: this.form.member_email,
-                    });
+                    }, this.form);
 
                     this.$store.commit('UPDATE_USERINFO', info);
 

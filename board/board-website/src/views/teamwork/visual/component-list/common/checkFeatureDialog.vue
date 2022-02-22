@@ -193,8 +193,7 @@
 
 <style lang="scss" scoped>
     .revert-check-btn{
-        vertical-align:middle;
         position: relative;
-        top: -3px;
+        top: -7px;
     }
 </style>
