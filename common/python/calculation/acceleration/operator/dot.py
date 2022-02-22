@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+
 import datetime
 
 import math
@@ -180,12 +182,7 @@ def _gpu_dot_4_batch(X, w, bits):
     if len(batch_w) > 0:
         batch_result.extend(_gpu_powm_batch(batch_w, batch_x, bits))
     _restore_batch_result_2_array(x_shape_to_restore, batch_result, result_array)
-
-    import uuid,os
-    uid =  f'{os.getpid()}-{uuid.uuid1()}'
-    print(f'reduce_add start:{datetime.datetime.now()},{uid}')
     _result_array_reduce_add(result_array, bits)
-    print(f'reduce_add end_1:{datetime.datetime.now()},{uid}')
 
     # Submit the remaining batches that are not enough to use CPU calculation and return the result
     for item_result_array in result_array:
@@ -194,7 +191,6 @@ def _gpu_dot_4_batch(X, w, bits):
             item_result += item
         res.append(item_result)
 
-    print(f'reduce_add end_2:{datetime.datetime.now()},{uid}')
     return res
     # return np.array(res)
 

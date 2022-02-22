@@ -13,13 +13,10 @@
 # limitations under the License.
 
 from common.python.calculation.acceleration.operator import dot as operator_dot
-import logging
-
-from common.python.calculation.acceleration.operator import dot_gpu as operator_dot_gpu
 from common.python.calculation.acceleration.operator import encrypt
 
 
-def table_dot(it):
+def table_dot(it, bits=2048):
     """
     table dot
 
@@ -29,14 +26,15 @@ def table_dot(it):
     ----------
     it:list
         [(key,([x.],[y.]))]
+    bits:
     Returns
     -------
 
     """
-    return operator_dot.table_dot(it)
+    return operator_dot.table_dot(it, bits)
 
 
-def dot(value, w):
+def dot(value, w, bits=2048):
     """
     dot
 
@@ -46,17 +44,13 @@ def dot(value, w):
     ----------
     value
     w
+    bits
 
     Returns
     -------
 
     """
-    # import time
-    # start = time.time()
-    # result = operator_dot_gpu.DotGPU(value, w)
-    # print(f'耗时：{time.time() - start}')
-
-    return operator_dot_gpu.DotGPU(value, w)
+    return operator_dot.dot(value, w, bits)
 
 
 def dh_encrypt_id(data_instance, r, p, is_hash=False, bits=2048):
