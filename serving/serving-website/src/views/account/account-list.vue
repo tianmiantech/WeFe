@@ -105,17 +105,13 @@
                         v-if="scope.row.admin_role"
                         class="super_admin_role"
                     >
-                        <el-icon>
-                            <elicon-check />
-                        </el-icon>
+                        <i class="el-icon-check" />
                     </span>
                     <span
                         v-else
                         class="not_super_admin_role"
                     >
-                        <el-icon>
-                            <elicon-close />
-                        </el-icon>
+                       <i class="el-icon-close" />
                     </span>
                 </template>
             </el-table-column>
