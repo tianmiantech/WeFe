@@ -54,7 +54,7 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                           Params params) throws FlowNodeException {
-        JSONObject taskParam = new JSONObject();
+//        JSONObject taskParam = new JSONObject();
 
         JObject vertNNParam = JObject.create();
         vertNNParam.append("epochs", params.epochs).append("interactive_layer_lr", params.interactiveLayerLr)
@@ -83,9 +83,9 @@ public class VertNNComponent extends AbstractModelingComponent<VertNNComponent.P
 
         vertNNParam.append("config_type", "keras");
 
-        taskParam.put("params", vertNNParam);
+//        taskParam.put("params", vertNNParam);
 
-        return taskParam;
+        return vertNNParam;
     }
 
     @Override

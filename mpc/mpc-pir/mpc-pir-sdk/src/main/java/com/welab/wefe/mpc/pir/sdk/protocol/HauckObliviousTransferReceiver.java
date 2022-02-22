@@ -25,7 +25,9 @@ import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransfer;
 import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransferKey;
 import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckObliviousTransfer;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalRequest;
+import com.welab.wefe.mpc.pir.request.QueryRandomLegalResponse;
 import com.welab.wefe.mpc.pir.request.QueryRandomRequest;
+import com.welab.wefe.mpc.pir.sdk.crypt.CryptUtil;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,19 +80,18 @@ public class HauckObliviousTransferReceiver extends HauckObliviousTransfer imple
             if (sLegal) {
                 break;
             } else {
+                attemptCount += 1;
                 QueryRandomLegalRequest request = new QueryRandomLegalRequest();
                 request.setUuid(uuid);
                 request.setsLegal(false);
                 request.setAttemptCount(attemptCount);
                 mTransferVariable.queryRandomLegal(request);
-                attemptCount += 1;
             }
         }
 
         LOG.info("uuid:{} keyDerivation send r and xs", uuid);
         final GroupElement paramS = s;
-        final int paramAttemptCount = attemptCount;
-        CompletableFuture<GroupElement> calcR = CompletableFuture.supplyAsync(() -> sendR(arithmetic, target, x, paramS, paramAttemptCount));
+        CompletableFuture<GroupElement> calcR = CompletableFuture.supplyAsync(() -> calcR(arithmetic, target, x, paramS));
         CompletableFuture<GroupElement> calcXS = CompletableFuture.supplyAsync(() -> arithmetic.mul(x, paramS));
         CompletableFuture.allOf(calcR, calcXS).join();
 
@@ -104,26 +105,46 @@ public class HauckObliviousTransferReceiver extends HauckObliviousTransfer imple
         } catch (ExecutionException e) {
             LOG.error("CompletableFuture error", e);
         }
+
+        final GroupElement sendRValue = r;
+        final int paramAttemptCount = attemptCount;
+        CompletableFuture<QueryRandomLegalResponse> cfResults = CompletableFuture.supplyAsync(
+                () -> sendR(sendRValue, paramAttemptCount));
+
         LOG.info("uuid:{} keyDerivation init mac", uuid);
         initMac(s, r);
         byte[] targetKey = macTecElement(xs);
         ObliviousTransferKey key = new ObliviousTransferKey(target, targetKey);
+
+        LOG.info("uuid:{} keyDerivation finish", uuid);
+        cfResults.join();
+        QueryRandomLegalResponse response = null;
+        try {
+            response = cfResults.get();
+        } catch (ExecutionException e) {
+            LOG.error("CompletableFuture Interrupted", e);
+        } catch (InterruptedException e) {
+            LOG.error("CompletableFuture Interrupted", e);
+        }
+        if (response.getResults() != null && !response.getResults().isEmpty()) {
+            String result = CryptUtil.decrypt(response.getResults().get(target), targetKey);
+            key.setResult(result);
+        }
+
         List<ObliviousTransferKey> keys = new ArrayList<>(1);
         keys.add(key);
-        LOG.info("uuid:{} keyDerivation finish", uuid);
         return keys;
     }
 
-    private GroupElement sendR(GroupArithmetic arithmetic, int target, BigInteger x, GroupElement s, int attemptCount) {
-        GroupElement r = calcR(arithmetic, target, x, s);
+    private QueryRandomLegalResponse sendR(GroupElement r, int attemptCount) {
         QueryRandomLegalRequest request = new QueryRandomLegalRequest();
         request.setUuid(uuid);
         request.setsLegal(true);
         request.setAttemptCount(attemptCount);
         request.setR(Conversion.groupElementToString(r));
-        mTransferVariable.queryRandomLegal(request);
+        QueryRandomLegalResponse response = mTransferVariable.queryRandomLegal(request);
         LOG.info("uuid:{} keyDerivation send r", uuid);
-        return r;
+        return response;
     }
 
     private GroupElement calcR(GroupArithmetic arithmetic, int target, BigInteger x, GroupElement s) {

@@ -181,11 +181,11 @@ public class PsiClientActuator extends AbstractPsiActuator {
                     fusion();
 
                     //TODO 临时代码
-                    Socket socket = socketQueue.take();
-                    if (socket != null) {
-                        receiveAndParseResult(socket);
-                    }
-                } catch (StatusCodeWithException | InterruptedException e) {
+//                    Socket socket = socketQueue.take();
+//                    if (socket != null) {
+//                        receiveAndParseResult(socket);
+//                    }
+                } catch (StatusCodeWithException e) {
                     e.printStackTrace();
                     LOG.error("{} StatusCodeWithException : {}", getClass().getSimpleName(), e.getMessage());
                 } finally {
@@ -197,27 +197,27 @@ public class PsiClientActuator extends AbstractPsiActuator {
         /**
          * Alignment matching
          */
-//        int socketQueueSize = count;
-//        CountDownLatch socketLatch = new CountDownLatch(count);
-//
-//        while (socketQueueSize > 0) {
-//            try {
-//                Socket socket = socketQueue.take();
-//                if (socket != null) {
-//                    parseThreadPool.execute(() -> {
-//                        receiveAndParseResult(socket);
-//                        socketLatch.countDown();
-//                    });
-//                    socketQueueSize--;
-//                }
-//            } catch (InterruptedException e1) {
-//                e1.printStackTrace();
-//            }
-//        }
+        int socketQueueSize = count;
+        CountDownLatch socketLatch = new CountDownLatch(count);
+
+        while (socketQueueSize > 0) {
+            try {
+                Socket socket = socketQueue.take();
+                if (socket != null) {
+                    parseThreadPool.execute(() -> {
+                        receiveAndParseResult(socket);
+                        socketLatch.countDown();
+                    });
+                    socketQueueSize--;
+                }
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
 
         try {
             latch.await();
-//            socketLatch.await();
+            socketLatch.await();
         } catch (InterruptedException e1) {
             e1.printStackTrace();
             LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
@@ -346,6 +346,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
                     fusionCount.increment();
                 }
 
+                processedCount.increment();
             }
 
             LOG.info("client y.mod(N) spend : " + (System.currentTimeMillis() - start) + " ms");
@@ -355,7 +356,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
              */
             PSIUtils.send2DBytes(socket, rs);
 
-            processedCount.add(ret.length);
             LOG.info("fusionCount: " + fusionCount.longValue());
             LOG.info("processedCount: " + processedCount.longValue());
 

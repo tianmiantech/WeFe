@@ -61,13 +61,13 @@ public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataRe
         DataResourceQueryOutput dataResourceQueryOutput;
         switch (input.getDataResourceType()) {
             case BloomFilter:
-                dataResourceQueryOutput = dataResourceMongoReop.findCurMemberCanSee(input.getDataResourceId(), MongodbTable.Union.BLOOM_FILTER);
+                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.BLOOM_FILTER);
                 break;
             case TableDataSet:
-                dataResourceQueryOutput = dataResourceMongoReop.findCurMemberCanSee(input.getDataResourceId(), MongodbTable.Union.TABLE_DATASET);
+                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.TABLE_DATASET);
                 break;
             case ImageDataSet:
-                dataResourceQueryOutput = dataResourceMongoReop.findCurMemberCanSee(input.getDataResourceId(), MongodbTable.Union.IMAGE_DATASET);
+                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.IMAGE_DATASET);
                 break;
             default:
                 throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");

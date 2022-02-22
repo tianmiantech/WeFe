@@ -66,14 +66,26 @@ public class ImageDataSetSampleService extends AbstractService {
 
     public PagingOutput<ImageDataSetSampleOutputModel> query(ImageDataSetSampleQueryApi.Input input) {
 
-        Specification<ImageDataSetSampleMysqlModel> where = Where
+        Where where = Where
                 .create()
                 .equal("dataSetId", input.getDataSetId())
-                .equal("labeled", input.getLabeled())
-                .contains("labelList", input.getLabel())
-                .build(ImageDataSetSampleMysqlModel.class);
+                .equal("labeled", input.getLabeled());
 
-        return imageDataSetSampleRepository.paging(where, input, ImageDataSetSampleOutputModel.class);
+        if (StringUtil.isNotEmpty(input.getLabel())) {
+            if (input.labelMatchWithContains) {
+                where.contains("labelList", input.getLabel());
+            } else {
+                // 前后拼接逗号，用于精确匹配单个 label。
+                where.contains("labelList", "," + input.getLabel() + ",");
+            }
+        }
+
+
+        return imageDataSetSampleRepository.paging(
+                where.build(ImageDataSetSampleMysqlModel.class),
+                input,
+                ImageDataSetSampleOutputModel.class
+        );
     }
 
     public void update(ImageDataSetSampleUpdateApi.Input input) throws StatusCodeWithException {

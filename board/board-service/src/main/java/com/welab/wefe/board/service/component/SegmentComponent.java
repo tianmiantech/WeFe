@@ -83,7 +83,7 @@ class SegmentComponent extends AbstractComponent<SegmentComponent.Params> {
         }
 
         JObject taskConfig = JObject.create(dataIOTask.getTaskConf());
-        boolean withLabel = taskConfig.getBooleanValue("with_label");
+        boolean withLabel = taskConfig.getJObject("params").getBooleanValue("with_label");
 
         output.append("random_num", params.getSplitDataRandomNum())
                 .append("train_ratio", params.getTrainingRatio() / (params.getTrainingRatio() + params.getVerificationRatio()))

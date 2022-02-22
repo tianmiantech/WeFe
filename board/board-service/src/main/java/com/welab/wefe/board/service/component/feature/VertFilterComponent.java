@@ -50,7 +50,6 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                           Params params) throws FlowNodeException {
-        JSONObject taskParam = new JSONObject();
         JObject resultObj = JObject.create();
         params.getMembers().forEach(member -> {
             if (CacheObjects.getMemberId().equals(member.getMemberId())
@@ -59,8 +58,7 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
             }
         });
 
-        taskParam.put("params", resultObj);
-        return taskParam;
+        return resultObj;
     }
 
     @Override

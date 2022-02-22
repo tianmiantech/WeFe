@@ -54,6 +54,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, JObject> {
                     ApiDataResourceDefaultTagQueryOutput apiDataSetDefaultTagOutput = new ApiDataResourceDefaultTagQueryOutput();
                     apiDataSetDefaultTagOutput.setId(x.getTagId());
                     apiDataSetDefaultTagOutput.setTagName(x.getTagName());
+                    apiDataSetDefaultTagOutput.setDataResourceType(x.getDataResourceType());
                     return apiDataSetDefaultTagOutput;
                 }).collect(Collectors.toList());
 

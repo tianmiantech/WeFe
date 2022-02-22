@@ -16,7 +16,7 @@
 
 package com.welab.wefe.manager.service.dto.tag;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 /**
  * @Description:
@@ -26,6 +26,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJ
 public class ApiDataResourceDefaultTagQueryOutput {
     private String id;
     private String tagName;
+    private DataResourceType dataResourceType;
     private int status;
 
 
@@ -45,6 +46,13 @@ public class ApiDataResourceDefaultTagQueryOutput {
         this.tagName = tagName;
     }
 
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
+    }
+
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
+    }
 
     public int getStatus() {
         return status;

@@ -49,6 +49,9 @@ public class ImageDataSetSampleQueryApi extends AbstractApi<ImageDataSetSampleQu
         @Check(name = "标签名称")
         private String label;
 
+        @Check(name = "标签名称使用模糊匹配")
+        public boolean labelMatchWithContains = true;
+
         @Check(name = "是否已标注")
         private Boolean labeled;
 

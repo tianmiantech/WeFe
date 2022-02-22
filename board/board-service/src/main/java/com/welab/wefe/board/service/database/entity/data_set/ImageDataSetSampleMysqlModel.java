@@ -86,6 +86,20 @@ public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
         return labelSet;
     }
 
+    public void setLabelList(String labelList) {
+
+        // 在 labelList 前后加上逗号，用于sql方便匹配单个 label。
+        if (labelList != null) {
+            if (!labelList.startsWith(",")) {
+                labelList = "," + labelList;
+            }
+            if (!labelList.endsWith(",")) {
+                labelList = labelList + ",";
+            }
+        }
+        this.labelList = labelList;
+    }
+
     //region getter/setter
 
     public String getDataSetId() {
@@ -122,10 +136,6 @@ public class ImageDataSetSampleMysqlModel extends AbstractBaseMySqlModel {
 
     public String getLabelList() {
         return labelList;
-    }
-
-    public void setLabelList(String labelList) {
-        this.labelList = labelList;
     }
 
     public boolean isLabeled() {
