@@ -136,7 +136,6 @@ def fl_trainer(
         resume_checkpoint = config_json.get("resume", True)
         save_model_dir = "model"
         save_checkpoint_dir = "checkpoint"
-        log_dir = os.path.join(__logs_dir__,"jobs",job_id,trainer_ep,"vdl_log")
 
 
         logging.debug(f"training program begin")
@@ -164,9 +163,9 @@ def fl_trainer(
         download_url = algorithm_config_json.get("download_url")
         data_name = algorithm_config_json.get("data_name")
 
-        data_dir = data_loader.job_download(download_url, job_id, get_data_dir, data_name)
+        data_dir = data_loader.job_download(download_url, job_id, get_data_dir(), data_name)
         labelpath = os.path.join(data_dir, "label_list.txt")
-        TaskDao(task_id).save_task_result(labelpath, ComponentName.CLASSIFY, TaskResultType.LABEL)
+        TaskDao(task_id).save_task_result({"label_path":labelpath}, ComponentName.DETECTION, TaskResultType.LABEL)
         cfg = merger_algorithm_config(algorithm_config_json)
         check_config(cfg)
         check_version()
@@ -239,13 +238,12 @@ def fl_trainer(
 
         TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
         TaskDao(task_id).finish_task_progress()
-        TaskDao.update_serving_model(TaskResultType.LOSS)
+        TaskDao(task_id).update_serving_model(type=TaskResultType.LOSS)
         logging.debug(f"reach max iter, finish training")
-
     except Exception as e:
-        logging.error(f"task id {task_id} train error {e}")
-        logging.error(traceback.format_exc())
+        logging.error(f"task id {task_id} train error: {e}")
         TaskDao(task_id).update_task_status(TaskStatus.ERROR,str(e))
+        raise Exception(f"train error as task id {task_id} ")
 
 
 if __name__ == "__main__":

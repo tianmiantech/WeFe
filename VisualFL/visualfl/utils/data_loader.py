@@ -266,6 +266,16 @@ def un_zip(file_name,target_path):
     except Exception as e:
         print(e)
 
+def make_zip(source_dir, zip_file):
+    zipf = zipfile.ZipFile(zip_file, 'w')
+    pre_len = len(os.path.dirname(source_dir))
+    for parent, dirnames, filenames in os.walk(source_dir):
+        for filename in filenames:
+            pathfile = os.path.join(parent, filename)
+            arcname = pathfile[pre_len:].strip(os.path.sep)
+            zipf.write(pathfile, arcname)
+    zipf.close()
+
 def job_download(url, job_id,base_dir, data_name):
     target_data_dir = os.path.join(base_dir, data_name)
     try:
@@ -283,5 +293,3 @@ def job_download(url, job_id,base_dir, data_name):
         logging.error(f"job download with {job_id} error as {e} ")
 
     return target_data_dir
-
-

@@ -144,7 +144,7 @@ def main():
     task_result = TaskDao(args.task_id).get_task_result(TaskResultType.LABEL)
     if not task_result:
         raise Exception(f"task result is None as task id: {args.task_id}")
-    label_file = task_result.result
+    label_file = json.loads(task_result.result).get("label_path")
     cats = []
     with open(label_file) as f:
         for line in f.readlines():

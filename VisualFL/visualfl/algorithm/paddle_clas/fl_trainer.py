@@ -167,7 +167,7 @@ def fl_trainer(
 
         data_dir = data_loader.job_download(download_url, job_id, get_data_dir(),data_name)
         labelpath = os.path.join(data_dir,"label_list.txt")
-        TaskDao(task_id).save_task_result(labelpath,ComponentName.CLASSIFY,TaskResultType.LABEL)
+        TaskDao(task_id).save_task_result({"label_path":labelpath},ComponentName.CLASSIFY,TaskResultType.LABEL)
         reader = data_loader.train(data_dir=data_dir)
         if need_shuffle:
             reader = fluid.io.shuffle(
@@ -222,11 +222,12 @@ def fl_trainer(
 
         TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
         TaskDao(task_id).finish_task_progress()
-        TaskDao.update_serving_model(TaskResultType.LOSS)
+        TaskDao(task_id).update_serving_model(type=TaskResultType.LOSS)
         logging.debug(f"reach max iter, finish training")
     except Exception as e:
         logging.error(f"task id {task_id} train error {e}")
         TaskDao(task_id).update_task_status(TaskStatus.ERROR, str(e))
+        raise Exception(f"train error as task id {task_id} ")
 
 
 if __name__ == "__main__":

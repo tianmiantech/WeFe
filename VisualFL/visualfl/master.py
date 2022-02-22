@@ -3,14 +3,15 @@ from __future__ import annotations
 
 import os,sys
 import asyncio
+import aiofiles
 import enum
 import json
+from pathlib import Path
 import traceback
 from datetime import datetime
 from typing import Optional, MutableMapping, List
 import attr
 import grpc
-from pathlib import Path
 from aiohttp import web
 from visualfl import extensions
 from visualfl.paddle_fl.abs.job import Job
@@ -24,7 +25,8 @@ from visualfl.utils.logger import Logger
 from visualfl.utils.tools import *
 from visualfl.utils.consts import TaskStatus
 from visualfl.utils import data_loader
-from visualfl import __logs_dir__
+from visualfl.paddle_fl.executor import ProcessExecutor
+from visualfl import __basedir__,__logs_dir__
 
 class _JobStatus(enum.Enum):
     """
@@ -138,10 +140,86 @@ class RESTService(Logger):
         route_table.post("/submit")(self._restful_submit)
         route_table.post("/query")(self._restful_query)
         route_table.post("/infer")(self._restful_infer)
+        route_table.get("/serving_model/download")(self._result_download)
         return route_table
 
     def web_response(self,code,message,job_id=None):
         return web.json_response(data=dict(code=code,message=message,job_id=job_id), status=code)
+
+    async def _result_download(self,request: web.Request) -> web.Response:
+
+        def query_parse(req):
+            obj = req.query_string
+            queryitem = []
+            if obj:
+                query = req.query.items()
+                for item in query:
+                    queryitem.append(item)
+                return dict(queryitem)
+            else:
+                return None
+
+        async def export_serving_mode(job_id,task_id,serving_model_path):
+            step = TaskDao(task_id).get_task_progress()
+            algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/algorithm_config.json")
+            config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/config.json")
+            with open(config_path) as f:
+                config_json = json.load(f)
+            with open(algorithm_config_path) as f:
+                algorithm_config_json = json.load(f)
+            local_trainer_indexs = config_json.get("local_trainer_indexs")
+            weights = Path(__logs_dir__).joinpath(f"jobs/{job_id}/trainer_{local_trainer_indexs[0]}/checkpoint/{step}")
+            program = algorithm_config_json.get("program")
+            architecture = algorithm_config_json.get("architecture")
+            if program == "paddle_detection":
+                program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
+                default_config_name = 'default_algorithm_config.yml'
+                algorithm_config_path = os.path.join(program_full_path, "configs", architecture.lower(),
+                                                     default_config_name)
+
+            executor = ProcessExecutor(serving_model_path)
+            executable = sys.executable
+            cmd = " ".join(
+                [
+                    f"{executable} -m visualfl.algorithm.{program}.export_serving_model",
+                    f"--task_id {task_id}",
+                    f"-o weights={weights}",
+                    f"--output_dir {serving_model_path}",
+                    f"-c {algorithm_config_path}",
+                    f">{executor.stdout} 2>{executor.stderr}",
+                ]
+            )
+            returncode, pid = await executor.execute(cmd)
+            if returncode != 0:
+                raise Exception("export serving model error")
+
+        query = query_parse(request)
+        job_id = query.get("job_id")
+        task_id = query.get("task_id")
+        serving_model_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/serving_model")
+
+        await export_serving_mode(job_id,task_id,serving_model_path)
+
+        cfg_name = "default_algorithm_config"
+        zip_file = os.path.join(serving_model_path, f"{cfg_name}.zip")
+        data_loader.make_zip(os.path.join(serving_model_path, cfg_name),
+                                         zip_file)
+
+        if os.path.exists(zip_file):
+            async with aiofiles.open(zip_file, 'rb') as f:
+                content = await f.read()
+            if content:
+                response = web.Response(
+                    content_type='application/octet-stream',
+                    headers={'Content-Disposition': 'attachment;filename={}'.format(zip_file)},
+                    body=content
+                )
+                return response
+
+            else:
+                return self.web_response(400, f"read file :{zip_file} error",job_id)
+        else:
+            return self.web_response(400, f"file path :{zip_file} not exists",job_id)
 
     async def _restful_submit(self, request: web.Request) -> web.Response:
         """
@@ -305,7 +383,6 @@ class RESTService(Logger):
             member_id = data["member_id"]
             job_type = data["job_type"]
             config = data["env"]
-            callback_url = data["callback_url"]
             data_set = data["data_set"]
             download_url = data_set["download_url"]
             data_name = data_set["name"]
@@ -330,7 +407,7 @@ class RESTService(Logger):
             from visualfl.paddle_fl.job import PaddleFLJob
             job = loader.load(
                 job_id=job_id, task_id=task_id, role=role, member_id=member_id, config=config,
-                algorithm_config=algorithm_config, callback_url=callback_url,is_infer=True
+                algorithm_config=algorithm_config, is_infer=True
             )
 
         except Exception:

@@ -22,6 +22,7 @@ parent_path = os.path.abspath(os.path.join(__file__, *(['..'] * 2)))
 if parent_path not in sys.path:
     sys.path.append(parent_path)
 
+import json
 import glob
 import numpy as np
 import six
@@ -107,7 +108,7 @@ def main():
     dataset.set_images(test_images)
     task_result = TaskDao(FLAGS.task_id).get_task_result(TaskResultType.LABEL)
     if task_result:
-        dataset.anno_path = task_result.result
+        dataset.anno_path = json.loads(task_result.result).get("label_path")
 
     place = fluid.CUDAPlace(0) if cfg.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
@@ -256,8 +257,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--task_id",
         type=str,
-        default=None,
-        help="Directory for images to perform inference on.")
+        default=None)
     parser.add_argument(
         "--infer_dir",
         type=str,
