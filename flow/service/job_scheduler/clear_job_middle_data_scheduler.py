@@ -11,15 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import json
 import threading
 import time
 import traceback
 
-from common.python import session, RuntimeInstance, Backend
+from common.python import session, RuntimeInstance, Backend, WorkMode
 from common.python.common.consts import NAMESPACE, JobStatus
 from common.python.db.db_models import *
-from common.python.utils import conf_utils
+from common.python.db.task_dao import TaskDao
 from common.python.utils.log_utils import schedule_logger
 from common.python.utils.store_type import DBTypes
 
@@ -68,21 +68,21 @@ class ClearJobMiddleDataScheduler(threading.Thread):
     @staticmethod
     def clean_job_middle_data(job, reset_is_clear=True):
         try:
+            with DB.connection_context():
+                task = TaskDao.get(Task.job_id == job.job_id)
+                if not task:
+                    return
 
-            BACKEND = conf_utils.get_backend_from_string(
-                conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
-            )
             # if backend is FC, unnecessary.
-            if BACKEND == Backend.FC:
+            backend = Backend.get_by_task_config(task.task_conf)
+            if backend.is_fc():
                 return
 
-            WORK_MODE = 1
-            # BACKEND = 1
-            DB_TYPE = DBTypes.CLICKHOUSE
+            db_type = DBTypes.CLICKHOUSE
             RuntimeInstance.SESSION = None
 
-            session.init(job_id=job.job_id, mode=WORK_MODE,
-                         backend=BACKEND, db_type=DB_TYPE)
+            session.init(job_id=job.job_id, mode=WorkMode.CLUSTER,
+                         backend=backend, db_type=db_type)
             clean_name_pattern = f"{session.get_session_id()}*"
             schedule_logger().info("clean_name_pattern:%s", clean_name_pattern)
             session.cleanup(clean_name_pattern, NAMESPACE.PROCESS)

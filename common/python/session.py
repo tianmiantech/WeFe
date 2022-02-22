@@ -47,7 +47,7 @@ from kernel.utils import consts
 
 def init(job_id=None,
          mode: typing.Union[int, WorkMode] = WorkMode.STANDALONE,
-         backend: typing.Union[int, Backend] = Backend.LOCAL,
+         backend: typing.Union[str, Backend] = Backend.LOCAL,
          persistent_engine: str = StoreTypes.STORE_TYPE_PERSISTENCE,
          storage_version=None,
          set_log_dir=True,
@@ -92,7 +92,7 @@ def init(job_id=None,
 
     if isinstance(mode, int):
         mode = WorkMode(mode)
-    if isinstance(backend, int):
+    if isinstance(backend, str):
         backend = Backend(backend)
     if job_id is None:
         job_id = str(uuid.uuid1())
