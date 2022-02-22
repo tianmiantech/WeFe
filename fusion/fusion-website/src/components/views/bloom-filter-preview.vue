@@ -44,7 +44,7 @@ export default {
             this.loading = true;
 
             const { code, data } = await this.$http.get({
-                url: '/filter/preview?id=' + id,
+                url: '/data_set/detail_and_preview?id=' + id,
             });
 
             if (code === 0) {
