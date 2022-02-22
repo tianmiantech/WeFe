@@ -47,7 +47,7 @@
 
             <div
                 v-if="member.audit_status === 'agree'"
-                class="data-set f14"
+                class="data-set"
             >
                 <el-form
                     v-for="row in member.$data_set_list"
@@ -255,13 +255,15 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        <el-button
-                            type="primary"
-                            native-type="submit"
-                            @click="methods.dataSetSearch"
-                        >
-                            搜索
-                        </el-button>
+                        <el-form-item>
+                            <el-button
+                                type="primary"
+                                native-type="submit"
+                                @click="methods.dataSetSearch"
+                            >
+                                搜索
+                            </el-button>
+                        </el-form-item>
                     </el-form>
                     <DataSetList
                         ref="rawDataSetListRef"
@@ -503,7 +505,7 @@
                     const list = [];
 
                     allList.forEach(row => {
-                        if(row.name.includes(name) && row.data_set_id.includes(data_set_id)) {
+                        if(row.data_resource.name.includes(name) && row.data_resource.data_resource_id.includes(data_set_id)) {
                             if(contains_y === '' || row.contains_y === contains_y) {
                                 list.push(row);
                             }
@@ -788,7 +790,7 @@
                             dataset_list.push({
                                 member_id:         member.member_id,
                                 member_role:       member.member_role,
-                                data_set_id:       row[0].data_set_id,
+                                data_set_id:       row[0].data_resource_id,
                                 features:          row[0].$column_name_list,
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,
@@ -837,9 +839,8 @@
         font-size: 16px;
     }
     .revert-check-btn{
-        vertical-align: middle;
         position: relative;
-        top: -3px;
+        top: -7px;
     }
     .dialog-min-width{min-width: 800px;}
     .el-icon-circle-close{
@@ -863,6 +864,7 @@
                 line-height: 24px;
             }
             .el-form-item__content{
+                font-size: 12px;
                 line-height: 22px;
                 word-break:break-all;
             }

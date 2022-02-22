@@ -365,6 +365,7 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import { updateMemberInfo } from '@src/router/auth';
     import SelectMemberDialog from '@comp/views/select-member-dialog';
     import SelectDatasetDialog from '@comp/views/select-data-set-dialog';
     import MemberServiceStatus from './components/member-service-status';
@@ -434,6 +435,7 @@
             if(code === 0) {
                 this.promoter.member_id = data.member_id;
                 this.promoter.member_name = data.member_name;
+                updateMemberInfo(data);
             }
 
             this.checkAllService();

@@ -79,9 +79,8 @@ public class FeatureTransformComponent extends AbstractComponent<FeatureTransfor
 
         });
 
-        taskParam.put("params", JObject.create().append("transform_rules", transformRules.toJSONString()));
-
-        return taskParam;
+//        taskParam.put("params", JObject.create().append("transform_rules", transformRules.toJSONString()));
+        return JObject.create().append("transform_rules", transformRules.toJSONString());
     }
 
     @Override

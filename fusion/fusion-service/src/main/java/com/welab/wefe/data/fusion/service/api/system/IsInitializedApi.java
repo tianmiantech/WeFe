@@ -21,7 +21,7 @@ import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.data.fusion.service.service.GlobalSettingService;
+import com.welab.wefe.data.fusion.service.service.SystemInitializeService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class IsInitializedApi extends AbstractNoneInputApi<IsInitializedApi.Output> {
 
     @Autowired
-    private GlobalSettingService globalSettingService;
+    private SystemInitializeService globalSettingService;
 
     @Override
     protected ApiResult<Output> handle() throws StatusCodeWithException {

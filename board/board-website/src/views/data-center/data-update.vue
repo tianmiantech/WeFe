@@ -19,7 +19,8 @@
                             size="large"
                         />
                     </el-form-item>
-                    <el-form-item prop="tag">
+                    <p class="tags-tips f12 mb10">为数据资源设置关键词，方便大家快速了解你 ：）</p>
+                    <el-form-item>
                         <el-tag
                             v-for="tag in form.tags"
                             :key="tag"
@@ -33,10 +34,9 @@
                             v-if="tagInputVisible"
                             ref="saveTagInput"
                             v-model="tagInputValue"
-                            :fetch-suggestions="getDataSetTags"
                             :trigger-on-focus="false"
                             :loading="loading"
-                            class="input-new-tag"
+                            class="input-new-tag ml10"
                             @select="handleTagInputConfirm"
                             @keyup.enter="handleTagInputConfirm"
                         />
@@ -49,7 +49,6 @@
                         >
                             + 关键词
                         </el-button>
-                        <span class="tags-tips f12 ml10">为数据资源设置关键词，方便大家快速了解你 ：）</span>
                     </el-form-item>
                     <el-form-item
                         label="简介："
@@ -66,65 +65,68 @@
                 </el-col>
                 <el-col
                     :span="14"
-                    style="position: relative;"
                 >
-                    <fieldset style="min-height:240px;">
-                        <legend>可见性</legend>
-                        <el-form-item>
-                            <el-radio
-                                v-model="form.public_level"
-                                label="Public"
-                            >
-                                对所有成员可见
-                            </el-radio>
-                            <el-radio
-                                v-model="form.public_level"
-                                label="OnlyMyself"
-                            >
-                                仅自己可见
-                            </el-radio>
-                            <el-radio
-                                v-model="form.public_level"
-                                label="PublicWithMemberList"
-                            >
-                                对指定成员可见
-                            </el-radio>
-                        </el-form-item>
-                        <el-form-item>
-                            <div v-if="form.public_level === 'PublicWithMemberList'">
-                                <el-button
-                                    size="small"
-                                    class="mr10"
-                                    @click="showSelectMemberDialog"
+                    <div style="position: relative;">
+                        <fieldset style="min-height:240px;">
+                            <legend>可见性</legend>
+                            <el-form-item>
+                                <el-radio
+                                    v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
+                                    v-model="form.public_level"
+                                    label="Public"
                                 >
-                                    选择可见成员
-                                </el-button>
-                                已选（{{ public_member_info_list.length }}）
-                                <ul class="member_list_ul">
-                                    <li
-                                        v-for="(item, index) in public_member_info_list"
-                                        :key="item.id"
-                                        class="flex-center"
+                                    对所有成员可见
+                                </el-radio>
+                                <el-radio
+                                    v-model="form.public_level"
+                                    label="OnlyMyself"
+                                >
+                                    仅自己可见
+                                </el-radio>
+                                <el-radio
+                                    v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
+                                    v-model="form.public_level"
+                                    label="PublicWithMemberList"
+                                >
+                                    对指定成员可见
+                                </el-radio>
+                            </el-form-item>
+                            <el-form-item>
+                                <div v-if="form.public_level === 'PublicWithMemberList'">
+                                    <el-button
+                                        size="small"
+                                        class="mr10"
+                                        @click="showSelectMemberDialog"
                                     >
-                                        <p>
-                                            <span class="name">{{
-                                                item.name
-                                            }}</span>
-                                            <br>
-                                            <span class="p-id">
-                                                {{ item.id }}
-                                            </span>
-                                        </p>
+                                        选择可见成员
+                                    </el-button>
+                                    已选（{{ public_member_info_list.length }}）
+                                    <ul class="member_list_ul">
+                                        <li
+                                            v-for="(item, index) in public_member_info_list"
+                                            :key="item.id"
+                                            class="flex-center"
+                                        >
+                                            <p>
+                                                <span class="name">{{
+                                                    item.name
+                                                }}</span>
+                                                <br>
+                                                <span class="p-id">
+                                                    {{ item.id }}
+                                                </span>
+                                            </p>
 
-                                        <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
-                                            <elicon-close />
-                                        </el-icon>
-                                    </li>
-                                </ul>
-                            </div>
-                        </el-form-item>
-                        <DataSetPublicTips v-if="form.public_level != 'OnlyMyself'" />
-                    </fieldset>
+                                            <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
+                                                <elicon-close />
+                                            </el-icon>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </el-form-item>
+                            <DataSetPublicTips v-if="form.public_level != 'OnlyMyself'" />
+                        </fieldset>
+                    </div>
                 </el-col>
             </el-row>
             <el-row :gutter="30" v-if="addType === 'csv'">

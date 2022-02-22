@@ -127,7 +127,6 @@ public class UnionService implements ApplicationContextAware {
         }
 
         params.put("cur_member_id", signedApiInput.getMemberId());
-        params.remove("member_id");
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
     }
 
