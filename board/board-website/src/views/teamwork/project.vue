@@ -18,11 +18,11 @@
                         clearable
                     >
                         <el-option
-                            label="MachineLearning"
+                            label="机器学习"
                             value="MachineLearning"
                         />
                         <el-option
-                            label="DeepLearning"
+                            label="视觉处理"
                             value="DeepLearning"
                         />
                     </el-select>

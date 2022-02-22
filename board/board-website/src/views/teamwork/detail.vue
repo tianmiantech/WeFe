@@ -17,7 +17,7 @@
                 />
                 <el-alert
                     v-if="form.is_exited"
-                    :title="`${exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
+                    :title="`${form.exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
                     :closable="false"
                     type="error"
                 />
@@ -315,6 +315,7 @@
                         updated_time,
                         exited_time,
                         project_type,
+                        exit_operator_nickname,
                     } = data;
                     const promoter_list = data.promoter_list || [];
 
@@ -336,6 +337,7 @@
                     this.form.closed = closed;
                     this.form.desc = project_desc;
                     this.form.exited = promoter.exited;
+                    this.form.exit_operator_nickname = exit_operator_nickname;
                     this.form.audit_status = audit_status;
                     this.form.isPromoter = my_role === 'promoter';
                     this.form.isCreator = is_creator || data.is_creator === undefined;

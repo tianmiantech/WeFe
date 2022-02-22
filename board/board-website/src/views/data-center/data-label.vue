@@ -324,6 +324,7 @@
                                 if (vData.search.page_index !== vData.search.total / vData.search.page_size) {
                                     vData.search.page_index = vData.search.page_index + 1;
                                     methods.getSampleList();
+                                    methods.getSampleInfo();
                                 }
                             }
                         }

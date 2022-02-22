@@ -32,7 +32,6 @@
             >
                 <template v-slot="scope">
                     <FlowStatusTag
-                        v-if="form.project_type === 'MachineLearning'"
                         :key="scope.row.updated_time"
                         :status="scope.row.flow_status"
                         :disable-transitions="true"
