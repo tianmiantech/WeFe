@@ -237,7 +237,7 @@ const baseRoutes = [
         path: `${prefixPath}member`,
         meta: {
             title: 'member管理',
-            icon:  'el-icon-user-solid',
+            icon:  'el-icon-user',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -246,7 +246,6 @@ const baseRoutes = [
                 name: 'member-list',
                 meta: {
                     title: '成员列表',
-                    index: '1-0',
                 },
                 component: () => import('@views/member/member-list.vue'),
             },
@@ -255,7 +254,6 @@ const baseRoutes = [
                 name: 'member-view',
                 meta: {
                     title:  '模型详情',
-                    index:  '1-1',
                     hidden: true,
                     active: `${prefixPath}member-view`,
                 },
