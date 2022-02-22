@@ -175,10 +175,18 @@ public class PsiClientActuator extends AbstractPsiActuator {
          */
         CountDownLatch latch = new CountDownLatch(count);
         LOG.info("Start data encryption...");
+
+
+        LOG.info("Server@" + ip + ":" + port + " connecting!");
+        Socket socket = SocketUtils
+                .create(ip, port)
+                .setRetryCount(3)
+                .builder();
+
         for (int i = 0; i < count; i++) {
             threadPool.execute(() -> {
                 try {
-                    fusion();
+                    fusion(socket);
 
                     //TODO 临时代码
 //                    Socket socket = socketQueue.take();
@@ -228,12 +236,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
         this.status = PSIActuatorStatus.success;
 
         //Notifies the server that no further action is required
-        Socket socket = SocketUtils
+        Socket closeSocket = SocketUtils
                 .create(ip, port)
                 .setRetryCount(3)
                 .builder();
-        PSIUtils.sendString(socket, ActionType.end.name());
-        SocketUtils.close(socket);
+        PSIUtils.sendString(closeSocket, ActionType.end.name());
+        SocketUtils.close(closeSocket);
     }
 
     /**
@@ -241,14 +249,14 @@ public class PsiClientActuator extends AbstractPsiActuator {
      *
      * @throws StatusCodeWithException
      */
-    private void fusion() throws StatusCodeWithException {
-        Socket socket = null;
+    private void fusion(Socket socket) throws StatusCodeWithException {
+//        Socket socket = null;
 //        try {
-            LOG.info("Server@" + ip + ":" + port + " connecting!");
-            socket = SocketUtils
-                    .create(ip, port)
-                    .setRetryCount(3)
-                    .builder();
+//            LOG.info("Server@" + ip + ":" + port + " connecting!");
+//            socket = SocketUtils
+//                    .create(ip, port)
+//                    .setRetryCount(3)
+//                    .builder();
 
             PSIUtils.sendString(socket, ActionType.align.name());
 
