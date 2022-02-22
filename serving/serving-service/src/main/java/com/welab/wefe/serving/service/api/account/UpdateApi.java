@@ -43,7 +43,9 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, NoneApiOutput> {
     }
 
     public static class Input extends AbstractApiInput {
-
+        @Check(name = "id唯一标识", require = true)
+        private String id;
+    	
         @Check(name = "昵称")
         private String nickname;
 
@@ -59,7 +61,15 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, NoneApiOutput> {
             return nickname;
         }
 
-        public void setNickname(String nickname) {
+        public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		public void setNickname(String nickname) {
             this.nickname = nickname;
         }
 

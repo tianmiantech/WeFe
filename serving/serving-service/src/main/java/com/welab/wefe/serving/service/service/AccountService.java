@@ -24,6 +24,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,6 +36,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
+import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -47,6 +49,7 @@ import com.welab.wefe.serving.service.api.account.LoginApi;
 import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
 import com.welab.wefe.serving.service.api.account.QueryApi;
 import com.welab.wefe.serving.service.api.account.RegisterApi;
+import com.welab.wefe.serving.service.api.account.ResetPasswordApi;
 import com.welab.wefe.serving.service.api.account.UpdateApi;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
@@ -297,7 +300,7 @@ public class AccountService {
 	 */
 	public void update(UpdateApi.Input input) throws StatusCodeWithException {
 
-		AccountMySqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
+		AccountMySqlModel account = accountRepository.findById(input.getId()).orElse(null);
 
 		if (account == null) {
 			throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
@@ -339,5 +342,39 @@ public class AccountService {
         accountRepository.save(account);
         // Cancel the super administrator privileges of the current account
         accountRepository.cancelSuperAdmin(CurrentAccount.id());
+    }
+    
+    /**
+     * Reset user password (administrator rights)
+     */
+    public String resetPassword(ResetPasswordApi.Input input) throws StatusCodeWithException {
+        AccountMySqlModel model = accountRepository.findById(input.getId()).orElse(null);
+
+        if (model == null) {
+            throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
+        }
+
+        if (!CurrentAccount.isAdmin()) {
+            throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (model.getSuperAdminRole()) {
+            throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
+        }
+
+        String salt = createRandomSalt();
+        String newPassword = RandomStringUtils.randomAlphanumeric(2) + new Random().nextInt(999999);
+
+        String websitePassword = model.getPhoneNumber() + newPassword + model.getPhoneNumber() + model.getPhoneNumber().substring(0, 3) + newPassword.substring(newPassword.length() - 3);
+
+        model.setSalt(salt);
+        model.setPassword(Sha1.of(Md5.of(websitePassword) + salt));
+        model.setUpdatedBy(CurrentAccount.id());
+        model.setUpdatedTime(new Date());
+        accountRepository.save(model);
+
+        CurrentAccount.logout(model.getId());
+
+        return newPassword;
     }
 }
