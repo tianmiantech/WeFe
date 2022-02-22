@@ -10,7 +10,7 @@
                 ref="sign-form"
                 :model="form"
                 inline-message
-                @submit.prevent
+                @submit.native.prevent
             >
                 <el-form-item
                     label="注册时的手机号"
@@ -74,7 +74,12 @@
                 </el-form-item>
                 <el-divider />
                 <div class="sign-action">
-                    <router-link class="float-left" :to="{name: 'login'}">立即登录</router-link>
+                    <router-link
+                        class="float-left"
+                        :to="{name: 'login'}"
+                    >
+                        立即登录
+                    </router-link>
                     <el-button
                         v-loading="submitting"
                         style="width:80px;"
