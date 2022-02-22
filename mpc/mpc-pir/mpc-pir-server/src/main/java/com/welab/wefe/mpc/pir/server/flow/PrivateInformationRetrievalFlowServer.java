@@ -56,15 +56,20 @@ public class PrivateInformationRetrievalFlowServer extends BasePrivateInformatio
     }
 
     public void process(List<Object> ids, String idCryptMethod) {
-        LOG.info("uuid:{} start process data size:{}", uuid, ids.size());
+        int num = ids.size();
+        LOG.info("uuid:{} start process data size:{}", uuid, num);
         CacheOperation<Map<String, String>> queryDataResult = CacheOperationFactory.getCacheOperation();
-        CompletableFuture<Map<String, String>> cf = CompletableFuture.supplyAsync(() -> queryDataResult.get(uuid, Constants.RESULT));
-        List<ObliviousTransferKey> keyList = mObliviousTransfer.keyDerivation(ids.size());
+        CompletableFuture<Map<String, String>> cf = CompletableFuture.supplyAsync(
+                () -> queryDataResult.get(uuid, Constants.RESULT));
+        CompletableFuture<List<ObliviousTransferKey>> keyFuture = CompletableFuture.supplyAsync(
+                () -> mObliviousTransfer.keyDerivation(num));
         LOG.info("uuid:{} keyDerivation finish", uuid);
-        cf.join();
+        CompletableFuture.allOf(cf, keyFuture).join();
         Map<String, String> results = null;
+        List<ObliviousTransferKey> keyList = null;
         try {
             results = cf.get();
+            keyList = keyFuture.get();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

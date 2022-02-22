@@ -52,5 +52,4 @@ public class HauckRandomLegalService {
         return response;
     }
 
-
 }
