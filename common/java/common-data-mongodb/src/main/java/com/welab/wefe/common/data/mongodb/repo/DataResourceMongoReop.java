@@ -113,7 +113,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public DataResourceQueryOutput findCurMemberCanSee(String dataResourceId, String joinCollectionName) {
+    public DataResourceQueryOutput findOneByDataResourceId(String dataResourceId, String joinCollectionName) {
 
         String joinCollectionNameAlias = StringUtil.camelCaseToUnderLineCase(joinCollectionName);
         if (joinCollectionNameAlias.startsWith("_")) {
@@ -322,7 +322,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
     }
 
 
-    public PageOutput<DataResourceQueryOutput> findCurMemberCanSee(DataResourceQueryInput dataResourceQueryInput) {
+    public PageOutput<DataResourceQueryOutput> findOneByDataResourceId(DataResourceQueryInput dataResourceQueryInput) {
         return find(dataResourceQueryInput, false);
     }
 

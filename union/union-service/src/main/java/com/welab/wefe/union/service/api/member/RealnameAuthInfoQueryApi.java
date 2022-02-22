@@ -22,6 +22,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthFileInfo;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -57,7 +58,9 @@ public class RealnameAuthInfoQueryApi extends AbstractApi<RealnameAuthInfoQueryA
             realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
             realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
             realNameAuthInfoQueryOutput.setRealNameAuthStatus(member.getExtJson().getRealNameAuthStatus());
-
+            long realNameAuthTime = member.getExtJson().getRealNameAuthTime();
+            String realNameAuthUsefulLife = DateUtil.toStringYYYY_MM_DD(DateUtil.addYears(DateUtil.getDate(realNameAuthTime),1));
+            realNameAuthInfoQueryOutput.setRealNameAuthUsefulLife(realNameAuthUsefulLife);
             List<String> fileIdList = new ArrayList<>();
             List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealnameAuthFileInfoList();
             if(realnameAuthFileInfoList != null && !realnameAuthFileInfoList.isEmpty()){
