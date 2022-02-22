@@ -484,7 +484,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         return getParamsClass(clazz.getSuperclass());
     }
 
-    public List<KernelTask> getMixTaskMembers(FlowGraph graph, FlowGraphNode node) throws StatusCodeWithException {
+    public List<KernelTask> getMixTaskMembers(FlowGraph graph, FlowGraphNode node) {
         List<KernelTask> kernelTasks = new ArrayList<>();
         List<Member> allMembers = Member.forMachineLearning(graph.getMembers());
         List<Member> promoters = allMembers.stream().filter(s -> s.getMemberRole() == JobMemberRole.promoter)
