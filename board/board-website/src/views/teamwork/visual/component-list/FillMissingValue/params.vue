@@ -30,7 +30,6 @@
                 @change="methods.changeMethodCount(item, index)"
             />
             <el-button
-                size="small"
                 class="ml10"
                 style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"

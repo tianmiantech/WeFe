@@ -1,14 +1,13 @@
 <template>
     <el-dialog
         v-model="show"
-        width="75%"
-        title="请选择数据资源"
         destroy-on-close
+        title="请选择数据资源"
         :close-on-click-modal="false"
+        width="75%"
     >
         <el-form
             inline
-            size="small"
             @submit.prevent
         >
             <el-form-item

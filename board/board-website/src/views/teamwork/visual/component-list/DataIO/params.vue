@@ -175,7 +175,7 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox el-checkbox--small"
+                                class="el-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
                                 <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
@@ -540,6 +540,7 @@
                         ref.searchField.data_resource_type = 'TableDataSet';
 
                         ref.getDataList({
+                            $data_set:       member.$data_set_list,
                             url:             '/project/raw_data_set/list',
                             to:              false,
                             resetPagination: true,
@@ -840,7 +841,7 @@
     }
     .revert-check-btn{
         position: relative;
-        top: -7px;
+        top: -4px;
     }
     .dialog-min-width{min-width: 800px;}
     .el-icon-circle-close{
