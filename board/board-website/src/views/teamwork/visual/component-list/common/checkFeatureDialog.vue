@@ -67,7 +67,7 @@
                                 <label
                                     v-if="list[index * 5 + i - 1]"
                                     :for="`label-${index * 5 + i - 1}`"
-                                    :class="['el-checkbox el-checkbox--small', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 5 + i - 1].name) }]"
+                                    :class="['el-checkbox', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 5 + i - 1].name) }]"
                                     @click.prevent.stop="methods.checkboxChange($event, item, list[index * 5 + i - 1].name, columnListType)"
                                 >
                                     <span :class="['el-checkbox__input', { 'is-checked': item.$checkedColumnsArr.includes(list[index * 5 + i - 1].name), 'is-disabled': Boolean(!!list[index * 5 + i - 1].method && selectListId && list[index * 5 + i - 1].id && list[index * 5 + i - 1].id !== selectListId) }]">
@@ -194,6 +194,6 @@
 <style lang="scss" scoped>
     .revert-check-btn{
         position: relative;
-        top: -7px;
+        top: -4px;
     }
 </style>
