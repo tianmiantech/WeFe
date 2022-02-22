@@ -151,7 +151,7 @@ export default (function () {
                     }),
                 };
 
-                const { code, data } = await this.$http[this.requestMethod](this.getListApi, params);
+                const { code, data } = await this.$http[this.requestMethod||this.vData.requestMethod](this.getListApi, params);
 
                 if (code === 0) {
                     this.list = data.list || [];
