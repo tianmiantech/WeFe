@@ -66,6 +66,14 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
      * **** name3.jpg
      * <p>
      * label_list.txt
+     * <p>
+     * train.txt
+     * ./images/mixed_20.jpg ./annotations/mixed_20.xml
+     * ./images/banana_20.jpg ./annotations/banana_20.xml
+     * <p>
+     * val.txt
+     * ./images/mixed_20.jpg ./annotations/mixed_20.xml
+     * ./images/banana_20.jpg ./annotations/banana_20.xml
      */
     @Override
     protected void emitSamplesToDataSetFileDir(ImageDataSetMysqlModel dataSet, List<ImageDataSetSampleMysqlModel> trainSamples, List<ImageDataSetSampleMysqlModel> testSamples, Path outputDir) throws Exception {
@@ -73,13 +81,31 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
             emitImageFile(outputDir, sample);
             emitAnnotationFile(true, outputDir, sample);
         }
+        emitTranValFile(trainSamples, outputDir, "train.txt");
+
         for (ImageDataSetSampleMysqlModel sample : testSamples) {
             emitImageFile(outputDir, sample);
             emitAnnotationFile(false, outputDir, sample);
         }
+        emitTranValFile(trainSamples, outputDir, "val.txt");
 
         emitLabelListFile(dataSet, outputDir);
+    }
 
+    private void emitTranValFile(List<ImageDataSetSampleMysqlModel> samples, Path outputDir, String fileName) throws IOException {
+        File file = Paths.get(outputDir.toString(), fileName).toFile();
+        if (file.exists()) {
+            file.delete();
+        }
+
+        for (ImageDataSetSampleMysqlModel sample : samples) {
+            String fileNameWithoutSuffix = FileUtil.getFileNameWithoutSuffix(sample.getFileName());
+            String line = "./images/" + sample.getFileName() +
+                    " ./annotations/" + fileNameWithoutSuffix + ".xml" +
+                    System.lineSeparator();
+
+            FileUtil.writeTextToFile(line, file.toPath(), true);
+        }
     }
 
     /**
@@ -117,6 +143,7 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
     private void emitAnnotationFile(boolean isTrain, Path outputDir, ImageDataSetSampleMysqlModel sample) throws IOException {
         Annotation annotation = XmlUtil.toModel(sample.getXmlAnnotation(), Annotation.class);
         annotation.folder = isTrain ? "train" : "test";
+        annotation.path = "./images/" + annotation.filename;
         annotation.objectList = sample.getLabelInfo()
                 .toJavaObject(LabelInfo.class)
                 .objects

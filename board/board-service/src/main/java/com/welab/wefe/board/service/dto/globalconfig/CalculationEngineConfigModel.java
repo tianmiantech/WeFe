@@ -15,10 +15,6 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig;
 
-import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.wefe.enums.JobBackendType;
-
 /**
  * 计算引擎相关配置
  *
@@ -30,13 +26,4 @@ public class CalculationEngineConfigModel {
      * SPARK、FC
      */
     public String backend = "SPARK";
-
-    public CalculationEngineConfigModel() {
-        JobBackendType type = Launcher.getBean(Config.class).getBackend();
-        if (type != null) {
-            backend = type.name();
-        }
-    }
-
-
 }

@@ -17,36 +17,38 @@
 package com.welab.wefe.manager.service.api.defaulttag;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceDefaultTagMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.tag.DataSetDefaultTagUpdateInput;
-import com.welab.wefe.manager.service.service.DatSetDefaultTagContractService;
+import com.welab.wefe.manager.service.dto.tag.DataResourceDefaultTagUpdateInput;
+import com.welab.wefe.manager.service.service.DataResourceDefaultTagContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/update", name = "default_tag_update")
-public class UpdateApi extends AbstractApi<DataSetDefaultTagUpdateInput, AbstractApiOutput> {
+@Api(path = "data_resource/default_tag/update", name = "default_tag_update")
+public class UpdateApi extends AbstractApi<DataResourceDefaultTagUpdateInput, AbstractApiOutput> {
 
     @Autowired
-    private DatSetDefaultTagContractService datSetDefaultTagContractService;
+    private DataResourceDefaultTagContractService dataResourceDefaultTagContractService;
+
     @Autowired
-    private DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
+    protected DataResourceDefaultTagMongoRepo dataResourceDefaultTagMongoRepo;
+
     @Override
-    protected ApiResult<AbstractApiOutput> handle(DataSetDefaultTagUpdateInput input) throws StatusCodeWithException {
+    protected ApiResult<AbstractApiOutput> handle(DataResourceDefaultTagUpdateInput input) throws StatusCodeWithException {
         LOG.info("UpdateApi handle..");
         try {
-            boolean isExist = dataSetDefaultTagMongoRepo.exists(input.getTagName());
+            boolean isExist = dataResourceDefaultTagMongoRepo.exists(input.getTagName());
             if (isExist) {
-                throw new StatusCodeWithException("该标签已存在",StatusCode.DATA_EXISTED);
+                throw new StatusCodeWithException("该标签已存在", StatusCode.DATA_EXISTED);
             }
 
-            datSetDefaultTagContractService.updateByTagId(input);
+            dataResourceDefaultTagContractService.updateByTagId(input);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

@@ -24,8 +24,18 @@ public class ObliviousTransferKey {
     public int index;
     public byte[] key;
 
+    private String result = "";
+
     public ObliviousTransferKey(int index, byte[] key) {
         this.index = index;
         this.key = key;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 }

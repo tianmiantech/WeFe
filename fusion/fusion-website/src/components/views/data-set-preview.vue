@@ -10,7 +10,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData />
+                <TableEmptyData/>
             </div>
             <el-table-column
                 v-for="index in table_data.header"
@@ -27,13 +27,13 @@
 export default {
     data() {
         return {
-            loading:    false,
+            loading: false,
             table_data: {
                 header: [],
-                rows:   [],
+                rows: [],
             },
             gridTheme: {
-                color:       '#6C757D',
+                color: '#6C757D',
                 borderColor: '#EBEEF5',
             },
         };
@@ -43,17 +43,22 @@ export default {
         async loadData(id) {
             this.loading = true;
 
-            const { code, data } = await this.$http.get({
-                url: '/data_set/preview?id=' + id,
+            const {code, data} = await this.$http.get({
+                url: '/data_set/detail_and_preview?id=' + id,
             });
 
             if (code === 0) {
-                if(data.raw_data_list){
-                    const rows = data.raw_data_list;
+                if (data.preview_data.raw_data_list) {
+                    const rows = data.preview_data.raw_data_list;
 
-                    this.table_data.rows = rows;
+                    // 默认显示前15条记录
+                    if (rows.length >= 15) {
+                        this.table_data.rows = rows.slice(0, 15)
+                    } else {
+                        this.table_data.rows = rows;
+                    }
 
-                    this.table_data.header = data.header;
+                    this.table_data.header = data.preview_data.header;
 
                 }
             }
@@ -65,9 +70,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .c-grid{
-        border: 1px solid #EBEEF5;
-        position: relative;
-        z-index: 1;
-    }
+.c-grid {
+    border: 1px solid #EBEEF5;
+    position: relative;
+    z-index: 1;
+}
 </style>

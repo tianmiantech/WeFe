@@ -323,6 +323,7 @@ public class DataResourceService extends AbstractDataResourceService {
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
                 .equal("createdBy", input.getCreator())
+                .equal("derivedResource", false)
                 .orderBy("createdTime", OrderBy.asc);
 
         // 查所有资源

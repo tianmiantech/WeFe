@@ -21,7 +21,7 @@
                 ref="sign-form"
                 :model="form"
                 inline-message
-                @submit.prevent
+                @submit.native.prevent
             >
                 <el-form-item
                     prop="phone"

@@ -10,7 +10,7 @@
             :key="`${member.member_id}-${member.member_role}`"
         >
             <h4 class="f14 mb5">{{member.member_role === 'promoter' ? '发起方' : '协作方'}}:</h4>
-            <el-form-item>
+            <div class="el-form-item">
                 <div class="el-form-item__label">
                     <span class="mr10">{{ member.member_name }}</span>
                     <el-button
@@ -45,7 +45,7 @@
                         查看更多
                     </el-button>
                 </div>
-            </el-form-item>
+            </div>
         </template>
 
         <el-alert v-if="!vData.colChecked" :title="`请选出所有 [发起方] 共有的特征! ${vData.colUnCheckedMsg}`" type="error" effect="dark" show-icon :closable="false" style="width: 260px;" />
@@ -89,6 +89,7 @@
                         type="primary"
                         size="small"
                         class="ml10"
+                        style="margin-top: -7px;"
                         @click="methods.revertCheck"
                     >
                         反选
@@ -107,7 +108,7 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox el-checkbox--small"
+                                class="el-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
                                 <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">

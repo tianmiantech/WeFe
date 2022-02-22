@@ -72,8 +72,7 @@ input[type="number"]{-moz-appearance:textfield;}
 .el-loading-parent--relative{z-index: 10;}
 .el-table__empty-block{width: 100% !important;}
 .el-scrollbar__bar{z-index: 1000;}
-.el-button--medium,
-.el-button--small{
+.el-button{
     .el-loading-spinner{margin-top: -10px;}
     .circular{
         width: 20px;

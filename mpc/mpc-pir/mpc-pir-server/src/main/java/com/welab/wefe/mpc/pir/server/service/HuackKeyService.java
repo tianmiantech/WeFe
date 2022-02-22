@@ -23,7 +23,7 @@ import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckTarget;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.server.event.PrivateInformationRetrievalEvent;
-import com.welab.wefe.mpc.pir.server.flow.PrivateInformationRetrievalServer;
+import com.welab.wefe.mpc.pir.server.flow.PrivateInformationRetrievalFlowServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class HuackKeyService {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         response.setUuid(uuid);
         response.setAttemptCount(0);
-        PrivateInformationRetrievalServer privateInformationRetrievalServer = new PrivateInformationRetrievalServer();
+        PrivateInformationRetrievalFlowServer privateInformationRetrievalServer = new PrivateInformationRetrievalFlowServer();
         privateInformationRetrievalServer.setUuid(uuid);
         HauckTarget hauckTarget = privateInformationRetrievalServer.mObliviousTransfer.getHauckTarget();
         response.setS(Conversion.groupElementToString(hauckTarget.s));

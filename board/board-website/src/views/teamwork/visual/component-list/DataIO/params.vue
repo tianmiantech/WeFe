@@ -47,7 +47,7 @@
 
             <div
                 v-if="member.audit_status === 'agree'"
-                class="data-set f14"
+                class="data-set"
             >
                 <el-form
                     v-for="row in member.$data_set_list"
@@ -175,7 +175,7 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox el-checkbox--small"
+                                class="el-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
                                 <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
@@ -255,13 +255,15 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        <el-button
-                            type="primary"
-                            native-type="submit"
-                            @click="methods.dataSetSearch"
-                        >
-                            搜索
-                        </el-button>
+                        <el-form-item>
+                            <el-button
+                                type="primary"
+                                native-type="submit"
+                                @click="methods.dataSetSearch"
+                            >
+                                搜索
+                            </el-button>
+                        </el-form-item>
                     </el-form>
                     <DataSetList
                         ref="rawDataSetListRef"
@@ -538,6 +540,7 @@
                         ref.searchField.data_resource_type = 'TableDataSet';
 
                         ref.getDataList({
+                            $data_set:       member.$data_set_list,
                             url:             '/project/raw_data_set/list',
                             to:              false,
                             resetPagination: true,
@@ -837,9 +840,8 @@
         font-size: 16px;
     }
     .revert-check-btn{
-        vertical-align: middle;
         position: relative;
-        top: -3px;
+        top: -4px;
     }
     .dialog-min-width{min-width: 800px;}
     .el-icon-circle-close{
@@ -863,6 +865,7 @@
                 line-height: 24px;
             }
             .el-form-item__content{
+                font-size: 12px;
                 line-height: 22px;
                 word-break:break-all;
             }

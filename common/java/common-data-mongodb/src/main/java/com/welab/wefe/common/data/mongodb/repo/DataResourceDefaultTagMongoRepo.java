@@ -18,8 +18,7 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResourceDefaultTag;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.DataResourceDefaultTagExtJSON;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +44,10 @@ public class DataResourceDefaultTagMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate;
     }
 
+    public boolean exists(String tagName) {
+        Query query = new QueryBuilder().append("tagName", tagName).notRemoved().build();
+        return mongoUnionTemplate.exists(query, DataResourceDefaultTag.class);
+    }
 
     public List<DataResourceDefaultTag> findByDataResourceType(String dataResourceType) {
         return mongoUnionTemplate.find(new QueryBuilder().notRemoved().append("dataResourceType", dataResourceType).build(), DataResourceDefaultTag.class);
@@ -60,7 +63,7 @@ public class DataResourceDefaultTagMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean update(String tagId, String tagName, DataSetDefaultTagExtJSON extJson, String updatedTime) {
+    public boolean update(String tagId, String tagName, DataResourceDefaultTagExtJSON extJson, String updatedTime) {
         if (StringUtils.isEmpty(tagId)) {
             return false;
         }
@@ -74,7 +77,7 @@ public class DataResourceDefaultTagMongoRepo extends AbstractMongoRepo {
         return updateResult.wasAcknowledged();
     }
 
-    public boolean updateExtJSONById(String tagId, DataSetDefaultTagExtJSON extJSON) {
+    public boolean updateExtJSONById(String tagId, DataResourceDefaultTagExtJSON extJSON) {
         if (StringUtils.isEmpty(tagId)) {
             return false;
         }

@@ -8,13 +8,13 @@
             class="mb20"
             @submit.prevent
         >
-            <el-form-item label="数据集 ID：">
+            <el-form-item label="资源 ID：">
                 <el-input
-                    v-model="vData.search.id"
+                    v-model="vData.search.dataResourceId"
                     clearable
                 />
             </el-form-item>
-            <el-form-item label="数据集名称：">
+            <el-form-item label="资源名称：">
                 <el-input
                     v-model="vData.search.name"
                     clearable
@@ -47,7 +47,44 @@
                     />
                 </el-select>
             </el-form-item>
-            <el-form-item label="包含 Y：">
+            <el-form-item
+                label="资源类型："
+                label-width="100"
+            >
+                <el-select
+                    v-model="vData.search.dataResourceType"
+                    filterable
+                    clearable
+                    multiple
+                    @change="methods.resourceTypeChange"
+                >
+                    <el-option
+                        v-for="item in vData.sourceTypeList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                v-if="vData.search.dataResourceType.length === 1 && vData.search.dataResourceType[0] === 'ImageDataSet'"
+                label-width="100"
+                label="任务类型："
+            >
+                <el-select
+                    v-model="vData.search.forJobType"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        v-for="item in vData.forJobTypeList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item v-if="vData.search.dataResourceType.length === 1 && vData.search.dataResourceType[0] === 'TableDataSet'" label="包含 Y：">
                 <el-select
                     v-model="vData.search.containsY"
                     style="width:100px;"
@@ -90,21 +127,20 @@
                 查询
             </el-button>
         </el-form>
-
+        
         <el-table
             v-loading="vData.loading"
             :data="vData.list"
-            style="min-height:500px"
             stripe
             border
         >
             <template #empty>
                 <EmptyData />
             </template>
-            <el-table-column label="序号" type="index" />
+            <el-table-column label="序号" type="index" width="60" align="center" />
             <el-table-column
                 label="成员"
-                min-width="100"
+                width="230"
             >
                 <template v-slot="scope">
                     <span
@@ -118,16 +154,20 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="数据集"
-                min-width="100"
+                label="名称 / Id"
+                width="230"
             >
                 <template v-slot="scope">
-                    <router-link v-if="!scope.row.status" class="mb10" :to="{ name: 'data-view', query: { id: scope.row.id }}">
+                    <router-link v-if="!scope.row.status" class="mb10" :to="{ name: 'data-view', query: { dataResourceId: scope.row.data_resource_id, dataResourceType: scope.row.data_resource_type }}">
                         {{ scope.row.name }}
                     </router-link>
                     <p v-else>{{ scope.row.name }}</p>
-                    <span class="p-id">{{ scope.row.id }}</span>
+                    <p class="p-id">{{ scope.row.data_resource_id }}</p>
                 </template>
+            </el-table-column>
+            <el-table-column
+                prop="data_resource_type"
+                label="资源类型">
             </el-table-column>
             <el-table-column label="关键词">
                 <template v-slot="scope">
@@ -145,14 +185,32 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="数据量"
-                prop="row_count"
-                width="140"
+                label="数据信息"
+                width="160"
             >
                 <template v-slot="scope">
-                    特征量：{{ scope.row.feature_count }}
-                    <br>
-                    样本量：{{ scope.row.row_count }}
+                    <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
+                        样本量/已标注：{{scope.row.total_data_count}}/{{scope.row.extra_data.labeled_count}}
+                        <br>
+                        标注进度：{{ ((scope.row.extra_data.labeled_count / scope.row.total_data_count) * 100).toFixed(2) }}%
+                        <br>
+                        样本分类：{{scope.row.extra_data.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
+                    </p>
+                    <p v-else-if="scope.row.data_resource_type === 'BloomFilter'">
+                        样本量：{{ scope.row.total_data_count }}
+                        <br>
+                        主键组合方式: {{ scope.row.extra_data.hash_function }}
+                    </p>
+                    <p v-else>
+                        特征量：{{ scope.row.extra_data.feature_count }}
+                        <br>
+                        样本量：{{ scope.row.total_data_count }}
+                        <br>
+                        <span v-if="scope.row.data_resource_type === 'TableDataSet'">
+                            <el-tag v-if="scope.row.extra_data.contains_y" type="success" class="mr5">包含Y</el-tag>
+                            <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
+                        </span>
+                    </p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -161,23 +219,7 @@
                 width="100"
             />
             <el-table-column
-                label="包含Y"
-                width="100"
-            >
-                <template v-slot="scope">
-                    <i
-                        v-if="scope.row.contains_y "
-                        class="el-icon-check"
-                    />
-                    <i
-                        v-else
-                        class="el-icon-close"
-                    />
-                </template>
-            </el-table-column>
-            <el-table-column
                 label="上传时间"
-                min-width="140"
             >
                 <template v-slot="scope">
                     {{ dateFormat(scope.row.created_time) }}
@@ -185,36 +227,21 @@
             </el-table-column>
             <el-table-column
                 label="状态"
-                min-width="120"
+                width="100"
+                fixed="right"
             >
                 <template v-slot="scope">
                     <p v-if="scope.row.status">已删除</p>
                     <template v-else>
                         <el-button
-                            v-if="scope.row.ext_json.enable"
-                            type="danger"
+                            :type="scope.row.enable === '1' ? 'danger' : 'primary'"
                             @click="methods.changeStatus($event, scope.row)"
-                        >禁用</el-button>
-                        <el-button
-                            v-else
-                            @click="methods.changeStatus($event, scope.row)"
-                        >启用</el-button>
+                        >
+                            {{scope.row.enable === '1' ? '禁用' : '启用'}}
+                        </el-button>
                     </template>
                 </template>
             </el-table-column>
-            <!-- <el-table-column
-                label="操作"
-                min-width="120"
-            >
-                <template v-slot="scope">
-                    <el-button
-                        type="danger"
-                        @click="deleteDataSet($event, scope.row)"
-                    >
-                        移除
-                    </el-button>
-                </template>
-            </el-table-column> -->
         </el-table>
         <div
             v-if="pagination.total"
@@ -265,35 +292,75 @@
             const { $http, $confirm } = appContext.config.globalProperties;
             const memberCard = ref();
             const vData = reactive({
-                loading: true,
-                search:  {
-                    id:        '',
-                    name:      '',
-                    member_id: '',
-                    tag:       '',
-                    containsY: '',
-                    enable:    '',
-                    status:    '',
+                loading:       true,
+                list:          [],
+                requestMethod: 'post',
+                search:        {
+                    dataResourceId:   '',
+                    name:             '',
+                    member_id:        '',
+                    tag:              '',
+                    containsY:        '',
+                    enable:           '',
+                    status:           '',
+                    dataResourceType: '',
+                    forJobType:       '',
+                    page_index:       0,
+                    page_size:        20,
                 },
-                getListApi:     '/data_set/query',
+                getListApi:     '/data_resource/query',
                 member_list:    [],
                 tag_list:       [],
                 viewDataDialog: {
                     visible: false,
                     list:    [],
                 },
-                dialogCard:  false,
-                cardData:    {}, // Business card information
-                dataSetList: [], // dataset form Quick create project
+                dialogCard:     false,
+                cardData:       {}, // Business card information
+                dataSetList:    [], // dataset form Quick create project
+                sourceTypeList: [
+                    {
+                        label: 'TableDataSet',
+                        value: 'TableDataSet',
+                    },
+                    {
+                        label: 'ImageDataSet',
+                        value: 'ImageDataSet',
+                    },
+                    {
+                        label: '布隆过滤器',
+                        value: 'BloomFilter',
+                    },
+                ],
+                forJobTypeList: [
+                    {
+                        label: '目标检测',
+                        value: 'detection',
+                    },
+                    {
+                        label: '图像分类',
+                        value: 'classify',
+                    },
+                ],
             });
 
             const methods = {
                 async loadTags() {
-                    const { code, data } = await $http.get('/data_set/tags/query');
+                    const { code, data } = await $http.get('/data_resource/tags/query');
 
                     if (code === 0) {
                         vData.tag_list = data.tag_list;
                     }
+                },
+
+                async getUnionResourceList() {
+                    await ctx.getList();
+                    console.log(vData.list);
+                },
+
+                resourceTypeChange() {
+                    vData.search.containsY = '';
+                    vData.search.forJobType = '';
                 },
 
                 async loadMemberList() {
@@ -337,18 +404,19 @@
                 },
 
                 changeStatus($event, row) {
-                    $confirm(`你确定要${ row.ext_json.enable ? '禁用' : '启用' }该数据集吗?`, '警告', {
+                    $confirm(`你确定要${ row.enable === '1' ? '禁用' : '启用' }该资源吗?`, '警告', {
                         type:              'warning',
                         cancelButtonText:  '取消',
                         confirmButtonText: '确定',
                     }).then(async _ => {
                         await $http.post({
-                            url:  '/data_set/update_ext_json',
+                            url:  '/data_resource/enable',
                             data: {
-                                id:      row.id,
-                                extJson: {
-                                    enable: !row.ext_json.enable,
-                                },
+                                data_resource_id: row.data_resource_id,
+                                enable:           row.enable !== '1',
+                            },
+                            btnState: {
+                                target: $event,
                             },
                         });
 
@@ -357,10 +425,11 @@
                 },
             };
 
-            onMounted(() => {
-                methods.loadTags();
-                methods.loadMemberList();
-                ctx.getList();
+            onMounted(async () => {
+                await methods.loadTags();
+                await methods.loadMemberList();
+                await ctx.getList();
+                console.log(vData.list);
             });
 
             return {
