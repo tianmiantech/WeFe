@@ -53,7 +53,7 @@
                 type="primary"
                 class="inline-block"
                 native-type="submit"
-                @click="getList({ to: true, resetPagination: true })"
+                @click="getList({ to: true })"
             >
                 查询
             </el-button>
