@@ -157,7 +157,7 @@
             </el-table-column>
 
             <el-table-column
-                label="金额"
+                label="金额(￥)"
                 min-width="50"
             >
                 <template slot-scope="scope">
@@ -166,7 +166,7 @@
             </el-table-column>
 
             <el-table-column
-                label="余额"
+                label="余额(￥)"
                 min-width="50"
             >
                 <template slot-scope="scope">
