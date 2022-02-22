@@ -21,26 +21,27 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetOutputModel;
+import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetDetailOutputModel;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
  */
-@Api(path = "data_set/detail", name = "过滤器详情", desc = "过滤器详情", login = true)
-public class DetailApi extends AbstractApi<DetailApi.Input, DataSetOutputModel> {
+@Api(path = "data_set/detail_and_preview", name = "过滤器详情预览", desc = "过滤器详情预览")
+public class DetailAndPreviewApi extends AbstractApi<DetailAndPreviewApi.Input, DataSetDetailOutputModel> {
     @Autowired
     private DataSetService dataSetService;
 
     @Override
-    protected ApiResult<DataSetOutputModel> handle(Input input) throws Exception {
-        return success(dataSetService.detail(input.getId()));
+    protected ApiResult<DataSetDetailOutputModel> handle(Input input) throws Exception {
+        return success(dataSetService.detailAndPreview(input.getId()));
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "id", require = true)
-        String id;
+
+        @Check(name = "数据id")
+        private String id;
 
         public String getId() {
             return id;

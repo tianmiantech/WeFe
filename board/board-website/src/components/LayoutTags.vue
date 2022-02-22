@@ -88,9 +88,13 @@
                     };
 
                     if (~tagIndex) {
-                        tagsList.value[tagIndex] = result;
-                    } else {
-                        tagsList.value.push(result);
+                        tagsList.value.splice(tagIndex, 1);
+                    }
+
+                    tagsList.value.push(result);
+
+                    if(tagsList.value.length > 5) {
+                        tagsList.value.shift();
                     }
 
                     methods.commitStore(tagsList.value);
