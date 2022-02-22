@@ -105,9 +105,11 @@
                         </el-checkbox> -->
                         <div class="sign-action">
                             <el-button
+                                :loading="submitting"
                                 type="primary"
                                 class="login-btn"
                                 size="medium"
+                                native-type="submit"
                                 @click="submit"
                             >
                                 立即登录
