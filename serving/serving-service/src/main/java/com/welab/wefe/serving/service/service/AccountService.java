@@ -28,6 +28,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -323,4 +324,20 @@ public class AccountService {
 
 		accountRepository.save(account);
 	}
+	
+    /**
+     * Transfer the super administrator status to another account
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void changeSuperAdmin(AccountMySqlModel account) throws StatusCodeWithException {
+        account.setAdminRole(true);
+        account.setSuperAdminRole(true);
+        account.setUpdatedBy(CurrentAccount.id());
+        account.setUpdatedTime(new Date());
+
+        // Update designated user as super administrator
+        accountRepository.save(account);
+        // Cancel the super administrator privileges of the current account
+        accountRepository.cancelSuperAdmin(CurrentAccount.id());
+    }
 }
