@@ -215,13 +215,13 @@ public class PsiClientActuator extends AbstractPsiActuator {
 //            }
 //        }
 //
-//        try {
-//            latch.await();
+        try {
+            latch.await();
 //            socketLatch.await();
-//        } catch (InterruptedException e1) {
-//            e1.printStackTrace();
-//            LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
-//        }
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+            LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
+        }
 
         LOG.info("-----------------Time used: {} ", (System.currentTimeMillis() - startTime));
 
