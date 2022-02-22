@@ -6,8 +6,10 @@
         </div>
         <div class="top_side">
             <h4>过滤器简介</h4>
-            <p class="subtitle">上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了
-                <span>{{ dataInfo.used_count }}</span> 任务。</p>
+            <p class="subtitle">
+                上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了
+                <span>{{ dataInfo.used_count }}</span> 任务。
+            </p>
             <el-row :gutter="20">
                 <el-col :span="6">描述: {{ dataInfo.description }}</el-col>
                 <el-col :span="6">数据量: {{ dataInfo.row_count }}</el-col>
@@ -89,21 +91,21 @@
 export default {
     data() {
         return {
-            id: '',
-            name: '',
-            loading: false,
-            dataInfo: {},
-            list: [],
+            id:              '',
+            name:            '',
+            loading:         false,
+            dataInfo:        {},
+            list:            [],
             previewDataInfo: [],
-            table_data: {
+            table_data:      {
                 header: [],
-                rows: [],
+                rows:   [],
             },
             gridTheme: {
-                color: '#6C757D',
+                color:       '#6C757D',
                 borderColor: '#EBEEF5',
             },
-            gridHeight: 0,
+            gridHeight:  0,
             selectedCol: '',
         };
     },

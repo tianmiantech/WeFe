@@ -47,7 +47,7 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                           Params params) throws FlowNodeException {
-        JSONObject taskParam = new JSONObject();
+//        JSONObject taskParam = new JSONObject();
         JObject horzNNParam = JObject.create();
         horzNNParam.append("encode_label", false).append("max_iter", params.maxIter).append("batch_size",
                 params.batchSize);
@@ -66,8 +66,8 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
         JObject nnDefine = JObject.create().append("class_name", "Sequential").append("layers", params.nnDefine.layers);
         horzNNParam.append("nn_define", nnDefine).append("config_type", "keras");
 
-        taskParam.put("params", horzNNParam);
-        return taskParam;
+//        taskParam.put("params", horzNNParam);
+        return horzNNParam;
     }
 
     @Override

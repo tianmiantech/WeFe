@@ -50,7 +50,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
             <el-table-column
                 label="序号"
@@ -149,7 +149,6 @@
                 fixed="right"
             >
                 <template slot-scope="scope">
-
                     <el-button
                         v-if="scope.row.status === 1"
                         type="danger"
@@ -215,30 +214,26 @@
 <script>
 
 import table from '@src/mixins/table.js';
-import RoleTag from '../components/role-tag';
-import {mapGetters} from "vuex";
+import { mapGetters } from 'vuex';
 
 export default {
-    name: 'client-list',
-    components: {
-        RoleTag,
-    },
+    name:   'ClientList',
     inject: ['refresh'],
     mixins: [table],
     data() {
         return {
             search: {
                 clientName: '',
-                status: '',
-                startTime: '',
-                endTime: '',
+                status:     '',
+                startTime:  '',
+                endTime:    '',
 
             },
-            timeRange: '',
-            getListApi: '/client/query-list',
+            timeRange:    '',
+            getListApi:   '/client/query-list',
             clientStatus: {
                 1: '启用',
-                0: '禁用'
+                0: '禁用',
             },
         };
     },
@@ -248,11 +243,10 @@ export default {
     },
 
     methods: {
-
         open(row, status) {
             this.$alert('是否修改？', '警告', {
                 confirmButtonText: '确定',
-                callback: action => {
+                callback:          action => {
                     if (action === 'confirm') {
                         this.changeStatus(row, status);
                         setTimeout(() => {
@@ -264,29 +258,27 @@ export default {
                 },
             });
         },
-
         async changeStatus(row, status) {
-            const {code} = await this.$http.post({
-                url: '/client/update',
+            const { code } = await this.$http.post({
+                url:  '/client/update',
                 data: {
-                    id: row.id,
-                    status: status,
-                    name: row.name,
-                    email: row.email,
-                    pubKey: 'changeStatus',
-                    ipAdd: row.ip_add,
+                    id:        row.id,
+                    status,
+                    name:      row.name,
+                    email:     row.email,
+                    pubKey:    'changeStatus',
+                    ipAdd:     row.ip_add,
                     updatedBy: this.userInfo.nickname,
                 },
             });
 
             if (code === 0) {
                 this.$message({
-                    type: 'info',
+                    type:    'info',
                     message: '修改成功',
                 });
             }
         },
-
         timeChange() {
             if (!this.timeRange) {
                 this.search.startTime = '';

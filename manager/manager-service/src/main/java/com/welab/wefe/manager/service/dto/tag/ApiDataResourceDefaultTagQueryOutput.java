@@ -16,18 +16,18 @@
 
 package com.welab.wefe.manager.service.dto.tag;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetDefaultTagExtJSON;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/10/19
  */
-public class ApiDataSetDefaultTagQueryOutput {
+public class ApiDataResourceDefaultTagQueryOutput {
     private String id;
     private String tagName;
+    private DataResourceType dataResourceType;
     private int status;
-    private DataSetDefaultTagExtJSON extJson;
 
 
     public String getId() {
@@ -46,13 +46,12 @@ public class ApiDataSetDefaultTagQueryOutput {
         this.tagName = tagName;
     }
 
-
-    public DataSetDefaultTagExtJSON getExtJson() {
-        return extJson;
+    public DataResourceType getDataResourceType() {
+        return dataResourceType;
     }
 
-    public void setExtJson(DataSetDefaultTagExtJSON extJson) {
-        this.extJson = extJson;
+    public void setDataResourceType(DataResourceType dataResourceType) {
+        this.dataResourceType = dataResourceType;
     }
 
     public int getStatus() {

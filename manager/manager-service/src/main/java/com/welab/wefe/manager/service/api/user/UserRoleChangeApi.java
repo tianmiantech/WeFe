@@ -32,7 +32,7 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/11/5
  */
-@Api(path = "user/role/change", name = "user role change", login = false)
+@Api(path = "user/role/change", name = "user role change")
 public class UserRoleChangeApi extends AbstractApi<UserRoleChangeInput, AbstractApiOutput> {
     @Autowired
     private UserService userService;

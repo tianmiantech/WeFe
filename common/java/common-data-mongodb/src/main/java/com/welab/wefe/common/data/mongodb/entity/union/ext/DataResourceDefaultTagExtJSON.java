@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.cache.result;
+package com.welab.wefe.common.data.mongodb.entity.union.ext;
 
 /**
- * @author eval
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/10/19
  */
-public interface QueryDataResult<T> {
-    /**
-     * 查询结果数据
-     *
-     * @param key uuid
-     * @return
-     */
-    T query(String key);
+public class DataResourceDefaultTagExtJSON {
 
-    /**
-     * 保存结果数据
-     *
-     * @param key   uuid
-     * @param value 数据值
-     */
-    void save(String key, T value);
 }

@@ -14,25 +14,32 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.tag;
-
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.manager.service.dto.base.BaseInput;
+package com.welab.wefe.manager.service.dto.dataresource;
 
 /**
- * @Description:
- * @author: yuxin.zhang
- * @date: 2021/10/19
- */
-public class DatSetDefaultTagDeleteInput extends BaseInput {
-    @Check(require = true)
-    private String tagId;
+ * @author yuxin.zhang
+ **/
+public class ApiBloomFilterQueryOutput extends ApiDataResourceQueryOutput {
 
-    public String getTagId() {
-        return tagId;
+    private ExtraData extraData;
+
+    public static class ExtraData {
+        private String hashFunction;
+
+        public String getHashFunction() {
+            return hashFunction;
+        }
+
+        public void setHashFunction(String hashFunction) {
+            this.hashFunction = hashFunction;
+        }
     }
 
-    public void setTagId(String tagId) {
-        this.tagId = tagId;
+    public ExtraData getExtraData() {
+        return extraData;
+    }
+
+    public void setExtraData(ExtraData extraData) {
+        this.extraData = extraData;
     }
 }

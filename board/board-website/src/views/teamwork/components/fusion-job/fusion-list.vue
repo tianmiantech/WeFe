@@ -8,11 +8,12 @@
         <h3 class="mb10 card-title">
             数据融合
             <template v-if="form.isPromoter">
-                <router-link :to="{ name: 'fusion-edit', query: { project_id: form.project_id } }">
+                <router-link class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id } }">
                     <el-button
                         v-if="!form.closed && !form.is_exited"
                         type="primary"
                         class="ml10"
+                        size="small"
                     >
                         新建数据融合任务
                     </el-button>
@@ -259,6 +260,7 @@
         color: $--color-danger;
     }
     h3{margin: 10px;}
+    .el-link{text-decoration: none;}
     .model-list{
         display: flex;
         justify-content: center;
