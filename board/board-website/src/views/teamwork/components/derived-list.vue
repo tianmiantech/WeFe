@@ -43,6 +43,7 @@
             :data="derived.list"
             max-height="520px"
             stripe
+            border
         >
             <el-table-column type="index" />
             <el-table-column
@@ -52,10 +53,10 @@
                 <template v-slot="scope">
                     <router-link :to="{ name: 'data-view', query: { id: scope.row.data_set_id } }">
                         {{ scope.row.data_resource ? scope.row.data_resource.name : '' }}
+                        <el-tag v-if="scope.row.data_resource ? scope.row.data_resource.contains_y : false" class="ml5">
+                            Y
+                        </el-tag>
                     </router-link>
-                    <el-tag v-if="scope.row.data_resource ? scope.row.data_resource.contains_y : false" class="ml5">
-                        Y
-                    </el-tag>
                     <br>
                     <span class="p-id">{{ scope.row.data_set_id }}</span>
                 </template>
@@ -65,7 +66,7 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    {{ scope.row.data_resource ? scope.row.data_resource.source_type_cn : '' }}
+                    {{ scope.row.data_resource ? scope.row.data_resource.derived_from_cn : '' }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -94,9 +95,9 @@
             >
                 <template v-slot="scope">
                     <template v-if="scope.row.data_resource">
-                        特征量：{{ scope.row.feature_count }}
+                        特征量：{{ scope.row.data_resource.feature_count }}
                         <br>
-                        样本量：{{ scope.row.row_count }}
+                        样本量：{{ scope.row.data_resource.total_data_count }}
                     </template>
                 </template>
             </el-table-column>
@@ -128,7 +129,10 @@
                 width="100"
             >
                 <template v-slot="scope">
-                    <el-button @click="removeDataSet(scope.row)">
+                    <el-button
+                        type="danger"
+                        @click="removeDataSet(scope.row)"
+                    >
                         删除
                     </el-button>
                 </template>

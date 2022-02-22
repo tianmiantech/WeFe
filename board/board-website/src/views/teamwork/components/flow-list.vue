@@ -10,6 +10,7 @@
                 <el-button
                     v-if="!form.closed && !form.is_exited"
                     class="ml10"
+                    size="small"
                     type="primary"
                     @click="addFlowMethod"
                 >
@@ -103,7 +104,7 @@
                         执行记录
                     </router-link>
                     <el-dropdown v-if="scope.row.is_creator" size="small">
-                        <el-button type="text">
+                        <el-button type="text" size="small">
                             更多
                             <el-icon>
                                 <elicon-arrow-down />
@@ -114,6 +115,7 @@
                                 <el-dropdown-item>
                                     <el-button
                                         type="text"
+                                        size="small"
                                         @click="copyFlow(scope.row)"
                                     >
                                         复制流程
@@ -122,6 +124,7 @@
                                 <el-dropdown-item divided>
                                     <el-button
                                         type="text"
+                                        size="small"
                                         class="color-danger"
                                         @click="deleteFlow(scope.row, scope.$index)"
                                     >
@@ -296,7 +299,7 @@
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'PaddleDetection' })"
                 >
-                    <span class="model-img f30">
+                    <span class="model-img f20">
                         目标检测
                     </span>
                 </div>
@@ -304,7 +307,7 @@
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'PaddleClassify' })"
                 >
-                    <span class="model-img f30">
+                    <span class="model-img f20">
                         图像分类
                     </span>
                 </div>
@@ -635,7 +638,7 @@
         color: $--color-danger;
     }
     h3{margin: 10px;}
-    .el-dropdown{top: -4px;}
+    .el-dropdown{top: -1px;}
     .model-list{
         display: flex;
         justify-content: center;

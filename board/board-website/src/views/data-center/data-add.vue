@@ -20,8 +20,10 @@
                             show-word-limit
                         />
                     </el-form-item>
-                    <el-form-item prop="tag">
-                        <p class="tags-tips mb10 f12"><i class="color-danger">*</i> 为数据资源设置关键词，方便大家快速了解你 ：）</p>
+                    <p class="tags-tips mb10 f12">
+                        <i class="color-danger">*</i> 为数据资源设置关键词，方便大家快速了解你 ：）
+                    </p>
+                    <el-form-item>
                         <el-tag
                             v-for="(tag, index) in tagList"
                             :key="index"
@@ -33,7 +35,7 @@
                         <el-input
                             ref="saveTagInput"
                             v-model="tagInputValue"
-                            class="input-new-tag"
+                            class="input-new-tag mb5"
                             show-word-limit
                             :maxlength="10"
                             placeholder="按回车或 Tab 添加建关键词"
@@ -75,7 +77,7 @@
                     :span="10"
                     style="position: relative;"
                 >
-                    <fieldset style="min-height:230px;">
+                    <fieldset style="min-height:240px;">
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio

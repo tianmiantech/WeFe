@@ -190,13 +190,15 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        <el-button
-                            type="primary"
-                            native-type="submit"
-                            @click="methods.dataSetSearch"
-                        >
-                            搜索
-                        </el-button>
+                        <el-form-item>
+                            <el-button
+                                type="primary"
+                                native-type="submit"
+                                @click="methods.dataSetSearch"
+                            >
+                                搜索
+                            </el-button>
+                        </el-form-item>
                     </el-form>
                     <DataSetList
                         ref="rawDataSetListRef"
