@@ -114,7 +114,7 @@ public class DataSetService extends AbstractService {
     public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
         DataSourceMySqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -144,7 +144,7 @@ public class DataSetService extends AbstractService {
         }
 
         if (null == file || !file.exists()) {
-            throw new StatusCodeWithException("File not found：" + file.getPath(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("未查找到文件：" + file.getPath(), StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         return file;
