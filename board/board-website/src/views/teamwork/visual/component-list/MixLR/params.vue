@@ -3,6 +3,7 @@
         <h4 class="mb10">MixLR参数设置</h4>
         <el-form
             ref="form"
+            class="flex-form"
             :model="vData.form"
             :disabled="disabled"
             @submit.prevent
@@ -379,10 +380,7 @@
 .el-form-item{
     margin-bottom: 10px;
     :deep(.el-form-item__label){
-        text-align: left;
-        font-size: 12px;
-        display: block;
-        float: none;
+        flex:1;
     }
 }
 .el-collapse-item {
