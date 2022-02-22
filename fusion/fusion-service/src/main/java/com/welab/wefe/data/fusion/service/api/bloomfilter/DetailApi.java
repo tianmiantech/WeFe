@@ -35,7 +35,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, BloomfilterOutputMod
 
     @Override
     protected ApiResult<BloomfilterOutputModel> handle(Input input) throws Exception {
-        return success(bloomFilterService.detail(input));
+        return success(bloomFilterService.detail(input.getId()));
     }
 
     public static class Input extends AbstractApiInput {
