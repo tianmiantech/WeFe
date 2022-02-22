@@ -184,7 +184,7 @@ public class AccountService {
         LoginApi.Output output = new ModelMapper().map(model, LoginApi.Output.class);
         output.setToken(token);
 
-        CurrentAccount.logined(token, model.getId(), model.getPhoneNumber());
+        CurrentAccount.logined(token, model.getId(), model.getPhoneNumber(), model.getAdminRole(), model.getSuperAdminRole());
 
         // Record a login success event
         LoginSecurityPolicy.onLoginSuccess(phoneNumber);
