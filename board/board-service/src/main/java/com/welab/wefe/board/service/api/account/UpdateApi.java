@@ -42,6 +42,8 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, NoneApiOutput> {
     }
 
     public static class Input extends AbstractApiInput {
+        @Check(name = "用户Id")
+        public String id;
 
         @Check(name = "昵称")
         private String nickname;
