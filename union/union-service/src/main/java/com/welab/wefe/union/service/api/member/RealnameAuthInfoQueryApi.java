@@ -58,9 +58,11 @@ public class RealnameAuthInfoQueryApi extends AbstractApi<RealnameAuthInfoQueryA
             realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
             realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
             realNameAuthInfoQueryOutput.setRealNameAuthStatus(member.getExtJson().getRealNameAuthStatus());
-            long realNameAuthTime = member.getExtJson().getRealNameAuthTime();
-            String realNameAuthUsefulLife = DateUtil.toStringYYYY_MM_DD(DateUtil.addYears(DateUtil.getDate(realNameAuthTime),1));
-            realNameAuthInfoQueryOutput.setRealNameAuthUsefulLife(realNameAuthUsefulLife);
+            if(member.getExtJson().getRealNameAuthStatus() == 2) {
+                long realNameAuthTime = member.getExtJson().getRealNameAuthTime();
+                String realNameAuthUsefulLife = DateUtil.toStringYYYY_MM_DD(DateUtil.addYears(DateUtil.getDate(realNameAuthTime),1));
+                realNameAuthInfoQueryOutput.setRealNameAuthUsefulLife(realNameAuthUsefulLife);
+            }
             List<String> fileIdList = new ArrayList<>();
             List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealnameAuthFileInfoList();
             if(realnameAuthFileInfoList != null && !realnameAuthFileInfoList.isEmpty()){
@@ -69,7 +71,6 @@ public class RealnameAuthInfoQueryApi extends AbstractApi<RealnameAuthInfoQueryA
                         .map(RealnameAuthFileInfo::getFileId)
                         .collect(Collectors.toList());
             }
-
             realNameAuthInfoQueryOutput.setFileIdList(fileIdList);
             return success(realNameAuthInfoQueryOutput);
         } catch (Exception e) {
