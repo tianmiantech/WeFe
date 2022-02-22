@@ -160,7 +160,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Begin to align
      */
-    private void align() {
+    private void align() throws StatusCodeWithException {
 
         LOG.info("client aligning..., count: {} availableProcessors: {}", dataCount, Runtime.getRuntime().availableProcessors());
 
@@ -197,31 +197,31 @@ public class PsiClientActuator extends AbstractPsiActuator {
         /**
          * Alignment matching
          */
-        int socketQueueSize = count;
-        CountDownLatch socketLatch = new CountDownLatch(count);
-
-        while (socketQueueSize > 0) {
-            try {
-                Socket socket = socketQueue.take();
-                if (socket != null) {
-                    parseThreadPool.execute(() -> {
-                        receiveAndParseResult(socket);
-                        socketLatch.countDown();
-                    });
-                    socketQueueSize--;
-                }
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-        }
-
-        try {
-            latch.await();
-            socketLatch.await();
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-            LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
-        }
+//        int socketQueueSize = count;
+//        CountDownLatch socketLatch = new CountDownLatch(count);
+//
+//        while (socketQueueSize > 0) {
+//            try {
+//                Socket socket = socketQueue.take();
+//                if (socket != null) {
+//                    parseThreadPool.execute(() -> {
+//                        receiveAndParseResult(socket);
+//                        socketLatch.countDown();
+//                    });
+//                    socketQueueSize--;
+//                }
+//            } catch (InterruptedException e1) {
+//                e1.printStackTrace();
+//            }
+//        }
+//
+//        try {
+//            latch.await();
+//            socketLatch.await();
+//        } catch (InterruptedException e1) {
+//            e1.printStackTrace();
+//            LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
+//        }
 
         LOG.info("-----------------Time used: {} ", (System.currentTimeMillis() - startTime));
 
@@ -243,7 +243,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
      */
     private void fusion() throws StatusCodeWithException {
         Socket socket = null;
-        try {
+//        try {
             LOG.info("Server@" + ip + ":" + port + " connecting!");
             socket = SocketUtils
                     .create(ip, port)
@@ -262,10 +262,11 @@ public class PsiClientActuator extends AbstractPsiActuator {
             query(socket);
 
             //Joins the queue to be parsed
-            socketQueue.put(socket);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
+            //socketQueue.put(socket);
+            receiveAndParseResult(socket);
+//        } catch (InterruptedException e1) {
+//            e1.printStackTrace();
+//        }
 
     }
 
@@ -407,7 +408,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
         return blindFactor;
     }
 
-    private void execute(ActionType action) {
+    private void execute(ActionType action) throws StatusCodeWithException {
 
         switch (action) {
             case download:
@@ -461,7 +462,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     }
 
     @Override
-    public void handle() {
+    public void handle() throws StatusCodeWithException {
         status = PSIActuatorStatus.running;
 
         //Download bloom filter
