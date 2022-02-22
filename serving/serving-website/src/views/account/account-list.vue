@@ -75,7 +75,7 @@
             border
         >
             <template #empty>
-                <EmptyData />
+                <TableEmptyData />
             </template>
             <el-table-column
                 label="姓名"
@@ -149,7 +149,7 @@
                 min-width="140"
             >
                 <template v-slot="scope">
-                    {{ dateFormat(scope.row.created_time) }}
+                    {{ scope.row.created_time | dateFormat }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -449,7 +449,7 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.getList();
+            // this.getList();
         },
         methods: {
             // show audit dialog
