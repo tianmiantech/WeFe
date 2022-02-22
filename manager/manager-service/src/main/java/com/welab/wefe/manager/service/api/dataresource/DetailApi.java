@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.api.dataresource;
+package com.welab.wefe.manager.service.api.dataresource;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
@@ -28,18 +28,18 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceDetailInput;
-import com.welab.wefe.union.service.dto.dataresource.ApiDataResourceQueryOutput;
-import com.welab.wefe.union.service.mapper.BloomFilterMapper;
-import com.welab.wefe.union.service.mapper.ImageDataSetMapper;
-import com.welab.wefe.union.service.mapper.TableDataSetMapper;
+import com.welab.wefe.manager.service.dto.dataresource.ApiDataResourceDetailInput;
+import com.welab.wefe.manager.service.dto.dataresource.ApiDataResourceQueryOutput;
+import com.welab.wefe.manager.service.mapper.BloomFilterMapper;
+import com.welab.wefe.manager.service.mapper.ImageDataSetMapper;
+import com.welab.wefe.manager.service.mapper.TableDataSetMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/detail", name = "data_resource_detail", rsaVerify = true, login = false)
+@Api(path = "data_resource/detail", name = "data_resource_detail")
 public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataResourceQueryOutput> {
 
     @Autowired
