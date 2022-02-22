@@ -3,25 +3,39 @@
         class="page"
         shadow="never"
     >
-        <div class="mb20">
-            <el-button
-                class="mb10"
-                type="primary"
-                native-type="submit"
-                @click="methods.addKeywords"
-            >
-                新增关键词
-            </el-button>
-        </div>
+        <el-form :inline="true" class="demo-form-inline">
+            <el-form-item label="资源类型：">
+                <el-select v-model="vData.search.dataResourceType" placeholder="请选择资源类型" clearable>
+                    <el-option v-for="item in vData.dataResourceTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="methods.getTagsList">
+                    查询
+                </el-button>
+            </el-form-item>
+            <el-form-item>
+                <el-button
+                    plain
+                    type="primary"
+                    native-type="button"
+                    @click="methods.addKeywords"
+                    class="mb10"
+                >
+                    +新增关键词
+                </el-button>
+            </el-form-item>
+        </el-form>
 
         <el-table
             v-loading="vData.loading"
-            style="width: 400px;"
+            style="width: 700px;"
             :data="vData.list"
             stripe
             border
         >
-            <el-table-column label="关键词" prop="tag_name" width="100" />
+            <el-table-column label="关键词" prop="tag_name" />
+            <el-table-column label="资源类型" prop="data_resource_type" />
             <el-table-column label="操作">
                 <template v-slot="scope">
                     <el-button
@@ -41,7 +55,7 @@
         </el-table>
 
         <el-dialog
-            title="编辑关键词"
+            :title="vData.tagId ? '编辑' : '新增'"
             v-model="vData.dialogKeywords"
             custom-class="card-dialog"
             destroy-on-close
@@ -49,8 +63,13 @@
             top="30vh"
         >
             <el-form class="flex-form" @submit.prevent>
-                <el-form-item label="标签名称" style="width:330px;" required>
+                <el-form-item label="标签名称" style="width: 330px;" required>
                     <el-input v-model.trim="vData.tagName"></el-input>
+                </el-form-item>
+                <el-form-item v-if="!vData.tagId" label="资源类型" style="width: 330px;" required>
+                    <el-select v-model="vData.dataResourceType" placeholder="请选择资源类型" clearable>
+                        <el-option v-for="item in vData.dataResourceTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-button
                     class="mt10"
@@ -82,32 +101,48 @@
             const { ctx, appContext } = getCurrentInstance();
             const { $http, $confirm } = appContext.config.globalProperties;
             const vData = reactive({
-                loading:    true,
-                getListApi: '/default_tag/query',
-                search:     {
-                    name: '',
+                loading:       true,
+                getListApi:    '/data_resource/default_tag/query',
+                requestMethod: 'post',
+                search:        {
+                    dataResourceType: '',
                 },
-                list:           [],
-                dialogKeywords: false,
-                tagName:        '',
-                tagId:          '',
+                list:                 [],
+                dialogKeywords:       false,
+                tagName:              '',
+                tagId:                '',
+                dataResourceType:     'TableDataSet',
+                dataResourceTypeList: [
+                    {
+                        label: 'TableDataSet',
+                        value: 'TableDataSet',
+                    },
+                    {
+                        label: 'ImageDataSet',
+                        value: 'ImageDataSet',
+                    },
+                ],
             });
 
             const methods = {
+                async getTagsList() {
+                    await ctx.getList();
+                },
                 addKeywords() {
                     vData.dialogKeywords = true;
                 },
                 async submitKeywords($event) {
                     const params = {
-                        tagName: vData.tagName,
+                        tagName:          vData.tagName,
+                        dataResourceType: vData.dataResourceType,
                     };
 
                     if(vData.tagId) {
                         params.tagId = vData.tagId;
                     }
-
+                    vData.loading = true;
                     const { code } = await $http.post({
-                        url:      vData.tagId ? '/default_tag/update' : '/default_tag/add',
+                        url:      vData.tagId ? '/data_resource/default_tag/update' : '/data_resource/default_tag/add',
                         data:     params,
                         btnState: {
                             target: $event,
@@ -121,6 +156,7 @@
                             vData.tagId = '';
                             ctx.refresh();
                         }
+                        vData.loading = false;
                     });
                 },
                 async updateTag($event, tag) {
@@ -136,19 +172,20 @@
                     })
                         .then(async _ => {
                             const { code } = await $http.post({
-                                url:  '/default_tag/delete',
+                                url:  '/data_resource/default_tag/delete',
                                 data: {
                                     tagId: tag.id,
+                                },
+                                btnState: {
+                                    target: $event,
                                 },
                             });
 
                             nextTick(() => {
                                 if(code === 0) {
-                                    vData.loading = true;
                                     setTimeout(() => {
-                                        ctx.refresh();
-                                        vData.loading = false;
-                                    }, 300);
+                                        ctx.getList();
+                                    }, 1000);
                                 }
                             });
                         });
