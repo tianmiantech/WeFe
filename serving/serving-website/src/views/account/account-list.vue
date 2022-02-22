@@ -214,7 +214,7 @@
 
         <el-dialog
             title="用户审核"
-            v-model="dialogAuditAccountVisible"
+            :visible.sync="dialogAuditAccountVisible"
             destroy-on-close
             width="500px"
         >
@@ -256,7 +256,7 @@
         <el-dialog
             width="340px"
             title="重置用户密码"
-            v-model="resetPwDialog.visible"
+            :visible.sync="resetPwDialog.visible"
             destroy-on-close
         >
             将重置 <strong class="primary-color">
@@ -280,7 +280,7 @@
         <el-dialog
             width="340px"
             title="新用户密码"
-            v-model="resetPwDialog.result"
+            :visible.sync="resetPwDialog.result"
             destroy-on-close
         >
             <div style="margin-top:-15px">
@@ -293,7 +293,7 @@
         <el-dialog
             width="400px"
             title="更改用户权限"
-            v-model="userRoleDialog.visible"
+            :visible.sync="userRoleDialog.visible"
             destroy-on-close
         >
             是否将 <strong>{{ userRoleDialog.nickname }}</strong> 设置为 <strong class="primary-color">
@@ -316,7 +316,7 @@
         <el-dialog
             width="340px"
             :title="disableUserDialog.enable ? '禁止用户登录' : '允许用户登录'"
-            v-model="disableUserDialog.visible"
+            :visible.sync="disableUserDialog.visible"
             destroy-on-close
         >
             将{{ disableUserDialog.enable ? '禁止' : '允许' }} <strong>{{ disableUserDialog.nickname }}</strong> 的
@@ -339,7 +339,7 @@
         <el-dialog
             width="440px"
             title="超级管理员转移"
-            v-model="transformSuperUserDialog.visible"
+            :visible.sync="transformSuperUserDialog.visible"
             destroy-on-close
         >
             <el-alert
