@@ -307,4 +307,5 @@ class RuntimeOptionKey(object):
 
 
 if __name__ == '__main__':
-    print(BACKEND.__dict__.get("SPARK")[0])
+    pass
+    # print(BACKEND.__dict__.get("SPARK")[0])

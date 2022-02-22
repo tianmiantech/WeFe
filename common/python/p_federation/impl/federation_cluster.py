@@ -89,7 +89,6 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
     storage_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE)
     if recv_meta.action == TransferAction.DSOURCE:
 
-        # if int(backend) == consts.BACKEND.FC:
         if backend == Backend.FC:
             LOGGER.debug("remote is DSOURCE object, local is FCSource object")
             if storage_type == consts.STORAGETYPE.OTS:
@@ -115,7 +114,7 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
         return deserialize(recv_meta.content.objectByteData), (None, None), None
 
     if recv_meta.action == TransferAction.FCSOURCE:
-        if int(backend) == consts.BACKEND.FC:
+        if backend == Backend.FC:
             if storage_type == consts.STORAGETYPE.OTS:
                 source = _get_fcsource(recv_meta)
                 LOGGER.debug("remote storage type is OTS")
