@@ -705,32 +705,33 @@ public class ProjectFlowJobService extends AbstractService {
             newTask.setParentTaskIdList(node.createParentTaskIds(newJob));
 
             taskRepository.save(newTask);
-
-            List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
-            // copy task_result
-            for (TaskResultMySqlModel oldResult : oldResults) {
-
-                TaskResultMySqlModel newResult = new TaskResultMySqlModel();
-                BeanUtils.copyProperties(oldResult, newResult);
-
-                newResult.setId(new TaskResultMySqlModel().getId());
-                newResult.setRole(newJob.getMyRole());
-                newResult.setJobId(newJob.getJobId());
-                newResult.setTaskId(node.createTaskId(newJob));
-
-                taskResultRepository.save(newResult);
-            }
-
-            TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
-            if (dataSetModel != null) {
-                TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
-                BeanUtils.copyProperties(dataSetModel, newDataSetModel);
-                newDataSetModel.setId(new TableDataSetMysqlModel().getId());
-                newDataSetModel.setDerivedFromJobId(newJob.getJobId());
-                newDataSetModel.setDerivedFrom(node.getComponentType());
-                tableDataSetService.save(newDataSetModel);
-            }
         }
+
+        List<TaskResultMySqlModel> oldResults = taskResultService.listAllResult(oldTask.getTaskId());
+        // copy task_result
+        for (TaskResultMySqlModel oldResult : oldResults) {
+
+            TaskResultMySqlModel newResult = new TaskResultMySqlModel();
+            BeanUtils.copyProperties(oldResult, newResult);
+
+            newResult.setId(new TaskResultMySqlModel().getId());
+            newResult.setRole(newJob.getMyRole());
+            newResult.setJobId(newJob.getJobId());
+            newResult.setTaskId(node.createTaskId(newJob));
+
+            taskResultRepository.save(newResult);
+        }
+
+        TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
+        if (dataSetModel != null) {
+            TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
+            BeanUtils.copyProperties(dataSetModel, newDataSetModel);
+            newDataSetModel.setId(new TableDataSetMysqlModel().getId());
+            newDataSetModel.setDerivedFromJobId(newJob.getJobId());
+            newDataSetModel.setDerivedFrom(node.getComponentType());
+            tableDataSetService.save(newDataSetModel);
+        }
+        
         return newTask;
     }
 
