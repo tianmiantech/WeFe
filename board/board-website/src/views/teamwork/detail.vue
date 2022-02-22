@@ -316,7 +316,6 @@
                         updated_time,
                         exited_time,
                         project_type,
-                        exit_operator_nickname,
                     } = data;
                     const promoter_list = data.promoter_list || [];
 
