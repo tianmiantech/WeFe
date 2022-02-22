@@ -89,7 +89,7 @@ export default () => {
                                         methods.readData();
                                     }, 3000);
                                 }
-                            } else {
+                            } else if(data) {
                                 if (data.status) {
                                     vData.commonResultData.task = data;
                                 }

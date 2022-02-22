@@ -18,6 +18,9 @@ package com.welab.wefe.serving.service.database.serving.repository;
 
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
+
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -31,4 +34,8 @@ public interface AccountRepository extends BaseRepository<AccountMySqlModel, Str
      * @return AccountMySqlModel
      */
     AccountMySqlModel findByPhoneNumber(String phoneNumber);
+    
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update account a set a.superAdminRole = false,a.adminRole = false where a.id =?1 ")
+    void cancelSuperAdmin(String id);
 }

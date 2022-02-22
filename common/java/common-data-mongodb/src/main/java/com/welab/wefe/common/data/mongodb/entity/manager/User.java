@@ -45,7 +45,7 @@ public class User extends AbstractNormalMongoModel {
     /**
      * 是否可用
      */
-    private boolean enable = true;
+    private boolean enable = false;
 
 
     public String getUserId() {

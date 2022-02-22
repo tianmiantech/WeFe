@@ -259,7 +259,7 @@
         },
         methods: {
             async getAccounts () {
-                const { code, data } = await this.$http.get('/account/query');
+                const { code, data } = await this.$http.get('/account/queryAll');
 
                 if(code === 0) {
                     this.accounts = data;

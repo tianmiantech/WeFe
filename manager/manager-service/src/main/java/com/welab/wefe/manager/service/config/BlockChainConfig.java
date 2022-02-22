@@ -69,6 +69,7 @@ public class BlockChainConfig {
     private String unionNodeContractName;
     private String realnameAuthAgreementTemplateContractName;
     private String dataResourceContractName;
+    private String dataResourceDefaultTagContractName;
 
 
     // add channel disconnect
@@ -232,6 +233,13 @@ public class BlockChainConfig {
     }
 
 
+    @Bean
+    public DataResourceDefaultTagContract getLatestVersionDataResourceDefaultTagContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, dataResourceDefaultTagContractName);
+        return DataResourceDefaultTagContract.load(address, client, cryptoKeyPair);
+    }
+
+
     /**
      * Obtain the latest version of the contract address according to the name
      *
@@ -378,5 +386,13 @@ public class BlockChainConfig {
 
     public void setDataResourceContractName(String dataResourceContractName) {
         this.dataResourceContractName = dataResourceContractName;
+    }
+
+    public String getDataResourceDefaultTagContractName() {
+        return dataResourceDefaultTagContractName;
+    }
+
+    public void setDataResourceDefaultTagContractName(String dataResourceDefaultTagContractName) {
+        this.dataResourceDefaultTagContractName = dataResourceDefaultTagContractName;
     }
 }

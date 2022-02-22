@@ -59,8 +59,9 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.mpc.cache.result.QueryDataResult;
-import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
@@ -537,9 +538,9 @@ public class ServiceService {
 			throw e;
 		}
 		QueryDiffieHellmanKeyResponse response = service.handle(request);
-		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-		QueryDataResult<Double> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(request.getUuid(), Double.valueOf(resultStr));
+		// 将 0 步骤查询的数据 保存到 CacheOperation -> LocalIntermediateCache
+		CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
+		queryResult.save(request.getUuid(), Constants.RESULT, Double.valueOf(resultStr));
 		return response;
 	}
 
@@ -626,8 +627,6 @@ public class ServiceService {
 			try {
 				config.setTargetIndex(index); // right index
 				result = privateInformationRetrievalQuery.query(config, communicationConfig);
-				System.out.println("index = " + i);
-				System.out.println("result = " + result);
 				results.add(JObject.create("memberId", memberId).append("memberName", memberName).append("index", index)
 						.append("result", result));
 			} catch (Exception e) {
@@ -675,9 +674,9 @@ public class ServiceService {
 			e.printStackTrace();
 			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
 		}
-		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-		QueryDataResult<Map<String, String>> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(uuid, result);
+		// 将 0 步骤查询的数据 保存到 CacheOperation -> LocalIntermediateCache
+		CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
+		queryResult.save(uuid, Constants.RESULT, result);
 		return response;
 	}
 

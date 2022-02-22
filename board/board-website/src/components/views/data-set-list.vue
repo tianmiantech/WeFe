@@ -43,8 +43,10 @@
                 min-width="220"
             >
                 <template v-slot="scope">
-                    {{ isFlow ? scope.row.data_resource.name : scope.row.name }}
-                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
+                    <template v-if="scope.row.data_resource">
+                        {{ isFlow ? scope.row.data_resource.name : scope.row.name }}
+                        <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
+                    </template>
                 </template>
             </el-table-column>
             <el-table-column
@@ -79,8 +81,8 @@
                 align="center"
             >
                 <template v-slot="scope">
-                    <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                        <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
+                    <p v-if="scope.row.data_resource_type === 'TableDataSet' && scope.row.data_resource">
+                        <el-icon v-if="scope.row.data_resource.contains_y" class="el-icon-check" style="color: #67C23A">
                             <elicon-check />
                         </el-icon>
                         <el-icon v-else class="el-icon-close">
@@ -95,7 +97,7 @@
                 min-width="120"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.tags || scope.row.data_resource.tags">
+                    <template v-if="scope.row.data_resource && scope.row.data_resource.tags">
                         <template v-for="(item, index) in isFlow ? scope.row.data_resource.tags.split(',') : scope.row.tags.split(',')" :key="index">
                             <el-tag
                                 v-show="item"
@@ -146,7 +148,7 @@
                 min-width="110"
             >
                 <template v-slot="scope">
-                    {{scope.row.data_resource.usage_count_in_job}}
+                    {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -174,12 +176,14 @@
                         <div class="cell-reverse">
                             <el-tooltip
                                 v-if="is_my_data_set"
+                                :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                 content="预览数据"
                                 placement="top"
                             >
                                 <el-button
                                     circle
                                     type="info"
+                                    :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                     @click="showDataSetPreview(scope.row)"
                                 >
                                     <el-icon>
