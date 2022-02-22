@@ -16,7 +16,7 @@
 
 package com.welab.wefe.mpc.pir.server.event;
 
-import com.welab.wefe.mpc.pir.server.flow.PrivateInformationRetrievalServer;
+import com.welab.wefe.mpc.pir.server.flow.PrivateInformationRetrievalFlowServer;
 
 import java.util.List;
 
@@ -27,20 +27,20 @@ public class PrivateInformationRetrievalEvent {
     String uuid;
     List<Object> keys;
 
-    PrivateInformationRetrievalServer mPrivateInformationRetrieval;
+    PrivateInformationRetrievalFlowServer mPrivateInformationRetrieval;
 
     public PrivateInformationRetrievalEvent(String uuid, List<Object> keys) {
         this.uuid = uuid;
         this.keys = keys;
     }
 
-    public PrivateInformationRetrievalEvent(String uuid, List<Object> keys, PrivateInformationRetrievalServer privateInformationRetrieval) {
+    public PrivateInformationRetrievalEvent(String uuid, List<Object> keys, PrivateInformationRetrievalFlowServer privateInformationRetrieval) {
         this.uuid = uuid;
         this.keys = keys;
         mPrivateInformationRetrieval = privateInformationRetrieval;
     }
 
-    public PrivateInformationRetrievalServer getPrivateInformationRetrieval() {
+    public PrivateInformationRetrievalFlowServer getPrivateInformationRetrieval() {
         return mPrivateInformationRetrieval;
     }
 

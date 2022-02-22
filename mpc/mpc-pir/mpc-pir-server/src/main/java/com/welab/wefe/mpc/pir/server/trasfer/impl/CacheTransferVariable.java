@@ -35,12 +35,15 @@ public class CacheTransferVariable implements PrivateInformationRetrievalTransfe
 
     @Override
     public void processHauckRandom(String key, int count, String value) {
+        if (count == 0) {
+            mCacheOperation.save(key, Constants.PIR.UUID_FIRST_TIME, String.valueOf(System.currentTimeMillis()));
+        }
         mCacheOperation.save(key, Constants.PIR.RANDOM + "_" + count, value);
     }
 
     @Override
     public void processResult(String key, String value) {
-        mCacheOperation.save(key, Constants.PIR.RESULT, value);
+        mCacheOperation.save(key, Constants.ENCRYPT_RESULT, value);
     }
 
     @Override

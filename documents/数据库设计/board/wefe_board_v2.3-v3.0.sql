@@ -427,3 +427,10 @@ CREATE TABLE `verification_code` (
   `biz_id` varchar(64) DEFAULT NULL COMMENT '业务ID',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';
+
+
+alter table `account` add column `audit_status` varchar(32) NOT NULL DEFAULT '' COMMENT '审核状态'
+alter table `account` add column `audit_comment` varchar(512) DEFAULT NULL COMMENT '审核意见'
+alter table `account` add column `enable` tinyint(1) NOT NULL COMMENT '是否可用'
+update `account` set enable = 1
+update `account` set audit_status = 'agree'

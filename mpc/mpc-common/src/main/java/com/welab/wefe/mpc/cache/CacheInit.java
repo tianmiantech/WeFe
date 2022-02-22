@@ -18,8 +18,6 @@ package com.welab.wefe.mpc.cache;
 
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
-import com.welab.wefe.mpc.cache.result.QueryDataResult;
-import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
 
 /**
  * @Author: eval
@@ -27,19 +25,8 @@ import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
  **/
 public class CacheInit {
 
-    public static void init(QueryDataResult queryDataResult) {
-        init(null, queryDataResult);
-    }
-
     public static void init(CacheOperation operation) {
-        init(operation, null);
-    }
-
-    public static void init(CacheOperation operation, QueryDataResult queryDataResult) {
         // 同一个请求，中间数据缓存操作实现
         CacheOperationFactory.init(operation);
-
-        // 请求查询结果数据的缓存实现,
-        QueryDataResultFactory.init(queryDataResult);
     }
 }
