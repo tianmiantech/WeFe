@@ -57,7 +57,15 @@
                 查询
             </el-button>
         </el-form>
-
+        <div>
+            <el-button
+                v-if="userInfo.super_admin_role"
+                type="danger"
+                @click="transformSuperUserDialog.visible=true"
+            >
+                超级管理员转移
+            </el-button>
+        </div>
         <el-table
             v-loading="loading"
             :data="list"
@@ -328,13 +336,59 @@
                 </el-button>
             </template>
         </el-dialog>
+        
+        
+        <el-dialog
+            width="440px"
+            title="超级管理员转移"
+            :visible.sync="transformSuperUserDialog.visible"
+            destroy-on-close
+        >
+            <el-alert
+                type="error"
+                title="超级管理员角色转让以后你将变成【普通角色】, 并【失去】所有超级管理员权限! 请谨慎操作"
+                :closable="false"
+            />
+            <el-form
+                label-width="120px"
+                class="flex-form mt30"
+            >
+                <el-form-item
+                    label="选择目标用户"
+                    required
+                >
+                    <el-autocomplete
+                        v-model="transformSuperUserDialog.user"
+                        placeholder="输入姓名或者11位手机号搜索"
+                        :fetch-suggestions="getUsers"
+                        @select="selectUser"
+                        style="width: 260px;"
+                        clearable
+                        @clear="clearSuggestions"
+                    />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button
+                    type="primary"
+                    :disabled="!transformSuperUserDialog.id || transformSuperUserDialog.id === userInfo.id"
+                    @click="transformSuperUser"
+                >
+                    确定
+                </el-button>
+                <el-button @click="transformSuperUserDialog.visible=false">
+                    取消
+                </el-button>
+            </template>
+        </el-dialog>
     </el-card>
 </template>
 
 <script>
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table.js';
-
+	import { baseLogout } from '@src/router/auth';
+	
     export default {
         mixins: [table],
         inject: ['refresh'],
@@ -377,6 +431,11 @@
                     enable:   false,
                     nickname: '',
                     id:       '',
+                },
+                transformSuperUserDialog: {
+                    visible: false,
+                    user:    '',
+                    id:      '',
                 },
             };
         },
@@ -508,6 +567,34 @@
                     });
 
                     cb(list);
+                }
+            },
+            
+            clearSuggestions() {
+                this.transformSuperUserDialog.id = '';
+            },
+
+            selectUser(item) {
+                if(item.id === this.userInfo.id) {
+                    return this.$message.error('不能将超级管理员转移给自己!');
+                }
+                this.transformSuperUserDialog.id = item.id;
+            },
+
+            async transformSuperUser($event) {
+                const { code } = await this.$http.post({
+                    url:  '/super/admin/change',
+                    data: {
+                        id: this.transformSuperUserDialog.id,
+                    },
+                    btnState: {
+                        target: $event,
+                    },
+                });
+
+                if(code === 0) {
+                    baseLogout();
+                    this.$message.success('操作成功, 请重新登录!');
                 }
             },
         },
