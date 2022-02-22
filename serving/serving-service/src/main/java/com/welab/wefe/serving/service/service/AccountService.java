@@ -167,10 +167,6 @@ public class AccountService {
             throw new StatusCodeWithException("Wrong mobile phone number or password！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        if (!model.getEnable()) {
-            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
-        }
-        
         // Check audit status
         if (model.getAuditStatus() != null) {
             switch (model.getAuditStatus()) {
@@ -181,6 +177,10 @@ public class AccountService {
                     throw new StatusCodeWithException("账号审核不通过：" + model.getAuditComment(), StatusCode.PARAMETER_VALUE_INVALID);
                 default:
             }
+        }
+        
+        if (!model.getEnable()) {
+            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
         }
         
         String token = UUID.randomUUID().toString();
