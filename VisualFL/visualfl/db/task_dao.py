@@ -25,6 +25,23 @@ class TaskDao(Logger):
     def __init__(self,task_id):
         self._task_id = task_id
 
+    def start_task(self):
+        """
+        start task
+        """
+        try:
+            with DB.connection_context():
+                task = Task.select().where(
+                    Task.task_id == self._task_id
+                ).get()
+
+                task.start_time = current_datetime()
+                task.updated_time = current_datetime()
+                task.save()
+        except Exception as e:
+            self.exception(e)
+            self.error(f"save start task {self._task_id}  error as {e} ")
+
     def update_task_status(self, status,message=None):
         """
         Update task status

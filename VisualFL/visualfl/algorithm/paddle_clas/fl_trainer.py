@@ -165,7 +165,7 @@ def fl_trainer(
         feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
         logging.debug(f"data loader ready")
 
-        data_dir = data_loader.job_download(download_url, job_id, get_data_dir(),data_name)
+        data_dir = data_loader.job_download(download_url, job_id, get_data_dir())
         labelpath = os.path.join(data_dir,"label_list.txt")
         TaskDao(task_id).save_task_result({"label_path":labelpath},ComponentName.CLASSIFY,TaskResultType.LABEL)
         reader = data_loader.train(data_dir=data_dir)

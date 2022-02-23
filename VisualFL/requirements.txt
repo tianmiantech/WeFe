@@ -12,3 +12,4 @@ peewee==3.13.3
 cachetools==4.1.1
 # enhance
 visualdl==2.0.5
+paddle-serving-client==0.4.0

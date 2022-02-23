@@ -110,7 +110,6 @@ class PaddleFLJob(Job):
         cmd = " ".join(
             [
                 f"{executable} -m visualfl.algorithm.{self._program}.infer",
-                f"--job_id {self.job_id}",
                 f"--task_id {self._web_task_id}",
                 f"--use_gpu {self._use_gpu}",
                 f"--weights {self._weights}",

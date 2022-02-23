@@ -260,9 +260,11 @@ def un_zip(file_name,target_path):
             pass
         else:
             os.mkdir(target_path)
-        for names in zip_file.namelist():
-            zip_file.extract(names,target_path)
+        names = zip_file.namelist()
+        for name in names:
+            zip_file.extract(name,target_path)
         zip_file.close()
+        return names[0]
     except Exception as e:
         print(e)
 
@@ -276,20 +278,41 @@ def make_zip(source_dir, zip_file):
             zipf.write(pathfile, arcname)
     zipf.close()
 
-def job_download(url, job_id,base_dir, data_name):
-    target_data_dir = os.path.join(base_dir, data_name)
+def job_download(url, job_id,base_dir):
     try:
         data_file = download(url, base_dir, f"{job_id}.zip")
-        un_zip(data_file, base_dir)
-
-        if os.path.exists(target_data_dir):
-            shutil.rmtree(target_data_dir)
-
-        os.rename(os.path.join(base_dir, job_id),
-                  target_data_dir)
-
-        # os.remove(data_file)
+        dir_name = un_zip(data_file, base_dir)
+        target_dir = os.path.join(base_dir,dir_name)
     except Exception as e:
         logging.error(f"job download with {job_id} error as {e} ")
 
-    return target_data_dir
+    return target_dir
+
+
+def getImageList(dir, filelist):
+    newDir = dir
+    if os.path.isfile(dir):
+        if dir.endswith(".jpg") or dir.endswith(".JPG") or dir.endswith(".png") or dir.endswith(".PNG")\
+            or dir.endswith(".jpeg") or dir.endswith(".webp") or dir.endswith(".bmp") or dir.endswith(".tif")\
+            or dir.endswith(".gif"):
+            filelist.append(dir)
+
+    elif os.path.isdir(dir):
+        for s in os.listdir(dir):
+            newDir = os.path.join(dir, s)
+            getImageList(newDir, filelist)
+    return filelist
+
+def extractImages(src_dir):
+    imageList = getImageList(src_dir,[])
+    target_path = f"{os.path.dirname(src_dir)}_tmp"
+    if os.path.isdir(target_path):
+        pass
+    else:
+        os.mkdir(target_path)
+    for item in imageList:
+        tmp = os.path.basename(item)
+        shutil.copy(item, target_path + '/' + tmp)
+    shutil.rmtree(src_dir)
+    os.rename(target_path,src_dir)
+

@@ -92,7 +92,7 @@ def get_test_images(infer_dir, infer_img):
 def main():
     cfg = load_config(FLAGS.config)
 
-    merge_config({"use_gpu":FLAGS.use_gpu,"weights":FLAGS.weights})
+    merge_config({'use_gpu':FLAGS.use_gpu,'weights':FLAGS.weights})
     check_config(cfg)
     # check if set use_gpu=True in paddlepaddle cpu version
     check_gpu(cfg.use_gpu)
@@ -173,6 +173,9 @@ def main():
         vdl_image_step = 0
         vdl_image_frame = 0  # each frame can display ten pictures at most.
 
+
+    infer_result = {}
+    image_infers = []
     imid2path = dataset.get_imid2path()
     for iter_id, data in enumerate(loader()):
         outs = exe.run(infer_prog,
@@ -206,8 +209,6 @@ def main():
             lmk_results = lmk2out([res], is_bbox_normalized)
 
         # visualize result
-        infer_result = {}
-        data = []
         im_ids = res['im_id'][0]
         for im_id in im_ids:
             image_path = imid2path[int(im_id)]
@@ -244,14 +245,16 @@ def main():
                 category_id = bbox["category_id"]
                 bbox["category_name"] = catid2name[category_id]
             bbox_dict ={"image":os.path.basename(image_path),"bbox_results":bbox_results}
-            data.append(bbox_dict)
-        infer_result["result"] = data
-        infer_result["status"] = "finish"
-        TaskDao(task_id=FLAGS.task_id).save_task_result(infer_result,ComponentName.DETECTION, type=TaskResultType.INFER)
+            image_infers.append(bbox_dict)
+    infer_result["result"] = image_infers
+    infer_result["status"] = "finish"
+    TaskDao(task_id=FLAGS.task_id).save_task_result(infer_result,ComponentName.DETECTION, type=TaskResultType.INFER)
 
 
 
 if __name__ == '__main__':
+    def str2bool(v):
+        return v.lower() in ("true", "t", "1")
     enable_static_mode()
     parser = ArgsParser()
     parser.add_argument(
@@ -285,7 +288,7 @@ if __name__ == '__main__':
         help="Threshold to reserve the result for visualization.")
     parser.add_argument(
         "--use_gpu",
-        type=bool,
+        type=str2bool,
         default=False,
         help="whether to use gpu.")
     parser.add_argument(

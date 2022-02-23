@@ -194,6 +194,7 @@ class RESTService(Logger):
                 raise Exception("export serving model error")
 
         query = query_parse(request)
+        self.debug(f"export serving model request data: {query}")
         job_id = query.get("job_id")
         task_id = query.get("task_id")
         serving_model_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/serving_model")
@@ -202,8 +203,7 @@ class RESTService(Logger):
 
         cfg_name = "default_algorithm_config"
         zip_file = os.path.join(serving_model_path, f"{cfg_name}.zip")
-        data_loader.make_zip(os.path.join(serving_model_path, cfg_name),
-                                         zip_file)
+        data_loader.make_zip(os.path.join(serving_model_path, cfg_name),zip_file)
 
         if os.path.exists(zip_file):
             async with aiofiles.open(zip_file, 'rb') as f:
@@ -391,13 +391,15 @@ class RESTService(Logger):
             algorithm_config = data.get("algorithm_config")
             cur_step = TaskDao(task_id).get_task_progress()
             input_dir = os.path.join(__logs_dir__,f"jobs/{job_id}/infer/input")
-            output_dir = os.path.join(__logs_dir__,f"jobs/{job_id}/infer/output/{data_name}")
-            infer_dir = data_loader.job_download(download_url, job_id, input_dir, data_name),
+            infer_dir = data_loader.job_download(download_url, job_id, input_dir)
+            data_loader.extractImages(infer_dir)
+            output_dir = os.path.join(__logs_dir__, f"jobs/{job_id}/infer/output/{os.path.basename(infer_dir)}")
             config["cur_step"] = cur_step
             config["infer_dir"] = infer_dir
             config["output_dir"] = output_dir
 
-        except Exception:
+        except Exception as e:
+            self.exception(f"infer request download and process images error as {e} ")
             return self.web_response(400, traceback.format_exc(),job_id)
 
         try:
