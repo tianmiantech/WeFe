@@ -27,6 +27,11 @@ import java.awt.*;
  * @date 2022/2/23
  */
 public class WeSpecCaptcha extends SpecCaptcha {
+    /**
+     * 画笔颜色
+     */
+    private int[] color = null;
+
     public WeSpecCaptcha() {
     }
 
@@ -42,18 +47,23 @@ public class WeSpecCaptcha extends SpecCaptcha {
         super(width, height, len, font);
     }
 
+
     /**
      * 由于默认的取色方案是随机的，导致验证码每个字符都是单独的颜色，这削弱了验证码的安全性，所以这里控制为单一颜色。
      */
     @Override
     protected Color color() {
-        int[] color = COLOR[1];
+        if (color == null) {
+            color = COLOR[num(COLOR.length)];
+        }
         return new Color(color[0], color[1], color[2]);
     }
 
     public static void main(String[] args) {
-        WeSpecCaptcha captcha = new WeSpecCaptcha(85, 35, 5);
-        captcha.setFont(new Font("楷体", Font.PLAIN, 24));
-        System.out.println(captcha.toBase64());
+        for (int i = 0; i < 10; i++) {
+            WeSpecCaptcha captcha = new WeSpecCaptcha(85, 35, 5);
+            captcha.setFont(new Font("楷体", Font.PLAIN, 24));
+            System.out.println(captcha.toBase64());
+        }
     }
 }
