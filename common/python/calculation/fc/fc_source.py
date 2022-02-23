@@ -395,7 +395,8 @@ class FCSource(Table):
                 consume = time.time() - start
                 LOGGER.debug(
                     f"function`{fc_name}`time-consuming:{consume},execution_name:{execution_name},\
-                    level:{int(consume)},param:{input_param if consume > 1 else None},function_name:{function_name}")
+                    level:{int(consume)},function_name:{function_name}, fc_name:{input_param['fc_name']} \
+                    source:{input_param['source']},dest:{input_param['dest']}")
                 return self._get_rtn_fcs(input_param)
 
             except Exception as ex:
