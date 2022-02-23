@@ -73,7 +73,7 @@ public class DataSetAddService extends AbstractService {
         }
 
         if (dataSetRepository.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("This dataset name already exists, please change it to another dataset name", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据集名称已存在, 请更改其他名称再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         DataSetMySqlModel model = new DataSetMySqlModel();
@@ -99,7 +99,6 @@ public class DataSetAddService extends AbstractService {
         File file = null;
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
-
         } else {
             file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
             try {
@@ -179,7 +178,7 @@ public class DataSetAddService extends AbstractService {
 
         DataSourceMySqlModel dsModel = dataSourceService.getDataSourceById(dataSourceId);
         if (dsModel == null) {
-            throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -201,9 +200,7 @@ public class DataSetAddService extends AbstractService {
         CommonThreadPool.run(() -> {
             jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
         });
-//
-//        // Wait for the consumption queue to complete
-//        dataRowConsumer.waitForFinishAndClose();
+
         model.setStoraged(true);
 
         LOG.info("The dataset is parsed：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");
