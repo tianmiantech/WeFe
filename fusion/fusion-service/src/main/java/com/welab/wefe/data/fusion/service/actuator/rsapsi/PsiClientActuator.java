@@ -28,6 +28,7 @@ import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -45,8 +46,13 @@ public class PsiClientActuator extends AbstractPsiActuator {
     BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(5);
     RejectedExecutionHandler rejectedExecutionHandler =
             new ThreadPoolExecutor.CallerRunsPolicy();
-    ExecutorService threadPool = new ThreadPoolExecutor(5, 10, 0L, TimeUnit.MILLISECONDS,
-            workingQueue, rejectedExecutionHandler);
+
+    ExecutorService threadPool = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() * 2,
+            100L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>());
 
     ExecutorService parseThreadPool = new ThreadPoolExecutor(5, 10, 0L, TimeUnit.MILLISECONDS,
             workingQueue, rejectedExecutionHandler);
@@ -100,9 +106,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
         List<JObject> curList = service.paging(columnList, dataSetId, current_index, shard_size);
         current_index++;
 
-        LOG.info("cursor {} spend: {}", current_index, System.currentTimeMillis() - start);
+        LOG.info("cursor {} size: {} spend: {} ", current_index, curList.size(), System.currentTimeMillis() - start);
 
-        if (curList.isEmpty()) {
+        if (CollectionUtils.isEmpty(curList)) {
             return false;
         }
 
@@ -177,16 +183,10 @@ public class PsiClientActuator extends AbstractPsiActuator {
         LOG.info("Start data encryption...");
 
 
-        LOG.info("Server@" + ip + ":" + port + " connecting!");
-        Socket socket = SocketUtils
-                .create(ip, port)
-                .setRetryCount(3)
-                .builder();
-
         for (int i = 0; i < count; i++) {
             threadPool.execute(() -> {
                 try {
-                    fusion(socket);
+                    fusion();
 
                     //TODO 临时代码
 //                    Socket socket = socketQueue.take();
@@ -249,29 +249,29 @@ public class PsiClientActuator extends AbstractPsiActuator {
      *
      * @throws StatusCodeWithException
      */
-    private void fusion(Socket socket) throws StatusCodeWithException {
-//        Socket socket = null;
+    private void fusion() throws StatusCodeWithException {
+        Socket socket = null;
 //        try {
-//            LOG.info("Server@" + ip + ":" + port + " connecting!");
-//            socket = SocketUtils
-//                    .create(ip, port)
-//                    .setRetryCount(3)
-//                    .builder();
+        LOG.info("Server@" + ip + ":" + port + " connecting!");
+        socket = SocketUtils
+                .create(ip, port)
+                .setRetryCount(3)
+                .builder();
 
-            PSIUtils.sendString(socket, ActionType.align.name());
+        PSIUtils.sendString(socket, ActionType.align.name());
 
-            cursor();
+        cursor();
 
-            Integer index = threadId.get();
+        Integer index = threadId.get();
 
-            LOG.info("fusion() current_index ： {}", index);
+        LOG.info("fusion() current_index ： {}", index);
 
-            //Initiating a query request
-            query(socket);
+        //Initiating a query request
+        query(socket);
 
-            //Joins the queue to be parsed
-            //socketQueue.put(socket);
-            receiveAndParseResult(socket);
+        //Joins the queue to be parsed
+        //socketQueue.put(socket);
+        receiveAndParseResult(socket);
 //        } catch (InterruptedException e1) {
 //            e1.printStackTrace();
 //        }
