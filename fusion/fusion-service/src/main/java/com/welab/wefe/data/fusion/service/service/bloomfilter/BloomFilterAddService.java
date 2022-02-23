@@ -99,6 +99,7 @@ public class BloomFilterAddService extends AbstractService {
         model.setCreatedBy(CurrentAccount.id());
         model.setRows(StringUtil.join(input.getRows(), ','));
         model.setHashFunction(PrimaryKeyUtils.hashFunction(input.getFieldInfoList()));
+        model.setSourcePath(input.getFilename());
         model.setUsedCount(0);
         model.setUpdatedTime(new Date());
         bloomFilterRepository.save(model);
@@ -118,7 +119,6 @@ public class BloomFilterAddService extends AbstractService {
             try {
                 //Read from the data file and generate a filter
                 readAndSaveFile(model, file, input.getRows());
-                model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败！");
