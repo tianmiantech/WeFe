@@ -28,6 +28,7 @@ import com.welab.wefe.common.web.dto.GatewayMemberInfo;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author zane.luo
@@ -39,7 +40,6 @@ public class RedirectApi extends AbstractApi<RedirectApi.Input, Object> {
     protected ApiResult<Object> handle(Input input) throws StatusCodeWithException {
 
         AbstractApi api = Launcher.CONTEXT.getBean(input.api, AbstractApi.class);
-
         // join the requester's member information in the input
         input.data.put(
                 "callerMemberInfo",
@@ -56,6 +56,14 @@ public class RedirectApi extends AbstractApi<RedirectApi.Input, Object> {
         private JobMemberRole callerMemberRole;
         private String api;
         private Map<String, Object> data;
+
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            if (data == null) {
+                data = new TreeMap<>();
+            }
+        }
 
         //region getter/setter
 
