@@ -20,19 +20,40 @@ import com.wf.captcha.SpecCaptcha;
 import java.awt.*;
 
 /**
+ * 由于父类中默认的取色方案是随机的，导致验证码每个字符都是单独的颜色，这削弱了验证码的安全性。
+ * 子类继承后重写取色相关方法，控制为单一颜色。
+ *
  * @author zane
  * @date 2022/2/23
  */
 public class WeSpecCaptcha extends SpecCaptcha {
+    public WeSpecCaptcha() {
+    }
+
+    public WeSpecCaptcha(int width, int height) {
+        super(width, height);
+    }
+
+    public WeSpecCaptcha(int width, int height, int len) {
+        super(width, height, len);
+    }
+
+    public WeSpecCaptcha(int width, int height, int len, Font font) {
+        super(width, height, len, font);
+    }
+
+    /**
+     * 由于默认的取色方案是随机的，导致验证码每个字符都是单独的颜色，这削弱了验证码的安全性，所以这里控制为单一颜色。
+     */
     @Override
     protected Color color() {
-        int[] color = COLOR[num(COLOR.length)];
+        int[] color = COLOR[1];
         return new Color(color[0], color[1], color[2]);
     }
 
     public static void main(String[] args) {
-        WeSpecCaptcha captcha = new WeSpecCaptcha();
-//        captcha.toBase64()
-//        captcha.write("/Users/zane/Desktop/test.png");
+        WeSpecCaptcha captcha = new WeSpecCaptcha(85, 35, 5);
+        captcha.setFont(new Font("楷体", Font.PLAIN, 24));
+        System.out.println(captcha.toBase64());
     }
 }
