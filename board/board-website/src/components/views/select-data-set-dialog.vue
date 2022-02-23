@@ -1,14 +1,13 @@
 <template>
     <el-dialog
         v-model="show"
-        width="75%"
-        title="请选择数据资源"
         destroy-on-close
+        title="请选择数据资源"
         :close-on-click-modal="false"
+        width="75%"
     >
         <el-form
             inline
-            size="mini"
             @submit.prevent
         >
             <el-form-item
@@ -63,7 +62,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-if="projectType !== 'DeepLearning'"
+                v-if="projectType !== 'DeepLearning' && search.dataResourceType.length === 1 && search.dataResourceType[0] === 'TableDataSet'"
                 label="是否包含Y值："
                 label-width="100"
             >
@@ -78,7 +77,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item
-                v-else
+                v-if="projectType === 'DeepLearning'"
                 label="样本分类："
                 label-width="100"
             >
@@ -95,16 +94,6 @@
                     />
                 </el-select>
             </el-form-item>
-            <!-- <el-form-item v-if="memberRole === 'provider'" label="包含Y：">
-                <el-select
-                    v-model="search.contains_y"
-                    style="width:80px;"
-                    clearable
-                >
-                    <el-option label="是" value="true"></el-option>
-                    <el-option label="否" value="false"></el-option>
-                </el-select>
-            </el-form-item> -->
             <el-button
                 class="ml10 mb10"
                 type="primary"
@@ -165,11 +154,11 @@
                     id:               '',
                     name:             '',
                     creator:          '',
-                    contains_y:       '',
+                    containsY:        '',
                     dataResourceType: '',
                 },
-                hideRelateSourceTab: false,
                 isShow:              false,
+                hideRelateSourceTab: false,
                 sourceTypeList:      [
                     {
                         label: 'TableDataSet',
@@ -227,12 +216,12 @@
                         id:               '',
                         name:             '',
                         creator:          '',
-                        contains_y:       '',
+                        containsY:        '',
                         dataResourceType: this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'],
                     };
 
                     if(this.containsY) {
-                        this.search.contains_y = true;
+                        this.search.containsY = true;
                     }
 
                     $ref.list = [];

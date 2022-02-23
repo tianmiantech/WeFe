@@ -45,7 +45,7 @@
                                 </el-icon>
                             </div>
                             <el-button
-                                size="mini"
+                                size="small"
                                 type="primary"
                                 icon="eliconCirclePlus"
                                 @click="methods.addTransform($event, member, scope.$index)"

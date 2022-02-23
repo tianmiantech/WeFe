@@ -65,7 +65,7 @@ public class DataSourceService extends AbstractService {
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
         if (dataSourceRepo.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("This data source name already exists, please change the data source name", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据源名称已存在, 请更该数据源名称再提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // 测试连接
@@ -92,7 +92,7 @@ public class DataSourceService extends AbstractService {
         params.put("databaseName", input.getDatabaseName());
         params.put("host", input.getHost());
         params.put("port", input.getPort());
-        params.put("userName", input.getName());
+        params.put("userName", input.getUserName());
         params.put("password", input.getPassword());
         params.put("updatedBy", CurrentAccount.id());
         params.put("updatedTime", new Date());
@@ -149,7 +149,7 @@ public class DataSourceService extends AbstractService {
         if (conn != null) {
             boolean success = jdbcManager.testQuery(conn);
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
+                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
             }
         }
 
@@ -174,7 +174,7 @@ public class DataSourceService extends AbstractService {
     public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
         DataSourceMySqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
         }
 
         JdbcManager jdbcManager = new JdbcManager();

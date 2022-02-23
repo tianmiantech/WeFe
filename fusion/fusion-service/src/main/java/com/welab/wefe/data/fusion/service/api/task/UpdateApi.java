@@ -50,7 +50,7 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         private String name;
 
         @Check(name = "合作方id", require = true)
-        private String partnerId;
+        private String partnerMemberId;
 
         @Check(name = "数据资源id", require = true)
         private String dataResourceId;
@@ -77,12 +77,12 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
             this.name = name;
         }
 
-        public String getPartnerId() {
-            return partnerId;
+        public String getPartnerMemberId() {
+            return partnerMemberId;
         }
 
-        public void setPartnerId(String partnerId) {
-            this.partnerId = partnerId;
+        public void setPartnerMemberId(String partnerMemberId) {
+            this.partnerMemberId = partnerMemberId;
         }
 
         public String getDataResourceId() {

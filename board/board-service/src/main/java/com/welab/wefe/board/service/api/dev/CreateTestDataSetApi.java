@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.dev;
 
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -61,14 +62,13 @@ public class CreateTestDataSetApi extends AbstractApi<CreateTestDataSetApi.Input
     }
 
     private String createCsv(Input input) throws IOException {
-        String fileName = config.getFileUploadDir() + "/"
-                + input.idType + "-"
+        String fileName = input.idType + "-"
                 + input.features + "-"
                 + input.rows
                 + (input.hasY ? "-y" : "")
                 + ".csv";
 
-        File file = new File(fileName);
+        File file = WeFeFileSystem.getBaseDir(WeFeFileSystem.UseType.AddTableDataSet).resolve(fileName).toFile();
 
         if (file.exists()) {
             FileUtils.deleteQuietly(file);

@@ -20,6 +20,8 @@ package com.welab.wefe.gateway.dto;
  * @author Zane
  */
 
+import com.welab.wefe.common.constant.SecretKeyType;
+
 /**
  * @author aaron.li
  */
@@ -69,6 +71,12 @@ public class MemberInfoModel {
      * Member stealth status
      */
     private Boolean memberHidden;
+
+    /**
+     * Secret key type, default rsa
+     */
+    private SecretKeyType secretKeyType = SecretKeyType.rsa;
+
 
     //region getter/setter
 
@@ -150,6 +158,14 @@ public class MemberInfoModel {
 
     public void setMemberHidden(Boolean memberHidden) {
         this.memberHidden = memberHidden;
+    }
+
+    public SecretKeyType getSecretKeyType() {
+        return secretKeyType;
+    }
+
+    public void setSecretKeyType(SecretKeyType secretKeyType) {
+        this.secretKeyType = secretKeyType;
     }
 
     //endregion

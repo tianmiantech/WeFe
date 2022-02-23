@@ -17,7 +17,7 @@
                 />
                 <el-alert
                     v-if="form.is_exited"
-                    :title="`${exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
+                    :title="`${form.exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
                     :closable="false"
                     type="error"
                 />
@@ -58,7 +58,7 @@
                         </p>
                         <p class="project-desc-value">
                             <span class="project-desc-key">项目类型：</span>
-                            <span class="f14">{{ form.project_type }}</span>
+                            <span class="f14">{{ form.project_type === 'DeepLearning' ? '视觉处理' : form.project_type === 'MachineLearning' ? '机器学习' : '' }}</span>
                         </p>
                         <p class="project-desc-time f13 ml10">
                             <template v-if="form.isCreator">由 {{ project.creator_nickname }}</template> 创建于 {{ dateFormat(project.created_time) }}
@@ -307,6 +307,7 @@
                         is_creator,
                         my_role,
                         closed,
+                        exit_operator_nickname,
                         close_operator_nickname,
                         closed_time,
                         closed_by,
@@ -329,13 +330,15 @@
                     this.project.is_exited = is_exited;
 
                     this.form.name = name;
-                    this.form.project_type = project_type;
                     this.form.is_exited = is_exited;
                     this.form.exited_time = exited_time;
+                    this.form.exit_nickname = exit_operator_nickname;
                     this.form.updated_time = updated_time;
+                    this.form.project_type = project_type;
                     this.form.closed = closed;
                     this.form.desc = project_desc;
                     this.form.exited = promoter.exited;
+                    this.form.exit_operator_nickname = exit_operator_nickname;
                     this.form.audit_status = audit_status;
                     this.form.isPromoter = my_role === 'promoter';
                     this.form.isCreator = is_creator || data.is_creator === undefined;
@@ -344,7 +347,7 @@
                     this.promoter.member_id = promoter.member_id;
                     this.promoter.member_role = promoter.member_role;
                     this.promoter.member_name = promoter.member_name;
-                    this.promoter.$data_set = promoter.data_set_list;
+                    this.promoter.$data_set = promoter.data_resource_list;
 
                     const members = {};
                     const { providerService, promoterService } = this;
@@ -356,7 +359,7 @@
                         if(!members[key]) {
                             members[key] = [];
                         }
-                        member.data_set_list.forEach(dataSet => {
+                        member.data_resource_list.forEach(dataSet => {
                             dataSet.$keywords = dataSet.data_set_keys;
                             members[key].push(dataSet);
                         });
@@ -379,7 +382,7 @@
                         if(!members[midx]) {
                             members[midx] = [];
                         }
-                        member.data_set_list.forEach(dataSet => {
+                        member.data_resource_list.forEach(dataSet => {
                             dataSet.$keywords = dataSet.data_set_keys;
                             members[midx].push(dataSet);
                         });

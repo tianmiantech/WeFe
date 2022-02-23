@@ -17,11 +17,16 @@ package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.DataResourceStorageType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
-import com.welab.wefe.common.wefe.enums.DataSetStorageType;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author zane
@@ -37,7 +42,7 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "标签")
     private String tags;
     @Check(name = "存储类型")
-    private DataSetStorageType storageType;
+    private DataResourceStorageType storageType;
     @Check(name = "资源在存储中的命名空间;库名、目录路径）")
     private String storageNamespace;
     @Check(name = "资源在存储中的名称;表名、文件名）")
@@ -71,12 +76,27 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "数据集是否已被删除")
     private boolean deleted;
 
-	public String getDerivedFromCn() {
-		if (derivedFrom != null) {
-			return derivedFrom.getLabel();
-		}
-		return "";
-	}
+    public String getDerivedFromCn() {
+        if (derivedFrom != null) {
+            return derivedFrom.getLabel();
+        }
+        return "";
+    }
+
+    public Map<String, String> getPublicMemberInfoList() {
+        TreeMap<String, String> map = new TreeMap<>();
+
+        if (publicMemberList == null) {
+            return map;
+        }
+        StringUtil
+                .splitWithoutEmptyItem(publicMemberList, ",")
+                .forEach(item -> {
+                    map.put(item, CacheObjects.getMemberName(item));
+                });
+
+        return map;
+    }
 
     public String getDataResourceId() {
         return super.getId();
@@ -116,11 +136,11 @@ public class DataResourceOutputModel extends AbstractOutputModel {
         this.tags = tags;
     }
 
-    public DataSetStorageType getStorageType() {
+    public DataResourceStorageType getStorageType() {
         return storageType;
     }
 
-    public void setStorageType(DataSetStorageType storageType) {
+    public void setStorageType(DataResourceStorageType storageType) {
         this.storageType = storageType;
     }
 

@@ -152,6 +152,20 @@
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
+
+
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>common-verification-code</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dysmsapi20170525</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+
     </dependencies>
 
     <build>

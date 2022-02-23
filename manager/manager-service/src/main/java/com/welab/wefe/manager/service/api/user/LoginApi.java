@@ -16,6 +16,7 @@
 
 package com.welab.wefe.manager.service.api.user;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -55,11 +56,15 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
             return fail("密码错误, 请重新输入");
         }
 
+        if (!user.isEnable()) {
+            throw new StatusCodeWithException("账号尚未启用，请联系管理员对您的账号启用后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
 
         LoginOutput output = mUserMapper.transfer(user);
         String token = CurrentAccount.generateToken();
         output.setToken(token);
-        CurrentAccount.logined(token, user.getUserId(), user.getAccount(), user.isAdminRole(), user.isSuperAdminRole());
+        CurrentAccount.logined(token, user.getUserId(), user.getAccount(), user.isAdminRole(), user.isSuperAdminRole(), user.isEnable());
         return success(output);
     }
 }

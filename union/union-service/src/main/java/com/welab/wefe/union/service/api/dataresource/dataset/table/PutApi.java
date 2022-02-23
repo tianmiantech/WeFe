@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected TableDataSetContractService tableDataSetContractService;
+    @Autowired
     protected TableDataSetMongoReop tableDataSetMongoReop;
 
     protected TableDataSetMapper tableDataSetMapper = Mappers.getMapper(TableDataSetMapper.class);
@@ -45,12 +46,13 @@ public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiO
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException {
         TableDataSet tableDataSet = tableDataSetMongoReop.findByDataResourceId(input.getDataResourceId());
-        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.getCurMemberId());
+        DataResource dataResource = dataResourceMongoReop.find(input.getDataResourceId(), input.curMemberId);
         if (dataResource == null) {
             if (tableDataSet == null) {
                 tableDataSetContractService.add(tableDataSetMapper.transferPutInputToTableDataSet(input));
+                dataResourceContractService.add(dataResourceMapper.transferPutInputToDataResource(input));
             } else {
-                dataResourceContractService.add(tableDataSetMapper.transferPutInputToDataResource(input));
+                dataResourceContractService.add(dataResourceMapper.transferPutInputToDataResource(input));
             }
         } else {
             tableDataSet.setContainsY(input.containsY ? "1" : "0");

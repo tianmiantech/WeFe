@@ -14,7 +14,7 @@
 
 import json
 from comm import dataUtil
-from comm.dataUtil import TimeConsume
+from comm.stat import Stat
 from common.python.utils import cloudpickle
 
 
@@ -46,38 +46,40 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
-    tc = TimeConsume()
+    # stat = Stat()
 
-    # get the source,others,destination fcStorage
-    source_fcs_dict, others_fcs_dict, dest_fcs = dataUtil.get_fc_storages_has_other(evt, context)
-    tc.end('join,get_fc_storages_has_other', evt, context)
+    source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+    other_fcs = dataUtil.get_other_fc_storage(evt)
 
-    # get data
     partition = evt['partition']
-    tc.end('join,get data', evt, context)
+    source_count = source_fcs.count(partition)
+    other_count = other_fcs.count(partition)
 
-    # do join
+    # left more than right
+    left_is_source = True
+    if source_count >= other_count:
+        left_fcs = source_fcs
+        right_fcs = other_fcs
+    else:
+        left_fcs = other_fcs
+        right_fcs = source_fcs
+        left_is_source = False
+
+    left_dict = dict(dataUtil.get_data_from_fcs(left_fcs, partition))
     func = None
-    if 'func' in evt.keys():
+    if 'func' in evt:
         func = cloudpickle.loads(bytes.fromhex(evt['func']))
-    result = []
-    # get others keys
-    others_keys = others_fcs_dict.keys()
-    # self join other
-    count = 0
-    for source_k, source_v in source_fcs_dict.items():
-        count += 1
-        if source_k in others_keys:
-            v = others_fcs_dict[source_k]
-            if func is not None:
-                v = func(source_v, others_fcs_dict[source_k])
-                result.append((source_k, v))
-            else:
-                result.append((source_k, (source_v, v)))
-    tc.end('do join', evt, context)
 
-    # put result to destination fcStorage
-    if len(result) > 0:
-        dest_fcs.put_all(result)
-    tc.end(f'join: put_all, count: {len(result)}', evt, context)
-    return dataUtil.fc_result(count=count, partition=partition)
+    right_kv = right_fcs.collect(partition=partition)
+    dest_fcs.put_all(_do_join(right_kv, left_dict, left_is_source, func))
+    return dataUtil.fc_result(count=source_count + other_count, partition=partition)
+
+
+def _do_join(right_kv, left_dict: dict, left_is_source: bool, func):
+    for right_k, right_v in right_kv:
+        if right_k in left_dict:
+            left_v = left_dict.get(right_k)
+            if func is not None:
+                yield (right_k, func(left_v, right_v)) if left_is_source else (right_k, func(right_v, left_v))
+            else:
+                yield (right_k, (left_v, right_v)) if left_is_source else (right_k, (right_v, left_v))

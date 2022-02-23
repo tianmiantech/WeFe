@@ -32,7 +32,8 @@
             </el-select>
 
             <i class="iconfont icon-circle-plus" @click="methods.addLi" />
-            <i :class="['iconfont', 'icon-circle-minus', { disabled: vData.encryptionList.length === 1 }]" @click="methods.removeLi($event, i)" />
+            <i v-if="vData.encryptionList.length === 1" :class="['iconfont', 'icon-circle-minus', { disabled: vData.encryptionList.length === 1 }]" />
+            <i v-else :class="['iconfont', 'icon-circle-minus', { disabled: vData.encryptionList.length === 1 }]" @click="methods.removeLi($event, i)" />
         </el-form-item>
         <p v-if="hash_func">主键组合方式: {{ hash_func }}</p>
 
@@ -144,9 +145,15 @@
 </script>
 
 <style lang="scss" scoped>
-    .el-select.error{
-        :deep(.el-input__inner){
-            border: 1px solid $--color-danger;
+    .el-select{
+        .error{
+            :deep(.el-input__inner){
+                border: 1px solid $--color-danger;
+            }
+        }
+        :deep(.el-tag__close){
+            background: #ddd;
+            &:hover{background:#bbb;}
         }
     }
     .iconfont{
@@ -163,7 +170,7 @@
             color:$color-text-disabled;
         }
     }
-    .el-switch{vertical-align: text-bottom;}
+    .el-switch{top:-2px;}
     .el-icon-warning{
         cursor:pointer;
         top:2px;

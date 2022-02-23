@@ -178,6 +178,45 @@ public abstract class AbstractDataSetReader implements Closeable {
         }
     }
 
+    /**
+     * Read data row
+     *
+     * @param dataRowConsumer Data row consumption method
+     * @param maxReadRows     Maximum number of rows that can be read
+     * @param maxReadTimeInMs Maximum read time allowed
+     */
+    public void readWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs, List<String> rows) throws StatusCodeWithException {
+
+        long start = System.currentTimeMillis();
+
+        LinkedHashMap<String, Object> line;
+        while ((line = readOneRow()) != null) {
+
+
+            List<Object> fields = new ArrayList<>(line.keySet());
+            List<Object> values = new ArrayList<>(line.values());
+            LinkedHashMap<String, Object> newLine = new LinkedHashMap<>();
+            for (int i = 0; i < line.size(); i++) {
+                if (rows.contains(fields.get(i))) {
+                    newLine.put((String) fields.get(i), values.get(i));
+                }
+            }
+
+            dataRowConsumer.accept(newLine);
+
+            readDataRows++;
+
+
+            if (maxReadRows > 0 && readDataRows >= maxReadRows) {
+                break;
+            }
+
+            if (maxReadTimeInMs > 0 && System.currentTimeMillis() - start > maxReadTimeInMs) {
+                break;
+            }
+        }
+    }
+
     public boolean isContainsY() throws StatusCodeWithException {
         if (header == null) {
             getHeader();

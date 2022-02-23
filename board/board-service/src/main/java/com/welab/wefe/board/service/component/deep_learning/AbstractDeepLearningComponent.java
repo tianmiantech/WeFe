@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.component.deep_learning;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.data_resource.image_data_set.ImageDataSetDownloadApi;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
@@ -39,13 +40,13 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -77,12 +78,13 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
         params.numClasses = labelNames.size();
 
         KernelJob job = new KernelJob();
+        job.projectId = graph.getJob().getProjectId();
         job.jobId = graph.getJob().getJobId();
         job.taskId = node.createTaskId(graph.getJob());
         job.role = graph.getJob().getMyRole();
         job.memberId = CacheObjects.getMemberId();
         job.env = new Env(imageDataIoParam);
-        job.members = graph.getMembers().stream().map(Member::new).collect(Collectors.toList());
+        job.members = Member.forDeepLearning(graph.getMembers());
 
         DataResourceOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
         JObject dataSetInfo = JObject.create(myJobDataSet);
@@ -96,11 +98,13 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
     }
 
     private String buildDataSetDownloadUrl(String dataSetId, String jobId) {
+        Api annotation = ImageDataSetDownloadApi.class.getAnnotation(Api.class);
         return Launcher.getBean(GlobalConfigService.class)
                 .getBoardConfig()
                 .intranetBaseUri
-                + "/image_data_set/download?"
-                + "data_set_id=" + dataSetId
+                + "/"
+                + annotation.path()
+                + "?data_set_id=" + dataSetId
                 + "&job_id=" + jobId;
 
     }

@@ -19,9 +19,7 @@
                 />
             </el-select>
             <el-button
-                size="mini"
                 class="ml10"
-                style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"
                 @click="methods.showColumnListDialog"
             >

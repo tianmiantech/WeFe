@@ -377,7 +377,7 @@
         z-index: 10;
         width: 44px;
         height: 44px;
-        padding-top: 10px;
+        padding-top: 13px;
         overflow: visible;
         &:hover{background: #f0f0f0;}
         .num{

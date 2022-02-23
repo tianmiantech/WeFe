@@ -44,14 +44,14 @@
                 <router-link :to="{ name: 'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
                     {{ scope.row.name }}
                 </router-link>
-                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="mini">
+                <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="small">
                     bf
                 </el-tag>
                 <br>
                 <span class="p-id">{{ scope.row.data_resource_id }}</span>
             </template>
         </el-table-column>
-        <el-table-column label="关键词">
+        <el-table-column label="关键词" min-width="140">
             <template v-slot="scope">
                 <template
                     v-for="(item, index) in scope.row.tags.split(',')"
@@ -96,7 +96,7 @@
                 <p v-if="scope.row.data_resource_type === 'ImageDataSet'">
                     样本量/已标注：{{scope.row.total_data_count}}/{{scope.row.labeled_count}}
                     <br>
-                    标注进度：{{ (scope.row.labeled_count / scope.row.total_data_count).toFixed(2) * 100 }}%
+                    标注进度：{{ ((scope.row.labeled_count / scope.row.total_data_count) * 100).toFixed(2) }}%
                     <br>
                     样本分类：{{scope.row.for_job_type === 'detection' ? '目标检测' : '图像分类'}}
                 </p>
@@ -124,8 +124,7 @@
             align="center"
         />
         <el-table-column
-            label="上传者"
-            prop="creator_nickname"
+            label="上传时间"
             min-width="160"
             align="center"
         >

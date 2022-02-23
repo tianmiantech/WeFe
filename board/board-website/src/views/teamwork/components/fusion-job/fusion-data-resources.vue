@@ -19,13 +19,15 @@
                         clearable
                     />
                 </el-form-item>
-                <el-button
-                    type="primary"
-                    native-type="submit"
-                    @click="methods.getList"
-                >
-                    搜索
-                </el-button>
+                <el-form-item>
+                    <el-button
+                        type="primary"
+                        native-type="submit"
+                        @click="methods.getList"
+                    >
+                        搜索
+                    </el-button>
+                </el-form-item>
             </el-form>
 
             <el-table
@@ -42,13 +44,13 @@
                     min-width="220"
                 >
                     <template v-slot="scope">
-                        {{ scope.row.data_set.name }}
-                        <p class="p-id">{{ scope.row.data_resource_id }}</p>
+                        {{ scope.row.data_resource.name }}
+                        <p class="p-id">{{ scope.row.data_resource.data_resource_id }}</p>
                     </template>
                 </el-table-column>
                 <el-table-column
                     label="授权情况"
-                    min-width="80"
+                    min-width="100"
                 >
                     <template v-slot="scope">
                         <el-tag v-if="scope.row.audit_status === 'agree'">已授权</el-tag>
@@ -77,7 +79,7 @@
                 >
                     <template v-slot="scope">
                         <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                            <el-icon v-if="scope.row.contains_y" style="color: #67C23A">
+                            <el-icon v-if="scope.row.data_resource.contains_y" style="color: #67C23A">
                                 <elicon-check />
                             </el-icon>
                             <el-icon v-else>
@@ -94,26 +96,26 @@
                 >
                     <template v-slot="scope">
                         <p v-if="scope.row.data_resource_type === 'BloomFilter'">
-                            样本量：{{ scope.row.data_set.total_data_count }}
+                            样本量：{{ scope.row.data_resource.total_data_count }}
                             <br>
-                            主键组合方式: {{ scope.row.data_set.hash_function }}
+                            主键组合方式: {{ scope.row.data_resource.hash_function || '无' }}
                         </p>
                         <template v-else>
-                            特征量：{{ scope.row.data_set.feature_count }}
+                            特征量：{{ scope.row.data_resource.feature_count }}
                             <br>
-                            样本量：{{ scope.row.data_set.total_data_count }}
-                            <template v-if="scope.row.data_set.contains_y && scope.row.data_set.y_positive_sample_count">
+                            样本量：{{ scope.row.data_resource.total_data_count }}
+                            <template v-if="scope.row.data_resource.contains_y && scope.row.data_resource.y_positive_sample_count">
                                 <br>
-                                正例样本数量：{{ scope.row.data_set.y_positive_sample_count }}
+                                正例样本数量：{{ scope.row.data_resource.y_positive_sample_count }}
                                 <br>
-                                正例样本比例：{{(scope.row.data_set.y_positive_sample_ratio * 100).toFixed(1)}}%
+                                正例样本比例：{{(scope.row.data_resource.y_positive_sample_ratio * 100).toFixed(1)}}%
                             </template>
                         </template>
                     </template>
                 </el-table-column>
                 <el-table-column
-                    label="上传者"
-                    min-width="120"
+                    label="上传时间"
+                    min-width="140"
                 >
                     <template v-slot="scope">
                         {{ scope.row.creator_nickname }}<br>

@@ -16,15 +16,13 @@
 
 package com.welab.wefe.mpc.pir.server.service;
 
-import cn.hutool.core.util.PhoneUtil;
-import com.welab.wefe.mpc.cache.result.QueryDataResult;
-import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.AccountEncryptionType;
+import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.commom.Conversion;
 import com.welab.wefe.mpc.commom.RandomPhoneNum;
-import com.welab.wefe.mpc.pir.protocol.nt.group.GroupArithmetic;
 import com.welab.wefe.mpc.pir.protocol.nt.group.GroupElement;
-import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransfer;
 import com.welab.wefe.mpc.pir.protocol.ot.hauck.HauckObliviousTransfer;
 import com.welab.wefe.mpc.pir.protocol.se.SymmetricKey;
 import com.welab.wefe.mpc.pir.protocol.se.aes.AESDecryptKey;
@@ -33,8 +31,6 @@ import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
-import org.mockito.internal.matchers.Null;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -51,9 +47,7 @@ import java.util.concurrent.CompletableFuture;
  * @Date: 2021-12-27
  **/
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({
-        UUID.class
-})
+@PrepareForTest({UUID.class})
 @PowerMockIgnore("javax.crypto.*")
 public class HuackKeyServiceTest extends TestCase {
     private final static Logger logger = LoggerFactory.getLogger(HuackKeyServiceTest.class);
@@ -80,8 +74,8 @@ public class HuackKeyServiceTest extends TestCase {
         QueryKeysResponse keysResponse = keyService.handle(keysRequest);
 
         String uuid = keysResponse.getUuid();
-        QueryDataResult<Map<String, String>> dataResults = QueryDataResultFactory.getQueryDataResult();
-        dataResults.save(uuid, results);
+        CacheOperation<Map<String, String>> dataResults = CacheOperationFactory.getCacheOperation();
+        dataResults.save(uuid, Constants.RESULT, results);
 
         // step 2: generate Random R
         int keySize = 1024;
@@ -90,8 +84,7 @@ public class HuackKeyServiceTest extends TestCase {
         GroupElement paramS = hauckObliviousTransfer.getGroupElement(keysResponse.getS());
         CompletableFuture<GroupElement> calcRcf = CompletableFuture.supplyAsync(() -> calcR(hauckObliviousTransfer, target, x, paramS));
         CompletableFuture<GroupElement> calcXs = CompletableFuture.supplyAsync(() -> hauckObliviousTransfer.arithmetic.mul(x, paramS));
-        calcXs.join();
-        calcRcf.join();
+        CompletableFuture.allOf(calcRcf, calcXs).join();
         GroupElement r = calcRcf.get();
 
         QueryRandomLegalRequest randomLegalRequest = new QueryRandomLegalRequest();

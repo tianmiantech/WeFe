@@ -85,6 +85,11 @@ public class TransferMetaUtil {
         return Integer.parseInt(partitions);
     }
 
+    public static String getStorageType(GatewayMetaProto.TransferMeta transferMeta) {
+        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        return dbConfig.getString(StorageConstant.DST_STORAGE_TYPE);
+    }
+
     /**
      * Convert to log message format
      */

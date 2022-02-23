@@ -26,9 +26,8 @@ from common.python.common import consts
 from common.python.protobuf.pyproto import intermediate_data_pb2
 from common.python.storage.fc_storage import FCStorage
 from common.python.utils import log_utils, conf_utils, network_utils
-from common.python.utils.core_utils import deserialize
+from common.python.utils.core_utils import deserialize, serialize
 
-# from multiprocessing import Pool
 
 LOGGER = log_utils.get_logger()
 
@@ -178,7 +177,9 @@ class OssStorage(FCStorage):
         return int(env_dist.get('IN_FC_ENV') or 0) == 1
 
     def put(self, k, v, use_serialize=True):
-        self.put_all([(k, v)], use_serialize=use_serialize)
+        k_bytes = self.kv_to_bytes(k=k, use_serialize=use_serialize)
+        p = self.hash_key_to_partition(k_bytes, self._partitions)
+        self.write_partition_data(p, [(k, v)])
         return True
 
     def _generate_each_batch_data(self, kv_list: Iterable, each_file_data_count=-1, use_serialize=True):
@@ -231,13 +232,19 @@ class OssStorage(FCStorage):
 
         # encapsulated into the protobuf structure
         intermediate_data = intermediate_data_pb2.IntermediateData()
-        for k, v in partition_data:
-            k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v)
-            item_data = intermediate_data.intermediateData.add()
-            item_data.key = k_bytes
-            item_data.value = v_bytes
-        object_val = intermediate_data.SerializeToString()
 
+        # for k, v in partition_data:
+        #     k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v)
+        #     item_data = intermediate_data.intermediateData.add()
+        #     item_data.key = k_bytes
+        #     item_data.value = v_bytes
+
+        # use batch serialize data
+        intermediate_data.dataFlag = consts.IntermediateDataFlag.BATCH_SERIALIZATION
+        batch_serialize_data = intermediate_data.serializationData
+        batch_serialize_data.value = serialize(partition_data)
+
+        object_val = intermediate_data.SerializeToString()
         self._bucket.put_object(object_key, object_val)
 
     def put_all(self, kv_list: Iterable, use_serialize=True, chunk_size=100000, debug_info=None):
@@ -248,7 +255,6 @@ class OssStorage(FCStorage):
                 write_partition_data_4poolmap(item_param_list)
         else:
             with multiprocessing.Pool() as pool:
-                # pool = PROCESS_POOL
                 pool.map(write_partition_data_4poolmap, batch_data)
 
     def put_if_absent(self, k, v, use_serialize=True):
@@ -262,18 +268,19 @@ class OssStorage(FCStorage):
             if item[0] == k:
                 return item[1]
 
-    def read_each_object(self, obj_key):
+    def read_each_object(self, obj_key, only_key=False):
         """
 
         Read the data of each object file
 
         Parameters
         ----------
-        obj_key
+        obj_key:
+        only_key:
 
         Returns
         -------
-        [k,v]
+        [k,v] or [k]
         """
         if obj_key:
             object_stream = self._bucket.get_object(obj_key)
@@ -281,16 +288,30 @@ class OssStorage(FCStorage):
 
             intermediate_data = intermediate_data_pb2.IntermediateData()
             intermediate_data.ParseFromString(obj)
-            for item_data in intermediate_data.intermediateData:
-                yield deserialize(item_data.key), deserialize(item_data.value)
 
-    def collect(self, min_chunk_size=0, use_serialize=True, partition=None, dispersal=True, debug_info=None) -> list:
+            if intermediate_data.dataFlag == consts.IntermediateDataFlag.BATCH_SERIALIZATION:
+                serialization_data = intermediate_data.serializationData
+                result_list = deserialize(serialization_data.value)
+                for k, v in result_list:
+                    if only_key:
+                        yield k
+                    else:
+                        yield k, v
+            else:
+                for item_data in intermediate_data.intermediateData:
+                    if only_key:
+                        yield deserialize(item_data.key)
+                    else:
+                        yield deserialize(item_data.key), deserialize(item_data.value)
+
+    def collect(self, min_chunk_size=0, use_serialize=True, partition=None, dispersal=True,
+                debug_info=None, only_key=False) -> list:
 
         # get the data of the specified partition
         if partition is not None:
             prefix = self._get_file_dir(partition) + "/"
             for obj in oss2.ObjectIterator(self._bucket, prefix=prefix):
-                for item in self.read_each_object(obj.key):
+                for item in self.read_each_object(obj.key, only_key=only_key):
                     yield item
 
         # get all data
@@ -313,9 +334,9 @@ class OssStorage(FCStorage):
 
                 # Each group takes one element to generate a new batch
                 for each_batch_object_index in itertools.zip_longest(*object_key_list):
-                    param_list = [(item, self._namespace, self._name, self._partitions, self._cloud_store_temp_auth)
-                                  for item in each_batch_object_index
-                                  if item is not None]
+                    param_list = [(item, self._namespace, self._name, self._partitions,
+                                   self._cloud_store_temp_auth, only_key)
+                                  for item in each_batch_object_index if item is not None]
 
                     result = []
                     for item_param_list in param_list:
@@ -334,13 +355,12 @@ class OssStorage(FCStorage):
             else:
 
                 # Multi-process parallel processing
-                # pool = PROCESS_POOL
                 with multiprocessing.Pool() as pool:
 
                     for each_batch_object_index in itertools.zip_longest(*object_key_list):
-                        param_list = [(item, self._namespace, self._name, self._partitions, self._cloud_store_temp_auth)
-                                      for item in each_batch_object_index
-                                      if item is not None]
+                        param_list = [(item, self._namespace, self._name, self._partitions,
+                                       self._cloud_store_temp_auth, only_key)
+                                      for item in each_batch_object_index if item is not None]
 
                         result = pool.map(get_object_data_4poolmap, param_list)
 
@@ -424,10 +444,11 @@ def get_object_data_4poolmap(param_list):
 
     """
     ins = OssStorage(param_list[1], param_list[2], param_list[3], cloud_store_temp_auth=param_list[4])
-    return list(ins.read_each_object(param_list[0]))
+    return list(ins.read_each_object(param_list[0], only_key=param_list[5]))
 
-
-PROCESS_POOL = None
 
 if __name__ == '__main__':
     pass
+    # oss_ins = OssStorage("test", "20220125", partitions=10)
+    # # oss_ins.put("k", "v")
+    # print(list(oss_ins.collect()))

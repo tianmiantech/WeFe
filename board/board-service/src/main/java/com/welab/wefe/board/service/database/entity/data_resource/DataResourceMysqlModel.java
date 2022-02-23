@@ -20,9 +20,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.DataResourceStorageType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
-import com.welab.wefe.common.wefe.enums.DataSetStorageType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -61,7 +61,7 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
      * 存储类型
      */
     @Enumerated(EnumType.STRING)
-    private DataSetStorageType storageType;
+    private DataResourceStorageType storageType;
     /**
      * 资源在存储中的命名空间;库名、目录路径）
      */
@@ -188,11 +188,11 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
         this.tags = tags;
     }
 
-    public DataSetStorageType getStorageType() {
+    public DataResourceStorageType getStorageType() {
         return storageType;
     }
 
-    public void setStorageType(DataSetStorageType storageType) {
+    public void setStorageType(DataResourceStorageType storageType) {
         this.storageType = storageType;
     }
 

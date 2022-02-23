@@ -5,15 +5,8 @@ wefe_code_path=$1
 
 # upload files to nas
 nas_upload(){
-  # add config before nas init, and execute the first time it uses s tool
-#  s_config=`s config get -l`
-#  if [[ $s_config =~ 's-config' ]]
-#  then
-#    echo "already init s-config, update s-config"
-#    s config delete -a s-config
-#  else
-#    echo "does not init s-config, now start to init ..."
-#  fi
+
+  rm -rf .s/
 
   s clean --all
 
@@ -34,9 +27,8 @@ nas_upload(){
       s build --use-docker --debug
     else
       echo "remote nas has no python environment, now upload to nas ..."
-      s nas upload /data/environment/.s/python nas:///mnt/auto/python -r -o --debug
+      s nas upload -r -o /data/environment/.s/python /mnt/auto/ --debug
     fi
-
   fi
 
   # delete remote dir
@@ -44,7 +36,7 @@ nas_upload(){
 
   # create env dir
   mkdir -p $nas_env/pythonCode
-  s nas upload ./$nas_env nas:///mnt/auto/$nas_env  -r -o --debug
+  s nas upload -r -o ./$nas_env /mnt/auto/ --debug
   rm -rf $nas_env
 
   # cp common, kernel to build dir
@@ -54,8 +46,8 @@ nas_upload(){
   find ./kernel/ -name "*.py" | cpio -pdm ./build
 
   cd common/python/calculation/fc/function/wefe-fc
-  s nas upload ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/ -o --debug
-  s nas upload ../../../../../../build/ /mnt/auto/$nas_env/pythonCode -r -o --debug
+  s nas upload -r -o ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/  --debug
+  s nas upload -r -o ../../../../../../build/ /mnt/auto/$nas_env/pythonCode  --debug
 
   rm -rf ../../../../../../build
 

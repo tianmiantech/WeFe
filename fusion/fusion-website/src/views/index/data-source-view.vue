@@ -23,9 +23,7 @@
             <el-form-item
                 label="数据库类型:"
                 prop="database_type"
-                :rules="[
-                    { required: true, message: '数据库类型必填!' }
-                ]"
+                :rules="[{ required: true, message: '数据库类型必填!' }]"
             >
                 <el-select
                     v-model="form.database_type"
@@ -86,19 +84,18 @@
                 <el-form-item
                     prop="password"
                     label="密码"
-                    :rules="[
-                        { required: true, message: '密码必填！' }
-                    ]"
+                    :rules="[{ required: true, message: '密码必填！' }]"
                 >
                     <el-input
                         v-model="form.password"
+                        type="password"
                         size="medium"
                     />
                 </el-form-item>
                 <el-button
-                    :loading="testLoading"
+                    v-loading="testLoading"
                     size="small"
-                    @click="testConnection"
+                    @click="pingTest"
                 >
                     测试连接
                 </el-button>
@@ -120,9 +117,11 @@
     export default {
         data() {
             return {
-                loading:          false,
+                loading: false,
                 // model
-                form:             {},
+                form:    {
+                    database_type: 'MySql',
+                },
                 DatabaseTypeList: [{
                     name:  'MySql',
                     value: 'MySql',
@@ -145,13 +144,15 @@
                 this.getSqlConfigDetail();
             }
         },
-
         methods: {
 
             async getSqlConfigDetail() {
                 const { code, data } = await this.$http.post({
                     url:  '/data_source/query',
-                    data: { id: this.currentItem.id, name: this.currentItem.name },
+                    data: {
+                        id:   this.currentItem.id,
+                        name: this.currentItem.name,
+                    },
                 });
 
                 if (code === 0) {
@@ -160,9 +161,6 @@
                         const resData = data.list[0];
 
                         this.form = resData;
-                        // this.form.databaseType = resData.database_type;
-                        // this.form.databaseName = resData.database_name;
-                        // this.form.userName = resData.user_name;
                     }
                 }
             },
@@ -177,19 +175,17 @@
 
                 this.saveLoading = true;
                 const { code } = await this.$http.post({
-                    url:     id ? '/data_source/update' : '/data_source/add',
-                    timeout: 1000 * 60 * 24 * 30,
-                    data:    this.form,
+                    url:  id ? '/data_source/update' : '/data_source/add',
+                    data: this.form,
                 });
 
                 if (code === 0) {
                     this.$message.success('保存成功!');
-                    this.$router.replace({ name: 'data-resouce-list', query: {} });
-
+                    this.$router.replace({ name: 'data-resouce-list' });
                 }
                 this.saveLoading = false;
             },
-            async testConnection() {
+            async pingTest() {
                 if (!this.form.name || !this.form.database_type || !this.form.host || !this.form.port || !this.form.user_name || !this.form.password || !this.form.database_name) {
                     this.$message.error('请将必填项填写完整！');
                     return;
@@ -198,10 +194,9 @@
                     return;
                 }
                 this.testLoading = true;
-                const { code, data } = await this.$http.post({
-                    url:     '/data_source/test_db_connect',
-                    timeout: 1000 * 60 * 24 * 30,
-                    data:    this.form,
+                const { code } = await this.$http.post({
+                    url:  '/data_source/test_db_connect',
+                    data: this.form,
 
                 });
 

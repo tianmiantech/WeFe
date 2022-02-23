@@ -25,6 +25,7 @@ import java.util.List;
  * @date 2021/11/22
  */
 public class KernelJob {
+    public String projectId;
     public String jobId;
     public String taskId;
     public String jobType = "paddle_fl";

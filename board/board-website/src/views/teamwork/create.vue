@@ -70,7 +70,7 @@
                 <el-button
                     v-if="form.projectType !== 'DeepLearning'"
                     class="ml20"
-                    size="mini"
+                    size="small"
                     @click="showSelectMemberDialog('promoter')"
                 >
                     + 添加更多发起方
@@ -227,7 +227,7 @@
                 协作方
                 <el-button
                     class="ml20"
-                    size="mini"
+                    size="small"
                     @click="showSelectMemberDialog('provider')"
                 >
                     + 添加更多协作方
@@ -365,6 +365,7 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import { updateMemberInfo } from '@src/router/auth';
     import SelectMemberDialog from '@comp/views/select-member-dialog';
     import SelectDatasetDialog from '@comp/views/select-data-set-dialog';
     import MemberServiceStatus from './components/member-service-status';
@@ -389,11 +390,11 @@
                 },
                 typeList: [
                     {
-                        label: 'MachineLearning',
+                        label: '机器学习',
                         value: 'MachineLearning',
                     },
                     {
-                        label: 'DeepLearning',
+                        label: '视觉处理',
                         value: 'DeepLearning',
                     },
                 ],
@@ -434,9 +435,10 @@
             if(code === 0) {
                 this.promoter.member_id = data.member_id;
                 this.promoter.member_name = data.member_name;
+                updateMemberInfo(data);
             }
 
-            await this.checkAllService();
+            this.checkAllService();
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -511,7 +513,6 @@
                     url:  '/member/available',
                     data: {
                         member_id,
-                        requestFromRefresh: true,
                     },
                 });
 

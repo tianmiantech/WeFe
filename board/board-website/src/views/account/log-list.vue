@@ -22,13 +22,15 @@
                     @change="datePickerChange"
                 />
             </el-form-item>
-            <el-button
-                type="primary"
-                native-type="submit"
-                @click="getList({ to: true, resetPagination: true })"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    native-type="submit"
+                    @click="getList({ to: true, resetPagination: true })"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
         </el-form>
 
         <el-table

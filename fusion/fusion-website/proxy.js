@@ -4,7 +4,7 @@
 
 module.exports = {
     '/api': {
-        target:       'https://xx.com/',
+        target:       'https://xxx.wolaidai.com/data-fusion-service',
         secure:       false,
         timeout:      1000000,
         changeOrigin: true,

@@ -154,6 +154,7 @@
                                 >
                                     {{ enterpriseAuth === 0 ? '去认证' : '重新认证' }}
                                 </router-link>
+                                <p v-if="enterpriseAuth === 2" class="f12" style="color: #f85564">认证有效期：{{real_name_auth_useful_life}}</p>
                             </el-form-item>
                         </div>
                     </el-col>
@@ -164,7 +165,6 @@
                 v-loading="loading"
                 class="save-btn"
                 type="primary"
-                size="medium"
                 @click="update"
             >
                 更新
@@ -185,7 +185,7 @@
             />
             <br>
             <el-button
-                size="medium"
+                size="small"
                 @click="syncToUnion"
             >
                 同步数据到 Union
@@ -228,13 +228,15 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                 },
-                audit_comment: '',
+                enterpriseAuth: '',
+                audit_comment:  '',
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.getAuthStatus();
             this.getMemberDetail();
         },
         methods: {
@@ -252,11 +254,7 @@
 
                     const info = Object.assign({
                         ...this.userInfo,
-                    }, {
-                        member_logo:  data.member_logo,
-                        member_name:  this.form.member_name,
-                        member_email: this.form.member_email,
-                    });
+                    }, this.form);
 
                     this.$store.commit('UPDATE_USERINFO', info);
 
@@ -275,6 +273,16 @@
                 }
 
                 this.loading = false;
+            },
+
+            async getAuthStatus() {
+                const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
+
+                if(code === 0) {
+                    this.enterpriseAuth = data.real_name_auth_status;
+                    this.audit_comment = data.audit_comment;
+                    this.real_name_auth_useful_life = data.real_name_auth_useful_life; 
+                }
             },
 
             // upload avatar

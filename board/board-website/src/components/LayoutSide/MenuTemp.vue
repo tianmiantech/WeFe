@@ -16,12 +16,12 @@
                         </el-icon>
                         <span>{{ item.meta.title }}
                             <el-tooltip
-                                v-if="item.meta.tooltip"
+                                v-if="!isCollapsed && item.meta.globalTooltip"
                                 placement="top-start"
                                 effect="light"
                             >
                                 <template #content>
-                                    <p class="color-danger" v-html="item.meta.tooltip"></p>
+                                    <p class="color-danger" v-html="item.meta.globalTooltip"></p>
                                 </template>
                                 <el-icon class="ml5">
                                     <elicon-info-filled />
@@ -30,7 +30,7 @@
                         </span>
                     </template>
                     <el-menu-item-group>
-                        <menu-temp :menus="item.children" />
+                        <menu-temp :menus="item.children" :is-collapsed="isCollapsed" />
                     </el-menu-item-group>
                 </el-sub-menu>
             </template>
@@ -58,7 +58,21 @@
                         <component :is="`elicon-${item.meta.icon}`" />
                     </el-icon>
                     <template #title>
-                        <span class="pl10">{{ item.meta.title }}</span>
+                        <span class="pl10">
+                            {{ item.meta.title }}
+                            <el-tooltip
+                                v-if="isCollapsed && item.meta.globalTooltip"
+                                placement="top-start"
+                                effect="light"
+                            >
+                                <template #content>
+                                    <p class="color-danger" v-html="item.meta.globalTooltip"></p>
+                                </template>
+                                <el-icon class="ml5">
+                                    <elicon-info-filled />
+                                </el-icon>
+                            </el-tooltip>
+                        </span>
                     </template>
                 </el-menu-item>
             </template>
@@ -77,6 +91,7 @@
                 type:    Array,
                 default: () => [],
             },
+            isCollapsed: Boolean,
         },
         setup() {
             const store = useStore();

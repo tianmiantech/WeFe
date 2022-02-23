@@ -64,8 +64,8 @@ class VisualFLJobStartAction(object):
             tasks = TaskDao.list_by_job(self.job)
             for task in tasks:
                 # DeepLearning
-                if task.task_type != 'DeepLearning':
-                    schedule_logger(running_job).info("not DeepLearning task, pass {},{}".format(task.task_id, task.task_type))
+                if task.task_type != 'PaddleClassify' and task.task_type != 'PaddleDetection':
+                    schedule_logger(running_job).info("not PaddleClassify/PaddleDetection task, pass {},{}".format(task.task_id, task.task_type))
                     continue
                 schedule_logger(running_job).info("run_task_action begin, {},{}".format(task.task_id,task.task_type))
                 run_task_action = RunVisualFLTaskAction(self.job, task)

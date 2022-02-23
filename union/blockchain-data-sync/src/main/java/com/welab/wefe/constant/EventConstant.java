@@ -97,4 +97,10 @@ public class EventConstant {
         public static final String DELETE_BY_SERVICE_ID_EVENT = "DELETEBYSERVICEIDEVENT";
         public static final String UPDATE_SERVICE_STATUS_EVENT = "UPDATESERVICESTATUSEVENT";
     }
+
+    public static final class DataResourceDefaultTagEvent {
+        public static final String INSERT_EVENT = "INSERTEVENT";
+        public static final String UPDATE_EVENT = "UPDATEEVENT";
+        public static final String DELETE_BY_TAGID_EVENT = "DELETEBYTAGIDEVENT";
+    }
 }

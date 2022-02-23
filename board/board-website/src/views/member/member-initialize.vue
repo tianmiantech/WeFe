@@ -89,7 +89,6 @@
                 <el-button
                     round
                     type="primary"
-                    size="medium"
                     class="btn-submit ml10"
                     @click="submit"
                 >

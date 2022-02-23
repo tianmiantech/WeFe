@@ -4,7 +4,10 @@
  */
 
 import axios from 'axios';
-import { baseLogout } from '@src/router/auth';
+import {
+    baseLogout,
+    clearUserInfo,
+} from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
 
 function setStorage () {
@@ -72,6 +75,7 @@ httpInstance.interceptors.response.use(
 
                 // login dialog
                 if (data.code === 10006) {
+                    clearUserInfo();
                     window.$app.config.globalProperties.$bus.$emit('show-login-dialog');
 
                     if (new Date().valueOf() - lastErrorMessageTime > 2000) {
@@ -91,6 +95,7 @@ httpInstance.interceptors.response.use(
                         ...data.data,
                         message: data.message,
                     });
+                    window.$app.config.globalProperties.$message.error(data.message);
                 } else if(data.code === 10017) {
                     window.$app.config.globalProperties.$message.error(data.message);
                 } else if (data.code === -1 || data.code === 10003) {
@@ -252,7 +257,10 @@ const policy = {
                 // insert loading element
                 const icon = document.createElement('i');
 
-                icon.classList.add('el-icon-loading');
+                icon.classList.add('el-loading-spinner');
+                icon.innerHTML = `<svg viewBox="25 25 50 50" class="circular">
+                    <circle cx="50" cy="50" r="20" fill="none" class="path"></circle>
+                </svg>`;
                 srcElement.insertBefore(icon, srcElement.children[0]);
                 // add to queue
                 btnQueue[locker] = srcElement;

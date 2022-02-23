@@ -16,15 +16,16 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.springframework.data.domain.Sort;
+
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.GlobalSettingMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
-import org.springframework.data.domain.Sort;
-
-import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * Global cache
@@ -111,5 +112,12 @@ public class CacheObjects {
         for (AccountMySqlModel item : list) {
             ACCOUNT_MAP.put(item.getId(), item.getNickname());
         }
+    }
+
+    public static LinkedHashMap<String, String> getAccountMap() {
+        if (ACCOUNT_MAP.isEmpty()) {
+            refreshAccountMap();
+        }
+        return ACCOUNT_MAP;
     }
 }

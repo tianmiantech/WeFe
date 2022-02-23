@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.file;
 
-import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -26,16 +26,12 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The front end uses the simple-uploader component
@@ -45,9 +41,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Api(path = "file/upload", name = "upload file")
 public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadApi.Output> {
-
-    @Autowired
-    private Config config;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
@@ -74,7 +67,11 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             chunkNumber = 0;
         }
 
-        File outFile = new File(config.getFileUploadDir() + File.separator + input.getIdentifier(), chunkNumber + ".part");
+        File outFile = WeFeFileSystem.getBaseDir(input.uploadFileUseType)
+                .resolve(input.getIdentifier())
+                .resolve(chunkNumber + ".part")
+                .toFile();
+
         if (outFile.exists()) {
             return success()
                     .setMessage("该分片已存在");
@@ -96,7 +93,7 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             chunkNumber = 0;
         }
 
-        Path outputDir = Paths.get(config.getFileUploadDir(), input.getIdentifier());
+        Path outputDir = WeFeFileSystem.getBaseDir(input.uploadFileUseType).resolve(input.getIdentifier());
         FileUtil.createDir(outputDir.toString());
         LOG.info("创建目录 " + outputDir.toFile().exists() + " ：" + outputDir);
 
@@ -149,6 +146,8 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
         private Integer totalChunks;
         @Check(name = "文件类型")
         private String type;
+        @Check(name = "文件用途", require = true)
+        private WeFeFileSystem.UseType uploadFileUseType;
 
         //region getter/setter
 
@@ -232,7 +231,14 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             this.type = type;
         }
 
+        public WeFeFileSystem.UseType getUploadFileUseType() {
+            return uploadFileUseType;
+        }
 
-        //endregion
+        public void setUploadFileUseType(WeFeFileSystem.UseType uploadFileUseType) {
+            this.uploadFileUseType = uploadFileUseType;
+        }
+
+//endregion
     }
 }

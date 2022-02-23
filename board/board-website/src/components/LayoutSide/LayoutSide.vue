@@ -17,7 +17,7 @@
             :default-openeds="vData.defaultOpens"
             :collapse="vData.isCollapsed"
         >
-            <menu-temp :menus="vData.menuList" />
+            <menu-temp :menus="vData.menuList" :is-collapsed="vData.isCollapsed" />
         </el-menu>
         <div
             class="collapse-btn"

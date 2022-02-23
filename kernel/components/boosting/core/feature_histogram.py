@@ -123,7 +123,7 @@ class FeatureHistogramWeights(Weights):
     def __init__(self, list_of_histogram_bags: List[HistogramBag]):
 
         self.hists = list_of_histogram_bags
-        super(FeatureHistogramWeights, self).__init__(l=list_of_histogram_bags)
+        super(FeatureHistogramWeights, self).__init__(w=list_of_histogram_bags)
 
     def map_values(self, func, inplace):
 

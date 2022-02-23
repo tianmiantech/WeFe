@@ -174,7 +174,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             taskConfig.setTask(kernelTask);
             task.setTaskConf(JSON.toJSONString(taskConfig));
             task.setRole(graph.getJob().getMyRole());
-            task.setStatus(TaskStatus.wait_run);
+            // ImageDataIO 组件不用执行，直接设置为成功。
+            task.setStatus(taskType() == ComponentType.ImageDataIO ? TaskStatus.success : TaskStatus.wait_run);
             task.setTaskId(node.createTaskId(graph.getJob(), count));
             task.setParentTaskIdList(
                     node.createParentTaskIds(graph.getJob(), getCount(preTasks, node.getDeep() - 1, count)));
@@ -291,7 +292,8 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         }
 
         task.setRole(graph.getJob().getMyRole());
-        task.setStatus(TaskStatus.wait_run);
+        // ImageDataIO 组件不用执行，直接设置为成功。
+        task.setStatus(taskType() == ComponentType.ImageDataIO ? TaskStatus.success : TaskStatus.wait_run);
         task.setTaskId(node.createTaskId(graph.getJob()));
         task.setParentTaskIdList(node.createParentTaskIds(graph.getJob()));
         task.setProjectId(node.getProjectId());
@@ -484,7 +486,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
 
     public List<KernelTask> getMixTaskMembers(FlowGraph graph, FlowGraphNode node) {
         List<KernelTask> kernelTasks = new ArrayList<>();
-        List<Member> allMembers = graph.getMembers().stream().map(Member::new).collect(Collectors.toList());
+        List<Member> allMembers = Member.forMachineLearning(graph.getMembers());
         List<Member> promoters = allMembers.stream().filter(s -> s.getMemberRole() == JobMemberRole.promoter)
                 .collect(Collectors.toList());
         List<Member> providers = allMembers.stream().filter(s -> s.getMemberRole() == JobMemberRole.provider)
@@ -502,10 +504,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                 Member promoter = allMembers.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                         .findFirst().orElse(null);
                 if (promoter != null) {
-                    arbiter = new Member();
-                    arbiter.setMemberId(promoter.getMemberId());
-                    arbiter.setMemberRole(JobMemberRole.arbiter);
-                    arbiter.setMemberName(promoter.getMemberName());
+                    arbiter = Member.forMachineLearning(promoter.getMemberId(), JobMemberRole.arbiter);
                     allMembers.add(arbiter);
                 }
             }
@@ -614,34 +613,31 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
         List<Member> members = new ArrayList<>();
         KernelTask task = new KernelTask();
         dataSetItems.forEach(x -> {
-            Member member = new Member();
-            member.setMemberId(x.getMemberId());
-            member.setMemberName(CacheObjects.getMemberName(x.getMemberId()));
-            member.setMemberRole(x.getMemberRole());
-            members.add(member);
+            members.add(Member.forMachineLearning(x));
             // Horizontal modeling component, and the current member is a promoter, need to
             // increase arbiter.
             if (Components.needArbiterTask(node.getComponentType())) {
                 if (x.getMemberRole() == JobMemberRole.promoter && CacheObjects.getMemberId().equals(x.getMemberId())) {
-                    Member arbiterMember = new Member();
-                    arbiterMember.setMemberId(x.getMemberId());
-                    arbiterMember.setMemberName(CacheObjects.getMemberName(x.getMemberId()));
-                    arbiterMember.setMemberRole(JobMemberRole.arbiter);
+                    Member arbiterMember = Member.forMachineLearning(x.getMemberId(), JobMemberRole.arbiter);
                     members.add(arbiterMember);
                 }
             }
         });
 
-        Member promoter = graph.getMembers().stream().map(x -> new Member(x))
-                .filter(s -> s.getMemberRole() == JobMemberRole.promoter).findFirst().orElse(null);
+        Member promoter = Member.forMachineLearning(graph.getMembers())
+                .stream()
+                .filter(s -> s.getMemberRole() == JobMemberRole.promoter)
+                .findFirst()
+                .orElse(null);
 
         if (Components.needArbiterTask(node.getComponentType())) {
             if (graph.getJob().getMyRole() == JobMemberRole.provider && promoter != null) {
-                Member arbiterMember = new Member();
-                arbiterMember.setMemberId(promoter.getMemberId());
-                arbiterMember.setMemberName(CacheObjects.getMemberName(promoter.getMemberId()));
-                arbiterMember.setMemberRole(JobMemberRole.arbiter);
-                members.add(arbiterMember);
+                members.add(
+                        Member.forMachineLearning(
+                                promoter.getMemberId(),
+                                JobMemberRole.arbiter
+                        )
+                );
             }
         }
 

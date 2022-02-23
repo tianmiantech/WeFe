@@ -17,8 +17,10 @@
 package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.dto.dataresource.DataResourceQueryOutput;
 import com.welab.wefe.common.data.mongodb.repo.BloomFilterMongoReop;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.TableDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -41,6 +43,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataResourceQueryOutput> {
 
     @Autowired
+    protected DataResourceMongoReop dataResourceMongoReop;
+    @Autowired
     protected BloomFilterMongoReop bloomFilterMongoReop;
     @Autowired
     protected ImageDataSetMongoReop imageDataSetMongoReop;
@@ -57,13 +61,14 @@ public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataRe
         DataResourceQueryOutput dataResourceQueryOutput;
         switch (input.getDataResourceType()) {
             case BloomFilter:
-                dataResourceQueryOutput = bloomFilterMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
+                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.BLOOM_FILTER);
                 break;
             case TableDataSet:
-                dataResourceQueryOutput = tableDataSetMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
+                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.TABLE_DATASET);
                 break;
             case ImageDataSet:
-                dataResourceQueryOutput = imageDataSetMongoReop.findCurMemberCanSee(input.getDataResourceId(), input.getCurMemberId());
+                dataResourceQueryOutput = dataResourceMongoReop.findOneByDataResourceId(input.getDataResourceId(), MongodbTable.Union.IMAGE_DATASET);
+                break;
             default:
                 throw new StatusCodeWithException(StatusCode.INVALID_PARAMETER, "dataResourceType");
         }
@@ -79,10 +84,8 @@ public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataRe
             return tableDataSetMapper.transferDetail(dataResourceQueryOutput);
         } else if (dataResourceQueryOutput.getDataResourceType().compareTo(DataResourceType.ImageDataSet) == 0) {
             return imageDataSetMapper.transferDetail(dataResourceQueryOutput);
-        } else if (dataResourceQueryOutput.getDataResourceType().compareTo(DataResourceType.BloomFilter) == 0) {
-            return bloomFilterMapper.transferDetail(dataResourceQueryOutput);
         } else {
-            return null;
+            return bloomFilterMapper.transferDetail(dataResourceQueryOutput);
         }
     }
 

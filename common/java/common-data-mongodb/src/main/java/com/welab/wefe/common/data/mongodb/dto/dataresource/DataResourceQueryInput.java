@@ -20,20 +20,24 @@ import com.welab.wefe.common.data.mongodb.dto.PageInput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 
+import java.util.List;
+
 
 /**
  * @author yuxin.zhang
  **/
 public class DataResourceQueryInput extends PageInput {
-    protected String dataResourceId;
-    protected String memberName;
-    protected String name;
-    protected String tag;
-    protected String curMemberId;
-    protected DataResourceType dataResourceType;
+    private String dataResourceId;
+    private String memberName;
+    private String name;
+    private String tag;
+    private String curMemberId;
+    private String memberId;
+    private List<DataResourceType> dataResourceType;
     private DeepLearningJobType forJobType;
     private Boolean containsY;
-    protected String enable;
+    private Boolean enable;
+    private Boolean status;
 
     public String getDataResourceId() {
         return dataResourceId;
@@ -75,23 +79,13 @@ public class DataResourceQueryInput extends PageInput {
         this.curMemberId = curMemberId;
     }
 
-    public DataResourceType getDataResourceType() {
+    public List<DataResourceType> getDataResourceType() {
         return dataResourceType;
     }
 
-    public void setDataResourceType(DataResourceType dataResourceType) {
+    public void setDataResourceType(List<DataResourceType> dataResourceType) {
         this.dataResourceType = dataResourceType;
     }
-
-    public String getEnable() {
-        return enable;
-    }
-
-    public void setEnable(String enable) {
-        this.enable = enable;
-    }
-
-
     public DeepLearningJobType getForJobType() {
         return forJobType;
     }
@@ -106,5 +100,29 @@ public class DataResourceQueryInput extends PageInput {
 
     public void setContainsY(Boolean containsY) {
         this.containsY = containsY;
+    }
+
+    public String getMemberId() {
+        return memberId;
+    }
+
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
+    }
+
+    public Boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }

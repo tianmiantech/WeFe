@@ -43,7 +43,10 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="创建人:">
-                <el-select v-model="search.created_by">
+                <el-select
+                    v-model="search.created_by"
+                    clearable
+                >
                     <el-option
                         v-for="item in accounts"
                         :key="item.id"
@@ -201,6 +204,7 @@
                 accounts: [],
                 search:   {
                     name:         '',
+                    created_by:   '',
                     service_type: '',
                     status:       '',
                 },
@@ -255,7 +259,7 @@
         },
         methods: {
             async getAccounts () {
-                const { code, data } = await this.$http.get('/account/query');
+                const { code, data } = await this.$http.get('/account/queryAll');
 
                 if(code === 0) {
                     this.accounts = data;

@@ -72,7 +72,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Fragment size, default 10000
      */
-    private int shard_size = 10000;
+    private int shard_size = 2000;
     private int current_index = 0;
 
     public List<String> columnList;
@@ -179,6 +179,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
             threadPool.execute(() -> {
                 try {
                     fusion();
+
+                    //TODO 临时代码
+//                    Socket socket = socketQueue.take();
+//                    if (socket != null) {
+//                        receiveAndParseResult(socket);
+//                    }
                 } catch (StatusCodeWithException e) {
                     e.printStackTrace();
                     LOG.error("{} StatusCodeWithException : {}", getClass().getSimpleName(), e.getMessage());
@@ -340,6 +346,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
                     fusionCount.increment();
                 }
 
+                processedCount.increment();
             }
 
             LOG.info("client y.mod(N) spend : " + (System.currentTimeMillis() - start) + " ms");
@@ -349,7 +356,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
              */
             PSIUtils.send2DBytes(socket, rs);
 
-            processedCount.add(ret.length);
             LOG.info("fusionCount: " + fusionCount.longValue());
             LOG.info("processedCount: " + processedCount.longValue());
 
