@@ -72,6 +72,13 @@
                     >
                         重置用户密码
                     </el-button>
+                    <el-button
+                        v-if="!scope.row.super_admin_role"
+                        :type="scope.row.enable ? 'danger' : 'success'"
+                        @click="changeStatus($event, scope.row)"
+                    >
+                        {{scope.row.enable ? '禁用' : '启用'}}
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -169,6 +176,25 @@
             changeUserInfo() {
                 this.form.realname = this.userInfo.realname;
                 this.form.email = this.userInfo.email;
+            },
+            changeStatus($event, row) {
+                this.$confirm(`你确定要${ row.enable ? '禁用' : '启用' }该用户吗?`, '警告', {
+                    type:              'warning',
+                    cancelButtonText:  '取消',
+                    confirmButtonText: '确定',
+                }).then(async _ => {
+                    await this.$http.post({
+                        url:  '/user/enable',
+                        data: {
+                            userId: row.user_id,
+                            enable: !row.enable,
+                        },
+                        btnState: {
+                            target: $event,
+                        },
+                    });
+                    this.refresh();
+                });
             },
         },
     };

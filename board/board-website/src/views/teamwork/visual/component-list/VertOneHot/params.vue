@@ -37,6 +37,7 @@
                     </template>
                     <el-button
                         v-if="member.features.length > 20"
+                        size="small"
                         type="primary"
                         class="check-features"
                         @click="methods.checkFeatures(member.features)"
@@ -105,7 +106,7 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox el-checkbox--small"
+                                class="el-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
                                 <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">

@@ -74,10 +74,10 @@ public class PaddleVisualService extends AbstractService {
             throw new StatusCodeWithException("paddle 响应失败：" + response.getBodyAsString(), StatusCode.RPC_ERROR);
         }
 
-//        Integer code = json.getInteger("code");
-//        if (code == null || !code.equals(0)) {
-//            throw new StatusCodeWithException("paddle 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
-//        }
-        return json.getJObject("data");
+        Integer code = json.getInteger("code");
+        if (code == null || !code.equals(200)) {
+            throw new StatusCodeWithException("paddle 响应失败(" + code + ")：" + json.getString("message"), StatusCode.RPC_ERROR);
+        }
+        return json;
     }
 }
