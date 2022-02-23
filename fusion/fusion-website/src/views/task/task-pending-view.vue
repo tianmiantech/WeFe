@@ -142,12 +142,6 @@
                             min-width="80"
                         />
                         <el-table-column
-                            label="使用次数"
-                            prop="used_count"
-                            min-width="80"
-                        />
-
-                        <el-table-column
                             label="上传时间"
                             min-width="120"
                         >
@@ -204,11 +198,6 @@
                         <el-table-column
                             label="数据量"
                             prop="row_count"
-                            min-width="80"
-                        />
-                        <el-table-column
-                            label="使用次数"
-                            prop="used_count"
                             min-width="80"
                         />
                     </el-table>
