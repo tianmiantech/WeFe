@@ -75,7 +75,7 @@ class Backend(object):
         return self.value
 
     @staticmethod
-    def get_by_task_config(task_config_json):
+    def get_by_task_config(task_config_json: dict):
         backend = task_config_json['job']['env']['backend']
         return Backend(backend)
 
