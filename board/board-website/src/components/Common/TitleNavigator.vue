@@ -97,11 +97,14 @@
                     if(titles.length) {
                         for (const item of titles) {
                             const title = item.getAttribute('name');
+                            const show = item.getAttribute('show');
 
-                            vData.list.push({
-                                title,
-                                highlight: false,
-                            });
+                            if (show !== 'false') {
+                                vData.list.push({
+                                    title,
+                                    highlight: false,
+                                });
+                            }
                         }
                     }
                 }
