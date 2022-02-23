@@ -18,9 +18,7 @@
 
 在 XGboost 算法中使用二阶泰勒在点 <img src="https://render.githubusercontent.com/render/math?math=( y_i ,\hat y_i ^{(t-1)} )   "> 处展开来近似损失函数：
 
-
-
-<img src="https://render.githubusercontent.com/render/math?math=L^{(t)} \approx \sum_{i=1}^n [ g_i f_t(x_i) %2b \frac {1}{2} h_i f_t^2(x_i)] %2b  \Omega (f_t) =\sum_{j=1}^T[(\sum_{i \in I_j}g_i)w_j %2b \frac {1}{2}(\sum_{i \in I_j}h_i %2b \lambda )w^2_j %2b \gamma T]   ">
+<img src="https://render.githubusercontent.com/render/math?math=L^{(t)} \approx \sum_{i=1}^n [l( y_i ,\hat y_i ^{(t-1)} )%2b  g_if_t(x_i) %2b \frac {1}{2} h_i f_t^2(x_i) ]+ \Omega (f_t)]   ">
 
 其中 <img src="https://render.githubusercontent.com/render/math?math=g_i = \partial_{\hat y^{(t-1)}}l(y_i, \hat y^{(t-1)})   ">  和 <img src="https://render.githubusercontent.com/render/math?math=h_i = \partial^2_{\hat y^{(t-1)}}l(y_i,  \hat y^{(t-1)})   "> 。
 
@@ -28,7 +26,7 @@
 
 损失函数中第一项  <img src="https://render.githubusercontent.com/render/math?math=y_i ,\hat y_i ^{(t-1)}    "> 是已知的，因此 <img src="https://render.githubusercontent.com/render/math?math=l(y_i,  \hat y^{(t-1)})"> 是一个常数，所以损失函数可以改写为：
 
-<img src="https://render.githubusercontent.com/render/math?math=L^{(t)} \approx \sum_{j=1}^T[(\sum_{i \in I_j}g_i)w_j %2b \frac {1}{2}(\sum_{i \in I_j}h_i %2b \lambda )w^2_j %2b \gamma T]">
+<img src="https://render.githubusercontent.com/render/math?math=L^{(t)} \approx \sum_{i=1}^n [ g_i f_t(x_i) %2b \frac {1}{2} h_i f_t^2(x_i)] %2b  \Omega (f_t) =\sum_{j=1}^T[(\sum_{i \in I_j}g_i)w_j %2b \frac {1}{2}(\sum_{i \in I_j}h_i %2b \lambda )w^2_j %2b \gamma T]   ">
 
 在上述公式中，<img src="https://render.githubusercontent.com/render/math?math=g_i,h_i,\gamma, \lambda "> 都是已知变量，只有 wj 是未知变量，此时的损失函数可以看做是变量 的 wj 二次函数，即可求出 wj 的最优值(极值点在一阶导数为零)，可以得到：
 
@@ -44,7 +42,7 @@
 
 
 
-在XGboost中损失函数用来评价生成的树的得分，得分越小，说明树的结构越好。那么一棵树该选择哪个节点进行分裂，可以得到节点信息增益的 $Gain$的概念：
+在XGboost中损失函数用来评价生成的树的得分，得分越小，说明树的结构越好。那么一棵树该选择哪个节点进行分裂，可以得到节点信息增益的 Gain的概念：
 
 
 
