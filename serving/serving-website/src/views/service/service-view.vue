@@ -76,7 +76,7 @@
 
             <template v-if="form.service_type">
                 <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
-                    <el-divider/>
+                    <el-divider />
                     <p class="mb10">服务配置：</p>
                     <el-form-item
                         v-for="(item, index) in service_config"
@@ -112,7 +112,7 @@
                     </el-form-item>
                 </template>
                 <template v-if="form.service_type !== 2 && form.service_type !== 5">
-                    <el-divider/>
+                    <el-divider />
                     <p class="mb10">查询参数配置：</p>
                     <el-form-item
                         v-for="(item, index) in form.paramsArr"
@@ -143,7 +143,7 @@
                 </template>
 
                 <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6">
-                    <el-divider/>
+                    <el-divider />
                     <p class="mb10">SQL 配置：</p>
                     <el-form-item label="数据源:">
                         <el-select
@@ -216,7 +216,7 @@
                     </el-form-item>
 
                     <template v-if="form.service_type === 1 || form.service_type === 3">
-                        <el-divider/>
+                        <el-divider />
                         <el-form-item
                             v-for="(item, $index) in form.data_source.condition_fields"
                             :key="`condition_field-${$index}`"
@@ -300,7 +300,7 @@
             </el-button>
 
             <div class="api-preview">
-                <el-divider/>
+                <el-divider />
                 <p class="color-danger mb20 f16">API 预览:</p>
                 <el-form-item
                     v-if="api.params"
@@ -347,7 +347,7 @@
                     :label="`${item.label}:`"
                     required
                 >
-                    <el-input v-model="item.value"/>
+                    <el-input v-model="item.value" />
                 </el-form-item>
                 <p class="mb10">返回字段 :</p>
                 <el-form-item
@@ -445,7 +445,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
 import ServiceConfigs from './service_config';
 import DataSourceEditor from '../data_source/data-source-edit';
 
@@ -457,15 +457,15 @@ export default {
     data() {
         return {
             loading: false,
-            form: {
-                name: '',
-                url: '',
+            form:    {
+                name:         '',
+                url:          '',
                 service_type: '',
-                operator: 'sum',
-                data_source: {
-                    id: '',
-                    table: '',
-                    return_fields: [],
+                operator:     'sum',
+                data_source:  {
+                    id:               '',
+                    table:            '',
+                    return_fields:    [],
                     condition_fields: [
                         {
                             field_on_param: '',
@@ -478,60 +478,60 @@ export default {
                     value: '',
                 }],
                 key_calc_rules: [],
-                stringResult: '',
+                stringResult:   '',
             },
             keyMaps: {
-                visible: false,
-                encrypts: ['md5', 'sha256'],
+                visible:        false,
+                encrypts:       ['md5', 'sha256'],
                 key_calc_rules: [],
-                stringResult: '',
+                stringResult:   '',
             },
             api: {
-                id: '',
+                id:     '',
                 params: '',
                 method: '',
-                url: '',
+                url:    '',
             },
             rules: {
-                name: [{required: true, message: '服务名称必填!'}],
-                url: [{required: true, message: '服务地址必填!'}],
-                service_type: [{required: true, message: '服务类型必选!'}],
+                name:         [{ required: true, message: '服务名称必填!' }],
+                url:          [{ required: true, message: '服务地址必填!' }],
+                service_type: [{ required: true, message: '服务类型必选!' }],
             },
-            serviceId: '',
+            serviceId:       '',
             serviceTypeList: [
                 {
-                    name: '两方匿踪查询',
+                    name:  '两方匿踪查询',
                     value: 1,
                 },
                 {
-                    name: '两方交集查询',
+                    name:  '两方交集查询',
                     value: 2,
                 },
                 {
-                    name: '多方安全统计(被查询方)',
+                    name:  '多方安全统计(被查询方)',
                     value: 3,
                 },
                 {
-                    name: '多方安全统计(查询方)',
+                    name:  '多方安全统计(查询方)',
                     value: 4,
                 },
                 {
-                    name: '多方交集查询',
+                    name:  '多方交集查询',
                     value: 5,
                 },
                 {
-                    name: '多方匿踪查询',
+                    name:  '多方匿踪查询',
                     value: 6,
                 },
             ],
-            data_sources: [],
-            data_tables: [],
-            data_fields: [],
+            data_sources:   [],
+            data_tables:    [],
+            data_fields:    [],
             service_config: [],
-            sql_test: {
-                visible: false,
-                params: [],
-                params_json: {},
+            sql_test:       {
+                visible:       false,
+                params:        [],
+                params_json:   {},
                 return_fields: [],
             },
             sqlOperator: 'and',
@@ -551,9 +551,9 @@ export default {
     },
     methods: {
         async getSqlConfigDetail() {
-            const {code, data} = await this.$http.post({
-                url: '/service/detail',
-                data: {id: this.serviceId},
+            const { code, data } = await this.$http.post({
+                url:  '/service/detail',
+                data: { id: this.serviceId },
             });
 
             if (code === 0) {
@@ -613,9 +613,9 @@ export default {
                         this.service_config = service_config.map(x => {
                             return {
                                 ...x,
-                                supplier_id: x.member_id,
+                                supplier_id:   x.member_id,
                                 supplier_name: x.member_name,
-                                params: x.params ? x.params.split(',') : [],
+                                params:        x.params ? x.params.split(',') : [],
                             };
                         });
                     }
@@ -638,7 +638,7 @@ export default {
             });
         },
         paramsValidate(index) {
-            const {value} = this.form.paramsArr[index];
+            const { value } = this.form.paramsArr[index];
 
             if (!value) return;
             for (const i in this.form.paramsArr) {
@@ -654,7 +654,7 @@ export default {
             this.$refs['DataSourceEditor'].show();
         },
         async getDataResources() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/data_source/query',
             });
 
@@ -666,20 +666,19 @@ export default {
             this.data_tables = [];
             this.form.data_source.table = '';
             this.data_fields = [];
-            this.form.data_source.return_fields = []
-            this.form.stringResult = ''
-            this.keyMaps.key_calc_rules = []
-            this.keyMaps.stringResult = ''
-            this.form.key_calc_rules = []
-            this.form.data_source.condition_fields = []
-            this.form.data_source.return_fields = []
-            this.form.data_source.id = ''
-            this.form.data_source.table = ''
+            this.form.data_source.return_fields = [];
+            this.form.stringResult = '';
+            this.keyMaps.key_calc_rules = [];
+            this.keyMaps.stringResult = '';
+            this.form.key_calc_rules = [];
+            this.form.data_source.condition_fields = [];
+            this.form.data_source.return_fields = [];
+            this.form.data_source.table = '';
             this.getDataTable();
         },
         async getDataTable() {
-            const {code, data} = await this.$http.post({
-                url: '/data_source/query_tables',
+            const { code, data } = await this.$http.post({
+                url:  '/data_source/query_tables',
                 data: {
                     id: this.form.data_source.id,
                 },
@@ -693,9 +692,9 @@ export default {
             this.getTablesFields();
         },
         async getTablesFields() {
-            const {code, data} = await this.$http.post({
-                url: '/data_source/query_table_fields',
-                data: {id: this.form.data_source.id, table_name: this.form.data_source.table},
+            const { code, data } = await this.$http.post({
+                url:  '/data_source/query_table_fields',
+                data: { id: this.form.data_source.id, table_name: this.form.data_source.table },
             });
 
             if (code === 0) {
@@ -732,7 +731,7 @@ export default {
                 }
             }
 
-            const {data_source: obj} = this.form;
+            const { data_source: obj } = this.form;
 
             this.sql_test.params = [];
             for (const i in obj.condition_fields) {
@@ -763,7 +762,7 @@ export default {
                 service_type: type,
                 data_source: obj,
             } = this.form;
-            const {params} = this.sql_test;
+            const { params } = this.sql_test;
 
             for (let i = 0; i < params.length; i++) {
                 paramsJson[params[i].label] = params[i].value;
@@ -771,7 +770,7 @@ export default {
 
             const $params = {
                 data_source: {
-                    id: obj.id,
+                    id:    obj.id,
                     table: obj.table,
                 },
             };
@@ -796,10 +795,10 @@ export default {
                 });
             }
 
-            const {code, data} = await this.$http.post({
-                url: '/service/sql_test',
-                timeout: 1000 * 60 * 24 * 30,
-                data: $params,
+            const { code, data } = await this.$http.post({
+                url:      '/service/sql_test',
+                timeout:  1000 * 60 * 24 * 30,
+                data:     $params,
                 btnState: {
                     target: event,
                 },
@@ -818,7 +817,7 @@ export default {
             if (array.length === 0) {
                 this.keyMaps.key_calc_rules.push({
                     operator: '',
-                    field: [],
+                    field:    [],
                 });
             } else {
                 this.keyMaps.key_calc_rules = [...array];
@@ -838,7 +837,7 @@ export default {
             this.keyMaps.stringResult = '';
             this.keyMaps.visible = false;
         },
-        calcKeyMaps(event, opt = {action: ''}) {
+        calcKeyMaps(event, opt = { action: '' }) {
             const array = this.keyMaps.key_calc_rules;
 
             this.keyMaps.stringResult = '';
@@ -866,11 +865,11 @@ export default {
                 return;
             }
 
-            const {data_source: obj, operator} = this.form;
+            const { data_source: obj, operator } = this.form;
             const type = this.form.service_type;
             const $params = {
-                name: this.form.name,
-                url: this.form.url,
+                name:         this.form.name,
+                url:          this.form.url,
                 service_type: type,
             };
 
@@ -881,8 +880,8 @@ export default {
             if (type === 2) {
                 if (!this.calcKeyMaps()) return;
                 $params.data_source = {
-                    id: obj.id,
-                    table: obj.table,
+                    id:             obj.id,
+                    table:          obj.table,
                     key_calc_rules: this.form.key_calc_rules.map(x => {
                         return {
                             ...x,
@@ -911,14 +910,14 @@ export default {
                 if (type === 4 || type === 5 || type === 6) {
                     $params.service_config = this.service_config.map(x => {
                         return {
-                            id: x.id,
-                            name: x.name,
-                            member_id: x.supplier_id,
-                            member_name: x.supplier_name,
-                            url: x.base_url + x.api_name,
-                            base_url: x.base_url,
-                            api_name: x.api_name,
-                            params: x.params ? x.params.join(',') : '',
+                            id:            x.id,
+                            name:          x.name,
+                            member_id:     x.supplier_id,
+                            member_name:   x.supplier_name,
+                            url:           x.base_url + x.api_name,
+                            base_url:      x.base_url,
+                            api_name:      x.api_name,
+                            params:        x.params ? x.params.join(',') : '',
                             key_calc_rule: x.key_calc_rule,
                         };
                     });
@@ -956,8 +955,8 @@ export default {
                     }
 
                     $params.data_source = {
-                        id: obj.id,
-                        table: obj.table,
+                        id:               obj.id,
+                        table:            obj.table,
                         condition_fields: obj.condition_fields.map(x => {
                             x.operator = this.sqlOperator;
                             return x;
@@ -967,10 +966,10 @@ export default {
                 }
             }
 
-            const {code, data} = await this.$http.post({
-                url: this.serviceId ? '/service/update' : '/service/add',
-                timeout: 1000 * 60 * 24 * 30,
-                data: $params,
+            const { code, data } = await this.$http.post({
+                url:      this.serviceId ? '/service/update' : '/service/add',
+                timeout:  1000 * 60 * 24 * 30,
+                data:     $params,
                 btnState: {
                     target: event,
                 },
