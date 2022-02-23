@@ -134,6 +134,13 @@ public class WeFeFileSystem {
         /**
          * 包含图片的zip文件
          */
+        public static File getModelFile(String taskId) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve("model").resolve(taskId + ".zip").toFile();
+        }
+
+        /**
+         * 包含图片的zip文件
+         */
         public static File getZipFile(String taskId) {
             return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
         }
@@ -168,7 +175,7 @@ public class WeFeFileSystem {
             if (renamedFile.exists()) {
                 renamedFile.delete();
             }
-            
+
             rawFile.renameTo(renamedFile);
 
             return renamedFile;
