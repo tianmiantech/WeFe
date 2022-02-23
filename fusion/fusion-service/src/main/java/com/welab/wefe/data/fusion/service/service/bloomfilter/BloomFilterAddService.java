@@ -24,6 +24,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.AddApi;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
@@ -45,6 +46,7 @@ import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileReader;
@@ -80,6 +82,7 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     FieldInfoService fieldInfoService;
 
+    @Transactional(rollbackFor = Exception.class)
     public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
         List<FieldInfo> fieldInfos = input.getFieldInfoList();
         int count = 0;
@@ -91,22 +94,16 @@ public class BloomFilterAddService extends AbstractService {
             throw new StatusCodeWithException("加密组合不宜过于复杂", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        BloomFilterMySqlModel model = bloomFilterRepository.findOne("id", input.getId(), BloomFilterMySqlModel.class);
-        if (model == null) {
-            model = new BloomFilterMySqlModel();
-            model.setName(input.getName());
-            model.setDataSourceId(input.getDataSourceId());
-            model.setUpdatedBy(CurrentAccount.id());
-            model.setCreatedBy(CurrentAccount.id());
-            model.setDescription(input.getDescription());
-            model.setDataResourceSource(input.getDataResourceSource());
-            model.setRows(StringUtil.join(input.getRows(), ','));
-            fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
+        BloomFilterMySqlModel model = ModelMapper.map(input, BloomFilterMySqlModel.class);
+        model.setUpdatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccount.id());
+        model.setRows(StringUtil.join(input.getRows(), ','));
+        model.setHashFunction(PrimaryKeyUtils.hashFunction(input.getFieldInfoList()));
+        model.setUsedCount(0);
+        model.setUpdatedTime(new Date());
+        bloomFilterRepository.save(model);
 
-            model.setUsedCount(0);
-            model.setUpdatedTime(new Date());
-            bloomFilterRepository.save(model);
-        }
+        fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
         CommonThreadPool.TASK_SWITCH = true;
 
@@ -124,13 +121,9 @@ public class BloomFilterAddService extends AbstractService {
                 model.setSourcePath(input.getFilename());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "文件读取失败！");
             }
         }
-
-        model.setUsedCount(0);
-        model.setUpdatedTime(new Date());
-        bloomFilterRepository.save(model);
 
         AddApi.BloomfilterAddOutput output = new AddApi.BloomfilterAddOutput();
         output.setDataSourceId(model.getId());
@@ -187,14 +180,6 @@ public class BloomFilterAddService extends AbstractService {
         });
 
         System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
-        //Verify generated filters
-//        String id = model.getId();
-//        List<Object> CheckData = bloomFilterAddServiceDataRowConsumer.getCheckData();
-//        BigInteger N = bloomFilterAddServiceDataRowConsumer.getN();
-//        BigInteger e = bloomFilterAddServiceDataRowConsumer.getE();
-//        BigInteger d = bloomFilterAddServiceDataRowConsumer.getD();
-//        BloomFilters bf = bloomFilterAddServiceDataRowConsumer.getBf();
-//        boolean checkFlag = CheckFilter(id, N, e, d, CheckData, bf);
 
         return rowCount;
     }
@@ -238,7 +223,7 @@ public class BloomFilterAddService extends AbstractService {
         String src = filterDir + model.getName();
         model.setSrc(src);
 
-        BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model,null);
+        BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, null);
 
 
         CommonThreadPool.run(() -> {

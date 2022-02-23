@@ -35,8 +35,6 @@ import com.welab.wefe.data.fusion.service.service.AbstractService;
 import com.welab.wefe.data.fusion.service.service.DataSourceService;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.utils.dataresouce.DataResouceHelper;
-import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
-import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -138,9 +136,6 @@ public class BloomFilterService extends AbstractService {
 
 
         BloomfilterOutputModel outputModel = ModelMapper.map(model, BloomfilterOutputModel.class);
-
-        List<FieldInfo> fieldInfoList = fieldInfoService.fieldInfoList(id);
-        outputModel.setHashFusion(PrimaryKeyUtils.hashFunction(fieldInfoList));
 
         return outputModel;
     }
