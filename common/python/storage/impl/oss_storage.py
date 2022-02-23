@@ -392,7 +392,7 @@ class OssStorage(FCStorage):
         prefix = self._get_file_dir() + "/"
         partition_count = dict([(i, 0) for i in range(self._partitions)])
         for obj in oss2.ObjectIterator(self._bucket, prefix=prefix):
-            p = obj.key.replace("\\", "/").split("/")[2]
+            p = int(obj.key.replace("\\", "/").split("/")[2])
             cnt = self._get_data_count_in_file(obj.key)
             partition_count[p] = partition_count[p] + cnt
         return partition_count

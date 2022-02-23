@@ -25,7 +25,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import functools
 import hashlib
 
 from common.python import session, RuntimeInstance
@@ -117,17 +117,17 @@ class Intersect(object):
                 yield item[0], i
             i = i + 1
 
-    def generate_id_num_with_incr_id(self, k, v, global_incr_id, has_encrypt_key=True):
+    @staticmethod
+    def generate_id_num_with_incr_id(k, v, global_incr_index, has_encrypt_key=True):
         if has_encrypt_key:
-            return k, (v, global_incr_id)
+            return k, (v, global_incr_index)
         else:
-            return k, global_incr_id
-
+            return k, global_incr_index
 
     def generate_id_nums(self, intersect_ids, has_encrypt_key=False):
         if RuntimeInstance.BACKEND.is_fc():
-            pass
-            # intersect_ids.map(lambda k,v:)
+            func = functools.partial(Intersect.generate_id_num_with_incr_id, has_encrypt_key=has_encrypt_key)
+            return intersect_ids.map(func, with_incr_id=True)
 
         else:
             from common.python.common.consts import NAMESPACE
