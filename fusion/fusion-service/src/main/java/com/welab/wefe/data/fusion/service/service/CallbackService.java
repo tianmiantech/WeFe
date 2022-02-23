@@ -116,15 +116,6 @@ public class CallbackService {
                 ));
 
 
-//        ClientActuator client = new ClientActuator(
-//                        businessId,
-//                        ip,
-//                        port,
-//                        task.getDataResourceId(),
-//                        task.isTrace(),
-//                        task.getTraceColumn()
-//                );
-
         ActuatorManager.set(client);
 
         client.run();

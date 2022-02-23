@@ -28,6 +28,7 @@ import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -45,8 +46,13 @@ public class PsiClientActuator extends AbstractPsiActuator {
     BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(5);
     RejectedExecutionHandler rejectedExecutionHandler =
             new ThreadPoolExecutor.CallerRunsPolicy();
-    ExecutorService threadPool = new ThreadPoolExecutor(5, 10, 0L, TimeUnit.MILLISECONDS,
-            workingQueue, rejectedExecutionHandler);
+
+    ExecutorService threadPool = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() * 2,
+            100L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>());
 
     ExecutorService parseThreadPool = new ThreadPoolExecutor(5, 10, 0L, TimeUnit.MILLISECONDS,
             workingQueue, rejectedExecutionHandler);
@@ -100,9 +106,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
         List<JObject> curList = service.paging(columnList, dataSetId, current_index, shard_size);
         current_index++;
 
-        LOG.info("cursor {} spend: {}", current_index, System.currentTimeMillis() - start);
+        LOG.info("cursor {} size: {} spend: {} ", current_index, curList.size(), System.currentTimeMillis() - start);
 
-        if (curList.isEmpty()) {
+        if (CollectionUtils.isEmpty(curList)) {
             return false;
         }
 
@@ -160,7 +166,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Begin to align
      */
-    private void align() {
+    private void align() throws StatusCodeWithException {
 
         LOG.info("client aligning..., count: {} availableProcessors: {}", dataCount, Runtime.getRuntime().availableProcessors());
 
@@ -175,6 +181,8 @@ public class PsiClientActuator extends AbstractPsiActuator {
          */
         CountDownLatch latch = new CountDownLatch(count);
         LOG.info("Start data encryption...");
+
+
         for (int i = 0; i < count; i++) {
             threadPool.execute(() -> {
                 try {
@@ -197,27 +205,27 @@ public class PsiClientActuator extends AbstractPsiActuator {
         /**
          * Alignment matching
          */
-        int socketQueueSize = count;
-        CountDownLatch socketLatch = new CountDownLatch(count);
-
-        while (socketQueueSize > 0) {
-            try {
-                Socket socket = socketQueue.take();
-                if (socket != null) {
-                    parseThreadPool.execute(() -> {
-                        receiveAndParseResult(socket);
-                        socketLatch.countDown();
-                    });
-                    socketQueueSize--;
-                }
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-        }
-
+//        int socketQueueSize = count;
+//        CountDownLatch socketLatch = new CountDownLatch(count);
+//
+//        while (socketQueueSize > 0) {
+//            try {
+//                Socket socket = socketQueue.take();
+//                if (socket != null) {
+//                    parseThreadPool.execute(() -> {
+//                        receiveAndParseResult(socket);
+//                        socketLatch.countDown();
+//                    });
+//                    socketQueueSize--;
+//                }
+//            } catch (InterruptedException e1) {
+//                e1.printStackTrace();
+//            }
+//        }
+//
         try {
             latch.await();
-            socketLatch.await();
+//            socketLatch.await();
         } catch (InterruptedException e1) {
             e1.printStackTrace();
             LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
@@ -228,12 +236,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
         this.status = PSIActuatorStatus.success;
 
         //Notifies the server that no further action is required
-        Socket socket = SocketUtils
+        Socket closeSocket = SocketUtils
                 .create(ip, port)
                 .setRetryCount(3)
                 .builder();
-        PSIUtils.sendString(socket, ActionType.end.name());
-        SocketUtils.close(socket);
+        PSIUtils.sendString(closeSocket, ActionType.end.name());
+        SocketUtils.close(closeSocket);
     }
 
     /**
@@ -243,29 +251,30 @@ public class PsiClientActuator extends AbstractPsiActuator {
      */
     private void fusion() throws StatusCodeWithException {
         Socket socket = null;
-        try {
-            LOG.info("Server@" + ip + ":" + port + " connecting!");
-            socket = SocketUtils
-                    .create(ip, port)
-                    .setRetryCount(3)
-                    .builder();
+//        try {
+        LOG.info("Server@" + ip + ":" + port + " connecting!");
+        socket = SocketUtils
+                .create(ip, port)
+                .setRetryCount(3)
+                .builder();
 
-            PSIUtils.sendString(socket, ActionType.align.name());
+        PSIUtils.sendString(socket, ActionType.align.name());
 
-            cursor();
+        cursor();
 
-            Integer index = threadId.get();
+        Integer index = threadId.get();
 
-            LOG.info("fusion() current_index ： {}", index);
+        LOG.info("fusion() current_index ： {}", index);
 
-            //Initiating a query request
-            query(socket);
+        //Initiating a query request
+        query(socket);
 
-            //Joins the queue to be parsed
-            socketQueue.put(socket);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
+        //Joins the queue to be parsed
+        //socketQueue.put(socket);
+        receiveAndParseResult(socket);
+//        } catch (InterruptedException e1) {
+//            e1.printStackTrace();
+//        }
 
     }
 
@@ -407,7 +416,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
         return blindFactor;
     }
 
-    private void execute(ActionType action) {
+    private void execute(ActionType action) throws StatusCodeWithException {
 
         switch (action) {
             case download:
@@ -461,7 +470,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     }
 
     @Override
-    public void handle() {
+    public void handle() throws StatusCodeWithException {
         status = PSIActuatorStatus.running;
 
         //Download bloom filter

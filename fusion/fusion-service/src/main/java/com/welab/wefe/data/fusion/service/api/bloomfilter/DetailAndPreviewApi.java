@@ -21,6 +21,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterDetailOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetDetailOutputModel;
 import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
@@ -30,12 +31,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author hunter.zhao
  */
 @Api(path = "filter/detail_and_preview", name = "过滤器详情预览", desc = "过滤器详情预览")
-public class DetailAndPreviewApi extends AbstractApi<DetailAndPreviewApi.Input, DataSetDetailOutputModel> {
+public class DetailAndPreviewApi extends AbstractApi<DetailAndPreviewApi.Input, BloomfilterDetailOutputModel> {
     @Autowired
     private BloomFilterService bloomFilterService;
 
     @Override
-    protected ApiResult<DataSetDetailOutputModel> handle(Input input) throws Exception {
+    protected ApiResult<BloomfilterDetailOutputModel> handle(Input input) throws Exception {
         return success(bloomFilterService.detailAndPreview(input.getId()));
     }
 

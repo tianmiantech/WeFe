@@ -53,7 +53,7 @@ public abstract class AbstractDataSetReader implements Closeable {
         }
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("The dataset contains duplicate fields. Please handle and re-upload.", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据集包含重复的字段。请处理并重新上传.", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         list = list.stream().map(x -> "Y".equals(x) ? "y" : x).collect(Collectors.toList());
