@@ -37,6 +37,7 @@
                     </template>
                     <el-button
                         v-if="member.features.length > 20"
+                        size="small"
                         type="primary"
                         class="check-features"
                         @click="methods.checkFeatures(member.features)"

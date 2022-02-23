@@ -562,7 +562,7 @@ public class ProjectFlowJobService extends AbstractService {
 
         jobInfo.setFederatedLearningType(job.getFederatedLearningType());
         jobInfo.setProject(project);
-        jobInfo.setMembers(memberList.stream().map(Member::new).collect(Collectors.toList()));
+        jobInfo.setMembers(Member.forMachineLearning(memberList));
 
         Member arbiter = jobInfo
                 .getMembers()
@@ -582,10 +582,7 @@ public class ProjectFlowJobService extends AbstractService {
                         .orElse(null);
 
                 if (promoter != null) {
-                    arbiter = new Member();
-                    arbiter.setMemberId(promoter.getMemberId());
-                    arbiter.setMemberRole(JobMemberRole.arbiter);
-                    arbiter.setMemberName(promoter.getMemberName());
+                    arbiter = Member.forMachineLearning(promoter.getMemberId(), JobMemberRole.arbiter);
                     jobInfo.getMembers().add(arbiter);
                 }
             }
@@ -626,7 +623,7 @@ public class ProjectFlowJobService extends AbstractService {
             int count = Integer.parseInt(oldTask.getTaskId().split("_")[oldTask.getTaskId().split("_").length - 1]);
             // copy task
             if (copyTask) {
-            	TaskMySqlModel newTask = new TaskMySqlModel();
+                TaskMySqlModel newTask = new TaskMySqlModel();
                 BeanUtils.copyProperties(oldTask, newTask);
                 newTask.setId(new TaskMySqlModel().getId());
                 newTask.setRole(newJob.getMyRole());
@@ -719,7 +716,7 @@ public class ProjectFlowJobService extends AbstractService {
             newDataSetModel.setDerivedFrom(node.getComponentType());
             tableDataSetService.save(newDataSetModel);
         }
-        
+
         return newTask;
     }
 
