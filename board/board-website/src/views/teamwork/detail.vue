@@ -418,11 +418,11 @@
                         } else {
                             let i = 0;
 
-                            for(const item in promoter_list) {
-                                if(item.member_id === this.userInfo.member_id) {
+                            promoter_list.forEach(member => {
+                                if(member.member_id === this.userInfo.member_id) {
                                     i++;
                                 }
-                            }
+                            });
 
                             if(i) {
                                 role = 'promoter';
