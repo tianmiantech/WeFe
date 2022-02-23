@@ -235,7 +235,7 @@
                         type:  'img',
                     },
                     TableDataSet: {
-                        label: 'TableDataSet',
+                        label: '数据集',
                         type:  'csv',
                     },
                 },

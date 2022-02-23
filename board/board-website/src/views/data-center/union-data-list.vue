@@ -207,7 +207,7 @@
                 balls:          [],
                 sourceTypeList: [
                     {
-                        label: 'TableDataSet',
+                        label: '数据集',
                         value: 'TableDataSet',
                     },
                     {
