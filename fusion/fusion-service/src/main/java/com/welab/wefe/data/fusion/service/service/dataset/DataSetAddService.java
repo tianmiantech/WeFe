@@ -92,6 +92,7 @@ public class DataSetAddService extends AbstractService {
         model.setDataSourceId(input.getDataSourceId());
         dataSetRepository.save(model);
 
+        CommonThreadPool.TASK_SWITCH = true;
 
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
