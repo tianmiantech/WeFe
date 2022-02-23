@@ -62,18 +62,12 @@
                 />
             </el-form-item>
 
-            <!--            <el-form-item label="状态：" prop="status">-->
-            <!--                <el-radio v-model="client.status" label="0">正常</el-radio>-->
-            <!--                <el-radio v-model="client.status" label="1">禁用</el-radio>-->
-            <!--            </el-form-item>-->
-
-
             <el-form-item label="备注">
                 <el-input
                     v-model="client.remark"
                     type="textarea"
-                    rows="5"
-                    :maxlength="300"
+                    rows="7"
+                    :maxlength="200"
                     :minlength="0"
                     show-word-limit
                 />

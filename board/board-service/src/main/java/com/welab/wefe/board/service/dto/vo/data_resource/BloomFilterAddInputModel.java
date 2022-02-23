@@ -22,6 +22,7 @@ import com.welab.wefe.board.service.util.primarykey.FieldInfo;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -62,6 +63,10 @@ public class BloomFilterAddInputModel extends BloomFilterUpdateInputModel {
     @Override
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
+
+        if(CollectionUtils.isEmpty(fieldInfoList)){
+            throw new StatusCodeWithException("请设置主键！", StatusCode.PARAMETER_VALUE_INVALID);
+        }
 
         // 如果来源是数据库，则要求dataSourceId、sql不能为空
         if (DataSetAddMethod.Database.equals(bloomfilterAddMethod)) {

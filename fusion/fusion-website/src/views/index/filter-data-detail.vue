@@ -117,44 +117,26 @@ export default {
 
         async getDataSetDetail() {
             this.loading = true;
-            const { code, data } = await this.$http.post({
-                url:  '/filter/detail',
+            const {code, data} = await this.$http.post({
+                url: '/filter/detail_and_preview',
                 data: {
                     id: this.id,
                 },
             });
 
             if (code === 0) {
-                if (data) {
-                    this.selectedCol = data.rows;
-                    this.dataInfo = data;
-                    this.getDataSetPreview();
-                }
+                this.dataInfo = data
+                this.previewDataInfo = data.preview_data.metadata_list;
+                let {length} = data.preview_data.raw_data_list;
+                const rows = data.preview_data.raw_data_list;
+                if (length >= 15) length = 15;
+                this.resize(length);
+                this.table_data.rows = rows;
+                this.table_data.header = data.preview_data.header;
             }
             this.loading = false;
         },
-        async getDataSetPreview() {
-            const { code, data } = await this.$http.get({
-                url:    '/filter/preview',
-                params: { id: this.id, rows: this.selectedCol },
-            });
 
-            if (code === 0) {
-                if (data && data.header) {
-                    this.previewDataInfo = data.metadata_list;
-
-                    let { length } = data.raw_data_list;
-
-                    const rows = data.raw_data_list;
-
-                    if (length >= 15) length = 15;
-
-                    this.resize(length);
-                    this.table_data.rows = rows;
-                    this.table_data.header = data.header;
-                }
-            }
-        },
         tabChange() {
             this.loading = true;
             setTimeout(_ => {

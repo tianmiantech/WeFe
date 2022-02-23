@@ -35,7 +35,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DataSetOutputModel> 
 
     @Override
     protected ApiResult<DataSetOutputModel> handle(Input input) throws Exception {
-        return success(dataSetService.detail(input));
+        return success(dataSetService.detail(input.getId()));
     }
 
     public static class Input extends AbstractApiInput {

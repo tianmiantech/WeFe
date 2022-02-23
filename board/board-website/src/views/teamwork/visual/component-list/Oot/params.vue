@@ -125,6 +125,7 @@
                         </template>
                         <el-button
                             v-if="row.$column_name_list.length > 20"
+                            size="small"
                             type="primary"
                             class="check-features"
                             @click="methods.checkFeatures(row)"
