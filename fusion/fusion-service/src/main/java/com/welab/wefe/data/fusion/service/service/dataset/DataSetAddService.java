@@ -99,7 +99,6 @@ public class DataSetAddService extends AbstractService {
         File file = null;
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
-
         } else {
             file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
             try {
@@ -201,9 +200,7 @@ public class DataSetAddService extends AbstractService {
         CommonThreadPool.run(() -> {
             jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
         });
-//
-//        // Wait for the consumption queue to complete
-//        dataRowConsumer.waitForFinishAndClose();
+
         model.setStoraged(true);
 
         LOG.info("The dataset is parsed：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");

@@ -99,9 +99,11 @@ public class BloomFilterAddService extends AbstractService {
         model.setCreatedBy(CurrentAccount.id());
         model.setRows(StringUtil.join(input.getRows(), ','));
         model.setHashFunction(PrimaryKeyUtils.hashFunction(input.getFieldInfoList()));
-        model.setSourcePath(input.getFilename());
         model.setUsedCount(0);
         model.setUpdatedTime(new Date());
+        model.setStatement(input.getSql());
+        model.setSourcePath(input.getFilename());
+        model.setDataSourceId(input.getDataSourceId());
         bloomFilterRepository.save(model);
 
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
@@ -109,9 +111,7 @@ public class BloomFilterAddService extends AbstractService {
         CommonThreadPool.TASK_SWITCH = true;
 
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
-            model.setStatement(input.getSql());
             readAndSaveFromDB(model, input.getRows());
-            model.setStatement(input.getSql());
         } else {
 
             File file = dataSetService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
