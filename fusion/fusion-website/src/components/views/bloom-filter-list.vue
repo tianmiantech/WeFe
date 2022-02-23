@@ -19,21 +19,15 @@
                     <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
-
-            <el-table-column
-                label="列数"
-                prop="feature_count"
-                min-width="80"
-            />
             <el-table-column
                 label="数据量"
                 prop="row_count"
                 min-width="80"
             />
             <el-table-column
-                label="使用次数"
-                prop="used_count"
-                min-width="80"
+                label="主键加密方式"
+                prop="hash_function"
+                min-width="140"
             />
 
             <el-table-column
@@ -44,13 +38,13 @@
                     <p>{{ dataResourceSource[scope.row.data_resource_source] }}</p>
                 </template>
             </el-table-column>
-
             <el-table-column
                 label="上传时间"
                 min-width="120"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_time | dateFormat }}
+                    <strong>{{ scope.row.creator_nickname }}</strong>
+                    <p>{{ scope.row.created_time | dateFormat }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -133,8 +127,8 @@ export default {
 
             tableLoading:       false,
             dataResourceSource: {
-                'LocalFile':  '本地上传',
-                'UploadFile': '服务器文件上传',
+                'LocalFile':  '服务器文件上传',
+                'UploadFile': '本地上传',
                 'Sql':        '数据库上传',
             },
         };

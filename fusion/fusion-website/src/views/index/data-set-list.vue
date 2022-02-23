@@ -80,12 +80,6 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="使用次数"
-                prop="used_count"
-                width="100"
-            />
-
-            <el-table-column
                 label="创建时间"
                 min-width="140"
             >
