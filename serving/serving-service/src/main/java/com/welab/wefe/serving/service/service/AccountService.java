@@ -104,13 +104,13 @@ public class AccountService {
     public String register(RegisterApi.Input input) throws StatusCodeWithException {
         //Verification code verification
         if (!CaptchaService.verify(input.getKey(), input.getCode())) {
-            throw new StatusCodeWithException("Verification code error！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("验证码错误", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         //Judge whether the account has been registered
         AccountMySqlModel one = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMySqlModel.class);
         if (one != null) {
-            throw new StatusCodeWithException("The phone number has been registered！", StatusCode.DATA_EXISTED);
+            throw new StatusCodeWithException("该手机号已注册", StatusCode.DATA_EXISTED);
         }
 
         String salt = createRandomSalt();
@@ -157,14 +157,14 @@ public class AccountService {
 
         // Check whether it is in the small black room
         if (LoginSecurityPolicy.inDarkRoom(phoneNumber)) {
-            throw new StatusCodeWithException("The account has been forbidden to log in. Please try again in an hour or contact the administrator.", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("该账号禁止登陆，请一小时后再试或联系管理员.", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         AccountMySqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMySqlModel.class);
         if (model == null || !model.getPassword().equals(Sha1.of(password + model.getSalt()))) {
             // Log a login failure event
             LoginSecurityPolicy.onLoginFail(phoneNumber);
-            throw new StatusCodeWithException("Wrong mobile phone number or password！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("账号或密码错误", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Check audit status
@@ -180,7 +180,7 @@ public class AccountService {
         }
         
         if (!model.getEnable()) {
-            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
+            throw new StatusCodeWithException("该账号被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
         }
         
         String token = UUID.randomUUID().toString();
@@ -253,7 +253,7 @@ public class AccountService {
 
         AccountMySqlModel account = accountRepository.findById(input.getAccountId()).orElse(null);
         if (account.getAuditStatus() != AuditStatus.auditing) {
-            throw new StatusCodeWithException("该用户已被审核，请勿重复操作！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("该账号已被审核，请勿重复操作！", StatusCode.PARAMETER_VALUE_INVALID);
         }
         account.setEnable(true);
         account.setAuditStatus(input.getAuditStatus());
@@ -269,7 +269,7 @@ public class AccountService {
     public void enable(EnableApi.Input input) throws StatusCodeWithException {
 
         if (!CurrentAccount.isAdmin() && !CurrentAccount.isSuperAdmin()) {
-            throw new StatusCodeWithException("普通用户无法进行此操作。", StatusCode.PERMISSION_DENIED);
+            throw new StatusCodeWithException("普通账号无法进行此操作。", StatusCode.PERMISSION_DENIED);
         }
 
         if (input.getId().equals(CurrentAccount.id())) {
@@ -278,7 +278,7 @@ public class AccountService {
 
         AccountMySqlModel account = accountRepository.findById(input.getId()).orElse(null);
         if (account == null) {
-            throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("找不到更新的账号信息。", StatusCode.DATA_NOT_FOUND);
         }
 
         if (account.getAdminRole() && !CurrentAccount.isSuperAdmin()) {
@@ -303,7 +303,7 @@ public class AccountService {
 		AccountMySqlModel account = accountRepository.findById(input.getId()).orElse(null);
 
 		if (account == null) {
-			throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("找不到更新的账号信息。", StatusCode.DATA_NOT_FOUND);
 		}
 
 		if (StringUtil.isNotEmpty(input.getNickname())) {
@@ -351,7 +351,7 @@ public class AccountService {
         AccountMySqlModel model = accountRepository.findById(input.getId()).orElse(null);
 
         if (model == null) {
-            throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("找不到更新的账号信息。", StatusCode.DATA_NOT_FOUND);
         }
 
         if (!CurrentAccount.isAdmin()) {
