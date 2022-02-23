@@ -28,6 +28,7 @@ import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -121,7 +122,8 @@ public class MemberServiceMongoReop extends AbstractMongoRepo {
 
         SkipOperation skipOperation = Aggregation.skip((long) pageIndex * pageSize);
         LimitOperation limitOperation = Aggregation.limit(pageSize);
-        aggregation = Aggregation.newAggregation(lookupToLots, unwind, addFieldsOperation, memberServiceMatch, memberMatch, skipOperation, limitOperation);
+        SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "created_time"));
+        aggregation = Aggregation.newAggregation(lookupToLots, unwind, addFieldsOperation, memberServiceMatch, memberMatch, sortOperation, skipOperation, limitOperation);
 
         List<MemberServiceQueryOutput> result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.MEMBER_SERVICE, MemberServiceQueryOutput.class).getMappedResults();
 

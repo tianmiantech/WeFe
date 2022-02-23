@@ -6,7 +6,7 @@ parties: # parties default id
   arbiter:
     - 10003
 
-backend: 0 # 0 for local, or 1 for spark , or 2 for fc
+backend: "LOCAL" # LOCAL,SPARK,FC
 
 work_mode: 0 # 0 for standalone, or 1 for cluster
 
