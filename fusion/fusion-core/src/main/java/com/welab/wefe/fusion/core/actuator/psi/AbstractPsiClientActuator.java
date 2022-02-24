@@ -121,7 +121,6 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
                         //取数
                         List<JObject> data = next();
 
-                        List<String> d = new ArrayList<>();
                         List<BigInteger> r = new ArrayList<>();
                         List<BigInteger> rInv = new ArrayList<>();
                         byte[][] bs = new byte[data.size()][16];

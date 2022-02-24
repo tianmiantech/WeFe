@@ -40,6 +40,7 @@ import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author hunter.zhao
@@ -60,6 +61,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     private String[] headers;
     public Boolean serverIsReady = false;
+    private final ReentrantLock lock = new ReentrantLock(true);
 
     public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
         super(businessId, dataSetId, isTrace, traceColumn, dataCount);
@@ -158,7 +160,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     @Override
     public List<JObject> next() {
-        synchronized (dataSetStorageService) {
+        try {
+            lock.lock();
             long start = System.currentTimeMillis();
 
             PageOutputModel model = dataSetStorageService.getListByPage(
@@ -187,7 +190,11 @@ public class ClientActuator extends AbstractPsiClientActuator {
             currentIndex++;
 
             return curList;
+
+        } finally {
+            lock.unlock();
         }
+
     }
 
     @Override
@@ -201,7 +208,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     @Override
     public Boolean hasNext() {
-        synchronized (dataSetStorageService) {
+        try {
+            lock.lock();
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
@@ -210,7 +218,10 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
             LOG.info("currentIndex {} mode data size {}", currentIndex, model.getData().size());
             return model.getData().size() > 0;
+        } finally {
+            lock.unlock();
         }
+
     }
 
     @Override
