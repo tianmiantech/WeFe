@@ -22,12 +22,12 @@ parent_path = os.path.abspath(os.path.join(__file__, *(['..'] * 2)))
 if parent_path not in sys.path:
     sys.path.append(parent_path)
 
+import json
 import glob
 import numpy as np
 import six
 from PIL import Image, ImageOps
 
-import paddle
 from paddle import fluid
 
 from ppdet.core.workspace import load_config, merge_config, create
@@ -37,8 +37,9 @@ from ppdet.utils.cli import ArgsParser
 from ppdet.utils.check import check_gpu, check_version, check_config, enable_static_mode
 from ppdet.utils.visualizer import visualize_results
 import ppdet.utils.checkpoint as checkpoint
-
 from ppdet.data.reader import create_reader
+from visualfl.db.task_dao import TaskDao
+from visualfl.utils.consts import TaskResultType,ComponentName
 
 import logging
 FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
@@ -91,7 +92,7 @@ def get_test_images(infer_dir, infer_img):
 def main():
     cfg = load_config(FLAGS.config)
 
-    merge_config(FLAGS.opt)
+    merge_config({'use_gpu':FLAGS.use_gpu,'weights':FLAGS.weights})
     check_config(cfg)
     # check if set use_gpu=True in paddlepaddle cpu version
     check_gpu(cfg.use_gpu)
@@ -100,10 +101,14 @@ def main():
 
     main_arch = cfg.architecture
 
-    dataset = cfg.TestReader['dataset']
+    TaskDao(task_id=FLAGS.task_id).save_task_result({"status": "running"}, ComponentName.DETECTION, type=TaskResultType.INFER)
 
+    dataset = cfg.TestReader['dataset']
     test_images = get_test_images(FLAGS.infer_dir, FLAGS.infer_img)
     dataset.set_images(test_images)
+    task_result = TaskDao(FLAGS.task_id).get_task_result(TaskResultType.LABEL)
+    if task_result:
+        dataset.anno_path = json.loads(task_result.result).get("label_path")
 
     place = fluid.CUDAPlace(0) if cfg.use_gpu else fluid.CPUPlace()
     exe = fluid.Executor(place)
@@ -147,7 +152,7 @@ def main():
     if cfg.metric == "WIDERFACE":
         from ppdet.utils.widerface_eval_utils import bbox2out, lmk2out, get_category_info
 
-    anno_file = dataset.get_anno()
+    anno_file = dataset.anno_path
     with_background = dataset.with_background
     use_default_label = dataset.use_default_label
 
@@ -168,6 +173,9 @@ def main():
         vdl_image_step = 0
         vdl_image_frame = 0  # each frame can display ten pictures at most.
 
+
+    infer_result = {}
+    image_infers = []
     imid2path = dataset.get_imid2path()
     for iter_id, data in enumerate(loader()):
         outs = exe.run(infer_prog,
@@ -232,11 +240,27 @@ def main():
             save_name = get_save_image_name(FLAGS.output_dir, image_path)
             logger.info("Detection bbox results save in {}".format(save_name))
             image.save(save_name, quality=95)
+            # xmin, ymin, w, h
+            for bbox in bbox_results:
+                category_id = bbox["category_id"]
+                bbox["category_name"] = catid2name[category_id]
+            bbox_dict ={"image":os.path.basename(image_path),"bbox_results":bbox_results}
+            image_infers.append(bbox_dict)
+    infer_result["result"] = image_infers
+    infer_result["status"] = "finish"
+    TaskDao(task_id=FLAGS.task_id).save_task_result(infer_result,ComponentName.DETECTION, type=TaskResultType.INFER)
+
 
 
 if __name__ == '__main__':
+    def str2bool(v):
+        return v.lower() in ("true", "t", "1")
     enable_static_mode()
     parser = ArgsParser()
+    parser.add_argument(
+        "--task_id",
+        type=str,
+        default=None)
     parser.add_argument(
         "--infer_dir",
         type=str,
@@ -253,10 +277,20 @@ if __name__ == '__main__':
         default="output",
         help="Directory for storing the output visualization files.")
     parser.add_argument(
+        "--weights",
+        type=str,
+        default=None,
+        help="weights path")
+    parser.add_argument(
         "--draw_threshold",
         type=float,
         default=0.5,
         help="Threshold to reserve the result for visualization.")
+    parser.add_argument(
+        "--use_gpu",
+        type=str2bool,
+        default=False,
+        help="whether to use gpu.")
     parser.add_argument(
         "--use_vdl",
         type=bool,

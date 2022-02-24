@@ -168,7 +168,7 @@ public class CurrentAccount {
     }
 
     public static String generateToken() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     public static class Info {
