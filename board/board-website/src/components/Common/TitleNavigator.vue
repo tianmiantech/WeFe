@@ -122,7 +122,7 @@
                         const item = titles[i];
                         const { top, bottom } = item.getBoundingClientRect();
 
-                        if(top <= 120 && bottom >= 90) {
+                        if(top <= 120 && bottom >= 90 && vData.list[i]) {
                             vData.list[i].highlight = true;
                         }
                     }

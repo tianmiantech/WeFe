@@ -125,7 +125,7 @@
                     <p v-if="projectType === 'DeepLearning'">
                         样本量/已标注：{{ isFlow ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}/{{isFlow ? scope.row.data_resource.labeled_count : scope.row.labeled_count }}
                         <br>
-                        标注进度：{{ ((scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count) / (scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count)).toFixed(2) * 100 }}%
+                        标注进度：{{ ((scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count) / (scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count) * 100).toFixed(2) }}%
                         <br>
                         样本分类：
                         <template v-if="scope.row.data_resource">
