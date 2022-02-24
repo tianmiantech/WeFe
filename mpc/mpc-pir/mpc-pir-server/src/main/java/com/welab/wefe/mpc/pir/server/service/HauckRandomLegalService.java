@@ -17,13 +17,13 @@
 
 package com.welab.wefe.mpc.pir.server.service;
 
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalRequest;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalResponse;
+
+import java.util.List;
 
 /**
  * @Author eval
@@ -42,12 +42,13 @@ public class HauckRandomLegalService {
             String r = request.getR();
             mCacheOperation.save(uuid, Constants.PIR.R, r);
         }
-        String result = mCacheOperation.get(uuid, Constants.ENCRYPT_RESULT);
+
+        List<String> results = GetEncryptResultService.getEncryptResult(uuid);
 
         QueryRandomLegalResponse response = new QueryRandomLegalResponse();
         response.setUuid(uuid);
-        if (StrUtil.isNotEmpty(result)) {
-            response.setResults(JSON.parseArray(result, String.class));
+        if (results != null && !results.isEmpty()) {
+            response.setResults(results);
         }
         return response;
     }
