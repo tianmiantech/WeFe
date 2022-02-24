@@ -23,10 +23,16 @@ import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +42,7 @@ import java.util.regex.Pattern;
 /**
  * @author Zane
  */
-public class HttpResponse {
+public class HttpResponse implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpResponse.class);
     public static final int CODE_ERROR = -1;
@@ -56,24 +62,37 @@ public class HttpResponse {
     private Exception error;
     private String message;
     private HttpRequest request;
+    private HttpEntity bodyEntity;
+    /**
+     * 禁止直接访问这个字段，请使用 getBodyAsString()
+     */
     private String bodyAsString;
+    /**
+     * 禁止直接访问这个字段，请使用 getBodyAsBytes()
+     */
     private byte[] bodyBytes;
     private Map<String, String> headers = new HashMap<>();
     private String encoding;
     private String contentType;
+    private long contentLength;
     private String url;
-
+    private CloseableHttpResponse rawResponse;
     private static final Pattern PATTERN_MATCH_CHARSET = Pattern.compile("(?<=charset=)[a-z0-9\\-]+", Pattern.CASE_INSENSITIVE);
 
-    private HttpResponse() {
+    private HttpResponse(CloseableHttpResponse rawResponse) {
+        this.rawResponse = rawResponse;
+        if (rawResponse != null) {
+            contentLength = rawResponse.getEntity().getContentLength();
+            bodyEntity = rawResponse.getEntity();
+        }
     }
 
-    public static HttpResponse create() {
-        return create(null, 0);
+    public static HttpResponse create(CloseableHttpResponse rawResponse) {
+        return create(null, rawResponse, 0);
     }
 
-    static HttpResponse create(HttpRequest httpRequest, long spendTime) {
-        HttpResponse httpResponse = new HttpResponse();
+    static HttpResponse create(HttpRequest httpRequest, CloseableHttpResponse rawResponse, long spendTime) {
+        HttpResponse httpResponse = new HttpResponse(rawResponse);
         httpResponse.setRequest(httpRequest);
         httpResponse.setSpend(spendTime);
         return httpResponse;
@@ -86,11 +105,6 @@ public class HttpResponse {
 
     HttpResponse statusCode(int statusCode) {
         this.code = statusCode;
-        return this;
-    }
-
-    HttpResponse body(byte[] bodyBytes) {
-        this.bodyBytes = bodyBytes;
         return this;
     }
 
@@ -126,28 +140,22 @@ public class HttpResponse {
      */
     public String getBodyAsString() {
 
-        if (bodyBytes == null) {
-            return null;
-        }
-
         if (bodyAsString != null) {
             return bodyAsString;
         }
 
-        bodyAsString = "";
-
         if (StringUtils.isEmpty(this.encoding)) {
 
             try {
-                bodyAsString = new String(this.bodyBytes, StandardCharsets.UTF_8);
+                bodyAsString = new String(getBodyAsBytes(), StandardCharsets.UTF_8);
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
         } else {
             try {
-                bodyAsString = new String(this.bodyBytes, this.encoding);
-            } catch (UnsupportedEncodingException e) {
-                LOG.error("Wrong encoding：" + this.encoding);
+                bodyAsString = new String(getBodyAsBytes(), this.encoding);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
             }
         }
 
@@ -155,22 +163,71 @@ public class HttpResponse {
     }
 
     public String getBodyAsBase64() {
-        return Base64.encodeBase64String(bodyBytes);
+        return Base64.encodeBase64String(getBodyAsBytes());
     }
 
-    public byte[] getBodyBytes() {
+    public byte[] getBodyAsBytes() {
+        if (bodyBytes != null) {
+            return bodyBytes;
+        }
+
+        if (bodyEntity == null) {
+            return null;
+        }
+
+        try {
+            bodyBytes = EntityUtils.toByteArray(bodyEntity);
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        } finally {
+            close();
+        }
+
         return bodyBytes;
     }
 
     public JSONObject getBodyAsJson() {
         if (success()) {
-            if (bodyAsString == null) {
-                return null;
-            }
-
-            return JSONObject.parseObject(bodyAsString);
+            return JSONObject.parseObject(getBodyAsString());
         }
         return new JSONObject();
+    }
+
+    public File getBodyAsFile(String filePath) {
+        if (!success()) {
+            return null;
+        }
+        if (bodyEntity == null) {
+            return null;
+        }
+        try {
+            InputStream is = bodyEntity.getContent();
+
+
+            File file = new File(filePath);
+            if (file.exists()) {
+                file.delete();
+            }
+            file.getParentFile().mkdirs();
+            FileOutputStream fileout = new FileOutputStream(file);
+            /**
+             * 根据实际运行效果 设置缓冲区大小
+             */
+            byte[] buffer = new byte[10 * 1024];
+            int ch = 0;
+            while ((ch = is.read(buffer)) != -1) {
+                fileout.write(buffer, 0, ch);
+            }
+            is.close();
+            fileout.flush();
+            fileout.close();
+
+            close();
+            return file;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     public String getContentType() {
@@ -195,13 +252,18 @@ public class HttpResponse {
      * Outputs the current response object to the log
      */
     public void log() {
-        String content = getBodyAsString();
-        if (contentType != null && contentType.toLowerCase().contains("json")) {
+        String content = null;
+
+        if (contentType != null && contentType.toLowerCase().contains("stream")) {
+            content = "Binary data, length:" + contentLength;
+        } else if (contentType != null && contentType.toLowerCase().contains("json")) {
             try {
                 JSONObject json = getBodyAsJson();
                 content = JSON.toJSONString(json.getInnerMap(), LoggerSerializeConfig.instance());
             } catch (Exception e) {
             }
+        } else {
+            content = getBodyAsString();
         }
 
         if (content != null) {
@@ -253,6 +315,20 @@ public class HttpResponse {
 
     public String getUrl() {
         return url;
+    }
+
+    @Override
+    public void close() {
+        try {
+            if (rawResponse != null) {
+                rawResponse.close();
+            }
+        } catch (Exception e) {
+            rawResponse = null;
+        } finally {
+            rawResponse = null;
+        }
+
     }
 
     public static final class HeaderKey {
