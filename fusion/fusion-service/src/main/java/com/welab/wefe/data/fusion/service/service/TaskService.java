@@ -109,11 +109,6 @@ public class TaskService extends AbstractService {
 
     @Transactional(rollbackFor = Exception.class)
     public void add(AddApi.Input input) throws StatusCodeWithException {
-        //If a task is being executed, add it after the task is completed
-//        if (ActuatorManager.size() > 0) {
-//            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再添加", StatusCode.SYSTEM_BUSY);
-//        }
-
         String businessId = UUID.randomUUID().toString().replaceAll("-", "");
 
         //Add fieldinfo
@@ -199,7 +194,7 @@ public class TaskService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void handle(HandleApi.Input input) throws StatusCodeWithException {
         if (ActuatorManager.size() > 0) {
-            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再添加", StatusCode.SYSTEM_BUSY);
+            throw new StatusCodeWithException("有正在运行的任务, 请等待任务完成后再尝试审核运行！", StatusCode.SYSTEM_BUSY);
         }
 
         TaskMySqlModel task = find(input.getId());

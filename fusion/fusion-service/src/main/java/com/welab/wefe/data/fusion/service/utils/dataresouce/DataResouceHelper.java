@@ -226,7 +226,7 @@ public class DataResouceHelper {
     public static DataSetPreviewOutputModel readFromDB(String dataSourceId, String sql, List<String> rowList) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("Inferred data type", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -237,7 +237,7 @@ public class DataResouceHelper {
         // Gets the data set column header
         List<String> header = jdbcManager.getRowHeaders(conn, sql);
         if (header.stream().distinct().count() != header.size()) {
-            throw new StatusCodeWithException("The dataset contains duplicate fields. Please handle and re-upload.", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据集包含重复的字段，请处理后再尝试上传！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         DataSetPreviewOutputModel output = new DataSetPreviewOutputModel();
@@ -264,7 +264,7 @@ public class DataResouceHelper {
     public static DataSetPreviewOutputModel readFromSourceDB(String dataSourceId, String sql) throws Exception {
         DataSourceMySqlModel model = dataSourceService.getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("Inferred data type", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
         }
 
         if (sql == null) {
@@ -282,7 +282,7 @@ public class DataResouceHelper {
         }
 
         if (header.stream().distinct().count() != header.size()) {
-            throw new StatusCodeWithException("The dataset contains duplicate fields. Please handle and re-upload.", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据集包含重复的字段，请处理并尝试重新上传！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Convert capital Y to lowercase Y

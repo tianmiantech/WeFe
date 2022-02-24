@@ -118,12 +118,6 @@
                             min-width="80"
                         />
                         <el-table-column
-                            label="使用次数"
-                            prop="used_count"
-                            min-width="80"
-                        />
-
-                        <el-table-column
                             label="上传时间"
                             min-width="120"
                         >
@@ -166,7 +160,7 @@
                         >
                             <template slot-scope="scope">
                                 <div :title="scope.row.description">
-                                    {{ scope.row.name }}
+                                    <strong>{{ scope.row.name }}</strong>
                                     <p class="id">{{ scope.row.id }}</p>
                                 </div>
                             </template>
@@ -186,35 +180,7 @@
                             prop="row_count"
                             min-width="80"
                         />
-                        <el-table-column
-                            label="使用次数"
-                            prop="used_count"
-                            min-width="80"
-                        />
-
-
-                        <!-- <el-table-column
-                                    fixed="right"
-                                    label="操作"
-                                    width="140px"
-                                >
-                                    <template slot-scope="scope">
-                                        <el-tooltip
-                                            content="预览数据"
-                                            placement="top"
-                                        >
-                                            <el-button
-                                                circle
-                                                type="info"
-                                                @click="showBloomFilterPreview(scope.row)"
-                                            >
-                                                <i class="el-icon-view" />
-                                            </el-button>
-                                        </el-tooltip>
-                                    </template>
-                                </el-table-column> -->
                     </el-table>
-
 
                     <ul class="members mb30">
                         <li class="mt20">
@@ -546,7 +512,7 @@
                 }
             },
 
-            async addTask () {
+            async addTask (event) {
                 this.loading = true;
                 this.fieldInfoList.forEach((item, index) => {
                     item.columns=item.column_arr.join(',');
@@ -564,6 +530,9 @@
                         description:        this.task.description,
                         is_trace:           this.task.is_trace,
                         trace_column:       this.task.trace_column,
+                    },
+                    btnState: {
+                        target: event,
                     },
                 });
 

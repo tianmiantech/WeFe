@@ -101,9 +101,9 @@
 
         <MembersList
             ref="membersListRef"
+            :form="form"
             :promoter="promoter"
             :projectType="form.project_type"
-            :form="form"
             @deleteDataSetEmit="deleteDataSetEmit"
         />
 
@@ -411,7 +411,27 @@
                     const { memberTabName } = this.$refs['membersListRef'];
 
                     if(!memberTabName) {
-                        this.$refs['membersListRef'].memberTabName = `${this.promoter.member_id}-${this.promoter.member_role}`;
+                        let role;
+
+                        if(this.userInfo.member_id === promoter.member_id) {
+                            role = 'promoter';
+                        } else {
+                            let i = 0;
+
+                            promoter_list.forEach(member => {
+                                if(member.member_id === this.userInfo.member_id) {
+                                    i++;
+                                }
+                            });
+
+                            if(i) {
+                                role = 'promoter';
+                            } else {
+                                role = 'provider';
+                            }
+                        }
+
+                        this.$refs['membersListRef'].memberTabName = `${this.userInfo.member_id}-${role}`;
                     }
 
                     // refresh audit state every 30s

@@ -85,7 +85,7 @@
                 sourceTypeMap: {
                     BloomFilter:  '布隆过滤器',
                     ImageDataSet: 'ImageDataSet',
-                    TableDataSet: 'TableDataSet',
+                    TableDataSet: '数据集',
                 },
             };
         },

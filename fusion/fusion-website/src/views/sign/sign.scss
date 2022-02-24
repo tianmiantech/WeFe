@@ -32,6 +32,9 @@
 
 .el-form-item{
     margin-bottom: 16px;
+    :deep(.el-input-group__append) {
+        background:#fff;
+    }
 }
 
 .form-code{

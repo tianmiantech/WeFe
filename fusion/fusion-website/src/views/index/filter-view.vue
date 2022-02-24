@@ -233,11 +233,11 @@
                 </div>
 
                 <el-button
+                    v-loading="saveLoading"
                     class="save-btn mt20"
+                    :disabled="!keyRes"
                     type="primary"
                     size="large"
-                    :disabled="!keyRes"
-                    :loading="saveLoading"
                     @click="add"
                 >
                     生成
@@ -705,6 +705,7 @@ export default {
             });
         },
         async add() {
+            if(this.saveLoading) return;
             if (!this.form.name) {
                 this.$message.error('请输入过滤器名称！');
                 return;
@@ -766,6 +767,7 @@ export default {
                 data:    this.form,
             });
 
+            this.saveLoading = false;
             if (code === 0) {
                 if (data.repeat_data_count > 0) {
                     this.$message.success(`保存成功，过滤器包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
@@ -774,8 +776,6 @@ export default {
                 }
             } else if (code === 10017) {
                 this.dataSource.show = false;
-            } else {
-                this.saveLoading = false;
             }
             this.loading = false;
         },

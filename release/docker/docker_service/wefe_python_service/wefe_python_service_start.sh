@@ -78,6 +78,6 @@ else
   echo "加载 python 离线镜像完成"
 fi
 
+source /data/environment/miniconda3/envs/wefe-python37/bin/activate
 docker-compose -p $WEFE_ENV -f resources/docker-compose.yml up -d
-
 

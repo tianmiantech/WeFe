@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.database.entity;
+package com.welab.wefe.data.fusion.service.dto.entity.bloomfilter;
 
+import com.welab.wefe.data.fusion.service.dto.entity.AbstractOutputModel;
+import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetPreviewOutputModel;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
+import com.welab.wefe.data.fusion.service.enums.DataResourceType;
 import com.welab.wefe.data.fusion.service.enums.Progress;
 
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
 /**
  * @author hunter.zhao
  */
-@Entity(name = "bloom_filter")
-public class BloomFilterMySqlModel extends AbstractBaseMySqlModel {
+public class BloomfilterDetailOutputModel extends AbstractOutputModel {
+
     private String name;
 
     private String dataSourceId;
 
     /**
-     * describe
+     * description
      */
     private String description;
 
@@ -84,9 +86,14 @@ public class BloomFilterMySqlModel extends AbstractBaseMySqlModel {
     private String statement;
 
     /**
+     * Select the column
+     */
+    private String rows;
+
+    /**
      * The progress bar number
      */
-    private Integer processCount = 0;
+    private Integer processCount;
 
     /**
      * Progress status
@@ -94,15 +101,13 @@ public class BloomFilterMySqlModel extends AbstractBaseMySqlModel {
     private Progress process;
 
     /**
-     * Select the column
+     * 主键hash方式
      */
-    private String rows;
+    private String hashFusion;
 
-    /**
-     * hash_function
-     * @return
-     */
-    private String hashFunction;
+    DataResourceType type = DataResourceType.BloomFilter;
+
+    private DataSetPreviewOutputModel previewData;
 
     public String getName() {
         return name;
@@ -168,6 +173,10 @@ public class BloomFilterMySqlModel extends AbstractBaseMySqlModel {
         this.src = src;
     }
 
+    public DataResourceType getType() {
+        return type;
+    }
+
     public Integer getRowCount() {
         return rowCount;
     }
@@ -208,6 +217,10 @@ public class BloomFilterMySqlModel extends AbstractBaseMySqlModel {
         this.rows = rows;
     }
 
+    public void setType(DataResourceType type) {
+        this.type = type;
+    }
+
     public Integer getProcessCount() {
         return processCount;
     }
@@ -224,11 +237,19 @@ public class BloomFilterMySqlModel extends AbstractBaseMySqlModel {
         this.process = process;
     }
 
-    public String getHashFunction() {
-        return hashFunction;
+    public String getHashFusion() {
+        return hashFusion;
     }
 
-    public void setHashFunction(String hashFunction) {
-        this.hashFunction = hashFunction;
+    public void setHashFusion(String hashFusion) {
+        this.hashFusion = hashFusion;
+    }
+
+    public DataSetPreviewOutputModel getPreviewData() {
+        return previewData;
+    }
+
+    public void setPreviewData(DataSetPreviewOutputModel previewData) {
+        this.previewData = previewData;
     }
 }

@@ -53,32 +53,35 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="userInfo.admin_role"
                 label="操作"
                 fixed="right"
                 min-width="300"
             >
                 <template v-slot="scope">
-                    <el-button
-                        v-if="userInfo.super_admin_role && scope.row.user_id !== userInfo.user_id"
-                        type="danger"
-                        @click="changeRole($event, scope.row)"
-                    >
-                        设为{{ scope.row.admin_role ? '普通用户' : '管理员' }}
-                    </el-button>
-                    <el-button
-                        v-if="userInfo.admin_role"
-                        type="primary"
-                        @click="resetPassword($event, scope.row)"
-                    >
-                        重置用户密码
-                    </el-button>
-                    <el-button
-                        v-if="!scope.row.super_admin_role"
-                        :type="scope.row.enable ? 'danger' : 'success'"
-                        @click="changeStatus($event, scope.row)"
-                    >
-                        {{scope.row.enable ? '禁用' : '启用'}}
-                    </el-button>
+                    <template v-if="userInfo.admin_role">
+                        <el-button
+                            v-if="userInfo.super_admin_role && scope.row.user_id !== userInfo.user_id"
+                            type="danger"
+                            @click="changeRole($event, scope.row)"
+                        >
+                            设为{{ scope.row.admin_role ? '普通用户' : '管理员' }}
+                        </el-button>
+                        <el-button
+                            v-if="userInfo.admin_role"
+                            type="primary"
+                            @click="resetPassword($event, scope.row)"
+                        >
+                            重置用户密码
+                        </el-button>
+                        <el-button
+                            v-if="!scope.row.super_admin_role"
+                            :type="scope.row.enable ? 'danger' : 'success'"
+                            @click="changeStatus($event, scope.row)"
+                        >
+                            {{scope.row.enable ? '禁用' : '启用'}}
+                        </el-button>
+                    </template>
                 </template>
             </el-table-column>
         </el-table>

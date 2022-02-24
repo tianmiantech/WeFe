@@ -76,8 +76,6 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
         @Check(name = "主键处理")
         private List<FieldInfo> fieldInfoList;
 
-        @Check(name = "id")
-        private String id ;
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
@@ -158,14 +156,6 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
 
         public void setFieldInfoList(List<FieldInfo> fieldInfoList) {
             this.fieldInfoList = fieldInfoList;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
         }
     }
 

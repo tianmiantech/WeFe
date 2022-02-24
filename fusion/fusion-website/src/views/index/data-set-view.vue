@@ -686,6 +686,7 @@ export default {
             });
         },
         async add() {
+            if(this.addLoading) return;
             if (!this.form.name) {
                 return this.$message.error('请输入数据集名称！');
             } else if (this.form.name.length < 4) {
@@ -726,6 +727,7 @@ export default {
                 data:    this.form,
             });
 
+            this.addLoading = false;
             if (code === 0) {
                 if (data.repeat_data_count > 0) {
                     this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
@@ -734,7 +736,6 @@ export default {
                 }
 
             } else {
-                this.addLoading = false;
                 this.$refs['progressRef'].hideDialog();
             }
             this.loading = false;
