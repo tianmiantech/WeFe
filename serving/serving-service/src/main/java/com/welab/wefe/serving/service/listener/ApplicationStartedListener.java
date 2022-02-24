@@ -69,13 +69,15 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         checkAndSaveFeeDetail();
-
+		logger.info("config wefe.service.cache.type=" + config.getServiceCacheType());
 		// init PrivateInformationRetrievalServer
 		if ("redis".equalsIgnoreCase(config.getServiceCacheType())) {
 			PrivateInformationRetrievalServer.init(100, new RedisIntermediateCache(config.getRedisHost(),
 					Integer.valueOf(config.getRedisPort()), config.getRedisPassword()));
+			logger.info("init RedisIntermediateCache");
 		} else {
 			PrivateInformationRetrievalServer.init(100);
+			logger.info("init LocalIntermediateCache");
 		}
     }
 
