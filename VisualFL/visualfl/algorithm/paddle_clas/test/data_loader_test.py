@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from visualfl.algorithm.paddle_clas import data_loader
+from visualfl.utils import data_loader
 import unittest
 
 

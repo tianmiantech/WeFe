@@ -49,7 +49,7 @@ public class MysqlStorage extends AbstractStorage {
             StringBuilder s = new StringBuilder();
             for (String row : rows) {
                 s.append("`").append(row).append("`");
-                s.append(" VARCHAR(32) NOT NULL,");
+                s.append(" VARCHAR(160) NOT NULL,");
             }
             if (s.length() > 0) {
                 s = new StringBuilder(s.substring(0, s.length() - 1));

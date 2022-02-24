@@ -149,13 +149,14 @@ export default {
 .form-code {
     ::v-deep .el-input-group__append {
         padding: 0;
-        width: 85px;
+        width: 90px;
         overflow: hidden;
+        background: #fff;
     }
 }
 
 .code-img {
-    width: 85px;
+    width: 90px;
     height: 30px;
 }
 
