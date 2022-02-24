@@ -115,7 +115,8 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
         psiClientMeta = downloadBloomFilter();
 
         CountDownLatch latch = new CountDownLatch(sliceNumber());
-        while (hasNext()) {
+
+        for (int j = 0; j < sliceNumber(); j++) {
             CommonThreadPool.run(
                     () -> {
                         //取数
