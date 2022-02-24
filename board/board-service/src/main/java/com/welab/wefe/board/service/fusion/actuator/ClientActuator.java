@@ -217,6 +217,12 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
+    public Integer sliceNumber() {
+        return dataCount.intValue() % shardSize == 0 ? dataCount.intValue() / shardSize
+                : dataCount.intValue() / shardSize + 1;
+    }
+
+    @Override
     public PsiActuatorMeta downloadBloomFilter() throws StatusCodeWithException {
 
         LOG.info("downloadBloomFilter start");

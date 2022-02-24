@@ -16,6 +16,7 @@
 
 package com.welab.wefe.fusion.core.actuator.psi;
 
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
@@ -26,6 +27,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author hunter.zhao
@@ -60,6 +62,13 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
      * @return
      */
     public abstract Boolean hasNext();
+
+    /**
+     * Determine whether there is still data
+     *
+     * @return
+     */
+    public abstract Integer sliceNumber();
 
     /**
      * Download the Server Square Bloom filter
@@ -101,42 +110,56 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
      * Begin to fusion
      */
     @Override
-    public void fusion() throws StatusCodeWithException {
+    public void fusion() throws StatusCodeWithException, InterruptedException {
         //拉取bf
         psiClientMeta = downloadBloomFilter();
 
+        CountDownLatch latch = new CountDownLatch(sliceNumber());
         while (hasNext()) {
-            //取数
-            List<JObject> data = next();
+            CommonThreadPool.run(
+                    () -> {
+                        //取数
+                        List<JObject> data = next();
 
-            List<String> d = new ArrayList<>();
-            List<BigInteger> r = new ArrayList<>();
-            List<BigInteger> rInv = new ArrayList<>();
-            byte[][] bs = new byte[data.size()][16];
+                        List<String> d = new ArrayList<>();
+                        List<BigInteger> r = new ArrayList<>();
+                        List<BigInteger> rInv = new ArrayList<>();
+                        byte[][] bs = new byte[data.size()][16];
 
-            //加密
-            for (int i = 0; i < data.size(); i++) {
+                        //加密
+                        for (int i = 0; i < data.size(); i++) {
 
-                String key = hashValue(data.get(i));
-//                d.add(key);
+                            String key = hashValue(data.get(i));
 
-                BigInteger h = PSIUtils.stringToBigInteger(key);
-                BigInteger blindFactor = generateBlindingFactor();
-                r.add(blindFactor.modPow(psiClientMeta.getE(), psiClientMeta.getN()));
-                rInv.add(blindFactor.modInverse(psiClientMeta.getN()));
-                BigInteger x = h.multiply(r.get(i)).mod(psiClientMeta.getN());
-                bs[i] = PSIUtils.bigIntegerToBytes(x, false);
-            }
+                            BigInteger h = PSIUtils.stringToBigInteger(key);
+                            BigInteger blindFactor = generateBlindingFactor();
+                            r.add(blindFactor.modPow(psiClientMeta.getE(), psiClientMeta.getN()));
+                            rInv.add(blindFactor.modInverse(psiClientMeta.getN()));
+                            BigInteger x = h.multiply(r.get(i)).mod(psiClientMeta.getN());
+                            bs[i] = PSIUtils.bigIntegerToBytes(x, false);
+                        }
 
-            //发送
-            byte[][] result = queryFusionData(bs);
+                        //发送
+                        byte[][] result = new byte[0][];
+                        try {
+                            result = queryFusionData(bs);
+                        } catch (StatusCodeWithException e) {
+                            e.printStackTrace();
+                            LOG.error("slice：{} fusion error: {}", e.getMessage());
+                        }
 
-            //matching
-            List<JObject> fruit = receiveAndParseResult(result, data, r, rInv);
+                        //matching
+                        List<JObject> fruit = receiveAndParseResult(result, data, r, rInv);
 
-            //dump
-            dump(fruit);
+                        //dump
+                        dump(fruit);
+                    },
+                    latch
+            );
+
         }
+
+        latch.await();
 
         status = PSIActuatorStatus.success;
     }
