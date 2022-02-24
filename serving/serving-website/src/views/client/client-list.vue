@@ -60,7 +60,7 @@
 
             <el-table-column
                 label="客户名称"
-                width="230"
+                min-width="230"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.name }}</p>
@@ -70,7 +70,7 @@
 
             <el-table-column
                 label="客户 code"
-                width="120"
+                min-width="120"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.code }}</p>
@@ -80,7 +80,7 @@
 
             <el-table-column
                 label="客户邮箱"
-                width="150"
+                min-width="150"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.email }}</p>
@@ -89,7 +89,7 @@
 
             <el-table-column
                 label="IP 白名单"
-                width="200"
+                min-width="200"
             >
                 <template slot-scope="scope">
                     <el-tooltip
@@ -107,7 +107,7 @@
 
             <el-table-column
                 label="创建时间"
-                width="120"
+                min-width="120"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
