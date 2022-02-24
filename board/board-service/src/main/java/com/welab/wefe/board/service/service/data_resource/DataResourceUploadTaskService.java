@@ -99,6 +99,10 @@ public class DataResourceUploadTaskService extends AbstractService {
                 return;
             }
 
+            if (completedDataCount > totalDataRowCount) {
+                completedDataCount = totalDataRowCount;
+            }
+
             int progress = 0;
             if (totalDataRowCount > 0) {
                 // Calculate progress

@@ -1,5 +1,5 @@
 
-### 添加数据集-xlsx
+### 添加数据集
 POST http://localhost:8080/board-service/table_data_set/add
 Content-Type: application/json
 token: {{token}}
@@ -55,80 +55,47 @@ token: {{token}}
 }
 
 
-
-
-### 添加数据集-xls
-POST http://localhost:8080/board-service/data_set/add
-Content-Type: multipart/form-data; boundary=WebAppBoundary
+### 添加数据集
+POST http://localhost:8080/board-service/table_data_set/add
+Content-Type: application/json
 token: {{token}}
 
---WebAppBoundary
---WebAppBoundary
-Content-Disposition: form-data; name="file"; filename="test02.xlsx"
-Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-
-< /Users/zane.luo/test02.xlsx
---WebAppBoundary
-Content-Disposition: form-data; name="name"
-
-xlsx测试数据集
---WebAppBoundary
-Content-Disposition: form-data; name="tags"
-
-xlsx,test
---WebAppBoundary
-Content-Disposition: form-data; name="description"
-
-这是一个测试数据集，用于测试数据集上传功能。
---WebAppBoundary
-Content-Disposition: form-data; name="contains_y"
-
-false
---WebAppBoundary
-
-> {%
-
-client.test("Request executed successfully", function() {
-    client.assert(response.body.code === 0, "Response code is not 0");
-});
-
-%}
-
-
-
-
-### 添加数据集-csv
-POST http://localhost:8080/board-service/data_set/add
-Content-Type: multipart/form-data; boundary=WebAppBoundary
-
---WebAppBoundary
-Content-Disposition: form-data; name="file"; filename="反欺诈·反查贷后字段开发☞数据样本.csv"
-Content-Type: text/csv
-
-< /Users/Zane/Code/WeLab/Wefe/board/board-service/src/main/resources/test/data_set/data_set01.csv
---WebAppBoundary
-Content-Disposition: form-data; name="name"
-
-xlsx测试数据集
---WebAppBoundary
-Content-Disposition: form-data; name="tags"
-
-xlsx,test
---WebAppBoundary
-Content-Disposition: form-data; name="description"
-
-这是一个测试数据集，用于测试数据集上传功能。
---WebAppBoundary
-Content-Disposition: form-data; name="contains_y"
-
-false
---WebAppBoundary
-
-> {%
-
-client.test("Request executed successfully", function() {
-    client.assert(response.body.code === 0, "Response code is not 0");
-});
-
-%}
-
+{
+  "publicLevel": "Public",
+  "name": "zane test011",
+  "tags": [
+    "12321"
+  ],
+  "description": "",
+  "public_member_list": "",
+  "filename": "data0.csv",
+  "data_set_add_method": "HttpUpload",
+  "metadata_list": [
+    {
+      "data_type": "Integer",
+      "name": "id",
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x0",
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x1",
+      "comment": ""
+    },
+    {
+      "data_type": "Double",
+      "name": "x2",
+      "comment": ""
+    },
+    {
+      "data_type": "Integer",
+      "name": "y",
+      "comment": ""
+    }
+  ],
+  "deduplication": true
+}
