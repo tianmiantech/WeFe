@@ -65,7 +65,10 @@ public class UserService {
         String salt = createRandomSalt();
         user.setPassword(Md5.of(user.getPassword() + salt));
         user.setSalt(salt);
-        user.setAuditStatus(AuditStatus.auditing);
+
+        if(!user.isSuperAdminRole()){
+            user.setAuditStatus(AuditStatus.auditing);
+        }
         userMongoRepo.save(user);
     }
 
