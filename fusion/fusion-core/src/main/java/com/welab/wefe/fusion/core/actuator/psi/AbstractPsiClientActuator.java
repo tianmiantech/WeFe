@@ -16,6 +16,7 @@
 
 package com.welab.wefe.fusion.core.actuator.psi;
 
+import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
@@ -26,6 +27,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author hunter.zhao
@@ -60,6 +62,13 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
      * @return
      */
     public abstract Boolean hasNext();
+
+    /**
+     * Determine whether there is still data
+     *
+     * @return
+     */
+    public abstract Integer sliceNumber();
 
     /**
      * Download the Server Square Bloom filter
@@ -101,42 +110,56 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
      * Begin to fusion
      */
     @Override
-    public void fusion() throws StatusCodeWithException {
+    public void fusion() throws StatusCodeWithException, InterruptedException {
         //拉取bf
         psiClientMeta = downloadBloomFilter();
 
-        while (hasNext()) {
-            //取数
-            List<JObject> data = next();
+        CountDownLatch latch = new CountDownLatch(sliceNumber());
 
-            List<String> d = new ArrayList<>();
-            List<BigInteger> r = new ArrayList<>();
-            List<BigInteger> rInv = new ArrayList<>();
-            byte[][] bs = new byte[data.size()][16];
+        for (int j = 0; j < sliceNumber(); j++) {
+            CommonThreadPool.run(
+                    () -> {
+                        //取数
+                        List<JObject> data = next();
 
-            //加密
-            for (int i = 0; i < data.size(); i++) {
+                        List<BigInteger> r = new ArrayList<>();
+                        List<BigInteger> rInv = new ArrayList<>();
+                        byte[][] bs = new byte[data.size()][16];
 
-                String key = hashValue(data.get(i));
-//                d.add(key);
+                        //加密
+                        for (int i = 0; i < data.size(); i++) {
 
-                BigInteger h = PSIUtils.stringToBigInteger(key);
-                BigInteger blindFactor = generateBlindingFactor();
-                r.add(blindFactor.modPow(psiClientMeta.getE(), psiClientMeta.getN()));
-                rInv.add(blindFactor.modInverse(psiClientMeta.getN()));
-                BigInteger x = h.multiply(r.get(i)).mod(psiClientMeta.getN());
-                bs[i] = PSIUtils.bigIntegerToBytes(x, false);
-            }
+                            String key = hashValue(data.get(i));
 
-            //发送
-            byte[][] result = queryFusionData(bs);
+                            BigInteger h = PSIUtils.stringToBigInteger(key);
+                            BigInteger blindFactor = generateBlindingFactor();
+                            r.add(blindFactor.modPow(psiClientMeta.getE(), psiClientMeta.getN()));
+                            rInv.add(blindFactor.modInverse(psiClientMeta.getN()));
+                            BigInteger x = h.multiply(r.get(i)).mod(psiClientMeta.getN());
+                            bs[i] = PSIUtils.bigIntegerToBytes(x, false);
+                        }
 
-            //matching
-            List<JObject> fruit = receiveAndParseResult(result, data, r, rInv);
+                        //发送
+                        byte[][] result = new byte[0][];
+                        try {
+                            result = queryFusionData(bs);
+                        } catch (StatusCodeWithException e) {
+                            e.printStackTrace();
+                            LOG.error("slice：{} fusion error: {}", e.getMessage());
+                        }
 
-            //dump
-            dump(fruit);
+                        //matching
+                        List<JObject> fruit = receiveAndParseResult(result, data, rInv);
+
+                        //dump
+                        dump(fruit);
+                    },
+                    latch
+            );
+
         }
+
+        latch.await();
 
         status = PSIActuatorStatus.success;
     }
@@ -144,7 +167,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
     /**
      * Receives encrypted data, parses and matches
      */
-    private List<JObject> receiveAndParseResult(byte[][] ret, List<JObject> cur, List<BigInteger> r, List<BigInteger> rInv) {
+    private List<JObject> receiveAndParseResult(byte[][] ret, List<JObject> cur, List<BigInteger> rInv) {
 
         LOG.info("client start receive data...");
 
@@ -160,11 +183,8 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
                 fruit.add(cur.get(i));
                 fusionCount.increment();
             }
-
+            processedCount.increment();
         }
-
-
-        processedCount.add(ret.length);
 
 
         LOG.info("fusionCount: " + fusionCount.longValue());

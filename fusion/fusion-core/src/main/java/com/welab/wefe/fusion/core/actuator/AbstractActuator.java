@@ -166,7 +166,7 @@ public abstract class AbstractActuator implements AutoCloseable {
      *
      * @throws StatusCodeWithException
      */
-    public abstract void fusion() throws StatusCodeWithException;
+    public abstract void fusion() throws StatusCodeWithException, InterruptedException;
 
     /**
      * Alignment data into the library implementation method
