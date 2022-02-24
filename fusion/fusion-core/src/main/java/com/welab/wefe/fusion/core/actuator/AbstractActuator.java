@@ -56,7 +56,7 @@ public abstract class AbstractActuator implements AutoCloseable {
     /**
      * Maximum execution time of a task
      */
-    private TimeSpan maxExecuteTimeSpan = new TimeSpan(30 * 60 * 1000);
+    private TimeSpan maxExecuteTimeSpan = new TimeSpan(15 * 60 * 1000);
 
     /**
      * Maximum execution time
