@@ -38,6 +38,7 @@ import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.MemberService;
+import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
 
 /**
  * @author hunter.zhao
@@ -84,9 +85,6 @@ public class Serving {
 
         //Initialize verification code memory
         CaptchaService.init();
-        
-        // init PrivateInformationRetrievalServer
-        PrivateInformationRetrievalServer.init(100);
     }
 
 	/**

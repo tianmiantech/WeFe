@@ -46,12 +46,6 @@
             <artifactId>hutool-all</artifactId>
             <version>5.5.7</version>
         </dependency>
-        
-       	<dependency>
-        	<groupId>redis.clients</groupId>
-        	<artifactId>jedis</artifactId>
-       	</dependency>
-
     </dependencies>
 
 </project>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.mpc.cache.intermediate.impl;
+package com.welab.wefe.serving.service.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,7 +42,6 @@ public class RedisIntermediateCache implements CacheOperation {
 			synchronized (RedisIntermediateCache.class) {
 				if (null == jedisPool) {
 					JedisPoolConfig poolConfig = new JedisPoolConfig();
-					poolConfig.setMaxIdle(32);
 					if (StringUtils.isNotBlank(password)) {
 						jedisPool = new JedisPool(poolConfig, host, port, 2000, password);
 					} else {
@@ -61,18 +60,29 @@ public class RedisIntermediateCache implements CacheOperation {
 		}
 		// 从连接池中获取一个连接
 		Jedis jedis = jedisPool.getResource();
-		jedis.set(name + "_" + key, value);
+		jedis.set((name + "_" + key).getBytes(), SerializeUtil.serialize(value));
 		jedis.close();
 	}
 
 	@Override
 	public Object get(String key, String name) {
-		return null;
+		if (jedisPool == null) {
+			jedisPool = getJedisPoolInstance(host, port, password);
+		}
+		// 从连接池中获取一个连接
+		Jedis jedis = jedisPool.getResource();
+		byte[] value = jedis.get((name + "_" + key).getBytes());
+		return SerializeUtil.unserialize(value);
 	}
 
 	@Override
 	public void delete(String key) {
-
+		if (jedisPool == null) {
+			jedisPool = getJedisPoolInstance(host, port, password);
+		}
+		// 从连接池中获取一个连接
+		Jedis jedis = jedisPool.getResource();
+		jedis.del(key.getBytes());
 	}
 
 }
