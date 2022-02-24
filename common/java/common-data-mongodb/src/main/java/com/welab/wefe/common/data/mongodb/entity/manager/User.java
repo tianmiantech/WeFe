@@ -46,7 +46,7 @@ public class User extends AbstractNormalMongoModel {
     /**
      * 是否可用
      */
-    private boolean enable = false;
+    private boolean enable = true;
 
 
     /**
