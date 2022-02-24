@@ -112,6 +112,7 @@
             :data-add-btn="dataAddBtn"
             :emit-event-name="emitEventName"
             :project-type="projectType"
+            :member-id="memberId"
             @close-dialog="closeDialog"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"

@@ -254,6 +254,7 @@
                                 :search-field="vData.rawSearch"
                                 :paramsExclude="['allList', 'list']"
                                 :project-type="vData.flowInfo.project.project_type"
+                                :member-id="vData.memberId"
                                 @list-loaded="methods.listLoaded"
                                 @selectDataSet="methods.selectDataSet"
                                 @close-dialog="vData.showSelectDataSet=false;"
