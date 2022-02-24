@@ -29,6 +29,13 @@ import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVar
  **/
 public class PrivateInformationRetrievalQuery {
 
+    /**
+     * 匿踪查询
+     * @param config 匿踪查询算法参数
+     * @param communicationConfig 匿踪查询与服务器通信配置
+     * @return 匿踪查询结果
+     * @throws Exception
+     */
     public String query(PrivateInformationRetrievalConfig config, CommunicationConfig communicationConfig) throws Exception {
         PrivateInformationRetrievalTransferVariable transferVariable = new HttpTransferVariable(communicationConfig);
         return query(config, transferVariable);

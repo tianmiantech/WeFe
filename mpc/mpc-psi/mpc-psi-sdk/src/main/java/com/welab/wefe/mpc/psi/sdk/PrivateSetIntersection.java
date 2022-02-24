@@ -68,7 +68,7 @@ public class PrivateSetIntersection {
     /**
      * 查询本文id集与服务器id集的集合操作
      *
-     * @param config   服务器的连接信息， 服务器地址需包含apiName字段的值
+     * @param config   服务器的连接信息
      * @param ids      本方id集
      * @param keySize  密钥安全长度
      * @param operator 自定义列表运算结果,默认求两个列表交集

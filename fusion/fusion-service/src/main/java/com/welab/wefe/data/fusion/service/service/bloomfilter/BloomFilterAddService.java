@@ -94,16 +94,21 @@ public class BloomFilterAddService extends AbstractService {
             throw new StatusCodeWithException("加密组合不宜过于复杂", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        BloomFilterMySqlModel model = ModelMapper.map(input, BloomFilterMySqlModel.class);
+        BloomFilterMySqlModel model = new BloomFilterMySqlModel();
+
         model.setUpdatedBy(CurrentAccount.id());
         model.setCreatedBy(CurrentAccount.id());
+        model.setDescription(input.getDescription());
+        model.setDataResourceSource(input.getDataResourceSource());
+        model.setName(input.getName());
         model.setRows(StringUtil.join(input.getRows(), ','));
-        model.setHashFunction(PrimaryKeyUtils.hashFunction(input.getFieldInfoList()));
         model.setUsedCount(0);
+        model.setRowCount(0);
         model.setUpdatedTime(new Date());
         model.setStatement(input.getSql());
         model.setSourcePath(input.getFilename());
         model.setDataSourceId(input.getDataSourceId());
+        model.setHashFunction(PrimaryKeyUtils.hashFunction(input.getFieldInfoList()));
         bloomFilterRepository.save(model);
 
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
@@ -113,10 +118,9 @@ public class BloomFilterAddService extends AbstractService {
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             readAndSaveFromDB(model, input.getRows());
         } else {
-
-            File file = dataSetService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
-            // Parse and save the dataset file
+            // Parse and save the bloom filter file
             try {
+                File file = dataSetService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
                 //Read from the data file and generate a filter
                 readAndSaveFile(model, file, input.getRows());
             } catch (IOException e) {
