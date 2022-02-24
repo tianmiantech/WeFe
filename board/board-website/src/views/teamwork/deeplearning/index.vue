@@ -254,6 +254,7 @@
                                 :search-field="vData.rawSearch"
                                 :paramsExclude="['allList', 'list']"
                                 :project-type="vData.flowInfo.project.project_type"
+                                :member-id="vData.memberId"
                                 @list-loaded="methods.listLoaded"
                                 @selectDataSet="methods.selectDataSet"
                                 @close-dialog="vData.showSelectDataSet=false;"
@@ -1082,10 +1083,8 @@
                         if(code === 0) {
                             if(data.job_id) {
                                 $message.success('启动成功! ');
-                                router.replace({
-                                    name:  'project-detail',
-                                    query: { project_id: vData.flowInfo.project_id },
-                                });
+                                methods.getJobDetail();
+                                
                             }
                         }
                         vData.startLoading = false;

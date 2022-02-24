@@ -5,7 +5,7 @@
     >
         <el-form :inline="true" class="demo-form-inline">
             <el-form-item label="资源类型：">
-                <el-select v-model="vData.search.dataResourceType" placeholder="请选择资源类型" clearable>
+                <el-select v-model="vData.search.dataResourceType" placeholder="请选择资源类型" clearable @change="methods.dataResourceTypeChange">
                     <el-option v-for="item in vData.dataResourceTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
             </el-form-item>
@@ -67,7 +67,7 @@
                     <el-input v-model.trim="vData.tagName"></el-input>
                 </el-form-item>
                 <el-form-item v-if="!vData.tagId" label="资源类型" style="width: 330px;" required>
-                    <el-select v-model="vData.dataResourceType" placeholder="请选择资源类型" clearable>
+                    <el-select v-model="vData.dataResourceType" placeholder="请选择资源类型">
                         <el-option v-for="item in vData.dataResourceTypeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
@@ -131,6 +131,13 @@
                 addKeywords() {
                     vData.dialogKeywords = true;
                 },
+                dataResourceTypeChange(val) {
+                    if (val) {
+                        vData.dataResourceType = val;
+                    } else {
+                        vData.dataResourceType = 'TableDataSet';
+                    }
+                },
                 async submitKeywords($event) {
                     const params = {
                         tagName:          vData.tagName,
@@ -140,7 +147,6 @@
                     if(vData.tagId) {
                         params.tagId = vData.tagId;
                     }
-                    vData.loading = true;
                     const { code } = await $http.post({
                         url:      vData.tagId ? '/data_resource/default_tag/update' : '/data_resource/default_tag/add',
                         data:     params,
@@ -154,9 +160,11 @@
                             vData.dialogKeywords = false;
                             vData.tagName = '';
                             vData.tagId = '';
-                            ctx.refresh();
+                            vData.search.dataResourceType = vData.search.dataResourceType ? vData.dataResourceType : vData.search.dataResourceType;
+                            setTimeout(() => {
+                                ctx.getList();
+                            }, 1000);
                         }
-                        vData.loading = false;
                     });
                 },
                 async updateTag($event, tag) {

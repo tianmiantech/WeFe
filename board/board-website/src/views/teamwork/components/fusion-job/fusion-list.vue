@@ -4,6 +4,7 @@
         name="数据融合"
         class="nav-title mb30"
         shadow="never"
+        :show="project_type !== 'DeepLearning'"
     >
         <h3 class="mb10 card-title">
             数据融合
@@ -136,6 +137,7 @@
         },
         created() {
             this.project_id = this.$route.query.project_id;
+            this.project_type = this.$route.query.project_type;
             this.getTaskList();
         },
         beforeUnmount() {

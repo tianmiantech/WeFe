@@ -34,7 +34,9 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author hunter.zhao
@@ -56,6 +58,11 @@ public class PsiServerActuator extends AbstractPsiActuator {
         this.port = port;
     }
 
+
+    private Map<Integer, byte[][]> cacheMap = new HashMap<>();
+    // -------------↑↑↑↑The actuator caches data information during execution↑↑↑↑-------------//
+
+    private ThreadLocal<Integer> threadId = new ThreadLocal<>();
 
     public PsiServerActuator fillBloomFilters(BloomFilters bloomFilters) {
         this.bf = bloomFilters;
@@ -129,14 +136,14 @@ public class PsiServerActuator extends AbstractPsiActuator {
             DataInputStream d_in = new DataInputStream(socket.getInputStream());
             int index = (int) PSIUtils.receiveInteger(d_in);
 
-            LOG.info("server wait spend :  {} ms ", (System.currentTimeMillis() - start));
+            LOG.info("server wait spend :  {} ms  current_index: {}", (System.currentTimeMillis() - start), index);
 
             long start1 = System.currentTimeMillis();
 
             //Encrypted again
             byte[][] result = CryptoUtils.sign(N, d, query);
 
-            LOG.info("server a.mod(N) spend :  {} ms size: {}", (System.currentTimeMillis() - start1), result.length);
+            LOG.info("server a.mod(N) spend :  {} ms size: {}  current_index: {}", (System.currentTimeMillis() - start1), result.length, index);
 
             /**
              * Return the query result

@@ -145,7 +145,7 @@
                                     <el-icon class="mr5">
                                         <elicon-circle-check />
                                     </el-icon>
-                                    已认证
+                                    已认证<span style="font-size: 12px; color: #f85564;">（认证有效期：{{real_name_auth_useful_life}}）</span>
                                 </span>
                                 <router-link
                                     v-if="userInfo.super_admin_role && enterpriseAuth !== 1"
@@ -154,7 +154,6 @@
                                 >
                                     {{ enterpriseAuth === 0 ? '去认证' : '重新认证' }}
                                 </router-link>
-                                <p v-if="enterpriseAuth === 2" class="f12" style="color: #f85564">认证有效期：{{real_name_auth_useful_life}}</p>
                             </el-form-item>
                         </div>
                     </el-col>
