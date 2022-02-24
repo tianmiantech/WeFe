@@ -69,7 +69,5 @@ public class PsiDumpHelper {
                 }).collect(Collectors.toList());
 
         fusionResultStorageService.saveDataRows(businessId, fruits);
-
-        System.out.println("测试结果：" + JSON.toJSONString(fruit));
     }
 }

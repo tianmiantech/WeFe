@@ -16,7 +16,6 @@
 package com.welab.wefe.board.service.fusion.actuator;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.project.fusion.actuator.psi.*;
@@ -183,7 +182,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
             });
 
 
-            LOG.info("cursor {} spend: {} curList {}", currentIndex, System.currentTimeMillis() - start, curList.size());
+            LOG.info("cursor {} spend: {} curList {} list {}", currentIndex, System.currentTimeMillis() - start, curList.size(), list.size());
 
             currentIndex++;
 
@@ -198,10 +197,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
         PsiDumpHelper.dump(businessId, columnList, fruit);
 
         LOG.info("fruit insert end...");
-
-        System.out.println("测试结果：" + JSON.toJSONString(fruit));
-
-        //记录进度
     }
 
     @Override
@@ -212,6 +207,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
                     new PageInputModel(currentIndex, shardSize)
             );
+
+            LOG.info("currentIndex {} mode data size {}", currentIndex, model.getData().size());
             return model.getData().size() > 0;
         }
     }

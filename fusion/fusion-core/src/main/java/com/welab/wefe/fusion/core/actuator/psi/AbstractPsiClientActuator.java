@@ -149,7 +149,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
                         }
 
                         //matching
-                        List<JObject> fruit = receiveAndParseResult(result, data, r, rInv);
+                        List<JObject> fruit = receiveAndParseResult(result, data, rInv);
 
                         //dump
                         dump(fruit);
@@ -167,7 +167,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
     /**
      * Receives encrypted data, parses and matches
      */
-    private List<JObject> receiveAndParseResult(byte[][] ret, List<JObject> cur, List<BigInteger> r, List<BigInteger> rInv) {
+    private List<JObject> receiveAndParseResult(byte[][] ret, List<JObject> cur, List<BigInteger> rInv) {
 
         LOG.info("client start receive data...");
 
@@ -183,11 +183,8 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
                 fruit.add(cur.get(i));
                 fusionCount.increment();
             }
-
+            processedCount.increment();
         }
-
-
-        processedCount.add(ret.length);
 
 
         LOG.info("fusionCount: " + fusionCount.longValue());
