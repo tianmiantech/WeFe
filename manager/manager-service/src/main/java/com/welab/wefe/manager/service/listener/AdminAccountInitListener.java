@@ -19,6 +19,7 @@ package com.welab.wefe.manager.service.listener;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Md5;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.manager.service.constant.UserConstant;
 import com.welab.wefe.manager.service.service.UserService;
 import org.slf4j.Logger;
@@ -52,6 +53,7 @@ public class AdminAccountInitListener implements ApplicationListener<Application
             user.setAdminRole(true);
             user.setSuperAdminRole(true);
             user.setRealname(UserConstant.ADMIN_ACCOUNT);
+            user.setAuditStatus(AuditStatus.agree);
             try {
                 userService.register(user);
             } catch (StatusCodeWithException e) {
