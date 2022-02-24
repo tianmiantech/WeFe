@@ -508,7 +508,7 @@ class Master(Logger):
         cluster_address: str,
         rest_port: int,
         rest_host: str = None,
-        standalone: bool = False
+        local: bool = False
     ):
         """
           init master
@@ -525,7 +525,7 @@ class Master(Logger):
         self._cluster = ClusterManagerConnect(
             shared_status=self.shared_status, address=cluster_address
         )
-        self.standalone = standalone
+        self.local = local
 
     def callback(self,job,status=None,message=None):
         json_data = dict(
@@ -612,7 +612,7 @@ class Master(Logger):
 
             try:
 
-                if self.standalone:
+                if self.local:
                     if job.resource_required is not None:
                         response = await self._cluster.task_resource_require(
                             job.resource_required
@@ -629,7 +629,7 @@ class Master(Logger):
                     self.shared_status.job_status[job.job_id] = _JobStatus.RUNNING
                     for task in job.generate_aggregator_tasks():
                         self.debug(
-                            f"send local task: {task.task_id} with task type: {task.task_type} to cluster"
+                            f"send aggregator task: {task.task_id} with task type: {task.task_type} to cluster"
                         )
                         await self.shared_status.cluster_task_queue.put(task)
 
@@ -639,7 +639,7 @@ class Master(Logger):
 
                 for task in job.generate_trainer_tasks():
                     self.debug(
-                        f"send local task: {task.task_id} with task type: {task.task_type} to cluster"
+                        f"send trainer task: {task.task_id} with task type: {task.task_type} to cluster"
                     )
                     await self.shared_status.cluster_task_queue.put(task)
 
