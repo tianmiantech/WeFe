@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.gateway.GetDerivedDataSetDetailApi;
 import com.welab.wefe.board.service.api.project.dataset.QueryDerivedDataSetApi;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
@@ -152,13 +153,22 @@ public class ProjectDataSetService extends AbstractService {
                         // Others’ feature list should be checked remotely
                         else {
                             try {
-                                DerivedProjectDataSetOutputModel derivedProjectDataSet = gatewayService.callOtherMemberBoard(
+
+                                JSONObject derivedProjectDataSet = gatewayService.callOtherMemberBoard(
                                         member.getMemberId(),
                                         GetDerivedDataSetDetailApi.class,
                                         new GetDerivedDataSetDetailApi.Input(member.getProjectId(), projectDataSet.getDataSetId(), member.getJobRole()),
-                                        DerivedProjectDataSetOutputModel.class
+                                        /**
+                                         * 这里不能直接指定为 DerivedProjectDataSetOutputModel.class，
+                                         * 因为 dataResource 字段类型为 DataResourceOutputModel，
+                                         * 这是个父类，反射成这个对象会缺字段。
+                                         *
+                                         * 要取 json 节点手动反射为 TableDataSetOutputModel
+                                         */
+                                        JSONObject.class
+
                                 );
-                                tableDataSet = (TableDataSetOutputModel) derivedProjectDataSet.getDataResource();
+                                tableDataSet = derivedProjectDataSet.getJSONObject("data_resource").toJavaObject(TableDataSetOutputModel.class);
                             } catch (Exception e) {
                                 super.log(e);
                             }
