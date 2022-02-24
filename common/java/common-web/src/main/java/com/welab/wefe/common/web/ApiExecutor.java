@@ -151,7 +151,7 @@ public class ApiExecutor {
             Object body = ((ResponseEntity) result.data).getBody();
             if (body instanceof FileSystemResource) {
                 FileSystemResource fileSystemResource = (FileSystemResource) body;
-                content = "File:" + fileSystemResource.getPath();
+                content = "spend:" + result.spend + "ms File:" + fileSystemResource.getPath();
             }
         } else if (result.data instanceof byte[]) {
             byte[] bytes = (byte[]) result.data;
