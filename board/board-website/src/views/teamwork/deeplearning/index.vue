@@ -105,7 +105,7 @@
                                             >
                                                 <el-form-item label="数据资源名称：">
                                                     {{ row.data_resource.name }}
-                                                    <el-icon 
+                                                    <el-icon
                                                         v-if="!vData.disabled"
                                                         class="el-icon-circle-close f16 ml10"
                                                         @click="methods.removeDataSet(index)"
@@ -254,6 +254,7 @@
                                 :search-field="vData.rawSearch"
                                 :paramsExclude="['allList', 'list']"
                                 :project-type="vData.flowInfo.project.project_type"
+                                :member-id="vData.memberId"
                                 @list-loaded="methods.listLoaded"
                                 @selectDataSet="methods.selectDataSet"
                                 @close-dialog="vData.showSelectDataSet=false;"
@@ -985,8 +986,8 @@
                     });
 
                     nextTick(() => {
-                        if (code === 0) {
-                            const { params } = data || {};
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const { params } = data;
 
                             vData.deepLearnNodeId = data.node_id;
                             vData.flowType = data.component_type;
@@ -1082,10 +1083,8 @@
                         if(code === 0) {
                             if(data.job_id) {
                                 $message.success('启动成功! ');
-                                router.replace({
-                                    name:  'project-detail',
-                                    query: { project_id: vData.flowInfo.project_id },
-                                });
+                                methods.getJobDetail();
+                                
                             }
                         }
                         vData.startLoading = false;

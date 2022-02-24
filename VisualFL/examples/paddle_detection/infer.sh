@@ -3,7 +3,7 @@
 
 
 # export Environment Variables
-#   PYTHONPATH  Python default search path for module files,PaddleFL, PaddleDetection
+#   PYTHONPATH  Python default search path for module files, PaddleFL, PaddleDetection
 #   PYTHON_EXECUTABLE python executable path, such as python | python3 | venv/bin/python
 
 DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
@@ -15,4 +15,4 @@ if [ $# -le 0 ]; then
   exit 1
 fi
 
-python -m visualfl.client.submitter submit --config "${DIR}/config.yaml" --endpoint "$1"
+python -m visualfl.client.infer infer --config "${DIR}/config.yaml" --endpoint "$1"

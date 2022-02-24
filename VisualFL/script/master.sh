@@ -22,7 +22,7 @@ PROJECT_BASE=$(dirname "${DIR}")
 # shellcheck source=service.sh
 . "${PROJECT_BASE}/script/service.sh"
 
-usage="Usage: [PYTHON_EXECUTABLE=...] master.sh (start|stop) <submitter port> [<party id> <cluster manager address> <standalone>]"
+usage="Usage: [PYTHON_EXECUTABLE=...] master.sh (start|stop) <submitter port> [<party id> <cluster manager address> <local>]"
 if [ $# -le 1 ]; then
   echo "$usage"
   exit 1
@@ -41,7 +41,7 @@ start_master() {
     exit 1
   fi
   mkdir -p "$PROJECT_BASE/logs/nohup"
-  nohup "${PYTHON_EXECUTABLE}" -m visualfl.client.master --submitter-port "$1" --member-id "$2" --cluster-address "$3" --standalone "$4" >>"${PROJECT_BASE}/logs/nohup/master" 2>&1 &
+  nohup "${PYTHON_EXECUTABLE}" -m visualfl.client.master --submitter-port "$1" --member-id "$2" --cluster-address "$3" --local "$4" >>"${PROJECT_BASE}/logs/nohup/master" 2>&1 &
 }
 
 case "$1" in
