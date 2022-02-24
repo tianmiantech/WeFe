@@ -15,57 +15,42 @@
                 min-width="200"
             >
                 <template slot-scope="scope">
-                    <div :title="scope.row.description">
-                        {{ scope.row.name }}
-                        <p class="id">{{ scope.row.id }}</p>
-                    </div>
+                    <strong>{{ scope.row.name }}</strong>
+                    <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
-
-            <el-table-column
-                label="列数"
-                prop="feature_count"
-                min-width="80"
-            />
             <el-table-column
                 label="数据量"
                 prop="row_count"
                 min-width="80"
             />
             <el-table-column
-                label="使用次数"
-                prop="used_count"
-                min-width="80"
+                label="主键加密方式"
+                prop="hash_function"
+                min-width="140"
             />
 
             <el-table-column
                 label="来源"
-
                 min-width="120"
             >
-
                 <template slot-scope="scope">
                     <p>{{ dataResourceSource[scope.row.data_resource_source] }}</p>
                 </template>
             </el-table-column>
-
             <el-table-column
                 label="上传时间"
                 min-width="120"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_time | dateFormat }}
+                    <strong>{{ scope.row.creator_nickname }}</strong>
+                    <p>{{ scope.row.created_time | dateFormat }}</p>
                 </template>
             </el-table-column>
             <el-table-column
-                label="上传者"
-                prop="created_by"
-                min-width="120"
-            />
-            <el-table-column
                 fixed="right"
                 label="操作"
-                width="140px"
+                width="140"
             >
                 <template slot-scope="scope">
                     <el-tooltip
@@ -140,12 +125,11 @@ export default {
         return {
             show_bloom_filter_preview_dialog: false,
 
-            tableLoading: false,
+            tableLoading:       false,
             dataResourceSource: {
-                'LocalFile': '本地上传',
-                'UploadFile': '服务器文件上传',
-                'Sql': '数据库上传',
-
+                'LocalFile':  '服务器文件上传',
+                'UploadFile': '本地上传',
+                'Sql':        '数据库上传',
             },
         };
     },

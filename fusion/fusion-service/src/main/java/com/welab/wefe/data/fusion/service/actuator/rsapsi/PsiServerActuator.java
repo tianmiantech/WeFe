@@ -145,9 +145,6 @@ public class PsiServerActuator extends AbstractPsiActuator {
             PSIUtils.send2DBytes(socket, result);
             PSIUtils.sendInteger(d_out, index);
 
-            processedCount.add(result.length);
-            LOG.info("processedCount: " + processedCount.longValue());
-
             /**
              * Receive alignment results
              */
@@ -158,6 +155,8 @@ public class PsiServerActuator extends AbstractPsiActuator {
                 fusionCount.increment();
             }
 
+            processedCount.add(result.length);
+            LOG.info("processedCount: " + processedCount.longValue());
             LOG.info("fusionCount: " + fusionCount.longValue());
 
             //Put in storage

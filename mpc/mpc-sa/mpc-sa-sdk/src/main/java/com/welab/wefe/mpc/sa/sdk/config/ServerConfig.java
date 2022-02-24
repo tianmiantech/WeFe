@@ -25,13 +25,31 @@ import com.welab.wefe.mpc.config.CommunicationConfig;
  * @Date: 2021-12-22
  **/
 public class ServerConfig {
+    /**
+     * 服务名称
+     */
     private String serverName;
+    /**
+     * 服务url
+     */
     private String serverUrl;
+    /**
+     * 服务操作方法，ADD：加法，SUB：减法
+     */
     private Operator operator = Operator.ADD;
+    /**
+     * 服务权重
+     */
     private float weight = 1.0f;
 
+    /**
+     * 服务查询参数
+     */
     private JSONObject queryParams;
 
+    /**
+     * 与服务器通信配置
+     */
     private CommunicationConfig communicationConfig;
 
     public String getServerName() {

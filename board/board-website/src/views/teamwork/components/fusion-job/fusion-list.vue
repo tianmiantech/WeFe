@@ -4,6 +4,7 @@
         name="数据融合"
         class="nav-title mb30"
         shadow="never"
+        :show="project_type !== 'DeepLearning'"
     >
         <h3 class="mb10 card-title">
             数据融合
@@ -47,10 +48,12 @@
             />
             <el-table-column
                 label="任务状态"
-                min-width="160px"
+                min-width="160"
             >
                 <template v-slot="scope">
-                    <span :class="{ 'color-danger': scope.row.status === 'Await' || scope.row.status === 'Failure' || scope.row.status === 'Interrupt' || scope.row.status === 'Refuse' }">{{ statusMap[scope.row.status] }}</span>
+                    <span :class="{
+                        'color-danger': scope.row.status === 'Await' || scope.row.status === 'Pending' || scope.row.status === 'Failure' || scope.row.status === 'Interrupt' || scope.row.status === 'Refuse'
+                    }">{{ statusMap[scope.row.status] }}</span>
                     <p>耗时: {{ timeSpend(scope.row.spend || 0) }}</p>
                 </template>
             </el-table-column>
@@ -60,7 +63,7 @@
             />
             <el-table-column
                 label="创建时间"
-                min-width="160px"
+                min-width="160"
             >
                 <template v-slot="scope">
                     {{ dateFormat(scope.row.created_time) }}
@@ -68,7 +71,7 @@
             </el-table-column>
             <el-table-column
                 v-if="form.audit_status !== 'disagree'"
-                min-width="200px"
+                min-width="200"
                 fixed="right"
                 label="操作"
             >
@@ -134,6 +137,7 @@
         },
         created() {
             this.project_id = this.$route.query.project_id;
+            this.project_type = this.$route.query.project_type;
             this.getTaskList();
         },
         beforeUnmount() {

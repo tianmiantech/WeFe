@@ -29,20 +29,22 @@ import java.util.Random;
 public class PrivateInformationRetrievalConfig {
 
     /**
-     * 真正查询用户在primaryKeys的位置
+     * 真正查询用户在primaryKeys的位置，必须大于0
      */
     private int targetIndex = -1;
     /**
-     * 混淆查询集
+     * 混淆查询集，不能为null和空
      */
     private List<Object> primaryKeys;
     /**
      * 混淆查询主键数量
+     * 当primaryKeys大小为1时生效
      */
     private int confuseCount = 100;
 
     /**
      * 生成的混淆查询主键接口
+     * 当primaryKeys大小为1时生效
      */
     private GenerateConfuse generateConfuse;
 

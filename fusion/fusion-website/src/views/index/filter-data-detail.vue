@@ -29,7 +29,7 @@
                     </el-tag>
                 </el-col>
             </el-row>
-            <p class="f14">融合主键 hash 方式: {{ dataInfo.hash_fusion }}</p>
+            <p class="f14">融合主键 hash 方式: {{ dataInfo.hash_function }}</p>
         </div>
         <div class="bottom_side">
             <el-tabs
@@ -117,18 +117,19 @@ export default {
 
         async getDataSetDetail() {
             this.loading = true;
-            const {code, data} = await this.$http.post({
-                url: '/filter/detail_and_preview',
+            const { code, data } = await this.$http.post({
+                url:  '/filter/detail_and_preview',
                 data: {
                     id: this.id,
                 },
             });
 
             if (code === 0) {
-                this.dataInfo = data
+                this.dataInfo = data;
                 this.previewDataInfo = data.preview_data.metadata_list;
-                let {length} = data.preview_data.raw_data_list;
+                let { length } = data.preview_data.raw_data_list;
                 const rows = data.preview_data.raw_data_list;
+
                 if (length >= 15) length = 15;
                 this.resize(length);
                 this.table_data.rows = rows;

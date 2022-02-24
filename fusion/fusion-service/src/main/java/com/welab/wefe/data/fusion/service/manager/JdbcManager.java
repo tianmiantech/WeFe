@@ -148,7 +148,7 @@ public class JdbcManager {
                 int columnCount = metaData.getColumnCount();
 
                 if (columnCount < 2) {
-                    throw new StatusCodeWithException("The number of column fields must be greater than 1", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException("列字段数必须大于1！", StatusCode.ILLEGAL_REQUEST);
                 }
             }
         } catch (SQLException e) {

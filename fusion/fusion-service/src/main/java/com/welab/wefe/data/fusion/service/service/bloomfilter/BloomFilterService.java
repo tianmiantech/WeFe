@@ -27,16 +27,14 @@ import com.welab.wefe.data.fusion.service.api.bloomfilter.QueryApi;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
+import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterDetailOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.bloomfilter.BloomfilterOutputModel;
-import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetDetailOutputModel;
 import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetPreviewOutputModel;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.service.AbstractService;
 import com.welab.wefe.data.fusion.service.service.DataSourceService;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.utils.dataresouce.DataResouceHelper;
-import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
-import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -126,7 +124,7 @@ public class BloomFilterService extends AbstractService {
 
 
     /**
-     *  Filter Detail
+     * Filter Detail
      *
      * @param id
      */
@@ -139,13 +137,15 @@ public class BloomFilterService extends AbstractService {
 
         BloomfilterOutputModel outputModel = ModelMapper.map(model, BloomfilterOutputModel.class);
 
-        List<FieldInfo> fieldInfoList = fieldInfoService.fieldInfoList(id);
-        outputModel.setHashFusion(PrimaryKeyUtils.hashFunction(fieldInfoList));
-
         return outputModel;
     }
 
-    public DataSetPreviewOutputModel preview(PreviewApi.Input input) throws Exception{
+    /**
+     * Filter preview
+     *
+     * @param input
+     */
+    public DataSetPreviewOutputModel preview(PreviewApi.Input input) throws Exception {
         DataResourceSource dataResourceSource = input.getDataResourceSource();
         DataSetPreviewOutputModel output = new DataSetPreviewOutputModel();
 
@@ -166,7 +166,7 @@ public class BloomFilterService extends AbstractService {
                 if (result) {
                     output = DataResouceHelper.readFromDB(bloomFilterMySqlModel.getDataSourceId(), sql, rowsList);
                 }
-            }else if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)){
+            } else if (bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.UploadFile) || bloomFilterMySqlModel.getDataResourceSource().equals(DataResourceSource.LocalFile)) {
                 File file = dataSourceService.getDataSetFile(bloomFilterMySqlModel.getDataResourceSource(), bloomFilterMySqlModel.getSourcePath());
                 try {
                     output = DataResouceHelper.readFile(file, rowsList);
@@ -190,19 +190,21 @@ public class BloomFilterService extends AbstractService {
         return output;
     }
 
+    /**
+     * Filter detail and preview
+     *
+     * @param id
+     */
+    public BloomfilterDetailOutputModel detailAndPreview(String id) throws Exception {
 
-    public DataSetDetailOutputModel detailAndPreview(String id) throws Exception {
-        BloomFilterMySqlModel model = bloomFilterRepository.findById(id).orElse(null);
-        if (model == null) {
-            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
-        }
 
-        DataSetDetailOutputModel outputModel = ModelMapper.map(model, DataSetDetailOutputModel.class);
+        BloomfilterOutputModel model = detail(id);
 
+        BloomfilterDetailOutputModel outputModel = ModelMapper.map(model, BloomfilterDetailOutputModel.class);
         PreviewApi.Input input = new PreviewApi.Input();
         input.setId(id);
-        input.setRows(model.getRows());
-        DataSetPreviewOutputModel previewOutputModel =  preview(input);
+        input.setRows(outputModel.getRows());
+        DataSetPreviewOutputModel previewOutputModel = preview(input);
 
         outputModel.setPreviewData(previewOutputModel);
         return outputModel;

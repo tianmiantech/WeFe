@@ -24,7 +24,7 @@
                 <router-link
                     v-for="item in list"
                     :key="item.project_id"
-                    :to="{name: 'project-detail', query: { project_id: item.project_id }}"
+                    :to="{name: 'project-detail', query: { project_id: item.project_id, project_type: item.project_type }}"
                     class="li"
                 >
                     <p v-if="item.project_type" class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type === 'DeepLearning' ? '视觉处理' : item.project_type === 'MachineLearning' ? '机器学习' : ''}}
