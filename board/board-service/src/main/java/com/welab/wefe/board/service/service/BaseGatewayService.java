@@ -124,13 +124,12 @@ public class BaseGatewayService extends AbstractService {
 
             LOG.error("Request gateway exception, message: " + transferMetaToString(transferMeta) + ",exception：" + e.getMessage(), e);
 
+            StatusCode.RPC_ERROR.throwException(e.getMessage());
             try {
                 checkPermission(e);
             } catch (StatusCodeWithException ex) {
                 StatusCode.RPC_ERROR.throwException(ex.getMessage());
             }
-            StatusCode.RPC_ERROR.throwException(e.getMessage());
-
         } finally {
             if (null != grpcChannel) {
                 try {
