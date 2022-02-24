@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -51,7 +52,10 @@ public class BloomFilterDataResourceListApi extends AbstractApi<BloomFilterDataR
         private String memberId;
 
         @Check(name = "成员类型", require = true)
-        private String role;
+        private JobMemberRole role;
+
+        @Check(name = "数据资源名称")
+        private String name;
 
         //region getter/setter
 
@@ -72,12 +76,20 @@ public class BloomFilterDataResourceListApi extends AbstractApi<BloomFilterDataR
             this.memberId = memberId;
         }
 
-        public String getRole() {
+        public JobMemberRole getRole() {
             return role;
         }
 
-        public void setRole(String role) {
+        public void setRole(JobMemberRole role) {
             this.role = role;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
 
         //endregion

@@ -137,7 +137,9 @@
                         v-if="vData.myRole === 'promoter' && vData.providerList.length > 1"
                         v-model="vData.provider.member_id"
                     >
-                        <el-radio v-for="(item, index) in vData.providerList" :key="index" :label="item.member_name" />
+                        <el-radio v-for="(item, index) in vData.providerList" :key="index" :label="item.member_id">
+                            {{ item.member_name }}
+                        </el-radio>
                     </el-radio-group>
                     <p v-else>{{ vData.provider.member_name }} <span style="color:#999;">({{ vData.provider.member_id }})</span></p>
 

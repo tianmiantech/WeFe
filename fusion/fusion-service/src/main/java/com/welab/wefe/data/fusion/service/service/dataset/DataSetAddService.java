@@ -84,10 +84,8 @@ public class DataSetAddService extends AbstractService {
         model.setDataResourceSource(input.getDataResourceSource());
         model.setName(input.getName());
         model.setRows(StringUtil.join(input.getRows(), ','));
-
-        int rowsCount = 0;
         model.setUsedCount(0);
-        model.setRowCount(rowsCount);
+        model.setRowCount(0);
         model.setUpdatedTime(new Date());
         model.setStatement(input.getSql());
         model.setSourcePath(input.getFilename());
@@ -96,14 +94,13 @@ public class DataSetAddService extends AbstractService {
 
         CommonThreadPool.TASK_SWITCH = true;
 
-        File file = null;
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
-            rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
-
+            readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
         } else {
-            file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
+            // Parse and save the dataset file
             try {
-                rowsCount = readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
+                File file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
+                readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
@@ -201,9 +198,7 @@ public class DataSetAddService extends AbstractService {
         CommonThreadPool.run(() -> {
             jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
         });
-//
-//        // Wait for the consumption queue to complete
-//        dataRowConsumer.waitForFinishAndClose();
+
         model.setStoraged(true);
 
         LOG.info("The dataset is parsed：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");
