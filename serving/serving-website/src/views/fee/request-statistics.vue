@@ -190,7 +190,7 @@
                     min-width="30"
                 >
                     <template slot-scope="scope">
-                        <p>{{ serviceType[scope.row.service_type] }}</p>
+                        <p>{{ scope.row.service_type }}</p>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -216,7 +216,7 @@
                     min-width="30"
                 >
                     <template slot-scope="scope">
-                        <p>{{ requestResult[scope.row.request_result] }}</p>
+                        <p>{{ scope.row.request_result }}</p>
                     </template>
                 </el-table-column>
             </el-table>

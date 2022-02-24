@@ -26,6 +26,7 @@ import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.ApiRequestRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.Column;
 import java.io.IOException;
 import java.util.Date;
 
@@ -34,16 +35,17 @@ import java.util.Date;
  * @date 2022/1/6
  */
 @Api(path = "apirequestrecord/query-list", name = "query api request records")
-public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<ApiRequestRecordMysqlModel>> {
+public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<QueryListApi.Output>> {
 
 
     @Autowired
     private ApiRequestRecordService apiRequestRecordService;
 
     @Override
-    protected ApiResult<PagingOutput<ApiRequestRecordMysqlModel>> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<PagingOutput<Output>> handle(Input input) throws Exception {
         return success(apiRequestRecordService.getListById(input));
     }
+
 
     public static class Input extends PagingInput {
 
@@ -89,6 +91,117 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<A
 
         public void setClientId(String clientId) {
             this.clientId = clientId;
+        }
+    }
+
+    public static class Output extends PagingOutput {
+
+        private String serviceId;
+
+        private String clientId;
+
+        /**
+         * 客户名称
+         */
+        private String clientName;
+
+        /**
+         * 服务名称
+         */
+        private String serviceName;
+
+        /**
+         * 服务类型
+         */
+        private String serviceType;
+
+        /**
+         * ip地址
+         */
+        private String ipAdd;
+
+        /**
+         * 耗时
+         */
+        private Long spend;
+
+        /**
+         * 请求结果
+         */
+        private String requestResult;
+
+        private Date createdTime;
+
+        public String getServiceId() {
+            return serviceId;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
+        }
+
+        public String getClientId() {
+            return clientId;
+        }
+
+        public void setClientId(String clientId) {
+            this.clientId = clientId;
+        }
+
+        public String getClientName() {
+            return clientName;
+        }
+
+        public void setClientName(String clientName) {
+            this.clientName = clientName;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public String getServiceType() {
+            return serviceType;
+        }
+
+        public void setServiceType(String serviceType) {
+            this.serviceType = serviceType;
+        }
+
+        public String getIpAdd() {
+            return ipAdd;
+        }
+
+        public void setIpAdd(String ipAdd) {
+            this.ipAdd = ipAdd;
+        }
+
+        public Long getSpend() {
+            return spend;
+        }
+
+        public void setSpend(Long spend) {
+            this.spend = spend;
+        }
+
+        public String getRequestResult() {
+            return requestResult;
+        }
+
+        public void setRequestResult(String requestResult) {
+            this.requestResult = requestResult;
+        }
+
+        public Date getCreatedTime() {
+            return createdTime;
+        }
+
+        public void setCreatedTime(Date createdTime) {
+            this.createdTime = createdTime;
         }
     }
 }

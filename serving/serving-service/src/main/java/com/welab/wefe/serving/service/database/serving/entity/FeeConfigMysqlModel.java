@@ -41,7 +41,7 @@ public class FeeConfigMysqlModel extends AbstractBaseMySqlModel {
      * pay type: 1 预付费、0 后付费
      */
     @Column(name = "pay_type")
-    private int payType = PayTypeEnum.POSTPAID.getValue();
+    private int payType = PayTypeEnum.POSTPAID.getCode();
 
     public String getServiceId() {
         return serviceId;
