@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Jacky.Jiang
  */
-@Api(path = "filter/query", name = "查询过滤器列表",login = false)
+@Api(path = "filter/query", name = "查询过滤器列表")
 public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<BloomfilterOutputModel>> {
 
     @Autowired
