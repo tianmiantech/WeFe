@@ -3,6 +3,7 @@
         name="衍生数据资源"
         class="nav-title"
         shadow="never"
+        :show="project_type !== 'DeepLearning'"
     >
         <h3 class="mb20 card-title">衍生数据资源</h3>
         <el-form inline>
@@ -198,6 +199,7 @@
         },
         created() {
             this.project_id = this.$route.query.project_id;
+            this.project_type = this.$route.query.project_type;
             this.getDeriveData();
         },
         methods: {
