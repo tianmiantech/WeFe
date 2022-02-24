@@ -30,7 +30,6 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.web.service.CaptchaService;
-import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
@@ -38,7 +37,6 @@ import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.MemberService;
-import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
 
 /**
  * @author hunter.zhao
@@ -105,7 +103,6 @@ public class Serving {
 			throw new StatusCodeWithException("Invalid customer_id：" + signedApiInput.getCustomerId(),
 					StatusCode.PARAMETER_VALUE_INVALID);
 		}
-
 		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
 				RSAUtil.getPublicKey(clientMysqlModel.getPubKey()), signedApiInput.getSign());
 		if (!verified) {

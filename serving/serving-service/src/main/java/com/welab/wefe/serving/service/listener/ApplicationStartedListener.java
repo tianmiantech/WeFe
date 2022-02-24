@@ -73,7 +73,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
 		// init PrivateInformationRetrievalServer
 		if ("redis".equalsIgnoreCase(config.getServiceCacheType())) {
 			PrivateInformationRetrievalServer.init(100, new RedisIntermediateCache(config.getRedisHost(),
-					config.getRedisPort(), config.getRedisPassword()));
+					Integer.valueOf(config.getRedisPort()), config.getRedisPassword()));
 		} else {
 			PrivateInformationRetrievalServer.init(100);
 		}

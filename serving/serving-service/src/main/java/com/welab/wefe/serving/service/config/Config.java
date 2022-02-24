@@ -23,7 +23,7 @@ public class Config {
     private String redisHost;
     
     @Value("${wefe.redis.port}")
-    private int redisPort;
+    private String redisPort;
     
     @Value("${wefe.redis.password}")
     private String redisPassword;
@@ -63,11 +63,11 @@ public class Config {
 		this.redisHost = redisHost;
 	}
 
-	public int getRedisPort() {
+	public String getRedisPort() {
 		return redisPort;
 	}
 
-	public void setRedisPort(int redisPort) {
+	public void setRedisPort(String redisPort) {
 		this.redisPort = redisPort;
 	}
 
