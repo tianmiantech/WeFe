@@ -52,7 +52,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
     /**
      * Fragment size, default 10000
      */
-    public int shardSize = 1000;
+    public int shardSize = 10000;
     public Integer currentIndex = 0;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
