@@ -35,6 +35,7 @@
                 查询
             </el-button>
             <router-link
+                class="ml10"
                 :to="{name: 'client-add',}"
             >
                 <el-button>
@@ -218,8 +219,8 @@ import { mapGetters } from 'vuex';
 
 export default {
     name:   'ClientList',
-    inject: ['refresh'],
     mixins: [table],
+    inject: ['refresh'],
     data() {
         return {
             search: {

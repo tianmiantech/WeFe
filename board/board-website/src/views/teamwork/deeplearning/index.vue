@@ -105,7 +105,7 @@
                                             >
                                                 <el-form-item label="数据资源名称：">
                                                     {{ row.data_resource.name }}
-                                                    <el-icon 
+                                                    <el-icon
                                                         v-if="!vData.disabled"
                                                         class="el-icon-circle-close f16 ml10"
                                                         @click="methods.removeDataSet(index)"
@@ -986,8 +986,8 @@
                     });
 
                     nextTick(() => {
-                        if (code === 0) {
-                            const { params } = data || {};
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const { params } = data;
 
                             vData.deepLearnNodeId = data.node_id;
                             vData.flowType = data.component_type;

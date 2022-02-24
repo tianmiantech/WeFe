@@ -25,17 +25,18 @@
                     clearable
                 />
             </el-form-item>
-           <el-form-item
-               label="区间："
-               label-width="100px"
-           >
-               <el-input
-                   v-model="search.interval"
-                   style="width:70px"
-                   clearable
-               />
+            <el-form-item
+                label="区间："
+                label-width="100px"
+            >
+                <el-input
+                    v-model="search.interval"
+                    style="width:70px"
+                    clearable
+                />
                 <el-select
                     v-model="search.date_type"
+                    style="width:100px"
                     clearable
                 >
                     <el-option
@@ -54,8 +55,10 @@
                 查询
             </el-button>
         </el-form>
+
         <LineChart
             ref="lineChart"
+            v-loading="loading"
             :chart-data="chartData"
         />
     </el-card>
@@ -70,7 +73,8 @@
         },
         data() {
             return {
-                search: {
+                loading: false,
+                search:  {
                     member_id: '',
                     model_id:  '',
                     date_type: 'month',
@@ -116,6 +120,7 @@
 
             // 获取图表数据
             async getChartList() {
+                this.loading = true;
                 const { code, data } = await this.$http.get({
                     url:    this.getListApi,
                     params: this.search,
@@ -136,6 +141,7 @@
                     },
                 ];
 
+                this.loading = false;
                 if (code === 0) {
                     if (data && data.length) {
                         data.forEach(item => {

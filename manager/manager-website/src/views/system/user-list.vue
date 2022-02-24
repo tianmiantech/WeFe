@@ -6,7 +6,7 @@
             @submit.prevent
         >
             <el-form-item label="姓名">
-                <el-input v-model="search.realname" />
+                <el-input v-model="search.realname" clearable />
             </el-form-item>
             <el-form-item label="是否为管理员">
                 <el-select
@@ -54,19 +54,27 @@
             </el-table-column>
             <el-table-column
                 v-if="userInfo.admin_role"
-                label="操作"
-                fixed="right"
                 min-width="300"
+                fixed="right"
+                label="操作"
             >
                 <template v-slot="scope">
                     <template v-if="userInfo.admin_role">
-                        <el-button
-                            v-if="userInfo.super_admin_role && scope.row.user_id !== userInfo.user_id"
-                            type="danger"
-                            @click="changeRole($event, scope.row)"
-                        >
-                            设为{{ scope.row.admin_role ? '普通用户' : '管理员' }}
-                        </el-button>
+                        <template v-if="userInfo.super_admin_role && scope.row.user_id !== userInfo.user_id">
+                            <el-button
+                                v-if="scope.row.admin_role"
+                                @click="changeRole($event, scope.row)"
+                            >
+                                设为普通用户
+                            </el-button>
+                            <el-button
+                                v-else
+                                type="danger"
+                                @click="changeRole($event, scope.row)"
+                            >
+                                设为管理员
+                            </el-button>
+                        </template>
                         <el-button
                             v-if="userInfo.admin_role"
                             type="primary"
