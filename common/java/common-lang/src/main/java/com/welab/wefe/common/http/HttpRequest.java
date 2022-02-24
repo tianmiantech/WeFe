@@ -44,6 +44,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -358,24 +359,24 @@ public class HttpRequest {
 
             // LOG.info("Request : URL = {}, headers = {}, encoding = {}, Content-Type = {}, paramMap = {}, body = {}", url, headers, encoding, contentType, sb, body);
             LOG.info("Request : URL = {}, paramMap = {}, body = {}", url, sb, body);
-            try {
-                CloseableHttpResponse httpResponse = httpClient.execute(httpUriRequest);
-                response = HttpResponse.create(this, httpResponse, System.currentTimeMillis() - startTime)
+            try (CloseableHttpResponse httpResponse = httpClient.execute(httpUriRequest)) {
+                response = HttpResponse.create(this, System.currentTimeMillis() - startTime)
                         .message(httpResponse.getStatusLine().getReasonPhrase())
                         .statusCode(httpResponse.getStatusLine().getStatusCode())
                         .header(httpResponse)
-                        .url(myRedirectStrategy.getCurrentLocation());
+                        .url(myRedirectStrategy.getCurrentLocation())
+                        .body(EntityUtils.toByteArray(httpResponse.getEntity()));
 
                 if (validator != null && !validator.apply(response)) {
                     // Verification failed
                     response.error(new IllegalStateException("validate fail"));
                 }
             } catch (Exception e) {
-                response = HttpResponse.create(this, null, System.currentTimeMillis() - startTime).error(e);
+                response = HttpResponse.create(this, System.currentTimeMillis() - startTime).error(e);
             }
 
         } catch (Exception e) {
-            response = HttpResponse.create(this, null, System.currentTimeMillis() - startTime).error(e);
+            response = HttpResponse.create(this, System.currentTimeMillis() - startTime).error(e);
         }
 
         return response;

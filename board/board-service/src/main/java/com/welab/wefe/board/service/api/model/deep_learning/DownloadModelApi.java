@@ -31,8 +31,6 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import java.io.File;
-
 /**
  * @author zane
  * @date 2022/2/14
@@ -63,8 +61,8 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
             StatusCode.RPC_ERROR.throwException("请求飞桨服务失败：" + response.getMessage());
         }
         String filePath = WeFeFileSystem.CallDeepLearningModel.getModelFile(input.taskId).getAbsolutePath();
-        File file = response.getBodyAsFile(filePath);
-        return file(file);
+        //File file = response.getBodyAsFile(filePath);
+        return file(null);
     }
 
     public static class Input extends AbstractApiInput {
