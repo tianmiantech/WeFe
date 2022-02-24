@@ -17,8 +17,7 @@ import os
 from multiprocessing import cpu_count
 import six
 from six.moves import cPickle as pickle
-from paddle.dataset.common import md5file
-
+import logging
 
 __all__ = ['train', 'test', 'valid']
 
@@ -194,8 +193,7 @@ def valid(data_dir=DATA_DIR,mapper=test_mapper, buffered_size=1024, use_xmap=Tru
         buffered_size, use_xmap)
 
 
-def download(url, module_name, md5sum, save_name=None):
-    dirname = os.path.join(get_data_dir(), module_name)
+def download(url, dirname, save_name=None):
     if not os.path.exists(dirname):
         os.makedirs(dirname)
 
@@ -203,14 +201,12 @@ def download(url, module_name, md5sum, save_name=None):
                             url.split('/')[-1]
                             if save_name is None else save_name)
 
-    if os.path.exists(filename) and md5file(filename) == md5sum:
+    if os.path.exists(filename):
         return filename
 
     retry = 0
     retry_limit = 3
-    while not (os.path.exists(filename) and md5file(filename) == md5sum):
-        if os.path.exists(filename):
-            sys.stderr.write("file %s  md5 %s\n" % (md5file(filename), md5sum))
+    while not os.path.exists(filename):
         if retry < retry_limit:
             retry += 1
         else:
@@ -238,10 +234,11 @@ def download(url, module_name, md5sum, save_name=None):
                     f.write(data)
                     log_index += 1
                     if log_index % log_interval == 0:
-                        sys.stderr.write(".")
+                        sys.stderr.write("../algorithm/paddle_clas")
                     sys.stdout.flush()
     sys.stderr.write("\nDownload finished\n")
     sys.stdout.flush()
+
     return filename
 
 def extract(tar_file, target_path):
@@ -263,13 +260,59 @@ def un_zip(file_name,target_path):
             pass
         else:
             os.mkdir(target_path)
-        for names in zip_file.namelist():
-            zip_file.extract(names,target_path)
+        names = zip_file.namelist()
+        for name in names:
+            zip_file.extract(name,target_path)
         zip_file.close()
+        return names[0]
     except Exception as e:
         print(e)
 
+def make_zip(source_dir, zip_file):
+    zipf = zipfile.ZipFile(zip_file, 'w')
+    pre_len = len(os.path.dirname(source_dir))
+    for parent, dirnames, filenames in os.walk(source_dir):
+        for filename in filenames:
+            pathfile = os.path.join(parent, filename)
+            arcname = pathfile[pre_len:].strip(os.path.sep)
+            zipf.write(pathfile, arcname)
+    zipf.close()
 
-if __name__ == '__main__':
-    train()
+def job_download(url, job_id,base_dir):
+    try:
+        data_file = download(url, base_dir, f"{job_id}.zip")
+        dir_name = un_zip(data_file, base_dir)
+        target_dir = os.path.join(base_dir,dir_name)
+    except Exception as e:
+        logging.error(f"job download with {job_id} error as {e} ")
+
+    return target_dir
+
+
+def getImageList(dir, filelist):
+    newDir = dir
+    if os.path.isfile(dir):
+        if dir.endswith(".jpg") or dir.endswith(".JPG") or dir.endswith(".png") or dir.endswith(".PNG")\
+            or dir.endswith(".jpeg") or dir.endswith(".webp") or dir.endswith(".bmp") or dir.endswith(".tif")\
+            or dir.endswith(".gif"):
+            filelist.append(dir)
+
+    elif os.path.isdir(dir):
+        for s in os.listdir(dir):
+            newDir = os.path.join(dir, s)
+            getImageList(newDir, filelist)
+    return filelist
+
+def extractImages(src_dir):
+    imageList = getImageList(src_dir,[])
+    target_path = f"{os.path.dirname(src_dir)}_tmp"
+    if os.path.isdir(target_path):
+        pass
+    else:
+        os.mkdir(target_path)
+    for item in imageList:
+        tmp = os.path.basename(item)
+        shutil.copy(item, target_path + '/' + tmp)
+    shutil.rmtree(src_dir)
+    os.rename(target_path,src_dir)
 
