@@ -144,8 +144,6 @@ public class HttpResponse implements AutoCloseable {
             return bodyAsString;
         }
 
-        bodyAsString = "";
-
         if (StringUtils.isEmpty(this.encoding)) {
 
             try {
@@ -181,9 +179,10 @@ public class HttpResponse implements AutoCloseable {
             bodyBytes = EntityUtils.toByteArray(bodyEntity);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
+        } finally {
+            close();
         }
 
-        close();
         return bodyBytes;
     }
 
