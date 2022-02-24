@@ -42,15 +42,11 @@ export default {
                 nextTick(() => {
                     vData.loading = false;
 
-                    if (code === 0) {
-                        const { params } = data || {};
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        const { params } = data;
 
-                        if (Object.keys(params).length) {
-                            if (methods.formatter) {
-                                methods.formatter(params);
-                            } else {
-                                vData.form = params;
-                            }
+                        if (methods.formatter) {
+                            methods.formatter(params);
                         }
 
                         vData.inited = true;

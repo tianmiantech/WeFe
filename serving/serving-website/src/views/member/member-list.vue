@@ -3,10 +3,7 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
+        <el-form inline>
             <el-form-item
                 label="成员ID："
                 label-width="80px"
@@ -33,12 +30,15 @@
                 查询
             </el-button>
             <el-button
-                @click="member.editor=true,
-                        member.name='',
-                        member.api='',
-                        member.public_key='',
-                        member.member_id='',
-                        member.id=''"
+                class="ml10"
+                @click="
+                    member.editor=true,
+                    member.name='',
+                    member.api='',
+                    member.public_key='',
+                    member.member_id='',
+                    member.id=''
+                "
             >
                 新增
             </el-button>

@@ -3,10 +3,7 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
+        <el-form inline>
             <el-form-item label="客户名称：">
                 <el-input
                     v-model="search.clientName"
@@ -42,7 +39,10 @@
             >
                 查询
             </el-button>
-            <router-link :to="{name: 'client-service-add'}">
+            <router-link
+                class="ml10"
+                :to="{name: 'client-service-add'}"
+            >
                 <el-button>
                     添加客户服务
                 </el-button>
@@ -56,7 +56,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
             <el-table-column
                 label="序号"
@@ -230,17 +230,17 @@
 <script>
 
 import table from '@src/mixins/table.js';
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
-    name: 'client-service-list',
+    name:   'ClientServiceList',
     mixins: [table],
     inject: ['refresh'],
     data() {
         return {
             search: {
-                clientName: '',
-                status: '',
+                clientName:  '',
+                status:      '',
                 serviceName: '',
             },
             options: [{
@@ -268,7 +268,7 @@ export default {
                 0: '未启用',
             },
             changeStatusType: '',
-            getListApi: '/clientservice/query-list',
+            getListApi:       '/clientservice/query-list',
         };
     },
 
@@ -280,7 +280,7 @@ export default {
         open(row, status) {
             this.$alert(status === 1 ? '是否启用？' : '是否禁用？', '警告', {
                 confirmButtonText: '确定',
-                callback: action => {
+                callback:          action => {
                     if (action === 'confirm') {
                         this.changeStatus(row, status);
                         setTimeout(() => {
@@ -294,21 +294,21 @@ export default {
         },
 
         async changeStatus(row, status) {
-            const {code} = await this.$http.post({
-                url: '/clientservice/update',
+            const { code } = await this.$http.post({
+                url:  '/clientservice/update',
                 data: {
                     serviceId: row.service_id,
-                    clientId: row.client_id,
+                    clientId:  row.client_id,
                     status,
                     unitPrice: row.unit_price,
-                    payType: row.pay_type,
+                    payType:   row.pay_type,
                     updatedBy: this.userInfo.nickname,
                 },
             });
 
             if (code === 0) {
                 this.$message({
-                    type: 'success',
+                    type:    'success',
                     message: status === 1 ? '启用成功' : '禁用成功',
                 });
             }

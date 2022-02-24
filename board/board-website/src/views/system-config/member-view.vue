@@ -155,6 +155,11 @@
                                     {{ enterpriseAuth === 0 ? '去认证' : '重新认证' }}
                                 </router-link>
                             </el-form-item>
+                            <p
+                                v-if="enterpriseAuth === 2 && real_name_auth_useful_life"
+                                class="color-danger f12"
+                                style="margin-top:-10px;"
+                            >认证有效期：{{ real_name_auth_useful_life }}</p>
                         </div>
                     </el-col>
                 </el-row>
@@ -280,7 +285,7 @@
                 if(code === 0) {
                     this.enterpriseAuth = data.real_name_auth_status;
                     this.audit_comment = data.audit_comment;
-                    this.real_name_auth_useful_life = data.real_name_auth_useful_life; 
+                    this.real_name_auth_useful_life = data.real_name_auth_useful_life;
                 }
             },
 
