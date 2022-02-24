@@ -113,6 +113,8 @@ public class BloomFilterAddService extends AbstractService {
 
         fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
 
+        CommonThreadPool.TASK_SWITCH = true;
+
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
             readAndSaveFromDB(model, input.getRows());
         } else {
