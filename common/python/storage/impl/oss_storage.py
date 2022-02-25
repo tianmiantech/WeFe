@@ -252,7 +252,7 @@ class OssStorage(FCStorage):
 
         if self._is_fc_env():
             for item_param_list in batch_data:
-                write_partition_data_4poolmap(item_param_list)
+                self.write_partition_data(item_param_list[0], item_param_list[1])
         else:
             with multiprocessing.Pool() as pool:
                 pool.map(write_partition_data_4poolmap, batch_data)
