@@ -147,8 +147,8 @@
 
                     nextTick(_ => {
                         vData.loading = false;
-                        if (code === 0) {
-                            if(data.params && data.params.members) {
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            if(data.params.members) {
                                 const { method, members } = data.params;
 
                                 vData.columnListType = method;

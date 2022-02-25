@@ -10,12 +10,16 @@ def merger_algorithm_config(algorithm_config):
     default_algorithm_config = os.path.join(program_full_path, "configs", architecture.lower(), default_config_name)
     cfg = load_config(default_algorithm_config)
 
+    data_name = algorithm_config.get("data_name")
+
     cfg["max_iters"] = algorithm_config["max_iter"]
     cfg["inner_step"] = algorithm_config["inner_step"]
     cfg["num_classes"] = algorithm_config["num_classes"]
     cfg["LearningRate"].base_lr = algorithm_config["base_lr"]
     cfg.TrainReader["inputs_def"]["image_shape"] = algorithm_config["image_shape"]
     cfg.TrainReader["batch_size"] = algorithm_config["batch_size"]
+    cfg.TrainReader["dataset"].dataset_dir = data_name
+    cfg.EvalReader["dataset"].dataset_dir = data_name
 
     return cfg
 

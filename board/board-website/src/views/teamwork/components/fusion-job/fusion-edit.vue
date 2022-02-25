@@ -136,6 +136,7 @@
                     <el-radio-group
                         v-if="vData.myRole === 'promoter' && vData.providerList.length > 1"
                         v-model="vData.provider.member_id"
+                        @change="methods.changeProvider"
                     >
                         <el-radio v-for="(item, index) in vData.providerList" :key="index" :label="item.member_id">
                             {{ item.member_name }}
@@ -236,7 +237,7 @@
                             <el-button
                                 v-if="!vData.export_status || vData.export_status !== 'exporting'"
                                 type="primary"
-                                :disabled="vData.status !== 'Success'"
+                                :disabled="vData.status !== 'Success' && vData.fusion_count <= 0"
                                 @click="vData.exportDialog.visible = true"
                             >
                                 导出融合结果
@@ -676,6 +677,16 @@
                     vData[role].columns = item.data_resource.feature_name_list || '';
                     vData[role].total_data_count = item.data_resource.total_data_count;
                     vData[role].data_resource_type = item.data_resource_type;
+                },
+                changeProvider() {
+                    const provider = vData.provider;
+
+                    provider.name = '';
+                    provider.columns = '';
+                    provider.hash_func = '';
+                    provider.data_set_id = '';
+                    provider.total_data_count = '';
+                    provider.data_resource_type = '';
                 },
                 fusionKeyMapsDialog(role) {
                     const $ref = encryptionDialogRef.value;

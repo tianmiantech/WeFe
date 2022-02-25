@@ -1,5 +1,5 @@
-job_id: job_clas00001
-task_id: job_clas00001
+job_id: 06ac2812dc004aa38ee1de9588dfdac8
+task_id: 06ac2812dc004aa38ee1de9588dfdac8
 job_type: paddle_fl
 role: promoter
 member_id: master1
@@ -14,7 +14,8 @@ env:
   aggregator_endpoint: 127.0.0.1:12001
   aggregator_assignee: worker2
 data_set:
-  download_url: http://x.x
+  name: test
+  download_url: http://xxx.com
 algorithm_config:
   program: paddle_clas
   max_iter: 10

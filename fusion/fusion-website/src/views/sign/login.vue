@@ -116,12 +116,12 @@
                             </el-button>
                         </div>
                         <h4 class="text-r f14 mt20">
-                            <router-link
+                            <!-- <router-link
                                 :to="{name: 'find-password'}"
                                 class="mr20 float-left"
                             >
                                 忘记密码?
-                            </router-link>
+                            </router-link> -->
                             还没有账号?
                             <router-link :to="{ name: 'register', query: { redirect: $route.query.redirect } }">
                                 立即注册

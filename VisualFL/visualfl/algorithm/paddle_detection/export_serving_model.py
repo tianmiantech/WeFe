@@ -29,7 +29,10 @@ from ppdet.core.workspace import load_config, merge_config, create
 from ppdet.utils.cli import ArgsParser
 from ppdet.utils.check import check_config, check_version, enable_static_mode
 import ppdet.utils.checkpoint as checkpoint
-import yaml
+import yaml,json
+from visualfl.db.task_dao import TaskDao
+from visualfl.utils.consts import TaskResultType
+
 import logging
 from ppdet.utils.export_utils import dump_infer_config, prune_feed_vars
 FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
@@ -71,6 +74,11 @@ def main():
 
     main_arch = cfg.architecture
 
+    dataset = cfg.TestReader['dataset']
+    task_result = TaskDao(FLAGS.task_id).get_task_result(TaskResultType.LABEL)
+    if task_result:
+        dataset.anno_path = json.loads(task_result.result).get("label_path")
+
     # Use CPU for exporting inference model instead of GPU
     place = fluid.CPUPlace()
     exe = fluid.Executor(place)
@@ -97,6 +105,10 @@ def main():
 if __name__ == '__main__':
     enable_static_mode()
     parser = ArgsParser()
+    parser.add_argument(
+        "--task_id",
+        type=str,
+        default=None)
     parser.add_argument(
         "--output_dir",
         type=str,

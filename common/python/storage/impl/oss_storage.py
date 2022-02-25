@@ -252,7 +252,7 @@ class OssStorage(FCStorage):
 
         if self._is_fc_env():
             for item_param_list in batch_data:
-                write_partition_data_4poolmap(item_param_list)
+                self.write_partition_data(item_param_list[0], item_param_list[1])
         else:
             with multiprocessing.Pool() as pool:
                 pool.map(write_partition_data_4poolmap, batch_data)
@@ -388,6 +388,15 @@ class OssStorage(FCStorage):
             cnt += self._get_data_count_in_file(obj.key)
         return cnt
 
+    def each_partition_count(self):
+        prefix = self._get_file_dir() + "/"
+        partition_count = dict([(i, 0) for i in range(self._partitions)])
+        for obj in oss2.ObjectIterator(self._bucket, prefix=prefix):
+            p = int(obj.key.replace("\\", "/").split("/")[2])
+            cnt = self._get_data_count_in_file(obj.key)
+            partition_count[p] = partition_count[p] + cnt
+        return partition_count
+
     def take(self, n=1, keysOnly=False, use_serialize=True, partition=None):
         if n <= 0:
             n = 1
@@ -449,6 +458,7 @@ def get_object_data_4poolmap(param_list):
 
 if __name__ == '__main__':
     pass
-    # oss_ins = OssStorage("test", "20220125", partitions=10)
+    oss_ins = OssStorage("test", "20220125", partitions=10)
+    oss_ins.count()
     # # oss_ins.put("k", "v")
     # print(list(oss_ins.collect()))
