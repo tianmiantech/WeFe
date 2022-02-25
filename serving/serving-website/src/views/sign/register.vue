@@ -2,7 +2,7 @@
     <div class="page register-wrapper">
         <div class="sign-box">
             <div class="logo">
-                <img src="../../assets/images/x-logo.png">
+                <img src="../../assets/images/logo.png">
             </div>
             <h4 class="sign-title">注册新账号</h4>
             <h6 class="to-regist mt20">
