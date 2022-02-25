@@ -105,7 +105,7 @@
             >
                 <template v-slot="scope">
                     <template v-if="scope.row.data_resource && scope.row.data_resource.tags || scope.row.tags">
-                        <template v-for="(item, index) in isFlow ? scope.row.data_resource.tags.split(',') : scope.row.tags.split(',')" :key="index">
+                        <template v-for="(item, index) in (isFlow ? scope.row.data_resource.tags.split(',') : (scope.row.tags ? scope.row.tags.split(',') : []))" :key="index">
                             <el-tag
                                 v-show="item"
                                 class="mr10"
