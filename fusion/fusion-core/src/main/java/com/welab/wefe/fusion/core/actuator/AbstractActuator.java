@@ -48,11 +48,11 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     public LongAdder fusionCount = new LongAdder();
 
-    public String error;
+    public volatile String error;
     /**
      * Task start time
      */
-    public long startTime = System.currentTimeMillis();
+    public final long startTime = System.currentTimeMillis();
 
     /**
      * Maximum execution time of a task
@@ -199,7 +199,7 @@ public abstract class AbstractActuator implements AutoCloseable {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.info("error: ", e);
-            error = e.getMessage();
+            this.error = e.getMessage();
         }
     }
 
