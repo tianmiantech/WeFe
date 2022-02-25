@@ -28,6 +28,7 @@
 
 import functools
 import hashlib
+import time
 from collections import Iterable
 
 import numpy as np
@@ -41,7 +42,8 @@ from kernel.security.iterative_affine import IterativeAffineCipher
 from kernel.security.paillier import PaillierKeypair
 from kernel.security.random import RandomPads
 from kernel.security.paillier import PaillierEncryptedNumber
-
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
+from common.python import session
 
 _TORCH_VALID = False
 try:
@@ -210,6 +212,22 @@ class PaillierEncrypt(Encrypt):
         else:
             return None
 
+    def encrypt_list(self, values):
+
+        if self.public_key is not None:
+            partitions = values.get_partitions()
+            datas = list(values.collect())
+            if len(datas) > 0:
+                datas = [x[1] for x in datas]
+                values = np.array(datas, dtype=type(datas[0]))
+            # start_time = time.time()
+            result = self.public_key.encrypt_gpu(values)
+            # print(f'gpu encrypt... 耗时：{time.time() - start_time}')
+
+            return session.parallelize(result.tolist(), partition=partitions)
+        else:
+            return None
+
     def decrypt(self, value):
         if self.privacy_key is not None:
             return self.privacy_key.decrypt(value)
@@ -373,7 +391,7 @@ class IterativeAffineEncrypt(SymmetricEncrypt):
     def __init__(self):
         super(IterativeAffineEncrypt, self).__init__()
 
-    def generate_key(self, key_size=1024, key_round=5, encode_precision=2**100, randomized=False):
+    def generate_key(self, key_size=1024, key_round=5, encode_precision=2 ** 100, randomized=False):
         self.key = IterativeAffineCipher.generate_keypair(
             key_size=key_size,
             key_round=key_round,

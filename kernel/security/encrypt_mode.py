@@ -82,7 +82,8 @@ class EncryptModeCalculator(object):
             return obj + enc_zero
         elif isinstance(obj, Iterable):
             return type(obj)(
-                EncryptModeCalculator.add_enc_zero(o, enc_zero) if isinstance(o, Iterable) else o + enc_zero for o in obj)
+                EncryptModeCalculator.add_enc_zero(o, enc_zero) if isinstance(o, Iterable) else o + enc_zero for o in
+                obj)
         else:
             return enc_zero + obj
 
@@ -149,6 +150,9 @@ class EncryptModeCalculator(object):
         encrypt_func = self.get_enc_func(self.encrypter, raw_enc=False)
         new_data = self.encrypt_data(input_data, encrypt_func)
         return new_data
+
+    def encrypt_list(self, input_data):
+        return self.encrypter.encrypt_list(input_data)
 
     def raw_encrypt(self, input_data, exponent=0):
 

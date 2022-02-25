@@ -32,6 +32,7 @@
 
 import functools
 import random
+import time
 
 import numpy as np
 import scipy.sparse as sp
@@ -244,7 +245,14 @@ class Promoter(VertGradientBase, loss_sync.Promoter):
         self.provider_forwards = self.get_provider_forward(suffix=current_suffix)
 
         self.fore_gradient, y_hat = self.compute_fore_gradient(data_instances, model_weights, offset)
-        encrypted_fore_gradient = encrypted_calculator[batch_index].encrypt(self.fore_gradient)
+        # start = time.time()
+        if check_aclr_support():
+            encrypted_fore_gradient = encrypted_calculator[batch_index].encrypt_list(self.fore_gradient)
+            # print(f'加密耗时gpu：{time.time() - start}')
+        else:
+            encrypted_fore_gradient = encrypted_calculator[batch_index].encrypt(self.fore_gradient)
+            # print(f'加密耗时cpu：{time.time() - start}')
+
         self.remote_fore_gradient(encrypted_fore_gradient, suffix=current_suffix)
 
         self.decrypt_provider_gradient_and_remote(cipher_operator, suffix=current_suffix)
