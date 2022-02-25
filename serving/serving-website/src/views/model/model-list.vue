@@ -4,19 +4,13 @@
         shadow="never"
     >
         <el-form inline>
-            <el-form-item
-                label="模型ID："
-                label-width="80px"
-            >
+            <el-form-item label="模型ID：">
                 <el-input
                     v-model="search.model_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="算法类型："
-                label-width="100px"
-            >
+            <el-form-item label="算法类型：">
                 <el-select
                     v-model="search.algorithm"
                     clearable
@@ -29,10 +23,7 @@
                     />
                 </el-select>
             </el-form-item>
-            <el-form-item
-                label="训练类型："
-                label-width="100px"
-            >
+            <el-form-item label="训练类型：">
                 <el-select
                     v-model="search.fl_type"
                     clearable

@@ -46,7 +46,7 @@
                         ref="sign-form"
                         :model="form"
                         inline-message
-                        @submit.prevent
+                        @submit.native.prevent
                     >
                         <el-form-item
                             prop="phone"
@@ -107,14 +107,7 @@
                             保持登录
                         </el-checkbox> -->
                         <div class="sign-action">
-                            <!-- <router-link
-                            :to="{name: 'find-password'}"
-                            class="mr20"
-                        >
-                            忘记密码
-                        </router-link> -->
                             <el-button
-                                :loading="submitting"
                                 type="primary"
                                 class="login-btn"
                                 native-type="submit"
@@ -125,6 +118,12 @@
                             </el-button>
                         </div>
                         <h4 class="text-r f14 mt20">
+                            <!-- <router-link
+                                :to="{name: 'find-password'}"
+                                class="mr20 float-left"
+                            >
+                                忘记密码?
+                            </router-link> -->
                             还没有账号?
                             <router-link :to="{ name: 'register', query: { redirect: $route.query.redirect } }">
                                 立即注册
@@ -138,105 +137,109 @@
     </el-container>
 </template>
 
-
 <script>
-import { mapGetters } from 'vuex';
-import md5 from 'js-md5';
+    // import { mapGetters } from 'vuex';
+    import md5 from 'js-md5';
 
-export default {
-    data() {
-        return {
-            version:    process.env.VERSION,
-            submitting: false,
-            form:       {
-                keepAlive: false,
-                password:  '',
-                phone:     '',
-                code:      '',
-                key:       '',
-            },
-            imgCode:    '',
-            phoneRules: [
-                { required: true, message: '请输入你的手机号' },
-                {
-                    validator: (rule, value, callback) => {
-                        if (/^1[3-9]\d{9}/.test(value)) {
-                            callback();
-                        } else {
-                            callback(new Error('请输入正确的手机号'));
-                        }
-                    },
-                    trigger: 'blur',
+    export default {
+        data() {
+            return {
+                version:    process.env.VERSION,
+                submitting: false,
+                form:       {
+                    keepAlive: false,
+                    password:  '',
+                    phone:     '',
+                    code:      '',
+                    key:       '',
                 },
-            ],
-            passwordRules: [{ required: true, message: '请输入你的密码' }],
-            codeRules:     [{ required: true, message: '请输入验证码' }],
-        };
-    },
-    computed: {
-        ...mapGetters(['keepAlive']),
-    },
-    created() {
-        // this.form.keepAlive = this.keepAlive;
-        this.getImgCode();
-    },
-    methods: {
-        /* changeKeepAlive(value) {
-            this.$store.commit('KEEP_ALIVE', value);
-        }, */
-        async getImgCode() {
-            const { code, data } = await this.$http.get('/account/captcha');
-
-            if (code === 0) {
-                this.imgCode = data.image;
-                this.form.key = data.key;
-            }
-        },
-        submit() {
-            if (this.submitting) return;
-
-            this.$refs['sign-form'].validate(async valid => {
-                if (valid) {
-                    this.submitting = true;
-                    const password = [
-                        this.form.phone,
-                        this.form.password,
-                        this.form.phone,
-                        this.form.phone.substr(0, 3),
-                        this.form.password.substr(this.form.password.length - 3),
-                    ].join('');
-                    const { code, data } = await this.$http.post({
-                        url:  '/account/login',
-                        data: {
-                            phone_number: this.form.phone,
-                            password:     md5(password),
-                            key:          this.form.key,
-                            code:         this.form.code,
+                imgCode:    '',
+                phoneRules: [
+                    { required: true, message: '请输入你的手机号' },
+                    {
+                        validator: (rule, value, callback) => {
+                            if (/^1[3-9]\d{9}/.test(value)) {
+                                callback();
+                            } else {
+                                callback(new Error('请输入正确的手机号'));
+                            }
                         },
-                    });
+                        trigger: 'blur',
+                    },
+                ],
+                passwordRules: [{ required: true, message: '请输入你的密码' }],
+                codeRules:     [{ required: true, message: '请输入验证码' }],
+            };
+        },
+        computed: {
+            // ...mapGetters(['keepAlive']),
+        },
+        created() {
+            // this.form.keepAlive = this.keepAlive;
+            this.getImgCode();
+        },
+        methods: {
+            /* changeKeepAlive(value) {
+                this.$store.commit('KEEP_ALIVE', value);
+            }, */
+            async getImgCode() {
+                const { code, data } = await this.$http.get('/account/captcha');
 
-                    if(code === 0 || code === 10000) {
-                        this.$store.commit('UPDATE_USERINFO', data);
-                    }
+                if (code === 0) {
+                    this.imgCode = data.image;
+                    this.form.key = data.key;
+                    this.form.code = '';
+                }
+            },
+            submit(event) {
+                if (this.submitting) return;
 
-                    if (code === 0){
-                        this.$router.replace({
-                            name: 'model-list',
+                this.submitting = true;
+                this.$refs['sign-form'].validate(async valid => {
+                    if (valid) {
+                        const password = [
+                            this.form.phone,
+                            this.form.password,
+                            this.form.phone,
+                            this.form.phone.substr(0, 3),
+                            this.form.password.substr(this.form.password.length - 3),
+                        ].join('');
+                        const { code, data } = await this.$http.post({
+                            url:  '/account/login',
+                            data: {
+                                phone_number: this.form.phone,
+                                password:     md5(password),
+                                key:          this.form.key,
+                                code:         this.form.code,
+                            },
+                            btnState: {
+                                target: event,
+                            },
                         });
-                    } else if(code === 10000){
-                        this.$router.replace({
-                            name: 'init',
-                        });
-                    } else if (code === 10017) { // 验证码错误
-                        this.form.code = '';
-                        this.getImgCode();
+
+                        if (code === 10000) {
+                            this.$store.commit('SYSTEM_INITED', false);
+                            this.$store.commit('UPDATE_USERINFO', data);
+
+                            this.$router.replace({
+                                name: 'init',
+                            });
+                        } else if (code === 0) {
+                            this.$store.commit('UPDATE_USERINFO', data);
+                            this.$store.commit('SYSTEM_INITED', true);
+                            this.$router.replace({
+                                name: 'index',
+                            });
+                        } else {
+                            this.form.code = '';
+                            this.getImgCode();
+                        }
                     }
                     this.submitting = false;
-                }
-            });
+                });
+            },
         },
-    },
-};
+    };
 </script>
 
 <style lang="scss" scoped>
