@@ -10,7 +10,20 @@
                     </template>
                 </el-image>
                 <div class="btns">
-                    <div class="l_tips">{{item.labeled ? item.label_list.split(',')[0] : '未标注'}}</div>
+                    <el-popover
+                        v-if="item.labeled"
+                        placement="bottom-start"
+                        trigger="hover"
+                        :width="200"
+                    >
+                        <template #default>
+                            <p class="color-danger"><el-tag v-for="item in item.$label_list" :key="item" style="margin-right: 4px;">{{item}}</el-tag></p>
+                        </template>
+                        <template #reference>
+                            <div class="l_tips">{{item.$label_list.join(',')}}</div>
+                        </template>
+                    </el-popover>
+                    <div v-else class="l_tips">未标注</div>
                     <div class="r_btn">
                         <!-- <el-icon class="el-icon-edit-outline" @click="methods.labelSingle(item.id, index)"><elicon-edit /></el-icon> -->
                         <el-icon class="el-icon-delete" @click="methods.deleteEvent(item.id, index)"><elicon-delete /></el-icon>
@@ -88,6 +101,12 @@
             color: #999;
             .l_tips {
                 font-size: 12px;
+                cursor: pointer;
+                width: 90px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                text-align: left;
             }
             .r_btn {
                 font-size: 13px;
