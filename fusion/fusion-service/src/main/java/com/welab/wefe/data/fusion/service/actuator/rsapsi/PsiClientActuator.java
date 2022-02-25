@@ -23,6 +23,7 @@ import com.welab.wefe.data.fusion.service.enums.ActionType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
+import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.SocketUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
@@ -31,7 +32,6 @@ import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
@@ -313,7 +313,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
         LOG.info("client send fusion data...");
 
-        sendData(socket, bs, index);
+        FusionUtils.sendByteAndIndex(socket, bs, index);
     }
 
     void clear(Integer index) {
@@ -335,10 +335,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
         long start = System.currentTimeMillis();
 
         try {
-            byte[][] ret = PSIUtils.receive2DBytes(socket);
-            DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            Integer index = (int) PSIUtils.receiveInteger(d_in);
-
+            byte[][] repBody = PSIUtils.receive2DBytes(socket);
+            Integer index = FusionUtils.extractIndex(repBody);
+            byte[][] ret = FusionUtils.extractData(repBody);
             LOG.info("receiveAndParseResult() current_index ： {} ", index);
 
             List<JObject> cur = cacheMap.get(index);
@@ -372,8 +371,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
             //Clear the cache
             clear(index);
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             try {
                 if (socket != null) {
@@ -382,23 +379,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-
-    /**
-     * Send data with an index
-     *
-     * @param bs
-     * @param index
-     */
-    private void sendData(Socket socket, byte[][] bs, int index) {
-        try {
-            DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-            PSIUtils.send2DBytes(socket, bs);
-            PSIUtils.sendInteger(d_out, index);
-        } catch (IOException e1) {
-            e1.printStackTrace();
         }
     }
 

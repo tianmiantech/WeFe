@@ -22,11 +22,11 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.data.fusion.service.enums.ActionType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
+import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -133,24 +133,21 @@ public class PsiServerActuator extends AbstractPsiActuator {
         try {
 
             byte[][] query = PSIUtils.receive2DBytes(socket);
-            DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            int index = (int) PSIUtils.receiveInteger(d_in);
-
+            Integer index = FusionUtils.extractIndex(query);
+            byte[][] queryBody = FusionUtils.extractData(query);
             LOG.info("server wait spend :  {} ms  current_index: {}", (System.currentTimeMillis() - start), index);
 
             long start1 = System.currentTimeMillis();
 
             //Encrypted again
-            byte[][] result = CryptoUtils.sign(N, d, query);
+            byte[][] result = CryptoUtils.sign(N, d, queryBody);
 
             LOG.info("server a.mod(N) spend :  {} ms size: {}  current_index: {}", (System.currentTimeMillis() - start1), result.length, index);
 
             /**
              * Return the query result
              */
-            DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-            PSIUtils.send2DBytes(socket, result);
-            PSIUtils.sendInteger(d_out, index);
+            FusionUtils.sendByteAndIndex(socket, result, index);
 
             /**
              * Receive alignment results
