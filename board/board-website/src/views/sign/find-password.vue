@@ -230,9 +230,8 @@
                                 name: 'login',
                             });
                         }
-                    } else {
-                        this.$message.error(valid.message);
                     }
+
                     this.submitting = false;
                 });
             },

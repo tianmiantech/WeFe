@@ -33,20 +33,22 @@
                 </el-select>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getList({ to: true })"
-            >
-                查询
-            </el-button>
-            <router-link
-                class="ml10"
-                :to="{name: 'client-service-add'}"
-            >
-                <el-button>
-                    添加客户服务
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList({ to: true })"
+                >
+                    查询
                 </el-button>
-            </router-link>
+                <router-link
+                    class="ml10"
+                    :to="{name: 'client-service-add'}"
+                >
+                    <el-button>
+                        添加客户服务
+                    </el-button>
+                </router-link>
+            </el-form-item>
         </el-form>
 
         <el-table
