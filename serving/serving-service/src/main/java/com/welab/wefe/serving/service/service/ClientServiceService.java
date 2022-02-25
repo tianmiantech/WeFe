@@ -175,6 +175,29 @@ public class ClientServiceService {
         }
     }
 
+    /**
+     * 根据 serviceId 更新所有相关的字段
+     * @param serviceId
+     * @param serviceName
+     * @param url
+     * @param serviceType
+     */
+    public void updateAllByServiceId(String serviceId, String serviceName, String url, Integer serviceType) {
+        Specification<ClientServiceMysqlModel> where = Where.create()
+                .equal("serviceId", serviceId)
+                .build(ClientServiceMysqlModel.class);
+
+        List<ClientServiceMysqlModel> mysqlModels = clientServiceRepository.findAll(where);
+        List<ClientServiceMysqlModel> newModels = new ArrayList<>();
+        for (ClientServiceMysqlModel model : mysqlModels) {
+            model.setServiceName(serviceName);
+            model.setServiceType(serviceType);
+            model.setUrl(url);
+            newModels.add(model);
+        }
+        clientServiceRepository.saveAll(newModels);
+    }
+
     public List<ClientServiceMysqlModel> getAll() {
         return clientServiceRepository.findAll();
     }
