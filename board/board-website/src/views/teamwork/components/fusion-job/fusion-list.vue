@@ -125,7 +125,7 @@
                 },
                 statusMap: {
                     Await:     '待审核',
-                    Pending:   '待处理',
+                    Pending:   '待审核',
                     Running:   '运行中',
                     Success:   '成功',
                     Failure:   '失败',

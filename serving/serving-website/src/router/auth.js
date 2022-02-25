@@ -5,14 +5,14 @@
 
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
 
-function setStorage () {
+export const setStorage = () => {
     return localStorage;
-}
+};
 
 /**
  * 清空用户信息
  */
-export const clearuserInfo = () => {
+export const clearUserInfo = () => {
     const { baseUrl } = window.api;
 
     setStorage().removeItem(`${baseUrl}_userInfo`);
@@ -29,7 +29,7 @@ export const baseIsLogin = () => {
         // 同步存储信息
         syncLogin(userInfo);
     } else {
-        clearuserInfo();
+        clearUserInfo();
     }
     return Boolean(userInfo);
 };
@@ -63,7 +63,7 @@ export const baseLogout = () => {
     const { location: { href, pathname } } = window;
 
     // 重置 store 和 localstorage
-    clearuserInfo();
+    clearUserInfo();
 
     let query = {};
 

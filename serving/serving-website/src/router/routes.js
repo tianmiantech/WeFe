@@ -28,7 +28,7 @@ const baseRoutes = [
         children:  [
             {
                 path: `${prefixPath}`,
-                name: 'model-list',
+                name: 'index',
                 meta: {
                     title: '模型列表',
                     index: '0-0',
