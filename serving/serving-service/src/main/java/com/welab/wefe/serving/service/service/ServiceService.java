@@ -538,7 +538,7 @@ public class ServiceService {
 			throw e;
 		}
 		QueryDiffieHellmanKeyResponse response = service.handle(request);
-		// 将 0 步骤查询的数据 保存到 CacheOperation -> LocalIntermediateCache
+		// 将 0 步骤查询的数据 保存到 CacheOperation
 		CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
 		queryResult.save(request.getUuid(), Constants.RESULT, Double.valueOf(resultStr));
 		return response;
@@ -674,7 +674,7 @@ public class ServiceService {
 			e.printStackTrace();
 			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
 		}
-		// 将 0 步骤查询的数据 保存到 CacheOperation -> LocalIntermediateCache
+		// 将 0 步骤查询的数据 保存到 CacheOperation
 		CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
 		queryResult.save(uuid, Constants.RESULT, result);
 		return response;

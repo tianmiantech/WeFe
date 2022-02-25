@@ -237,7 +237,7 @@
                             <el-button
                                 v-if="!vData.export_status || vData.export_status !== 'exporting'"
                                 type="primary"
-                                :disabled="vData.status !== 'Success'"
+                                :disabled="vData.status !== 'Success' || vData.fusion_count <= 0"
                                 @click="vData.exportDialog.visible = true"
                             >
                                 导出融合结果

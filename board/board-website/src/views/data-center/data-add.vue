@@ -1204,12 +1204,16 @@
                         this.uploadTask.name = name;
                         this.uploadTask.status = status;
                         this.uploadTask.progress = progress || progress_ratio;
+                        if(this.uploadTask.progress > 100) {
+                            this.uploadTask.progress = 100;
+                        }
                         this.uploadTask.estimate_time = (estimate_time || estimate_remaining_time) / 1000;
-                        this.uploadTask.visible = true;
                         this.uploadTask.total_row_count = total_row_count || total_data_count;
                         this.uploadTask.added_row_count = added_row_count || completed_data_count;
                         this.uploadTask.repeat_id_row_count = repeat_id_row_count;
                         this.uploadTask.invalid_data_count = invalid_data_count;
+                        this.uploadTask.visible = true;
+
                         if(status === 'failed' && !error_message) {
                             this.uploadTask.error_message = '存储失败, 请重试';
                         } else {
