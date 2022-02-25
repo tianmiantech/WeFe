@@ -26,7 +26,7 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisIntermediateCache implements CacheOperation {
 
-	public static volatile JedisPool jedisPool = null;
+	private JedisPool jedisPool = null;
 	private String host;
 	private int port;
 	private String password;
@@ -37,11 +37,16 @@ public class RedisIntermediateCache implements CacheOperation {
 		this.password = password;
 	}
 
-	public static JedisPool getJedisPoolInstance(String host, int port, String password) {
+	public JedisPool getJedisPoolInstance(String host, int port, String password) {
 		if (null == jedisPool) {
 			synchronized (RedisIntermediateCache.class) {
 				if (null == jedisPool) {
 					JedisPoolConfig poolConfig = new JedisPoolConfig();
+					poolConfig.setMaxIdle(10);
+					poolConfig.setMaxTotal(1024);
+					poolConfig.setTimeBetweenEvictionRunsMillis(30000);
+					poolConfig.setNumTestsPerEvictionRun(10);
+					poolConfig.setMinEvictableIdleTimeMillis(60000);
 					if (StringUtils.isNotBlank(password)) {
 						jedisPool = new JedisPool(poolConfig, host, port, 2000, password);
 					} else {
@@ -59,9 +64,11 @@ public class RedisIntermediateCache implements CacheOperation {
 			jedisPool = getJedisPoolInstance(host, port, password);
 		}
 		// 从连接池中获取一个连接
-		Jedis jedis = jedisPool.getResource();
-		jedis.set((name + "_" + key).getBytes(), SerializeUtil.serialize(value));
-		jedis.close();
+		try (Jedis jedis = jedisPool.getResource()) {
+			System.out.println(jedis);
+			byte[] bytes = SerializeUtil.serialize(value);
+			jedis.set((name + "_" + key).getBytes(), bytes);
+		}
 	}
 
 	@Override
@@ -70,9 +77,13 @@ public class RedisIntermediateCache implements CacheOperation {
 			jedisPool = getJedisPoolInstance(host, port, password);
 		}
 		// 从连接池中获取一个连接
-		Jedis jedis = jedisPool.getResource();
-		byte[] value = jedis.get((name + "_" + key).getBytes());
-		return SerializeUtil.unserialize(value);
+		try (Jedis jedis = jedisPool.getResource()) {
+			byte[] value = jedis.get((name + "_" + key).getBytes());
+			if (value == null || value.length == 0) {
+				return null;
+			}
+			return SerializeUtil.unserialize(value);
+		}
 	}
 
 	@Override
@@ -81,8 +92,9 @@ public class RedisIntermediateCache implements CacheOperation {
 			jedisPool = getJedisPoolInstance(host, port, password);
 		}
 		// 从连接池中获取一个连接
-		Jedis jedis = jedisPool.getResource();
-		jedis.del(key.getBytes());
+		try (Jedis jedis = jedisPool.getResource()) {
+			jedis.del(key.getBytes());
+		}
 	}
 
 }
