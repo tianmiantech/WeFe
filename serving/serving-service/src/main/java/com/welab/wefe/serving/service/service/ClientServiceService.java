@@ -158,7 +158,7 @@ public class ClientServiceService {
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
-            model.setStatus(input.getStatus());
+            model.setStatus(ServiceStatusEnum.getCodeByValue(input.getStatus()));
             model.setUpdatedBy(input.getUpdatedBy());
             model.setUpdatedTime(new Date());
             model.setUnitPrice(input.getUnitPrice());
@@ -177,6 +177,7 @@ public class ClientServiceService {
 
     /**
      * 根据 serviceId 更新所有相关的字段
+     *
      * @param serviceId
      * @param serviceName
      * @param url
