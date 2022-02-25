@@ -19,6 +19,7 @@ package com.welab.wefe.fusion.core.actuator;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.utils.FusionThreadPool;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     public LongAdder fusionCount = new LongAdder();
 
-
+    public String error;
     /**
      * Task start time
      */
@@ -198,7 +199,7 @@ public abstract class AbstractActuator implements AutoCloseable {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.info("error: ", e);
-            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
+            error = e.getMessage();
         }
     }
 
@@ -208,7 +209,8 @@ public abstract class AbstractActuator implements AutoCloseable {
         while (true) {
             sleep(1000);
 
-            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish()) {
+            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs()
+                    && !isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
 
