@@ -48,9 +48,9 @@ import java.util.Set;
 public class EmailService extends AbstractService {
     private static final String MAIL_DEFAULT_ENCODING = "UTF-8";
     private static final String MAIL_SMTP_AUTH = "true";
-    private static final String MAIL_SMTP_WRITE_TIMEOUT = "5000";
-    private static final String MAIL_SMTP_TIMEOUT = "5000";
-    private static final String MAIL_SMTP_CONNECTION_TIMEOUT = "5000";
+    private static final String MAIL_SMTP_WRITE_TIMEOUT = "30000";
+    private static final String MAIL_SMTP_TIMEOUT = "30000";
+    private static final String MAIL_SMTP_CONNECTION_TIMEOUT = "30000";
 
     @Autowired
     private MessageService messageService;
@@ -198,6 +198,7 @@ public class EmailService extends AbstractService {
         mailProperties.setProperty("mail.smtp.writetimeout", MAIL_SMTP_WRITE_TIMEOUT);
         mailProperties.setProperty("mail.smtp.timeout", MAIL_SMTP_TIMEOUT);
         mailProperties.setProperty("mail.smtp.connectiontimeout", MAIL_SMTP_CONNECTION_TIMEOUT);
+        mailProperties.setProperty("mail.debug", "true");
         javaMailSender.setJavaMailProperties(mailProperties);
 
         return javaMailSender;

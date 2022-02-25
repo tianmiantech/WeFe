@@ -43,8 +43,8 @@
                 </el-select>
             </el-form-item>
             <el-button
+                class="mb10"
                 type="primary"
-                class="inline-block"
                 @click="getList({ to: true })"
             >
                 查询

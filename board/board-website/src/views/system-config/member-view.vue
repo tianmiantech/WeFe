@@ -104,7 +104,7 @@
                         style="padding-left: 100px;"
                     >
                         <p class="mb10">名片预览：</p>
-                        <MemberCard />
+                        <MemberCard :realNameAuth="enterpriseAuth === 2" />
 
                         <div v-if="enterpriseAuth !== ''" class="mt40">
                             <el-form-item label="企业实名认证：">

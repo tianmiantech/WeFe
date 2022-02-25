@@ -91,7 +91,7 @@
                             />
                         </p>
                         <p><strong>成员:</strong> {{ item.supplier_name }}</p>
-                        <p><strong>URL:</strong> {{ item.url }}</p>
+                        <p><strong>URL:</strong> {{ item.base_url }}{{ item.api_name }}</p>
                         <p v-if="item.key_calc_rule"><strong>求交主键:</strong> {{ item.key_calc_rule }}</p>
                         <p v-if="item.params && item.params.length"><strong>Param:</strong></p>
                         <p
