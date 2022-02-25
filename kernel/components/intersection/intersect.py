@@ -25,10 +25,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import functools
 import hashlib
 
-from common.python import session
+from common.python import session, RuntimeInstance
 from common.python.utils import log_utils
 
 LOGGER = log_utils.get_logger()
@@ -117,13 +117,25 @@ class Intersect(object):
                 yield item[0], i
             i = i + 1
 
+    @staticmethod
+    def generate_id_num_with_incr_id(k, v, global_incr_index, has_encrypt_key=True):
+        if has_encrypt_key:
+            return k, (v, global_incr_index)
+        else:
+            return k, global_incr_index
+
     def generate_id_nums(self, intersect_ids, has_encrypt_key=False):
-        from common.python.common.consts import NAMESPACE
-        data = session.parallelize(self.generate_id_num(intersect_ids.collect(), has_encrypt_key=has_encrypt_key),
-                                   namespace=NAMESPACE.PROCESS,
-                                   include_key=True,
-                                   partition=intersect_ids.get_partitions())
-        return data
+        if RuntimeInstance.BACKEND.is_fc():
+            func = functools.partial(Intersect.generate_id_num_with_incr_id, has_encrypt_key=has_encrypt_key)
+            return intersect_ids.map(func, with_incr_id=True)
+
+        else:
+            from common.python.common.consts import NAMESPACE
+            data = session.parallelize(self.generate_id_num(intersect_ids.collect(), has_encrypt_key=has_encrypt_key),
+                                       namespace=NAMESPACE.PROCESS,
+                                       include_key=True,
+                                       partition=intersect_ids.get_partitions())
+            return data
 
 
 class DhIntersect(Intersect):

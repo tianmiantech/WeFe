@@ -58,11 +58,24 @@ def handler(event, context):
     partition = evt['partition']
     source_k_v = source_fcs.collect(partition=partition, debug_info=dataUtil.get_request_id(context))
 
-    dest_fcs.put_all(_do_map(source_k_v, func, stat))
+    # global increment id index
+    global_incr_index = None
+    if 'global_incr_id' in evt:
+        global_incr_id = evt['global_incr_id']
+        if len(global_incr_id) > 0:
+            global_incr_index = global_incr_id[partition]
+
+    dest_fcs.put_all(_do_map(source_k_v, func, stat, global_incr_index))
     return dataUtil.fc_result(count=stat.count, partition=partition)
 
 
-def _do_map(source_k_v, func, stat: Stat):
-    for k, v in source_k_v:
-        stat.incr()
-        yield func(k, v)
+def _do_map(source_k_v, func, stat: Stat, global_incr_index=None):
+    if global_incr_index is None:
+        for k, v in source_k_v:
+            stat.incr()
+            yield func(k, v)
+    else:
+        for k, v in source_k_v:
+            stat.incr()
+            global_incr_index += 1
+            yield func(k, v, global_incr_index)
