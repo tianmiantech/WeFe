@@ -130,7 +130,6 @@ public class BaseGatewayService extends AbstractService {
                 StatusCode.RPC_ERROR.throwException(ex.getMessage());
             }
             StatusCode.RPC_ERROR.throwException(e.getMessage());
-
         } finally {
             if (null != grpcChannel) {
                 try {

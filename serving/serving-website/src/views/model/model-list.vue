@@ -3,10 +3,7 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
+        <el-form inline>
             <el-form-item
                 label="模型ID："
                 label-width="80px"
@@ -122,7 +119,7 @@
 
             <el-table-column
                 label="创建时间"
-                min-width="50"
+                min-width="140"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -131,7 +128,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="50"
+                min-width="140"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -140,13 +137,9 @@
             <el-table-column
                 label="操作"
                 align="center"
+                min-width="160"
             >
                 <template slot-scope="scope">
-                    <!--      <el-button type="primary" @click="predict(scope.row)">
-                              预测
-                          </el-button>
-                      -->
-
                     <el-button
                         :type="scope.row.enable === true ? 'warning' : 'success'"
                         @click="changeEnable(scope.row)"
@@ -158,14 +151,13 @@
                             上线
                         </div>
                     </el-button>
-                    <!--      <router-link :to="{name: 'model-view', query: { id: scope.row.id }}"> -->
+
                     <el-button
                         type="primary"
                         @click="predict(scope.row)"
                     >
                         配置
                     </el-button>
-                    <!--      </router-link> -->
                 </template>
             </el-table-column>
         </el-table>

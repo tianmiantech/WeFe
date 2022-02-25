@@ -126,7 +126,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ serviceType[scope.row.service_type] }}</p>
+                    <p>{{ scope.row.service_type }}</p>
                 </template>
             </el-table-column>
 
@@ -153,7 +153,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ payTypes[scope.row.pay_type] }}</p>
+                    <p>{{ scope.row.pay_type }}</p>
                 </template>
             </el-table-column>
 

@@ -30,10 +30,9 @@ import os
 import click
 import paddle
 from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
-from visualfl.algorithm.paddle_clas import data_loader
-from visualfl.db.task_dao import TaskDao
+from visualfl.utils import data_loader
 from visualfl.utils.tools import *
-from visualfl.utils.consts import TaskStatus
+from visualfl.utils.consts import TaskStatus,ComponentName,TaskResultType
 
 @click.command()
 @click.option("--job-id", type=str, required=True)
@@ -111,7 +110,7 @@ def fl_trainer(
 ):
     import numpy as np
     import paddle.fluid as fluid
-
+    from visualfl import get_data_dir
     from ppdet.utils import checkpoint
 
     logging.basicConfig(
@@ -132,13 +131,15 @@ def fl_trainer(
         save_model_dir = "model"
         save_checkpoint_dir = "checkpoint"
 
+
         with open(algorithm_config) as f:
             algorithm_config_dict = json.load(f)
 
         batch_size = algorithm_config_dict.get("batch_size", 1024)
         need_shuffle = algorithm_config_dict.get("need_shuffle", True)
         max_iter = algorithm_config_dict.get("max_iter")
-
+        download_url = algorithm_config_dict.get("download_url")
+        data_name = algorithm_config_dict.get("data_name")
 
         logging.debug(f"training program begin")
         trainer = FedAvgTrainer(scheduler_ep=scheduler_ep, trainer_ep=trainer_ep)
@@ -159,25 +160,32 @@ def fl_trainer(
         trainer.start(place)
         logging.debug(f"trainer stared")
 
-
         logging.debug(f"loading data")
         feed_list = trainer.load_feed_list(feeds)
         feeder = fluid.DataFeeder(feed_list=feed_list, place=place)
         logging.debug(f"data loader ready")
 
-        epoch_id = -1
-        step = 0
-        TaskDao(task_id).init_task_progress(max_iter)
-
-        #TODO download the data based on the download_url
-        reader = data_loader.train()
+        data_dir = data_loader.job_download(download_url, job_id, get_data_dir())
+        labelpath = os.path.join(data_dir,"label_list.txt")
+        TaskDao(task_id).save_task_result({"label_path":labelpath},ComponentName.CLASSIFY,TaskResultType.LABEL)
+        reader = data_loader.train(data_dir=data_dir)
         if need_shuffle:
             reader = fluid.io.shuffle(
                 reader=reader,
                 buf_size=1000,
             )
-
         train_loader = paddle.batch(reader=reader, batch_size=batch_size)
+
+        epoch_id = -1
+        step = 0
+        TaskDao(task_id).init_task_progress(max_iter)
+        if resume_checkpoint:
+            try:
+                epoch_id = TaskDao(task_id).get_task_progress()
+                checkpoint.load_checkpoint(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
+                logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
+            except Exception as e:
+                logging.error(f"task id {task_id} train error {e}")
 
         if use_vdl:
             from visualdl import LogWriter
@@ -199,7 +207,7 @@ def fl_trainer(
                     }
                     for loss_name, loss_value in stats.items():
                         vdl_writer.add_scalar(loss_name, loss_value, step)
-                        save_data_to_db(task_id, loss_name,loss_value,step,"PaddleClassify")
+                        save_data_to_db(task_id, loss_name,loss_value,step,ComponentName.CLASSIFY)
                 step += 1
                 logging.debug(f"step: {step}, outs: {outs}")
 
@@ -214,10 +222,12 @@ def fl_trainer(
 
         TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
         TaskDao(task_id).finish_task_progress()
+        TaskDao(task_id).update_serving_model(type=TaskResultType.LOSS)
         logging.debug(f"reach max iter, finish training")
     except Exception as e:
         logging.error(f"task id {task_id} train error {e}")
         TaskDao(task_id).update_task_status(TaskStatus.ERROR, str(e))
+        raise Exception(f"train error as task id {task_id} ")
 
 
 if __name__ == "__main__":
