@@ -43,10 +43,6 @@ import java.util.concurrent.*;
  * @author hunter.zhao
  */
 public class PsiClientActuator extends AbstractPsiActuator {
-    BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(5);
-    RejectedExecutionHandler rejectedExecutionHandler =
-            new ThreadPoolExecutor.CallerRunsPolicy();
-
     ExecutorService threadPool = new ThreadPoolExecutor(
             Runtime.getRuntime().availableProcessors(),
             Runtime.getRuntime().availableProcessors() * 2,
@@ -54,8 +50,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
             TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>());
 
-    ExecutorService parseThreadPool = new ThreadPoolExecutor(5, 10, 0L, TimeUnit.MILLISECONDS,
-            workingQueue, rejectedExecutionHandler);
+    ExecutorService parseThreadPool = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() * 2,
+            100L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>());
 
     private BigInteger e;
     private BigInteger N;
@@ -187,12 +187,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
             threadPool.execute(() -> {
                 try {
                     fusion();
-
-                    //TODO 临时代码
-//                    Socket socket = socketQueue.take();
-//                    if (socket != null) {
-//                        receiveAndParseResult(socket);
-//                    }
                 } catch (StatusCodeWithException e) {
                     e.printStackTrace();
                     LOG.error("{} StatusCodeWithException : {}", getClass().getSimpleName(), e.getMessage());
@@ -205,27 +199,30 @@ public class PsiClientActuator extends AbstractPsiActuator {
         /**
          * Alignment matching
          */
-//        int socketQueueSize = count;
-//        CountDownLatch socketLatch = new CountDownLatch(count);
-//
-//        while (socketQueueSize > 0) {
-//            try {
-//                Socket socket = socketQueue.take();
-//                if (socket != null) {
-//                    parseThreadPool.execute(() -> {
-//                        receiveAndParseResult(socket);
-//                        socketLatch.countDown();
-//                    });
-//                    socketQueueSize--;
-//                }
-//            } catch (InterruptedException e1) {
-//                e1.printStackTrace();
-//            }
-//        }
-//
+        int socketQueueSize = count;
+        CountDownLatch socketLatch = new CountDownLatch(count);
+
+        while (socketQueueSize > 0) {
+            try {
+                Socket socket = socketQueue.take();
+                if (socket != null) {
+                    parseThreadPool.execute(() -> {
+                        try {
+                            receiveAndParseResult(socket);
+                        } finally {
+                            socketLatch.countDown();
+                        }
+                    });
+                    socketQueueSize--;
+                }
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
+
         try {
             latch.await();
-//            socketLatch.await();
+            socketLatch.await();
         } catch (InterruptedException e1) {
             e1.printStackTrace();
             LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
@@ -251,30 +248,30 @@ public class PsiClientActuator extends AbstractPsiActuator {
      */
     private void fusion() throws StatusCodeWithException {
         Socket socket = null;
-//        try {
-        LOG.info("Server@" + ip + ":" + port + " connecting!");
-        socket = SocketUtils
-                .create(ip, port)
-                .setRetryCount(3)
-                .builder();
+        try {
+            LOG.info("Server@" + ip + ":" + port + " connecting!");
+            socket = SocketUtils
+                    .create(ip, port)
+                    .setRetryCount(3)
+                    .builder();
 
-        PSIUtils.sendString(socket, ActionType.align.name());
+            PSIUtils.sendString(socket, ActionType.align.name());
 
-        cursor();
+            cursor();
 
-        Integer index = threadId.get();
+            Integer index = threadId.get();
 
-        LOG.info("fusion() current_index ： {}", index);
+            LOG.info("fusion() current_index ： {}", index);
 
-        //Initiating a query request
-        query(socket);
+            //Initiating a query request
+            query(socket);
 
-        //Joins the queue to be parsed
-        //socketQueue.put(socket);
-        receiveAndParseResult(socket);
-//        } catch (InterruptedException e1) {
-//            e1.printStackTrace();
-//        }
+            //Joins the queue to be parsed
+            socketQueue.put(socket);
+//        receiveAndParseResult(socket);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
 
     }
 
