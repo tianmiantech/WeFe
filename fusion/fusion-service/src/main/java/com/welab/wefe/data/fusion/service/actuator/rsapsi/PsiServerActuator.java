@@ -169,7 +169,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
             //Clean current batch
 //            clear();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("数据融合错误，ERROR：", e);
         }
 
 

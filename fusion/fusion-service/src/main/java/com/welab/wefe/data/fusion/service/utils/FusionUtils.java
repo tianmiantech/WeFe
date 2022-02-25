@@ -56,7 +56,7 @@ public class FusionUtils {
      * @param bs
      */
     public static int extractIndex(byte[][] bs) {
-        return ByteUtils.byteArrayToInt(bs[bs.length]);
+        return ByteUtils.byteArrayToInt(bs[bs.length - 1]);
     }
 
     /**
