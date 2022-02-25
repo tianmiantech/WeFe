@@ -15,21 +15,13 @@
  */
 package com.welab.wefe.serving.service.api.feedetail;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.FeeDetailOutputModel;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.FeeDetailService;
-import com.welab.wefe.serving.service.service.FeeRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.persistence.Column;
-import javax.persistence.Id;
-import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
