@@ -177,38 +177,39 @@
             </el-table-column>
         </el-table>
 
-        <el-button
-            class="plr"
-            type="primary"
-            :disabled="selection.length < 2"
-            style="bottom: -32px;"
-            @click="jobCompare"
-        >
-            <el-popover
-                width="200"
-                trigger="hover"
-                content="勾选任务后可对比, 最多勾选 3 个"
+        <div class="flex_box">
+            <el-button
+                type="primary"
+                :disabled="selection.length < 2"
+                style="bottom: -32px;"
+                @click="jobCompare"
             >
-                <template #reference>
-                    <el-icon>
-                        <elicon-info-filled />
-                    </el-icon>
-                </template>
-            </el-popover>
-            任务对比 ({{ selection.length }}/3)
-        </el-button>
+                <el-popover
+                    width="200"
+                    trigger="hover"
+                    content="勾选任务后可对比, 最多勾选 3 个"
+                >
+                    <template #reference>
+                        <el-icon>
+                            <elicon-info-filled />
+                        </el-icon>
+                    </template>
+                </el-popover>
+                任务对比 ({{ selection.length }}/3)
+            </el-button>
 
-        <el-pagination
-            class="text-r"
-            :pager-count="5"
-            :total="pagination.total"
-            :page-sizes="[10, 20, 30, 40, 50]"
-            :page-size="pagination.page_size"
-            :current-page="pagination.page_index"
-            layout="total, sizes, prev, pager, next, jumper"
-            @current-change="currentPageChange"
-            @size-change="pageSizeChange"
-        />
+            <el-pagination
+                class="text-r"
+                :pager-count="5"
+                :total="pagination.total"
+                :page-sizes="[10, 20, 30, 40, 50]"
+                :page-size="pagination.page_size"
+                :current-page="pagination.page_index"
+                layout="total, sizes, prev, pager, next, jumper"
+                @current-change="currentPageChange"
+                @size-change="pageSizeChange"
+            />
+        </div>
     </el-card>
 </template>
 
@@ -420,5 +421,12 @@
         border-radius: 50%;
         cursor: pointer;
     }
+}
+.flex_box {
+    height: 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
 }
 </style>
