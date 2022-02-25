@@ -16,7 +16,22 @@
 
 package com.welab.wefe.serving.service.listener;
 
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
@@ -25,18 +40,7 @@ import com.welab.wefe.serving.service.service.ApiRequestRecordService;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.FeeConfigService;
 import com.welab.wefe.serving.service.service.FeeDetailService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
 
 
 /**
@@ -58,10 +62,23 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
 
     @Autowired
     private FeeConfigService feeConfigService;
+    
+    @Autowired
+    private Config config;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         checkAndSaveFeeDetail();
+		logger.info("config wefe.service.cache.type=" + config.getServiceCacheType());
+		// init PrivateInformationRetrievalServer
+		if ("redis".equalsIgnoreCase(config.getServiceCacheType())) {
+			PrivateInformationRetrievalServer.init(100, new RedisIntermediateCache(config.getRedisHost(),
+					Integer.valueOf(config.getRedisPort()), config.getRedisPassword()));
+			logger.info("init RedisIntermediateCache");
+		} else {
+			PrivateInformationRetrievalServer.init(100);
+			logger.info("init LocalIntermediateCache");
+		}
     }
 
 
