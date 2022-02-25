@@ -52,11 +52,16 @@
                     {{ scope.row.enable ? '可用' : '已禁用' }}
                 </template>
             </el-table-column>
+            <el-table-column label="审核状态">
+                <template v-slot="scope">
+                    {{ scope.row.audit_status === 'agree' ? '通过' : scope.row.audit_status === 'auditing' ? '待审核': scope.row.audit_status === 'disagree' ? '不通过':'-' }}
+                </template>
+            </el-table-column>
             <el-table-column
                 v-if="userInfo.admin_role"
                 label="操作"
                 fixed="right"
-                min-width="300"
+                min-width="320"
             >
                 <template v-slot="scope">
                     <template v-if="userInfo.admin_role">
@@ -77,10 +82,28 @@
                         <el-button
                             v-if="!scope.row.super_admin_role"
                             :type="scope.row.enable ? 'danger' : 'success'"
+                            plain
                             @click="changeStatus($event, scope.row)"
                         >
                             {{scope.row.enable ? '禁用' : '启用'}}
                         </el-button>
+                    </template>
+                    <template v-if="scope.row.audit_status !== 'agree'">
+                        <el-popconfirm
+                            confirm-button-text="同意"
+                            cancel-button-text="拒绝"
+                            cancelButtonType="danger"
+                            :hide-icon="true"
+                            trigger="hover"
+                            @confirm="memberAduit($event, scope.row, 'agree')"
+                            @cancel="memberAduit($event, scope.row, 'disagree')"
+                        >
+                            <template #reference>
+                                <el-button plain>
+                                    {{ scope.row.audit_status === 'auditing' ? '审核' : scope.row.audit_status === 'disagree' ? '重新审核' : '' }}
+                                </el-button>
+                            </template>
+                        </el-popconfirm>
                     </template>
                 </template>
             </el-table-column>
@@ -197,6 +220,41 @@
                         },
                     });
                     this.refresh();
+                });
+            },
+            async memberAduit($event, row, flag) {
+                const result = flag === 'agree' ? this.$confirm('确定同意当前成员审核吗？', '提示', {
+                    type:              'warning',
+                    confirmButtonText: '确定',
+                    cancelButtonText:  '取消',
+                }) : this.$prompt('拒绝当前成员审核？\n 原因:', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText:  '取消',
+                    inputValidator(value) {
+                        return value != null && value !== '';
+                    },
+                    inputErrorMessage: '原因不能为空',
+                });
+
+                result.then(async ({ action, value }) => {
+                    if(flag || action === 'confirm') {
+                        const { code } = await this.$http.post({
+                            url:  '/user/audit',
+                            data: {
+                                userId:       row.user_id,
+                                auditStatus:  flag,
+                                auditComment: value,
+                            },
+                            btnState: {
+                                target: $event,
+                            },
+                        });
+
+                        if(code === 0) {
+                            this.$message.success('操作成功!');
+                            this.refresh();
+                        }
+                    }
                 });
             },
         },
