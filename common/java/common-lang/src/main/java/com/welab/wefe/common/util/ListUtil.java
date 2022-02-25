@@ -39,7 +39,8 @@ public class ListUtil {
      */
     public static <T> Exception parallelEach(Collection<T> list, ConsumerWithException<T> consumer) {
         AtomicReference<Exception> error = new AtomicReference<>();
-        list.parallelStream()
+        list
+                .parallelStream()
                 .forEach(x -> {
                     try {
                         consumer.accept(x);

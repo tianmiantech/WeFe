@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -167,7 +168,8 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
     @Override
     protected List<ImageDataSetSampleMysqlModel> parseFilesToSamples(ImageDataSetMysqlModel dataSet, Map<String, File> imageFiles, Map<String, File> xmlFiles, Map<String, File> txtFiles) throws Exception {
 
-        List<ImageDataSetSampleMysqlModel> result = new ArrayList<>();
+        // 由于下面是并发处理，所以这里必须要使用线程安全的 List，避免 add 时元素覆盖。
+        List<ImageDataSetSampleMysqlModel> result = Collections.synchronizedList(new ArrayList<>());
 
         Exception error = ListUtil.parallelEach(
                 imageFiles.keySet(),
