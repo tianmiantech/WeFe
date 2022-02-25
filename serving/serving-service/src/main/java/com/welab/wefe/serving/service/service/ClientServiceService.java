@@ -16,10 +16,16 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.enums.PayTypeEnum;
+import com.welab.wefe.serving.service.enums.PaymentsTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -117,7 +123,7 @@ public class ClientServiceService {
     }
 
 
-    public PagingOutput<ClientServiceMysqlModel> queryList(QueryListApi.Input input) {
+    public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
         Specification<ClientServiceMysqlModel> where = Where.create()
                 .contains("serviceName", input.getServiceName())
                 .contains("clientName", input.getClientName())
@@ -125,14 +131,22 @@ public class ClientServiceService {
                 .orderBy("createdTime", OrderBy.desc)
                 .build(ClientServiceMysqlModel.class);
 
-        return clientServiceRepository.paging(where, input);
+        PagingOutput<ClientServiceMysqlModel> models = clientServiceRepository.paging(where, input);
+        List<QueryListApi.Output> list = new ArrayList<>();
 
+        models.getList().forEach(x -> {
+            QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
+            output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
+            output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
+            output.setStatus(ServiceStatusEnum.getValueByCode(x.getStatus()));
+            list.add(output);
+        });
+        return PagingOutput.of(list.size(), list);
     }
 
 
     public ClientServiceOutputModel queryOne(QueryApi.Input input) {
         return clientServiceQueryRepository.queryOne(input.getId());
-
     }
 
     public void update(UpdateApi.Input input) {
@@ -159,6 +173,29 @@ public class ClientServiceService {
             feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
             feeConfigRepository.save(feeConfigMysqlModel);
         }
+    }
+
+    /**
+     * 根据 serviceId 更新所有相关的字段
+     * @param serviceId
+     * @param serviceName
+     * @param url
+     * @param serviceType
+     */
+    public void updateAllByServiceId(String serviceId, String serviceName, String url, Integer serviceType) {
+        Specification<ClientServiceMysqlModel> where = Where.create()
+                .equal("serviceId", serviceId)
+                .build(ClientServiceMysqlModel.class);
+
+        List<ClientServiceMysqlModel> mysqlModels = clientServiceRepository.findAll(where);
+        List<ClientServiceMysqlModel> newModels = new ArrayList<>();
+        for (ClientServiceMysqlModel model : mysqlModels) {
+            model.setServiceName(serviceName);
+            model.setServiceType(serviceType);
+            model.setUrl(url);
+            newModels.add(model);
+        }
+        clientServiceRepository.saveAll(newModels);
     }
 
     public List<ClientServiceMysqlModel> getAll() {

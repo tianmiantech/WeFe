@@ -33,20 +33,22 @@
                 </el-select>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getList({ to: true })"
-            >
-                查询
-            </el-button>
-            <router-link
-                class="ml10"
-                :to="{name: 'client-service-add'}"
-            >
-                <el-button>
-                    添加客户服务
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList({ to: true })"
+                >
+                    查询
                 </el-button>
-            </router-link>
+                <router-link
+                    class="ml10"
+                    :to="{name: 'client-service-add'}"
+                >
+                    <el-button>
+                        添加客户服务
+                    </el-button>
+                </router-link>
+            </el-form-item>
         </el-form>
 
         <el-table
@@ -87,7 +89,7 @@
                 width="100"
             >
                 <template slot-scope="scope">
-                    <p>{{ serviceType[scope.row.service_type] }}</p>
+                    <p>{{ scope.row.service_type }}</p>
                 </template>
             </el-table-column>
 
@@ -131,7 +133,7 @@
                 width="70"
             >
                 <template slot-scope="scope">
-                    {{ payType[scope.row.pay_type] }}
+                    {{ scope.row.pay_type }}
                 </template>
             </el-table-column>
 
@@ -140,7 +142,7 @@
                 width="70"
             >
                 <template slot-scope="scope">
-                    {{ statusType[scope.row.status] }}
+                    {{ scope.row.status }}
                 </template>
             </el-table-column>
 
@@ -178,14 +180,14 @@
             >
                 <template slot-scope="scope">
                     <el-button
-                        v-if="scope.row.status === 0"
+                        v-if="scope.row.status === '未启用'"
                         type="success"
                         @click="open(scope.row,1)"
                     >
                         启用
                     </el-button>
                     <el-button
-                        v-if="scope.row.status === 1"
+                        v-if="scope.row.status === '已启用'"
                         type="danger"
                         @click="open(scope.row,0)"
                     >
@@ -250,23 +252,6 @@ export default {
                 value: '0',
                 label: '未启用',
             }],
-            serviceType: {
-                1: '两方匿踪查询',
-                2: '两方交集查询',
-                3: '多方安全统计(被查询方)',
-                4: '多方安全统计(查询方)',
-                5: '多方交集查询',
-                6: '多方匿踪查询',
-            },
-            payType: {
-                1: '预付费',
-                0: '后付费',
-            },
-            // 启用状态
-            statusType: {
-                1: '已启用',
-                0: '未启用',
-            },
             changeStatusType: '',
             getListApi:       '/clientservice/query-list',
         };

@@ -5,7 +5,6 @@
     >
         <el-form
             inline
-            class="mb20"
             @submit.prevent
         >
             <el-form-item
@@ -44,8 +43,8 @@
                 </el-select>
             </el-form-item>
             <el-button
+                class="mb10"
                 type="primary"
-                class="inline-block"
                 @click="getList({ to: true })"
             >
                 查询
@@ -287,7 +286,7 @@
             是否将 <strong>{{ userRoleDialog.nickname }}</strong> 设置为 <strong class="primary-color">
                 {{ userRoleDialog.admin_role ? '普通用户' : '管理员' }}
             </strong>?
-            <p class="f12 mt10 color-danger">* 只有管理员能对“全局设置”中的配置项进行变更<br>* 只有超级管理员能对“成员信息”中的配置项进行变更</p>
+            <p class="f12 mt10 color-danger">* 只有超级管理员能对“member信息”中的配置项进行变更</p>
             <template #footer>
                 <el-button
                     type="danger"

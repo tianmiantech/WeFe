@@ -53,64 +53,99 @@
 </template>
 
 <script>
-import { EMAILREG } from '@js/const/reg';
+    import { mapGetters } from 'vuex';
+    import { EMAILREG } from '@js/const/reg';
+    import { baseLogout } from '@src/router/auth';
 
-export default {
-    data() {
-        return {
-            form: {
-                member_name:   '',
-                member_email:  '',
-                member_mobile: '',
-            },
-        };
-    },
-    methods: {
-        emailFormat(rule, value, callback) {
-            if (EMAILREG.test(value)) {
-                callback();
-            } else {
-                callback(false);
-            }
+    export default {
+        data() {
+            return {
+                loading: false,
+                form:    {
+                    member_name:   '',
+                    member_email:  '',
+                    member_mobile: '',
+                },
+            };
         },
-        submit() {
-            this.$refs['sign-form'].validate(async valid => {
-                if (valid) {
-                    const { code } = await this.$http.post({
-                        url:  '/system/initialize',
-                        data: this.form,
-                    });
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
+        created() {
+            // this.systemStatusCheck();
+        },
+        methods: {
+            async systemStatusCheck() {
+                if(this.loading) return;
+                this.loading = true;
 
-                    if (code === 0) {
-                        this.$router.replace({
-                            name: 'index',
-                        });
-                        this.$message.success('欢迎来到 WeFe-serving! ');
+                const { code, data } = await this.$http.get({
+                    url: '/member/is_initialized',
+                });
+
+                this.loading = false;
+                if(code === 0) {
+                    if(data.initialized) {
+                        if(this.userInfo.member_id) {
+                            this.$store.commit('SYSTEM_INITED', true); // system inited
+                            this.$router.replace({
+                                name: 'index',
+                            });
+                        } else {
+                            this.$message.success('请重新登录');
+                            baseLogout();
+                        }
                     }
+                } else if (code === 10006) {
+                    baseLogout();
                 }
-            });
+            },
+
+            emailFormat(rule, value, callback) {
+                if (EMAILREG.test(value)) {
+                    callback();
+                } else {
+                    callback(false);
+                }
+            },
+            submit() {
+                this.$refs['sign-form'].validate(async valid => {
+                    if (valid) {
+                        const { code } = await this.$http.post({
+                            url:  '/system/initialize',
+                            data: this.form,
+                        });
+
+                        if (code === 0) {
+                            this.$router.replace({
+                                name: 'index',
+                            });
+                            this.$message.success('欢迎来到 WeFe-serving! ');
+                        }
+                    }
+                });
+            },
         },
-    },
-};
+    };
 </script>
 
 <style lang="scss" scoped>
-@import "../sign/sign.scss";
-.register-wrapper {
-    overflow: hidden;
-    min-height: 100vh;
-    background: linear-gradient(90deg, #434343 0, #000);
-}
+    @import "../sign/sign.scss";
+    .register-wrapper {
+        overflow: hidden;
+        min-height: 100vh;
+        background: linear-gradient(90deg, #434343 0, #000);
+    }
 
-.sign-box {
-    padding-top: 0;
-    margin-top: 170px;
-    background: #fff;
-    border-radius: 3px;
-    padding: 20px;
-}
-.btn-submit {
-    display: block;
-    margin: 0 auto;
-}
+    .sign-box {
+        padding-top: 0;
+        margin-top: 170px;
+        background: #fff;
+        border-radius: 3px;
+        padding: 20px;
+    }
+    .btn-submit {
+        display: block;
+        margin: 0 auto;
+    }
 </style>
