@@ -14,8 +14,8 @@
             >
                 <el-form-item
                     label="注册时的手机号"
-                    prop="phone"
                     :rules="phoneRules"
+                    prop="phone"
                 >
                     <el-input
                         v-model="form.phone"
@@ -25,7 +25,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    label="短信验证码"
+                    label="验证码"
                     :rules="codeRules"
                 >
                     <el-input
@@ -166,22 +166,38 @@
                 }
             },
             async getSmsCode(event) {
-                const { code } = await this.$http.post({
-                    url:  '/union/send_forget_password_sms_code',
-                    data: {
-                        phoneNumber: this.form.phone,
-                    },
+                const { code, data } = await this.$http.post({
+                    url: '/account/verification_code_send_channel',
                 });
 
-                if(code === 0) {
-                    this.smsCount--;
-                    const timer = setInterval(() => {
-                        this.smsCount--;
-                        if (this.smsCount < 0) {
-                            clearInterval(timer);
-                            this.smsCount = 121;
+                if(code === 0 && data && data.channel) {
+                    const response = await this.$http.post({
+                        url:  '/account/send_forget_password_code',
+                        data: {
+                            phoneNumber: this.form.phone,
+                        },
+                        btnState: {
+                            target: event,
+                        },
+                    });
+
+                    if(response.code === 0) {
+                        if(data.channel === 'sms') {
+                            this.$alert('验证码以短信方式发送，请注意查看手机。验证码有效期 2分钟', '提示');
+                        } else if (data.channel === 'email') {
+                            this.$alert('验证码以邮件方式发送，请注意查看邮件。验证码有效期 2分钟', '提示');
                         }
-                    }, 1000);
+                        this.smsCount--;
+                        const timer = setInterval(() => {
+                            this.smsCount--;
+                            if (this.smsCount < 0) {
+                                clearInterval(timer);
+                                this.smsCount = 121;
+                            }
+                        }, 1000);
+                    }/*  else if(response.code === 1){
+                        this.$alert('发送验证码异常: 无法向该号码发送验证码。');
+                    } */
                 }
             },
             submit() {

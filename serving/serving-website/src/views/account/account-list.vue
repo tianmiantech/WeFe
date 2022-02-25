@@ -5,31 +5,24 @@
     >
         <el-form
             inline
-            class="mb20"
             @submit.prevent
         >
             <el-form-item
+                v-if="userInfo.admin_role"
                 label="手机号："
-                label-width="80px"
             >
                 <el-input
                     v-model="search.phone_number"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="姓名："
-                label-width="80px"
-            >
+            <el-form-item label="姓名：">
                 <el-input
                     v-model="search.nickname"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="审核状态："
-                label-width="100px"
-            >
+            <el-form-item label="审核状态：">
                 <el-select
                     v-model="search.audit_status"
                     style="width: 176px;"
@@ -90,7 +83,7 @@
                 align="center"
                 width="70"
             >
-                <template v-slot="scope">
+                <template slot-scope="scope">
                     <span
                         v-if="scope.row.admin_role"
                         class="super_admin_role"
@@ -111,7 +104,7 @@
                 align="center"
                 width="100"
             >
-                <template v-slot="scope">
+                <template slot-scope="scope">
                     <span
                         v-if="scope.row.super_admin_role"
                         class="super_admin_role"
@@ -130,15 +123,16 @@
                 label="注册时间"
                 min-width="140"
             >
-                <template v-slot="scope">
+                <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="userInfo.admin_role"
                 min-width="340"
                 label="操作"
             >
-                <template v-slot="scope">
+                <template slot-scope="scope">
                     <template v-if="userInfo.admin_role && userInfo.id !== scope.row.id">
                         <el-button
                             v-if="scope.row.audit_status === 'auditing'"
@@ -292,7 +286,7 @@
             是否将 <strong>{{ userRoleDialog.nickname }}</strong> 设置为 <strong class="primary-color">
                 {{ userRoleDialog.admin_role ? '普通用户' : '管理员' }}
             </strong>?
-            <p class="f12 mt10 color-danger">* 只有管理员能对“全局设置”中的配置项进行变更<br>* 只有超级管理员能对“成员信息”中的配置项进行变更</p>
+            <p class="f12 mt10 color-danger">* 只有超级管理员能对“member信息”中的配置项进行变更</p>
             <template #footer>
                 <el-button
                     type="danger"

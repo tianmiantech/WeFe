@@ -232,7 +232,7 @@ const baseRoutes = [
                 path: `${prefixPath}global-setting-view`,
                 name: 'global-setting-view',
                 meta: {
-                    title: '配置信息',
+                    title:           '配置信息',
                     loginAndRefresh: true,
                 },
                 component: () => import('@views/global_setting/global-setting-view.vue'),
@@ -244,7 +244,7 @@ const baseRoutes = [
         name: 'login',
         meta: {
             title:          '登录',
-            requiresAuth: false,
+            requiresAuth:   false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/login.vue'),
@@ -254,7 +254,7 @@ const baseRoutes = [
         name: 'register',
         meta: {
             title:          '注册',
-            requiresAuth: false,
+            requiresAuth:   false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/register.vue'),
@@ -264,7 +264,7 @@ const baseRoutes = [
         name: 'find-password',
         meta: {
             title:          '找回密码',
-            requiresAuth: false,
+            requiresAuth:   false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/find-password.vue'),
