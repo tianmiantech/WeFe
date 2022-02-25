@@ -3,10 +3,7 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
+        <el-form inline>
             <el-form-item label="客户名称：">
                 <el-input
                     v-model="search.clientName"
@@ -28,20 +25,22 @@
                 </div>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getList({ to: true})"
-            >
-                查询
-            </el-button>
-            <router-link
-                class="ml10"
-                :to="{name: 'client-add',}"
-            >
-                <el-button>
-                    新增客户
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList({ to: true})"
+                >
+                    查询
                 </el-button>
-            </router-link>
+                <router-link
+                    class="ml10"
+                    :to="{name: 'client-add',}"
+                >
+                    <el-button>
+                        新增客户
+                    </el-button>
+                </router-link>
+            </el-form-item>
         </el-form>
 
         <el-table
