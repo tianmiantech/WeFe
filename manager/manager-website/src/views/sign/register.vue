@@ -272,10 +272,10 @@
                             });
                             this.$message.success('恭喜, 注册成功. 请登录!');
                         } else {
-                            this.getImgCode();
+                            // this.getImgCode();
                         }
                     } else {
-                        this.getImgCode();
+                        // this.getImgCode();
                     }
                 });
                 this.submitting = false;
