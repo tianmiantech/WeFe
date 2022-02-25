@@ -30,7 +30,7 @@
                     <el-input
                         v-model.trim="form.account"
                         placeholder="用户名"
-                        maxlength="50"
+                        maxlength="32"
                         clearable
                     />
                 </el-form-item>
@@ -41,7 +41,7 @@
                     <el-input
                         v-model.trim="form.realname"
                         placeholder="姓名"
-                        maxlength="40"
+                        maxlength="32"
                         clearable
                     />
                 </el-form-item>
@@ -52,7 +52,7 @@
                     <el-input
                         v-model.trim="form.email"
                         placeholder="邮箱"
-                        maxlength="60"
+                        maxlength="32"
                         type="text"
                         clearable
                     />
@@ -65,7 +65,6 @@
                         v-model="form.password"
                         placeholder="密码"
                         type="password"
-                        id="password"
                         maxlength="30"
                         clearable
                     />

@@ -64,7 +64,7 @@
                 label="操作"
             >
                 <template v-slot="scope">
-                    <template v-if="userInfo.admin_role">
+                    <template v-if="scope.row.audit_status === 'agree' && userInfo.admin_role">
                         <template v-if="userInfo.super_admin_role && scope.row.user_id !== userInfo.user_id">
                             <el-button
                                 v-if="scope.row.admin_role"
@@ -96,7 +96,7 @@
                             {{scope.row.enable ? '禁用' : '启用'}}
                         </el-button>
                     </template>
-                    <template v-if="scope.row.audit_status !== 'agree'">
+                    <template v-else>
                         <el-popconfirm
                             confirm-button-text="同意"
                             cancel-button-text="拒绝"

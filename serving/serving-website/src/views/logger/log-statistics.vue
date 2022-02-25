@@ -3,32 +3,20 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
-            <el-form-item
-                label="模型ID："
-                label-width="100px"
-            >
+        <el-form inline>
+            <el-form-item label="模型ID：">
                 <el-input
                     v-model="search.model_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="成员ID："
-                label-width="100px"
-            >
+            <el-form-item label="成员ID：">
                 <el-input
                     v-model="search.member_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="区间："
-                label-width="100px"
-            >
+            <el-form-item label="区间：">
                 <el-input
                     v-model="search.interval"
                     style="width:70px"
@@ -48,12 +36,14 @@
                 </el-select>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getChartList()"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getChartList"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
         </el-form>
 
         <LineChart
