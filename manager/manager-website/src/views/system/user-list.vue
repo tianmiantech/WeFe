@@ -41,7 +41,7 @@
             <el-table-column label="序号" type="index"></el-table-column>
             <el-table-column label="用户名" prop="account" width="140" />
             <el-table-column label="姓名" prop="realname" width="130" />
-            <el-table-column label="邮箱" prop="email" />
+            <el-table-column label="邮箱" prop="email" width="180" />
             <el-table-column label="用户角色" width="140">
                 <template v-slot="scope">
                     {{ scope.row.super_admin_role ? '超级管理员' : (scope.row.admin_role ? '普通管理员' : '普通用户') }}
@@ -52,14 +52,24 @@
                     {{ scope.row.enable ? '可用' : '已禁用' }}
                 </template>
             </el-table-column>
-            <el-table-column label="审核状态">
+            <el-table-column label="审核状态" width="220">
                 <template v-slot="scope">
-                    {{ scope.row.audit_status === 'agree' ? '通过' : scope.row.audit_status === 'auditing' ? '待审核': scope.row.audit_status === 'disagree' ? '不通过':'-' }}
+                    <el-tag v-if="scope.row.audit_status === 'agree'" type="success">
+                        通过
+                    </el-tag>
+                    <p v-if="scope.row.audit_status === 'disagree'">
+                        <el-tag type="danger">
+                            不通过
+                        </el-tag> <span>({{scope.row.audit_comment}})</span>
+                    </p>
+                    <el-tag v-if="scope.row.audit_status === 'auditing'">
+                        待审核
+                    </el-tag>
                 </template>
             </el-table-column>
             <el-table-column
                 v-if="userInfo.admin_role"
-                min-width="300"
+                min-width="370"
                 fixed="right"
                 label="操作"
             >

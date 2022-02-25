@@ -58,4 +58,19 @@ public enum PayTypeEnum {
         return result;
     }
 
+    public static int getCodeByValue(String value) {
+        int result = 0;
+        switch (value) {
+            case "后付费":
+                result = PayTypeEnum.POSTPAID.code;
+                break;
+            case "预付费":
+                result = PayTypeEnum.PREPAID.code;
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
 }

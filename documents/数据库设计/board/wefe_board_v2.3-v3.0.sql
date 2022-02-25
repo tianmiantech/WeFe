@@ -413,24 +413,37 @@ CREATE TABLE `fusion_result_export_progress`
 
 DROP TABLE IF EXISTS `verification_code`;
 CREATE TABLE `verification_code` (
-  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
-  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
-  `created_time` datetime(6) NOT NULL COMMENT '创建时间',
-  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
-  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
-  `mobile` varchar(30) NOT NULL COMMENT '手机号',
-  `code` varchar(30) NOT NULL COMMENT '验证码',
-  `success` varchar(10) DEFAULT NULL COMMENT 'true：成功，false：失败',
-  `send_channel` varchar(10) DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
-  `business_type` varchar(30) DEFAULT NULL COMMENT '业务类型，memberRegister：成员注册、accountForgetPassword：账号忘记密码',
-  `resp_content` varchar(500) DEFAULT NULL COMMENT '响应内容',
-  `biz_id` varchar(64) DEFAULT NULL COMMENT '业务ID',
-  PRIMARY KEY (`id`) USING BTREE
+                                     `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+                                     `created_by`    varchar(32)  DEFAULT NULL COMMENT '创建人',
+                                     `created_time`  datetime(6) NOT NULL COMMENT '创建时间',
+                                     `updated_by`    varchar(32)  DEFAULT NULL COMMENT '更新人',
+                                     `updated_time`  datetime(6) DEFAULT NULL COMMENT '更新时间',
+                                     `mobile`        varchar(30) NOT NULL COMMENT '手机号',
+                                     `code`          varchar(30) NOT NULL COMMENT '验证码',
+                                     `success`       varchar(10)  DEFAULT NULL COMMENT 'true：成功，false：失败',
+                                     `send_channel`  varchar(10)  DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
+                                     `business_type` varchar(30)  DEFAULT NULL COMMENT '业务类型，memberRegister：成员注册、accountForgetPassword：账号忘记密码',
+                                     `resp_content`  varchar(500) DEFAULT NULL COMMENT '响应内容',
+                                     `biz_id`        varchar(64)  DEFAULT NULL COMMENT '业务ID',
+                                     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';
 
 
-alter table `account` add column `audit_status` varchar(32) NOT NULL DEFAULT '' COMMENT '审核状态'
-alter table `account` add column `audit_comment` varchar(512) DEFAULT NULL COMMENT '审核意见'
-alter table `account` add column `enable` tinyint(1) NOT NULL COMMENT '是否可用'
-update `account` set enable = 1
-update `account` set audit_status = 'agree'
+alter table `account`
+    add column `audit_status` varchar(32) NOT NULL DEFAULT '' COMMENT '审核状态'
+alter table `account`
+    add column `audit_comment` varchar(512) DEFAULT NULL COMMENT '审核意见'
+alter table `account`
+    add column `enable` tinyint(1) NOT NULL COMMENT '是否可用'
+update `account`
+set enable = 1
+update `account`
+set audit_status = 'agree'
+
+
+-- -------------------------------------
+-- task 表加索引
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `task`
+    ADD INDEX `index_job_id__role`(`job_id`, `role`) USING BTREE;

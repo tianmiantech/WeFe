@@ -198,6 +198,7 @@ public class EmailService extends AbstractService {
         mailProperties.setProperty("mail.smtp.writetimeout", MAIL_SMTP_WRITE_TIMEOUT);
         mailProperties.setProperty("mail.smtp.timeout", MAIL_SMTP_TIMEOUT);
         mailProperties.setProperty("mail.smtp.connectiontimeout", MAIL_SMTP_CONNECTION_TIMEOUT);
+        mailProperties.setProperty("mail.smtp.ssl.enable", "true");
         mailProperties.setProperty("mail.debug", "true");
         javaMailSender.setJavaMailProperties(mailProperties);
 

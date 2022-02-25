@@ -188,6 +188,7 @@
 
                             if (id === item.id) {
                                 item.img_src = url;
+                                item.$label_list = methods.arrayDeduplicate(item.label_list.split(','));
                             }
                             vData.sampleList.push(item);
                             setTimeout(_=> {
@@ -195,6 +196,9 @@
                             }, 200);
                         }
                     });
+                },
+                arrayDeduplicate(arr) {
+                    return [...new Set(arr)];
                 },
                 searchLabeledList(text) {
                     vData.search.label = vData.search.label === text ? '' : text;
