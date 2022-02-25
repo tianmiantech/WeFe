@@ -200,6 +200,7 @@ public abstract class AbstractActuator implements AutoCloseable {
             e.printStackTrace();
             LOG.info("error: ", e);
             this.error = e.getMessage();
+            LOG.info("error message: {}", e.getMessage());
         }
     }
 
