@@ -375,7 +375,8 @@ CREATE TABLE `task`
     UNIQUE KEY `index_unique_task` (`task_id`, `role`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='子任务 task 是 job 的基本构成单元，也是发送到 wefe-flow 被执行的标准对象。';
-
+ALTER TABLE `task`
+    ADD INDEX `index_job_id__role`(`job_id`, `role`) USING BTREE;
 
 -- ----------------------------
 -- Table structure for task_result
