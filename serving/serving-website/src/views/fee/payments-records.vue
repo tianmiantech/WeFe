@@ -75,10 +75,7 @@
                 查询
             </el-button>
 
-            <router-link
-                class="ml10"
-                :to="{name: 'payments-records-add'}"
-            >
+            <router-link :to="{name: 'payments-records-add'}">
                 <el-button>
                     新增
                 </el-button>
@@ -86,11 +83,12 @@
 
 
             <el-button
-                class="ml10"
                 @click="downloadPaymentsRecords"
             >
                 下载
             </el-button>
+
+
         </el-form>
 
         <el-table
@@ -100,14 +98,14 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData />
+                <TableEmptyData/>
             </div>
 
             <el-table-column
                 label="序号"
                 min-width="50"
                 type="index"
-            />
+            ></el-table-column>
 
             <el-table-column
                 label="服务名称"
@@ -116,6 +114,7 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
                     <p class="id">{{ scope.row.service_id }}</p>
+
                 </template>
             </el-table-column>
 
@@ -124,7 +123,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ serviceType[scope.row.service_type] }}</p>
+                    <p>{{ scope.row.service_type }}</p>
                 </template>
             </el-table-column>
 
@@ -143,7 +142,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ payType[scope.row.pay_type] }}</p>
+                    <p>{{ scope.row.pay_type }}</p>
                 </template>
             </el-table-column>
 
@@ -180,17 +179,15 @@
                 min-width="40"
             >
                 <template slot-scope="scope">
-                    <el-tooltip
-                        class="item"
-                        effect="dark"
-                        :content="scope.row.remark"
-                        placement="left-start"
-                    >
+
+                    <el-tooltip class="item" effect="dark" :content="scope.row.remark" placement="left-start">
                         <p v-if="scope.row.remark.length >= 10">{{ scope.row.remark.substring(0, 10) }} ...</p>
                         <p v-if="scope.row.remark.length < 10">{{ scope.row.remark }} </p>
                     </el-tooltip>
                 </template>
             </el-table-column>
+
+
         </el-table>
         <div
             v-if="pagination.total"
@@ -211,39 +208,23 @@
 
 <script>
 import table from '@src/mixins/table.js';
-import { mapGetters } from 'vuex';
+import {mapGetters} from "vuex";
 
 export default {
-    name:   'PaymentsRecords',
+    name: 'payments-records',
     mixins: [table],
     data() {
         return {
             search: {
                 serviceName: '',
-                clientName:  '',
+                clientName: '',
                 serviceType: '',
-                payType:     '',
-                startTime:   '',
-                endTime:     '',
+                payType: '',
+                startTime: '',
+                endTime: '',
             },
-            timeRange:   '',
-            getListApi:  '/paymentsrecords/query-list',
-            serviceType: {
-                1: '两方匿踪查询',
-                2: '两方交集查询',
-                3: '多方安全统计(被查询方)',
-                4: '多方安全统计(查询方)',
-                5: '多方交集查询',
-                6: '多方匿踪查询',
-            },
-            payType: {
-                1: '充值',
-                2: '支出',
-            },
-            status: {
-                1: '正常',
-                2: '冲正',
-            },
+            timeRange: '',
+            getListApi: '/paymentsrecords/query-list',
             serviceTypes: [
                 {
                     name:  '两方匿踪查询',
@@ -271,8 +252,8 @@ export default {
                 },
             ],
             payTypes: [
-                { value: '1', label: '充值' },
-                { value: '2', label: '支出' },
+                {value: '1', label: '充值'},
+                {value: '2', label: '支出'},
             ],
         };
     },
@@ -296,11 +277,11 @@ export default {
 
         timeChange() {
             if (!this.timeRange) {
-                this.search.startTime = '';
-                this.search.endTime = '';
+                this.search.startTime = ''
+                this.search.endTime = ''
             } else {
-                this.search.startTime = this.timeRange[0];
-                this.search.endTime = this.timeRange[1];
+                this.search.startTime = this.timeRange[0]
+                this.search.endTime = this.timeRange[1]
             }
         },
     },
