@@ -2,7 +2,7 @@
 
 
 # export Environment Variables
-#   PYTHONPATH  Python default search path for module files, add Fedvision, PaddleFL, PaddleDetection
+#   PYTHONPATH  Python default search path for module files, PaddleFL, PaddleDetection
 #   PYTHON_EXECUTABLE python executable path, such as python | python3 | venv/bin/python
 
 DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"

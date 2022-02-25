@@ -4,38 +4,27 @@
         shadow="never"
     >
         <el-form :model="form">
-            <el-row :gutter="100">
-                <el-col :span="12">
-                    <el-form-item label="Model Id：">
-                        {{ form.model_id }}
-                    </el-form-item>
+            <el-form-item label="Model Id：">
+                {{ form.model_id }}
+            </el-form-item>
 
-                    <div>
-                        <el-form-item
-                            label="算法类型："
-                        >
-                            <div v-if="form.algorithm === 'LogisticRegression'">
-                                逻辑回归
-                            </div>
-                            <div v-else>
-                                安全决策树
-                            </div>
-                        </el-form-item>
-                        <el-form-item
-                            label="联邦类型："
-                        >
-                            <div v-if="form.fl_type === 'horizontal'">
-                                横向
-                            </div>
-                            <div v-else>
-                                纵向
-                            </div>
-                        </el-form-item>
-                    </div>
-                </el-col>
-            </el-row>
+            <el-form-item label="算法类型：">
+                <div v-if="form.algorithm === 'LogisticRegression'">
+                    逻辑回归
+                </div>
+                <div v-else>
+                    安全决策树
+                </div>
+            </el-form-item>
+            <el-form-item label="联邦类型：">
+                <div v-if="form.fl_type === 'horizontal'">
+                    横向
+                </div>
+                <div v-else>
+                    纵向
+                </div>
+            </el-form-item>
         </el-form>
-
 
         <el-form
             :model="form"

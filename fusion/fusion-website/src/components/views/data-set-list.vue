@@ -3,28 +3,6 @@
         ref="dataSetList"
         class="data-set-list"
     >
-        <div class="flexbox">
-            <!-- <el-alert
-                v-if="containsY === 'true'"
-                :title="containsY === 'true' ? '注意: 发起方只能选择[包含] y 值的数据集' : ''"
-                :closable="false"
-                type="warning"
-            />
-            <slot name="data-add">
-                <div
-                    class="data-add"
-                    :style="containsY != 'true' || containsY !== 'false' ? 'width: 100%;':''"
-                >
-                    <router-link
-                        :to="{ name: 'data-add' }"
-                        target="_blank"
-                    >
-                        添加数据集
-                        <i class="el-icon-right" />
-                    </router-link>
-                </div>
-            </slot> -->
-        </div>
         <el-table
             v-loading="tableLoading"
             max-height="500"
@@ -33,20 +11,17 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
             <el-table-column
                 label="名称 / Id"
                 min-width="200"
             >
                 <template slot-scope="scope">
-                    <div :title="scope.row.description">
-                        {{ scope.row.name }}
-                        <p class="id">{{ scope.row.id }}</p>
-                    </div>
+                    <strong>{{ scope.row.name }}</strong>
+                    <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
-
 
             <el-table-column
                 label="列数"
@@ -56,17 +31,23 @@
                     {{ rowsFormatter(scope.row.rows) }}
                 </template>
             </el-table-column>
+            <el-table-column>
+                <template slot-scope="scope">
+                    <template v-if="scope.row.rows">
+                        <el-tag
+                            v-for="(item, index) in scope.row.rows.split(',')"
+                            :key="index"
+                        >
+                            {{ item }}
+                        </el-tag>
+                    </template>
+                </template>
+            </el-table-column>
             <el-table-column
                 label="数据量"
                 prop="row_count"
                 min-width="80"
             />
-            <el-table-column
-                label="使用次数"
-                prop="used_count"
-                min-width="80"
-            />
-
             <el-table-column
                 label="来源"
                 min-width="120"
@@ -74,22 +55,17 @@
                 <template slot-scope="scope">
                     <p>{{ dataResourceSource[scope.row.data_resource_source] }}</p>
                 </template>
-
             </el-table-column>
 
             <el-table-column
                 label="上传时间"
-                min-width="120"
+                min-width="140"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_time | dateFormat }}
+                    <strong>{{ scope.row.creator_nickname }}</strong>
+                    <p>{{ scope.row.created_time | dateFormat }}</p>
                 </template>
             </el-table-column>
-            <el-table-column
-                label="上传者"
-                prop="created_by"
-                min-width="120"
-            />
             <el-table-column
                 fixed="right"
                 label="选择数据集"
@@ -105,7 +81,7 @@
                             type="info"
                             @click="showDataSetPreview(scope.row)"
                         >
-                            <i class="el-icon-view"/>
+                            <i class="el-icon-view" />
                         </el-button>
                     </el-tooltip>
                     <el-button
@@ -139,7 +115,7 @@
             :visible.sync="show_data_set_preview_dialog"
             append-to-body
         >
-            <DataSetPreview ref="DataSetPreview"/>
+            <DataSetPreview ref="DataSetPreview" />
         </el-dialog>
     </div>
 </template>
@@ -153,12 +129,12 @@ export default {
         DataSetPreview,
     },
     mixins: [table],
-    props: {
+    props:  {
         // api:         Object,
         // containsY:   String,
         // auditStatus: Boolean,
         searchField: {
-            type: Object,
+            type:    Object,
             default: _ => {
             },
         },
@@ -170,11 +146,11 @@ export default {
         return {
             show_data_set_preview_dialog: false,
 
-            tableLoading: false,
+            tableLoading:       false,
             dataResourceSource: {
-                'LocalFile': '本地上传',
-                'UploadFile': '服务器文件上传',
-                'Sql': '数据库上传',
+                'LocalFile':  '服务器文件上传',
+                'UploadFile': '本地上传',
+                'Sql':        '数据库上传',
 
             },
         };

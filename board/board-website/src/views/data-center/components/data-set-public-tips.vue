@@ -19,6 +19,7 @@
 </template>
 
 <script>
+    import { updateMemberInfo } from '@src/router/auth';
     import table from '@src/mixins/table';
 
     export default {
@@ -40,7 +41,7 @@
             };
         },
         async created() {
-            await this.getMemberInfo();
+            this.getMemberInfo();
         },
         methods: {
             async getMemberInfo(){
@@ -50,6 +51,7 @@
 
                 if (code === 0) {
                     this.member = data;
+                    updateMemberInfo(data);
                 }
             },
         },
@@ -62,14 +64,12 @@
         font-size: 12px;
         position: absolute;
         left: 30px;
-        bottom: 20px;
+        right: 30px;
+        bottom:20px;
 
         .tips{
             padding: 5px 0 0 0;
-
-            strong{
-                text-decoration: underline;
-            }
+            strong{text-decoration: underline;}
         }
     }
 

@@ -91,21 +91,23 @@
                     label-width="100px"
                 >
                     <el-form-item label="数据资源名称：">
-                        {{ row.name }}
-                        <el-tag
-                            v-if="row.contains_y"
-                            type="success"
-                        >
-                            y
-                        </el-tag>
-                        <el-icon
-                            v-if="!disabled"
-                            title="移除"
-                            class="el-icon-circle-close f20 ml10"
-                            @click="methods.removeDataSet(index)"
-                        >
-                            <elicon-circle-close />
-                        </el-icon>
+                        <div class="pr30">
+                            {{ row.name }}
+                            <el-tag
+                                v-if="row.contains_y"
+                                type="success"
+                            >
+                                y
+                            </el-tag>
+                            <el-icon
+                                v-if="!disabled"
+                                title="移除"
+                                class="el-icon-circle-close f20"
+                                @click="methods.removeDataSet(index)"
+                            >
+                                <elicon-circle-close />
+                            </el-icon>
+                        </div>
                     </el-form-item>
                     <el-form-item label="数据资源id：">
                         {{ row.data_set_id }}
@@ -125,6 +127,7 @@
                         </template>
                         <el-button
                             v-if="row.$column_name_list.length > 20"
+                            size="small"
                             type="primary"
                             class="check-features"
                             @click="methods.checkFeatures(row)"
@@ -190,13 +193,15 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        <el-button
-                            type="primary"
-                            native-type="submit"
-                            @click="methods.dataSetSearch"
-                        >
-                            搜索
-                        </el-button>
+                        <el-form-item>
+                            <el-button
+                                type="primary"
+                                native-type="submit"
+                                @click="methods.dataSetSearch"
+                            >
+                                搜索
+                            </el-button>
+                        </el-form-item>
                     </el-form>
                     <DataSetList
                         ref="rawDataSetListRef"
@@ -739,6 +744,9 @@
     .el-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
+        position: absolute;
+        top: 2px;
+        right:0;
     }
     .data-set{
         border-top: 1px solid $border-color-base;

@@ -30,5 +30,6 @@ public class StorageConstant {
     public static final String FC_PARTITIONS = "fc_partitions";
     public static final String FC_NAMESPACE = "fc_namespace";
     public static final String FC_NAME = "fc_name";
+    public static final String DST_STORAGE_TYPE = "dst_storage_type";
 
 }

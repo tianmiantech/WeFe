@@ -47,7 +47,7 @@
 
             <div
                 v-if="member.audit_status === 'agree'"
-                class="data-set f14"
+                class="data-set"
             >
                 <el-form
                     v-for="row in member.$data_set_list"
@@ -55,24 +55,26 @@
                     label-width="110px"
                 >
                     <el-form-item label="数据资源名称：">
-                        {{ row.name }}
-                        <el-tag
-                            v-if="row.contains_y"
-                            type="success"
-                        >
-                            y
-                        </el-tag>
-                        <el-icon
-                            v-if="!disabled"
-                            title="移除"
-                            class="el-icon-circle-close f20 ml10"
-                            @click="methods.removeDataSet(index)"
-                        >
-                            <elicon-circle-close />
-                        </el-icon>
+                        <div class="pr30">
+                            {{ row.name }}
+                            <el-tag
+                                v-if="row.contains_y"
+                                type="success"
+                            >
+                                y
+                            </el-tag>
+                            <el-icon
+                                v-if="!disabled"
+                                title="移除"
+                                class="el-icon-circle-close f20"
+                                @click="methods.removeDataSet(index)"
+                            >
+                                <elicon-circle-close />
+                            </el-icon>
+                        </div>
                     </el-form-item>
                     <el-form-item label="数据资源id：">
-                        {{ row.data_resource_id || row.data_set_id }}
+                        {{ row.data_set_id }}
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
                         {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
@@ -106,6 +108,7 @@
                         <el-button
                             v-if="row.$column_name_list.length > 20"
                             type="primary"
+                            size="small"
                             class="check-features"
                             @click="methods.checkFeatures(row)"
                         >
@@ -175,7 +178,7 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox el-checkbox--small"
+                                class="el-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
                                 <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
@@ -255,13 +258,15 @@
                                 />
                             </el-select>
                         </el-form-item>
-                        <el-button
-                            type="primary"
-                            native-type="submit"
-                            @click="methods.dataSetSearch"
-                        >
-                            搜索
-                        </el-button>
+                        <el-form-item>
+                            <el-button
+                                type="primary"
+                                native-type="submit"
+                                @click="methods.dataSetSearch"
+                            >
+                                搜索
+                            </el-button>
+                        </el-form-item>
                     </el-form>
                     <DataSetList
                         ref="rawDataSetListRef"
@@ -503,7 +508,7 @@
                     const list = [];
 
                     allList.forEach(row => {
-                        if(row.name.includes(name) && row.data_set_id.includes(data_set_id)) {
+                        if(row.data_resource.name.includes(name) && row.data_resource.data_resource_id.includes(data_set_id)) {
                             if(contains_y === '' || row.contains_y === contains_y) {
                                 list.push(row);
                             }
@@ -538,6 +543,7 @@
                         ref.searchField.data_resource_type = 'TableDataSet';
 
                         ref.getDataList({
+                            $data_set:       member.$data_set_list,
                             url:             '/project/raw_data_set/list',
                             to:              false,
                             resetPagination: true,
@@ -633,9 +639,9 @@
                         const dataset_list = currentMember.$data_set_list[0];
                         const features = item.data_resource.feature_name_list && item.data_resource.feature_name_list.split(',') ? item.data_resource.feature_name_list.split(',') : [];
 
-                        item.data_resource.data_resource_id = item.data_set_id;
                         const dataset = {
                             ...item.data_resource,
+                            data_set_id:       item.data_resource.data_resource_id,
                             column_name_list:  features,
                             $column_name_list: features,
                         };
@@ -837,14 +843,16 @@
         font-size: 16px;
     }
     .revert-check-btn{
-        vertical-align: middle;
         position: relative;
-        top: -3px;
+        top: -4px;
     }
     .dialog-min-width{min-width: 800px;}
     .el-icon-circle-close{
         cursor: pointer;
         color:$--color-danger;
+        position: absolute;
+        top: 2px;
+        right:0;
     }
     .data-set{
         border-top: 1px solid $border-color-base;
@@ -863,6 +871,7 @@
                 line-height: 24px;
             }
             .el-form-item__content{
+                font-size: 12px;
                 line-height: 22px;
                 word-break:break-all;
             }

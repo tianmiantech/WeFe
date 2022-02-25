@@ -47,7 +47,7 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
 
         self._stop_event = asyncio.Event()
 
-        self._max_delay = 600
+        self._max_delay = 300
 
         self._fl_server_watcher = FLServerWatched(
             main_program=main_program, startup_program=startup_program
@@ -64,15 +64,15 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
         # start server
         await self._fl_server_watcher.start()
 
-        async def _healthy_watcher():
-            while True:
-                await asyncio.sleep(self._max_delay)
-                if not self._inited_workers:
-                    self._stop_event.set()
-                    logging.debug(f"no workers init")
-                    break
-
-        asyncio.create_task(_healthy_watcher())
+        # async def _healthy_watcher():
+        #     while True:
+        #         await asyncio.sleep(self._max_delay)
+        #         if len(self._inited_workers) == 0:
+        #             self._stop_event.set()
+        #             logging.debug(f"no workers init")
+        #             break
+        #
+        # asyncio.create_task(_healthy_watcher())
 
     async def stop(self):
         logging.info(f"stopping gRPC server gracefully")
@@ -104,7 +104,7 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
     def _check_finish_status(self):
         if len(self._candidate) == 0:
             logging.debug(f"all worker done, {self._current_step}/{self._max_iter}")
-            if self._max_iter == self._current_step + 1:
+            if self._max_iter == self._current_step:
                 self._stop_event.set()
                 return
 
@@ -125,8 +125,6 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
 
     async def WorkerJoin(self, request, context):
         logging.debug(f"worker joining: {request.name}")
-        self._current_step = request.step
-
         if request.name not in self._inited_workers:
             return scheduler_pb2.WorkerJoin.REP(status=scheduler_pb2.WorkerJoin.REJECT)
         await self._ready.wait()

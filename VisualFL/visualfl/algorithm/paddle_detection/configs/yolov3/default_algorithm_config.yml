@@ -121,9 +121,25 @@ EvalReader:
     with_background: false
 
 TestReader:
-  batch_size: 1
+  inputs_def:
+    image_shape: [3, 608, 608]
+    fields: ['image', 'im_size', 'im_id']
   dataset:
     !ImageFolder
-    anno_path: fruit/label_list.txt
-    use_default_label: false
-    with_background: false
+      anno_path: annotations/instances_val2017.json
+      with_background: false
+  sample_transforms:
+    - !DecodeImage
+      to_rgb: True
+    - !ResizeImage
+      target_size: 608
+      interp: 2
+    - !NormalizeImage
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+      is_scale: True
+      is_channel_first: false
+    - !Permute
+      to_bgr: false
+      channel_first: True
+  batch_size: 1

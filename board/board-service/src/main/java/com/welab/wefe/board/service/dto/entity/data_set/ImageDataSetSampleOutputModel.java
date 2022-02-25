@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.dto.entity.data_set;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.StringUtil;
 
 /**
  * @author zane
@@ -39,6 +40,11 @@ public class ImageDataSetSampleOutputModel extends AbstractOutputModel {
     private boolean labeled;
     @Check(name = "json 形式的标注信息")
     private JSONObject labelInfo;
+
+    public String getLabelList() {
+        // 移除前后的逗号，不然前端会报错。
+        return StringUtil.trim(labelList, ',');
+    }
 
     // region getter/setter
 
@@ -72,10 +78,6 @@ public class ImageDataSetSampleOutputModel extends AbstractOutputModel {
 
     public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
-    }
-
-    public String getLabelList() {
-        return labelList;
     }
 
     public void setLabelList(String labelList) {

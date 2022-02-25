@@ -128,7 +128,7 @@
                     :options="file_upload_options"
                     @file-complete="fileUploadComplete"
                 >
-                    <uploader-unsupport/>
+                    <uploader-unsupport />
                     <uploader-drop>
                         <p class="mb10">将文件（.csv .xls .xlsx）拖到此处</p>
                         或
@@ -152,24 +152,30 @@
                             </li>
                         </ul>
                     </div>
-                    <uploader-list/>
+                    <uploader-list />
                 </uploader>
             </fieldset>
 
-            <el-form class="inline-form m20">
-                <el-form-item
-                    v-if="metadata_pagination.list.length > 0"
-                    label="设置主键："
-                    label-width="100px"
-                    required
-                >
+            <el-form class="m20">
+                <div v-if="metadata_pagination.list.length">
+                    <el-form-item required>
+                        <template slot="label">
+                            设置融合主键hash方式：
+                            <el-alert type="info">
+                                *  设置的融合主键是标明样本的对齐字段<br>
+                                *  设置的融合主键不宜过长，主键的hash处理后的长度越长对齐耗时越多<br>
+                                *  如需多个样本标识，建议字段拼接后用一种hash方式处理(例：MD5(account+cnid))
+                            </el-alert>
+                        </template>
+                    </el-form-item>
                     <el-button
+                        class="mt10 mb10"
                         :disabled="fieldInfoList.length > 4"
                         @click="addFieldInfo"
                     >
                         + 添加
                     </el-button>
-                </el-form-item>
+                </div>
 
                 <div
                     v-for="(item, index) in fieldInfoList"
@@ -227,11 +233,11 @@
                 </div>
 
                 <el-button
+                    v-loading="saveLoading"
                     class="save-btn mt20"
+                    :disabled="!keyRes"
                     type="primary"
                     size="large"
-                    :disabled="!keyRes"
-                    :loading="saveLoading"
                     @click="add"
                 >
                     生成
@@ -346,7 +352,7 @@
 
 <script>
 import progressBar from '../components/progressBar';
-import {mapGetters} from "vuex";
+import { mapGetters } from 'vuex';
 
 export default {
     components: {
@@ -354,19 +360,19 @@ export default {
     },
     data() {
         return {
-            loading: false,
+            loading:                 false,
             // ui status
-            tagInputVisible: false,
-            tagInputValue: '',
-            options_tags: [],
+            tagInputVisible:         false,
+            tagInputValue:           '',
+            options_tags:            [],
             public_member_info_list: [],
             // preview
-            raw_data_list: [],
-            metadata_list: [],
-            filter_header: [],
-            data_type_options: ['Integer', 'Long', 'Double', 'Enum', 'String'],
+            raw_data_list:           [],
+            metadata_list:           [],
+            filter_header:           [],
+            data_type_options:       ['Integer', 'Long', 'Double', 'Enum', 'String'],
             // help: https://github.com/simple-uploader/Uploader/blob/develop/README_zh-CN.md#%E5%A4%84%E7%90%86-get-%E6%88%96%E8%80%85-test-%E8%AF%B7%E6%B1%82
-            file_upload_options: {
+            file_upload_options:     {
                 target: window.api.baseUrl + '/file/upload',
 
                 headers: {
@@ -374,93 +380,93 @@ export default {
                 },
                 singleFile: true,
 
-                testChunks: true,
-                chunkSize: 8 * 1024 * 1024,
+                testChunks:          true,
+                chunkSize:           8 * 1024 * 1024,
                 simultaneousUploads: 4,
             },
             file_upload_attrs: {
                 accept: '.csv,.xls,.xlsx',
             },
             http_upload_filename: '',
-            local_filename: '',
+            local_filename:       '',
             // model
-            form: {
-                publicLevel: 'Public',
-                name: '',
-                description: '',
+            form:                 {
+                publicLevel:        'Public',
+                name:               '',
+                description:        '',
                 public_member_list: [],
-                filename: '',
+                filename:           '',
                 dataResourceSource: 'UploadFile',
-                metadata_list: [],
-                deduplication: false,
-                row_list: [],
-                fieldInfoList: [],
+                metadata_list:      [],
+                deduplication:      false,
+                row_list:           [],
+                fieldInfoList:      [],
             },
             metadata_pagination: {
-                list: [],
-                total: 0,
-                page_size: 20,
+                list:       [],
+                total:      0,
+                page_size:  20,
                 page_index: 1,
             },
             gridTheme: {
-                color: '#6C757D',
+                color:       '#6C757D',
                 borderColor: '#EBEEF5',
             },
             data_preview_finished: false,
-            gridHeight: 0,
-            search: {
+            gridHeight:            0,
+            search:                {
                 database_name: '',
-                tag: '',
-                source_type: '',
+                tag:           '',
+                source_type:   '',
             },
             data_source_list: [],
-            data_source_id: '',
-            row_list: [],
-            fieldInfoList: [],
-            optionsList: [{
-                name: 'md5',
+            data_source_id:   '',
+            row_list:         [],
+            fieldInfoList:    [],
+            optionsList:      [{
+                name:  'md5',
                 value: 'MD5',
             },
                 {
-                    name: 'sha',
+                    name:  'sha',
                     value: 'SHA1',
                 },
                 {
-                    name: '不处理',
+                    name:  '不处理',
                     value: 'NONE',
                 }],
 
             dataSource: {
-                loading: false,
-                show: false,
-                name: '',
-                host: '',
-                port: '',
-                databaseName: '',
-                userName: '',
-                password: '',
-                databaseType: 'MySql',
-                databaseTypes: ['MySql', 'Hive', 'Impala'],
+                loading:        false,
+                show:           false,
+                name:           '',
+                host:           '',
+                port:           '',
+                databaseName:   '',
+                userName:       '',
+                password:       '',
+                databaseType:   'MySql',
+                databaseTypes:  ['MySql', 'Hive', 'Impala'],
                 dataSourceList: [],
-                dataset: [],
+                dataset:        [],
             },
 
             // dataResource
             dataResource: {
-                visible: false,
-                editor: false,
-                id: '',
-                name: '',
-                type: '',
+                visible:     false,
+                editor:      false,
+                id:          '',
+                name:        '',
+                type:        '',
                 description: '',
-                rows: '',
+                rows:        '',
             },
-            keyRes: '',
-            isuploadok: false,
+            keyRes:      '',
+            isuploadok:  false,
             saveLoading: false,
-            timer: null,
+            timer:       null,
             processData: {
-                text: '正在存储过滤器...',
+                text:       '正在存储过滤器...',
                 percentage: 0,
             },
         };
@@ -480,7 +486,7 @@ export default {
     },
     async created() {
 
-        this.file_upload_options.headers.token = this.userInfo.token
+        this.file_upload_options.headers.token = this.userInfo.token;
         this.getDataSources();
     },
 
@@ -490,7 +496,7 @@ export default {
 
     methods: {
         async getDataSources() {
-            const {code, data} = await this.$http.get('/data_source/query');
+            const { code, data } = await this.$http.get('/data_source/query');
 
             if (code === 0) {
                 this.data_source_list = data.list;
@@ -499,16 +505,16 @@ export default {
         // test db connect
         async pingTest() {
             this.dataSource.loading = true;
-            const {code} = await this.$http.post({
-                url: '/data_source/test_db_connect',
+            const { code } = await this.$http.post({
+                url:  '/data_source/test_db_connect',
                 data: {
                     databaseType: this.dataSource.databaseType,
                     databaseName: this.dataSource.databaseName,
-                    userName: this.dataSource.userName,
-                    password: this.dataSource.password,
-                    name: this.dataSource.name,
-                    host: this.dataSource.host,
-                    port: this.dataSource.port,
+                    userName:     this.dataSource.userName,
+                    password:     this.dataSource.password,
+                    name:         this.dataSource.name,
+                    host:         this.dataSource.host,
+                    port:         this.dataSource.port,
                 },
             });
 
@@ -521,16 +527,16 @@ export default {
         // add data source
         async addDatabaseType() {
             this.dataSource.loading = true;
-            const {code} = await this.$http.post({
-                url: '/data_source/add',
+            const { code } = await this.$http.post({
+                url:  '/data_source/add',
                 data: {
                     databaseType: this.dataSource.databaseType,
                     databaseName: this.dataSource.databaseName,
-                    userName: this.dataSource.userName,
-                    password: this.dataSource.password,
-                    name: this.dataSource.name,
-                    host: this.dataSource.host,
-                    port: this.dataSource.port,
+                    userName:     this.dataSource.userName,
+                    password:     this.dataSource.password,
+                    name:         this.dataSource.name,
+                    host:         this.dataSource.host,
+                    port:         this.dataSource.port,
                 },
             });
 
@@ -543,7 +549,7 @@ export default {
         },
 
         metadataPageChange(val) {
-            const {page_size} = this.metadata_pagination;
+            const { page_size } = this.metadata_pagination;
 
             this.metadata_pagination.page_index = val;
             this.metadata_pagination.list = [];
@@ -574,10 +580,10 @@ export default {
 
             this.form.filename = this.form.dataResourceSource === 'UploadFile' ? this.http_upload_filename : this.local_filename;
 
-            const {code, data} = await this.$http.get({
-                url: '/filter/preview',
+            const { code, data } = await this.$http.get({
+                url:    '/filter/preview',
                 params: {
-                    filename: this.form.filename,
+                    filename:           this.form.filename,
                     id,
                     dataResourceSource: this.form.dataResourceSource,
                 },
@@ -616,13 +622,13 @@ export default {
 
             this.form.filename = this.form.dataResourceSource === 'UploadFile' ? this.http_upload_filename : this.local_filename;
 
-            const {code, data} = await this.$http.get({
-                url: '/filter/preview',
+            const { code, data } = await this.$http.get({
+                url:    '/filter/preview',
                 params: {
-                    filename: this.form.filename,
+                    filename:           this.form.filename,
                     dataResourceSource: this.form.dataResourceSource,
-                    sql: this.form.sql,
-                    id: this.form.data_source_id,
+                    sql:                this.form.sql,
+                    id:                 this.form.data_source_id,
                 },
             });
 
@@ -657,10 +663,10 @@ export default {
             this.loading = true;
             this.data_preview_finished = false;
             const file = arguments[0].file;
-            const {code, data} = await this.$http.get({
-                url: '/file/merge',
+            const { code, data } = await this.$http.get({
+                url:    '/file/merge',
                 params: {
-                    filename: file.name,
+                    filename:         file.name,
                     uniqueIdentifier: arguments[0].uniqueIdentifier,
                 },
             })
@@ -699,6 +705,7 @@ export default {
             });
         },
         async add() {
+            if(this.saveLoading) return;
             if (!this.form.name) {
                 this.$message.error('请输入过滤器名称！');
                 return;
@@ -731,14 +738,16 @@ export default {
             this.form.fieldInfoList = this.fieldInfoList;
 
             // this.form.rows
-            let temp_row = []
+            const temp_row = [];
+
             for (let i = 0; i < this.fieldInfoList.length; i++) {
-                let col_arr = this.fieldInfoList[i].column_arr
+                const col_arr = this.fieldInfoList[i].column_arr;
+
                 for (let j = 0; j < col_arr.length; j++) {
-                    temp_row.push(col_arr[j])
+                    temp_row.push(col_arr[j]);
                 }
             }
-            this.form.rows = Array.from(new Set(temp_row))
+            this.form.rows = Array.from(new Set(temp_row));
             // console.log(this.form.rows)
 
             if ((!this.form.fieldInfoList.length || !this.form.fieldInfoList[0].column_arr.length || !this.form.fieldInfoList[0].options) && (this.form.dataResourceSource === 'UploadFile' || this.form.dataResourceSource === 'LocalFile')) {
@@ -752,12 +761,13 @@ export default {
 
             this.saveLoading = true;
             if (this.form.dataResourceSource !== 'LocalFile') this.getDataSetStatus();
-            const {code, data} = await this.$http.post({
-                url: '/filter/add',
+            const { code, data } = await this.$http.post({
+                url:     '/filter/add',
                 timeout: 1000 * 60 * 24 * 30,
-                data: this.form,
+                data:    this.form,
             });
 
+            this.saveLoading = false;
             if (code === 0) {
                 if (data.repeat_data_count > 0) {
                     this.$message.success(`保存成功，过滤器包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
@@ -766,8 +776,6 @@ export default {
                 }
             } else if (code === 10017) {
                 this.dataSource.show = false;
-            } else {
-                this.saveLoading = false;
             }
             this.loading = false;
         },
@@ -775,9 +783,9 @@ export default {
         async getDataSetStatus(data_set_id) {
             this.$refs['progressRef'].showDialog();
             if (data_set_id) {
-                const {code, data} = await this.$http.post({
-                    url: '/filter/get_state',
-                    data: {bloom_filter_id: data_set_id},
+                const { code, data } = await this.$http.post({
+                    url:  '/filter/get_state',
+                    data: { bloom_filter_id: data_set_id },
                 });
 
                 if (code === 0) {
@@ -805,8 +813,8 @@ export default {
         async getDataSetTags(keyword, cb) {
             this.options_tags = [];
             if (keyword) {
-                const {code, data} = await this.$http.post({
-                    url: '/filter/tags',
+                const { code, data } = await this.$http.post({
+                    url:  '/filter/tags',
                     data: {
                         tag: keyword,
                     },
@@ -814,7 +822,7 @@ export default {
 
                 if (code === 0) {
                     for (const key in data) {
-                        this.options_tags.push({value: key, label: key});
+                        this.options_tags.push({ value: key, label: key });
                     }
                 }
             }
@@ -832,11 +840,11 @@ export default {
 
 
             const fieldInfo = {
-                column_arr: '',
-                columns: '',
-                options: '',
+                column_arr:  '',
+                columns:     '',
+                options:     '',
                 frist_index: '',
-                end_index: '',
+                end_index:   '',
             };
 
             this.fieldInfoList.push(fieldInfo);

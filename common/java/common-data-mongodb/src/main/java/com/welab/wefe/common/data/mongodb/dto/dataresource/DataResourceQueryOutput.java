@@ -39,6 +39,7 @@ public class DataResourceQueryOutput {
     private String usageCountInProject;
     private String usageCountInMember;
     private String enable;
+    private int status;
     private DataResourceType dataResourceType;
     private String createdTime;
     private String updatedTime;
@@ -205,5 +206,13 @@ public class DataResourceQueryOutput {
 
     public void setMemberName(String memberName) {
         this.memberName = memberName;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

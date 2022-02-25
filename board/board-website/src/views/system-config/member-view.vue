@@ -104,7 +104,7 @@
                         style="padding-left: 100px;"
                     >
                         <p class="mb10">名片预览：</p>
-                        <MemberCard />
+                        <MemberCard :realNameAuth="enterpriseAuth === 2" />
 
                         <div v-if="enterpriseAuth !== ''" class="mt40">
                             <el-form-item label="企业实名认证：">
@@ -155,6 +155,11 @@
                                     {{ enterpriseAuth === 0 ? '去认证' : '重新认证' }}
                                 </router-link>
                             </el-form-item>
+                            <p
+                                v-if="enterpriseAuth === 2 && real_name_auth_useful_life"
+                                class="color-danger f13"
+                                style="margin-top:-10px;"
+                            ><strong>认证有效期：{{ real_name_auth_useful_life }}</strong></p>
                         </div>
                     </el-col>
                 </el-row>
@@ -253,11 +258,7 @@
 
                     const info = Object.assign({
                         ...this.userInfo,
-                    }, {
-                        member_logo:  data.member_logo,
-                        member_name:  this.form.member_name,
-                        member_email: this.form.member_email,
-                    });
+                    }, this.form);
 
                     this.$store.commit('UPDATE_USERINFO', info);
 
@@ -284,6 +285,7 @@
                 if(code === 0) {
                     this.enterpriseAuth = data.real_name_auth_status;
                     this.audit_comment = data.audit_comment;
+                    this.real_name_auth_useful_life = data.real_name_auth_useful_life;
                 }
             },
 

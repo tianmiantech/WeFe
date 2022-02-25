@@ -605,21 +605,9 @@ public class DateUtil {
         return dateFlag;
     }
 
-    public static String addYears(String dateStr, int y) {
-        if (StringUtil.isEmpty(dateStr)) {
-            return dateStr;
-        }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-        try {
-            Date data = sdf.parse(dateStr);
-            Calendar ca = Calendar.getInstance();
-            ca.setTime(data);
-            ca.add(Calendar.YEAR, y);
-            return sdf.format(ca.getTime());
-        } catch (Throwable e) {
-            LOG.info(e.getMessage(), e);
-        }
-        return null;
+    public static Date addYears(Date date, long years) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        return Date.from(localDateTime.plusYears(years).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**

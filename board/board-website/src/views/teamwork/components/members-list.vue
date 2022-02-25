@@ -187,6 +187,7 @@
                         <template v-slot="scope">
                             <el-tooltip
                                 v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id"
+                                :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                 content="预览数据"
                                 placement="top"
                             >
@@ -194,6 +195,7 @@
                                     circle
                                     type="info"
                                     class="dataset-preview mr5"
+                                    :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                     @click="showDataSetPreview(scope.row)"
                                 >
                                     <el-icon>
@@ -383,7 +385,7 @@
                 memberTabName:       '',
                 batchDataSetList:    [],
                 sourceTypeMap:       {
-                    TableDataSet: 'TableDataSet',
+                    TableDataSet: '数据集',
                     ImageDataSet: 'ImageDataSet',
                     BloomFilter:  '布隆过滤器',
                 },

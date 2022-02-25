@@ -144,18 +144,14 @@
                         },
                     });
 
-                    if (code === 0 && data) {
-                        const { params } = data;
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        vData.members.forEach(member => {
+                            const item = data.params.members.find(item => item.member_id === member.member_id && item.member_role === member.member_role);
 
-                        if(params) {
-                            vData.members.forEach(member => {
-                                const item = params.members.find(item => item.member_id === member.member_id && item.member_role === member.member_role);
-
-                                if(item) {
-                                    member.filter_rules = item.filter_rules || '';
-                                }
-                            });
-                        }
+                            if(item) {
+                                member.filter_rules = item.filter_rules || '';
+                            }
+                        });
                         vData.inited = true;
                     }
                 },

@@ -16,6 +16,7 @@
 
 package com.welab.wefe.mpc.pir.server.flow;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author eval
@@ -56,15 +58,32 @@ public class PrivateInformationRetrievalFlowServer extends BasePrivateInformatio
     }
 
     public void process(List<Object> ids, String idCryptMethod) {
-        LOG.info("uuid:{} start process data size:{}", uuid, ids.size());
+        int num = ids.size();
+        LOG.info("uuid:{} start process data size:{}", uuid, num);
         CacheOperation<Map<String, String>> queryDataResult = CacheOperationFactory.getCacheOperation();
-        CompletableFuture<Map<String, String>> cf = CompletableFuture.supplyAsync(() -> queryDataResult.get(uuid, Constants.RESULT));
-        List<ObliviousTransferKey> keyList = mObliviousTransfer.keyDerivation(ids.size());
+        CompletableFuture<Map<String, String>> cf = CompletableFuture.supplyAsync(
+                () -> {
+                    Map<String, String> result = queryDataResult.get(uuid, Constants.RESULT);
+                    while (ObjectUtil.isNull(result)) {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(5);
+                        } catch (InterruptedException e) {
+                            LOG.error(e.getMessage(), e);
+                        }
+                        result = queryDataResult.get(uuid, Constants.RESULT);
+                    }
+                    LOG.info("get result finish");
+                    return result;
+                });
+        CompletableFuture<List<ObliviousTransferKey>> keyFuture = CompletableFuture.supplyAsync(
+                () -> mObliviousTransfer.keyDerivation(num));
         LOG.info("uuid:{} keyDerivation finish", uuid);
-        cf.join();
+        CompletableFuture.allOf(cf, keyFuture).join();
         Map<String, String> results = null;
+        List<ObliviousTransferKey> keyList = null;
         try {
             results = cf.get();
+            keyList = keyFuture.get();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

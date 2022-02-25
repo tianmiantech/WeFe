@@ -118,12 +118,6 @@
                             min-width="80"
                         />
                         <el-table-column
-                            label="使用次数"
-                            prop="used_count"
-                            min-width="80"
-                        />
-
-                        <el-table-column
                             label="上传时间"
                             min-width="120"
                         >
@@ -166,7 +160,7 @@
                         >
                             <template slot-scope="scope">
                                 <div :title="scope.row.description">
-                                    {{ scope.row.name }}
+                                    <strong>{{ scope.row.name }}</strong>
                                     <p class="id">{{ scope.row.id }}</p>
                                 </div>
                             </template>
@@ -186,51 +180,30 @@
                             prop="row_count"
                             min-width="80"
                         />
-                        <el-table-column
-                            label="使用次数"
-                            prop="used_count"
-                            min-width="80"
-                        />
-
-
-                        <!-- <el-table-column
-                                    fixed="right"
-                                    label="操作"
-                                    width="140px"
-                                >
-                                    <template slot-scope="scope">
-                                        <el-tooltip
-                                            content="预览数据"
-                                            placement="top"
-                                        >
-                                            <el-button
-                                                circle
-                                                type="info"
-                                                @click="showBloomFilterPreview(scope.row)"
-                                            >
-                                                <i class="el-icon-view" />
-                                            </el-button>
-                                        </el-tooltip>
-                                    </template>
-                                </el-table-column> -->
                     </el-table>
-
 
                     <ul class="members mb30">
                         <li class="mt20">
-                            <el-form-item
-                                v-if="task.data_resource_type === 'DataSet' && dataSetList.length"
-                                label="设置主键："
-                                label-width="100px"
-                                required
-                            >
+                            <template v-if="task.data_resource_type === 'DataSet' && dataSetList.length">
+                                <el-form-item>
+                                    <template slot="label">
+                                        <span style="color: #F85564;">* </span>设置融合主键hash方式：
+                                    </template>
+                                </el-form-item>
+                                <el-alert type="info">
+                                    *  设置的融合主键是标明样本的对齐字段<br>
+                                    *  设置的融合主键不宜过长，主键的hash处理后的长度越长对齐耗时越多<br>
+                                    *  如需多个样本标识，建议字段拼接后用一种hash方式处理(例：MD5(account+cnid))<br>
+                                    *  设置的融合主键需要和合作方的过滤器的融合主键处理方式一致
+                                </el-alert>
                                 <el-button
+                                    class="mt10 mb10"
                                     :disabled="fieldInfoList.length > 4"
                                     @click="addFieldInfo"
                                 >
                                     +  添加主键
                                 </el-button>
-                            </el-form-item>
+                            </template>
 
                             <div
                                 v-for="(item, index) in fieldInfoList"
@@ -539,7 +512,7 @@
                 }
             },
 
-            async addTask () {
+            async addTask (event) {
                 this.loading = true;
                 this.fieldInfoList.forEach((item, index) => {
                     item.columns=item.column_arr.join(',');
@@ -557,6 +530,9 @@
                         description:        this.task.description,
                         is_trace:           this.task.is_trace,
                         trace_column:       this.task.trace_column,
+                    },
+                    btnState: {
+                        target: event,
                     },
                 });
 

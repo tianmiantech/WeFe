@@ -51,7 +51,7 @@
                 <span class="p-id">{{ scope.row.data_resource_id }}</span>
             </template>
         </el-table-column>
-        <el-table-column label="关键词">
+        <el-table-column label="关键词" min-width="140">
             <template v-slot="scope">
                 <template
                     v-for="(item, index) in scope.row.tags.split(',')"
@@ -180,7 +180,7 @@
                     TableDataSet: 'csv',
                 },
                 sourceTypeMap: {
-                    TableDataSet: 'TableDataSet',
+                    TableDataSet: '数据集',
                     ImageDataSet: 'ImageDataSet',
                     BloomFilter:  '布隆过滤器',
                 },

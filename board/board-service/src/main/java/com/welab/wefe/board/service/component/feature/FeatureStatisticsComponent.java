@@ -180,10 +180,7 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
         if ("local".equals(params.getWorkMode())) {
             params.getMembers().forEach(x -> {
                 if (x.getMemberId().equals(CacheObjects.getMemberId())) {
-                    Member member = new Member();
-                    member.setMemberId(x.getMemberId());
-                    member.setMemberName(x.getMemberName());
-                    member.setMemberRole(x.getMemberRole());
+                    Member member = Member.forMachineLearning(x.getMemberId(), x.getMemberRole());
                     members.add(member);
                 }
             });

@@ -60,19 +60,18 @@ public class HorzStatisticComponent extends AbstractComponent<HorzStatisticCompo
         return true;
     }
     
-    @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-            Params params) throws FlowNodeException {
-        JSONObject taskParam = new JSONObject();
-        List<MemberFeatureInfoModel> members = params.members;
-        for (MemberFeatureInfoModel member : members) {
-            if (CacheObjects.getMemberId().equals(member.getMemberId())) {
-                List<String> features = member.features;
-                taskParam.put("params", JObject.create("col_names", features));
-            }
-        }
-        return taskParam;
-    }
+	@Override
+	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+			Params params) throws FlowNodeException {
+		List<MemberFeatureInfoModel> members = params.members;
+		for (MemberFeatureInfoModel member : members) {
+			if (CacheObjects.getMemberId().equals(member.getMemberId())) {
+				List<String> features = member.features;
+				return JObject.create("col_names", features);
+			}
+		}
+		return JObject.create();
+	}
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {

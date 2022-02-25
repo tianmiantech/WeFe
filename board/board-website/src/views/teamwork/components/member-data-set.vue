@@ -374,7 +374,8 @@
                             </template>
                         </template>
                         <el-tooltip
-                            v-if="scope.row.member_id === userInfo.member_id && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
+                            v-if="scope.row.member_id === userInfo.member_id && scope.row.data_resource_type === 'TableDataSet' && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
+                            :disabled="scope.row.data_resource_type === 'BloomFilter'"
                             content="预览数据"
                             placement="top"
                         >
@@ -382,6 +383,7 @@
                                 circle
                                 type="info"
                                 class="dataset-preview"
+                                :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                 @click="methods.showDataSetPreview(scope.row)"
                             >
                                 <el-icon>
@@ -516,7 +518,7 @@
                 memberAuditComments: [],
                 batchDataSetList:    [],
                 sourceTypeMap:       {
-                    TableDataSet: 'TableDataSet',
+                    TableDataSet: '数据集',
                     ImageDataSet: 'ImageDataSet',
                     BloomFilter:  '布隆过滤器',
                 },

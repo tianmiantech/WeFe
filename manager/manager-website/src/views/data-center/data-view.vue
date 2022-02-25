@@ -1,6 +1,6 @@
 <template>
     <el-card v-loading="loading">
-        <h4 class="mb10">数据集简介</h4>
+        <h4 class="mb10">资源简介</h4>
         <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
         <el-descriptions class="dataset-desc" :column="2">
             <template #extra>
@@ -32,9 +32,29 @@
                     {{ (dataInfo.y_positive_example_ratio * 100).toFixed(1) }}%
                 </el-descriptions-item>
             </template>
-            <el-descriptions-item label="样本量/特征量：">
-                {{ dataInfo.row_count }} / {{ dataInfo.feature_count }}
+            <el-descriptions-item v-if="dataInfo.data_resource_type === 'TableDataSet'" label="样本量/特征量：">
+                {{ dataInfo.total_data_count }} / {{ dataInfo.extra_data.feature_count }}
             </el-descriptions-item>
+            <template v-if="dataInfo.data_resource_type === 'ImageDataSet'">
+                <el-descriptions-item label="样本量/已标注：">
+                    {{ dataInfo.total_data_count }}/{{dataInfo.extra_data.labeled_count}}
+                </el-descriptions-item>
+                <el-descriptions-item v-if="dataInfo.label_list" label="标签个数：">
+                    {{ dataInfo.extra_data.label_list.split(',').length }}
+                </el-descriptions-item>
+                <el-descriptions-item label="标注状态：">
+                    {{ completedStatus(dataInfo.extra_data.label_completed) }}
+                </el-descriptions-item>
+                <el-descriptions-item label="样本分类：">
+                    {{ dataInfo.extra_data.for_job_type === 'detection' ? '目标检测' : dataInfo.extra_data.for_job_type === 'classify' ? '图像分类' : '-' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="数据大小：">
+                    {{ dataInfo.extra_data.files_size ? (dataInfo.extra_data.files_size / 1024 /1024).toFixed(2) : 0 }}M
+                </el-descriptions-item>
+                <el-descriptions-item label="标注进度：">
+                    {{dataInfo.extra_data.labeled_count}} ({{ ((dataInfo.extra_data.labeled_count / dataInfo.total_data_count)*100).toFixed(2) }}%)
+                </el-descriptions-item>
+            </template>
         </el-descriptions>
 
         <el-divider></el-divider>
@@ -61,6 +81,13 @@
                 data_list: [],
             };
         },
+        computed: {
+            completedStatus(val) {
+                return function(val) {
+                    return val ? '标注完成' : '进行中';
+                };
+            },
+        },
         created() {
             this.getData();
         },
@@ -68,21 +95,24 @@
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    '/data_set/detail',
+                    url:    '/data_resource/detail',
                     params: {
-                        id: this.$route.query.id,
+                        dataResourceId:   this.$route.query.dataResourceId,
+                        dataResourceType: this.$route.query.dataResourceType,
                     },
                 });
 
                 if(code === 0 && data) {
                     this.dataInfo = data;
 
-                    this.data_list = data.feature_name_list.split(',').map((name, index) => {
-                        return {
-                            序号:   String(index),
-                            特征名称: name,
-                        };
-                    });
+                    if (data.data_resource_type === 'TableDataSet') {
+                        this.data_list = data.extra_data.feature_name_list.split(',').map((name, index) => {
+                            return {
+                                序号:   String(index),
+                                特征名称: name,
+                            };
+                        });
+                    }
                     this.$nextTick(_ => {
                         const featuresRef = this.$refs['DataSetFeatures'];
 

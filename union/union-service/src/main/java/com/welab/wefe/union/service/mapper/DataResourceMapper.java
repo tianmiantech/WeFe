@@ -34,7 +34,6 @@ import org.mapstruct.Mappings;
 public interface DataResourceMapper {
 
     @Mappings({
-            @Mapping(target = "enable", expression = "java(String.valueOf(1))"),
             @Mapping(source = "dataResourceType", target = "dataResourceType", defaultExpression = "java(java.util.Arrays.stream(DataResourceType.values()).collect(java.util.stream.Collectors.toList()))"),
     })
     DataResourceQueryInput transferInput(ApiDataResourceQueryInput entity);
