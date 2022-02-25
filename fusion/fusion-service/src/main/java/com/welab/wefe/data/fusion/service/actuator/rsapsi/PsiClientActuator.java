@@ -78,7 +78,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Fragment size, default 10000
      */
-    private int shard_size = 2000;
+    private int shard_size = 10000;
     private int current_index = 0;
 
     public List<String> columnList;
@@ -199,30 +199,30 @@ public class PsiClientActuator extends AbstractPsiActuator {
         /**
          * Alignment matching
          */
-        int socketQueueSize = count;
-        CountDownLatch socketLatch = new CountDownLatch(count);
-
-        while (socketQueueSize > 0) {
-            try {
-                Socket socket = socketQueue.take();
-                if (socket != null) {
-                    parseThreadPool.execute(() -> {
-                        try {
-                            receiveAndParseResult(socket);
-                        } finally {
-                            socketLatch.countDown();
-                        }
-                    });
-                    socketQueueSize--;
-                }
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-        }
+//        int socketQueueSize = count;
+//        CountDownLatch socketLatch = new CountDownLatch(count);
+//
+//        while (socketQueueSize > 0) {
+//            try {
+//                Socket socket = socketQueue.take();
+//                if (socket != null) {
+//                    parseThreadPool.execute(() -> {
+//                        try {
+//                            receiveAndParseResult(socket);
+//                        } finally {
+//                            socketLatch.countDown();
+//                        }
+//                    });
+//                    socketQueueSize--;
+//                }
+//            } catch (InterruptedException e1) {
+//                e1.printStackTrace();
+//            }
+//        }
 
         try {
             latch.await();
-            socketLatch.await();
+//            socketLatch.await();
         } catch (InterruptedException e1) {
             e1.printStackTrace();
             LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
@@ -248,30 +248,30 @@ public class PsiClientActuator extends AbstractPsiActuator {
      */
     private void fusion() throws StatusCodeWithException {
         Socket socket = null;
-        try {
-            LOG.info("Server@" + ip + ":" + port + " connecting!");
-            socket = SocketUtils
-                    .create(ip, port)
-                    .setRetryCount(3)
-                    .builder();
+//        try {
+        LOG.info("Server@" + ip + ":" + port + " connecting!");
+        socket = SocketUtils
+                .create(ip, port)
+                .setRetryCount(3)
+                .builder();
 
-            PSIUtils.sendString(socket, ActionType.align.name());
+        PSIUtils.sendString(socket, ActionType.align.name());
 
-            cursor();
+        cursor();
 
-            Integer index = threadId.get();
+        Integer index = threadId.get();
 
-            LOG.info("fusion() current_index ： {}", index);
+        LOG.info("fusion() current_index ： {}", index);
 
-            //Initiating a query request
-            query(socket);
+        //Initiating a query request
+        query(socket);
 
-            //Joins the queue to be parsed
-            socketQueue.put(socket);
-//        receiveAndParseResult(socket);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
+        //Joins the queue to be parsed
+//            socketQueue.put(socket);
+        receiveAndParseResult(socket);
+//        } catch (InterruptedException e1) {
+//            e1.printStackTrace();
+//        }
 
     }
 
@@ -429,11 +429,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
 
         /**
-         * Calculate the fragment size based on the number of fields
-         */
-        shard_size = shard_size / columnList.size();
-
-        /**
          * Supplementary trace field
          */
         if (isTrace) {
@@ -444,6 +439,11 @@ public class PsiClientActuator extends AbstractPsiActuator {
          * Find primary key composition fields
          */
         fieldInfoList = service.fieldInfoList(businessId);
+
+        /**
+         * Calculate the fragment size based on the number of fields
+         */
+        shard_size = shard_size / fieldInfoList.size();
     }
 
     @Override
