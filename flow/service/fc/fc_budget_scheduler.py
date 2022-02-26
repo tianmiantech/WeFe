@@ -23,7 +23,7 @@ from common.python.utils.log_utils import schedule_logger, LoggerFactory
 import psutil
 import errno
 import os
-
+import json
 
 class FcBudgetScheduler(threading.Thread):
     """
@@ -58,14 +58,15 @@ class FcBudgetScheduler(threading.Thread):
             self.logger.warn("函数计算已超最大日限额, 随即停止所有任务！")
         with DB.connection_context():
             for task in task_list:
-                killed = self.kill_task(task)
-                if killed:
-                    self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
-                    task.status = TaskStatus.STOP
-                    task.message = '函数计算额度已超出，暂停任务'
-                    task.save()
-                else:
-                    self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
+                if json.loads(task.task_conf)['env']['backend'] == 'FC':
+                    killed = self.kill_task(task)
+                    if killed:
+                        self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
+                        task.status = TaskStatus.STOP
+                        task.message = '函数计算额度已超出，暂停任务'
+                        task.save()
+                    else:
+                        self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
 
     def kill_task(self, task: Task):
         """"
