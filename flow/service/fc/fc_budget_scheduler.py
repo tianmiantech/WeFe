@@ -51,9 +51,9 @@ class FcBudgetScheduler(threading.Thread):
 
     def stop_tasks(self, task_list, is_month=True, budget=0, cost=0):
         if is_month:
-            self.logger.warn(f"函数计算当月已使用:{cost}, 已超最大月限额:{budget}, 随即停止所有任务！")
+            self.logger.warn(f"函数计算当月已使用:{cost} ￥, 已超最大月限额:{budget} ￥, 随即停止所有任务！")
         else:
-            self.logger.warn(f"函数计算当日已使用:{cost}, 已超最大日限额:{budget}, 随即停止所有任务！")
+            self.logger.warn(f"函数计算当日已使用:{cost} ￥, 已超最大日限额:{budget} ￥, 随即停止所有任务！")
         with DB.connection_context():
             for task in task_list:
                 if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
@@ -62,9 +62,9 @@ class FcBudgetScheduler(threading.Thread):
                         self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
                         task.status = TaskStatus.ERROR
                         if is_month:
-                            task.message = '函数计算当月已使用:' + str(cost) + '已超最大月限额:' + str(budget) + '随即停止所有任务！'
+                            task.message = '函数计算当月已使用:' + str(cost) + ' ￥,已超最大月限额:' + str(budget) + ' ￥,随即停止所有任务！'
                         else:
-                            task.message = '函数计算当日已使用:' + str(cost) + '已超最大日限额:' + str(budget) + '随即停止所有任务！'
+                            task.message = '函数计算当日已使用:' + str(cost) + ' ￥,已超最大日限额:' + str(budget) + ' ￥,随即停止所有任务！'
                         task.save()
                     else:
                         self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
