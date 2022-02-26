@@ -140,13 +140,13 @@ class RESTService(Logger):
         route_table.post("/submit")(self._restful_submit)
         route_table.post("/query")(self._restful_query)
         route_table.post("/infer")(self._restful_infer)
-        route_table.get("/serving_model/download")(self._result_download)
+        route_table.get("/serving_model/download")(self._restful_download)
         return route_table
 
     def web_response(self,code,message,job_id=None):
         return web.json_response(data=dict(code=code,message=message,job_id=job_id), status=code)
 
-    async def _result_download(self,request: web.Request) -> web.Response:
+    async def _restful_download(self,request: web.Request) -> web.Response:
 
         def query_parse(req):
             obj = req.query_string
