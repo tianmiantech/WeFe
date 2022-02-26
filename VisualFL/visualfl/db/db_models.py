@@ -30,6 +30,7 @@ password = get_comm_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
 port = int(get_comm_config(consts.COMM_CONF_KEY_MYSQL_PORT))
 user = get_comm_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
 database = get_comm_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
+is_local = get_comm_config(consts.COMM_CONF_IS_LOCAL)
 
 # Environment variable
 env_host = get_env_config(consts.COMM_CONF_KEY_MYSQL_HOST)
