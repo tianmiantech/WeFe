@@ -49,11 +49,11 @@ class FcBudgetScheduler(threading.Thread):
     def get_day_budget(self):
         return GlobalConfigDao.get_function_compute_config().max_cost_in_day
 
-    def stop_tasks(self, task_list, is_month=True, budget=0):
+    def stop_tasks(self, task_list, is_month=True, budget=0, cost=0):
         if is_month:
-            self.logger.warn(f"函数计算已超最大月限额:{budget}, 随即停止所有任务！")
+            self.logger.warn(f"函数计算当月已使用:{cost}, 已超最大月限额:{budget}, 随即停止所有任务！")
         else:
-            self.logger.warn(f"函数计算已超最大日限额:{budget}, 随即停止所有任务！")
+            self.logger.warn(f"函数计算当日已使用:{cost}, 已超最大日限额:{budget}, 随即停止所有任务！")
         with DB.connection_context():
             for task in task_list:
                 if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
@@ -61,7 +61,10 @@ class FcBudgetScheduler(threading.Thread):
                     if killed:
                         self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
                         task.status = TaskStatus.ERROR
-                        task.message = '函数计算额度已超出，终止任务'
+                        if is_month:
+                            task.message = '函数计算当月已使用:' + str(cost) + '已超最大月限额:' + str(budget) + '随即停止所有任务！'
+                        else:
+                            task.message = '函数计算当日已使用:' + str(cost) + '已超最大日限额:' + str(budget) + '随即停止所有任务！'
                         task.save()
                     else:
                         self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
@@ -133,18 +136,18 @@ class FcBudgetScheduler(threading.Thread):
                 # get current budget
                 month_budget = self.get_month_budget()
                 day_budget = self.get_day_budget()
-                self.logger.info(f"current month budget is: {month_budget}")
-                self.logger.info(f"current day budget is: {day_budget}")
+                self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
+                self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
 
                 # Overspend daily or monthly
                 if float(month_budget) <= month_cost:
                     task_list = self.get_running_task()
                     self.logger.info("进行函数计算每月限额检测...")
-                    self.stop_tasks(task_list, budget=month_budget)
+                    self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
                 elif float(day_budget) <= day_cost:
                     task_list = self.get_running_task()
                     self.logger.info("进行函数计算每日限额检测...")
-                    self.stop_tasks(task_list, is_month=False, budget=day_budget)
+                    self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
                 else:
                     # judge once every 1 min
                     time.sleep(10)
