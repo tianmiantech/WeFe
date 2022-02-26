@@ -63,7 +63,7 @@ class FcBudgetScheduler(threading.Thread):
                     killed = self.kill_task(task)
                     if killed:
                         self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
-                        task.status = TaskStatus.STOP
+                        task.status = TaskStatus.ERROR
                         task.message = '函数计算额度已超出，暂停任务'
                         task.save()
                     else:
