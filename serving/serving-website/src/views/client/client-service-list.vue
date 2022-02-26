@@ -279,7 +279,7 @@ export default {
         },
 
         async changeStatus(row, status) {
-            console.log(row)
+
             const {code} = await this.$http.post({
                 url: '/clientservice/update',
                 data: {

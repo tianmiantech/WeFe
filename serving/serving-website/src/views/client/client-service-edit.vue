@@ -177,6 +177,8 @@ export default {
                         return false;
                     }
 
+                    console.log(this.$route.query.status)
+
                     const {code} = await this.$http.post({
                         url: '/clientservice/update',
                         data: {
@@ -184,7 +186,7 @@ export default {
                             clientId: this.clientService.clientId,
                             unitPrice: this.clientService.unitPrice,
                             payType: this.clientService.payType,
-                            status: this.$route.query.status,
+                            status: this.$route.query.status === '未启用' ? 0 : 1,
                             updatedBy: this.userInfo.nickname,
                         },
                     });
