@@ -136,15 +136,15 @@ class FcBudgetScheduler(threading.Thread):
                 # Overspend daily or monthly
                 if int(self.month_budget) <= month_cost:
                     task_list = self.get_running_task()
+                    self.logger.info("进行函数计算每月限额检测...")
                     self.stop_tasks(task_list)
-                    break
                 elif float(self.day_budget) <= day_cost:
                     task_list = self.get_running_task()
+                    self.logger.info("进行函数计算每日限额检测...")
                     self.stop_tasks(task_list, is_month=False)
-                    break
                 else:
-                    # judge once every 10min
-                    time.sleep(10 * 60)
+                    # judge once every 1 min
+                    time.sleep(10)
             except Exception as e:
                 traceback.print_exc()
                 schedule_logger().exception("函数计算预算检测出现异常：%s", e)
