@@ -38,8 +38,8 @@
         <p class="f12 mt5 mb15">tips: 数据资源需包含原流程数据资源中的所有列</p>
         <div
             v-for="(member, index) in vData.member_list"
+            v-show="disabled ? member.$data_set_list.length : true"
             :key="member.id"
-            class="li"
         >
             <h3
                 v-if="index === 0"
@@ -54,7 +54,7 @@
                 协作方:
             </h3>
             <p class="member-info">
-                <span class="name f16">
+                <span class="name f14">
                     <el-icon
                         v-if="member.audit_status !== 'agree'"
                         class="el-icon-warning-outline color-danger"
@@ -75,45 +75,45 @@
                 >
                     选择数据资源
                 </el-button>
-                <a
+                <span
                     class="el-link el-link--info f12"
                     @click="methods.ootFeaturePreview($event, member.member_id)"
-                >预览原入模特征列</a>
+                >预览原入模特征列</span>
             </p>
 
             <div
                 v-if="member.audit_status === 'agree'"
-                class="data-set f14"
+                class="data-set"
             >
                 <el-form
                     v-for="row in member.$data_set_list"
                     :key="row.id"
-                    label-width="100px"
+                    label-width="110px"
                 >
                     <el-form-item label="数据资源名称：">
-                        <div class="pr30">
-                            {{ row.name }}
-                            <el-tag
-                                v-if="row.contains_y"
-                                type="success"
-                            >
-                                y
-                            </el-tag>
-                            <el-icon
-                                v-if="!disabled"
-                                title="移除"
-                                class="el-icon-circle-close f20"
-                                @click="methods.removeDataSet(index)"
-                            >
-                                <elicon-circle-close />
-                            </el-icon>
-                        </div>
+                        {{ row.name }}
+                        <el-tag
+                            v-if="row.contains_y"
+                            type="success"
+                            size="small"
+                            class="ml5"
+                        >
+                            y
+                        </el-tag>
+                        <el-icon
+                            v-if="!disabled"
+                            title="移除"
+                            class="el-icon-circle-close f20"
+                            @click="methods.removeDataSet(index)"
+                        >
+                            <elicon-circle-close />
+                        </el-icon>
                     </el-form-item>
                     <el-form-item label="数据资源id：">
                         {{ row.data_set_id }}
                     </el-form-item>
                     <el-form-item label="数据量/特征量：">
-                        {{ row.row_count }} / {{ row.feature_count }}
+                        {{ row.total_data_count ? row.total_data_count : row.row_count }} / {{ row.feature_count }}
                     </el-form-item>
                     <div class="features mt5 mb10">
                         <template v-for="(item, $index) in row.$column_name_list" :key="$index">
@@ -375,7 +375,7 @@
 
                             if(~datasetIndex) {
                                 const item = dataset_list[datasetIndex];
-                                const column_name_list = item.source_type ? item.features : item.feature_name_list.split(',');
+                                const column_name_list = item.derived_from ? item.features : item.feature_name_list.split(',');
 
                                 member.$data_set_list.push({
                                     ...item,
@@ -573,8 +573,8 @@
                 /* add to the list*/
                 selectDataSet(item) {
                     vData.showSelectDataSet = false;
-                    if(item.source_type) {
-                        // derived data set
+                    if(item.data_resource.derived_from) {
+                        // derived dataset
                         const memberIds = {}; // cache member_id
 
                         item.members.forEach(member => {
@@ -587,9 +587,9 @@
                                     member_name:       member.member_name,
                                     feature_count:     member.feature_count,
                                     data_set_id:       item.data_set_id,
-                                    source_type:       item.source_type,
-                                    row_count:         item.row_count,
-                                    name:              item.name,
+                                    derived_from:      item.data_resource.derived_from,
+                                    row_count:         item.row_count ? item.row_count : item.data_resource.total_data_count,
+                                    name:              item.data_resource.name,
                                     column_name_list:  features,
                                     $column_name_list: features,
                                 };
@@ -622,15 +622,17 @@
                     } else {
                         const currentMember = vData.member_list[vData.memberIndex];
                         const dataset_list = currentMember.$data_set_list[0];
-                        const features = item.feature_name_list.split(',');
+                        const features = item.data_resource.feature_name_list && item.data_resource.feature_name_list.split(',') ? item.data_resource.feature_name_list.split(',') : [];
+
                         const dataset = {
-                            ...item,
+                            ...item.data_resource,
+                            data_set_id:       item.data_resource.data_resource_id,
                             column_name_list:  features,
                             $column_name_list: features,
                         };
 
                         if(dataset_list) {
-                            // remove old selection
+                            // remove last selected
                             const { data_set_id } = dataset_list;
 
                             vData.member_list.forEach(item => {
@@ -668,10 +670,10 @@
 
                         $alert('原入模数据资源特征列:', {
                             title:   '原入模数据资源特征列:',
-                            message: `<div style="max-height: 80vh;overflow:auto;">
+                            message: list && list.length ? `<div style="max-height: 80vh;overflow:auto;">
                             <p>数据资源id: <span class="p-id">${list && list[0] ? list[0].data_set_id : ''}</span></p>
                             特征列: ${list && list[0] ? list[0].features.join(',') : ''}
-                            </div>`,
+                            </div>`: '无',
                             dangerouslyUseHTMLString: true,
                         });
                     }
@@ -696,8 +698,8 @@
                                 feature_name_list: row[0].feature_name_list,
                                 feature_count:     row[0].feature_count,
                                 contains_y:        row[0].contains_y,
-                                source_type:       row[0].source_type,
-                                row_count:         row[0].row_count,
+                                derived_from:      row[0].derived_from,
+                                row_count:         row[0].row_count || row[0].total_data_count,
                                 name:              row[0].name,
                             });
                         }
@@ -749,15 +751,15 @@
         cursor: pointer;
         color:$--color-danger;
         position: absolute;
+        right:-30px;
         top: 2px;
-        right:0;
     }
     .data-set{
         border-top: 1px solid $border-color-base;
         .el-form{
+            padding: 5px 10px;
             border: 1px solid $border-color-base;
             border-top: 0;
-            padding: 5px 10px;
         }
         :deep(.el-form-item){
             display:flex;
@@ -767,8 +769,13 @@
                 font-size: 12px;
                 text-align: left;
                 margin-bottom: 0;
+                line-height: 24px;
             }
-            .el-form-item__content{word-break:break-all;}
+            .el-form-item__content{
+                font-size: 12px;
+                line-height: 22px;
+                word-break:break-all;
+            }
         }
     }
     .check-features{
