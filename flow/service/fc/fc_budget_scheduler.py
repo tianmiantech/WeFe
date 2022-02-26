@@ -58,6 +58,7 @@ class FcBudgetScheduler(threading.Thread):
             self.logger.warn("函数计算已超最大日限额, 随即停止所有任务！")
         with DB.connection_context():
             for task in task_list:
+                self.logger.info(f'task config:{json.loads(task.task_conf)}')
                 if json.loads(task.task_conf)['env']['backend'] == 'FC':
                     killed = self.kill_task(task)
                     if killed:
