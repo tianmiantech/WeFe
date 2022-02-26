@@ -538,10 +538,10 @@ class VertDecisionTreePromoter(DecisionTree):
         dispatch_promoter_result = dispatch_promoter_result.subtractByKey(dispatch_to_provider_result)
         leaf = dispatch_promoter_result.filter(lambda key, value: isinstance(value, tuple) is False)
 
-        if self.sample_weights is None:
-            self.sample_weights = leaf
+        if self.sample_leaf_pos is None:
+            self.sample_leaf_pos = leaf
         else:
-            self.sample_weights = self.sample_weights.union(leaf)
+            self.sample_leaf_pos = self.sample_leaf_pos.union(leaf)
 
         if reach_max_depth:  # if reach max_depth only update weight samples
             return
@@ -633,6 +633,7 @@ class VertDecisionTreePromoter(DecisionTree):
         self.convert_bin_to_real()
         self.round_leaf_val()
         self.sync_tree()
+        self.sample_weights_post_process()
         LOGGER.info("tree node num is %d" % len(self.tree_))
         LOGGER.info("end to fit promoter decision tree")
 
