@@ -79,3 +79,6 @@ def set_env(key, value):
     """
     os.environ[key] = value
 
+
+def str2bool(v):
+    return v.lower() in ("true", "t", "1")
