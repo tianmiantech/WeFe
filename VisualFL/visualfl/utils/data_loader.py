@@ -267,6 +267,7 @@ def un_zip(file_name,target_path):
         return names[0]
     except Exception as e:
         print(e)
+        raise Exception(f"unzip file {file_name} error as {e}")
 
 def make_zip(source_dir, zip_file):
     zipf = zipfile.ZipFile(zip_file, 'w')
@@ -315,4 +316,3 @@ def extractImages(src_dir):
         shutil.copy(item, target_path + '/' + tmp)
     shutil.rmtree(src_dir)
     os.rename(target_path,src_dir)
-
