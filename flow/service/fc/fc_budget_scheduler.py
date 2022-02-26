@@ -62,9 +62,11 @@ class FcBudgetScheduler(threading.Thread):
                         self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
                         task.status = TaskStatus.ERROR
                         if is_month:
-                            task.message = '函数计算当月已使用:' + str(cost) + ' ￥,已超最大月限额:' + str(budget) + ' ￥,随即停止所有任务！'
+                            task.message = '函数计算当月已使用(￥): ' + ("%.2f" % cost) + ',已超最大月限额(￥): ' + \
+                                           ("%.2f" % budget) + ',随即停止所有任务！'
                         else:
-                            task.message = '函数计算当日已使用:' + str(cost) + ' ￥,已超最大日限额:' + str(budget) + ' ￥,随即停止所有任务！'
+                            task.message = '函数计算当日已使用(￥): ' + ("%.2f" % cost) + ',已超最大日限额(￥): ' +\
+                                           ("%.2f" % budget) + ',随即停止所有任务！'
                         task.save()
                     else:
                         self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
