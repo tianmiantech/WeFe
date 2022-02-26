@@ -51,9 +51,9 @@ class FcBudgetScheduler(threading.Thread):
 
     def stop_tasks(self, task_list, is_month=True, budget=0, cost=0):
         if is_month:
-            self.logger.warn(f"函数计算当月已使用:{cost} ￥, 已超最大月限额:{budget} ￥, 随即停止所有任务！")
+            self.logger.warn(f"函数计算当月已使用: {cost}, 已超最大月限额: {budget}, 随即停止所有任务！")
         else:
-            self.logger.warn(f"函数计算当日已使用:{cost} ￥, 已超最大日限额:{budget} ￥, 随即停止所有任务！")
+            self.logger.warn(f"函数计算当日已使用: {cost}, 已超最大日限额: {budget}, 随即停止所有任务！")
         with DB.connection_context():
             for task in task_list:
                 if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
