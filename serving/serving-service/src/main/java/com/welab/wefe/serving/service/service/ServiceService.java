@@ -123,6 +123,9 @@ public class ServiceService {
 
 	@Autowired
 	private ClientService clientService;
+	
+	@Autowired
+	private ClientServiceService clientServiceService;
 
 	@Autowired
 	private Config config;
@@ -317,6 +320,8 @@ public class ServiceService {
 		} else {
 			unionServiceService.offline2Union(model);
 		}
+		clientServiceService.updateAllByServiceId(model.getId(), model.getName(), model.getUrl(),
+				model.getServiceType());
 		return output;
 	}
 

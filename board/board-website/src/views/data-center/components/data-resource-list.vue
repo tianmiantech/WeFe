@@ -231,7 +231,7 @@
                         type:  'BloomFilter',
                     },
                     ImageDataSet: {
-                        label: 'ImageDataSet',
+                        label: '图像数据集',
                         type:  'img',
                     },
                     TableDataSet: {

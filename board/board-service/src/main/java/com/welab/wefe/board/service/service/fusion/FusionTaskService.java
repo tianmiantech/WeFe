@@ -109,7 +109,7 @@ public class FusionTaskService extends AbstractService {
         return fusionTaskRepository.findOne(where).isPresent() ? fusionTaskRepository.findOne(where).get() : null;
     }
 
-    public void updateByBusinessId(String businessId, FusionTaskStatus status, Long dataCount, Long fusionCount, Long processedCount, long spend) throws StatusCodeWithException {
+    public void updateErrorByBusinessId(String businessId, FusionTaskStatus status, Long dataCount, Long fusionCount, Long processedCount, long spend, String error) throws StatusCodeWithException {
         FusionTaskMySqlModel model = findByBusinessId(businessId);
         if (model == null) {
             throw new StatusCodeWithException("task does not exist，businessId：" + businessId, StatusCode.DATA_NOT_FOUND);
@@ -120,8 +120,22 @@ public class FusionTaskService extends AbstractService {
         model.setDataCount(dataCount);
         model.setProcessedCount(processedCount);
         model.setSpend(spend);
+        model.setError(error);
         fusionTaskRepository.save(model);
     }
+
+    public void updateByBusinessId(String businessId, FusionTaskStatus status, Long dataCount, Long fusionCount, Long processedCount, long spend) throws StatusCodeWithException {
+        updateErrorByBusinessId(
+                businessId,
+                status,
+                dataCount,
+                fusionCount,
+                processedCount,
+                spend,
+                null
+        );
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public void add(AddApi.Input input) throws StatusCodeWithException {

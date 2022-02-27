@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/result/export", name = "结果导出", desc = "结果导出", login = false)
+@Api(path = "fusion/result/export", name = "结果导出", desc = "结果导出")
 public class ResultExportApi extends AbstractApi<ResultExportApi.Input, String> {
 
     @Autowired
