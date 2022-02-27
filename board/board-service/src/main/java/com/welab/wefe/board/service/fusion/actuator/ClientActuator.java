@@ -126,23 +126,25 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 break;
             case falsify:
             case running:
-                fusionTaskService.updateByBusinessId(
+                fusionTaskService.updateErrorByBusinessId(
                         businessId,
                         FusionTaskStatus.Interrupt,
                         dataCount,
                         fusionCount.longValue(),
                         processedCount.longValue(),
-                        getSpend()
+                        getSpend(),
+                        error
                 );
                 break;
             default:
-                fusionTaskService.updateByBusinessId(
+                fusionTaskService.updateErrorByBusinessId(
                         businessId,
                         FusionTaskStatus.Failure,
                         dataCount,
                         fusionCount.longValue(),
                         processedCount.longValue(),
-                        getSpend()
+                        getSpend(),
+                        error
                 );
                 break;
         }
@@ -152,7 +154,11 @@ public class ClientActuator extends AbstractPsiClientActuator {
     public void notifyServerClose() {
         //notify the server that the task has ended
         try {
-            gatewayService.callOtherMemberBoard(dstMemberId, ServerCloseApi.class, new ServerCloseApi.Input(businessId), JSONObject.class);
+            gatewayService.callOtherMemberBoard(
+                    dstMemberId,
+                    ServerCloseApi.class,
+                    new ServerCloseApi.Input(businessId, status.name(), error),
+                    JSONObject.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -256,7 +262,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 new DownloadBFApi.Input(businessId),
                 JSONObject.class
         );
-
 
         LOG.info("downloadBloomFilter end {} ", result);
 
