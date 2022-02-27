@@ -46,7 +46,7 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        actuator.status = input.getStatus();
+        actuator.status = PSIActuatorStatus.valueOf(input.getStatus());
         actuator.error = input.getError();
         return success();
     }
@@ -56,12 +56,12 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
         String businessId;
 
         @Check(name = "任务状态", require = true)
-        PSIActuatorStatus status;
+        String status;
 
         @Check(name = "错误信息", require = true)
         String error;
 
-        public Input(String businessId, PSIActuatorStatus status, String error) {
+        public Input(String businessId, String status, String error) {
             this.businessId = businessId;
             this.status = status;
             this.error = error;
@@ -75,11 +75,11 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
             this.businessId = businessId;
         }
 
-        public PSIActuatorStatus getStatus() {
+        public String getStatus() {
             return status;
         }
 
-        public void setStatus(PSIActuatorStatus status) {
+        public void setStatus(String status) {
             this.status = status;
         }
 

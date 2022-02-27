@@ -157,7 +157,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
             gatewayService.callOtherMemberBoard(
                     dstMemberId,
                     ServerCloseApi.class,
-                    new ServerCloseApi.Input(businessId, status, error),
+                    new ServerCloseApi.Input(businessId, status.name(), error),
                     JSONObject.class);
         } catch (Exception e) {
             e.printStackTrace();
