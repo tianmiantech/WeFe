@@ -16,6 +16,8 @@
 
 package com.welab.wefe.board.service.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.flow.StartFlowApi;
 import com.welab.wefe.board.service.api.project.job.ResumeJobApi;
 import com.welab.wefe.board.service.api.project.job.StopJobApi;
@@ -43,7 +45,6 @@ import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
@@ -171,18 +172,7 @@ public class ProjectFlowJobService extends AbstractService {
 
         gatewayService.syncToOtherJobMembers(input.getJobId(), input, StartFlowApi.class);
 
-
-        JObject params =
-                project.getProjectType() == ProjectType.DeepLearning
-                        ? JObject.create("type", "visualfl")
-                        : null;
-
-        flowActionQueueService.notifyFlow(
-                input,
-                input.getJobId(),
-                FlowActionType.run_job,
-                params
-        );
+        flowActionQueueService.runJob(input, input.getJobId(), project.getProjectType());
 
         //update flow
         projectFlowService.updateFlowStatus(flow.getFlowId(), ProjectFlowStatus.running);
@@ -301,9 +291,7 @@ public class ProjectFlowJobService extends AbstractService {
                     }
                 }
 
-
             }
-
 
         }
     }
@@ -329,6 +317,21 @@ public class ProjectFlowJobService extends AbstractService {
             throw new StatusCodeWithException("当前状态不允许进行继续任务操作！", StatusCode.ILLEGAL_REQUEST);
         }
 
+        // 如果是深度学习的任务，把之前任务的配置改为继续，就可以实现续跑。
+        if (project.getProjectType() == ProjectType.DeepLearning) {
+            List<TaskMySqlModel> tasks = taskService.listByJobId(job.getJobId(), job.getMyRole());
+            tasks
+                    .stream()
+                    .filter(x -> x.getTaskType() == ComponentType.PaddleClassify || x.getTaskType() == ComponentType.PaddleDetection)
+                    .forEach(x -> {
+                        com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob kernelJob = JSONObject.parseObject(x.getTaskConf()).toJavaObject(com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob.class);
+                        kernelJob.env.resume = true;
+                        x.setTaskConf(JSON.toJSONString(kernelJob));
+                    });
+
+        }
+
+
         jobs.forEach(y ->
                 jobService.updateJob(y, (x) -> {
                     x.setUpdatedBy(input);
@@ -337,7 +340,7 @@ public class ProjectFlowJobService extends AbstractService {
                 })
         );
 
-        flowActionQueueService.notifyFlow(input, input.getJobId(), FlowActionType.run_job);
+        flowActionQueueService.runJob(input, input.getJobId(), project.getProjectType());
 
         gatewayService.syncToOtherJobMembers(job.getJobId(), input, ResumeJobApi.class);
 
