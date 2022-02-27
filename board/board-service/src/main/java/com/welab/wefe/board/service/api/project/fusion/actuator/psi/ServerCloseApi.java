@@ -58,7 +58,7 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
         @Check(name = "任务状态", require = true)
         String status;
 
-        @Check(name = "错误信息", require = true)
+        @Check(name = "错误信息")
         String error;
 
         public Input(String businessId, String status, String error) {
