@@ -115,9 +115,9 @@ public class ProjectFlowJobService extends AbstractService {
 
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
-        if (!input.fromGateway() && (!isCreator(flow, project))) {
-            throw new StatusCodeWithException("只有 创建者 才能启动任务！", StatusCode.ILLEGAL_REQUEST);
-        }
+//        if (!input.fromGateway() && (!isCreator(flow, project))) {
+//            throw new StatusCodeWithException("只有 创建者 才能启动任务！", StatusCode.ILLEGAL_REQUEST);
+//        }
 
         if (!input.fromGateway()) {
             input.setJobId(UUID.randomUUID().toString().replaceAll("-", ""));
