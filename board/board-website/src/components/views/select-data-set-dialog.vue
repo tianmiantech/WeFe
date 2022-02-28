@@ -1,14 +1,13 @@
 <template>
     <el-dialog
         v-model="show"
-        width="75%"
-        title="请选择数据资源"
         destroy-on-close
+        title="请选择数据资源"
         :close-on-click-modal="false"
+        width="75%"
     >
         <el-form
             inline
-            size="small"
             @submit.prevent
         >
             <el-form-item
@@ -43,7 +42,7 @@
                     filterable
                 >
                     <el-option
-                        label="ImageDataSet"
+                        label="图像数据集"
                         value="ImageDataSet"
                     />
                 </el-select>
@@ -113,6 +112,7 @@
             :data-add-btn="dataAddBtn"
             :emit-event-name="emitEventName"
             :project-type="projectType"
+            :member-id="memberId"
             @close-dialog="closeDialog"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"
@@ -162,7 +162,7 @@
                 hideRelateSourceTab: false,
                 sourceTypeList:      [
                     {
-                        label: 'TableDataSet',
+                        label: '数据集',
                         value: 'TableDataSet',
                     },
                     {

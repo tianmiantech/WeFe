@@ -23,9 +23,12 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -137,7 +140,7 @@ public class PaymentsRecordsService {
     }
 
 
-    public PagingOutput<PaymentsRecordsMysqlModel> queryList(QueryListApi.Input input) {
+    public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
 
         Specification<PaymentsRecordsMysqlModel> where = Where.create()
                 .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
@@ -148,7 +151,17 @@ public class PaymentsRecordsService {
                 .orderBy("createdTime", OrderBy.desc)
                 .build(PaymentsRecordsMysqlModel.class);
 
-        return paymentsRecordsRepository.paging(where, input);
+        PagingOutput<PaymentsRecordsMysqlModel> models = paymentsRecordsRepository.paging(where, input);
+        List<QueryListApi.Output> list = new ArrayList<>();
+
+        models.getList().forEach(x -> {
+            QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
+            output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
+            output.setPayType(PaymentsTypeEnum.getValueByCode(x.getPayType()));
+            list.add(output);
+        });
+
+        return PagingOutput.of(list.size(), list);
     }
 
     public void save(SaveApi.Input input) {

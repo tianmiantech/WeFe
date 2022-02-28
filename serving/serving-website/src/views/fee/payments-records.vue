@@ -123,7 +123,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ serviceType[scope.row.service_type] }}</p>
+                    <p>{{ scope.row.service_type }}</p>
                 </template>
             </el-table-column>
 
@@ -142,7 +142,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ payType[scope.row.pay_type] }}</p>
+                    <p>{{ scope.row.pay_type }}</p>
                 </template>
             </el-table-column>
 
@@ -157,7 +157,7 @@
             </el-table-column>
 
             <el-table-column
-                label="金额"
+                label="金额(￥)"
                 min-width="50"
             >
                 <template slot-scope="scope">
@@ -166,7 +166,7 @@
             </el-table-column>
 
             <el-table-column
-                label="余额"
+                label="余额(￥)"
                 min-width="50"
             >
                 <template slot-scope="scope">
@@ -225,22 +225,6 @@ export default {
             },
             timeRange: '',
             getListApi: '/paymentsrecords/query-list',
-            serviceType: {
-                1: '两方匿踪查询',
-                2: '两方交集查询',
-                3: '多方安全统计(被查询方)',
-                4: '多方安全统计(查询方)',
-                5: '多方交集查询',
-                6: '多方匿踪查询',
-            },
-            payType: {
-                1: '充值',
-                2: '支出',
-            },
-            status: {
-                1: '正常',
-                2: '冲正',
-            },
             serviceTypes: [
                 {
                     name:  '两方匿踪查询',

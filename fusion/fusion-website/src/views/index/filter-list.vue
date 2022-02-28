@@ -45,37 +45,34 @@
             />
             <el-table-column
                 label="过滤器名称/ID"
-                min-width="154px"
+                min-width="150"
             >
                 <template slot-scope="scope">
                     <router-link :to="{name: 'filter-data-detail', query: {id: scope.row.id, name: scope.row.name }}">
-                        {{ scope.row.name }}
+                        <strong>{{ scope.row.name }}</strong>
                     </router-link>
                     <br>
                     {{ scope.row.id }}
                 </template>
             </el-table-column>
-
+            <el-table-column
+                label="主键加密方式"
+                prop="hash_function"
+                width="150"
+            />
             <el-table-column
                 label="数据量"
                 prop="row_count"
-                width="100px"
+                width="100"
             />
             <el-table-column
                 label="描述"
                 prop="description"
-                width="160px"
+                width="160"
             />
-
-            <el-table-column
-                label="使用次数"
-                prop="used_count"
-                width="100px"
-            />
-
             <el-table-column
                 label="创建时间"
-                min-width="140px"
+                min-width="140"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}

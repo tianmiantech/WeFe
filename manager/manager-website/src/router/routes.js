@@ -39,7 +39,7 @@ const baseRoutes = [
                 name: 'data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '联邦数据集',
+                    title:           '联邦资源',
                 },
                 component: () => import('../views/data-center/data-list'),
             },
@@ -49,7 +49,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     hidden:          true,
-                    title:           '联邦数据集详情',
+                    title:           '联邦资源详情',
                     active:          `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-view'),

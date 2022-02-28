@@ -25,6 +25,7 @@
     height: var(--el-header-height);
 }
 .el-table__empty-block{min-height:100px;}
+.el-table__row{font-size: 12px;}
 .el-alert{border-radius: 4px;}
 .el-form{
     &.el-form--inline{
@@ -57,6 +58,7 @@
     background-color: var(--el-color-success);
     border-color: var(--el-color-success);
 }
+.el-tag__content{white-space: nowrap;}
 .el-button--primary{
     background-color: var(--el-color-primary);
     border-color: var(--el-color-primary);

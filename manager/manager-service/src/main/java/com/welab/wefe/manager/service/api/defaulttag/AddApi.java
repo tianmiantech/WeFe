@@ -17,42 +17,43 @@
 package com.welab.wefe.manager.service.api.defaulttag;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.DataSetDefaultTag;
-import com.welab.wefe.common.data.mongodb.repo.DataSetDefaultTagMongoRepo;
+import com.welab.wefe.common.data.mongodb.entity.union.DataResourceDefaultTag;
+import com.welab.wefe.common.data.mongodb.repo.DataResourceDefaultTagMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.tag.DatSetDefaultTagAddInput;
-import com.welab.wefe.manager.service.service.DatSetDefaultTagContractService;
+import com.welab.wefe.manager.service.dto.tag.DataResourceDefaultTagAddInput;
+import com.welab.wefe.manager.service.service.DataResourceDefaultTagContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author Jervis
+ * @author yuxin.zhang
  * @date 2020-05-22
  **/
-@Api(path = "default_tag/add", name = "default_tag_add")
-public class AddApi extends AbstractApi<DatSetDefaultTagAddInput, AbstractApiOutput> {
+@Api(path = "data_resource/default_tag/add", name = "default_tag_add")
+public class AddApi extends AbstractApi<DataResourceDefaultTagAddInput, AbstractApiOutput> {
 
     @Autowired
-    private DatSetDefaultTagContractService datSetDefaultTagContractService;
+    private DataResourceDefaultTagContractService dataResourceDefaultTagContractService;
 
     @Autowired
-    private DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;
+    protected DataResourceDefaultTagMongoRepo dataResourceDefaultTagMongoRepo;
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(DatSetDefaultTagAddInput input) throws StatusCodeWithException {
+    protected ApiResult<AbstractApiOutput> handle(DataResourceDefaultTagAddInput input) throws StatusCodeWithException {
         LOG.info("AddApi handle..");
         try {
-            boolean isExist = dataSetDefaultTagMongoRepo.exists(input.getTagName());
+            boolean isExist = dataResourceDefaultTagMongoRepo.exists(input.getTagName());
             if (isExist) {
                 throw new StatusCodeWithException("该标签已存在",StatusCode.DATA_EXISTED);
             }
 
-            DataSetDefaultTag dataSetDefaultTag = new DataSetDefaultTag();
-            dataSetDefaultTag.setTagName(input.getTagName());
-            datSetDefaultTagContractService.add(dataSetDefaultTag);
+            DataResourceDefaultTag dataResourceDefaultTag = new DataResourceDefaultTag();
+            dataResourceDefaultTag.setTagName(input.getTagName());
+            dataResourceDefaultTag.setDataResourceType(input.getDataResourceType());
+            dataResourceDefaultTagContractService.add(dataResourceDefaultTag);
         } catch (StatusCodeWithException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }

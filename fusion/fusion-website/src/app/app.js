@@ -24,11 +24,13 @@ const tail = process.env.NODE_ENV === 'production' && process.env.TAIL ? `-${con
 const proxyPrefix = process.env.NODE_ENV === 'development' ? '/api' : process.env[`API_${process.env.DEPLOY_ENV.toUpperCase()}`] + `${tail}`;
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV}`;
 
+// 挂载全局 api 变量
 window.api = {
-    env:     process.env.DEPLOY_ENV,
-    baseUrl: proxyPrefix,
-    prefixPath,
+    env:        window.clientApi ? window.clientApi.env : process.env.DEPLOY_ENV,
+    baseUrl:    window.clientApi ? window.clientApi.baseUrl : proxyPrefix,
+    prefixPath: window.clientApi ? window.clientApi.prefixPath : prefixPath,
 };
+
 
 window.$app = new Vue({
     el:     '#app',

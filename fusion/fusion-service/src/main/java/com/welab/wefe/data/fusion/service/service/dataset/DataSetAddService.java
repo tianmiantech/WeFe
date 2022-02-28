@@ -73,7 +73,7 @@ public class DataSetAddService extends AbstractService {
         }
 
         if (dataSetRepository.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("This dataset name already exists, please change it to another dataset name", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据集名称已存在, 请更改其他名称再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         DataSetMySqlModel model = new DataSetMySqlModel();
@@ -84,39 +84,27 @@ public class DataSetAddService extends AbstractService {
         model.setDataResourceSource(input.getDataResourceSource());
         model.setName(input.getName());
         model.setRows(StringUtil.join(input.getRows(), ','));
-
-        int rowsCount = 0;
         model.setUsedCount(0);
-        model.setRowCount(rowsCount);
+        model.setRowCount(0);
         model.setUpdatedTime(new Date());
+        model.setStatement(input.getSql());
+        model.setSourcePath(input.getFilename());
+        model.setDataSourceId(input.getDataSourceId());
         dataSetRepository.save(model);
 
-        File file = null;
         CommonThreadPool.TASK_SWITCH = true;
+
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
-            model.setDataSourceId(input.getDataSourceId());
-            //DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
-            //String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
-
-            rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
-            model.setStatement(input.getSql());
+            readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
         } else {
-            file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
-
+            // Parse and save the dataset file
             try {
-                rowsCount = readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
-                model.setSourcePath(input.getFilename());
+                File file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
+                readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
             }
-        }
-
-        if (CommonThreadPool.TASK_SWITCH) {
-            model.setUsedCount(0);
-            model.setRowCount(rowsCount);
-            model.setUpdatedTime(new Date());
-            dataSetRepository.save(model);
         }
 
         AddApi.DataSetAddOutput output = new AddApi.DataSetAddOutput();
@@ -151,7 +139,7 @@ public class DataSetAddService extends AbstractService {
                 : new ExcelDataSetReader(file);
 
         // Gets the data set column header
-        List<String> headers = dataSetReader.getHeader(rows);
+        List<String> headers = dataSetReader.getHeader();
 
         DataSetStorageHelper.createDataSetTable(model.getId(), rows);
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, file, rows);
@@ -188,7 +176,7 @@ public class DataSetAddService extends AbstractService {
 
         DataSourceMySqlModel dsModel = dataSourceService.getDataSourceById(dataSourceId);
         if (dsModel == null) {
-            throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -210,9 +198,7 @@ public class DataSetAddService extends AbstractService {
         CommonThreadPool.run(() -> {
             jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
         });
-//
-//        // Wait for the consumption queue to complete
-//        dataRowConsumer.waitForFinishAndClose();
+
         model.setStoraged(true);
 
         LOG.info("The dataset is parsed：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");

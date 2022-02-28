@@ -104,6 +104,10 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
                 throw new StatusCodeWithException("追溯字段不能为空", StatusCode.PARAMETER_VALUE_INVALID);
             }
 
+            if (AlgorithmType.RSA_PSI.equals(algorithm) && partnerDataResourceType.equals(dataResourceType)) {
+                throw new StatusCodeWithException(" RSA-PSI 算法要求至少一方需要选择布隆过滤器资源, 另一方则必须为数据资源资源！", StatusCode.PARAMETER_VALUE_INVALID);
+            }
+
             if (isTrace && CollectionUtils.isNotEmpty(fieldInfoList)) {
                 for (int i = 0; i < fieldInfoList.size(); i++) {
                     if (fieldInfoList.get(i).getColumnList().contains(traceColumn)) {

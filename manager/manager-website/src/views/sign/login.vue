@@ -54,7 +54,7 @@
                             <el-input
                                 v-model="form.account"
                                 placeholder="用户名"
-                                maxlength="50"
+                                maxlength="32"
                                 clearable
                             />
                         </el-form-item>
@@ -64,10 +64,9 @@
                         >
                             <el-input
                                 v-model="form.password"
-                                type="password"
-                                id="password"
-                                maxlength="30"
                                 placeholder="密码"
+                                type="password"
+                                maxlength="30"
                                 clearable
                             />
                         </el-form-item>

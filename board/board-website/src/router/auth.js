@@ -102,10 +102,17 @@ export const syncTabsUserState = async () => {
             if (e.newValue) {
                 // logged in
                 syncLogin(e.newValue);
-
             } else {
                 baseLogout();
             }
         }
     });
+};
+
+export const updateMemberInfo = (data) => {
+    const { baseUrl } = window.api;
+    const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
+    const info = Object.assign({ ...userInfo }, data);
+
+    setStorage().getItem(`${baseUrl}_userInfo`, info);
 };

@@ -3,10 +3,7 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
+        <el-form inline>
             <el-form-item label="客户名称：">
                 <el-input
                     v-model="search.clientName"
@@ -28,19 +25,22 @@
                 </div>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getList({ to: true})"
-            >
-                查询
-            </el-button>
-            <router-link
-                :to="{name: 'client-add',}"
-            >
-                <el-button>
-                    新增客户
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList({ to: true})"
+                >
+                    查询
                 </el-button>
-            </router-link>
+                <router-link
+                    class="ml10"
+                    :to="{name: 'client-add',}"
+                >
+                    <el-button>
+                        新增客户
+                    </el-button>
+                </router-link>
+            </el-form-item>
         </el-form>
 
         <el-table
@@ -50,7 +50,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
             <el-table-column
                 label="序号"
@@ -60,7 +60,7 @@
 
             <el-table-column
                 label="客户名称"
-                width="230"
+                min-width="230"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.name }}</p>
@@ -70,7 +70,7 @@
 
             <el-table-column
                 label="客户 code"
-                width="120"
+                min-width="120"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.code }}</p>
@@ -80,7 +80,7 @@
 
             <el-table-column
                 label="客户邮箱"
-                width="150"
+                min-width="150"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.email }}</p>
@@ -89,7 +89,7 @@
 
             <el-table-column
                 label="IP 白名单"
-                width="200"
+                min-width="200"
             >
                 <template slot-scope="scope">
                     <el-tooltip
@@ -107,7 +107,7 @@
 
             <el-table-column
                 label="创建时间"
-                width="120"
+                min-width="120"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -149,7 +149,6 @@
                 fixed="right"
             >
                 <template slot-scope="scope">
-
                     <el-button
                         v-if="scope.row.status === 1"
                         type="danger"
@@ -215,30 +214,26 @@
 <script>
 
 import table from '@src/mixins/table.js';
-import RoleTag from '../components/role-tag';
-import {mapGetters} from "vuex";
+import { mapGetters } from 'vuex';
 
 export default {
-    name: 'client-list',
-    components: {
-        RoleTag,
-    },
-    inject: ['refresh'],
+    name:   'ClientList',
     mixins: [table],
+    inject: ['refresh'],
     data() {
         return {
             search: {
                 clientName: '',
-                status: '',
-                startTime: '',
-                endTime: '',
+                status:     '',
+                startTime:  '',
+                endTime:    '',
 
             },
-            timeRange: '',
-            getListApi: '/client/query-list',
+            timeRange:    '',
+            getListApi:   '/client/query-list',
             clientStatus: {
                 1: '启用',
-                0: '禁用'
+                0: '禁用',
             },
         };
     },
@@ -248,11 +243,10 @@ export default {
     },
 
     methods: {
-
         open(row, status) {
             this.$alert('是否修改？', '警告', {
                 confirmButtonText: '确定',
-                callback: action => {
+                callback:          action => {
                     if (action === 'confirm') {
                         this.changeStatus(row, status);
                         setTimeout(() => {
@@ -264,29 +258,27 @@ export default {
                 },
             });
         },
-
         async changeStatus(row, status) {
-            const {code} = await this.$http.post({
-                url: '/client/update',
+            const { code } = await this.$http.post({
+                url:  '/client/update',
                 data: {
-                    id: row.id,
-                    status: status,
-                    name: row.name,
-                    email: row.email,
-                    pubKey: 'changeStatus',
-                    ipAdd: row.ip_add,
+                    id:        row.id,
+                    status,
+                    name:      row.name,
+                    email:     row.email,
+                    pubKey:    'changeStatus',
+                    ipAdd:     row.ip_add,
                     updatedBy: this.userInfo.nickname,
                 },
             });
 
             if (code === 0) {
                 this.$message({
-                    type: 'info',
+                    type:    'info',
                     message: '修改成功',
                 });
             }
         },
-
         timeChange() {
             if (!this.timeRange) {
                 this.search.startTime = '';

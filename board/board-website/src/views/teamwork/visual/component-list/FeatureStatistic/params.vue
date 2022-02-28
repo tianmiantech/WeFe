@@ -9,7 +9,7 @@
             :key="`${member.member_id}-${member.member_role}`"
         >
             <h4 class="f14 mb5">{{member.member_role === 'promoter' ? '发起方' : '协作方'}}:</h4>
-            <el-form-item v-if="member.show">
+            <div v-if="member.show" class="el-form-item">
                 <div class="el-form-item__label">
                     <span class="mr10">{{ member.member_name }}</span>
                     <el-button
@@ -37,6 +37,7 @@
                     </template>
                     <el-button
                         v-if="member.features.length > 20"
+                        size="small"
                         type="primary"
                         class="check-features"
                         @click="methods.checkFeatures(member.features)"
@@ -44,7 +45,7 @@
                         查看更多
                     </el-button>
                 </div>
-            </el-form-item>
+            </div>
         </template>
 
         <div class="mt20">
@@ -119,6 +120,7 @@
                         type="primary"
                         size="small"
                         class="ml10"
+                        style="margin-top: -7px;"
                         @click="methods.revertCheck"
                     >
                         反选
@@ -137,7 +139,7 @@
                             <label
                                 v-if="list[index * 5 + i - 1]"
                                 :for="`label-${index * 5 + i - 1}`"
-                                class="el-checkbox el-checkbox--small"
+                                class="el-checkbox"
                                 @click.prevent.stop="methods.checkboxChange($event, list[index * 5 + i - 1])"
                             >
                                 <span :class="['el-checkbox__input', { 'is-checked': vData.checkedColumnsArr.includes(list[index * 5 + i - 1]) }]">
@@ -277,10 +279,10 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0) {
+                    if (code === 0 && data && data.params) {
                         const { params } = data;
 
-                        if(params && params.members) {
+                        if(params.members) {
                             const { featureMethods, members, workMode, form } = params;
 
                             vData.form = form;

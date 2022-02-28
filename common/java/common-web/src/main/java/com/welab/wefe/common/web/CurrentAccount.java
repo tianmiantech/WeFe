@@ -50,17 +50,25 @@ public class CurrentAccount {
     /**
      * After a user logs in successfully, this method is invoked to register and obtain its information.
      */
-    public synchronized static void logined(String token, String id, String phoneNumber, boolean adminRole, boolean superAdminRole) {
-        // To avoid multi-point login, locate and delete the old token.
-        synchronized (ACCOUNT_MAP_BY_TOKEN) {
-            ACCOUNT_MAP_BY_TOKEN.entrySet().removeIf(item -> id.equals(item.getValue().getId()));
-        }
+    public synchronized static void logined(String token, String id, String phoneNumber, boolean adminRole, boolean superAdminRole, boolean enable) {
+        logined(token, new Info(id, phoneNumber, adminRole, superAdminRole, enable));
+    }
 
-        ACCOUNT_MAP_BY_TOKEN.put(token, new Info(id, phoneNumber, adminRole, superAdminRole));
+    /**
+     * After a user logs in successfully, this method is invoked to register and obtain its information.
+     */
+    public synchronized static void logined(String token, String id, String phoneNumber, boolean adminRole, boolean superAdminRole) {
+        logined(token, new Info(id, phoneNumber, adminRole, superAdminRole));
     }
 
     public synchronized static void logined(String token, String id, String phoneNumber) {
-        ACCOUNT_MAP_BY_TOKEN.put(token, new Info(id, phoneNumber));
+        logined(token, new Info(id, phoneNumber));
+    }
+
+    public synchronized static void logined(String token, Info info) {
+        // To avoid multi-point login, locate and delete the old token.
+        ACCOUNT_MAP_BY_TOKEN.entrySet().removeIf(item -> info.getId().equals(item.getValue().getId()));
+        ACCOUNT_MAP_BY_TOKEN.put(token, info);
     }
 
     /**
@@ -160,7 +168,7 @@ public class CurrentAccount {
     }
 
     public static String generateToken() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     public static class Info {
@@ -180,6 +188,14 @@ public class CurrentAccount {
             this.phoneNumber = phoneNumber;
             this.adminRole = adminRole;
             this.superAdminRole = superAdminRole;
+        }
+
+        public Info(String id, String phoneNumber, boolean adminRole, boolean superAdminRole, boolean enable) {
+            this.id = id;
+            this.phoneNumber = phoneNumber;
+            this.adminRole = adminRole;
+            this.superAdminRole = superAdminRole;
+            this.enable = enable;
         }
 
         public String getId() {

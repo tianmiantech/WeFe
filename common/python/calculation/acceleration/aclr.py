@@ -13,9 +13,10 @@
 # limitations under the License.
 
 from common.python.calculation.acceleration.operator import dot as operator_dot
+from common.python.calculation.acceleration.operator import encrypt
 
 
-def table_dot(it):
+def table_dot(it, bits=2048):
     """
     table dot
 
@@ -25,14 +26,15 @@ def table_dot(it):
     ----------
     it:list
         [(key,([x.],[y.]))]
+    bits:
     Returns
     -------
 
     """
-    return operator_dot.table_dot(it)
+    return operator_dot.table_dot(it, bits)
 
 
-def dot(value, w):
+def dot(value, w, bits=2048):
     """
     dot
 
@@ -42,9 +44,24 @@ def dot(value, w):
     ----------
     value
     w
+    bits
 
     Returns
     -------
 
     """
-    return operator_dot.dot(value, w)
+    return operator_dot.dot(value, w, bits)
+
+
+def dh_encrypt_id(data_instance, r, p, is_hash=False, bits=2048):
+    """
+    encrypt id for dh
+    :param data_instance:
+    :param r:
+    :param p:
+    :param is_hash:
+    :param bits:
+    :return:
+
+    """
+    return encrypt.dh_encrypt_id(data_instance, r, p, is_hash, bits=bits)

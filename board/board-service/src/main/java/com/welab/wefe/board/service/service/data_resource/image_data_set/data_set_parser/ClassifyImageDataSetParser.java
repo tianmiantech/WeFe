@@ -30,10 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,7 +158,8 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
         // 样本与 label index 的映射表(image : index)
         Map<String, Integer> sampleLabelIndexMap = getSampleLabelIndexMap(txtFiles);
 
-        List<ImageDataSetSampleMysqlModel> result = new ArrayList<>();
+        // 由于下面是并发处理，所以这里必须要使用线程安全的 List，避免 add 时元素覆盖。
+        List<ImageDataSetSampleMysqlModel> result = Collections.synchronizedList(new ArrayList<>());
         Exception error = ListUtil.parallelEach(
                 imageFiles.keySet(),
                 key -> {

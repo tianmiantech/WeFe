@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,6 +67,14 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
      * **** name3.jpg
      * <p>
      * label_list.txt
+     * <p>
+     * train.txt
+     * ./images/mixed_20.jpg ./annotations/mixed_20.xml
+     * ./images/banana_20.jpg ./annotations/banana_20.xml
+     * <p>
+     * val.txt
+     * ./images/mixed_20.jpg ./annotations/mixed_20.xml
+     * ./images/banana_20.jpg ./annotations/banana_20.xml
      */
     @Override
     protected void emitSamplesToDataSetFileDir(ImageDataSetMysqlModel dataSet, List<ImageDataSetSampleMysqlModel> trainSamples, List<ImageDataSetSampleMysqlModel> testSamples, Path outputDir) throws Exception {
@@ -73,13 +82,31 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
             emitImageFile(outputDir, sample);
             emitAnnotationFile(true, outputDir, sample);
         }
+        emitTranValFile(trainSamples, outputDir, "train.txt");
+
         for (ImageDataSetSampleMysqlModel sample : testSamples) {
             emitImageFile(outputDir, sample);
             emitAnnotationFile(false, outputDir, sample);
         }
+        emitTranValFile(trainSamples, outputDir, "val.txt");
 
         emitLabelListFile(dataSet, outputDir);
+    }
 
+    private void emitTranValFile(List<ImageDataSetSampleMysqlModel> samples, Path outputDir, String fileName) throws IOException {
+        File file = Paths.get(outputDir.toString(), fileName).toFile();
+        if (file.exists()) {
+            file.delete();
+        }
+
+        for (ImageDataSetSampleMysqlModel sample : samples) {
+            String fileNameWithoutSuffix = FileUtil.getFileNameWithoutSuffix(sample.getFileName());
+            String line = "./images/" + sample.getFileName() +
+                    " ./annotations/" + fileNameWithoutSuffix + ".xml" +
+                    System.lineSeparator();
+
+            FileUtil.writeTextToFile(line, file.toPath(), true);
+        }
     }
 
     /**
@@ -117,6 +144,7 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
     private void emitAnnotationFile(boolean isTrain, Path outputDir, ImageDataSetSampleMysqlModel sample) throws IOException {
         Annotation annotation = XmlUtil.toModel(sample.getXmlAnnotation(), Annotation.class);
         annotation.folder = isTrain ? "train" : "test";
+        annotation.path = "./images/" + annotation.filename;
         annotation.objectList = sample.getLabelInfo()
                 .toJavaObject(LabelInfo.class)
                 .objects
@@ -140,7 +168,8 @@ public class DetectionImageDataSetParser extends AbstractImageDataSetParser {
     @Override
     protected List<ImageDataSetSampleMysqlModel> parseFilesToSamples(ImageDataSetMysqlModel dataSet, Map<String, File> imageFiles, Map<String, File> xmlFiles, Map<String, File> txtFiles) throws Exception {
 
-        List<ImageDataSetSampleMysqlModel> result = new ArrayList<>();
+        // 由于下面是并发处理，所以这里必须要使用线程安全的 List，避免 add 时元素覆盖。
+        List<ImageDataSetSampleMysqlModel> result = Collections.synchronizedList(new ArrayList<>());
 
         Exception error = ListUtil.parallelEach(
                 imageFiles.keySet(),

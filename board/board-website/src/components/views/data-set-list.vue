@@ -43,8 +43,14 @@
                 min-width="220"
             >
                 <template v-slot="scope">
-                    {{ isFlow ? scope.row.data_resource.name : scope.row.name }}
-                    <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
+                    <template v-if="isFlow">
+                        {{ scope.row.data_resource ? scope.row.data_resource.name : scope.row.name }}
+                        <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
+                    </template>
+                    <template v-else>
+                        {{ scope.row.name }}
+                        <p class="p-id">{{ scope.row.data_set_id || scope.row.id || scope.row.data_resource_id }}</p>
+                    </template>
                 </template>
             </el-table-column>
             <el-table-column
@@ -65,8 +71,8 @@
             <el-table-column
                 label="资源类型"
                 prop="data_resource_type"
-                width="130"
                 align="center"
+                width="130"
             >
                 <template v-slot="scope">
                     {{ sourceTypeMap[scope.row.data_resource_type ]}}
@@ -80,7 +86,10 @@
             >
                 <template v-slot="scope">
                     <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                        <el-icon v-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
+                        <el-icon v-if="scope.row.data_resource && scope.row.data_resource.contains_y" class="el-icon-check" style="color: #67C23A">
+                            <elicon-check />
+                        </el-icon>
+                        <el-icon v-else-if="scope.row.contains_y" class="el-icon-check" style="color: #67C23A">
                             <elicon-check />
                         </el-icon>
                         <el-icon v-else class="el-icon-close">
@@ -95,8 +104,8 @@
                 min-width="120"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.tags || scope.row.data_resource.tags">
-                        <template v-for="(item, index) in isFlow ? scope.row.data_resource.tags.split(',') : scope.row.tags.split(',')" :key="index">
+                    <template v-if="scope.row.data_resource && scope.row.data_resource.tags || scope.row.tags">
+                        <template v-for="(item, index) in (isFlow ? scope.row.data_resource.tags.split(',') : (scope.row.tags ? scope.row.tags.split(',') : []))" :key="index">
                             <el-tag
                                 v-show="item"
                                 class="mr10"
@@ -114,9 +123,9 @@
             >
                 <template v-slot="scope">
                     <p v-if="projectType === 'DeepLearning'">
-                        样本量/已标注：{{ isFlow ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}/{{isFlow ? scope.row.data_resource.labeled_count : scope.row.labeled_count}}
+                        样本量/已标注：{{ isFlow ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}/{{isFlow ? scope.row.data_resource.labeled_count : scope.row.labeled_count }}
                         <br>
-                        标注进度：{{ ((scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count) / (scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count)).toFixed(2) * 100 }}%
+                        标注进度：{{ ((scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count) / (scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count) * 100).toFixed(2) }}%
                         <br>
                         样本分类：
                         <template v-if="scope.row.data_resource">
@@ -127,7 +136,7 @@
                         </template>
                     </p>
                     <p v-else>
-                        特征量：{{ scope.row.data_resource ? scope.row.data_resource.feature_count : scope.row.feature_count }}
+                        特征量：{{ scope.row.data_resource ? scope.row.data_resource.feature_count : scope.row.feature_count || '-' }}
                         <br>
                         样本量：{{ scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}
                         <template v-if="scope.row.data_resource ? scope.row.data_resource.contains_y && scope.row.data_resource.y_positive_sample_count : scope.row.contains_y && scope.row.y_positive_sample_count">
@@ -146,7 +155,7 @@
                 min-width="110"
             >
                 <template v-slot="scope">
-                    {{scope.row.data_resource.usage_count_in_job}}
+                    {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -156,30 +165,32 @@
                 min-width="110"
             />
             <el-table-column
-                label="上传时间"
+                :label="userInfo.member_id === memberId ? '上传者' : '上传时间'"
                 min-width="160"
             >
                 <template v-slot="scope">
-                    <!-- {{ scope.row.creator_nickname }}<br> -->
+                    <span v-if="userInfo.member_id === memberId">{{ scope.row.creator_nickname }}<br></span>
                     {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
             <el-table-column
                 fixed="right"
                 label="选择数据资源"
-                width="140px"
+                width="140"
             >
                 <template v-slot="scope">
                     <slot name="operation">
                         <div class="cell-reverse">
                             <el-tooltip
                                 v-if="is_my_data_set"
+                                :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                 content="预览数据"
                                 placement="top"
                             >
                                 <el-button
                                     circle
                                     type="info"
+                                    :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                     @click="showDataSetPreview(scope.row)"
                                 >
                                     <el-icon>
@@ -238,6 +249,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
     import DataSetPreview from '@comp/views/data_set-preview';
     import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
@@ -265,6 +277,7 @@
             dataSets:      Array,
             isShow:        Boolean,
             projectType:   String,
+            memberId:      String,
         },
         emits: ['list-loaded', 'close-dialog', 'selectDataSet', 'batchDataSet'],
         data() {
@@ -285,8 +298,8 @@
                 requestMethod:   'post',
                 sourceTypeMap:   {
                     BloomFilter:  '布隆过滤器',
-                    ImageDataSet: 'ImageDataSet',
-                    TableDataSet: 'TableDataSet',
+                    ImageDataSet: '图像数据集',
+                    TableDataSet: '数据集',
                 },
             };
         },
@@ -301,6 +314,7 @@
                 });
                 return total;
             },
+            ...mapGetters(['userInfo']),
         },
         watch: {
             isShow: {
@@ -358,7 +372,7 @@
                     item.$unchanged = false;
                     this.list[index] = item;
                     this.oldCheckedList.find(sitem => {
-                        if (item.data_resource_id === sitem.data_set_id ) {
+                        if (item.data_resource && item.data_resource.data_resource_id === sitem.data_set_id || item.data_resource_id === sitem.data_set_id ) {
                             item.$checked = true;
                             item.$unchanged = true;
                         }

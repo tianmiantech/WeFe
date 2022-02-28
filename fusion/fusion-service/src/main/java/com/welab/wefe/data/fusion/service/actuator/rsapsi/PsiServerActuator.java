@@ -22,11 +22,11 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.data.fusion.service.enums.ActionType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
+import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -34,7 +34,9 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author hunter.zhao
@@ -56,6 +58,11 @@ public class PsiServerActuator extends AbstractPsiActuator {
         this.port = port;
     }
 
+
+    private Map<Integer, byte[][]> cacheMap = new HashMap<>();
+    // -------------↑↑↑↑The actuator caches data information during execution↑↑↑↑-------------//
+
+    private ThreadLocal<Integer> threadId = new ThreadLocal<>();
 
     public PsiServerActuator fillBloomFilters(BloomFilters bloomFilters) {
         this.bf = bloomFilters;
@@ -126,27 +133,21 @@ public class PsiServerActuator extends AbstractPsiActuator {
         try {
 
             byte[][] query = PSIUtils.receive2DBytes(socket);
-            DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            int index = (int) PSIUtils.receiveInteger(d_in);
-
-            LOG.info("server wait spend :  {} ms ", (System.currentTimeMillis() - start));
+            Integer index = FusionUtils.extractIndex(query);
+            byte[][] queryBody = FusionUtils.extractData(query);
+            LOG.info("server wait spend :  {} ms  current_index: {}", (System.currentTimeMillis() - start), index);
 
             long start1 = System.currentTimeMillis();
 
             //Encrypted again
-            byte[][] result = CryptoUtils.sign(N, d, query);
+            byte[][] result = CryptoUtils.sign(N, d, queryBody);
 
-            LOG.info("server a.mod(N) spend :  {} ms size: {}", (System.currentTimeMillis() - start1), result.length);
+            LOG.info("server a.mod(N) spend :  {} ms size: {}  current_index: {}", (System.currentTimeMillis() - start1), result.length, index);
 
             /**
              * Return the query result
              */
-            DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-            PSIUtils.send2DBytes(socket, result);
-            PSIUtils.sendInteger(d_out, index);
-
-            processedCount.add(result.length);
-            LOG.info("processedCount: " + processedCount.longValue());
+            FusionUtils.sendByteAndIndex(socket, result, index);
 
             /**
              * Receive alignment results
@@ -158,6 +159,8 @@ public class PsiServerActuator extends AbstractPsiActuator {
                 fusionCount.increment();
             }
 
+            processedCount.add(result.length);
+            LOG.info("processedCount: " + processedCount.longValue());
             LOG.info("fusionCount: " + fusionCount.longValue());
 
             //Put in storage
@@ -166,7 +169,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
             //Clean current batch
 //            clear();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("数据融合错误，ERROR：", e);
         }
 
 

@@ -16,7 +16,6 @@
 package com.welab.wefe.board.service.fusion.actuator;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.api.project.fusion.actuator.psi.*;
@@ -41,6 +40,7 @@ import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author hunter.zhao
@@ -52,7 +52,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
     /**
      * Fragment size, default 10000
      */
-    public int shardSize = 1000;
+    public int shardSize = 10000;
     public Integer currentIndex = 0;
     public List<FieldInfo> fieldInfoList;
     public String dstMemberId;
@@ -61,6 +61,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     private String[] headers;
     public Boolean serverIsReady = false;
+    private final ReentrantLock lock = new ReentrantLock(true);
 
     public ClientActuator(String businessId, String dataSetId, Boolean isTrace, String traceColumn, String dstMemberId, Long dataCount) {
         super(businessId, dataSetId, isTrace, traceColumn, dataCount);
@@ -125,23 +126,25 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 break;
             case falsify:
             case running:
-                fusionTaskService.updateByBusinessId(
+                fusionTaskService.updateErrorByBusinessId(
                         businessId,
                         FusionTaskStatus.Interrupt,
                         dataCount,
                         fusionCount.longValue(),
                         processedCount.longValue(),
-                        getSpend()
+                        getSpend(),
+                        error
                 );
                 break;
             default:
-                fusionTaskService.updateByBusinessId(
+                fusionTaskService.updateErrorByBusinessId(
                         businessId,
                         FusionTaskStatus.Failure,
                         dataCount,
                         fusionCount.longValue(),
                         processedCount.longValue(),
-                        getSpend()
+                        getSpend(),
+                        error
                 );
                 break;
         }
@@ -151,7 +154,11 @@ public class ClientActuator extends AbstractPsiClientActuator {
     public void notifyServerClose() {
         //notify the server that the task has ended
         try {
-            gatewayService.callOtherMemberBoard(dstMemberId, ServerCloseApi.class, new ServerCloseApi.Input(businessId), JSONObject.class);
+            gatewayService.callOtherMemberBoard(
+                    dstMemberId,
+                    ServerCloseApi.class,
+                    new ServerCloseApi.Input(businessId, status.name(), error),
+                    JSONObject.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,7 +166,8 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
     @Override
     public List<JObject> next() {
-        synchronized (dataSetStorageService) {
+        try {
+            lock.lock();
             long start = System.currentTimeMillis();
 
             PageOutputModel model = dataSetStorageService.getListByPage(
@@ -183,12 +191,16 @@ public class ClientActuator extends AbstractPsiClientActuator {
             });
 
 
-            LOG.info("cursor {} spend: {} curList {}", currentIndex, System.currentTimeMillis() - start, curList.size());
+            LOG.info("cursor {} spend: {} curList {} list {}", currentIndex, System.currentTimeMillis() - start, curList.size(), list.size());
 
             currentIndex++;
 
             return curList;
+
+        } finally {
+            lock.unlock();
         }
+
     }
 
     @Override
@@ -198,22 +210,30 @@ public class ClientActuator extends AbstractPsiClientActuator {
         PsiDumpHelper.dump(businessId, columnList, fruit);
 
         LOG.info("fruit insert end...");
-
-        System.out.println("测试结果：" + JSON.toJSONString(fruit));
-
-        //记录进度
     }
 
     @Override
     public Boolean hasNext() {
-        synchronized (dataSetStorageService) {
+        try {
+            lock.lock();
             PageOutputModel model = dataSetStorageService.getListByPage(
                     Constant.DBName.WEFE_DATA,
                     dataSetStorageService.createRawDataSetTableName(dataSetId),
                     new PageInputModel(currentIndex, shardSize)
             );
+
+            LOG.info("currentIndex {} mode data size {}", currentIndex, model.getData().size());
             return model.getData().size() > 0;
+        } finally {
+            lock.unlock();
         }
+
+    }
+
+    @Override
+    public Integer sliceNumber() {
+        return dataCount.intValue() % shardSize == 0 ? dataCount.intValue() / shardSize
+                : dataCount.intValue() / shardSize + 1;
     }
 
     @Override
@@ -242,7 +262,6 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 new DownloadBFApi.Input(businessId),
                 JSONObject.class
         );
-
 
         LOG.info("downloadBloomFilter end {} ", result);
 

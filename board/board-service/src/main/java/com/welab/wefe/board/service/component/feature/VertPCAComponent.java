@@ -57,9 +57,6 @@ public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Para
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
     		VertOneHotComponent.Params params) throws FlowNodeException {
-
-        JSONObject taskParam = new JSONObject();
-
         JObject resultObj = JObject.create();
         List<String> featureList = new ArrayList<>();
         params.getMembers().forEach(member -> {
@@ -70,10 +67,7 @@ public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Para
             }
         });
         resultObj.append("column_names", featureList);
-
-        taskParam.put("params", resultObj);
-
-        return taskParam;
+        return resultObj;
     }
 
     @Override

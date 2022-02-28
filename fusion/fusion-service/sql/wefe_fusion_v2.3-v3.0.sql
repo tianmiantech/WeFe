@@ -1,2 +1,7 @@
-ALTER TABLE `partner`
-    MODIFY COLUMN `interface_name` varchar (1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '请求接口名称' AFTER `log_interface`;
+ALTER TABLE wefe_data_fusion.bloom_filter CHANGE process_count processed_count int(255) NULL;
+
+
+-- 添加融合主键展示字段
+ALTER TABLE bloom_filter ADD hash_function varchar(255) NULL;
+
+

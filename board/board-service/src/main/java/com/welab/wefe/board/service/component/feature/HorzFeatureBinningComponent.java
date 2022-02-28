@@ -100,10 +100,7 @@ public class HorzFeatureBinningComponent extends AbstractComponent<HorzFeatureBi
 		JObject binningParam = JObject.create()
 				.append("bin_num", bin_num)
 				.append("bin_names", bin_names);
-
-		taskParam.put("params", binningParam);
-
-		return taskParam;
+		return binningParam;
 	}
 
     @Override

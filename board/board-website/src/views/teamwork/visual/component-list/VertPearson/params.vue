@@ -156,42 +156,40 @@
 
                     nextTick(_ => {
                         vData.loading = false;
-                        if (code === 0) {
-                            if(data.params) {
-                                const {
-                                    members,
-                                    cross_parties,
-                                } = data.params;
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const {
+                                members,
+                                cross_parties,
+                            } = data.params;
 
-                                vData.cross_parties = cross_parties;
-                                vData.feature_column_count = 0;
-                                vData.total_column_count = 0;
+                            vData.cross_parties = cross_parties;
+                            vData.feature_column_count = 0;
+                            vData.total_column_count = 0;
 
-                                vData.lastSelection = [];
-                                vData.featureSelectTab = members.map(member => {
-                                    vData.feature_column_count += member.$checkedColumnsArr.length;
-                                    vData.total_column_count += member.features.length;
+                            vData.lastSelection = [];
+                            vData.featureSelectTab = members.map(member => {
+                                vData.feature_column_count += member.$checkedColumnsArr.length;
+                                vData.total_column_count += member.features.length;
 
-                                    const $feature_list = member.$checkedColumnsArr.map(item => {
-                                        return {
-                                            name: item,
-                                        };
-                                    });
-
-                                    vData.lastSelection.push({
-                                        member_id:   member.member_id,
-                                        member_name: member.member_name,
-                                        member_role: member.member_role,
-                                        $feature_list,
-                                    });
-
+                                const $feature_list = member.$checkedColumnsArr.map(item => {
                                     return {
-                                        ...member,
-                                        $checkedColumns: '',
-                                        $feature_list:   member.features,
+                                        name: item,
                                     };
                                 });
-                            }
+
+                                vData.lastSelection.push({
+                                    member_id:   member.member_id,
+                                    member_name: member.member_name,
+                                    member_role: member.member_role,
+                                    $feature_list,
+                                });
+
+                                return {
+                                    ...member,
+                                    $checkedColumns: '',
+                                    $feature_list:   member.features,
+                                };
+                            });
                         }
                     });
                 },

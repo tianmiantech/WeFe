@@ -47,7 +47,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -85,7 +84,7 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
         job.role = graph.getJob().getMyRole();
         job.memberId = CacheObjects.getMemberId();
         job.env = new Env(imageDataIoParam);
-        job.members = graph.getMembers().stream().map(Member::new).collect(Collectors.toList());
+        job.members = Member.forDeepLearning(graph.getMembers());
 
         DataResourceOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
         JObject dataSetInfo = JObject.create(myJobDataSet);

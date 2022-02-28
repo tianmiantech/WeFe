@@ -26,12 +26,12 @@ COMM_CONF_KEY_MYSQL_PORT = "db.mysql.port"
 COMM_CONF_KEY_MYSQL_DATABASE = "db.mysql.database"
 COMM_CONF_KEY_MYSQL_USERNAME = "db.mysql.username"
 COMM_CONF_KEY_MYSQL_PASSWORD = "db.mysql.password"
+COMM_CONF_IS_LOCAL = "is_local"
 
 # SQLite config
 COMM_CONF_DB_SQLITE_DATABASE = "db.sqlite.database"
 
 COMM_CONF_WEFE_JOB_WORK_MODE = "wefe.job.work_mode"
-
 
 
 class JobStatus(object):
@@ -71,7 +71,22 @@ class MemberRole(object):
     PROMOTER = "promoter"
     ARBITER = "arbiter"
 
+class ComponentName(object):
+    """
+    component name
+    """
+    CLASSIFY = "PaddleClassify"
+    DETECTION = "PaddleDetection"
 
+class TaskResultType(object):
+    """
+    task result type
+    """
+    LOSS = "loss"
+    ACCURACY = "accuracy"
+    MAP = "mAP"
+    INFER = "infer"
+    LABEL = "label"
 
 if __name__ == '__main__':
     pass

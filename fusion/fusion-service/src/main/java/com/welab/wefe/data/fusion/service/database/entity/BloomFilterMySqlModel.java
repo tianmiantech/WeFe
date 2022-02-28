@@ -98,6 +98,12 @@ public class BloomFilterMySqlModel extends AbstractBaseMySqlModel {
      */
     private String rows;
 
+    /**
+     * hash_function
+     * @return
+     */
+    private String hashFunction;
+
     public String getName() {
         return name;
     }
@@ -216,5 +222,13 @@ public class BloomFilterMySqlModel extends AbstractBaseMySqlModel {
 
     public void setProcess(Progress process) {
         this.process = process;
+    }
+
+    public String getHashFunction() {
+        return hashFunction;
+    }
+
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
     }
 }

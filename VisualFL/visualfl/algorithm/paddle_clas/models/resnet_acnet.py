@@ -23,7 +23,7 @@ import paddle.fluid as fluid
 from paddle.fluid.param_attr import ParamAttr
 
 __all__ = [
-    "ResNet_ACNet", "ResNet18_ACNet", "ResNet34_ACNet", "ResNet50_ACNet",
+    "ResNetACNet", "ResNet18_ACNet", "ResNet34_ACNet", "ResNet50_ACNet",
     "ResNet101_ACNet", "ResNet152_ACNet"
 ]
 
@@ -304,7 +304,7 @@ class ResNetACNet(object):
 
 def ResNet18_ACNet(deploy=False):
     """ResNet18 + ACNet"""
-    model = ResNet_ACNet(layers=18, deploy=deploy)
+    model = ResNetACNet(layers=18, deploy=deploy)
     return model
 
 

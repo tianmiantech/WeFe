@@ -45,7 +45,7 @@ COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE = "flow.spark.submit.default.
 COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS = "flow.spark.submit.default.num.executors"
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY = "flow.spark.submit.default.executor.memory"
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES = "flow.spark.submit.default.executor.cores"
-COMM_CONF_KEY_BACKEND = "wefe.job.backend"
+# COMM_CONF_KEY_BACKEND = "wefe.job.backend"
 COMM_CONF_KEY_ACCELERATION = "wefe.job.acceleration"
 
 COMM_CONF_KEY_FC_STORAGE_TYPE = "fc.storage.type"
@@ -119,8 +119,8 @@ class STORAGETYPE(object):
     """
     Storage Type： ck, lmdb, ots
     """
-    CLICKHOUSE = 'clickhouse',
-    LMDB = 'lmdb',
+    CLICKHOUSE = 'clickhouse'
+    LMDB = 'lmdb'
     OTS = 'ots'
     OSS = 'oss'
 
@@ -288,5 +288,24 @@ class AccelerationType(object):
     FPGA = "FPGA"
 
 
+class IntermediateDataFlag(object):
+    """
+    Intermediate data serialization type
+    """
+    ITEM_SERIALIZATION = 1
+    BATCH_SERIALIZATION = 2
+
+
+class RuntimeOptionKey(object):
+    """
+    Runtime option key
+    """
+    FC_PARTITION = "fc_partition"
+    SPARK_PARTITION = "spark_partition"
+    FEATURE_COUNT = "features_count"
+    MEMBERS_BACKEND = "members_backend"
+
+
 if __name__ == '__main__':
-    print(BACKEND.__dict__.get("SPARK")[0])
+    pass
+    # print(BACKEND.__dict__.get("SPARK")[0])

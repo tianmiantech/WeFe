@@ -60,7 +60,7 @@ public class ApiRequestRecordMysqlModel extends AbstractBaseMySqlModel {
     private Long spend;
 
     /**
-     * 请求结果：1 成功、0 失败
+     * 请求结果
      */
     @Column(name = "request_result")
     private Integer requestResult;

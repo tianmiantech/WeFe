@@ -20,8 +20,10 @@
                             show-word-limit
                         />
                     </el-form-item>
-                    <el-form-item prop="tag">
-                        <p class="tags-tips mb10 f12"><i class="color-danger">*</i> 为数据资源设置关键词，方便大家快速了解你 ：）</p>
+                    <p class="tags-tips mb10 f12">
+                        <i class="color-danger">*</i> 为数据资源设置关键词，方便大家快速了解你 ：）
+                    </p>
+                    <el-form-item>
                         <el-tag
                             v-for="(tag, index) in tagList"
                             :key="index"
@@ -33,7 +35,7 @@
                         <el-input
                             ref="saveTagInput"
                             v-model="tagInputValue"
-                            class="input-new-tag"
+                            class="input-new-tag mb5"
                             show-word-limit
                             :maxlength="10"
                             placeholder="按回车或 Tab 添加建关键词"
@@ -75,7 +77,7 @@
                     :span="10"
                     style="position: relative;"
                 >
-                    <fieldset style="min-height:230px;">
+                    <fieldset style="min-height:240px;">
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
@@ -437,6 +439,13 @@
         >
             <div class="text-c">
                 <el-progress
+                    v-if="uploadTask.status === 'failed'"
+                    :percentage="uploadTask.progress || 0"
+                    status="exception"
+                    type="dashboard"
+                />
+                <el-progress
+                    v-else
                     :percentage="uploadTask.progress || 0"
                     :color="uploadTask.colors"
                     type="dashboard"
@@ -678,6 +687,7 @@
                     total_row_count:     0,
                     added_row_count:     0,
                     repeat_id_row_count: 0,
+                    status:              '',
                 },
                 isCanClose:         false,
                 addDataType:        'csv',
@@ -1047,6 +1057,11 @@
 
             tagInputConfirm() {
                 const val = this.tagInputValue;
+                const existsed = this.tagList.find(x => x.label === val);
+
+                if(existsed) {
+                    return this.$message.error('标签不能重复!');
+                }
 
                 if (val) {
                     this.tagList.push({
@@ -1187,14 +1202,23 @@
                         const { estimate_time, name, data_resource_id, progress, total_row_count, added_row_count, repeat_id_row_count, error_message, status, completed_data_count, total_data_count, estimate_remaining_time, invalid_data_count, progress_ratio } = data;
 
                         this.uploadTask.name = name;
+                        this.uploadTask.status = status;
                         this.uploadTask.progress = progress || progress_ratio;
+                        if(this.uploadTask.progress > 100) {
+                            this.uploadTask.progress = 100;
+                        }
                         this.uploadTask.estimate_time = (estimate_time || estimate_remaining_time) / 1000;
-                        this.uploadTask.visible = true;
                         this.uploadTask.total_row_count = total_row_count || total_data_count;
                         this.uploadTask.added_row_count = added_row_count || completed_data_count;
                         this.uploadTask.repeat_id_row_count = repeat_id_row_count;
                         this.uploadTask.invalid_data_count = invalid_data_count;
-                        this.uploadTask.error_message = error_message;
+                        this.uploadTask.visible = true;
+
+                        if(status === 'failed' && !error_message) {
+                            this.uploadTask.error_message = '存储失败, 请重试';
+                        } else {
+                            this.uploadTask.error_message = error_message;
+                        }
 
                         // error in uploading, stop refreshing the interface
                         if (status === 'failed') {

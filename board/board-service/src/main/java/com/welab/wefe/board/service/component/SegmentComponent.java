@@ -83,7 +83,7 @@ class SegmentComponent extends AbstractComponent<SegmentComponent.Params> {
         }
 
         JObject taskConfig = JObject.create(dataIOTask.getTaskConf());
-        boolean withLabel = taskConfig.getBooleanValue("with_label");
+        boolean withLabel = taskConfig.getJObject("params").getBooleanValue("with_label");
 
         output.append("random_num", params.getSplitDataRandomNum())
                 .append("train_ratio", params.getTrainingRatio() / (params.getTrainingRatio() + params.getVerificationRatio()))
@@ -112,25 +112,38 @@ class SegmentComponent extends AbstractComponent<SegmentComponent.Params> {
         int trainCount = resultObj.getIntegerByPath("train_eval_segment.data.train_count.value", 0);
         // Number of positive training examples
         int trainyPositiveExampleCount = resultObj.getIntegerByPath("train_eval_segment.data.train_y_positive_example_count.value", 0);
-
+        // Number of negative training examples
+        int trainyNegativeExampleCount = trainCount - trainyPositiveExampleCount;
         // Proportion of training positive examples
         double trainyPositiveExampleRatio = resultObj.getDoubleByPath("train_eval_segment.data.train_y_positive_example_ratio.value", 0d);
-        int evalCount = resultObj.getIntegerByPath("train_eval_segment.data.eval_count.value", 0);
+        // Proportion of training negative examples
+        double trainyNegativeExampleRatio = 1 - trainyPositiveExampleRatio;
 
+        int evalCount = resultObj.getIntegerByPath("train_eval_segment.data.eval_count.value", 0);
         // Verify the number of positive examples
         int evalyPositiveExampleCount = resultObj.getIntegerByPath("train_eval_segment.data.eval_y_positive_example_count.value", 0);
-
+        // Verify the number of negative examples
+        int evalyNegativeExampleCount = evalCount - evalyPositiveExampleCount;
         // Verify the proportion of positive cases
         double evalyPositiveExampleVatio = resultObj.getDoubleByPath("train_eval_segment.data.eval_y_positive_example_ratio.value", 0d);
+        // Verify the proportion of negative cases
+        double evalyNegativeExampleVatio = 1 - evalyPositiveExampleVatio;
+
 
         resultModel.setResult(JObject.create()
                 .append("contains_y", withLabel)
                 .append("train_count", trainCount)
                 .append("train_y_positive_example_count", trainyPositiveExampleCount)
                 .append("train_y_positive_example_ratio", trainyPositiveExampleRatio)
+                .append("train_y_negative_example_count", trainyNegativeExampleCount)
+                .append("train_y_negative_example_ratio", trainyNegativeExampleRatio)
                 .append("eval_count", evalCount)
                 .append("eval_y_positive_example_count", evalyPositiveExampleCount)
-                .append("eval_y_positive_example_ratio", evalyPositiveExampleVatio).toJSONString());
+                .append("eval_y_positive_example_ratio", evalyPositiveExampleVatio)
+                .append("eval_y_negative_example_count", evalyNegativeExampleCount)
+                .append("eval_y_negative_example_ratio", evalyNegativeExampleVatio).toJSONString()
+
+        );
 
         return resultModel;
     }
