@@ -23,6 +23,7 @@ import com.welab.wefe.data.fusion.service.enums.ActionType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
+import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.SocketUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
@@ -31,7 +32,6 @@ import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
@@ -43,10 +43,6 @@ import java.util.concurrent.*;
  * @author hunter.zhao
  */
 public class PsiClientActuator extends AbstractPsiActuator {
-    BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(5);
-    RejectedExecutionHandler rejectedExecutionHandler =
-            new ThreadPoolExecutor.CallerRunsPolicy();
-
     ExecutorService threadPool = new ThreadPoolExecutor(
             Runtime.getRuntime().availableProcessors(),
             Runtime.getRuntime().availableProcessors() * 2,
@@ -54,8 +50,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
             TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>());
 
-    ExecutorService parseThreadPool = new ThreadPoolExecutor(5, 10, 0L, TimeUnit.MILLISECONDS,
-            workingQueue, rejectedExecutionHandler);
+    ExecutorService parseThreadPool = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() * 2,
+            100L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>());
 
     private BigInteger e;
     private BigInteger N;
@@ -187,12 +187,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
             threadPool.execute(() -> {
                 try {
                     fusion();
-
-                    //TODO 临时代码
-//                    Socket socket = socketQueue.take();
-//                    if (socket != null) {
-//                        receiveAndParseResult(socket);
-//                    }
                 } catch (StatusCodeWithException e) {
                     e.printStackTrace();
                     LOG.error("{} StatusCodeWithException : {}", getClass().getSimpleName(), e.getMessage());
@@ -213,8 +207,11 @@ public class PsiClientActuator extends AbstractPsiActuator {
 //                Socket socket = socketQueue.take();
 //                if (socket != null) {
 //                    parseThreadPool.execute(() -> {
-//                        receiveAndParseResult(socket);
-//                        socketLatch.countDown();
+//                        try {
+//                            receiveAndParseResult(socket);
+//                        } finally {
+//                            socketLatch.countDown();
+//                        }
 //                    });
 //                    socketQueueSize--;
 //                }
@@ -222,7 +219,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
 //                e1.printStackTrace();
 //            }
 //        }
-//
+
         try {
             latch.await();
 //            socketLatch.await();
@@ -270,7 +267,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
         query(socket);
 
         //Joins the queue to be parsed
-        //socketQueue.put(socket);
+//            socketQueue.put(socket);
         receiveAndParseResult(socket);
 //        } catch (InterruptedException e1) {
 //            e1.printStackTrace();
@@ -313,7 +310,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
         LOG.info("client send fusion data...");
 
-        sendData(socket, bs, index);
+        FusionUtils.sendByteAndIndex(socket, bs, index);
     }
 
     void clear(Integer index) {
@@ -335,10 +332,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
         long start = System.currentTimeMillis();
 
         try {
-            byte[][] ret = PSIUtils.receive2DBytes(socket);
-            DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            Integer index = (int) PSIUtils.receiveInteger(d_in);
-
+            byte[][] repBody = PSIUtils.receive2DBytes(socket);
+            Integer index = FusionUtils.extractIndex(repBody);
+            byte[][] ret = FusionUtils.extractData(repBody);
             LOG.info("receiveAndParseResult() current_index ： {} ", index);
 
             List<JObject> cur = cacheMap.get(index);
@@ -372,8 +368,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
             //Clear the cache
             clear(index);
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             try {
                 if (socket != null) {
@@ -382,23 +376,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-
-    /**
-     * Send data with an index
-     *
-     * @param bs
-     * @param index
-     */
-    private void sendData(Socket socket, byte[][] bs, int index) {
-        try {
-            DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-            PSIUtils.send2DBytes(socket, bs);
-            PSIUtils.sendInteger(d_out, index);
-        } catch (IOException e1) {
-            e1.printStackTrace();
         }
     }
 
@@ -452,11 +429,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
 
         /**
-         * Calculate the fragment size based on the number of fields
-         */
-        shard_size = shard_size / columnList.size();
-
-        /**
          * Supplementary trace field
          */
         if (isTrace) {
@@ -467,6 +439,11 @@ public class PsiClientActuator extends AbstractPsiActuator {
          * Find primary key composition fields
          */
         fieldInfoList = service.fieldInfoList(businessId);
+
+        /**
+         * Calculate the fragment size based on the number of fields
+         */
+        shard_size = shard_size / fieldInfoList.size();
     }
 
     @Override

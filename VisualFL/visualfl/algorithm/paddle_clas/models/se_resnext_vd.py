@@ -23,7 +23,7 @@ import paddle.fluid as fluid
 from paddle.fluid.param_attr import ParamAttr
 
 __all__ = [
-    "SE_ResNeXt_vd", "SE_ResNeXt50_32x4d_vd", "SE_ResNeXt101_32x4d_vd", "SENet154_vd"
+    "SE_ResNeXt_vd", "SE_ResNeXt50_vd_32x4d", "SE_ResNeXt101_vd_32x4d", "SENet154_vd"
 ]
 
 

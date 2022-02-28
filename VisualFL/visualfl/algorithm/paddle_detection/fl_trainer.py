@@ -133,7 +133,7 @@ def fl_trainer(
         max_iter = config_json["max_iter"]
         device = config_json.get("device", "cpu")
         use_vdl = config_json.get("use_vdl", False)
-        resume_checkpoint = config_json.get("resume", True)
+        resume_checkpoint = config_json.get("resume", False)
         save_model_dir = "model"
         save_checkpoint_dir = "checkpoint"
 

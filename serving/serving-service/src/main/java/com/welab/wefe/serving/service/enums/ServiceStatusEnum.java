@@ -22,7 +22,7 @@ package com.welab.wefe.serving.service.enums;
 
 public enum ServiceStatusEnum {
 
-    USED(1,"已启用"),
+    USED(1, "已启用"),
 
     UNUSED(0, "未启用");
 
@@ -51,6 +51,21 @@ public enum ServiceStatusEnum {
                 break;
             case 1:
                 result = ServiceStatusEnum.USED.message;
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
+    public static int getCodeByValue(String value) {
+        int result = 0;
+        switch (value) {
+            case "已启用":
+                result = ServiceStatusEnum.USED.code;
+                break;
+            case "未启用":
+                result = ServiceStatusEnum.UNUSED.code;
                 break;
             default:
                 break;

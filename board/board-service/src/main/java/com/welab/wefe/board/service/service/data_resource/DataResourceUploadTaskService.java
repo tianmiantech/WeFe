@@ -94,6 +94,15 @@ public class DataResourceUploadTaskService extends AbstractService {
         synchronized (LOCKER) {
             DataResourceUploadTaskMysqlModel task = findByDataResourceId(dataResourceId);
 
+            // 已经结束的任务不再更新进度
+            if (task.getStatus() != DataResourceUploadStatus.uploading) {
+                return;
+            }
+
+            if (completedDataCount > totalDataRowCount) {
+                completedDataCount = totalDataRowCount;
+            }
+
             int progress = 0;
             if (totalDataRowCount > 0) {
                 // Calculate progress
