@@ -100,7 +100,7 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
             emitImageFile(outputDir, sample);
 
             // 输出标注信息
-            int index = labelList.indexOf(sample.getLabelList());
+            int index = labelList.indexOf(StringUtil.trim(sample.getLabelList(), ','));
             labeledListString
                     .append(sample.getFileName())
                     .append(" ")
