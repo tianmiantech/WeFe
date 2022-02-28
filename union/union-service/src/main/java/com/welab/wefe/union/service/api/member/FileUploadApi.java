@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.welab.wefe.union.service.util.FileCheckerUtil;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.bson.Document;
@@ -80,6 +81,15 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileAp
         }
 
         String fileName = input.getFilename();
+
+        // 检查文件是否是支持的文件类型
+        try {
+            FileCheckerUtil.checkIsAllowFileType(fileName);
+        } catch (Exception e) {
+            return fail(e)
+                    .setHttpCode(599);
+        }
+
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
 
