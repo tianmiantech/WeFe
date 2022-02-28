@@ -44,11 +44,12 @@ public abstract class FileSecurityChecker {
     protected abstract void doCheck(File file) throws IOException;
 
     public static void check(File file) throws Exception {
-        checkIsAllowFileType(file.getName());
 
         // 为检查上传的文件是否安全
         String suffix = StringUtil.substringAfterLast(file.getName(), ".");
         try {
+            checkIsAllowFileType(file.getName());
+
             switch (suffix) {
                 case "xls":
                 case "xlsx":
