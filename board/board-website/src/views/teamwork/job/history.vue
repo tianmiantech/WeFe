@@ -3,7 +3,7 @@
         shadow="never"
         class="page"
     >
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="名称">
                 <el-input v-model="search.name" />
             </el-form-item>

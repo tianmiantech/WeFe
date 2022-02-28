@@ -3,6 +3,7 @@
         ref="form"
         v-loading="vData.loading"
         :disabled="disabled"
+        @submit.prevent
     >
         <el-form-item
             v-for="(item, index) in vData.selectList"

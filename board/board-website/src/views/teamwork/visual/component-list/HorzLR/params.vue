@@ -8,6 +8,7 @@
             class="flex-form"
             :model="vData.form"
             :disabled="disabled"
+            @submit.prevent
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
