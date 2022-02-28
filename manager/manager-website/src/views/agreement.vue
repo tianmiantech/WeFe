@@ -101,10 +101,10 @@
             <el-upload
                 v-loading="pending"
                 :http-request="() => {}"
-                accept=".png,.jpg,.pdf,.doc,.docx"
                 :headers="{ token: userInfo.token }"
                 :before-upload="beforeUpload"
                 :on-success="uploadFinished"
+                accept=".pdf"
                 class="mt10"
                 action="#"
                 drag
@@ -115,7 +115,7 @@
                 </div>
                 <template #tip>
                     <div class="el-upload__tip">
-                        支持 png, jpg 最大5M, word文档最大5M, PDF 最大10M
+                        只支持 PDF, 最大10M
                     </div>
                 </template>
             </el-upload>
