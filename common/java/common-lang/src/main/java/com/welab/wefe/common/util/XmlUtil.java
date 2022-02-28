@@ -71,7 +71,7 @@ public class XmlUtil {
             xStream.autodetectAnnotations(true);
             xStream.addPermission(AnyTypePermission.ANY);
             xStream.processAnnotations(clazz);
-
+            xStream.ignoreUnknownElements();
             XSTREAM_MAP.put(clazz, xStream);
         }
 

@@ -1,3 +1,28 @@
+-- account definition
+
+CREATE TABLE `account`
+(
+    `id`               varchar(32)  NOT NULL COMMENT '全局唯一标识',
+    `created_by`       varchar(32)  DEFAULT NULL COMMENT '创建人',
+    `created_time`     datetime(6) NOT NULL COMMENT '创建时间',
+    `updated_by`       varchar(32)  DEFAULT NULL COMMENT '更新人',
+    `updated_time`     datetime(6) DEFAULT NULL COMMENT '更新时间',
+    `phone_number`     varchar(32)  NOT NULL COMMENT '手机号',
+    `password`         varchar(128) NOT NULL COMMENT '密码',
+    `salt`             varchar(128) NOT NULL COMMENT '盐',
+    `nickname`         varchar(32)  NOT NULL COMMENT '昵称',
+    `email`            varchar(128) NOT NULL COMMENT '邮箱',
+    `super_admin_role` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员 超级管理员通常是第一个创建并初始化系统的那个人',
+    `admin_role`       tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是管理员 管理员有更多权限，比如设置 menber 是否对外可见。',
+    `audit_status`     varchar(32)  NOT NULL COMMENT '审核状态',
+    `audit_comment`    varchar(512) DEFAULT NULL COMMENT '审核意见',
+    `enable`           tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可用',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
+    KEY                `idx_create_time` (`created_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号';
+
+
 -- bloom_filter definition
 
 CREATE TABLE `bloom_filter`
@@ -26,6 +51,9 @@ CREATE TABLE `bloom_filter`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+-- data_set definition
+
 CREATE TABLE `data_set`
 (
     `id`                   varchar(32) NOT NULL COMMENT '全局唯一标识',
@@ -49,6 +77,8 @@ CREATE TABLE `data_set`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='数据集';
 
 
+-- data_source definition
+
 CREATE TABLE `data_source`
 (
     `database_type` varchar(255) DEFAULT NULL,
@@ -67,6 +97,7 @@ CREATE TABLE `data_source`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 
+-- field_info definition
 
 CREATE TABLE `field_info`
 (
@@ -85,6 +116,26 @@ CREATE TABLE `field_info`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
+-- global_config definition
+
+CREATE TABLE `global_config`
+(
+    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`   varchar(32) DEFAULT NULL COMMENT '创建人',
+    `created_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`   varchar(32) DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+    `group`        varchar(32) DEFAULT NULL COMMENT '配置项所在的组',
+    `name`         varchar(32) DEFAULT NULL COMMENT '配置项名称',
+    `value`        text COMMENT '配置项的值',
+    `comment`      text COMMENT '配置项的解释说明',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `index_unique_group_name` (`group`,`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置。';
+
+
+-- global_setting definition
+
 CREATE TABLE `global_setting`
 (
     `id`               varchar(32)  NOT NULL COMMENT '全局唯一标识',
@@ -100,6 +151,9 @@ CREATE TABLE `global_setting`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置 全局设置，这个表永远有且只有一条数据。';
 
+
+-- partner definition
+
 CREATE TABLE `partner`
 (
     `id`             varchar(64)  NOT NULL,
@@ -114,6 +168,8 @@ CREATE TABLE `partner`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
+
+-- task definition
 
 CREATE TABLE `task`
 (
@@ -139,26 +195,6 @@ CREATE TABLE `task`
     `is_trace`           tinyint(1) NOT NULL DEFAULT '0',
     `trace_column`       varchar(255)  DEFAULT NULL,
     `my_role`            varchar(255)  DEFAULT NULL,
+    `processed_count`    int(10) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
-
-CREATE TABLE `global_config`
-(
-    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`   varchar(32) DEFAULT NULL COMMENT '创建人',
-    `created_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`   varchar(32) DEFAULT NULL COMMENT '更新人',
-    `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
-    `group`        varchar(32) DEFAULT NULL COMMENT '配置项所在的组',
-    `name`         varchar(32) DEFAULT NULL COMMENT '配置项名称',
-    `value`        text COMMENT '配置项的值',
-    `comment`      text COMMENT '配置项的解释说明',
-    PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE KEY `index_unique_group_name` (`group`,`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置。';
-
-
-
-
-

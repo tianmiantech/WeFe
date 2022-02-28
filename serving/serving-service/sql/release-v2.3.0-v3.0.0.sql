@@ -156,3 +156,10 @@ CREATE TABLE payments_records(
                                  PRIMARY KEY (id)
 )  COMMENT = '收支记录';
 CREATE UNIQUE INDEX payments_records_index ON payments_records(id,service_id,client_id);
+
+
+alter table `account` add column `audit_status` varchar(32) NOT NULL DEFAULT '' COMMENT '审核状态';
+alter table `account` add column `audit_comment` varchar(512) DEFAULT NULL COMMENT '审核意见';
+alter table `account` add column `enable` tinyint(1) NOT NULL COMMENT '是否可用';
+update `account` set enable = 1;
+update `account` set audit_status = 'agree';

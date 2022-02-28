@@ -91,10 +91,10 @@ public class GlobalSettingService {
         model.setUpdatedBy(CurrentAccount.id());
         model.setMemberName(input.getMemberName());
         model.setMemberId(input.getMemberId());
-		if (input.getRsaPublicKey().length() > 50) {
+		if (input.getRsaPublicKey().length() > 50 && !input.getRsaPublicKey().contains("*****")) {
 			model.setRsaPublicKey(input.getRsaPublicKey());
 		}
-		if (input.getRsaPrivateKey().length() > 50) {
+		if (input.getRsaPrivateKey().length() > 50 && !input.getRsaPrivateKey().contains("*****")) {
 			model.setRsaPrivateKey(input.getRsaPrivateKey());
 		}
         globalSettingRepository.save(model);

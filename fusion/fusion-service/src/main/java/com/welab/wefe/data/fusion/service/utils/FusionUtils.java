@@ -15,9 +15,11 @@
  */
 package com.welab.wefe.data.fusion.service.utils;
 
+import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 
 import java.net.Socket;
+import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -51,12 +53,51 @@ public class FusionUtils {
     }
 
     /**
+     * Extract action
+     *
+     * @param body
+     */
+    public static String extractAction(List<String> body) {
+        String action = body.get(0);
+        body.remove(0);
+        return action;
+    }
+
+    /**
+     * Extract index
+     *
+     * @param body
+     */
+    public static int extractIndex(List<String> body) {
+        int index = Integer.valueOf(body.get(0));
+        body.remove(0);
+        return index;
+    }
+
+    /**
      * Extract index
      *
      * @param bs
      */
     public static int extractIndex(byte[][] bs) {
         return ByteUtils.byteArrayToInt(bs[bs.length - 1]);
+    }
+
+    /**
+     * Extract data
+     *
+     * @param body
+     */
+    public static byte[][] extractData(List<String> body) {
+
+        byte[][] bs = new byte[body.size()][];
+
+        //加密
+        for (int i = 0; i < body.size(); i++) {
+            bs[i] = Base64Util.base64ToByteArray(body.get(i));
+        }
+
+        return bs;
     }
 
     /**
