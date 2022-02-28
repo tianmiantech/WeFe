@@ -57,18 +57,22 @@ export const syncLogin = async (userInfo = {}) => {
 /**
  * 强制用户下线, 清除登录信息并跳转到登录页面
  */
-export const baseLogout = () => {
+export const baseLogout = async () => {
 
-    const { $router } = window.$app;
-    const { location: { href, pathname } } = window;
     const { baseUrl } = window.api;
+    const { $router, $http } = window.$app;
+    const { location: { href, pathname } } = window;
     const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
+
     // 重置 store 和 localstorage
+    if (userInfo) {
+        await $http.get({
+            url:         `/logout?token=${JSON.parse(userInfo).token}`,
+            systemError: false,
+        });
+    }
     clearUserInfo();
-    let json = eval('[' + userInfo + ']');
-    window.$app.$http.get({
-        url: '/logout?token=' + json[0].token,
-    });
+    setStorage().removeItem(`${baseUrl}_system_inited`);
 
     let query = {};
 

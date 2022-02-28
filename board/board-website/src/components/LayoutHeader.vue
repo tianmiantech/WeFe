@@ -133,7 +133,7 @@
             const userInfo = computed(() => store.state.base.userInfo);
             const tagsList = computed(() => store.state.base.tagsList);
             const { appContext } = getCurrentInstance();
-            const { $bus, $http } = appContext.config.globalProperties;
+            const { $bus } = appContext.config.globalProperties;
 
             const VideoGuideDialog = ref();
             const vData = reactive({
@@ -173,10 +173,6 @@
 
                 const policy = {
                     async logout() {
-                        await $http.post({
-                            url: '/logout',
-                        });
-
                         vData.loading = false;
                         baseLogout();
                     },

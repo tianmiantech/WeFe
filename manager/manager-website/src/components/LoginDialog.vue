@@ -24,6 +24,28 @@
                     type="password"
                 />
             </el-form-item>
+            <el-form-item>
+                <el-input
+                    v-model="form.code"
+                    placeholder="验证码"
+                    class="form-code"
+                    maxlength="10"
+                    clearable
+                >
+                    <template v-slot:append>
+                        <div
+                            class="code-img"
+                            @click="getImgCode"
+                        >
+                            <img
+                                v-show="imgCode"
+                                class="code-img"
+                                :src="imgCode"
+                            >
+                        </div>
+                    </template>
+                </el-input>
+            </el-form-item>
             <div class="text-c">
                 <el-button
                     type="primary"
@@ -58,8 +80,8 @@
                 form:    {
                     account:  '',
                     password: '',
-                    // code:         '',
-                    // key:          '',
+                    code:     '',
+                    key:      '',
                 },
                 imgCode: '',
             };
@@ -71,7 +93,7 @@
             this.$bus.$on('show-login-dialog', () => {
                 this.form.code = '';
                 this.show = true;
-                // this.getImgCode();
+                this.getImgCode();
                 clearUserInfo();
             });
         },
@@ -112,7 +134,7 @@
                         this.$bus.$emit('loginAndRefresh'); // notice other components
                     }
                 } else {
-                    // this.getImgCode();
+                    this.getImgCode();
                 }
             },
 
@@ -133,12 +155,12 @@
     .form-code{
         :deep(.el-input-group__append){
             padding:0;
-            width: 85px;
+            width: 90px;
             overflow: hidden;
         }
     }
     .code-img{
-        width: 85px;
+        width: 90px;
         height: 30px;
         cursor: pointer;
     }
