@@ -73,8 +73,14 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
                 output = readFromDatabase(input.getDataSourceId(), input.getSql());
             }
         } else {
+            String filename = input.getFilename();
+            String[] allowTypes = new String[] { ".csv", ".xls", "xlsx"};
+            Boolean CanUploaded = bloomfilterService.isValid(filename, allowTypes);
+            if (!CanUploaded) {
+                throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！",StatusCode.PARAMETER_VALUE_INVALID);
+            }
 
-            File file = bloomfilterService.getBloomfilterFile(input.getBloomfilterAddMethod(), input.getFilename());
+            File file = bloomfilterService.getBloomfilterFile(input.getBloomfilterAddMethod(), filename);
             try {
                 output = readFile(file);
             } catch (IOException e) {
