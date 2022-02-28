@@ -27,20 +27,10 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.UUID;
 
 /**
@@ -70,61 +60,6 @@ public class DownloadCallModelResultApi extends AbstractApi<DownloadCallModelRes
         FileUtil.writeTextToFile(result.getResult().toJSONString(), file.toPath(), false);
 
         return file(file);
-    }
-
-    private void download(String url, File file) throws IOException {
-        // 创建Http请求配置参数
-        RequestConfig requestConfig = RequestConfig.custom()
-                // 获取连接超时时间
-                .setConnectionRequestTimeout(10 * 1000)
-                // 请求超时时间
-                .setConnectTimeout(10 * 1000)
-                // 响应超时时间
-                .setSocketTimeout(1000 * 60 * 60)
-                .build();
-        CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
-        HttpGet httpGet = new HttpGet(url);
-        try (CloseableHttpResponse response = client.execute(httpGet)) {
-            InputStream is = response.getEntity().getContent();
-            if (file.exists()) {
-                file.delete();
-            }
-            file.getParentFile().mkdirs();
-            FileOutputStream fileout = new FileOutputStream(file);
-            /**
-             * 根据实际运行效果 设置缓冲区大小
-             */
-            byte[] buffer = new byte[10 * 1024];
-            int ch = 0;
-            long downloadSize = 0;
-            while ((ch = is.read(buffer)) != -1) {
-                fileout.write(buffer, 0, ch);
-                downloadSize += ch;
-                if (downloadSize % 1024 == 0) {
-                    LOG.info("模型下载进度：" + getSizeString(downloadSize));
-                }
-            }
-            is.close();
-            fileout.flush();
-            fileout.close();
-            LOG.info("模型下载完毕：" + getSizeString(downloadSize));
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            httpGet.releaseConnection();
-        }
-    }
-
-    private String getSizeString(long byteSize) {
-        if (byteSize < 1024) {
-            return byteSize + "byte";
-        }
-        if (byteSize < 1024 * 1024) {
-            return BigDecimal.valueOf(byteSize)
-                    .divide(BigDecimal.valueOf(1024), 2, RoundingMode.FLOOR) + "KB";
-        }
-        return BigDecimal.valueOf(byteSize)
-                .divide(BigDecimal.valueOf(1024 * 1024), 2, RoundingMode.FLOOR) + "MB";
     }
 
     public static class Input extends AbstractApiInput {
