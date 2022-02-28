@@ -26,6 +26,7 @@ import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -124,7 +125,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
         }
     }
 
-    private void align(Socket socket) {
+    private void align(Socket socket, List<String> dataBody) {
 
         LOG.info("align start...");
 
@@ -132,9 +133,10 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
         try {
 
-            byte[][] query = PSIUtils.receive2DBytes(socket);
-            Integer index = FusionUtils.extractIndex(query);
-            byte[][] queryBody = FusionUtils.extractData(query);
+//            dataBody.remove(0);
+//            byte[][] query = PSIUtils.receive2DBytes(socket);
+            Integer index = FusionUtils.extractIndex(dataBody);
+            byte[][] queryBody = FusionUtils.extractData(dataBody);
             LOG.info("server wait spend :  {} ms  current_index: {}", (System.currentTimeMillis() - start), index);
 
             long start1 = System.currentTimeMillis();
@@ -149,57 +151,60 @@ public class PsiServerActuator extends AbstractPsiActuator {
              */
             FusionUtils.sendByteAndIndex(socket, result, index);
 
-            /**
-             * Receive alignment results
-             */
-            List<byte[]> rs = PSIUtils.receive2DBytes2(socket);
-            List<JObject> fruit = new ArrayList<>();
-            for (int i = 0; i < rs.size(); i++) {
-                fruit.add(JObject.create(new String(rs.get(i))));
-                fusionCount.increment();
-            }
-
             processedCount.add(result.length);
-            LOG.info("processedCount: " + processedCount.longValue());
-            LOG.info("fusionCount: " + fusionCount.longValue());
 
-            //Put in storage
-            dump(fruit);
-
-            //Clean current batch
-//            clear();
         } catch (Exception e) {
             LOG.error("数据融合错误，ERROR：", e);
         }
-
-
     }
 
-    private void clear() {
-        LOG.info("cache clear");
-        //removeAll
-        fruit.clear();
+    private void receiveResult(List<String> dataBody) {
+        /**
+         * Receive alignment results
+         */
+//        List<byte[]> rs = PSIUtils.receive2DBytes2(socket);
+        byte[][] rs = FusionUtils.extractData(dataBody);
+        List<JObject> fruit = new ArrayList<>();
+        for (int i = 0; i < rs.length; i++) {
+            fruit.add(JObject.create(new String(rs[i])));
+            fusionCount.increment();
+        }
+
+
+        LOG.info("processedCount: " + processedCount.longValue());
+        LOG.info("fusionCount: " + fusionCount.longValue());
+
+        //Put in storage
+        dump(fruit);
     }
 
-    private void end() {
+    private void end(List<String> body) {
         //Modify the state of
-        this.status = PSIActuatorStatus.success;
+        this.status = PSIActuatorStatus.valueOf(body.get(0));
 
-        LOG.info("align end...");
+        LOG.info("align end...,status is {}", this.status);
     }
 
     private void execute(Socket socket) {
-        String action = PSIUtils.receiveString(socket);
-        LOG.info("执行execute：" + action);
+
+        List<String> dataBody = PSIUtils.receiveStringList(socket);
+        if (CollectionUtils.isEmpty(dataBody)) {
+            return;
+        }
+
+        String action = FusionUtils.extractAction(dataBody);
+        LOG.info("执行execute：{}", action);
         if (ActionType.download.name().equals(action)) {
             /**
              * download
              */
             sendBloomFilter(socket);
         } else if (ActionType.align.name().equals(action)) {
-            align(socket);
+            align(socket, dataBody);
+        } else if (ActionType.fusion.name().equals(action)) {
+            receiveResult(dataBody);
         } else if (ActionType.end.name().equals(action)) {
-            end();
+            end(dataBody);
         }
 
         //Update last time
