@@ -186,16 +186,18 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
             processedCount.add(result.length);
 
+            LOG.info("processedCount: " + processedCount.longValue());
+
         } catch (Exception e) {
             LOG.error("数据融合错误，ERROR：", e);
         }
     }
 
     private void receiveResult(List<String> dataBody) {
+        LOG.info("dataBody size: " + processedCount.longValue());
         /**
          * Receive alignment results
          */
-//        List<byte[]> rs = PSIUtils.receive2DBytes2(socket);
         byte[][] rs = FusionUtils.extractData(dataBody);
         List<JObject> fruit = new ArrayList<>();
         for (int i = 0; i < rs.length; i++) {
@@ -203,8 +205,6 @@ public class PsiServerActuator extends AbstractPsiActuator {
             fusionCount.increment();
         }
 
-
-        LOG.info("processedCount: " + processedCount.longValue());
         LOG.info("fusionCount: " + fusionCount.longValue());
 
         //Put in storage

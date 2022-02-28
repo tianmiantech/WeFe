@@ -313,7 +313,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
             List<JObject> cur = cacheMap.get(index);
             List<String> rs = new ArrayList();
             rs.add(ActionType.fusion.name());
-            rs.add(index.toString());
 
             List<JObject> fruit = new ArrayList<>();
             for (int i = 0; i < ret.length; i++) {
