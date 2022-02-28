@@ -85,7 +85,7 @@ public class UserService {
         // Check old password
         if (!user.getPassword().equals(Md5.of(oldPassword + user.getSalt()))) {
             CurrentAccount.logout(CurrentAccount.id());
-            throw new StatusCodeWithException("您输入的旧密码不正确", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("账号已被禁止登陆，请一个小时后再试，或联系管理员。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Regenerate salt
