@@ -16,6 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.actuator.rsapsi;
 
+import com.google.common.collect.Lists;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
@@ -113,6 +114,19 @@ public class PsiClientActuator extends AbstractPsiActuator {
     }
 
 
+    public static void main(String[] args) {
+        Socket socket = SocketUtils
+                .create("127.0.0.1", 9090)
+                .setRetryCount(3)
+                .setRetryDelay(1000)
+                .builder();
+
+
+        List list = Lists.newArrayList();
+        list.add(ActionType.download.name());
+        PSIUtils.sendStringList(socket, list);
+    }
+
     /**
      * Download the Server Square Bloom filter
      */
@@ -128,7 +142,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
             LOG.info("socket: {} ", socket);
 
-            PSIUtils.sendStringList(socket, Arrays.asList(ActionType.download.name()));
+            List<String> body = new ArrayList();
+            body.add(ActionType.download.name());
+            PSIUtils.sendStringList(socket, body);
 
             LOG.info("client download bloom_filter data...");
 
@@ -224,12 +240,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
         receiveAndParseResult(socket);
     }
 
-    public static void main(String[] args) {
-        Integer index = 1;
-        List<String> body = Arrays.asList(ActionType.align.name(), index.toString());
-        System.out.println(body);
-    }
-
     /**
      * After data is encrypted, query verification is initiated
      */
@@ -242,7 +252,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
         List<BigInteger> r = new ArrayList<>();
         List<BigInteger> rInv = new ArrayList<>();
 
-        List<String> body = Arrays.asList(ActionType.align.name(), index.toString());
+        List<String> body = new ArrayList();
+        body.add(ActionType.align.name());
+        body.add(index.toString());
 
 //        byte[][] bs = new byte[cur.size()][];
 
@@ -298,8 +310,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
             LOG.info("receiveAndParseResult() current_index ： {} ", index);
 
             List<JObject> cur = cacheMap.get(index);
-//            List<byte[]> rs = new ArrayList<>();
-            List<String> rs = Arrays.asList(ActionType.fusion.name());
+            List<String> rs = new ArrayList();
+            rs.add(ActionType.fusion.name());
+
             List<JObject> fruit = new ArrayList<>();
             for (int i = 0; i < ret.length; i++) {
 
@@ -382,8 +395,10 @@ public class PsiClientActuator extends AbstractPsiActuator {
                 .create(ip, port)
                 .setRetryCount(3)
                 .builder();
-        PSIUtils.sendString(closeSocket, ActionType.end.name());
-        PSIUtils.sendString(closeSocket, status.name());
+        List<String> stringList = new ArrayList<>();
+        stringList.add(ActionType.end.name());
+        stringList.add(status.name());
+        PSIUtils.sendStringList(closeSocket, stringList);
         SocketUtils.close(closeSocket);
     }
 
@@ -417,6 +432,8 @@ public class PsiClientActuator extends AbstractPsiActuator {
             LOG.error("数据集 {} 数据量有误！！", dataSetId);
             status = PSIActuatorStatus.falsify;
         }
+
+        LOG.info("数据量 {}", dataSetRowCount);
     }
 
     @Override

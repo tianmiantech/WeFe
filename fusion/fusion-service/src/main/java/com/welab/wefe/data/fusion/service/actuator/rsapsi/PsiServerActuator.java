@@ -71,6 +71,39 @@ public class PsiServerActuator extends AbstractPsiActuator {
         return this;
     }
 
+    public static void main(String[] args) {
+
+        try {
+            ServerSocket serverSocket = new ServerSocket(9090);
+            System.out.println("Server@" + InetAddress.getLocalHost() + " start!");
+
+            Thread server = new Thread(() -> {
+                try {
+                    while (true) {
+                        // listen PORT;
+                        Socket socket = serverSocket.accept();
+
+                        List<String> dataBody = PSIUtils.receiveStringList(socket);
+                        if (CollectionUtils.isEmpty(dataBody)) {
+                            return;
+                        }
+
+                        String action = FusionUtils.extractAction(dataBody);
+                    }
+                } catch (Exception e) {
+                } finally {
+                }
+            });
+            server.start();
+        } catch (IOException e) {
+
+        }
+
+
+    }
+
+
+
     public void start() throws StatusCodeWithException {
         if (bf == null) {
             throw new StatusCodeWithException("数据未初始化无法启动", StatusCode.UNSUPPORTED_HANDLE);
