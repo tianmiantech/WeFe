@@ -42,7 +42,7 @@
                     filterable
                 >
                     <el-option
-                        label="ImageDataSet"
+                        label="图像数据集"
                         value="ImageDataSet"
                     />
                 </el-select>

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from visualfl.db.db_models import DB, Task, TaskResult,TaskProgress
+from visualfl.db.db_models import DB, Task, TaskResult,TaskProgress,is_local
 from visualfl.utils.core_utils import current_datetime,get_commit_id
 import datetime
 import json
@@ -30,6 +30,8 @@ class TaskDao(Logger):
         start task
         """
         try:
+            if is_local:
+                return
             with DB.connection_context():
                 task = Task.select().where(
                     Task.task_id == self._task_id
@@ -47,6 +49,8 @@ class TaskDao(Logger):
         Update task status
         """
         try:
+            if is_local:
+                return
             with DB.connection_context():
                 task = Task.select().where(
                     Task.task_id == self._task_id
@@ -68,12 +72,13 @@ class TaskDao(Logger):
         Parameters
         ----------
         result_type
-        task_id
-
         Returns
         -------
 
         """
+        if is_local:
+            return
+
         with DB.connection_context():
 
             where_condition = [TaskResult.task_id == self._task_id,TaskResult.type == result_type]
@@ -101,6 +106,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             with DB.connection_context():
                 models = TaskResult.select().where(
                     TaskResult.task_id == self._task_id,
@@ -151,6 +159,9 @@ class TaskDao(Logger):
         Update serving model
         """
         try:
+            if is_local:
+                return
+
             with DB.connection_context():
                 models = TaskResult.select().where(
                     TaskResult.task_id == self._task_id,
@@ -185,6 +196,9 @@ class TaskDao(Logger):
         -------
 
         """
+        if is_local:
+            return
+
         if model.progress is None:
             model.progress = 0
         if model.progress > model.expect_work_amount:
@@ -221,6 +235,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             with DB.connection_context():
                 model = TaskProgress.get_or_none(
                     TaskProgress.task_id == self._task_id,
@@ -280,6 +297,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             if work_amount >= 0:
                 with DB.connection_context():
                     model = TaskProgress.select().where(
@@ -308,6 +328,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             work_amount = 0
             with DB.connection_context():
                 model = TaskProgress.select().where(
@@ -339,6 +362,9 @@ class TaskDao(Logger):
         -------
 
         """
+        if is_local:
+            return
+
         with DB.connection_context():
             model = TaskProgress.select().where(
                 TaskProgress.task_id == self._task_id,
@@ -358,6 +384,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             with DB.connection_context():
                 model = TaskProgress.get_or_none(
                     TaskProgress.task_id == self._task_id,

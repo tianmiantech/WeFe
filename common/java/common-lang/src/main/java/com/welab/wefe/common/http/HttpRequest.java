@@ -459,7 +459,7 @@ public class HttpRequest {
 
             sConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
             sConnectionManager.setMaxTotal(300);
-            sConnectionManager.setDefaultMaxPerRoute(20);
+            sConnectionManager.setDefaultMaxPerRoute(300);
 
         } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
             LOG.error("create HttpClientConnectionManager error", e);
