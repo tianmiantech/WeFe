@@ -16,6 +16,15 @@
 
 package com.welab.wefe.board.service.service.data_resource.table_data_set;
 
+import java.io.File;
+import java.sql.Connection;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetDeleteApi;
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
@@ -40,13 +49,6 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.sql.Connection;
 
 /**
  * @author Zane
@@ -204,6 +206,12 @@ public class TableDataSetService extends DataResourceService {
 
         return tableDataSetRepository.findOne(where).orElse(null);
     }
+
+	public List<TableDataSetMysqlModel> queryAll(String sourceJobId, ComponentType componentType) {
+		Specification<TableDataSetMysqlModel> where = Where.create().equal("derivedFromJobId", sourceJobId)
+				.equal("derivedFrom", componentType).build(TableDataSetMysqlModel.class);
+		return tableDataSetRepository.findAll(where);
+	}
 
 
     public void save(TableDataSetMysqlModel newDataSetModel) {
