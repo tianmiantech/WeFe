@@ -61,9 +61,14 @@ export const baseLogout = () => {
 
     const { $router } = window.$app;
     const { location: { href, pathname } } = window;
-
+    const { baseUrl } = window.api;
+    const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
     // 重置 store 和 localstorage
     clearUserInfo();
+    let json = eval('[' + userInfo + ']');
+    window.$app.$http.get({
+        url: '/logout?token=' + json[0].token,
+    });
 
     let query = {};
 
