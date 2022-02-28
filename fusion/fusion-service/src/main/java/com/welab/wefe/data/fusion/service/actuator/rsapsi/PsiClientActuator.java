@@ -225,16 +225,16 @@ public class PsiClientActuator extends AbstractPsiActuator {
      * @throws StatusCodeWithException
      */
     private void fusion() throws StatusCodeWithException {
-        Socket socket = null;
-        LOG.info("Server@" + ip + ":" + port + " connecting!");
-        socket = SocketUtils
-                .create(ip, port)
-                .setRetryCount(3)
-                .builder();
 
         cursor();
 
         //Initiating a query request
+        LOG.info("Server@" + ip + ":" + port + " connecting!");
+        Socket socket = SocketUtils
+                .create(ip, port)
+                .setRetryCount(3)
+                .builder();
+
         query(socket);
 
         receiveAndParseResult(socket);
@@ -244,6 +244,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
      * After data is encrypted, query verification is initiated
      */
     private void query(Socket socket) {
+
         long start = System.currentTimeMillis();
 
         Integer index = threadId.get();
@@ -334,7 +335,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
             /**
              * Send alignment data to the server
              */
-            PSIUtils.sendStringList(socket, rs);
+            LOG.info("Server@" + ip + ":" + port + " connecting!");
+            Socket socketResult = SocketUtils
+                    .create(ip, port)
+                    .setRetryCount(3)
+                    .builder();
+            PSIUtils.sendStringList(socketResult, rs);
 
             LOG.info("fusionCount: " + fusionCount.longValue());
             LOG.info("processedCount: " + processedCount.longValue());
