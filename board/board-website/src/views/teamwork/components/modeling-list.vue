@@ -6,7 +6,7 @@
         :show="project_type !== 'DeepLearning'"
     >
         <h3 class="mb10">模型列表</h3>
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
                 <el-select v-model="search.component_type">
                     <el-option

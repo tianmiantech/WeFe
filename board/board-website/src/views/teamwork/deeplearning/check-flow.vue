@@ -1,6 +1,10 @@
 <template>
     <el-card>
-        <el-form :model="vData.form" inline>
+        <el-form
+            :model="vData.form"
+            @submit.prevent
+            inline
+        >
             <el-form-item label="选择模型：">
                 <el-select v-model="vData.form.model" placeholder="请选择模型">
                     <el-option v-for="item in vData.modelList" :key="item.task_id" :label="item.flow_name" :value="item.task_id"></el-option>

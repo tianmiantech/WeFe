@@ -53,6 +53,7 @@
                     v-for="row in member.$data_set_list"
                     :key="row.id"
                     label-width="110px"
+                    @submit.prevent
                 >
                     <el-form-item label="数据资源名称：">
                         <div class="pr30">
