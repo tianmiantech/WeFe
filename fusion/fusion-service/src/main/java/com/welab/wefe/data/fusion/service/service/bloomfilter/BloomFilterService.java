@@ -36,6 +36,7 @@ import com.welab.wefe.data.fusion.service.service.DataSourceService;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.utils.dataresouce.DataResouceHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +55,8 @@ public class BloomFilterService extends AbstractService {
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
 
+    @Value("${file.upload.dir}")
+    private String fileUploadDir;
 
     @Autowired
     private FieldInfoService fieldInfoService;
@@ -182,6 +185,11 @@ public class BloomFilterService extends AbstractService {
             String[] allowTypes = new String[] { ".csv", ".xls", "xlsx"};
             Boolean CanUploaded = isValid(filename, allowTypes);
             if (!CanUploaded) {
+                File file = new File(fileUploadDir, filename);
+                if (file.exists()) {
+                    file.delete();
+                    System.out.println("删除成功");
+                }
                 throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！",StatusCode.PARAMETER_VALUE_INVALID);
             }
             File file = dataSourceService.getDataSetFile(input.getDataResourceSource(), filename);

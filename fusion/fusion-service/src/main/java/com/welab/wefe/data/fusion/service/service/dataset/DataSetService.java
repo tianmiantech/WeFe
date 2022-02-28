@@ -21,6 +21,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.dataset.*;
@@ -313,6 +314,12 @@ public class DataSetService extends AbstractService {
             String[] allowTypes = new String[] { ".csv", ".xls", "xlsx"};
             Boolean CanUploaded = isValid(filename, allowTypes);
             if (!CanUploaded) {
+                File file = new File(fileUploadDir, filename);
+                if (file.exists()) {
+                    file.delete();
+                    System.out.println("删除成功");
+                }
+
                 throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！",StatusCode.PARAMETER_VALUE_INVALID);
             }
             File file = getDataSetFile(input.getDataResourceSource(), filename);
