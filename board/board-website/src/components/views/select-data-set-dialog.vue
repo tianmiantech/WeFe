@@ -14,10 +14,17 @@
                 v-if="memberRole !== 'provider'"
                 label="上传者："
             >
-                <el-input
-                    v-model="search.creator"
+                <el-select
+                    v-model="search.member_id"
                     clearable
-                />
+                >
+                    <el-option
+                        v-for="item in member_list"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id"
+                    />
+                </el-select>
             </el-form-item>
             <el-form-item label="名称：">
                 <el-input
@@ -151,10 +158,11 @@
                 jobRole:     '',
                 projectType: '',
                 myMemberId:  '',
+                member_list: [],
                 search:      {
                     id:               '',
                     name:             '',
-                    creator:          '',
+                    member_id:        '',
                     containsY:        '',
                     dataResourceType: '',
                 },
@@ -191,6 +199,7 @@
                 handler(val) {
                     if (val) {
                         this.resetSearch();
+                        this.loadMemberList();
                         this.isShow = val;
                         this.$nextTick(_ => {
                             this.$refs['raw'].isShowData = true;
@@ -216,7 +225,7 @@
                     this.search = {
                         id:               '',
                         name:             '',
-                        creator:          '',
+                        member_id:        '',
                         containsY:        '',
                         dataResourceType: this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'],
                     };
@@ -265,6 +274,18 @@
                     this.myMemberId = this.userInfo.member_id;
                     this.searchList({ resetPagination, $data_set });
                 });
+            },
+            async loadMemberList() {
+                const { code, data } = await this.$http.post({
+                    url:  '/union/member/query',
+                    data: {
+                        page_size: 100,
+                    },
+                });
+
+                if (code === 0) {
+                    this.member_list = data.list;
+                }
             },
 
             searchList(opt = {}) {
