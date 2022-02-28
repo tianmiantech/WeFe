@@ -101,10 +101,10 @@
             <el-upload
                 v-loading="pending"
                 :http-request="() => {}"
-                accept=".png,.jpg,.pdf,.doc,.docx"
                 :headers="{ token: userInfo.token }"
                 :before-upload="beforeUpload"
                 :on-success="uploadFinished"
+                accept=".pdf"
                 class="mt10"
                 action="#"
                 drag
