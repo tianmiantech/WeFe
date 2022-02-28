@@ -4,7 +4,7 @@
         shadow="never"
         class="page"
     >
-        <el-form :model="form">
+        <el-form :model="form" @submit.prevent>
             <el-row :gutter="30">
                 <el-col :span="10">
                     <el-form-item

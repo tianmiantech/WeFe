@@ -2,6 +2,7 @@
     <el-form
         v-loading="vData.loading"
         :disabled="disabled"
+        @submit.prevent
         inline
     >
         <span

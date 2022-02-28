@@ -3,7 +3,7 @@
         <el-row :gutter="60">
             <el-col :xs="12" :sm="12" :md="10" :lg="10" :xl="10">
                 <h3 class="mb20">用户信息:</h3>
-                <el-form style="max-width: 300px">
+                <el-form style="max-width: 300px" @submit.prevent>
                     <el-form-item
                         label="用户昵称"
                         required
@@ -30,6 +30,7 @@
                     ref="form"
                     :model="form"
                     style="max-width: 300px"
+                    @submit.prevent
                 >
                     <el-form-item
                         label="旧密码"

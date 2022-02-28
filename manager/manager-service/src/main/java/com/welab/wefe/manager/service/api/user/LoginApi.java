@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.manager.service.dto.user.LoginInput;
 import com.welab.wefe.manager.service.dto.user.LoginOutput;
 import com.welab.wefe.manager.service.mapper.UserMapper;
@@ -56,8 +57,13 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
             return fail("密码错误, 请重新输入");
         }
 
+        if (user.getAuditStatus() != AuditStatus.agree) {
+            throw new StatusCodeWithException("账号尚未审核，请联系管理员对您的账号审核后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+
         if (!user.isEnable()) {
-            throw new StatusCodeWithException("账号尚未启用，请联系管理员对您的账号启用后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("账号被禁用，请联系管理员!", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 

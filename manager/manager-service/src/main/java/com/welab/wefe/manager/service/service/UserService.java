@@ -24,6 +24,8 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.manager.service.api.user.AuditApi;
 import com.welab.wefe.manager.service.constant.UserConstant;
 import com.welab.wefe.manager.service.dto.user.QueryUserInput;
 import com.welab.wefe.manager.service.dto.user.UserUpdateInput;
@@ -63,6 +65,10 @@ public class UserService {
         String salt = createRandomSalt();
         user.setPassword(Md5.of(user.getPassword() + salt));
         user.setSalt(salt);
+
+        if(!user.isSuperAdminRole()){
+            user.setAuditStatus(AuditStatus.auditing);
+        }
         userMongoRepo.save(user);
     }
 
@@ -97,7 +103,20 @@ public class UserService {
         if (!CurrentAccount.isSuperAdmin()) {
             throw new StatusCodeWithException("非超级管理员无法操作。", StatusCode.PERMISSION_DENIED);
         }
+
         userMongoRepo.enableUser(userId, enable);
+    }
+
+    /**
+     * The administrator reviews the account
+     */
+    public void audit(AuditApi.Input input) throws StatusCodeWithException {
+        if (!CurrentAccount.isAdmin()) {
+            throw new StatusCodeWithException("您不是管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
+        }
+
+        userMongoRepo.auditUser(input.getUserId(),input.getAuditStatus(),input.getAuditComment());
+
     }
 
 

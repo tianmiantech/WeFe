@@ -4,6 +4,7 @@
             <el-form
                 class="mb20"
                 :model="form"
+                @submit.prevent
             >
                 <el-row>
                     <el-col

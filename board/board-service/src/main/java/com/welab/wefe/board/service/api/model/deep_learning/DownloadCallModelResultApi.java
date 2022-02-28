@@ -16,33 +16,48 @@
 package com.welab.wefe.board.service.api.model.deep_learning;
 
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
+import com.welab.wefe.board.service.component.Components;
+import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
+import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
+import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
+import java.util.UUID;
 
 /**
  * @author zane
  * @date 2022/2/14
  */
-@Api(path = "model/deep_learning/call/download/image", name = "下载推理图片")
-public class DownloadDataSetImageApi extends AbstractApi<DownloadDataSetImageApi.Input, ResponseEntity<?>> {
+@Api(path = "model/deep_learning/call/result/download", name = "下载模型推理结果")
+public class DownloadCallModelResultApi extends AbstractApi<DownloadCallModelResultApi.Input, ResponseEntity<?>> {
+
+    @Autowired
+    private TaskService taskService;
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
-        File file = WeFeFileSystem.CallDeepLearningModel
-                .getZipFileUnzipDir(input.taskId)
-                .resolve(input.filename)
+        TaskMySqlModel task = taskService.findOne(input.taskId);
+        if (task == null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("task 不存在：" + input.taskId);
+        }
+
+        TaskResultOutputModel result = Components.get(task.getTaskType()).getTaskResult(task.getTaskId(), "infer");
+
+        File file = WeFeFileSystem
+                .getBaseDir(WeFeFileSystem.UseType.Temp)
+                .resolve(UUID.randomUUID() + ".json")
                 .toFile();
 
-        if (!file.exists()) {
-            StatusCode.FILE_DOES_NOT_EXIST.throwException("文件不存在");
-        }
+        FileUtil.writeTextToFile(result.getResult().toJSONString(), file.toPath(), false);
 
         return file(file);
     }
@@ -50,7 +65,5 @@ public class DownloadDataSetImageApi extends AbstractApi<DownloadDataSetImageApi
     public static class Input extends AbstractApiInput {
         @Check(require = true)
         public String taskId;
-        @Check(require = true)
-        public String filename;
     }
 }

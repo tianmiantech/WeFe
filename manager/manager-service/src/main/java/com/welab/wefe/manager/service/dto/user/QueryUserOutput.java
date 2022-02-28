@@ -17,6 +17,7 @@
 package com.welab.wefe.manager.service.dto.user;
 
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 
 /**
  * @author yuxin.zhang
@@ -39,6 +40,15 @@ public class QueryUserOutput extends AbstractApiOutput {
      * 是否可用
      */
     private boolean enable = true;
+
+    /**
+     * 审核状态
+     */
+    private AuditStatus auditStatus;
+    /**
+     * 审核意见
+     */
+    private String auditComment;
 
     public String getUserId() {
         return userId;
@@ -94,5 +104,21 @@ public class QueryUserOutput extends AbstractApiOutput {
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+    public AuditStatus getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(AuditStatus auditStatus) {
+        this.auditStatus = auditStatus;
+    }
+
+    public String getAuditComment() {
+        return auditComment;
+    }
+
+    public void setAuditComment(String auditComment) {
+        this.auditComment = auditComment;
     }
 }
