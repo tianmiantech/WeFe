@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.file;
 
+import com.welab.wefe.board.service.api.file.security.FileSecurityChecker;
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -44,6 +45,15 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+
+        // 检查文件是否是支持的文件类型
+        try {
+            FileSecurityChecker.checkIsAllowFileType(input.filename);
+        } catch (Exception e) {
+            return fail(e)
+                    .setHttpCode(599);
+        }
+
         switch (input.method) {
             case "POST":
                 return saveChunk(input);
