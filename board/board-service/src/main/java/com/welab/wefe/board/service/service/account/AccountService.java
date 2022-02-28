@@ -214,7 +214,8 @@ public class AccountService extends AbstractService {
 
         // Check old password
         if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
-            throw new StatusCodeWithException("您输入的旧密码不正确", StatusCode.PARAMETER_VALUE_INVALID);
+            CurrentAccount.logout();
+            throw new StatusCodeWithException("您输入的旧密码不正确，为确保安全，请重新登录后重试。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Regenerate salt
