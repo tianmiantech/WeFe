@@ -99,12 +99,19 @@ public class UserService {
         if (!CurrentAccount.isAdmin()) {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
+        User user = userMongoRepo.findByUserId(userId);
+        if(!CurrentAccount.isSuperAdmin()) {
+            if(user.isAdminRole() || user.isSuperAdminRole()) {
+                throw new StatusCodeWithException("请联系超级管理员,超级管理员才可以重置管理员密码", StatusCode.PERMISSION_DENIED);
+            }
+        }
 
         // Regenerate salt
         String salt = createRandomSalt();
         String newPassword = Md5.of(Md5.of(UserConstant.DEFAULT_PASSWORD) + salt);
-
-        userMongoRepo.changePassword(userId, newPassword, salt);
+        user.setSalt(salt);
+        user.setPassword(newPassword);
+        userMongoRepo.save(user);
     }
 
     public void enableUser(String userId, boolean enable) throws StatusCodeWithException {
