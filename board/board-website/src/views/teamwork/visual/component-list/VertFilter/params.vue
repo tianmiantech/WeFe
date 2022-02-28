@@ -2,6 +2,7 @@
     <el-form
         v-loading="vData.loading"
         class="flex-form"
+        @submit.prevent
     >
         <el-form-item label="案例:">
             <p class="f12"><span class="color-danger">x1</span>>2<span class="strong">&</span><span class="color-danger">x1</span>&lt;50<span class="strong">&</span><span class="color-danger">x3</span>=100<span class="strong">&</span><span class="color-danger">x5</span>!=30</p>

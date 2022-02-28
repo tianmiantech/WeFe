@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <template
             v-for="(member, $index) in vData.data_set_list"

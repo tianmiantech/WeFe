@@ -157,7 +157,7 @@
             destroy-on-close
             width="400px"
         >
-            <el-form>
+            <el-form @submit.prevent>
                 <el-form-item
                     label="选择目标项目："
                     label-width="100px"

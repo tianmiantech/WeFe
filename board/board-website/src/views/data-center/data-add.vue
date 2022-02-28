@@ -4,7 +4,7 @@
         class="page"
         shadow="never"
     >
-        <el-form :model="form">
+        <el-form :model="form" @submit.prevent>
             <el-row :gutter="40">
                 <el-col :span="10">
                     <el-form-item
@@ -474,6 +474,7 @@
                 v-loading="dataSource.loading"
                 label-width="130px"
                 class="flex-form"
+                @submit.prevent
             >
                 <el-form-item label="数据源名称" required>
                     <el-input v-model="dataSource.name" placeholder="dataset-sql"></el-input>

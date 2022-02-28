@@ -5,6 +5,7 @@
             <el-form
                 class="mt20"
                 :model="form"
+                @submit.prevent
             >
                 <!-- :disabled="!userInfo.super_admin_role" -->
                 <el-form-item

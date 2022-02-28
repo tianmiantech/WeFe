@@ -4,6 +4,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         class="flex-form"
+        @submit.prevent
     >
         <el-form-item
             label="是否联合计算相关性系数："

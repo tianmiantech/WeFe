@@ -13,7 +13,7 @@
             title="项目设置"
             width="400px"
         >
-            <el-form class="flex-form">
+            <el-form class="flex-form" @submit.prevent>
                 <el-form-item
                     label="项目名称："
                     label-width="100px"
@@ -129,3 +129,11 @@
         },
     };
 </script>
+
+<style lang="scss" scoped>
+    .el-form-item{
+        :deep(.el-input__inner) {
+            padding-right: 60px;
+        }
+    }
+</style>

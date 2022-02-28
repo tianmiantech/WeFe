@@ -16,7 +16,7 @@
             style="max-width: 400px;margin-bottom:10px;"
             type="error"
             effect="dark"
-            title="任务已失败"
+            :title="`任务已失败 ${vData.error}`"
             :closable="false"
         />
 
@@ -349,7 +349,11 @@
             title="导出融合结果"
             width="450px"
         >
-            <el-form class="flex-form" label-width="100px">
+            <el-form
+                class="flex-form"
+                label-width="100px"
+                @submit.prevent
+            >
                 <el-form-item label="数据源">
                     <el-select v-model="vData.exportDialog.databaseType">
                         <el-option
