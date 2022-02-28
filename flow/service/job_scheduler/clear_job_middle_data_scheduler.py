@@ -73,11 +73,18 @@ class ClearJobMiddleDataScheduler(threading.Thread):
                 if not task:
                     return
 
-            # if backend is FC, unnecessary.
-            backend = Backend.get_by_task_config(json.loads(task.task_conf))
-            if backend.is_fc():
+            if task.task_type == 'PaddleClassify' or task.task_type == 'PaddleDetection' or task.task_type == 'ImageDataIO':
+                schedule_logger().info("not need clean_job_middle_data task_id=:%s", task.task_id)
                 return
-
+            # if backend is FC, unnecessary.
+            backend = None
+            try:
+                backend = Backend.get_by_task_config(json.loads(task.task_conf))
+                if backend.is_fc():
+                    return
+            except Exception as e:
+                schedule_logger().info("not need clean_job_middle_data task_id=:%s", task.task_id)
+                pass
             db_type = DBTypes.CLICKHOUSE
             RuntimeInstance.SESSION = None
 
