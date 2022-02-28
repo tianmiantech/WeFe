@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <el-form-item label="聚类数目">
             <el-input v-model="vData.soften_rules"></el-input>

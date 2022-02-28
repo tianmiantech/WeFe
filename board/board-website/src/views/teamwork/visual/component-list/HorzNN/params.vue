@@ -3,6 +3,7 @@
         ref="form"
         :model="vData.form"
         :disabled="disabled"
+        @submit.prevent
     >
         <el-collapse v-model="vData.activeNames">
             <el-collapse-item title="HorzNN参数设置" name="1">

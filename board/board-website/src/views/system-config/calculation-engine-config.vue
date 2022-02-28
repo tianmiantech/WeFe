@@ -1,7 +1,11 @@
 <template>
     <div class="page" v-loading="vData.loading">
         <el-card class="page_layer">
-            <el-form :model="vData.form" :disabled="!vData.userInfo.admin_role">
+            <el-form
+                :model="vData.form"
+                :disabled="!vData.userInfo.admin_role"
+                @submit.prevent
+            >
                 <el-row :gutter="24">
                     <el-divider content-position="left">函数计算相关配置</el-divider>
                     <el-col>
