@@ -73,7 +73,7 @@ public class UserService {
         user.setPassword(Md5.of(user.getPassword() + salt));
         user.setSalt(salt);
 
-        if(!user.isSuperAdminRole()){
+        if (!user.isSuperAdminRole()) {
             user.setAuditStatus(AuditStatus.auditing);
         }
         userMongoRepo.save(user);
@@ -84,6 +84,7 @@ public class UserService {
 
         // Check old password
         if (!user.getPassword().equals(Md5.of(oldPassword + user.getSalt()))) {
+            CurrentAccount.logout(CurrentAccount.id());
             throw new StatusCodeWithException("您输入的旧密码不正确", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
@@ -93,6 +94,7 @@ public class UserService {
         newPassword = Md5.of(newPassword + salt);
 
         userMongoRepo.changePassword(CurrentAccount.id(), newPassword, salt);
+        CurrentAccount.logout(CurrentAccount.id());
     }
 
     public void resetPassword(String userId) throws StatusCodeWithException {
@@ -100,10 +102,8 @@ public class UserService {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
         User user = userMongoRepo.findByUserId(userId);
-        if(!CurrentAccount.isSuperAdmin()) {
-            if(user.isAdminRole() || user.isSuperAdminRole()) {
-                throw new StatusCodeWithException("请联系超级管理员,超级管理员才可以重置管理员密码", StatusCode.PERMISSION_DENIED);
-            }
+        if (user.isSuperAdminRole()) {
+            throw new StatusCodeWithException("不能重置超级管理员密码", StatusCode.PERMISSION_DENIED);
         }
 
         // Regenerate salt
@@ -130,7 +130,7 @@ public class UserService {
             throw new StatusCodeWithException("您不是管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
         }
 
-        userMongoRepo.auditUser(input.getUserId(),input.getAuditStatus(),input.getAuditComment());
+        userMongoRepo.auditUser(input.getUserId(), input.getAuditStatus(), input.getAuditComment());
 
     }
 
