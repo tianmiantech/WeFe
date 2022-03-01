@@ -58,18 +58,19 @@
                         :attrs="vData.img_upload_attrs"
                         :single="true"
                         class="upload_btn"
-                        @click="methods.deletPrevFile"
                     >
                         点击上传文件
                     </uploader-btn>
+                    <el-button v-if="vData.isCheckFinished" type="primary" class="ml10" @click="methods.downloadModel">模型下载</el-button>
                 </uploader>
             </div>
-            <div class="show_box" style="min-width: 430px; margin-left: 20px;">
+            <div class="show_box ml10" style="min-width: 430px;">
                 <div class="result_table">
                     <el-table
                         :data="vData.currentImage.item.bbox_results"
                         border
-                        style="width: 100%"
+                        style="width: 100%;"
+                        :max-height="488"
                         :header-cell-style="{background:'#f7f7f7',color:'#606266'}">
                         <template #empty>
                             <div class="empty f14">没有满足条件的识别结果</div>
@@ -88,6 +89,7 @@
                                 >
                                     <span v-if="index ===0">x1:{{item.toFixed(2)}}, </span>
                                     <span v-if="index ===1">y1:{{item.toFixed(2)}}; </span>
+                                    <br>
                                     <span v-if="index ===2">x2:{{item.toFixed(2)}}, </span>
                                     <span v-if="index ===3">x2:{{item.toFixed(2)}}</span>
                                 </template>
@@ -344,13 +346,6 @@
                         }
                     });
                 },
-                deletPrevFile() {
-                    // vData.sampleList = [];
-                    // vData.img_upload_options.files = [];
-                    // vData.http_upload_filename = '';
-                    // imgUploaderRef.value.fileClear();
-                    // imgUploaderRef.value.files = [];
-                },
                 selectImage(item, idx) {
                     vData.currentImage = { item, idx };
                     nextTick(_=> {
@@ -379,7 +374,26 @@
                         methods.resetWidth();
                     }, 300);
                 },
-                // 下载单张原始图片 /model/deep_learning/call/download/image
+                async downloadModel($event) {
+                    vData.pageLoading = true;
+                    const { code, data } = await $http.post({
+                        url:  '/model/deep_learning/download',
+                        data: { 
+                            // task_id: vData.form.model,
+                            taskId: '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439',
+                        },
+                        btnState: {
+                            target: $event,
+                        },
+                    });
+
+                    nextTick(_=> {
+                        if (code === 0) {
+                            console.log(data);
+                        }
+                        vData.pageLoading = false;
+                    });
+                },
             };
 
             onBeforeMount(()=> {
