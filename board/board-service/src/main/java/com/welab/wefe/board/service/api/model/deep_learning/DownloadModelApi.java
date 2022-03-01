@@ -134,4 +134,9 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
         @Check(require = true)
         public String taskId;
     }
+
+    @Override
+    protected int parallelism() {
+        return 1;
+    }
 }

@@ -80,7 +80,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
 
         // Checking concurrency Limits
         if (!checkParallelism(apiClassName)) {
-            return fail("This api has reached the concurrency limit.");
+            return fail("此接口达到访问上限，请稍后重试。");
         }
 
         LongAdder apiRunningCount = API_PARALLELISM.get(apiClassName);
