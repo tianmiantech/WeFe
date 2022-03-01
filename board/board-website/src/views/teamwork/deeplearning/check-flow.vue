@@ -89,7 +89,6 @@
                                 >
                                     <span v-if="index ===0">x1:{{item.toFixed(2)}}, </span>
                                     <span v-if="index ===1">y1:{{item.toFixed(2)}}; </span>
-                                    <br>
                                     <span v-if="index ===2">x2:{{item.toFixed(2)}}, </span>
                                     <span v-if="index ===3">x2:{{item.toFixed(2)}}</span>
                                 </template>
