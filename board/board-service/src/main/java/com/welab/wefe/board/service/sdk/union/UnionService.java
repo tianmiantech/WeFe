@@ -31,7 +31,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
@@ -104,9 +104,9 @@ public class UnionService extends AbstractUnionService {
         CommonThreadPool.run(() -> {
             try {
                 // If this data set is not publicly available to anyone
-                if (model.getPublicLevel() == DataSetPublicLevel.OnlyMyself) {
+                if (model.getPublicLevel() == DataResourcePublicLevel.OnlyMyself) {
                     // Notify union to remove the data set
-                    doNotPublicDataSet(model);
+                    hiddenDataResource(model);
                     return;
                 }
 
@@ -121,12 +121,23 @@ public class UnionService extends AbstractUnionService {
     /**
      * Hidden data set
      */
-    public void doNotPublicDataSet(DataResourceMysqlModel model) throws StatusCodeWithException {
+    public void deleteDataResource(DataResourceMysqlModel model) throws StatusCodeWithException {
         JObject params = JObject
                 .create()
                 .put("data_resource_id", model.getId());
 
         request("data_resource/delete", params);
+    }
+
+    /**
+     * Hidden data set
+     */
+    public void hiddenDataResource(DataResourceMysqlModel model) throws StatusCodeWithException {
+        JObject params = JObject
+                .create()
+                .put("data_resource_id", model.getId());
+
+        request("data_resource/hidden", params);
     }
 
 

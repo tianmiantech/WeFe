@@ -37,6 +37,7 @@ import com.welab.wefe.common.web.dto.UploadFileApiOutput;
 import com.welab.wefe.manager.service.dto.common.UploadFileInput;
 import com.welab.wefe.manager.service.service.RealnameAuthAgreementTemplateContractService;
 import com.welab.wefe.manager.service.task.UploadFileSyncToUnionTask;
+import com.welab.wefe.manager.service.util.FileCheckerUtil;
 import com.welab.wefe.manager.service.util.VersionUtil;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
@@ -73,8 +74,14 @@ public class UploadRealnameAuthAgreementTemplateApi extends AbstractApi<UploadFi
 
     @Override
     protected ApiResult<UploadFileApiOutput> handle(UploadFileInput input) throws StatusCodeWithException, IOException {
-
         String fileName = input.getFilename();
+        // 检查文件是否是支持的文件类型
+        try {
+            FileCheckerUtil.checkIsAllowFileType(fileName);
+        } catch (Exception e) {
+            return fail(e)
+                    .setHttpCode(599);
+        }
         String sign = Md5.of(input.getFirstFile().getInputStream());
         String contentType = input.getFirstFile().getContentType();
         Map<String, InputStreamBody> fileStreamBodyMap = buildFileStreamBodyMap(input.files);
