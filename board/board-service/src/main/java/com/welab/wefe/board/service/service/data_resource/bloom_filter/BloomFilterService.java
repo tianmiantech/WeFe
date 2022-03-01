@@ -155,14 +155,11 @@ public class BloomFilterService extends DataResourceService {
         // delete bloom_filter from folder
         bloomfilterStorageService.deleteBloomfilter(model.getId());
 
-        // is raw bloom_filter
-        if (!model.isDerivedResource()) {
-            // Notify the union to do not public the bloom_filter
-            unionService.deleteDataResource(model);
+        // Notify the union to do not public the bloom_filter
+        unionService.deleteDataResource(model);
 
-            // Refresh the bloom_filter tag list
-            CacheObjects.refreshDataResourceTags(model.getDataResourceType());
-        }
+        // Refresh the bloom_filter tag list
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
     }
 
