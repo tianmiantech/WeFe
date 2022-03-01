@@ -102,16 +102,17 @@
 </template>
 
 <script>
-    import { ref, reactive, getCurrentInstance, nextTick, onBeforeMount } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { ref, reactive, getCurrentInstance, nextTick, onBeforeMount, onBeforeUnmount } from 'vue';
+    import { useRoute, useRouter } from 'vue-router';
     import LabelSystem from './components/model-show.vue';
     import ImageThumbnailList from '../../data-center/components/image-thumbnail-list.vue';
     export default {
         components: { LabelSystem, ImageThumbnailList },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const { $http, $bus } = appContext.config.globalProperties;
             const route = useRoute();
+            const router = useRouter();
             const labelSystemRef = ref();
             const imgThumbnailListRef = ref();
             const imgUploaderRef = ref();
@@ -404,6 +405,18 @@
                 window.onresize = () => {
                     methods.debounce();
                 };
+                $bus.$on('history-backward', () => {
+                    router.push({
+                        name:  'project-detail',
+                        query: {
+                            project_id: vData.projectId,
+                        },
+                    });
+                });
+            });
+
+            onBeforeUnmount(_ => {
+                $bus.$off('history-backward');
             });
 
             return {
