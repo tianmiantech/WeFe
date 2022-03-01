@@ -24,7 +24,7 @@
                     type="password"
                 />
             </el-form-item>
-            <el-form-item>
+            <el-form-item label="验证码" prop="code">
                 <el-input
                     v-model="form.code"
                     placeholder="验证码"
@@ -114,6 +114,8 @@
                     data: {
                         account:  this.form.account,
                         password: md5(this.form.password),
+                        key:      this.form.key,
+                        code:     this.form.code,
                     },
                     btnState: {
                         target: $event,
