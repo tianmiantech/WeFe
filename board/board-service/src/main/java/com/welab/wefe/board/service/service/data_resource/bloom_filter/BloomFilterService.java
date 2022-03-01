@@ -277,22 +277,4 @@ public class BloomFilterService extends DataResourceService {
         CacheObjects.refreshDataResourceTags(model.getDataResourceType());
     }
 
-    /**
-     * Check File Type
-     *
-     * @param contentType
-     * @param allowTypes
-     */
-    public boolean isValid(String contentType, String... allowTypes) {
-        if (null == contentType || "".equals(contentType)) {
-            return false;
-        }
-        for (String type : allowTypes) {
-            if (contentType.indexOf(type) > -1) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }
