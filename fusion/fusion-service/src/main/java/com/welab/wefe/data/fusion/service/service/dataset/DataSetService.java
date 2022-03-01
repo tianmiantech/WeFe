@@ -21,9 +21,12 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
-import com.welab.wefe.data.fusion.service.api.dataset.*;
+import com.welab.wefe.data.fusion.service.api.dataset.DeleteApi;
+import com.welab.wefe.data.fusion.service.api.dataset.PreviewApi;
+import com.welab.wefe.data.fusion.service.api.dataset.QueryApi;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
@@ -226,6 +229,40 @@ public class DataSetService extends AbstractService {
     /**
      * Paging query data sets
      */
+    public int count(String dataSetId) throws StatusCodeWithException {
+
+        String sql = "select count(1)  from " + TABLE_HEADER + dataSetId;
+
+
+        List<JObject> result = new ArrayList<>();
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+
+            conn = jdbcManager.getConnection(DatabaseType.MySql, mySqlUrl, mySqlUsername, mySqlPassword);
+
+            statement = conn.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        } finally {
+            jdbcManager.close(conn, statement, resultSet);
+        }
+
+        return 0;
+    }
+
+
+    /**
+     * Paging query data sets
+     */
     public List<JObject> paging(List<String> columnList, String dataSetId, int pageIndex, int pageSize) throws StatusCodeWithException {
 
         StringBuilder columns = new StringBuilder();
@@ -309,7 +346,19 @@ public class DataSetService extends AbstractService {
                 }
             }
         } else if (dataResourceSource.equals(DataResourceSource.UploadFile) || dataResourceSource.equals(DataResourceSource.LocalFile)) {
-            File file = getDataSetFile(input.getDataResourceSource(), input.getFilename());
+            String filename = input.getFilename();
+            String[] allowTypes = new String[] { ".csv", ".xls", "xlsx"};
+            Boolean CanUploaded = isValid(filename, allowTypes);
+            if (!CanUploaded) {
+                File file = new File(fileUploadDir, filename);
+                if (file.exists()) {
+                    file.delete();
+                    System.out.println("删除成功");
+                }
+
+                throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！",StatusCode.PARAMETER_VALUE_INVALID);
+            }
+            File file = getDataSetFile(input.getDataResourceSource(), filename);
             try {
                 output = DataResouceHelper.readFile(file);
             } catch (IOException e) {
@@ -340,9 +389,30 @@ public class DataSetService extends AbstractService {
         PreviewApi.Input input = new PreviewApi.Input();
         input.setId(id);
         input.setRows(model.getRows());
-        DataSetPreviewOutputModel previewOutputModel =  preview(input);
+        DataSetPreviewOutputModel previewOutputModel = preview(input);
 
         outputModel.setPreviewData(previewOutputModel);
         return outputModel;
     }
+
+
+    /**
+     * Check File Type
+     *
+     * @param contentType
+     * @param allowTypes
+     */
+    public static boolean isValid(String contentType, String... allowTypes) {
+        if (null == contentType || "".equals(contentType)) {
+            return false;
+        }
+        for (String type : allowTypes) {
+            if (contentType.indexOf(type) > -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

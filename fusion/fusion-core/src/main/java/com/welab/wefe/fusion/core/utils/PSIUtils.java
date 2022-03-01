@@ -107,6 +107,20 @@ public class PSIUtils {
         return bytes;
     }
 
+    public static List<String> receiveStringList(Socket socket) {
+        List<String> stringList = null;
+        try {
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            stringList = (List<String>) in.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return stringList;
+    }
+
     public static long receiveInteger(DataInputStream dIn) {
         try {
             return dIn.readLong();
@@ -129,6 +143,15 @@ public class PSIUtils {
         try {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             out.writeObject(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendStringList(Socket socket, List<String> stringList) {
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            out.writeObject(stringList);
         } catch (IOException e) {
             e.printStackTrace();
         }

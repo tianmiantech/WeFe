@@ -82,7 +82,7 @@
                         clearable
                     />
                 </el-form-item>
-                <!-- <el-form-item
+                <el-form-item
                     prop="code"
                     :rules="codeRules"
                 >
@@ -106,14 +106,14 @@
                             </div>
                         </template>
                     </el-input>
-                </el-form-item> -->
-                <div class="terms">
+                </el-form-item>
+                <!-- <div class="terms">
                     <el-checkbox v-model="form.terms">注册即代表同意我们的</el-checkbox>
                     《<span
                         class="el-link el-link--primary"
                         @click="termsDialog=true"
                     >隐私权限</span>》
-                </div>
+                </div> -->
                 <el-divider />
                 <el-button
                     v-loading="submitting"
@@ -213,7 +213,7 @@
             };
         },
         created() {
-            // this.getImgCode();
+            this.getImgCode();
         },
         methods: {
             async getImgCode() {
@@ -252,7 +252,7 @@
                 this.submitting = true;
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
-                        if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
                         const { code } = await this.$http.post({
                             url:  '/user/register',
                             data: {
@@ -271,10 +271,10 @@
                             });
                             this.$message.success('恭喜, 注册成功. 请登录!');
                         } else {
-                            // this.getImgCode();
+                            this.getImgCode();
                         }
                     } else {
-                        // this.getImgCode();
+                        this.getImgCode();
                     }
                 });
                 this.submitting = false;

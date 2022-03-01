@@ -22,11 +22,12 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.data.fusion.service.enums.ActionType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
+import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -69,6 +70,39 @@ public class PsiServerActuator extends AbstractPsiActuator {
         this.status = PSIActuatorStatus.running;
         return this;
     }
+
+    public static void main(String[] args) {
+
+        try {
+            ServerSocket serverSocket = new ServerSocket(9090);
+            System.out.println("Server@" + InetAddress.getLocalHost() + " start!");
+
+            Thread server = new Thread(() -> {
+                try {
+                    while (true) {
+                        // listen PORT;
+                        Socket socket = serverSocket.accept();
+
+                        List<String> dataBody = PSIUtils.receiveStringList(socket);
+                        if (CollectionUtils.isEmpty(dataBody)) {
+                            return;
+                        }
+
+                        String action = FusionUtils.extractAction(dataBody);
+                    }
+                } catch (Exception e) {
+                } finally {
+                }
+            });
+            server.start();
+        } catch (IOException e) {
+
+        }
+
+
+    }
+
+
 
     public void start() throws StatusCodeWithException {
         if (bf == null) {
@@ -124,7 +158,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
         }
     }
 
-    private void align(Socket socket) {
+    private void align(Socket socket, List<String> dataBody) {
 
         LOG.info("align start...");
 
@@ -132,77 +166,78 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
         try {
 
-            byte[][] query = PSIUtils.receive2DBytes(socket);
-            DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            int index = (int) PSIUtils.receiveInteger(d_in);
-
+//            dataBody.remove(0);
+//            byte[][] query = PSIUtils.receive2DBytes(socket);
+            Integer index = FusionUtils.extractIndex(dataBody);
+            byte[][] queryBody = FusionUtils.extractData(dataBody);
             LOG.info("server wait spend :  {} ms  current_index: {}", (System.currentTimeMillis() - start), index);
 
             long start1 = System.currentTimeMillis();
 
             //Encrypted again
-            byte[][] result = CryptoUtils.sign(N, d, query);
+            byte[][] result = CryptoUtils.sign(N, d, queryBody);
 
             LOG.info("server a.mod(N) spend :  {} ms size: {}  current_index: {}", (System.currentTimeMillis() - start1), result.length, index);
 
             /**
              * Return the query result
              */
-            DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-            PSIUtils.send2DBytes(socket, result);
-            PSIUtils.sendInteger(d_out, index);
-
-            /**
-             * Receive alignment results
-             */
-            List<byte[]> rs = PSIUtils.receive2DBytes2(socket);
-            List<JObject> fruit = new ArrayList<>();
-            for (int i = 0; i < rs.size(); i++) {
-                fruit.add(JObject.create(new String(rs.get(i))));
-                fusionCount.increment();
-            }
+            FusionUtils.sendByteAndIndex(socket, result, index);
 
             processedCount.add(result.length);
+
             LOG.info("processedCount: " + processedCount.longValue());
-            LOG.info("fusionCount: " + fusionCount.longValue());
 
-            //Put in storage
-            dump(fruit);
-
-            //Clean current batch
-//            clear();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("数据融合错误，ERROR：", e);
+        }
+    }
+
+    private void receiveResult(List<String> dataBody) {
+        LOG.info("dataBody size: " + processedCount.longValue());
+        /**
+         * Receive alignment results
+         */
+        byte[][] rs = FusionUtils.extractData(dataBody);
+        List<JObject> fruit = new ArrayList<>();
+        for (int i = 0; i < rs.length; i++) {
+            fruit.add(JObject.create(new String(rs[i])));
+            fusionCount.increment();
         }
 
+        LOG.info("fusionCount: " + fusionCount.longValue());
 
+        //Put in storage
+        dump(fruit);
     }
 
-    private void clear() {
-        LOG.info("cache clear");
-        //removeAll
-        fruit.clear();
-    }
-
-    private void end() {
+    private void end(List<String> body) {
         //Modify the state of
-        this.status = PSIActuatorStatus.success;
+        this.status = PSIActuatorStatus.valueOf(body.get(0));
 
-        LOG.info("align end...");
+        LOG.info("align end...,status is {}", this.status);
     }
 
     private void execute(Socket socket) {
-        String action = PSIUtils.receiveString(socket);
-        LOG.info("执行execute：" + action);
+
+        List<String> dataBody = PSIUtils.receiveStringList(socket);
+        if (CollectionUtils.isEmpty(dataBody)) {
+            return;
+        }
+
+        String action = FusionUtils.extractAction(dataBody);
+        LOG.info("执行execute：{}", action);
         if (ActionType.download.name().equals(action)) {
             /**
              * download
              */
             sendBloomFilter(socket);
         } else if (ActionType.align.name().equals(action)) {
-            align(socket);
+            align(socket, dataBody);
+        } else if (ActionType.fusion.name().equals(action)) {
+            receiveResult(dataBody);
         } else if (ActionType.end.name().equals(action)) {
-            end();
+            end(dataBody);
         }
 
         //Update last time

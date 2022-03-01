@@ -6,7 +6,7 @@
         :show="project_type !== 'DeepLearning'"
     >
         <h3 class="mb20 card-title">衍生数据资源</h3>
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="来源：">
                 <el-select
                     v-model="derived.name"
