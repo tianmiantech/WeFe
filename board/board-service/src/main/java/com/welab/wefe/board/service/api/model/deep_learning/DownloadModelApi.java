@@ -136,7 +136,7 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
     }
 
     @Override
-    protected int parallelism() {
-        return 1;
+    public boolean canParallel() {
+        return false;
     }
 }
