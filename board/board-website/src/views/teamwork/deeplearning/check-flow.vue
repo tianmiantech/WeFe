@@ -21,7 +21,7 @@
                     @file-progress="methods.fileProgress"
                 >
                     <uploader-unsupport />
-                    <uploader-drop v-if="vData.img_upload_options.files.length === 0 && !vData.isCheckFinished">
+                    <uploader-drop v-if="vData.isCanUpload">
                         <p><el-icon class="el-icon--upload" style="color: #bfbfbf; font-size: 70px;"><elicon-upload-filled /></el-icon></p>
                         <uploader-btn
                             :attrs="vData.img_upload_attrs"
@@ -32,13 +32,25 @@
                         </uploader-btn>
                         <p class="mb10">或将文件 (.zip .tar .tgz .7z .png .jpg .jpeg) 拖到此处</p>
                     </uploader-drop>
-                    <div v-if="vData.http_upload_filename.length" class="predict_box" :style="{width: vData.width+'px', height: vData.sampleList.length ? 490 : 400}+'px'">
-                        <p v-if="vData.http_upload_filename.length && !vData.sampleList.length" class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
-                        <div v-if="vData.isCheckFinished && vData.sampleList.length">
+                    <!-- <div v-if="vData.isUploading || vData.isCheckFinished || vData.isUploadedOk" class="predict_box" :style="{width: vData.width+'px', height: vData.sampleList.length ? 490 : 400}+'px'">
+                        <p v-if="vData.isUploadedOk" class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
+                        <div v-if="vData.isCheckFinished">
                             <label-system ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" :for-job-type="vData.forJobType" @save-label="methods.saveCurrentLabel" />
                             <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" :width="700" @select-image="methods.selectImage" />
                         </div>
-                        <uploader-list v-else :file-list="vData.img_upload_options.files.length" />
+                        <uploader-list v-if="vData.isUploading" :file-list="vData.img_upload_options.files.length" />
+                    </div> -->
+                    <div v-if="vData.isUploading" class="predict_box" :style="{width: vData.width+'px', height: vData.sampleList.length ? 490 : 400}+'px'">
+                        <uploader-list :file-list="vData.img_upload_options.files.length" />
+                    </div>
+
+                    <div v-if="vData.isUploadedOk" class="predict_box" style="width:700px; height: 400px;">
+                        <p class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
+                    </div>
+
+                    <div v-if="vData.isCheckFinished" class="predict_box" :style="{width: vData.width+'px', height: vData.sampleList.length ? 490 : 400}+'px'">
+                        <label-system ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" :for-job-type="vData.forJobType" @save-label="methods.saveCurrentLabel" />
+                        <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" :width="700" @select-image="methods.selectImage" />
                     </div>
                     <!-- 预测结果出来后可显示上传文件按钮 -->
                     <uploader-btn
@@ -52,8 +64,37 @@
                     </uploader-btn>
                 </uploader>
             </div>
-            <div class="show_box" style="min-width: 400px; background: #acd; margin-left: 20px;">
-                模型预测展示区域
+            <div class="show_box" style="min-width: 430px; margin-left: 20px;">
+                <div class="result_table">
+                    <el-table
+                        :data="vData.currentImage.item.bbox_results"
+                        border
+                        style="width: 100%"
+                        :header-cell-style="{background:'#f7f7f7',color:'#606266'}">
+                        <template #empty>
+                            <div class="empty f14">没有满足条件的识别结果</div>
+                        </template>
+                        <el-table-column prop="category_name" label="预测标签" width="90" />
+                        <el-table-column prop="score" label="得分" width="90">
+                            <template v-slot="scope">
+                                {{scope.row.score.toFixed(5)}}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="bbox" label="标注位置">
+                            <template v-slot="scope">
+                                <template
+                                    v-for="(item, index) in scope.row.bbox"
+                                    :key="index"
+                                >
+                                    <span v-if="index ===0">x1:{{item.toFixed(2)}}, </span>
+                                    <span v-if="index ===1">y1:{{item.toFixed(2)}}; </span>
+                                    <span v-if="index ===2">x2:{{item.toFixed(2)}}, </span>
+                                    <span v-if="index ===3">x2:{{item.toFixed(2)}}</span>
+                                </template>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
             </div>
         </div>
     </el-card>
@@ -119,9 +160,17 @@
                 timer:                null,
                 timer2:               null,
                 width:                700,
-                isCheckFinished:      false,
                 pageLoading:          false,
                 totalResultCount:     0,
+                currentImage:         {
+                    item: {
+                        bbox_results: [],
+                    },
+                },
+                isCanUpload:     true, // 是否可上传文件
+                isUploading:     false, // 文件上传中
+                isUploadedOk:    false, // 文件上传完成
+                isCheckFinished: false, // 模型校验完成
             });
             const methods = {
                 async getModelList() {
@@ -145,12 +194,25 @@
                 fileAddedImage(file) {
                     // split考虑文件名中有.，随机数文件名以清除文件缓存
                     vData.img_upload_options.files = [file];
+                    vData.isCanUpload = false;
+                    vData.isUploading = true;
+                    vData.isCheckFinished = false;
+                    vData.isUploadedOk = false;
+                    vData.currentImage = {
+                        item: {
+                            bbox_results: [],
+                        },
+                    };
                 },
                 fileRemovedImage() {
                     vData.img_upload_options.files = [];
+                    vData.isCanUpload = true;
+                    vData.isCheckFinished = false;
+                    vData.isUploadedOk = false;
                 },
                 fileProgress(file) {
-                    vData.progress = Number((file._prevProgress * 100).toFixed(1));
+                    // vData.progress = Number((file._prevProgress * 100).toFixed(1));
+                    vData.isCanUpload = false;
                 },
                 async fileUploadCompleteImage() {
                     vData.loading = true;
@@ -173,6 +235,10 @@
                     vData.loading = false;
                     if (code === 0) {
                         vData.http_upload_filename = data.filename;
+                        vData.isUploadedOk = true;
+                        vData.isUploading = false;
+                        vData.isCheckFinished = false;
+                        vData.isCanUpload = false;
                         console.log(vData.http_upload_filename);
                         // methods.startPredict();
                         setTimeout(() => {
@@ -234,6 +300,8 @@
                             // setTimeout(() => {
                             //     methods.getPredictDetail();
                             // }, 1000);
+                            console.log('vData.isUploadedOk=', vData.isUploadedOk);
+                            console.log(vData.isUploading || vData.isCheckFinished || vData.isUploadedOk);
                             setTimeout(() => {
                                 if (data.task_view.results[0].result.status === 'running') {
                                     methods.getPredictDetail();
@@ -262,10 +330,17 @@
                             vData.sampleList[0].$isselected = true;
                             vData.currentImage = { item: vData.sampleList[0], idx: 0 };
                             vData.isCheckFinished = true;
+                            vData.isUploadedOk = false;
+                            vData.isUploading = false;
                             if (vData.sampleList.length === vData.totalResultCount) {
                                 labelSystemRef.value.methods.createStage();
                                 vData.pageLoading = false;
                             }
+                            // setTimeout(_=>{
+                            //     vData.isCheckFinished = false;
+                            //     vData.img_upload_options.files = [];
+                            //     vData.http_upload_filename = '';
+                            // }, 3000);
                         }
                     });
                 },
@@ -290,6 +365,8 @@
                     if (vData.sampleList.length) {
                         const maxWidth = document.getElementsByClassName('upload_box')[0].offsetWidth > 800 ? 800 :document.getElementsByClassName('upload_box')[0].offsetWidth;
 
+                        console.log(document.getElementsByClassName('upload_box')[0].offsetWidth);
+                        console.log(maxWidth);
                         labelSystemRef.value.vData.width = maxWidth;
                         vData.width = maxWidth;
                         imgThumbnailListRef.value.vData.width = document.getElementsByClassName('upload_box')[0].offsetWidth;

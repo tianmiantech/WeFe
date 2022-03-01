@@ -1,5 +1,5 @@
 <template>
-    <div class="label_system">
+    <div class="label_system" :style="{width: vData.width+'px', height: 400+'px'}">
         <div id="container" ref="container" class="container" :style="{width: vData.width+'px', height: 400+'px'}" />
     </div>
 </template>
