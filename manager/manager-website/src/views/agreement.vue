@@ -134,6 +134,10 @@
                     :style="`width: 100%;${preview.fileType.includes('image') ? 'height:auto;' : 'min-height:calc(100vh - 50px);' }display:block;`"
                 >
             </div>
+            <span class="color-danger">无法查看?</span> 下载附件:
+            <el-link type="primary" :underline="false" @click="downloadFile">
+                {{ preview.fileName }}
+            </el-link>
         </el-dialog>
     </el-card>
 </template>
@@ -163,6 +167,7 @@
                 editDialog:    false,
                 preview:       {
                     visible:    false,
+                    fileId:     '',
                     fileName:   '',
                     fileData:   '',
                     fileType:   '',
@@ -185,7 +190,7 @@
             async filePreview(event, row) {
                 this.editId = row.id;
                 this.loading = true;
-                const { code, data } = await this.$http.post({
+                const { code, data, response: { headers: { filename } }  } = await this.$http.post({
                     url:          '/download/file?fileId=' + row.template_file_id,
                     responseType: 'blob',
                 });
@@ -196,9 +201,28 @@
                     this.blobToDataURI(data, result => {
                         this.preview.visible = true;
                         this.preview.fullscreen = false;
+                        this.preview.fileName = filename;
+                        this.preview.fileId = row.template_file_id;
                         this.preview.fileData = result;
                     });
                 }
+            },
+            downloadFile() {
+                if(this.loading) return;
+                this.loading = true;
+
+                const api = `${window.api.baseUrl}/download/file?fileId=${this.preview.fileId}&token=${this.userInfo.token}`;
+                const link = document.createElement('a');
+
+                link.href = api;
+                link.target = '_blank';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+
+                setTimeout(() => {
+                    this.loading = false;
+                }, 300);
             },
             enable(event, row) {
                 this.$confirm('确定要启用该文件吗? 其他文件将被禁用!', '警告', {

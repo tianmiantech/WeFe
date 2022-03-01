@@ -66,7 +66,7 @@
                         :http-request="() => {}"
                         :before-upload="beforeUpload"
                         :headers="{ token: userInfo.token }"
-                        accept=".png,.jpg,.pdf,.doc,.docx"
+                        accept=".png,.jpg,.pdf"
                         list-type="picture"
                         action="#"
                         drag
@@ -75,9 +75,9 @@
                             <elicon-upload-filled />
                         </el-icon>
                         <div>
-                            将文件 (.jpg/png/PDF/doc/docx) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
+                            将文件 (.jpg/png/PDF) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
                             </p>
-                            <div class="el-upload__tip">jpg/png/doc/docx 文件最大 5M, PDF 最大 10M</div>
+                            <div class="el-upload__tip">jpg/png 文件最大 5M, PDF 最大 10M</div>
                         </div>
                     </el-upload>
                 </el-form-item>
