@@ -44,7 +44,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,7 +175,7 @@ public class BloomFilterService extends DataResourceService {
 
         // When the PublicLevel is PublicWithMemberList, if list contains yourself,
         // you will be removed, and union will handle the data that you must be visible.
-        if (model.getPublicLevel() == DataSetPublicLevel.PublicWithMemberList) {
+        if (model.getPublicLevel() == DataResourcePublicLevel.PublicWithMemberList) {
             String memberId = CacheObjects.getMemberId();
 
 

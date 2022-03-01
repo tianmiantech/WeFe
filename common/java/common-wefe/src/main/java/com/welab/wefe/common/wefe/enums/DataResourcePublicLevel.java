@@ -21,7 +21,7 @@ package com.welab.wefe.common.wefe.enums;
  *
  * @author zane.luo
  */
-public enum DataSetPublicLevel {
+public enum DataResourcePublicLevel {
     /**
      * Visible to all
      */

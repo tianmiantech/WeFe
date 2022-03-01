@@ -31,7 +31,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
@@ -104,7 +104,7 @@ public class UnionService extends AbstractUnionService {
         CommonThreadPool.run(() -> {
             try {
                 // If this data set is not publicly available to anyone
-                if (model.getPublicLevel() == DataSetPublicLevel.OnlyMyself) {
+                if (model.getPublicLevel() == DataResourcePublicLevel.OnlyMyself) {
                     // Notify union to remove the data set
                     doNotPublicDataSet(model);
                     return;
