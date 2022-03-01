@@ -137,7 +137,7 @@ public class TableDataSetService extends DataResourceService {
             CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
             // Notify the union to do not public the data set
-            unionService.doNotPublicDataSet(model);
+            unionService.deleteDataResource(model);
         }
 
     }

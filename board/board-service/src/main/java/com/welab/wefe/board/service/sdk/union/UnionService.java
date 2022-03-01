@@ -106,7 +106,7 @@ public class UnionService extends AbstractUnionService {
                 // If this data set is not publicly available to anyone
                 if (model.getPublicLevel() == DataSetPublicLevel.OnlyMyself) {
                     // Notify union to remove the data set
-                    doNotPublicDataSet(model);
+                    hiddenDataResource(model);
                     return;
                 }
 
@@ -121,12 +121,23 @@ public class UnionService extends AbstractUnionService {
     /**
      * Hidden data set
      */
-    public void doNotPublicDataSet(DataResourceMysqlModel model) throws StatusCodeWithException {
+    public void deleteDataResource(DataResourceMysqlModel model) throws StatusCodeWithException {
         JObject params = JObject
                 .create()
                 .put("data_resource_id", model.getId());
 
         request("data_resource/delete", params);
+    }
+
+    /**
+     * Hidden data set
+     */
+    public void hiddenDataResource(DataResourceMysqlModel model) throws StatusCodeWithException {
+        JObject params = JObject
+                .create()
+                .put("data_resource_id", model.getId());
+
+        request("data_resource/hidden", params);
     }
 
 

@@ -156,9 +156,9 @@ public class BloomFilterService extends DataResourceService {
         bloomfilterStorageService.deleteBloomfilter(model.getId());
 
         // is raw bloom_filter
-        if (model.isDerivedResource()) {
+        if (!model.isDerivedResource()) {
             // Notify the union to do not public the bloom_filter
-            unionService.doNotPublicDataSet(model);
+            unionService.deleteDataResource(model);
 
             // Refresh the bloom_filter tag list
             CacheObjects.refreshDataResourceTags(model.getDataResourceType());
