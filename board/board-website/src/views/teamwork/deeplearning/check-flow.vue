@@ -44,7 +44,7 @@
                         <uploader-list :file-list="vData.img_upload_options.files.length" />
                     </div>
 
-                    <div v-if="vData.isUploadedOk" class="predict_box" style="width:700px; height: 400px;">
+                    <div v-if="vData.isUploadedOk" class="predict_box" style="width:800px; height: 400px;">
                         <p class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
                     </div>
 
@@ -102,7 +102,8 @@
 </template>
 
 <script>
-    import { ref, reactive, getCurrentInstance, nextTick, onBeforeMount, onBeforeUnmount } from 'vue';
+    import { ref, computed, reactive, getCurrentInstance, nextTick, onBeforeMount, onBeforeUnmount } from 'vue';
+    import { useStore } from 'vuex';
     import { useRoute, useRouter } from 'vue-router';
     import LabelSystem from './components/model-show.vue';
     import ImageThumbnailList from '../../data-center/components/image-thumbnail-list.vue';
@@ -116,6 +117,8 @@
             const labelSystemRef = ref();
             const imgThumbnailListRef = ref();
             const imgUploaderRef = ref();
+            const store = useStore();
+            const userInfo = computed(() => store.state.base.userInfo);
             const vData = reactive({
                 projectId: route.query.project_id,
                 flowId:    route.query.flow_id,
@@ -241,7 +244,6 @@
                         vData.isUploading = false;
                         vData.isCheckFinished = false;
                         vData.isCanUpload = false;
-                        console.log(vData.http_upload_filename);
                         // methods.startPredict();
                         setTimeout(() => {
                             methods.getPredictDetail();
@@ -358,7 +360,7 @@
                 },
                 resetWidth() {
                     if (vData.sampleList.length) {
-                        const maxWidth = document.getElementsByClassName('upload_box')[0].offsetWidth > 800 ? 800 :document.getElementsByClassName('upload_box')[0].offsetWidth;
+                        const maxWidth = document.getElementsByClassName('opearate_box')[0].offsetWidth > 800 ? 800 :document.getElementsByClassName('upload_box')[0].offsetWidth;
 
                         console.log(document.getElementsByClassName('upload_box')[0].offsetWidth);
                         console.log(maxWidth);
@@ -374,25 +376,15 @@
                         methods.resetWidth();
                     }, 300);
                 },
-                async downloadModel($event) {
-                    vData.pageLoading = true;
-                    const { code, data } = await $http.post({
-                        url:  '/model/deep_learning/download',
-                        data: { 
-                            // task_id: vData.form.model,
-                            taskId: '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439',
-                        },
-                        btnState: {
-                            target: $event,
-                        },
-                    });
+                async downloadModel(){
+                    const api = `${window.api.baseUrl}/model/deep_learning/download?task_id=${vData.form.model}&token=${userInfo.value.token}`;
+                    const link = document.createElement('a');
 
-                    nextTick(_=> {
-                        if (code === 0) {
-                            console.log(data);
-                        }
-                        vData.pageLoading = false;
-                    });
+                    link.href = api;
+                    link.target = '_blank';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
                 },
             };
 

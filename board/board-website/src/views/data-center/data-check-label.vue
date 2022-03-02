@@ -188,7 +188,7 @@
 
                             if (id === item.id) {
                                 item.img_src = url;
-                                item.$label_list = methods.arrayDeduplicate(item.label_list.split(','));
+                                item.$label_list = methods.arrayDeduplicate(item.label_list ? item.label_list.split(',') : []);
                             }
                             vData.sampleList.push(item);
                             setTimeout(_=> {
