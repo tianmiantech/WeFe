@@ -111,7 +111,7 @@ CREATE TABLE api_request_record(
                                    updated_by varchar(32) DEFAULT NULL COMMENT '更新人',
                                    updated_time datetime DEFAULT NULL COMMENT '更新时间',
                                    PRIMARY KEY (id)
-)  COMMENT = 'API 调用记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = 'API 调用记录';
 CREATE UNIQUE INDEX service_client_index ON api_request_record(service_id,client_id,id);
 
 -- 计费详情表
@@ -154,5 +154,5 @@ CREATE TABLE payments_records(
                                  balance DECIMAL(24,6)    COMMENT '余额' ,
                                  remark VARCHAR(900)    COMMENT '备注' ,
                                  PRIMARY KEY (id)
-)  COMMENT = '收支记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '收支记录';
 CREATE UNIQUE INDEX payments_records_index ON payments_records(id,service_id,client_id);
