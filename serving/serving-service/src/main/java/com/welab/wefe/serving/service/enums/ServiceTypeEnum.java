@@ -46,16 +46,16 @@ public enum ServiceTypeEnum {
                 result = ServiceTypeEnum.PIR.value;
                 break;
             case 2:
-                result = ServiceTypeEnum.MULTI_PIR.value;
-                break;
-            case 3:
                 result = ServiceTypeEnum.PSI.value;
                 break;
+            case 3:
+                result = ServiceTypeEnum.SA.value;
+                break;
             case 4:
-                result = ServiceTypeEnum.MULTI_PSI.value;
+                result = ServiceTypeEnum.MULTI_SA.value;
                 break;
             case 5:
-                result = ServiceTypeEnum.MULTI_SA.value;
+                result = ServiceTypeEnum.MULTI_PSI.value;
                 break;
             case 6:
                 result = ServiceTypeEnum.MULTI_PIR.value;
