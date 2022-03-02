@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -691,7 +693,8 @@ public class ServiceService {
 			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
 		}
 		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-		String basePath = config.getFileBasePath();
+		Path basePath = Paths.get(config.getFileBasePath());
+//		String basePath = config.getFileBasePath();
 		List<File> fileList = new ArrayList<>();
 		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
@@ -713,7 +716,7 @@ public class ServiceService {
 			fileList.add(readme);
 		}
 		String sdkZipName = "sdk.zip";
-		String outputPath = basePath + sdkZipName;
+		String outputPath = basePath.resolve(sdkZipName).toString();
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
 		File file = new File(outputPath);
