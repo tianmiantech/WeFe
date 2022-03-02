@@ -687,7 +687,7 @@ public class ServiceService {
 		return response;
 	}
 
-	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, IOException {
+	public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
 		if (model == null) {
 			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
@@ -720,15 +720,16 @@ public class ServiceService {
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
 		File file = new File(outputPath);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-		headers.setContentDispositionFormData("attachment", sdkZipName);
-		try {
-			return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
-		}
+//		HttpHeaders headers = new HttpHeaders();
+//		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//		headers.setContentDispositionFormData("attachment", sdkZipName);
+//		try {
+//			return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+//		}
+		return file;
 	}
 
 	private void fillReadmeFile(ServiceMySqlModel model, File readme) throws IOException {

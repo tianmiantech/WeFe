@@ -36,7 +36,7 @@ public class ExportSDKApi extends AbstractApi<ExportSDKApi.Input, ResponseEntity
 
 	@Override
 	protected ApiResult<ResponseEntity<byte[]>> handle(Input input) throws StatusCodeWithException, IOException {
-		return success(service.exportSdk(input.getServiceId()));
+		return file(service.exportSdk(input.getServiceId()));
 	}
 
 	public static class Input extends AbstractApiInput {
