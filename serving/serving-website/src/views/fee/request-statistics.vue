@@ -53,14 +53,14 @@
                 </div>
             </el-form-item>
 
-            <el-button
+            <el-button class="ml10"
                 type="primary"
                 @click="getList({ to: true})"
             >
                 查询
             </el-button>
 
-            <el-button
+            <el-button class="ml10"
                 @click="downloadStatistics"
             >
                 下载
