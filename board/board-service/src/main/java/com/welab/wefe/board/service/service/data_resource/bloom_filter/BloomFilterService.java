@@ -45,7 +45,8 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -161,6 +162,7 @@ public class BloomFilterService extends DataResourceService {
         // Refresh the bloom_filter tag list
         CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
+
     }
 
     /**
@@ -172,7 +174,7 @@ public class BloomFilterService extends DataResourceService {
 
         // When the PublicLevel is PublicWithMemberList, if list contains yourself,
         // you will be removed, and union will handle the data that you must be visible.
-        if (model.getPublicLevel() == DataSetPublicLevel.PublicWithMemberList) {
+        if (model.getPublicLevel() == DataResourcePublicLevel.PublicWithMemberList) {
             String memberId = CacheObjects.getMemberId();
 
 
@@ -231,6 +233,7 @@ public class BloomFilterService extends DataResourceService {
         if (project == null) {
             throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
         }
+
         BloomFilterDataResourceListOutputModel output = ModelMapper.map(project, BloomFilterDataResourceListOutputModel.class);
 
 
@@ -272,24 +275,6 @@ public class BloomFilterService extends DataResourceService {
 
         unionService.upsertDataResource(model);
         CacheObjects.refreshDataResourceTags(model.getDataResourceType());
-    }
-
-    /**
-     * Check File Type
-     *
-     * @param contentType
-     * @param allowTypes
-     */
-    public boolean isValid(String contentType, String... allowTypes) {
-        if (null == contentType || "".equals(contentType)) {
-            return false;
-        }
-        for (String type : allowTypes) {
-            if (contentType.indexOf(type) > -1) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }
