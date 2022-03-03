@@ -52,7 +52,7 @@
                         >
                             1. 请上传已盖贵司公章的认证文件。（<el-link type="primary" @click="downloadFile">下载认证文件 </el-link>）
                             <p>2. 请上传贵司的营业执照、组织机构代码证等相关证明文件。</p>
-                            文件格式支持：图片、word、pdf （大小10MB内）
+                            文件格式支持：图片、pdf （大小10MB内）
                         </el-alert>
                     </template>
 
