@@ -91,7 +91,7 @@
                         }
                     }
 
-                    if($ref.vData.is_trace && !vData.trace_column) {
+                    if($ref.vData.is_trace && !$ref.vData.trace_column) {
                         return $message.error('请选择回溯字段');
                     }
 
