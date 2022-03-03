@@ -20,11 +20,11 @@
                     <div class="flex_box">
                         <el-col :span="11">
                             <el-card>
-                                <el-form-item label="每日费用上限：" :disabled="vData.form.calculation_engine_config.backend === 'FC'">
-                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_day" style="width: 95%" clearable :disabled="vData.form.calculation_engine_config.backend === 'FC'" /> <span style="color: #999">¥</span>
+                                <el-form-item label="每日费用上限：">
+                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_day" style="width: 95%" clearable :disabled="vData.form.calculation_engine_config.backend === 'SPARK'" /> <span style="color: #999">¥</span>
                                 </el-form-item>
                                 <el-form-item label="每月费用上限：">
-                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_month" style="width: 95%" clearable :disabled="vData.form.calculation_engine_config.backend === 'FC'" /> <span style="color: #999">¥</span>
+                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_month" style="width: 95%" clearable :disabled="vData.form.calculation_engine_config.backend === 'SPARK'" /> <span style="color: #999">¥</span>
                                 </el-form-item>
                             </el-card>
                         </el-col>
