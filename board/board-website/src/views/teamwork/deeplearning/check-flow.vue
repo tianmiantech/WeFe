@@ -2,7 +2,7 @@
     <el-card v-loading="vData.pageLoading">
         <el-form :model="vData.form" inline>
             <el-form-item label="选择模型：">
-                <el-select v-model="vData.form.model" placeholder="请选择模型">
+                <el-select v-model="vData.form.model" placeholder="请选择模型" :disabled="!vData.isCanUpload">
                     <el-option v-for="item in vData.modelList" :key="item.task_id" :label="item.flow_name" :value="item.task_id"></el-option>
                 </el-select>
             </el-form-item>
@@ -176,6 +176,7 @@
                 isUploading:     false, // 文件上传中
                 isUploadedOk:    false, // 文件上传完成
                 isCheckFinished: false, // 模型校验完成
+                timer3:          null,
             });
             const methods = {
                 async getModelList() {
@@ -244,10 +245,10 @@
                         vData.isUploading = false;
                         vData.isCheckFinished = false;
                         vData.isCanUpload = false;
-                        // methods.startPredict();
-                        setTimeout(() => {
-                            methods.getPredictDetail();
-                        }, 500);
+                        methods.startPredict();
+                        // setTimeout(() => {
+                        //     methods.getPredictDetail();
+                        // }, 500);
                     }
                 },
                 async startPredict() {
@@ -273,8 +274,8 @@
                     const { code, data } = await $http.post({
                         url:  '/flow/job/task/detail',
                         data: {
-                            // taskId:      vData.form.model,
-                            taskId:      '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439',
+                            taskId:      vData.form.model,
+                            // taskId:      '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439',
                             result_type: 'infer',
                             need_result: true,
                         },
@@ -304,9 +305,7 @@
                             // setTimeout(() => {
                             //     methods.getPredictDetail();
                             // }, 1000);
-                            console.log('vData.isUploadedOk=', vData.isUploadedOk);
-                            console.log(vData.isUploading || vData.isCheckFinished || vData.isUploadedOk);
-                            setTimeout(() => {
+                            vData.timer3 = setTimeout(() => {
                                 if (data.task_view.results[0].result.status === 'running') {
                                     methods.getPredictDetail();
                                 }
@@ -409,6 +408,9 @@
 
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
+                clearTimeout(vData.timer);
+                clearTimeout(vData.timer2);
+                clearTimeout(vData.timer3);
             });
 
             return {

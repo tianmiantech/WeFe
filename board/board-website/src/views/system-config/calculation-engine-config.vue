@@ -5,9 +5,9 @@
                 :model="vData.form"
                 :disabled="!vData.userInfo.admin_role"
                 @submit.prevent
+                class="config_form"
             >
                 <el-row :gutter="24">
-                    <el-divider content-position="left">函数计算相关配置</el-divider>
                     <el-col>
                         <el-form-item label="环境：">
                             <el-radio-group v-model="vData.form.calculation_engine_config.backend" size="small">
@@ -16,14 +16,15 @@
                             </el-radio-group>
                         </el-form-item>
                     </el-col>
+                    <el-divider content-position="left">函数计算相关配置</el-divider>
                     <div class="flex_box">
                         <el-col :span="11">
                             <el-card>
-                                <el-form-item label="每日费用上限：">
-                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_day" style="width: 95%" clearable /> <span style="color: #999">¥</span>
+                                <el-form-item label="每日费用上限：" :disabled="vData.form.calculation_engine_config.backend === 'FC'">
+                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_day" style="width: 95%" clearable :disabled="vData.form.calculation_engine_config.backend === 'FC'" /> <span style="color: #999">¥</span>
                                 </el-form-item>
                                 <el-form-item label="每月费用上限：">
-                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_month" style="width: 95%" clearable /> <span style="color: #999">¥</span>
+                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_month" style="width: 95%" clearable :disabled="vData.form.calculation_engine_config.backend === 'FC'" /> <span style="color: #999">¥</span>
                                 </el-form-item>
                             </el-card>
                         </el-col>
@@ -147,5 +148,10 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+}
+.config_form {
+    :deep(.el-form-item) {
+        margin-bottom: 0;
+    }
 }
 </style>
