@@ -67,27 +67,25 @@
                 </div>
             </el-form-item>
 
-
-            <el-button
+            <el-button class="ml10"
                 type="primary"
                 @click="getList({ to: true})"
             >
                 查询
             </el-button>
 
-            <router-link :to="{name: 'payments-records-add'}">
+
+            <router-link class="ml10" :to="{name: 'payments-records-add'}">
                 <el-button>
                     新增
                 </el-button>
             </router-link>
 
-
-            <el-button
+            <el-button class="ml10"
                 @click="downloadPaymentsRecords"
             >
                 下载
             </el-button>
-
 
         </el-form>
 
@@ -227,27 +225,27 @@ export default {
             getListApi: '/paymentsrecords/query-list',
             serviceTypes: [
                 {
-                    name:  '两方匿踪查询',
+                    name: '两方匿踪查询',
                     value: '1',
                 },
                 {
-                    name:  '多方匿踪查询',
+                    name: '多方匿踪查询',
                     value: '6',
                 },
                 {
-                    name:  '两方交集查询',
+                    name: '两方交集查询',
                     value: '2',
                 },
                 {
-                    name:  '多方交集查询',
+                    name: '多方交集查询',
                     value: '5',
                 },
                 {
-                    name:  '多方安全统计(查询方)',
+                    name: '多方安全统计(查询方)',
                     value: '4',
                 },
                 {
-                    name:  '多方安全统计(被查询方)',
+                    name: '多方安全统计(被查询方)',
                     value: '3',
                 },
             ],
