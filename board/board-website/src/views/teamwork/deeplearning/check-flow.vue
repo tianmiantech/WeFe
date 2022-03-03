@@ -2,7 +2,7 @@
     <el-card v-loading="vData.pageLoading">
         <el-form :model="vData.form" inline>
             <el-form-item label="选择模型：">
-                <el-select v-model="vData.form.model" placeholder="请选择模型">
+                <el-select v-model="vData.form.model" placeholder="请选择模型" :disabled="!vData.isCanUpload">
                     <el-option v-for="item in vData.modelList" :key="item.task_id" :label="item.flow_name" :value="item.task_id"></el-option>
                 </el-select>
             </el-form-item>
@@ -44,7 +44,7 @@
                         <uploader-list :file-list="vData.img_upload_options.files.length" />
                     </div>
 
-                    <div v-if="vData.isUploadedOk" class="predict_box" style="width:700px; height: 400px;">
+                    <div v-if="vData.isUploadedOk" class="predict_box" style="width:800px; height: 400px;">
                         <p class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
                     </div>
 
@@ -102,19 +102,23 @@
 </template>
 
 <script>
-    import { ref, reactive, getCurrentInstance, nextTick, onBeforeMount } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { ref, computed, reactive, getCurrentInstance, nextTick, onBeforeMount, onBeforeUnmount } from 'vue';
+    import { useStore } from 'vuex';
+    import { useRoute, useRouter } from 'vue-router';
     import LabelSystem from './components/model-show.vue';
     import ImageThumbnailList from '../../data-center/components/image-thumbnail-list.vue';
     export default {
         components: { LabelSystem, ImageThumbnailList },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http } = appContext.config.globalProperties;
+            const { $http, $bus } = appContext.config.globalProperties;
             const route = useRoute();
+            const router = useRouter();
             const labelSystemRef = ref();
             const imgThumbnailListRef = ref();
             const imgUploaderRef = ref();
+            const store = useStore();
+            const userInfo = computed(() => store.state.base.userInfo);
             const vData = reactive({
                 projectId: route.query.project_id,
                 flowId:    route.query.flow_id,
@@ -172,6 +176,7 @@
                 isUploading:     false, // 文件上传中
                 isUploadedOk:    false, // 文件上传完成
                 isCheckFinished: false, // 模型校验完成
+                timer3:          null,
             });
             const methods = {
                 async getModelList() {
@@ -240,11 +245,10 @@
                         vData.isUploading = false;
                         vData.isCheckFinished = false;
                         vData.isCanUpload = false;
-                        console.log(vData.http_upload_filename);
-                        // methods.startPredict();
-                        setTimeout(() => {
-                            methods.getPredictDetail();
-                        }, 500);
+                        methods.startPredict();
+                        // setTimeout(() => {
+                        //     methods.getPredictDetail();
+                        // }, 500);
                     }
                 },
                 async startPredict() {
@@ -270,8 +274,8 @@
                     const { code, data } = await $http.post({
                         url:  '/flow/job/task/detail',
                         data: {
-                            // taskId:      vData.form.model,
-                            taskId:      '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439',
+                            taskId:      vData.form.model,
+                            // taskId:      '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439',
                             result_type: 'infer',
                             need_result: true,
                         },
@@ -301,9 +305,7 @@
                             // setTimeout(() => {
                             //     methods.getPredictDetail();
                             // }, 1000);
-                            console.log('vData.isUploadedOk=', vData.isUploadedOk);
-                            console.log(vData.isUploading || vData.isCheckFinished || vData.isUploadedOk);
-                            setTimeout(() => {
+                            vData.timer3 = setTimeout(() => {
                                 if (data.task_view.results[0].result.status === 'running') {
                                     methods.getPredictDetail();
                                 }
@@ -357,7 +359,7 @@
                 },
                 resetWidth() {
                     if (vData.sampleList.length) {
-                        const maxWidth = document.getElementsByClassName('upload_box')[0].offsetWidth > 800 ? 800 :document.getElementsByClassName('upload_box')[0].offsetWidth;
+                        const maxWidth = document.getElementsByClassName('opearate_box')[0].offsetWidth > 800 ? 800 :document.getElementsByClassName('upload_box')[0].offsetWidth;
 
                         console.log(document.getElementsByClassName('upload_box')[0].offsetWidth);
                         console.log(maxWidth);
@@ -373,25 +375,15 @@
                         methods.resetWidth();
                     }, 300);
                 },
-                async downloadModel($event) {
-                    vData.pageLoading = true;
-                    const { code, data } = await $http.post({
-                        url:  '/model/deep_learning/download',
-                        data: { 
-                            // task_id: vData.form.model,
-                            taskId: '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439',
-                        },
-                        btnState: {
-                            target: $event,
-                        },
-                    });
+                async downloadModel(){
+                    const api = `${window.api.baseUrl}/model/deep_learning/download?task_id=${vData.form.model}&token=${userInfo.value.token}`;
+                    const link = document.createElement('a');
 
-                    nextTick(_=> {
-                        if (code === 0) {
-                            console.log(data);
-                        }
-                        vData.pageLoading = false;
-                    });
+                    link.href = api;
+                    link.target = '_blank';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
                 },
             };
 
@@ -404,6 +396,21 @@
                 window.onresize = () => {
                     methods.debounce();
                 };
+                $bus.$on('history-backward', () => {
+                    router.push({
+                        name:  'project-detail',
+                        query: {
+                            project_id: vData.projectId,
+                        },
+                    });
+                });
+            });
+
+            onBeforeUnmount(_ => {
+                $bus.$off('history-backward');
+                clearTimeout(vData.timer);
+                clearTimeout(vData.timer2);
+                clearTimeout(vData.timer3);
             });
 
             return {
