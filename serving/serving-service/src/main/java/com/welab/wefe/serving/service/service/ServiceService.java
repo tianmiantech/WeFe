@@ -692,25 +692,23 @@ public class ServiceService {
 		Path basePath = Paths.get(config.getFileBasePath());
 //		String basePath = config.getFileBasePath();
 		List<File> fileList = new ArrayList<>();
+		File readme = basePath.resolve("/readme.md").toFile();
 		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "mpc-pir-sdk-1.0.0.jar"));
-			File readme = new File(basePath + "readme.md");
+			fileList.add(basePath.resolve("/mpc-pir-sdk-1.0.0.jar").toFile());
 			fillReadmeFile(model, readme);
-			fileList.add(readme);
 		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "mpc-psi-sdk-1.0.0.jar"));
-			File readme = new File(basePath + "readme.md");
+			fileList.add(basePath.resolve("/mpc-psi-sdk-1.0.0.jar").toFile());
 			fillReadmeFile(model, readme);
-			fileList.add(readme);
 		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "mpc-sa-sdk-1.0.0.jar"));
-			File readme = new File(basePath + "readme.md");
+			fileList.add(basePath.resolve("/mpc-sa-sdk-1.0.0.jar").toFile());
 			fillReadmeFile(model, readme);
-			fileList.add(readme);
+		} else {
+			fillReadmeFile(null, readme);
 		}
+		fileList.add(readme);
 		String sdkZipName = "/sdk.zip";
 		String outputPath = basePath.resolve(sdkZipName).toString();
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
@@ -730,15 +728,19 @@ public class ServiceService {
 
 	private void fillReadmeFile(ServiceMySqlModel model, File readme) throws IOException {
 		Map<String, Object> valuesMap = new HashMap<>();
-		valuesMap.put("url", model.getUrl());
-		valuesMap.put("params", model.getQueryParams() == null ? "" : model.getQueryParams());
-		valuesMap.put("desc", model.getName());
-		valuesMap.put("method", "POST");
-		String templateString = "# url:\n" + "	${url}\n" + "	\n" + "# method:\n" + "	${method}\n" + "	\n" + "# params:\n"
-				+ "	${params}\n" + "	\n" + "# desc\n" + "	${desc}";
-		StringSubstitutor sub = new StringSubstitutor(valuesMap);
-		String content = sub.replace(templateString);
-		FileUtils.write(readme, content);
+		if (model != null) {
+			valuesMap.put("url", model.getUrl());
+			valuesMap.put("params", model.getQueryParams() == null ? "" : model.getQueryParams());
+			valuesMap.put("desc", model.getName());
+			valuesMap.put("method", "POST");
+			String templateString = "# url:\n" + "	${url}\n" + "	\n" + "# method:\n" + "	${method}\n" + "	\n"
+					+ "# params:\n" + "	${params}\n" + "	\n" + "# desc\n" + "	${desc}";
+			StringSubstitutor sub = new StringSubstitutor(valuesMap);
+			String content = sub.replace(templateString);
+			FileUtils.write(readme, content);
+		} else {
+			FileUtils.write(readme, "readme.md");
+		}
 	}
 
 	public ServiceMySqlModel queryById(QueryOneApi.Input input) {
