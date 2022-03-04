@@ -44,10 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -715,7 +711,7 @@ public class ServiceService {
 			fillReadmeFile(model, readme);
 			fileList.add(readme);
 		}
-		String sdkZipName = "sdk.zip";
+		String sdkZipName = "/sdk.zip";
 		String outputPath = basePath.resolve(sdkZipName).toString();
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
