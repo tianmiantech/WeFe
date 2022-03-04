@@ -11,17 +11,17 @@
             @submit.prevent
         >
             <el-form-item
-                v-if="memberRole !== 'provider'"
+                v-if="myMemberId === memberId"
                 label="上传者："
             >
                 <el-select
-                    v-model="search.member_id"
+                    v-model="search.creator"
                     clearable
                 >
                     <el-option
-                        v-for="item in member_list"
+                        v-for="item in accounts"
                         :key="item.id"
-                        :label="item.name"
+                        :label="item.nickname"
                         :value="item.id"
                     />
                 </el-select>
@@ -158,11 +158,11 @@
                 jobRole:     '',
                 projectType: '',
                 myMemberId:  '',
-                member_list: [],
+                accounts:    [],
                 search:      {
                     id:               '',
                     name:             '',
-                    member_id:        '',
+                    creator:          '',
                     containsY:        '',
                     dataResourceType: '',
                 },
@@ -225,7 +225,7 @@
                     this.search = {
                         id:               '',
                         name:             '',
-                        member_id:        '',
+                        creator:          '',
                         containsY:        '',
                         dataResourceType: this.projectType === 'DeepLearning' ? ['ImageDataSet'] : ['TableDataSet', 'BloomFilter'],
                     };
@@ -277,14 +277,14 @@
             },
             async loadMemberList() {
                 const { code, data } = await this.$http.post({
-                    url:  '/union/member/query',
+                    url:  '/account/query',
                     data: {
                         page_size: 100,
                     },
                 });
 
                 if (code === 0) {
-                    this.member_list = data.list;
+                    this.accounts = data.list;
                 }
             },
 
