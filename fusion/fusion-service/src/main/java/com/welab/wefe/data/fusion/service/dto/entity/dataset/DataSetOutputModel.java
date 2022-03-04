@@ -81,6 +81,8 @@ public class DataSetOutputModel extends AbstractOutputModel {
 
     DataResourceType type = DataResourceType.DataSet;
 
+    String hashFunction;
+
     public String getName() {
         return name;
     }
@@ -183,5 +185,14 @@ public class DataSetOutputModel extends AbstractOutputModel {
 
     public void setProcess(Progress process) {
         this.process = process;
+    }
+
+
+    public String getHashFunction() {
+        return hashFunction;
+    }
+
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
     }
 }
