@@ -28,7 +28,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
-@Api(path = "service/export_sdk", name = "export sdk", login = false)
+@Api(path = "service/export_sdk", name = "export sdk", login = true)
 public class ExportSDKApi extends AbstractApi<ExportSDKApi.Input, ResponseEntity<?>> {
 
 	@Autowired
