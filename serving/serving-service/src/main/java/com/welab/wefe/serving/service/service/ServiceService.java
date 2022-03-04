@@ -692,24 +692,24 @@ public class ServiceService {
 		Path basePath = Paths.get(config.getFileBasePath());
 //		String basePath = config.getFileBasePath();
 		List<File> fileList = new ArrayList<>();
-		File readme = basePath.resolve("/readme.md").toFile();
+		File readme = new File(basePath.resolve("readme.md").toString());
 		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(basePath.resolve("/mpc-pir-sdk-1.0.0.jar").toFile());
+			fileList.add(new File(basePath.resolve("mpc-pir-sdk-1.0.0.jar").toString()));
 			fillReadmeFile(model, readme);
 		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(basePath.resolve("/mpc-psi-sdk-1.0.0.jar").toFile());
+			fileList.add(new File(basePath.resolve("mpc-psi-sdk-1.0.0.jar").toString()));
 			fillReadmeFile(model, readme);
 		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(basePath.resolve("/mpc-sa-sdk-1.0.0.jar").toFile());
+			fileList.add(new File(basePath.resolve("mpc-sa-sdk-1.0.0.jar").toString()));
 			fillReadmeFile(model, readme);
 		} else {
 			fillReadmeFile(null, readme);
 		}
 		fileList.add(readme);
-		String sdkZipName = "/sdk.zip";
+		String sdkZipName = "sdk.zip";
 		String outputPath = basePath.resolve(sdkZipName).toString();
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
