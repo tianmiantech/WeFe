@@ -29,13 +29,13 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
 @Api(path = "service/export_sdk", name = "export sdk", login = false)
-public class ExportSDKApi extends AbstractApi<ExportSDKApi.Input, ResponseEntity<byte[]>> {
+public class ExportSDKApi extends AbstractApi<ExportSDKApi.Input, ResponseEntity<?>> {
 
 	@Autowired
 	private ServiceService service;
 
 	@Override
-	protected ApiResult<ResponseEntity<byte[]>> handle(Input input) throws StatusCodeWithException, IOException {
+	protected ApiResult<ResponseEntity<?>> handle(Input input) throws StatusCodeWithException, IOException {
 		return file(service.exportSdk(input.getServiceId()));
 	}
 
