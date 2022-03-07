@@ -31,7 +31,7 @@
                 />
             </el-form-item>
 
-            <fieldset style="min-height:230px; max-width:500px;">
+            <fieldset style="min-height:230px; min-width:400px; max-width:500px;">
                 <legend>上传方式</legend>
                 <el-form-item>
                     <el-radio
@@ -895,6 +895,7 @@ export default {
 <style lang="scss" scoped>
 .page {
     overflow: visible;
+    min-width: 500px;
 }
 
 .el-input, .el-textarea {
@@ -949,6 +950,34 @@ export default {
 
 .el-upload {
     position: relative;
+}
+
+.uploader-list {
+    ::v-deep .uploader-file-meta {
+        display: none;
+    }
+
+    ::v-deep .uploader-file-size,
+    ::v-deep .uploader-file-name {
+        font-size: 12px;
+    }
+
+    ::v-deep .uploader-file-actions {
+        width: auto;
+    }
+
+    ::v-deep .uploader-file[status=success] .uploader-file-remove {
+        display: block;
+    }
+
+    ::v-deep .uploader-file-status {
+        font-size: 12px;
+        text-indent: 2px;
+        min-width: 130px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
 }
 
 .el-upload__input {

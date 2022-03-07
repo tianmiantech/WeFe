@@ -52,6 +52,11 @@ public class WeFeFileSystem {
      */
     public enum UseType {
         /**
+         * 临时目录，文件不会长时间保存。
+         * todo：zane 此目录的文件会被自动回收。
+         */
+        Temp,
+        /**
          * 添加数据资源
          */
         AddTableDataSet,
@@ -134,6 +139,13 @@ public class WeFeFileSystem {
         /**
          * 包含图片的zip文件
          */
+        public static File getModelFile(String taskId) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve("model").resolve(taskId + ".zip").toFile();
+        }
+
+        /**
+         * 包含图片的zip文件
+         */
         public static File getZipFile(String taskId) {
             return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
         }
@@ -168,7 +180,7 @@ public class WeFeFileSystem {
             if (renamedFile.exists()) {
                 renamedFile.delete();
             }
-            
+
             rawFile.renameTo(renamedFile);
 
             return renamedFile;

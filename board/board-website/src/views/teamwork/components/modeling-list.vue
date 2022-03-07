@@ -3,9 +3,10 @@
         name="模型列表"
         shadow="never"
         class="nav-title mb30"
+        :show="project_type !== 'DeepLearning'"
     >
         <h3 class="mb10">模型列表</h3>
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
                 <el-select v-model="search.component_type">
                     <el-option
@@ -311,6 +312,7 @@
         },
         created() {
             this.project_id = this.$route.query.project_id;
+            this.project_type = this.$route.query.project_type;
             this.search.project_id = this.project_id;
         },
         methods: {

@@ -23,6 +23,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.wefe.enums.FlowActionType;
 import com.welab.wefe.common.wefe.enums.ProducerType;
+import com.welab.wefe.common.wefe.enums.ProjectType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,33 @@ public class FlowActionQueueService extends AbstractService {
     @Autowired
     private JobService jobService;
 
+    public void runJob(AbstractApiInput input, String jobId, ProjectType projectType) {
+        JObject params =
+                projectType == ProjectType.DeepLearning
+                        ? JObject.create("type", "visualfl")
+                        : null;
+
+        notifyFlow(
+                input,
+                jobId,
+                FlowActionType.run_job,
+                params
+        );
+    }
+
+    public void stopJob(AbstractApiInput input, String jobId, ProjectType projectType) {
+        JObject params =
+                projectType == ProjectType.DeepLearning
+                        ? JObject.create("type", "visualfl")
+                        : null;
+
+        notifyFlow(
+                input,
+                jobId,
+                FlowActionType.stop_job,
+                params
+        );
+    }
 
     public void notifyFlow(AbstractApiInput input, String jobId, FlowActionType actionType) {
 

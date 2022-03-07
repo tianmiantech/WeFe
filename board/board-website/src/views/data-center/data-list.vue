@@ -208,11 +208,11 @@
                 showUploadingDialog: false,
                 sourceTypeList:      [
                     {
-                        label: '数据集',
+                        label: '结构化数据集',
                         value: 'TableDataSet',
                     },
                     {
-                        label: 'ImageDataSet',
+                        label: '图像数据集',
                         value: 'ImageDataSet',
                     },
                     {

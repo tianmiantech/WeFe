@@ -119,6 +119,7 @@ public class TransferMetaDataAsyncSaveService {
                 args.put("fc_name", fcTableName);
                 LOG.info("The amount of data is：" + dateItemModelList.size());
                 LOG.info("flowBackend is：" + flowBackend.toString());
+                LOG.info("storageType: " + storageType);
 
                 if ("ots".equalsIgnoreCase(storageType)) {
                     LOG.info("The data from CK has been received and is now uploaded to OTS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
@@ -134,6 +135,8 @@ public class TransferMetaDataAsyncSaveService {
                     storageService.saveList(dstDbName, dstTableName, dateItemModelList);
                     LOG.info("Data sink finish, session id: {}, sequence no: {}, db name: {}, table name: {}, dst db name: {}, dst table name: {}, data size: {}, time spent: {}", transferMeta.getSessionId(), transferMeta.getSequenceNo(), srcDbName, srcTableName, dstDbName, dstTableName, dataList.size(), (System.currentTimeMillis() - startTime));
 
+                } else {
+                    LOG.error("storage type: " + storageType + " is undefined");
                 }
 
                 processingTransferMetaData.status = TransferMetaDataSink.PROCESS_STATUS_SUCCESS;

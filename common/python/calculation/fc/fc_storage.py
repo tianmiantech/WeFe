@@ -206,6 +206,9 @@ class FCStorage(object):
     def count(self, partition=None):
         return self.storage.count(partition=partition)
 
+    def each_partition_count(self):
+        return self.storage.each_partition_count()
+
     def put(self, k, v):
         return self.storage.put(k, v)
 

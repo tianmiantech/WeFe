@@ -53,6 +53,9 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             String groupName = group.getKey();
             Map<String, String> groupItems = group.getValue();
             for (Map.Entry<String, String> item : groupItems.entrySet()) {
+                if (item.getKey().equals("member_id")) {
+                    continue;
+                }
                 String key = item.getKey();
                 String value = item.getValue();
                 put(groupName, key, value, null);

@@ -26,5 +26,7 @@ public enum ActionType {
 
     align,
 
+    fusion,
+
     end
 }

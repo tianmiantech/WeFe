@@ -30,7 +30,7 @@ import java.io.File;
  * @author zane
  * @date 2022/2/14
  */
-@Api(path = "model/deep_learning/call/download/image", name = "下载需要批量推理的zip文件")
+@Api(path = "model/deep_learning/call/download/image", name = "下载推理图片")
 public class DownloadDataSetImageApi extends AbstractApi<DownloadDataSetImageApi.Input, ResponseEntity<?>> {
 
     @Override

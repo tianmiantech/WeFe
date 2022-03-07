@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <el-form-item label="聚类数目">
             <el-input v-model="vData.k"></el-input>
@@ -91,45 +92,41 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0) {
-                        const { params } = data;
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        const { featureMethods, members, workMode, form } = data.params;
 
-                        if(params) {
-                            const { featureMethods, members, workMode, form } = params;
+                        vData.form = form;
+                        vData.percentages = [];
+                        vData.typeChecked = [];
 
-                            vData.form = form;
-                            vData.percentages = [];
-                            vData.typeChecked = [];
-
-                            featureMethods.forEach(row => {
-                                if(row.name !== 'percentile') {
-                                    vData.typeChecked.push(row.name);
-                                } else {
-                                    vData.percentages.push({
-                                        label:   'percentile',
-                                        number:  row.value || 50,
-                                        checked: true,
-                                    });
-                                }
-                            });
-                            if(vData.percentages.length === 0) {
-                                vData.percentages = [{
+                        featureMethods.forEach(row => {
+                            if(row.name !== 'percentile') {
+                                vData.typeChecked.push(row.name);
+                            } else {
+                                vData.percentages.push({
                                     label:   'percentile',
-                                    checked: false,
-                                    number:  50,
-                                }];
+                                    number:  row.value || 50,
+                                    checked: true,
+                                });
                             }
-
-                            members.forEach(member => {
-                                const item = vData.data_set_list.find(row => row.member_id === member.member_id);
-
-                                if(item) {
-                                    item.features.push(...member.features);
-                                }
-                            });
-                            vData.workMode = workMode;
-                            methods.workModeChange(workMode);
+                        });
+                        if(vData.percentages.length === 0) {
+                            vData.percentages = [{
+                                label:   'percentile',
+                                checked: false,
+                                number:  50,
+                            }];
                         }
+
+                        members.forEach(member => {
+                            const item = vData.data_set_list.find(row => row.member_id === member.member_id);
+
+                            if(item) {
+                                item.features.push(...member.features);
+                            }
+                        });
+                        vData.workMode = workMode;
+                        methods.workModeChange(workMode);
                         vData.inited = true;
                     }
                 },

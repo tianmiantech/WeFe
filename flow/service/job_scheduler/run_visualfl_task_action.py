@@ -98,9 +98,9 @@ class RunVisualFLTaskAction:
         else:
             schedule_logger(self.running_job).info(
                 "Task {}（{}）failed， submit task request error, time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
-            self.error_on_task('submit task error')
+            # self.error_on_task('submit task error')
             raise RuntimeError('submit task error')
-        self.finish_task()
+        # self.finish_task()
 
     def error_on_task(self, message):
         # self.task.status = TaskStatus.ERROR
@@ -108,7 +108,6 @@ class RunVisualFLTaskAction:
         # self.task.updated_time = current_datetime()
         # self.task.message = message
         # TaskDao.save(self.task)
-
         job = JobDao.find_one_by_id(self.job.id)
         job.status = JobStatus.ERROR_ON_RUNNING
         job.status_updated_time = current_datetime()
@@ -122,7 +121,6 @@ class RunVisualFLTaskAction:
         # self.task.start_time = current_datetime()
         # self.task.updated_time = current_datetime()
         # TaskDao.save(self.task)
-
         job = JobDao.find_one_by_id(self.job.id)
         job.status = JobStatus.SUCCESS
         job.status_updated_time = current_datetime()

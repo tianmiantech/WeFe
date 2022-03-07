@@ -30,6 +30,12 @@ public class LoginInput extends AbstractApiInput {
     @Check(require = true)
     private String password;
 
+    @Check(require = true, desc = "验证码标识")
+    private String key;
+
+    @Check(require = true, desc = "验证码")
+    private String code;
+
     public String getAccount() {
         return account;
     }
@@ -44,5 +50,21 @@ public class LoginInput extends AbstractApiInput {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

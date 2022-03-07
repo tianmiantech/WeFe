@@ -18,6 +18,7 @@ package com.welab.wefe.data.fusion.service.task;
 
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.TimeSpan;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.data.fusion.service.actuator.AbstractActuator;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
     protected String businessId;
 
     protected String name;
+
+    private volatile String error;
 
     /**
      * Task start time
@@ -90,7 +93,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
 
     /**
-         * Estimated remaining time
+     * Estimated remaining time
      *
      * @return
      */
@@ -123,12 +126,14 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     /**
      * Check whether the task is complete
+     *
      * @return
      */
     public abstract boolean isFinish();
 
     /**
      * Determine the status of the actuator
+     *
      * @return
      */
     protected abstract PSIActuatorStatus status();
@@ -159,6 +164,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
+            error = e.getMessage();
         }
     }
 
@@ -168,7 +174,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
         while (true) {
             sleep(1000);
 
-            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish()) {
+            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
 

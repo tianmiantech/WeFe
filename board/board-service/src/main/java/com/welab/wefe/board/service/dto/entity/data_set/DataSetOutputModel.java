@@ -24,7 +24,7 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.ComponentType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 
 /**
  * @author Zane
@@ -93,7 +93,7 @@ public class DataSetOutputModel extends AbstractOutputModel {
     /**
      * 数据集的可见性
      */
-    private DataSetPublicLevel publicLevel;
+    private DataResourcePublicLevel publicLevel;
     /**
      * 使用次数
      */
@@ -303,11 +303,11 @@ public class DataSetOutputModel extends AbstractOutputModel {
         this.yNameList = yNameList;
     }
 
-    public DataSetPublicLevel getPublicLevel() {
+    public DataResourcePublicLevel getPublicLevel() {
         return publicLevel;
     }
 
-    public void setPublicLevel(DataSetPublicLevel publicLevel) {
+    public void setPublicLevel(DataResourcePublicLevel publicLevel) {
         this.publicLevel = publicLevel;
     }
 

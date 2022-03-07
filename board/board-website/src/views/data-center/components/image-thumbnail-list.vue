@@ -11,7 +11,7 @@
                     </template>
                 </el-image>
             </div>
-            <p class="label_tips" v-if="!item.labeled">未标注</p>
+            <p class="label_tips" v-if="!item.labeled && !vData.width">未标注</p>
         </div>
         <!-- <div><i class="el-icon-d-arrow-right"/></div> -->
     </div>
@@ -22,6 +22,7 @@
     export default {
         props: {
             sampleList: Array,
+            width:      Number,
         },
         setup(props, context) {
             const vData = reactive({
@@ -36,7 +37,7 @@
             };
 
             onBeforeMount(_=> {
-                
+                vData.width = props.width;
             });
             
             return {

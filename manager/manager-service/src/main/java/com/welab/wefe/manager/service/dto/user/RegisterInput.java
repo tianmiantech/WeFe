@@ -16,8 +16,12 @@
 
 package com.welab.wefe.manager.service.dto.user;
 
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.service.CaptchaService;
 
 /**
  * @Description:
@@ -32,6 +36,21 @@ public class RegisterInput extends AbstractApiInput {
     @Check(require = true)
     private String realname;
     private String email;
+    @Check(require = true, desc = "验证码标识")
+    private String key;
+    @Check(require = true, desc = "验证码")
+    private String code;
+
+    @Override
+    public void checkAndStandardize() throws StatusCodeWithException {
+        super.checkAndStandardize();
+        // Verification code verification
+        if (!CaptchaService.verify(key, code)) {
+            throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+    }
+
 
     public String getAccount() {
         return account;
@@ -63,5 +82,22 @@ public class RegisterInput extends AbstractApiInput {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

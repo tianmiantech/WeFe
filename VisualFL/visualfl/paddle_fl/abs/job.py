@@ -22,9 +22,8 @@ class Job(metaclass=abc.ABCMeta):
     async def compile(self):
         ...
 
-    # @abc.abstractmethod
-    # def generate_proposal_request(self) -> coordinator_pb2.Proposal.REQ:
-    #     ...
+    async def infer(self):
+        ...
 
     @abc.abstractmethod
     def generate_aggregator_tasks(self) -> List[job_pb2.Task]:

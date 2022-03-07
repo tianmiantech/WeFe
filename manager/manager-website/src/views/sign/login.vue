@@ -54,7 +54,7 @@
                             <el-input
                                 v-model="form.account"
                                 placeholder="用户名"
-                                maxlength="50"
+                                maxlength="32"
                                 clearable
                             />
                         </el-form-item>
@@ -64,14 +64,13 @@
                         >
                             <el-input
                                 v-model="form.password"
-                                type="password"
-                                id="password"
-                                maxlength="30"
                                 placeholder="密码"
+                                type="password"
+                                maxlength="30"
                                 clearable
                             />
                         </el-form-item>
-                        <!-- <el-form-item
+                        <el-form-item
                             prop="code"
                             :rules="codeRules"
                         >
@@ -95,7 +94,7 @@
                                     </div>
                                 </template>
                             </el-input>
-                        </el-form-item> -->
+                        </el-form-item>
                         <div class="sign-action">
                             <!-- <router-link
                                 :to="{name: 'find-password'}"
@@ -138,8 +137,8 @@
                 form:       {
                     password: '',
                     account:  '',
-                    // code:      '',
-                    // key:      '',
+                    code:     '',
+                    key:      '',
                 },
                 imgCode:      '',
                 accountRules: [
@@ -160,16 +159,16 @@
             };
         },
         created() {
-            // this.getImgCode();
+            this.getImgCode();
         },
         methods: {
             async getImgCode() {
-                const { code, data } = await this.$http.get('/account/captcha');
+                const { code, data } = await this.$http.get('/user/captcha');
 
                 if (code === 0) {
                     this.imgCode = data.image;
                     this.form.key = data.key;
-                    // this.form.code = '';
+                    this.form.code = '';
                 }
             },
             submit(event) {
@@ -181,10 +180,10 @@
                         const { code, data } = await this.$http.post({
                             url:  '/user/login',
                             data: {
+                                code:     this.form.code,
                                 account:  this.form.account,
                                 password: md5(this.form.password),
-                                // key:          this.form.key,
-                                // code:         this.form.code,
+                                key:      this.form.key,
                             },
                             btnState: {
                                 target: event,
@@ -196,6 +195,8 @@
                             this.$router.replace({
                                 name: 'index',
                             });
+                        } else {
+                            this.getImgCode();
                         }
                     }
                     this.submitting = false;

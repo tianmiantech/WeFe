@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <template
             v-for="(member, $index) in vData.data_set_list"
@@ -218,20 +219,16 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0) {
-                        const { params } = data;
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        const { members } = data.params;
 
-                        if(params) {
-                            const { members } = params;
+                        members.forEach(member => {
+                            const item = vData.data_set_list.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
 
-                            members.forEach(member => {
-                                const item = vData.data_set_list.find(row => row.member_id === member.member_id && row.member_role === member.member_role);
-
-                                if(item) {
-                                    item.features.push(...member.features);
-                                }
-                            });
-                        }
+                            if(item) {
+                                item.features.push(...member.features);
+                            }
+                        });
                         vData.inited = true;
                     }
                 },

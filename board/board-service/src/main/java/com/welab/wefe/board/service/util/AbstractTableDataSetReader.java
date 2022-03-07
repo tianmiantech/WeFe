@@ -121,6 +121,16 @@ public abstract class AbstractTableDataSetReader implements Closeable {
         LinkedHashMap<String, Object> row;
         while ((row = readOneRow()) != null) {
 
+            if (getHeader().size() != row.size()) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException(
+                                "数据集第" + readDataRows + "行有" + row.size()
+                                        + "列，与列头数（" + getHeader().size()
+                                        + "）不匹配，请处理后重新上传。"
+                        );
+            }
+
             checkValue(row);
 
             dataRowConsumer.accept(row);

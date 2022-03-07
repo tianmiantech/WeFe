@@ -69,13 +69,9 @@ export default {
 
         handleCommand (command) {
             if (!command) return;
-            const self = this;
+
             const policy = {
                 async logout() {
-                    await self.$http.post({
-                        url: '/logout',
-                    });
-
                     baseLogout();
                 },
             };

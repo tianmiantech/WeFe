@@ -17,14 +17,12 @@
 
 package com.welab.wefe.mpc.pir.server.service;
 
-import com.alibaba.fastjson.JSON;
-import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
-import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
-import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsRequest;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @Author eval
@@ -35,21 +33,12 @@ public class HuackResultsService {
     private static final Logger LOG = LoggerFactory.getLogger(HuackResultsService.class);
 
     public QueryPIRResultsResponse handle(QueryPIRResultsRequest request) {
-        CacheOperation<String> mCacheOperation = CacheOperationFactory.getCacheOperation();
         long start = System.currentTimeMillis();
         QueryPIRResultsResponse response = new QueryPIRResultsResponse();
         String uuid = request.getUuid();
-        String result = mCacheOperation.get(uuid, Constants.ENCRYPT_RESULT);
-        while (result == null || result.isEmpty()) {
-            result = mCacheOperation.get(uuid, Constants.ENCRYPT_RESULT);
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        List<String> results = GetEncryptResultService.getEncryptResult(uuid, true);
         response.setUuid(uuid);
-        response.setResults(JSON.parseArray(result, String.class));
+        response.setResults(results);
         LOG.info("uuid:{} send result cost:{}",
                 uuid, (System.currentTimeMillis() - start));
         return response;

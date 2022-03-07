@@ -199,6 +199,11 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
+    public Integer sliceNumber() {
+        return null;
+    }
+
+    @Override
     public PsiActuatorMeta downloadBloomFilter() {
         Socket socket = null;
         try {
