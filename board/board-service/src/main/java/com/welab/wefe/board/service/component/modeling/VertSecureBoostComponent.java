@@ -96,6 +96,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
 				.append("cv_param", cvParam)
 				.append("work_mode", params.otherParam.workMode)
 				.append("promoter_depth", params.otherParam.promoterDepth)
+				.append("provider_depth", params.otherParam.providerDepth)
 				.append("provider_depth", params.otherParam.providerDepth);
 
         taskParam.put("params", vertSecureBoostParam);
@@ -203,6 +204,10 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             @Check(name = "provider层数")
             private int providerDepth;
             
+            // 当work_mode==skip时，需要下面这个参数
+            @Check(name = "单方每次构建树的数量")
+            private int treeNumPerMember;
+            
 
             public String getTaskType() {
                 return taskType;
@@ -298,6 +303,14 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
 
 			public void setProviderDepth(int providerDepth) {
 				this.providerDepth = providerDepth;
+			}
+
+			public int getTreeNumPerMember() {
+				return treeNumPerMember;
+			}
+
+			public void setTreeNumPerMember(int treeNumPerMember) {
+				this.treeNumPerMember = treeNumPerMember;
 			}
         }
 
