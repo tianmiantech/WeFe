@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.util;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,11 +72,14 @@ public abstract class AbstractTableDataSetReader implements Closeable {
             throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
-        // trim column name
-        list = list
-                .stream()
-                .map(x -> x.trim())
-                .collect(Collectors.toList());
+
+        for (int i = 0; i < list.size(); i++) {
+            String columnName = list.get(i);
+            if (StringUtil.isEmpty(columnName)) {
+                StatusCode.PARAMETER_VALUE_INVALID
+                        .throwException("数据集列头中第" + (i + 1) + "列名称为空，请处理后重试。");
+            }
+        }
 
         if (list.stream().distinct().count() != list.size()) {
             throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
