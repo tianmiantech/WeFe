@@ -52,6 +52,20 @@ public class FlowActionQueueService extends AbstractService {
         );
     }
 
+    public void stopJob(AbstractApiInput input, String jobId, ProjectType projectType) {
+        JObject params =
+                projectType == ProjectType.DeepLearning
+                        ? JObject.create("type", "visualfl")
+                        : null;
+
+        notifyFlow(
+                input,
+                jobId,
+                FlowActionType.stop_job,
+                params
+        );
+    }
+
     public void notifyFlow(AbstractApiInput input, String jobId, FlowActionType actionType) {
 
         notifyFlow(input, jobId, actionType, null);
