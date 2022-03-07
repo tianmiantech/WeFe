@@ -52,7 +52,7 @@
                         >
                             1. 请上传已盖贵司公章的认证文件。（<el-link type="primary" @click="downloadFile">下载认证文件 </el-link>）
                             <p>2. 请上传贵司的营业执照、组织机构代码证等相关证明文件。</p>
-                            文件格式支持：图片、word、pdf （大小10MB内）
+                            文件格式支持：图片、pdf （大小10MB内）
                         </el-alert>
                     </template>
 
@@ -66,7 +66,7 @@
                         :http-request="() => {}"
                         :before-upload="beforeUpload"
                         :headers="{ token: userInfo.token }"
-                        accept=".png,.jpg,.pdf,.doc,.docx"
+                        accept=".png,.jpg,.pdf"
                         list-type="picture"
                         action="#"
                         drag
@@ -75,9 +75,9 @@
                             <elicon-upload-filled />
                         </el-icon>
                         <div>
-                            将文件 (.jpg/png/PDF/doc/docx) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
+                            将文件 (.jpg/png/PDF) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
                             </p>
-                            <div class="el-upload__tip">jpg/png/doc/docx 文件最大 5M, PDF 最大 10M</div>
+                            <div class="el-upload__tip">jpg/png 文件最大 5M, PDF 最大 10M</div>
                         </div>
                     </el-upload>
                 </el-form-item>
@@ -102,9 +102,9 @@
             v-model="preview.visible"
         >
             <div :class="['preview-box', { fullscreen: preview.fullscreen }]">
-                <el-icon @click="preview.fullscreen = !preview.fullscreen">
+                <!-- <el-icon @click="preview.fullscreen = !preview.fullscreen">
                     <elicon-full-screen />
-                </el-icon>
+                </el-icon> -->
                 <embed
                     v-if="preview.visible"
                     :src="preview.fileData"
@@ -243,13 +243,14 @@
             },
 
             async getFile(fileId, files) {
-                const { code, data, response: { headers: { filename } } } = await this.$http.post({
+                const { code, data, response: { headers } } = await this.$http.post({
                     url:          '/union/download/file',
                     responseType: 'blob',
                     data:         {
                         fileId,
                     },
                 });
+                const filename = headers.filename || headers.FileName;
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {

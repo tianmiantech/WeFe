@@ -22,6 +22,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.data.fusion.service.utils.FileSecurityChecker;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -49,6 +50,16 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
         File[] parts = dir.listFiles();
 
         File mergedFile = new File(fileUploadDir + File.separator + mergedFileName);
+
+        Boolean CanUploaded = FileSecurityChecker.isValid(input.filename);
+        if (!CanUploaded) {
+            if (mergedFile.exists()) {
+                dir.delete();
+                mergedFile.delete();
+                System.out.println("删除成功");
+            }
+            throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！",StatusCode.PARAMETER_VALUE_INVALID);
+        }
 
         try {
             for (int i = 1; i <= parts.length; i++) {
