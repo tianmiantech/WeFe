@@ -376,6 +376,8 @@
     import DataSetList from '@comp/views/data-set-list';
     import DeeplearningResult from './components/deeplearning-result.vue';
 
+    const imageAlgorithmList = ['LeNet', 'AlexNet', 'VGG11', 'VGG13', 'VGG16', 'VGG19', 'ShuffleNetV2_x0_25', 'ShuffleNetV2_x0_33', 'ShuffleNetV2_x0_5', 'ShuffleNetV2_x1_0', 'ShuffleNetV2_x1_5', 'ShuffleNetV2_x2_0', 'SqueezeNet1_0', 'SqueezeNet1_1', 'InceptionV4', 'Xception41', 'Xception65', 'Xception71', 'ResNet18', 'ResNet34','ResNet50', 'ResNet101', 'ResNet152', 'ResNet50_vc', 'ResNet101_vc', 'ResNet152_vc', 'ResNet18_vd', 'ResNet34_vd', 'ResNet50_vd', 'ResNet101_vd', 'ResNet152_vd', 'ResNet200_vd', 'SE_ResNet18_vd', 'SE_ResNet34_vd', 'SE_ResNet50_vd', 'SE_ResNet101_vd', 'SE_ResNet152_vd', 'SE_ResNet200_vd', 'SE_ResNeXt50_32x4d', 'SE_ResNeXt101_32x4d', 'SE_ResNeXt152_32x4d', 'SE_ResNeXt50_vd_32x4d', 'SE_ResNeXt101_vd_32x4d', 'SENet154_vd', 'DenseNet121', 'DenseNet161', 'DenseNet169', 'DenseNet201', 'DenseNet264', 'DarkNet53', 'ResNeXt50_64x4d', 'ResNeXt101_64x4d', 'ResNeXt152_64x4d', 'ResNeXt50_32x4d', 'ResNeXt101_32x4d', 'ResNeXt152_32x4d', 'ResNeXt50_vd_64x4d', 'ResNeXt101_vd_64x4d', 'ResNeXt152_vd_64x4d', 'ResNeXt50_vd_32x4d', 'ResNeXt101_vd_32x4d', 'ResNeXt152_vd_32x4d', 'Res2Net50_48w_2s', 'Res2Net50_26w_4s', 'Res2Net50_14w_8s', 'Res2Net50_26w_6s', 'Res2Net50_26w_8s', 'Res2Net101_26w_4s', 'Res2Net152_26w_4s', 'Res2Net50_vd_48w_2s', 'Res2Net50_vd_26w_4s', 'Res2Net50_vd_14w_8s', 'Res2Net50_vd_26w_6s', 'Res2Net50_vd_26w_8s', 'Res2Net101_vd_26w_4s', 'Res2Net152_vd_26w_4s', 'Res2Net200_vd_26w_4s', 'DPN68','DPN92', 'DPN98','DPN107', 'DPN131', 'MobileNetV1_x0_25', 'MobileNetV1_x0_5', 'MobileNetV1_x1_0', 'MobileNetV1_x0_75','MobileNetV3_small_x0_25', 'MobileNetV3_small_x0_5', 'MobileNetV3_small_x0_75', 'MobileNetV3_small_x1_0','MobileNetV3_small_x1_25', 'HRNet_W18_C', 'HRNet_W32_C', 'HRNet_W48_C','HRNet_W64_C'];
+
     export default {
         components: {
             DataSetList,
@@ -387,6 +389,7 @@
             const route = useRoute();
             const router = useRouter();
             const rawDataSetListRef = ref();
+            const { training_type } = route.query;
             const vData = reactive({
                 loading:    false,
                 active:     0,
@@ -397,17 +400,19 @@
                     flow_desc: '',
                 },
                 deepLearnParams: {
-                    program:      route.query.training_type === 'PaddleDetection' ? 'paddle_detection' : route.query.training_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection',
+                    program:      training_type === 'PaddleDetection' ? 'paddle_detection' : training_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection',
                     max_iter:     10,
                     inner_step:   10,
-                    architecture: route.query.training_type === 'PaddleDetection' ? 'YOLOv3' : route.query.training_type === 'PaddleClassify' ? 'LeNet' : '',
+                    architecture: training_type === 'PaddleDetection' ? 'yolov3_darknet_voc' : training_type === 'PaddleClassify' ? 'LeNet' : '',
                     // num_classes:  3,
                     base_lr:      0.00001,
                     image_shape:  [],
                     batch_size:   128,
                 },
                 image_shape: {
-                    aisle: 3,
+                    aisle:  3,
+                    width:  224,
+                    height: 224,
                 },
                 flowInfo: {
                     project_id: '',
@@ -437,61 +442,36 @@
                 ],
                 targetAlgorithmList: [
                     {
-                        label: 'Faster R-CNN',
-                        value: 'Faster R-CNN',
+                        label: 'ppyolo_r18vd',
+                        value: 'ppyolo_r18vd',
                     },
                     {
-                        label: 'Mask R-CNN',
-                        value: 'Mask R-CNN',
+                        label: 'ssd_vgg16_300_voc',
+                        value: 'ssd_vgg16_300_voc',
                     },
                     {
-                        label: 'Cascade R-CNN',
-                        value: 'Cascade R-CNN',
+                        label: 'ssd_vgg16_512_voc',
+                        value: 'ssd_vgg16_512_voc',
                     },
                     {
-                        label: 'YOLOv3',
-                        value: 'YOLOv3',
+                        label: 'yolov3_darknet_voc',
+                        value: 'yolov3_darknet_voc',
                     },
                     {
-                        label: 'YOLOv4',
-                        value: 'YOLOv4',
+                        label: 'yolov3_mobilenet_v1_voc',
+                        value: 'yolov3_mobilenet_v1_voc',
                     },
                     {
-                        label: 'PP-YOLO',
-                        value: 'PP-YOLO',
+                        label: 'yolov3_r34_voc',
+                        value: 'yolov3_r34_voc',
                     },
                     {
-                        label: 'SSD',
-                        value: 'SSD',
+                        label: 'yolov4_cspdarknet_voc',
+                        value: 'yolov4_cspdarknet_voc',
                     },
                 ],
-                imageAlgorithmList: [
-                    {
-                        label: 'LeNet',
-                        value: 'LeNet',
-                    },
-                    {
-                        label: 'AlexNet',
-                        value: 'AlexNet',
-                    },
-                    {
-                        label: 'GoogleNet',
-                        value: 'GoogleNet',
-                    },
-                    {
-                        label: 'VGGNet',
-                        value: 'VGGNet',
-                    },
-                    {
-                        label: 'ResNet',
-                        value: 'ResNet',
-                    },
-                    {
-                        label: 'DenseNet',
-                        value: 'DenseNet',
-                    },
-                ],
-                formImageDataIO: {
+                imageAlgorithmList: [],
+                formImageDataIO:    {
                     componentType: 'ImageDataIO',
                     flowId:        '',
                     nodeId:        '',
@@ -519,13 +499,26 @@
                 imageDataIONodeId:   '',
                 showDataIOResult:    false,
                 showDLResult:        false,
-                flowType:            route.query.training_type || 'PaddleDetection',
+                flowType:            training_type || 'PaddleDetection',
                 isAllLabel:          false,
                 activeName:          'param',
                 isInResult:          false,
                 stopNext:            false,
                 memberJobDetailList: [],
             });
+
+            if(vData.flowType === 'PaddleDetection') {
+                vData.image_shape.width = 608;
+                vData.image_shape.height = 608;
+            }
+
+            vData.imageAlgorithmList = imageAlgorithmList.map(x => {
+                return {
+                    label: x,
+                    value: x,
+                };
+            });
+
             const methods = {
                 async getFlowInfo() {
                     vData.startLoading = true;
@@ -1084,7 +1077,7 @@
                             if(data.job_id) {
                                 $message.success('启动成功! ');
                                 methods.getJobDetail();
-                                
+
                             }
                         }
                         vData.startLoading = false;
