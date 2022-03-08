@@ -105,10 +105,10 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
-		if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
-			throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
-		}
-		
+        if (!input.fromGateway() && !flow.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
+            throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
+        }
+
         flow.setDeleted(true);
         flow.setUpdatedBy(input);
         projectFlowRepo.save(flow);
@@ -146,8 +146,13 @@ public class ProjectFlowService extends AbstractService {
             input.setFlowId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
 
+        if (project.getProjectType() == ProjectType.DeepLearning && input.getDeepLearningJobType() == null) {
+            StatusCode.PARAMETER_CAN_NOT_BE_EMPTY.throwException("深度学习项目请指定任务类型");
+        }
+
         ProjectFlowMySqlModel flow = new ProjectFlowMySqlModel();
         flow.setFederatedLearningType(input.getFederatedLearningType());
+        flow.setDeepLearningJobType(input.getDeepLearningJobType());
         flow.setCreatedBy(input);
         flow.setProjectId(input.getProjectId());
         flow.setFlowId(input.getFlowId());

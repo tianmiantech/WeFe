@@ -224,6 +224,13 @@ ALTER TABLE `project`
     ADD COLUMN `project_type` varchar(36) NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型' AFTER `flow_status_statistics`;
 
 -- -------------------------------------
+-- project_flow 表增加字段
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `project_flow`
+    ADD COLUMN `deep_learning_job_type` varchar(32) NULL COMMENT '深度学习任务类型（classify/detection）' AFTER `federated_learning_type`;
+
+-- -------------------------------------
 -- project_data_set 表增加字段
 -- author: zane.luo
 -- -------------------------------------
