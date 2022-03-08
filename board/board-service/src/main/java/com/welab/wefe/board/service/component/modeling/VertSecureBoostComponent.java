@@ -94,11 +94,14 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("objective_param", objectiveParam)
                 .append("encrypt_param", encryptParam)
 				.append("cv_param", cvParam)
-				.append("work_mode", params.otherParam.workMode)
-				.append("promoter_depth", params.otherParam.promoterDepth)
-				.append("provider_depth", params.otherParam.providerDepth)
-				.append("provider_depth", params.otherParam.providerDepth);
-
+				.append("work_mode", params.otherParam.workMode);
+        
+		if ("layered".equalsIgnoreCase(params.otherParam.workMode)) {
+			vertSecureBoostParam.append("promoter_depth", params.otherParam.promoterDepth).append("provider_depth",
+					params.otherParam.providerDepth);
+		} else if ("skip".equalsIgnoreCase(params.otherParam.workMode)) {
+			vertSecureBoostParam.append("tree_num_per_member", params.otherParam.treeNumPerMember);
+		}
         taskParam.put("params", vertSecureBoostParam);
 
         return taskParam;
