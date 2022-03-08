@@ -166,7 +166,7 @@ def fl_trainer(
         data_dir = data_loader.job_download(download_url, job_id, get_data_dir())
         labelpath = os.path.join(data_dir, "label_list.txt")
         TaskDao(task_id).save_task_result({"label_path":labelpath}, ComponentName.DETECTION, TaskResultType.LABEL)
-        cfg = merger_algorithm_config(algorithm_config_json)
+        cfg = merger_algorithm_config(algorithm_config_json,os.path.basename(data_dir))
         check_config(cfg)
         check_version()
 
@@ -188,11 +188,6 @@ def fl_trainer(
                 logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
             except Exception as e:
                 logging.error(f"task id {task_id} train error {e}")
-        # elif cfg.pretrain_weights and not ignore_params:
-        #     checkpoint.load_and_fusebn(trainer.exe, trainer._main_program, cfg.pretrain_weights)
-        # elif cfg.pretrain_weights:
-        #     checkpoint.load_params(
-        #         trainer.exe, trainer._main_program, cfg.pretrain_weights, ignore_params=ignore_params)
 
         # redirect dataset path to VisualFL/data
         cfg.TrainReader["dataset"].dataset_dir = os.path.join(

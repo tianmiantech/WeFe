@@ -264,7 +264,7 @@ def un_zip(file_name,target_path):
         for name in names:
             zip_file.extract(name,target_path)
         zip_file.close()
-        return names[0]
+        return os.path.dirname(names[0])
     except Exception as e:
         print(e)
         raise Exception(f"unzip file {file_name} error as {e}")
