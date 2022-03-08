@@ -17,6 +17,8 @@
 package com.welab.wefe.mpc.pir.protocol.se.aes;
 
 import com.welab.wefe.mpc.pir.protocol.se.SymmetricKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -28,6 +30,7 @@ import java.security.Key;
  * @Date 2020-11-19
  **/
 public class AESDecryptKey extends AESKey implements SymmetricKey {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AESDecryptKey.class);
 
     public AESDecryptKey(byte[] key) {
         super(key, null);
@@ -44,7 +47,7 @@ public class AESDecryptKey extends AESKey implements SymmetricKey {
             cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, key1, new IvParameterSpec(iv));
         } catch (Exception e) {
-
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -53,7 +56,7 @@ public class AESDecryptKey extends AESKey implements SymmetricKey {
         try {
             return cipher.doFinal(ciphertext);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
         return new byte[0];
     }
