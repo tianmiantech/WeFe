@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.api.setting;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -26,14 +27,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "global_setting/is_initialize", name = "判断系统是否初始化", desc = "判断系统是否初始化")
-public class IsInitializeApi extends AbstractNoneInputApi<Boolean> {
+@Api(path = "global_setting/is_initialize", name = "判断系统是否初始化", desc = "判断系统是否初始化",login = false)
+public class IsInitializeApi extends AbstractNoneInputApi<JObject> {
 
     @Autowired
     private GlobalSettingService globalSettingService;
 
     @Override
-    protected ApiResult<Boolean> handle() throws StatusCodeWithException {
-        return success(globalSettingService.isInitialized());
+    protected ApiResult<JObject> handle() throws StatusCodeWithException {
+        return success(JObject.create()
+                .append("initialized", globalSettingService.isInitialized())
+        );
     }
 }
