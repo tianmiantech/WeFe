@@ -25,20 +25,53 @@ import java.util.regex.Pattern;
  */
 public class Validator {
 
-    private static final Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^-?\\d+$");
     private static final Pattern MATCH_UNSIGNED_INTEGER_PATTERN = Pattern.compile("^\\d+$");
+    private final static Pattern MATCH_BOOLEAN_PATTERN = Pattern.compile("^true$|^false$|^0$|^1$", Pattern.CASE_INSENSITIVE);
 
-    /**
-     * Is it an integer
-     */
+    public static boolean isBoolean(Object value) {
+        if (value instanceof Boolean) {
+            return true;
+        }
+        return MATCH_BOOLEAN_PATTERN.matcher(value.toString()).find();
+    }
+
+    public static boolean isLong(Object value) {
+        if (value instanceof Long) {
+            return true;
+        }
+        try {
+            Long.valueOf(value.toString());
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isDouble(Object value) {
+        if (value instanceof Double) {
+            return true;
+        }
+        try {
+            Double.valueOf(value.toString());
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+
     public static boolean isInteger(Object value) {
-
         if (value instanceof Integer) {
             return true;
         }
-
-        return MATCH_INTEGER_PATTERN.matcher(String.valueOf(value)).find();
+        try {
+            Integer.valueOf(value.toString());
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
     }
+
 
     /**
      * Is it an unsigned integer
@@ -50,20 +83,5 @@ public class Validator {
         }
 
         return MATCH_UNSIGNED_INTEGER_PATTERN.matcher(String.valueOf(value)).find();
-    }
-
-    public static void main(String[] args) {
-        System.out.println(isInteger(null));
-        System.out.println(isInteger(-1));
-        System.out.println(isInteger(0));
-        System.out.println(isInteger(1));
-
-        System.out.println();
-
-        System.out.println(isUnsignedInteger(null));
-        System.out.println(isUnsignedInteger(-1));
-        System.out.println(isUnsignedInteger(0));
-        System.out.println(isUnsignedInteger(1));
-
     }
 }
