@@ -87,7 +87,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
                 doAdd(input, task, model);
                 unionService.upsertDataResource(model);
                 dataResourceUploadTaskService.complete(task.getDataResourceId());
-            } catch (StatusCodeWithException e) {
+            } catch (Exception e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 dataResourceUploadTaskService.onError(model.getId(), e);
             }

@@ -49,7 +49,7 @@ public class MessageMysqlModel extends AbstractBaseMySqlModel {
      */
     private String content;
     /**
-     * 未读
+     * 是否未读
      */
     private Boolean unread;
 

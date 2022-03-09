@@ -72,7 +72,7 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            // this.systemStatusCheck();
+            this.systemStatusCheck();
         },
         methods: {
             async systemStatusCheck() {
@@ -80,13 +80,13 @@
                 this.loading = true;
 
                 const { code, data } = await this.$http.get({
-                    url: '/member/is_initialized',
+                    url: '/global_setting/is_initialize',
                 });
 
                 this.loading = false;
                 if(code === 0) {
                     if(data.initialized) {
-                        if(this.userInfo.member_id) {
+                        if(this.userInfo.id) {
                             this.$store.commit('SYSTEM_INITED', true); // system inited
                             this.$router.replace({
                                 name: 'index',
@@ -120,7 +120,7 @@
                             this.$router.replace({
                                 name: 'index',
                             });
-                            this.$message.success('欢迎来到 WeFe-serving! ');
+                            this.$message.success('欢迎来到 WeFe-fusion! ');
                         }
                     }
                 });

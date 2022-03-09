@@ -16,9 +16,14 @@
 
 package com.welab.wefe.mpc.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.MessageDigest;
 
 public class SHAUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SHAUtil.class);
+
     public static String SHA256(final String strText) {
         return SHA(strText, "SHA-256");
     }
@@ -59,7 +64,7 @@ public class SHAUtil {
                 // 得到返回結果
                 strResult = strHexString.toString();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage(), e);
             }
         }
 
