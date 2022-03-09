@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,9 @@
 
 package com.welab.wefe.board.service.dto.entity.job;
 
-import com.welab.wefe.common.enums.ComponentType;
+
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 import java.util.Map;
 
@@ -24,33 +26,19 @@ import java.util.Map;
  * @author zane.luo
  */
 public class PreviewJobNodeOutputModel {
-    /**
-     * 前端画布中的节点id，由前端生成
-     */
+    @Check(name = "前端画布中的节点id，由前端生成")
     private String nodeId;
-    /**
-     * 项目ID
-     */
+    @Check(name = "项目ID")
     private String projectId;
-    /**
-     * 父节点
-     */
+    @Check(name = "父节点")
     private String parentNodeId;
-    /**
-     * 组件类型
-     */
+    @Check(name = "组件类型")
     private ComponentType componentType;
-    /**
-     * 深度
-     */
+    @Check(name = "深度")
     private Integer deep;
-    /**
-     * 在任务列表中的序号，如果为 null，表示该节点不会被执行。
-     */
+    @Check(name = "在任务列表中的序号，如果为 null，表示该节点不会被执行。")
     private Integer position;
-    /**
-     * 是否存在可用的历史缓存结果
-     */
+    @Check(name = "是否存在可用的历史缓存结果")
     private Boolean hasCacheResult;
     public Map<String, Object> input;
     public Map<String, Object> output;

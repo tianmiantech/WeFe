@@ -20,14 +20,26 @@
                         </el-form-item>
                     </el-form>
                 </el-collapse-item>
-                <el-collapse-item title="我方数据集预览" name="2">
-                    <el-table
-                        :data="vData.datasetList"
-                        border
-                        stripe
+                <el-collapse-item title="我方数据资源预览" name="2">
+                    <c-grid
+                        v-if="!vData.gridLoading"
+                        :theme="vData.gridTheme"
+                        :data="vData.table_data.rows"
+                        :frozen-col-count="1"
+                        font="12px sans-serif"
+                        :style="{height:`${vData.gridHeight}px`}"
                     >
-                        <el-table-column v-for="row in vData.header" :key="row" :prop="row" :label="row" :min-width="row === 'id' ? 140 : 80"></el-table-column>
-                    </el-table>
+                        <c-grid-column
+                            v-for="(item, index) in vData.table_data.header"
+                            :key="index"
+                            :field="item"
+                            min-width="100"
+                            :width="item === vData.table_data.header[0] ? 240 : 'auto'"
+                            :column-style="{textOverflow: 'ellipsis'}"
+                        >
+                            {{ item }}
+                        </c-grid-column>
+                    </c-grid>
                 </el-collapse-item>
             </el-collapse>
         </template>
@@ -58,15 +70,24 @@
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
-            const activeName = ref('1');
+            const activeName = ref(['1', '2']);
 
             let vData = reactive({
-                header:      [],
-                datasetList: [],
+                loading:    false,
+                table_data: {
+                    header: [],
+                    rows:   [],
+                },
+                gridTheme: {
+                    color:       '#6C757D',
+                    borderColor: '#EBEEF5',
+                },
+                gridHeight: 0,
             });
 
             let methods = {
                 async datasetPreview() {
+                    vData.gridLoading = true;
                     const { code, data } = await $http.get({
                         url:    '/job/data_set/view',
                         params: {
@@ -76,18 +97,28 @@
                         },
                     });
 
-                    if(code === 0) {
-                        vData.header = data.header;
-                        vData.datasetList = data.list.map(row => {
-                            const item = {};
+                    if(code === 0 && data && data.list){
+                        const rows = data.list;
 
-                            data.header.forEach((x, index) => {
-                                item[x] = row[index];
+                        methods.resize(rows.length);
+
+                        setTimeout(() => {
+                            vData.gridLoading = false;
+                            vData.table_data.header = data.header;
+                            vData.table_data.rows = rows.map(item => {
+                                const obj = {};
+
+                                data.header.forEach((x, index) => {
+                                    obj[x] = item[index];
+                                });
+
+                                return obj;
                             });
-
-                            return item;
                         });
                     }
+                },
+                resize(length) {
+                    vData.gridHeight = 40 * length;
                 },
             };
 

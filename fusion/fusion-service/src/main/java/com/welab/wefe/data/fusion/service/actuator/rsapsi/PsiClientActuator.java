@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,21 +16,24 @@
 
 package com.welab.wefe.data.fusion.service.actuator.rsapsi;
 
+import com.google.common.collect.Lists;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.enums.ActionType;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
-import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.service.FieldInfoService;
-import com.welab.wefe.data.fusion.service.utils.PSIUtils;
+import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
+import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.SocketUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
+import com.welab.wefe.fusion.core.utils.PSIUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
@@ -42,14 +45,12 @@ import java.util.concurrent.*;
  * @author hunter.zhao
  */
 public class PsiClientActuator extends AbstractPsiActuator {
-    BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<Runnable>(5);
-    RejectedExecutionHandler rejectedExecutionHandler =
-            new ThreadPoolExecutor.CallerRunsPolicy();
-    ExecutorService threadPool = new ThreadPoolExecutor(5, 10, 0L, TimeUnit.MILLISECONDS,
-            workingQueue, rejectedExecutionHandler);
-
-    ExecutorService parseThreadPool = new ThreadPoolExecutor(5, 10, 0L, TimeUnit.MILLISECONDS,
-            workingQueue, rejectedExecutionHandler);
+    ExecutorService threadPool = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() * 2,
+            100L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>());
 
     private BigInteger e;
     private BigInteger N;
@@ -72,11 +73,13 @@ public class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Fragment size, default 10000
      */
-    private int shard_size = 10000;
+    private int shard_size = 2000;
     private int current_index = 0;
 
     public List<String> columnList;
     public List<FieldInfo> fieldInfoList;
+
+    private final DataSetService dataSetService = Launcher.CONTEXT.getBean(DataSetService.class);
 
     public PsiClientActuator(String businessId, Integer dataCount, String ip, int port, String dataSetId, Boolean isTrace, String traceColumn) {
         super(businessId, dataCount);
@@ -96,13 +99,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
     public synchronized boolean cursor() throws StatusCodeWithException {
         long start = System.currentTimeMillis();
 
-        DataSetService service = Launcher.CONTEXT.getBean(DataSetService.class);
-        List<JObject> curList = service.paging(columnList, dataSetId, current_index, shard_size);
+        List<JObject> curList = dataSetService.paging(columnList, dataSetId, current_index, shard_size);
         current_index++;
 
-        LOG.info("cursor {} spend: {}", current_index, System.currentTimeMillis() - start);
+        LOG.info("cursor {} size: {} spend: {} ", current_index, curList.size(), System.currentTimeMillis() - start);
 
-        if (curList.isEmpty()) {
+        if (CollectionUtils.isEmpty(curList)) {
             return false;
         }
 
@@ -111,6 +113,19 @@ public class PsiClientActuator extends AbstractPsiActuator {
         return true;
     }
 
+
+    public static void main(String[] args) {
+        Socket socket = SocketUtils
+                .create("127.0.0.1", 9090)
+                .setRetryCount(3)
+                .setRetryDelay(1000)
+                .builder();
+
+
+        List list = Lists.newArrayList();
+        list.add(ActionType.download.name());
+        PSIUtils.sendStringList(socket, list);
+    }
 
     /**
      * Download the Server Square Bloom filter
@@ -127,9 +142,11 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
             LOG.info("socket: {} ", socket);
 
-            PSIUtils.sendString(socket, ActionType.download.name());
+            List<String> body = new ArrayList();
+            body.add(ActionType.download.name());
+            PSIUtils.sendStringList(socket, body);
 
-            LOG.info("client download bloomfilter data...");
+            LOG.info("client download bloom_filter data...");
 
             byte[][] pk = PSIUtils.receive2DBytes(socket);
             e = PSIUtils.bytesToBigInteger(pk[0], 0, pk[0].length);
@@ -160,7 +177,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
     /**
      * Begin to align
      */
-    private void align() {
+    private void align() throws StatusCodeWithException {
 
         LOG.info("client aligning..., count: {} availableProcessors: {}", dataCount, Runtime.getRuntime().availableProcessors());
 
@@ -175,6 +192,8 @@ public class PsiClientActuator extends AbstractPsiActuator {
          */
         CountDownLatch latch = new CountDownLatch(count);
         LOG.info("Start data encryption...");
+
+
         for (int i = 0; i < count; i++) {
             threadPool.execute(() -> {
                 try {
@@ -188,30 +207,8 @@ public class PsiClientActuator extends AbstractPsiActuator {
             });
         }
 
-        /**
-         * Alignment matching
-         */
-        int socketQueueSize = count;
-        CountDownLatch socketLatch = new CountDownLatch(count);
-
-        while (socketQueueSize > 0) {
-            try {
-                Socket socket = socketQueue.take();
-                if (socket != null) {
-                    parseThreadPool.execute(() -> {
-                        receiveAndParseResult(socket);
-                        socketLatch.countDown();
-                    });
-                    socketQueueSize--;
-                }
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-        }
-
         try {
             latch.await();
-            socketLatch.await();
         } catch (InterruptedException e1) {
             e1.printStackTrace();
             LOG.error("{} InterruptedException : {}", getClass().getSimpleName(), e1.getMessage());
@@ -220,14 +217,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
         LOG.info("-----------------Time used: {} ", (System.currentTimeMillis() - startTime));
 
         this.status = PSIActuatorStatus.success;
-
-        //Notifies the server that no further action is required
-        Socket socket = SocketUtils
-                .create(ip, port)
-                .setRetryCount(3)
-                .builder();
-        PSIUtils.sendString(socket, ActionType.end.name());
-        SocketUtils.close(socket);
     }
 
     /**
@@ -236,37 +225,26 @@ public class PsiClientActuator extends AbstractPsiActuator {
      * @throws StatusCodeWithException
      */
     private void fusion() throws StatusCodeWithException {
-        Socket socket = null;
-        try {
-            LOG.info("Server@" + ip + ":" + port + " connecting!");
-            socket = SocketUtils
-                    .create(ip, port)
-                    .setRetryCount(3)
-                    .builder();
 
-            PSIUtils.sendString(socket, ActionType.align.name());
+        cursor();
 
-            cursor();
+        //Initiating a query request
+        LOG.info("Server@" + ip + ":" + port + " connecting!");
+        Socket socket = SocketUtils
+                .create(ip, port)
+                .setRetryCount(3)
+                .builder();
 
-            Integer index = threadId.get();
+        query(socket);
 
-            LOG.info("fusion() current_index ： {}", index);
-
-            //Initiating a query request
-            query(socket);
-
-            //Joins the queue to be parsed
-            socketQueue.put(socket);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
-
+        receiveAndParseResult(socket);
     }
 
     /**
      * After data is encrypted, query verification is initiated
      */
     private void query(Socket socket) {
+
         long start = System.currentTimeMillis();
 
         Integer index = threadId.get();
@@ -275,7 +253,11 @@ public class PsiClientActuator extends AbstractPsiActuator {
         List<BigInteger> r = new ArrayList<>();
         List<BigInteger> rInv = new ArrayList<>();
 
-        byte[][] bs = new byte[cur.size()][];
+        List<String> body = new ArrayList();
+        body.add(ActionType.align.name());
+        body.add(index.toString());
+
+//        byte[][] bs = new byte[cur.size()][];
 
         for (int i = 0; i < cur.size(); i++) {
             //Handle the primary key according to the keyPrimary method
@@ -287,7 +269,8 @@ public class PsiClientActuator extends AbstractPsiActuator {
             r.add(blindFactor.modPow(e, N));
             rInv.add(blindFactor.modInverse(N));
             BigInteger x = h.multiply(r.get(i)).mod(N);
-            bs[i] = PSIUtils.bigIntegerToBytes(x, false);
+//            bs[i] = PSIUtils.bigIntegerToBytes(x, false);
+            body.add(Base64Util.encode(PSIUtils.bigIntegerToBytes(x, false)));
         }
 
         data.put(index, d);
@@ -298,7 +281,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
         LOG.info("client send fusion data...");
 
-        sendData(socket, bs, index);
+        PSIUtils.sendStringList(socket, body);
+
+//        FusionUtils.sendByteAndIndex(socket, bs, index);
     }
 
     void clear(Integer index) {
@@ -320,14 +305,15 @@ public class PsiClientActuator extends AbstractPsiActuator {
         long start = System.currentTimeMillis();
 
         try {
-            byte[][] ret = PSIUtils.receive2DBytes(socket);
-            DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            Integer index = (int) PSIUtils.receiveInteger(d_in);
-
+            byte[][] repBody = PSIUtils.receive2DBytes(socket);
+            Integer index = FusionUtils.extractIndex(repBody);
+            byte[][] ret = FusionUtils.extractData(repBody);
             LOG.info("receiveAndParseResult() current_index ： {} ", index);
 
             List<JObject> cur = cacheMap.get(index);
-            List<byte[]> rs = new ArrayList<>();
+            List<String> rs = new ArrayList();
+            rs.add(ActionType.fusion.name());
+
             List<JObject> fruit = new ArrayList<>();
             for (int i = 0; i < ret.length; i++) {
 
@@ -335,11 +321,12 @@ public class PsiClientActuator extends AbstractPsiActuator {
                 BigInteger z = y.multiply(rInv.get(index).get(i)).mod(N);
 
                 if (bf.contains(z)) {
-                    rs.add(cur.get(i).toString().getBytes());
+                    rs.add(Base64Util.encode(cur.get(i).toString().getBytes()));
                     fruit.add(cur.get(i));
                     fusionCount.increment();
                 }
 
+                processedCount.increment();
             }
 
             LOG.info("client y.mod(N) spend : " + (System.currentTimeMillis() - start) + " ms");
@@ -347,9 +334,13 @@ public class PsiClientActuator extends AbstractPsiActuator {
             /**
              * Send alignment data to the server
              */
-            PSIUtils.send2DBytes(socket, rs);
+            LOG.info("Server@" + ip + ":" + port + " connecting!");
+            Socket socketResult = SocketUtils
+                    .create(ip, port)
+                    .setRetryCount(3)
+                    .builder();
+            PSIUtils.sendStringList(socketResult, rs);
 
-            processedCount.add(ret.length);
             LOG.info("fusionCount: " + fusionCount.longValue());
             LOG.info("processedCount: " + processedCount.longValue());
 
@@ -357,8 +348,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
             //Clear the cache
             clear(index);
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             try {
                 if (socket != null) {
@@ -367,23 +356,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-
-    /**
-     * Send data with an index
-     *
-     * @param bs
-     * @param index
-     */
-    private void sendData(Socket socket, byte[][] bs, int index) {
-        try {
-            DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-            PSIUtils.send2DBytes(socket, bs);
-            PSIUtils.sendInteger(d_out, index);
-        } catch (IOException e1) {
-            e1.printStackTrace();
         }
     }
 
@@ -401,7 +373,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
         return blindFactor;
     }
 
-    private void execute(ActionType action) {
+    private void execute(ActionType action) throws StatusCodeWithException {
 
         switch (action) {
             case download:
@@ -424,9 +396,16 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
     @Override
     public void close() throws Exception {
-//        if (socket != null) {
-//            socket.close();
-//        }
+        //Notifies the server that no further action is required
+        Socket closeSocket = SocketUtils
+                .create(ip, port)
+                .setRetryCount(3)
+                .builder();
+        List<String> stringList = new ArrayList<>();
+        stringList.add(ActionType.end.name());
+        stringList.add(status.name());
+        PSIUtils.sendStringList(closeSocket, stringList);
+        SocketUtils.close(closeSocket);
     }
 
     @Override
@@ -435,11 +414,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
         columnList = service.columnList(businessId);
 
-
-        /**
-         * Calculate the fragment size based on the number of fields
-         */
-        shard_size = shard_size / columnList.size();
 
         /**
          * Supplementary trace field
@@ -452,10 +426,24 @@ public class PsiClientActuator extends AbstractPsiActuator {
          * Find primary key composition fields
          */
         fieldInfoList = service.fieldInfoList(businessId);
+
+        /**
+         * Calculate the fragment size based on the number of fields
+         */
+        shard_size = shard_size / fieldInfoList.size();
+
+
+        int dataSetRowCount = dataSetService.count(dataSetId);
+        if (dataSetRowCount != dataCount) {
+            LOG.error("数据集 {} 数据量有误！！", dataSetId);
+            status = PSIActuatorStatus.falsify;
+        }
+
+        LOG.info("数据量 {}", dataSetRowCount);
     }
 
     @Override
-    public void handle() {
+    public void handle() throws StatusCodeWithException {
         status = PSIActuatorStatus.running;
 
         //Download bloom filter

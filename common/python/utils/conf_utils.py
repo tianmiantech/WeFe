@@ -104,8 +104,8 @@ def set_env(key, value):
     os.environ[key] = value
 
 
-def get_backend_from_string(backend_string):
-    try:
-        return BACKEND.__dict__.get(backend_string)
-    except ValueError:
-        schedule_logger().error("BackType is Wrong")
+# def get_backend_from_string(backend_string):
+#     try:
+#         return BACKEND.__dict__.get(backend_string)
+#     except ValueError:
+#         schedule_logger().error("BackType is Wrong")

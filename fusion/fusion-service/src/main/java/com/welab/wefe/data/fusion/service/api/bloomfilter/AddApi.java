@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.api.bloomfilter;
 
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -27,6 +28,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterAddService;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -42,7 +44,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
     private BloomFilterAddService filterAddService;
 
     @Override
-    protected ApiResult<BloomfilterAddOutput> handle(Input input) throws StatusCodeWithException, IOException {
+    protected ApiResult<BloomfilterAddOutput> handle(Input input) throws Exception {
         return success(filterAddService.addFilter(input));
     }
 
@@ -74,8 +76,14 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
         @Check(name = "主键处理")
         private List<FieldInfo> fieldInfoList;
 
-        @Check(name = "id")
-        private String id ;
+
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            if(CollectionUtils.isEmpty(fieldInfoList)){
+                throw new StatusCodeWithException("请设置主键！", StatusCode.PARAMETER_VALUE_INVALID);
+            }
+        }
 
         public String getName() {
             return name;
@@ -148,14 +156,6 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.BloomfilterAddOutpu
 
         public void setFieldInfoList(List<FieldInfo> fieldInfoList) {
             this.fieldInfoList = fieldInfoList;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
         }
     }
 

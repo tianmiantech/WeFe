@@ -404,14 +404,14 @@ class VertSecureBoostingProvider(BoostingTree):
                 tree_param = DecisionTreeModelParam()
                 for node in tree['tree']:
                     tree_param.tree_.add(id=node['id'],
-                                         sitename=node['sitename'],
-                                         fid=node['fid'],
-                                         bid=node['bid'],
-                                         weight=node['weight'],
-                                         is_leaf=node['isLeaf'],
-                                         left_nodeid=node['leftNodeid'],
-                                         right_nodeid=node['rightNodeid'],
-                                         missing_dir=node['missingDir'])
+                                             sitename=node['sitename'],
+                                             fid=node['fid'],
+                                             bid=node['bid'],
+                                             weight=node['weight'],
+                                             is_leaf=node['isLeaf'],
+                                             left_nodeid=node['leftNodeid'],
+                                             right_nodeid=node['rightNodeid'],
+                                             missing_dir=node['missingDir'])
                 splitMaskdict = dict([int(b), v] for b, v in tree['splitMaskdict'].items())
                 missingDirMaskdict = dict([int(b), v] for b, v in tree['missingDirMaskdict'].items())
                 tree_param.split_maskdict.update(splitMaskdict)

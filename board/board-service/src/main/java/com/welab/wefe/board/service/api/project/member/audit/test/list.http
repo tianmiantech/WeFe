@@ -1,4 +1,4 @@
-POST {{baseUrl}}/project/member/add/audit/list
+POST http://localhost:8080/board-service/project/member/add/audit/list
 Content-Type: application/json
 
 {

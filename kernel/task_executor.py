@@ -38,7 +38,8 @@ import traceback
 from common.python import federation
 from common.python import session
 from common.python.common import consts
-from common.python.common.consts import TaskStatus, ComponentName, FederatedLearningType, DataSetType, FunctionConfig
+from common.python.common.consts import TaskStatus, ComponentName, FederatedLearningType, DataSetType, \
+    FunctionConfig, RuntimeOptionKey
 from common.python.common.exception.custom_exception import *
 from common.python.common.global_config import global_config
 from common.python.db.db_models import DB, Job, Task
@@ -102,10 +103,10 @@ class TaskExecutor(object):
             schedule_logger().info(
                 'update task status to running , job_id = {}, role={}, task_id={}'.format(job_id, role, task_id))
             TaskExecutor.update_task_status(job_id, role, task_id, TaskStatus.RUNNING)
-            backend = conf_utils.get_backend_from_string(
-                conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
-            )
-            # backend = job_env.get('backend', int(backend))
+            # backend = conf_utils.get_backend_from_string(
+            #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
+            # )
+            backend = job_env.get('backend')
             # backend = 0
             options = TaskExecutor.session_options(task_config)
             RuntimeConfig.init_config(WORK_MODE=job_env['work_mode'],
@@ -327,8 +328,9 @@ class TaskExecutor(object):
     @staticmethod
     def session_options(task_config: dict):
         options = {}
-        fc_partition_key = "fc_partition"
-        features_count_key = "features_count"
+        fc_partition_key = RuntimeOptionKey.FC_PARTITION
+        spark_partition_key = RuntimeOptionKey.SPARK_PARTITION
+        features_count_key = RuntimeOptionKey.FEATURE_COUNT
 
         # default partition
         default_partitions = FunctionConfig.FC_DEFAULT_PARTITION
@@ -363,7 +365,22 @@ class TaskExecutor(object):
             elif fc_partitions > 0:
                 options[fc_partition_key] = fc_partitions
 
+        # at present, the two parameters are consistent
+        options[spark_partition_key] = options[fc_partition_key]
+
+        # members_backend
+        options[RuntimeOptionKey.MEMBERS_BACKEND] = TaskExecutor.parse_members_backend(task_config)
+
         return options
+
+    @staticmethod
+    def parse_members_backend(task_config: dict):
+        members_backend = {}
+        job_config = task_config["job"]
+        members = job_config.get("members")
+        for member in members:
+            members_backend[member["member_id"]] = member.get("backend")
+        return members_backend
 
     @staticmethod
     def get_error_message(exc_value, e: Exception):

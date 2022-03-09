@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,12 +16,15 @@
 
 package com.welab.wefe.common.web;
 
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.function.*;
 import com.welab.wefe.common.web.service.CaptchaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Zane
@@ -85,6 +88,29 @@ public class Launcher {
         CaptchaService.init();
 
         CONTEXT = SpringApplication.run(primarySource, args);
+    }
+
+    public static <T> T getBean(Class<T> requiredType) {
+        Service service = requiredType.getAnnotation(Service.class);
+        String name = null;
+        if (service != null) {
+            if (StringUtil.isNotEmpty(service.value())) {
+                name = service.value();
+            }
+        } else {
+            Repository repository = requiredType.getAnnotation(Repository.class);
+            if (repository != null) {
+                if (StringUtil.isNotEmpty(repository.value())) {
+                    name = repository.value();
+                }
+            }
+        }
+
+        if (StringUtil.isEmpty(name)) {
+            return CONTEXT.getBean(requiredType);
+        } else {
+            return CONTEXT.getBean(name, requiredType);
+        }
     }
 
     /**

@@ -1,0 +1,82 @@
+# cluster deploy config demo
+# deploy machine: machine1, machine2, machine3
+# coordinator: name=coordinator1, port=10000, at machine3
+# clusters:
+#    - cluster1, name=cluster1, port=10001, workers: worker1, worker2 at machine1
+#    - cluster2, name=cluster2, port=10001, workers: worker1, worker2 at machine2
+# masters: 2
+#    - master1, use cluster `cluster1`, connect to coordinator `coordinator1` at machine1
+#    - master2, use cluster `cluster2`, connect to coordinator `coordinator1` at machine1
+  # deploy structure:
+
+#+---------------------------------------------+     | +----------------------------------------------+
+#|                                             |     | |                                              |
+#|                         +-------------+-----------+------+-------------+                           |
+#|                         |             |     |       |    |             |                           |
+#|                         |     master1 |     |       |    |     master2 |                           |
+#|                         +-------------+     |       |    +-------------+                           |
+#|  +---------------------------------------+  |       |  +----------------------------------------+  |
+#|  |                                       |  |       |  |                                        |  |
+#|  | +-------------+  +-------------+      |  |       |  |  +-------------+ +-------------+       |  |
+#|  | | worker1     |  | worker2     |      |  |       |  |  | worker1     | | worker2     |       |  |
+#|  | +-------------+  +-------------+      |  |       |  |  +-------------+ +-------------+       |  |
+#|  |                               cluster1|  |       |  |                              cluster2  |  |
+#|  +---------------------------------------+  |       |  +----------------------------------------+  |
+#|                                             |       |                                              |
+#|                                 machine1    |       |                                   machine2   |
+#+---------------------------------------------+       +----------------------------------------------+
+
+machines:
+  - name: machine1
+    ip: xxx
+    ssh_string: xxx@xxxx # [user@]ip:port
+    base_dir: /data/visualfl
+    python_for_venv_create: python3 # use to create venv
+
+  - name: machine2
+    ip: xxx
+    ssh_string: xxx@xxxx
+    base_dir: /data/visualfl
+    python_for_venv_create: python3
+
+
+clusters:
+  - name: cluster1
+    manager:
+      machine: machine1
+      port: 10001
+    workers:
+      - name: worker1
+        machine: machine1
+        ports: 12000-12999
+        max_tasks: 10
+      - name: worker2
+        machine: machine1
+        ports: 13000-13999
+        max_tasks: 10
+
+  - name: cluster2
+    manager:
+      machine: machine2
+      port: 10001
+    workers:
+      - name: worker1
+        machine: machine2
+        ports: 12000-12999
+        max_tasks: 10
+      - name: worker2
+        machine: machine2
+        ports: 13000-13999
+        max_tasks: 10
+
+masters:
+  - name: master1
+    machine: machine1
+    submit_port: 10002
+    cluster: cluster1
+
+  - name: master2
+    machine: machine2
+    submit_port: 10002
+    cluster: cluster2
+

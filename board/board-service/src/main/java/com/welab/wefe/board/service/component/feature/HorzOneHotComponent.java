@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,8 +34,8 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 @Service
 public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.Params> {
@@ -49,7 +49,6 @@ public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.P
 	@Override
 	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
 			VertOneHotComponent.Params params) throws FlowNodeException {
-		JSONObject taskParam = new JSONObject();
 		List<VertOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
 
 		List<String> transformColNames = new ArrayList<>();
@@ -63,10 +62,8 @@ public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.P
 				});
 			}
 		});
-		taskParam.put("params",
-				JObject.create().append("transform_col_names", transformColNames).append("save_dataset", true));
 
-		return taskParam;
+		return JObject.create().append("transform_col_names", transformColNames).append("save_dataset", true);
 	}
 
 	@Override

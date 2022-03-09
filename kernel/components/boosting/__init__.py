@@ -23,14 +23,15 @@ from kernel.components.boosting.horzsecureboost.horz_decision_tree_client import
 from kernel.components.boosting.horzsecureboost.horz_decision_tree_arbiter import HorzDecisionTreeArbiter
 from kernel.components.boosting.horzsecureboost.horz_secureboosting_client import HorzSecureBoostingClient
 from kernel.components.boosting.horzsecureboost.horz_secureboosting_arbiter import HorzSecureBoostingArbiter
+from kernel.components.boosting.algorithm_prototype import BasicAlgorithms
 
 __all__ = ["Node", "VertSecureBoostingPromoter", "VertSecureBoostingProvider",
            "VertDecisionTreeProvider", "VertDecisionTreePromoter", "Splitter",
            "FeatureHistogram", "XgboostCriterion", "DecisionTree", 'SplitInfo', "BoostingTree",
            "HistogramBag", "FeatureHistogramWeights", "HorzDecisionTreeClient", "HorzDecisionTreeArbiter",
-           "SecureBoostArbiterAggregator", "SecureBoostClientAggregator"
-    , "DecisionTreeArbiterAggregator", 'DecisionTreeClientAggregator', "HorzSecureBoostingArbiter",
-           "HorzSecureBoostingClient", ]
+           "SecureBoostArbiterAggregator", "SecureBoostClientAggregator",
+           "DecisionTreeArbiterAggregator", 'DecisionTreeClientAggregator', "HorzSecureBoostingArbiter",
+           "HorzSecureBoostingClient","BasicAlgorithms"]
 
 """
 

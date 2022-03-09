@@ -1,7 +1,7 @@
 <template>
     <CommonHelp>
         <template #intro>
-            纵向联邦XGBoost建模，输出模型参数，预测结果数据集。
+            纵向联邦XGBoost建模，输出模型参数，预测结果数据资源。
         </template>
         <template #params>
             <ol>
@@ -36,7 +36,7 @@
         <template #output>
             <ol>
                 <li>模型参数 （包含特征重要性，并且只存在于有y的一方）</li>
-                <li>预测结果数据集 (无y标签的一方没有预测结果数据集)</li>
+                <li>预测结果数据资源 (无y标签的一方没有预测结果数据资源)</li>
             </ol>
         </template>
         <template #error-tip />

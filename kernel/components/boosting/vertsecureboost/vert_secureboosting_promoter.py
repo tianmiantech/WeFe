@@ -490,11 +490,11 @@ class VertSecureBoostingPromoter(BoostingTree):
         tree.init(flowid=self.generate_flowid(epoch_idx, booster_dim),
                   data_bin=self.data_bin, bin_split_points=self.bin_split_points,
                   bin_sparse_points=self.bin_sparse_points,
+                  valid_features = self.sample_valid_features(),
                   grad_and_hess=g_h,
                   encrypter=self.encrypter, encrypted_mode_calculator=self.encrypted_calculator,
-                  task_type=self.task_type,
-                  valid_features=self.sample_valid_features(),
                   provider_member_idlist=self.component_properties.provider_member_idlist,
+                  task_type=self.task_type,
                   runtime_idx=self.component_properties.local_member_id,
                   goss_subsample=self.enable_goss,
                   top_rate=self.top_rate, other_rate=self.other_rate,
@@ -791,14 +791,14 @@ class VertSecureBoostingPromoter(BoostingTree):
                 tree_param = DecisionTreeModelParam()
                 for node in tree['tree']:
                     tree_param.tree_.add(id=node['id'],
-                                         sitename=node['sitename'],
-                                         fid=node['fid'],
-                                         bid=node['bid'],
-                                         weight=node['weight'],
-                                         is_leaf=node['isLeaf'],
-                                         left_nodeid=node['leftNodeid'],
-                                         right_nodeid=node['rightNodeid'],
-                                         missing_dir=node['missingDir'])
+                                             sitename=node['sitename'],
+                                             fid=node['fid'],
+                                             bid=node['bid'],
+                                             weight=node['weight'],
+                                             is_leaf=node['isLeaf'],
+                                             left_nodeid=node['leftNodeid'],
+                                             right_nodeid=node['rightNodeid'],
+                                             missing_dir=node['missingDir'])
                 splitMaskdict = dict([int(b), v] for b, v in tree['splitMaskdict'].items())
                 missingDirMaskdict = dict([int(b), v] for b, v in tree['missingDirMaskdict'].items())
                 tree_param.split_maskdict.update(splitMaskdict)

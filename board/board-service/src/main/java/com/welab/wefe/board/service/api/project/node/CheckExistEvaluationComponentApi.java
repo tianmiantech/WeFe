@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.api.project.node;
 
 import com.welab.wefe.board.service.service.ProjectFlowNodeService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -52,22 +53,14 @@ public class CheckExistEvaluationComponentApi extends AbstractApi<CheckExistEval
     }
 
     public static class Input extends AbstractApiInput {
-        /**
-         * This parameter is used in non OOT mode
-         */
+        @Check(desc = "This parameter is used in non OOT mode")
         private String flowId;
 
-        /**
-         * The OOT component ID on the canvas (mainly used to find the front node and the OOT node on the canvas. This parameter is used in non OOT mode)
-         */
+        @Check(desc = "The OOT component ID on the canvas (mainly used to find the front node and the OOT node on the canvas. This parameter is used in non OOT mode)")
         private String nodeId;
-        /**
-         * Original model job ID (this parameter is used in OOT mode)
-         */
+        @Check(desc = "Original model job ID (this parameter is used in OOT mode)")
         private String jobId;
-        /**
-         * Original model node ID (this parameter is used in OOT mode)
-         */
+        @Check(desc = "Original model node ID (this parameter is used in OOT mode)")
         private String modelNodeId;
 
         public String getFlowId() {
@@ -104,9 +97,7 @@ public class CheckExistEvaluationComponentApi extends AbstractApi<CheckExistEval
     }
 
     public static class Output extends AbstractApiOutput {
-        /**
-         * check result
-         */
+        @Check(name = "check result")
         private boolean checkResult;
 
         public boolean isCheckResult() {

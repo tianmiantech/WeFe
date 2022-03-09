@@ -16,6 +16,7 @@ contract MemberContract{
     event updateExcludeLogoEvent(int256 ret_code,string[] params,string ext_json);
     event updateLogoByIdEvent(int256 ret_code,string id, string logo);
     event updateLastActivityTimeByIdEvent(int256 ret_code,string id, string lastActivityTime);
+    event updateExtJsonEvent(int256 ret_code,string id, string ext_json);
 
 
     TableFactory tableFactory;
@@ -132,7 +133,7 @@ contract MemberContract{
         if(count >= 1){
             ret_code = 0;
         } else {
-            ret_code = -1;
+            ret_code = -2;
         }
 
         emit updateEvent(ret_code,params,ext_json);
@@ -181,7 +182,7 @@ contract MemberContract{
         if(count >= 1){
             ret_code = 0;
         } else {
-            ret_code = -1;
+            ret_code = -2;
         }
 
         emit updateExcludeLogoEvent(ret_code,params,ext_json);
@@ -204,7 +205,7 @@ contract MemberContract{
         if(count >= 1){
             ret_code = 0;
         } else {
-            ret_code = -1;
+            ret_code = -2;
         }
 
         emit updateLastActivityTimeByIdEvent(ret_code, id,lastActivityTime);
@@ -227,7 +228,7 @@ contract MemberContract{
         if(count >= 1){
             ret_code = 0;
         } else {
-            ret_code = -1;
+            ret_code = -2;
         }
 
         emit updateLogoByIdEvent(ret_code,id,logo);
@@ -264,7 +265,7 @@ contract MemberContract{
         if(count >= 1){
             ret_code = 0;
         } else {
-            ret_code = -1;
+            ret_code = -2;
         }
 
         emit updateExcludePublicKeyEvent(ret_code,params,ext_json);
@@ -288,10 +289,33 @@ contract MemberContract{
         if(count >= 1){
             ret_code = 0;
         } else {
-            ret_code = -1;
+            ret_code = -2;
         }
 
         emit updatePublicKeyEvent(ret_code,id,public_key);
+        return ret_code;
+    }
+
+
+    function updateExtJson(string id,string ext_json) public returns (int256) {
+        Table table = tableFactory.openTable(TABLE_NAME);
+
+        Condition condition = table.newCondition();
+        condition.EQ("id", id);
+
+        Entry entry = table.newEntry();
+        entry.set("ext_json", ext_json);
+
+        int count = table.update(FIX_ID, entry, condition);
+
+        int256 ret_code = 0;
+        if(count >= 1){
+            ret_code = 0;
+        } else {
+            ret_code = -2;
+        }
+
+        emit updateExtJsonEvent(ret_code,id,ext_json);
         return ret_code;
     }
 
@@ -306,7 +330,7 @@ contract MemberContract{
         if(count >= 1){
             ret_code = 0;
         } else {
-            ret_code = -1;
+            ret_code = -2;
         }
 
         emit deleteByIdEvent(ret_code,id);
@@ -323,7 +347,7 @@ contract MemberContract{
         condition.EQ("id", id);
         Entries entries = table.select(FIX_ID, condition);
         if (0 == uint256(entries.size())) {
-            return (-1, new string[](0));
+            return (-3, new string[](0));
         }
 
         return (0, wrapReturnMemberInfo(entries));
@@ -335,7 +359,7 @@ contract MemberContract{
         Table table = tableFactory.openTable(TABLE_NAME);
         Entries entries = table.select(FIX_ID, table.newCondition());
         if (0 == uint256(entries.size())) {
-            return (-1, new string[](0));
+            return (-3, new string[](0));
         }
         return (0, wrapReturnMemberInfo(entries));
     }
@@ -362,7 +386,7 @@ contract MemberContract{
         condition.limit(startIndex, endIndex);
         Entries entries = table.select(FIX_ID, condition);
         if (0 == uint256(entries.size())) {
-            return (-1, new string[](0));
+            return (-3, new string[](0));
         }
         return (0, wrapReturnMemberInfo(entries));
     }

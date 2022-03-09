@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,7 @@ package com.welab.wefe.data.fusion.service.task;
 
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.TimeSpan;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.data.fusion.service.actuator.AbstractActuator;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import org.slf4j.Logger;
@@ -37,6 +38,8 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     protected String name;
 
+    private volatile String error;
+
     /**
      * Task start time
      */
@@ -45,7 +48,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
     /**
      * Maximum execution time of a task
      */
-    private TimeSpan maxExecuteTimeSpan = new TimeSpan(30 * 60 * 1000);
+    private TimeSpan maxExecuteTimeSpan = new TimeSpan(10 * 60 * 1000);
 
     public AbstractTask(String businessId, T actuator) {
         this.actuator = actuator;
@@ -90,7 +93,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
 
     /**
-         * Estimated remaining time
+     * Estimated remaining time
      *
      * @return
      */
@@ -109,7 +112,9 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
      * @return
      */
     public Integer progress() {
-        return actuator.processedCount.intValue() / actuator.dataCount.intValue();
+        return Double.valueOf(
+                actuator.processedCount.doubleValue() / actuator.dataCount.doubleValue() * 100
+        ).intValue();
     }
 
 
@@ -121,12 +126,14 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     /**
      * Check whether the task is complete
+     *
      * @return
      */
     public abstract boolean isFinish();
 
     /**
      * Determine the status of the actuator
+     *
      * @return
      */
     protected abstract PSIActuatorStatus status();
@@ -157,6 +164,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
+            error = e.getMessage();
         }
     }
 
@@ -166,7 +174,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
         while (true) {
             sleep(1000);
 
-            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish()) {
+            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
 

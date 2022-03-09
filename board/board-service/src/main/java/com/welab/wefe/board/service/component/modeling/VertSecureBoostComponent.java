@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,11 +27,11 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractSecureBoostInput;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -59,9 +59,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
-        JObject vertSecureBoostParam = JObject.create();
+        JObject output = JObject.create();
         JObject treeParam = JObject.create().append("criterion_method", "xgboost")
                 .append("criterion_params", params.getTreeParam().getCriterionParams())
                 .append("max_depth", params.getTreeParam().getMaxDepth())
@@ -81,7 +79,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("shuffle", params.getCvParam().isShuffle())
                 .append("need_cv", params.getCvParam().isNeedCv());
 
-        vertSecureBoostParam.append("task_type", params.otherParam.taskType)
+        output.append("task_type", params.otherParam.taskType)
                 .append("learning_rate", params.otherParam.learningRate)
                 .append("num_trees", params.otherParam.numTrees)
                 .append("subsample_feature_rate", params.otherParam.subsampleFeatureRate)
@@ -95,16 +93,13 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("encrypt_param", encryptParam)
 				.append("cv_param", cvParam)
 				.append("work_mode", params.otherParam.workMode);
-        
 		if ("layered".equalsIgnoreCase(params.otherParam.workMode)) {
-			vertSecureBoostParam.append("promoter_depth", params.otherParam.promoterDepth).append("provider_depth",
+			output.append("promoter_depth", params.otherParam.promoterDepth).append("provider_depth",
 					params.otherParam.providerDepth);
 		} else if ("skip".equalsIgnoreCase(params.otherParam.workMode)) {
-			vertSecureBoostParam.append("tree_num_per_member", params.otherParam.treeNumPerMember);
+			output.append("tree_num_per_member", params.otherParam.treeNumPerMember);
 		}
-        taskParam.put("params", vertSecureBoostParam);
-
-        return taskParam;
+        return output;
     }
 
     @Override

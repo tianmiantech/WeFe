@@ -63,12 +63,14 @@
 .numTip {
     display: inline-block;
     margin-left: 6px;
-    min-width: 20px;
-    height:20px;
-    line-height:20px;
+    min-width:16px;
+    height:16px;
+    line-height:16px;
     text-align: center;
     border-radius: 10px;
     background:#FF5757;
+    font-size:12px !important;
+    padding:0 4px;
     color:#fff;
 }
 </style>

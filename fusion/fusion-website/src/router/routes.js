@@ -16,23 +16,41 @@
 const { pathname } = window.location;
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
 
-
 const baseRoutes = [
     {
         path: `${prefixPath}`,
         meta: {
-            title: '资源中心',
-            icon:  'el-icon-monitor',
-            index: 0,
+            title:  '主页',
+            asmenu: true,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
                 path: `${prefixPath}`,
+                name: 'index',
+                meta: {
+                    title:  '主页',
+                    icon:   'el-icon-monitor',
+                    active: `${prefixPath}`,
+                },
+                component: () => import('../views/index/dataPanel.vue'),
+            },
+        ],
+    },
+    {
+        path: `${prefixPath}`,
+        meta: {
+            title: '资源中心',
+            icon:  'el-icon-office-building',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}data-set-list`,
                 name: 'data-set-list',
                 meta: {
-                    title: '数据集',
-                    index: '0-0',
+                    title:  '我的数据集',
+                    active: `${prefixPath}data-set-list`,
                 },
                 component: () => import('@views/index/data-set-list.vue'),
             },
@@ -41,7 +59,6 @@ const baseRoutes = [
                 name: 'filter-list',
                 meta: {
                     title:  '布隆过滤器',
-                    index:  '0-1',
                     active: `${prefixPath}filter-list`,
                 },
                 component: () => import('@views/index/filter-list.vue'),
@@ -50,9 +67,8 @@ const baseRoutes = [
                 path: `${prefixPath}data-set-view`,
                 name: 'data-set-view',
                 meta: {
-                    title:  '新增数据集',
-                    index:  '0-2',
                     hidden: true,
+                    title:  '新增数据集',
                     active: `${prefixPath}data-set-view`,
                 },
                 component: () => import('@views/index/data-set-view.vue'),
@@ -61,9 +77,8 @@ const baseRoutes = [
                 path: `${prefixPath}data-set-detail`,
                 name: 'data-set-detail',
                 meta: {
-                    title:  '数据集详情',
-                    index:  '0-2',
                     hidden: true,
+                    title:  '数据集详情',
                     active: `${prefixPath}data-set-detail`,
                 },
                 component: () => import('@views/index/data-set-detail.vue'),
@@ -72,9 +87,8 @@ const baseRoutes = [
                 path: `${prefixPath}filter-view`,
                 name: 'filter-view',
                 meta: {
-                    title:  '新增过滤器',
-                    index:  '0-3',
                     hidden: true,
+                    title:  '新增过滤器',
                     active: `${prefixPath}filter-view`,
                 },
                 component: () => import('@views/index/filter-view.vue'),
@@ -83,9 +97,8 @@ const baseRoutes = [
                 path: `${prefixPath}filter-data-detail`,
                 name: 'filter-data-detail',
                 meta: {
-                    title:  '过滤器详情',
-                    index:  '0-3',
                     hidden: true,
+                    title:  '过滤器详情',
                     active: `${prefixPath}filter-data-detail`,
                 },
                 component: () => import('@views/index/filter-data-detail.vue'),
@@ -95,7 +108,6 @@ const baseRoutes = [
                 name: 'data-resouce-list',
                 meta: {
                     title:  '数据库配置',
-                    index:  '0-4',
                     active: `${prefixPath}data-souce-list`,
                 },
                 component: () => import('@views/index/data-souce-list.vue'),
@@ -104,9 +116,8 @@ const baseRoutes = [
                 path: `${prefixPath}data-source-view`,
                 name: 'data-source-view',
                 meta: {
-                    title:  '数据库配置详情',
-                    index:  '0-3',
                     hidden: true,
+                    title:  '数据库配置详情',
                     active: `${prefixPath}data-source-view`,
                 },
                 component: () => import('@views/index/data-source-view.vue'),
@@ -118,37 +129,33 @@ const baseRoutes = [
         meta: {
             title: '任务中心',
             icon:  'el-icon-s-order',
-            index: 1,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
+            {
+                path: `${prefixPath}task-add`,
+                name: 'task-add',
+                meta: {
+                    title:  '发起任务',
+                    active: `${prefixPath}task-add`,
+                },
+                component: () => import('@views/task/task-add.vue'),
+            },
             {
                 path: `${prefixPath}task-list`,
                 name: 'task-list',
                 meta: {
                     title: '任务列表',
-                    index: '1-0',
+                    tips:  0,
                 },
                 component: () => import('@views/task/task-list.vue'),
-            },
-            {
-                path: `${prefixPath}task-task-list`,
-                name: 'task-pending-list',
-                meta: {
-                    title:  '任务审核',
-                    index:  '1-1',
-                    active: `${prefixPath}task-pending-list`,
-                    tips:   0,
-                },
-                component: () => import('@views/task/task-pending-list.vue'),
             },
             {
                 path: `${prefixPath}task-pending-view`,
                 name: 'task-pending-view',
                 meta: {
-                    title:  '任务详情',
-                    index:  '1-2',
                     hidden: true,
+                    title:  '任务详情',
                     active: `${prefixPath}task-pending-view`,
                 },
                 component: () => import('@views/task/task-pending-view.vue'),
@@ -157,23 +164,11 @@ const baseRoutes = [
                 path: `${prefixPath}task-view`,
                 name: 'task-view',
                 meta: {
-                    title:  '任务详情',
-                    index:  '1-3',
                     hidden: true,
+                    title:  '任务详情',
                     active: `${prefixPath}task-view`,
                 },
                 component: () => import('@views/task/task-view.vue'),
-            },
-            {
-                path: `${prefixPath}task-add`,
-                name: 'task-add',
-                meta: {
-                    title:  '添加任务',
-                    index:  '1-4',
-                    hidden: true,
-                    active: `${prefixPath}task-add`,
-                },
-                component: () => import('@views/task/task-add.vue'),
             },
         ],
     },
@@ -182,7 +177,6 @@ const baseRoutes = [
         meta: {
             title: '合作中心',
             icon:  'el-icon-user-solid',
-            index: 2,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -198,11 +192,39 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}account`,
+        meta: {
+            title: '用户管理',
+            icon:  'el-icon-user',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}account-list`,
+                name: 'account-list',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '用户列表',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/account/account-list'),
+            },
+            {
+                path: `${prefixPath}account-setting`,
+                name: 'account-setting',
+                meta: {
+                    loginAndRefresh: true,
+                    title:           '账户设置',
+                },
+                component: () => import('../views/system-config/account-setting'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}global-setting`,
         meta: {
             title: '全局设置',
             icon:  'el-icon-setting',
-            index: 3,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -210,12 +232,68 @@ const baseRoutes = [
                 path: `${prefixPath}global-setting-view`,
                 name: 'global-setting-view',
                 meta: {
-                    title: '配置信息',
-                    index: '3-0',
+                    title:           '配置信息',
+                    loginAndRefresh: true,
                 },
                 component: () => import('@views/global_setting/global-setting-view.vue'),
             },
         ],
+    },
+    {
+        path: `${prefixPath}login`,
+        name: 'login',
+        meta: {
+            title:          '登录',
+            requiresAuth:   false,
+            requiresLogout: true,
+        },
+        component: () => import('../views/sign/login.vue'),
+    },
+    {
+        path: `${prefixPath}register`,
+        name: 'register',
+        meta: {
+            title:          '注册',
+            requiresAuth:   false,
+            requiresLogout: true,
+        },
+        component: () => import('../views/sign/register.vue'),
+    },
+    {
+        path: `${prefixPath}find-password`,
+        name: 'find-password',
+        meta: {
+            title:          '找回密码',
+            requiresAuth:   false,
+            requiresLogout: true,
+        },
+        component: () => import('../views/sign/find-password.vue'),
+    },
+    {
+        path: `${prefixPath}notfound`,
+        name: 'notfound',
+        meta: {
+            requiresAuth: false,
+            hidden:       true,
+        },
+        component: () => import('../views/error/404.vue'),
+    },
+    {
+        path: `${prefixPath}forbidden`,
+        name: 'forbidden',
+        meta: {
+            requiresAuth: false,
+            hidden:       true,
+        },
+        component: () => import('../views/error/403.vue'),
+    },
+    {
+        path: `${prefixPath}init`,
+        name: 'init',
+        meta: {
+            hidden: true,
+        },
+        component: () => import('../views/member/member-initialize'),
     },
     {
         path:     '*',

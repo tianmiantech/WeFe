@@ -2,7 +2,7 @@
     <div class="page">
         <div class="sign-box">
             <div class="logo">
-                <img src="../../assets/images/x-logo.png">
+                <img src="../../assets/images/logo.png">
             </div>
             <h2 class="sign-title">找回密码</h2>
             <el-divider />
@@ -23,6 +23,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
                     />
                 </el-form-item>
                 <el-form-item
@@ -36,6 +39,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
                     />
                 </el-form-item>
                 <el-divider />

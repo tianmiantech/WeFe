@@ -1,7 +1,10 @@
 <template>
     <div class="page">
         <el-card>
-            <el-form :disabled="!userInfo.admin_role">
+            <el-form
+                :disabled="!userInfo.admin_role"
+                @submit.prevent
+            >
                 <el-row :gutter="30">
                     <el-col :span="12">
                         <fieldset>
@@ -142,7 +145,6 @@
                     v-loading="loading"
                     class="save-btn mt10"
                     type="primary"
-                    size="medium"
                     @click="update"
                 >
                     提交

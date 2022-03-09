@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,7 +36,7 @@ public abstract class AbstractCheckModel {
 
             for (Field field : ClassUtils.listFields(this.getClass())) {
                 Class<?> type = field.getType();
-                Type genericType = field.getGenericType();
+                Type fieldGenericType = field.getGenericType();
                 field.setAccessible(true);
 
                 if (AbstractCheckModel.class.isAssignableFrom(type)) {
@@ -44,16 +44,17 @@ public abstract class AbstractCheckModel {
                     if (value != null) {
                         ((AbstractCheckModel) value).checkAndStandardize();
                     }
-                }
-
-                else if ("List".equals(type.getSimpleName())) {
-                    if (ParameterizedType.class.isAssignableFrom(genericType.getClass())) {
-                        type = (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
-                        if (AbstractCheckModel.class.isAssignableFrom(type)) {
-                            Object list = field.get(this);
-                            if (list != null) {
-                                for (Object item : (List) list) {
-                                    ((AbstractCheckModel) item).checkAndStandardize();
+                } else if ("List".equals(type.getSimpleName())) {
+                    if (ParameterizedType.class.isAssignableFrom(fieldGenericType.getClass())) {
+                        Type actualTypeArgument = ((ParameterizedType) fieldGenericType).getActualTypeArguments()[0];
+                        if (actualTypeArgument instanceof Class) {
+                            type = (Class<?>) actualTypeArgument;
+                            if (AbstractCheckModel.class.isAssignableFrom(type)) {
+                                Object list = field.get(this);
+                                if (list != null) {
+                                    for (Object item : (List) list) {
+                                        ((AbstractCheckModel) item).checkAndStandardize();
+                                    }
                                 }
                             }
                         }
