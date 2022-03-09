@@ -18,6 +18,7 @@ package com.welab.wefe.common.data.mongodb.entity.manager;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
@@ -45,7 +46,17 @@ public class User extends AbstractNormalMongoModel {
     /**
      * 是否可用
      */
-    private boolean enable = false;
+    private boolean enable = true;
+
+
+    /**
+     * 审核状态
+     */
+    private AuditStatus auditStatus;
+    /**
+     * 审核意见
+     */
+    private String auditComment;
 
 
     public String getUserId() {
@@ -119,5 +130,21 @@ public class User extends AbstractNormalMongoModel {
 
     public void setSalt(String salt) {
         this.salt = salt;
+    }
+
+    public AuditStatus getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(AuditStatus auditStatus) {
+        this.auditStatus = auditStatus;
+    }
+
+    public String getAuditComment() {
+        return auditComment;
+    }
+
+    public void setAuditComment(String auditComment) {
+        this.auditComment = auditComment;
     }
 }

@@ -290,7 +290,6 @@ public class ProjectFlowJobService extends AbstractService {
                         throw new StatusCodeWithException("成员【" + memberName + "】的数据集 " + member.getDataSetId() + " 尚未授权，不可使用。", StatusCode.PARAMETER_VALUE_INVALID);
                     }
                 }
-
             }
 
         }
@@ -381,7 +380,7 @@ public class ProjectFlowJobService extends AbstractService {
 
         projectFlowService.updateFlowStatus(job.getFlowId(), ProjectFlowStatus.stop_on_running);
 
-        flowActionQueueService.notifyFlow(input, input.getJobId(), FlowActionType.stop_job);
+        flowActionQueueService.stopJob(input, input.getJobId(), project.getProjectType());
 
         gatewayService.syncToOtherJobMembers(job.getJobId(), input, StopJobApi.class);
 
@@ -655,14 +654,18 @@ public class ProjectFlowJobService extends AbstractService {
                 taskResultRepository.save(newResult);
             }
 
-            TableDataSetMysqlModel dataSetModel = tableDataSetService.query(oldJob.getJobId(), node.getComponentType());
-            if (dataSetModel != null) {
-                TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
-                BeanUtils.copyProperties(dataSetModel, newDataSetModel);
-                newDataSetModel.setId(new TableDataSetMysqlModel().getId());
-                newDataSetModel.setDerivedFromJobId(newJob.getJobId());
-                newDataSetModel.setDerivedFrom(node.getComponentType());
-                tableDataSetService.save(newDataSetModel);
+            List<TableDataSetMysqlModel> dataSetModels = tableDataSetService.queryAll(oldJob.getJobId(),
+                    node.getComponentType());
+
+            if (CollectionUtils.isNotEmpty(dataSetModels)) {
+                for (TableDataSetMysqlModel dataSetModel : dataSetModels) {
+                    TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
+                    BeanUtils.copyProperties(dataSetModel, newDataSetModel);
+                    newDataSetModel.setId(new TableDataSetMysqlModel().getId());
+                    newDataSetModel.setDerivedFromJobId(newJob.getJobId());
+                    newDataSetModel.setDerivedFrom(node.getComponentType());
+                    tableDataSetService.save(newDataSetModel);
+                }
             }
         }
         return newTasks;

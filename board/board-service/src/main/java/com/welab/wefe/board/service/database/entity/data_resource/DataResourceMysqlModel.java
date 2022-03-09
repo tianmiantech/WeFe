@@ -22,7 +22,7 @@ import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.DataResourceStorageType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -78,7 +78,7 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
      * 资源的可见性
      */
     @Enumerated(EnumType.STRING)
-    private DataSetPublicLevel publicLevel;
+    private DataResourcePublicLevel publicLevel;
     /**
      * 可见成员列表;只有在列表中的联邦成员才可以看到该资源的基本信息
      */
@@ -220,11 +220,11 @@ public class DataResourceMysqlModel extends AbstractBaseMySqlModel {
         this.totalDataCount = totalDataCount;
     }
 
-    public DataSetPublicLevel getPublicLevel() {
+    public DataResourcePublicLevel getPublicLevel() {
         return publicLevel;
     }
 
-    public void setPublicLevel(DataSetPublicLevel publicLevel) {
+    public void setPublicLevel(DataResourcePublicLevel publicLevel) {
         this.publicLevel = publicLevel;
     }
 

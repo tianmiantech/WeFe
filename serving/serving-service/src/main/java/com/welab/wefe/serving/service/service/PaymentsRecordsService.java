@@ -132,6 +132,7 @@ public class PaymentsRecordsService {
             }
         }
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
+        bw.write('\ufeff');
         bw.write(sw.toString());
         bw.flush();
         bw.close();

@@ -52,6 +52,11 @@ public class WeFeFileSystem {
      */
     public enum UseType {
         /**
+         * 临时目录，文件不会长时间保存。
+         * todo：zane 此目录的文件会被自动回收。
+         */
+        Temp,
+        /**
          * 添加数据资源
          */
         AddTableDataSet,

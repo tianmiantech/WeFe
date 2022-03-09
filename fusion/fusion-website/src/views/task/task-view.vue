@@ -68,6 +68,11 @@
                         </el-tag>
                     </el-table-column>
                     <el-table-column
+                        label="融合公式"
+                        min-width="150"
+                        prop="hash_function"
+                    />
+                    <el-table-column
                         label="数据量"
                         prop="row_count"
                         width="100"
@@ -273,6 +278,12 @@
                 >
                     {{ dateFormatter(task.spend) }}
                 </el-form-item>
+                <el-form-item
+                    v-if="task.result_table"
+                    label="融合数据已存储到表："
+                >
+                    {{ task.result_table }}
+                </el-form-item>
             </el-form>
         </el-card>
     </div>
@@ -310,6 +321,7 @@
                     spend:               '',
                     stimated_spend:      '',
                     progress:            '',
+                    result_table:        '',
                 },
 
                 // dataResource
@@ -358,10 +370,7 @@
             },
 
             async getDataSet () {
-                const { code, data } = await this.$http.get(
-                       '/data_set/query',{
-                     },
-                );
+                const { code, data } = await this.$http.get('/data_set/query');
 
                 if (code === 0) {
                     this.dataSetList = data.list;
@@ -400,6 +409,7 @@
                     this.task.spend = data.spend;
 
                     if(data.status !== 'Running') {
+                        this.getData();
                         clearTimeout(this.timer);
                     } else {
                         this.timer = setTimeout(this.getTaskInfo, 3000);

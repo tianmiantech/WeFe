@@ -18,7 +18,9 @@ package com.welab.wefe.board.service.util;
 
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.Validator;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -39,11 +40,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractTableDataSetReader implements Closeable {
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private final static List<String> NULL_VALUE_LIST = Arrays.asList("", "null", "NA", "nan", "None");
-
-    private final static Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^([+\\-])?\\d{1,10}(\\.0+)?$");
-    private final static Pattern MATCH_LONG_PATTERN = Pattern.compile("^([+\\-])?\\d+(\\.0+)?$");
-    private final static Pattern MATCH_DOUBLE_PATTERN = Pattern.compile("^([+\\-])?\\d+(\\.\\d*)?$");
-    private final static Pattern MATCH_BOOLEAN_PATTERN = Pattern.compile("^true$|^false$|^0$|^1$", Pattern.CASE_INSENSITIVE);
 
     protected List<String> header;
     protected boolean containsY;
@@ -71,11 +67,14 @@ public abstract class AbstractTableDataSetReader implements Closeable {
             throw new StatusCodeWithException("读取数据集 header 信息失败：" + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
-        // trim column name
-        list = list
-                .stream()
-                .map(x -> x.trim())
-                .collect(Collectors.toList());
+
+        for (int i = 0; i < list.size(); i++) {
+            String columnName = list.get(i);
+            if (StringUtil.isEmpty(columnName)) {
+                StatusCode.PARAMETER_VALUE_INVALID
+                        .throwException("数据集列头中第" + (i + 1) + "列名称为空，请处理后重试。");
+            }
+        }
 
         if (list.stream().distinct().count() != list.size()) {
             throw new StatusCodeWithException("数据集包含重复的字段，请处理后重新上传。", StatusCode.PARAMETER_VALUE_INVALID);
@@ -121,6 +120,16 @@ public abstract class AbstractTableDataSetReader implements Closeable {
         LinkedHashMap<String, Object> row;
         while ((row = readOneRow()) != null) {
 
+            if (getHeader().size() != row.size()) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException(
+                                "数据集第" + readDataRows + "行有" + row.size()
+                                        + "列，与列头数（" + getHeader().size()
+                                        + "）不匹配，请处理后重新上传。"
+                        );
+            }
+
             checkValue(row);
 
             dataRowConsumer.accept(row);
@@ -157,7 +166,7 @@ public abstract class AbstractTableDataSetReader implements Closeable {
             // skip null value
             String value = String.valueOf(entry.getValue());
             if (isEmptyValue(value)) {
-                return;
+                continue;
             }
 
             DataSetColumnInputModel column = this.metadataMap.get(entry.getKey());
@@ -165,19 +174,23 @@ public abstract class AbstractTableDataSetReader implements Closeable {
                 continue;
             }
 
-            Pattern pattern;
+            boolean isValid = false;
             switch (column.getDataType()) {
                 case Long:
-                    pattern = MATCH_LONG_PATTERN;
+                    isValid = Validator.isLong(value);
                     break;
                 case Double:
-                    pattern = MATCH_DOUBLE_PATTERN;
+                    isValid = Validator.isDouble(value);
                     break;
                 case Boolean:
-                    pattern = MATCH_BOOLEAN_PATTERN;
+                    isValid = Validator.isBoolean(value);
                     break;
                 case Integer:
-                    pattern = MATCH_INTEGER_PATTERN;
+                    // 这里做一点兼容，如果小数的尾数为0，则也认为是合法的整数。
+                    if (value.contains(".")) {
+                        value = StringUtil.trim(value, '0', '.');
+                    }
+                    isValid = Validator.isInteger(value);
                     break;
                 case Enum:
                 case String:
@@ -185,7 +198,7 @@ public abstract class AbstractTableDataSetReader implements Closeable {
                     return;
             }
 
-            if (!pattern.matcher(value).find()) {
+            if (!isValid) {
                 StatusCode.ERROR_IN_DATA_RESOURCE_ADD_FORM.throwException(
                         "数据集的特征 " + column.getName()
                                 + " 声明为 " + column.getDataType()

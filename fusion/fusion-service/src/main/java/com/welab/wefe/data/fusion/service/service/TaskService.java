@@ -41,6 +41,9 @@ import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.service.bloomfilter.BloomFilterService;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.data.fusion.service.task.PsiServerTask;
+import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
+import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -431,6 +434,10 @@ public class TaskService extends AbstractService {
                     dataSetRepository.findOne("id", model.getDataResourceId(), DataSetMySqlModel.class),
                     DataSetOutputModel.class);
 
+            if (dataSet != null) {
+                List<FieldInfo> fieldInfoList = fieldInfoService.fieldInfoList(model.getBusinessId());
+                dataSet.setHashFunction(CollectionUtils.isEmpty(fieldInfoList) ? null : PrimaryKeyUtils.hashFunction(fieldInfoList));
+            }
             model.setDataSetList(Arrays.asList(dataSet));
         }
     }

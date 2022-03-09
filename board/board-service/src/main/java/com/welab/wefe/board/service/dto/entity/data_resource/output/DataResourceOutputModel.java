@@ -23,7 +23,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.DataResourceStorageType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -50,7 +50,7 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "总数据量")
     private Long totalDataCount;
     @Check(name = "资源的可见性")
-    private DataSetPublicLevel publicLevel;
+    private DataResourcePublicLevel publicLevel;
     @Check(name = "可见成员列表;只有在列表中的联邦成员才可以看到该资源的基本信息")
     private String publicMemberList;
     @Check(name = "该资源在多少个job中被使用")
@@ -168,11 +168,11 @@ public class DataResourceOutputModel extends AbstractOutputModel {
         this.totalDataCount = totalDataCount;
     }
 
-    public DataSetPublicLevel getPublicLevel() {
+    public DataResourcePublicLevel getPublicLevel() {
         return publicLevel;
     }
 
-    public void setPublicLevel(DataSetPublicLevel publicLevel) {
+    public void setPublicLevel(DataResourcePublicLevel publicLevel) {
         this.publicLevel = publicLevel;
     }
 

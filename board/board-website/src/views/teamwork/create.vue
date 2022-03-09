@@ -7,7 +7,7 @@
         <div class="step-wrap pb30">
             <span class="step">1</span>
             <h3 class="mb20">发起项目</h3>
-            <el-form>
+            <el-form @submit.prevent>
                 <el-form-item
                     label="项目名称"
                     label-width="80px"

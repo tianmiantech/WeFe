@@ -95,7 +95,7 @@ public class PrivateInformationRetrievalFlowServer extends BasePrivateInformatio
             String value = Conversion.bytesToHexString(enResult) + "," + Conversion.bytesToHexString(aesKey.getIv());
             enResults.add(value);
         }
-        LOG.info("uuid:{} send results", uuid);
+        LOG.info("uuid:{} send results={}", uuid, results);
         mTransferVariable.processResult(uuid, JSON.toJSONString(enResults));
         LOG.info("uuid:{} finish", uuid);
     }
