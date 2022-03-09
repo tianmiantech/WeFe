@@ -177,7 +177,7 @@ public class ServingService extends AbstractService {
 
         if (taskResult == null) {
             LOG.error("查询task任务异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("task 不存在！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 
@@ -185,14 +185,14 @@ public class ServingService extends AbstractService {
 
         if (CollectionUtils.isEmpty(memberList)) {
             LOG.error("查询job_member异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("查询job_member异常！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         JobMySqlModel job = jobRepository.findByJobId(taskResult.getJobId(), role.name());
 
         if (job == null) {
             LOG.error("查询job异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("查询job异常！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Feature engineering
