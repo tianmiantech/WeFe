@@ -31,6 +31,9 @@ public class Config {
     @Value("${wefe.service.cache.type}")
     private String serviceCacheType;
 
+    @Value("${wefe.file.upload.dir}")
+    private String fileUploadDir;
+
     public String getFileBasePath() {
         return fileBasePath;
     }
@@ -86,5 +89,12 @@ public class Config {
 	public void setServiceCacheType(String serviceCacheType) {
 		this.serviceCacheType = serviceCacheType;
 	}
-    
+
+    public String getFileUploadDir() {
+        return fileUploadDir;
+    }
+
+    public void setFileUploadDir(String fileUploadDir) {
+        this.fileUploadDir = fileUploadDir;
+    }
 }
