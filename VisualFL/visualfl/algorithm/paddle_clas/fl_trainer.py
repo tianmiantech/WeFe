@@ -179,6 +179,7 @@ def fl_trainer(
         epoch_id = -1
         step = 0
         TaskDao(task_id).init_task_progress(max_iter)
+        TaskDao(task_id).start_task()
         if resume_checkpoint:
             try:
                 epoch_id = TaskDao(task_id).get_task_progress()
