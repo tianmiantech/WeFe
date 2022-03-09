@@ -56,6 +56,8 @@ class FcBudgetScheduler(threading.Thread):
             self.logger.warn(f"函数计算当日已使用: {cost}, 已超最大日限额: {budget}, 随即停止所有任务！")
         with DB.connection_context():
             for task in task_list:
+                if task.task_type == 'PaddleClassify' or task.task_type == 'PaddleDetection' or task.task_type == 'ImageDataIO':
+                    continue
                 if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
                     killed = self.kill_task(task)
                     if killed:
