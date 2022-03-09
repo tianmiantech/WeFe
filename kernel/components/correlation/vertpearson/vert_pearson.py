@@ -100,6 +100,7 @@ class VertPearson(ModelBase):
                 self.local_corr = table_dot_gpu(new_tables, new_tables, partitions)
         else:
             self.local_corr = table_dot(normed, normed)
+
         self.local_corr /= n
         self._summary["local_corr"] = self.local_corr.tolist()
         self._summary["num_local_features"] = len(self.names)

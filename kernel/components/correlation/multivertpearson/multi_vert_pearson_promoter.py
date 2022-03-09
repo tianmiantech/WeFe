@@ -45,7 +45,6 @@ class MultiVertPearsonPromoter(MultiVertPearsonBase):
 
     def fit(self, data_instance):
         # local
-        start = time.time()
         data = self._select_columns(data_instance)
         n, normed = self._standardized(data)
         if check_aclr_support():
@@ -142,4 +141,3 @@ class MultiVertPearsonPromoter(MultiVertPearsonBase):
         self._callback()
         LOGGER.info(f"summary:{self._summary}")
         self.set_summary(self._summary)
-        print(f'multi vert pearson 耗时：{time.time() - start}')
