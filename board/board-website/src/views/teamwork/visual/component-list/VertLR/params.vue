@@ -365,21 +365,19 @@
                 },
                 async getNodeData() {
                     const { code, data } = await $http.get({
-                        url:    '/project/member/list',
+                        url:    '/flow/dataset/info',
                         params: {
-                            projectId: props.projectId,
+                            flow_id: props.flowId,
                         },
                     });
 
-                    if(code === 0) {
-                        if(data.list.length) {
-                            data.list.forEach(row => {
-                                if(!row.exited) {
-                                    vData.member_list.push(row);
-                                }
-                            });
+                    if (code === 0) {
+                        if (data.flow_data_set_features.length) {
+                            const members = data.flow_data_set_features[0].members || [];
+
+                            // eslint-disable-next-line require-atomic-updates
+                            vData.member_list = members;
                         }
-                        vData.inited = true;
                     }
                 },
             };
