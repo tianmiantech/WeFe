@@ -4,13 +4,12 @@
             v-if="vData.isInResult"
             :title="vData.jobInfo.status"
             :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
-            description="点击查看任务详情"
-            show-icon
             class="fixed_alert"
         >
-            <slot>
-                <p @click.stop="methods.jumpToTaskDetail">点击查看任务详情</p>
-            </slot>
+            <elicon-bell-filled :width="14" :height="14" style="margin-left:-20px; position:relative; top:-7px;" />
+            <span style="text-decoration: underline;" class="ml5" @click.stop="methods.jumpToTaskDetail">
+                点击查看任务详情
+            </span>
         </el-alert>
         <div class="deep_flow">
             <div class="left_content">
@@ -355,7 +354,32 @@
                     <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next" :disabled="vData.stopNext">下一步</el-button>
                     <span v-if="vData.stopNext" class="stop_next_tips">请确保成员数据资源标注标签统一！</span>
-                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
+                    <el-form v-if="vData.active === 2" class="mt20">
+                        <el-form-item class="f12">任务操作:</el-form-item>
+                        <el-button
+                            type="primary"
+                            @click="methods.saveDeeplearningNode"
+                            :disabled="vData.flowInfo.my_role !=='promoter'"
+                        >
+                            开始训练
+                        </el-button>
+                        <template v-if="vData.jobInfo.status === 'running'">
+                            <el-button
+                                type="warning"
+                                @click="methods.pause"
+                            >
+                                暂停运行
+                            </el-button>
+                        </template>
+                        <template v-if="vData.jobInfo.status === 'stop_on_running' || vData.jobInfo.status === 'error_on_running'">
+                            <el-button
+                                type="primary"
+                                @click="methods.resume"
+                            >
+                                继续运行
+                            </el-button>
+                        </template>
+                    </el-form>
                 </div>
             </div>
             <div class="step_header">
@@ -370,9 +394,16 @@
 </template>
 
 <script>
-    import { reactive, getCurrentInstance, ref } from 'vue';
+    import {
+        reactive,
+        getCurrentInstance,
+        nextTick,
+        ref,
+        watch,
+        onBeforeMount,
+        onBeforeUnmount,
+    } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { nextTick, onBeforeMount, watch, onBeforeUnmount } from '@vue/runtime-core';
     import DataSetList from '@comp/views/data-set-list';
     import DeeplearningResult from './components/deeplearning-result.vue';
 
@@ -385,7 +416,7 @@
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http, $notify, $message, $bus } = appContext.config.globalProperties;
+            const { $http, $notify, $confirm, $message, $bus } = appContext.config.globalProperties;
             const route = useRoute();
             const router = useRouter();
             const rawDataSetListRef = ref();
@@ -1086,6 +1117,60 @@
                         vData.startLoading = false;
                     });
                 },
+                pause() {
+                    $confirm('确定要暂停任务吗', '警告', {
+                        type: 'warning',
+                    }).then(async action => {
+                        if(action === 'confirm') {
+                            vData.startLoading = true;
+                            const { code, data } = await $http.post({
+                                url:  '/flow/job/stop',
+                                data: {
+                                    jobId: vData.jobInfo.job_id,
+                                },
+                            });
+
+                            nextTick(_ => {
+                                vData.startLoading = false;
+                                if(code === 0) {
+                                    setTimeout(() => {
+                                        methods.getJobDetail();
+                                    }, 500);
+                                    $message.success('操作成功! 请稍后');
+                                } else {
+                                    $message.error(data.message || '未知错误');
+                                }
+                            });
+                        }
+                    });
+                },
+                resume() {
+                    $confirm('确定要继续执行任务吗', '警告', {
+                        type: 'warning',
+                    }).then(async action => {
+                        if(action === 'confirm') {
+                            vData.startLoading = true;
+                            const { code, data } = await $http.post({
+                                url:  '/flow/job/resume',
+                                data: {
+                                    jobId: vData.jobInfo.job_id,
+                                },
+                            });
+
+                            nextTick(_ => {
+                                vData.startLoading = false;
+                                if(code === 0) {
+                                    setTimeout(() => {
+                                        methods.getJobDetail();
+                                    }, 500);
+                                    $message.success('操作成功! 请稍后');
+                                } else {
+                                    $message.error(data.message || '未知错误');
+                                }
+                            });
+                        }
+                    });
+                },
             };
 
             onBeforeMount(() => {
@@ -1133,13 +1218,11 @@
     .fixed_alert {
         position: fixed;
         left: 50%;
-        transform: translateX(-50%);
-        z-index: 2;
+        z-index:20;
         width: 30%;
+        transform: translateX(-50%);
+        padding-left: 20px;
         cursor: pointer;
-        :deep(.el-alert__description) {
-            text-decoration: underline;
-        }
     }
 }
 .deep_flow {
