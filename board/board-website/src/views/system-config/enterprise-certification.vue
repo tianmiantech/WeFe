@@ -102,9 +102,9 @@
             v-model="preview.visible"
         >
             <div :class="['preview-box', { fullscreen: preview.fullscreen }]">
-                <el-icon @click="preview.fullscreen = !preview.fullscreen">
+                <!-- <el-icon @click="preview.fullscreen = !preview.fullscreen">
                     <elicon-full-screen />
-                </el-icon>
+                </el-icon> -->
                 <embed
                     v-if="preview.visible"
                     :src="preview.fileData"
@@ -243,13 +243,14 @@
             },
 
             async getFile(fileId, files) {
-                const { code, data, response: { headers: { filename } } } = await this.$http.post({
+                const { code, data, response: { headers } } = await this.$http.post({
                     url:          '/union/download/file',
                     responseType: 'blob',
                     data:         {
                         fileId,
                     },
                 });
+                const filename = headers.filename || headers.FileName;
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {

@@ -172,7 +172,15 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
 
         LongAdder longAdder = API_PARALLELISM.get(apiClassName);
 
-        return canParallel() && longAdder.longValue() < parallelism();
+        // 如果允许并发，检查并发量。
+        if (canParallel()) {
+            return longAdder.longValue() < parallelism();
+        }
+        // 如果不允许并发，则并发量不能超过1。
+        else {
+            return longAdder.longValue() < 1;
+        }
+
     }
 
     /**

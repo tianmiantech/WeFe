@@ -43,7 +43,7 @@ public class GlobalSettingService {
     /**
      * Is the system initialized
      */
-    private boolean isInitialized() {
+    public boolean isInitialized() {
         return globalSettingRepository.count() > 0;
     }
 

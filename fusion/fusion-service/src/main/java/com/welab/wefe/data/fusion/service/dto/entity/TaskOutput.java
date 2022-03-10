@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public class TaskOutput extends AbstractOutputModel{
+public class TaskOutput extends AbstractOutputModel {
 
     private String businessId;
 
@@ -103,7 +103,6 @@ public class TaskOutput extends AbstractOutputModel{
      * my_role
      */
     private RoleType myRole;
-
 
     public String getBusinessId() {
         return businessId;
@@ -287,5 +286,13 @@ public class TaskOutput extends AbstractOutputModel{
 
     public void setMyRole(RoleType myRole) {
         this.myRole = myRole;
+    }
+
+    public String getResultTable() {
+        if (TaskStatus.Success.equals(status) && fusionCount > 0) {
+            return "task_result_" + businessId;
+        }
+
+        return "";
     }
 }

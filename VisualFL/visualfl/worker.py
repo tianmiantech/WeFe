@@ -221,8 +221,6 @@ class ClusterWorker(Logger):
                 Path(__logs_dir__).joinpath(f"jobs/{_task.job_id}/{_task.task_id}"),
                 data_dir=self._data_dir,
             )
-            TaskDao(_task.web_task_id).start_task()
-            TaskDao(_task.web_task_id).update_task_status(TaskStatus.RUNNING)
             response = await _task.exec(executor)
             self.info(
                 f"finish exec task, job_id={_task.job_id}, task_id={_task.task_id}"

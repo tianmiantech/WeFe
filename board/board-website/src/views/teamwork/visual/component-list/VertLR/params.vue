@@ -10,6 +10,22 @@
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
+                    <el-form-item label="LR 方法：">
+                        <el-select
+                            v-model="vData.form.other_param.lr_method"
+                            clearable
+                        >
+                            <el-option
+                                label="lr"
+                                value="lr"
+                            />
+                            <el-option
+                                v-if="vData.member_list.length === 2"
+                                label="sshe-lr"
+                                value="sshe-lr"
+                            />
+                        </el-select>
+                    </el-form-item>
                     <el-form-item label="惩罚方式：">
                         <el-select
                             v-model="vData.form.other_param.penalty"
@@ -243,7 +259,7 @@
 </template>
 
 <script>
-    import { reactive } from 'vue';
+    import { getCurrentInstance, reactive } from 'vue';
     import dataStore from '../data-store-mixin';
 
     const LogisticRegression = {
@@ -258,6 +274,7 @@
             need_cv:  false,
         },
         other_param: {
+            lr_method:             'lr',
             penalty:               'L2',
             tol:                   0.00001,
             alpha:                 1,
@@ -286,7 +303,11 @@
             class:        String,
         },
         setup(props) {
+            const { appContext } = getCurrentInstance();
+            const { $http } = appContext.config.globalProperties;
+
             let vData = reactive({
+                member_list: [],
                 penaltyList: [
                     { value: 'L1',text: 'L1' },
                     { value: 'L2',text: 'L2' },
@@ -342,7 +363,28 @@
                         params: vData.form,
                     };
                 },
+                async getNodeData() {
+                    const { code, data } = await $http.get({
+                        url:    '/project/member/list',
+                        params: {
+                            projectId: props.projectId,
+                        },
+                    });
+
+                    if(code === 0) {
+                        if(data.list.length) {
+                            data.list.forEach(row => {
+                                if(!row.exited) {
+                                    vData.member_list.push(row);
+                                }
+                            });
+                        }
+                        vData.inited = true;
+                    }
+                },
             };
+
+            methods.getNodeData();
 
             const { $data, $methods } = dataStore.mixin({
                 props,

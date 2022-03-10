@@ -38,6 +38,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
+import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -246,13 +247,18 @@ public class ClientActuator extends AbstractPsiClientActuator {
                 break;
             }
 
-            JSONObject result = gatewayService.callOtherMemberBoard(
-                    dstMemberId,
-                    ServerSynStatusApi.class,
-                    new ServerSynStatusApi.Input(businessId),
-                    JSONObject.class
-            );
-            serverIsReady = result.getBoolean("ready");
+            try {
+                JSONObject result = gatewayService.callOtherMemberBoard(
+                        dstMemberId,
+                        ServerSynStatusApi.class,
+                        new ServerSynStatusApi.Input(businessId),
+                        JSONObject.class
+                );
+                serverIsReady = result.getBoolean("ready");
+            } catch (Exception e) {
+                LOG.error("请求合作方失败！错误原因: {}", e.getMessage());
+                status = PSIActuatorStatus.exception;
+            }
         }
 
         //调用gateway

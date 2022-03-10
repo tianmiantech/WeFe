@@ -198,4 +198,3 @@ def hash_code(s):
         return np.int32(h)
     else:
         return 0
-
