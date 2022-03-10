@@ -141,7 +141,7 @@ public class ProjectFlowJobService extends AbstractService {
             }
         }
 		long memberCount = jobMembers.stream().filter(x -> x.getJobRole() != JobMemberRole.arbiter).count();
-		if (memberCount < MIX_FLOW_PROMOTER_NUM && !isOotMode) {
+		if (memberCount < 2 && !isOotMode) {
 			throw new StatusCodeWithException("需要在【" + ComponentType.DataIO.getLabel() + "】中选择两个或两个以上的数据集",
 					StatusCode.PARAMETER_VALUE_INVALID);
 		}
