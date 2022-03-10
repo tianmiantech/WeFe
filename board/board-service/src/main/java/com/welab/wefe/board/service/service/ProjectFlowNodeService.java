@@ -159,6 +159,12 @@ public class ProjectFlowNodeService {
         projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
 
         ProjectFlowNodeMySqlModel node = findOne(input.getFlowId(), input.getNodeId());
+
+        // 对表单有效性进行检查
+        Components
+                .get(node.getComponentType())
+                .deserializationParam(input.getParams());
+
         List<ProjectFlowNodeOutputModel> list = new ArrayList<>();
 
         // If the node does not exist, it will be created automatically.
