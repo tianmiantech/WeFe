@@ -193,8 +193,8 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             private int validationFreqs;
             @Check(name = "允许提前结束的最小迭代次数", require = true)
             private int earlyStoppingRounds;
-            @Check(name = "工作模式", require = true)
-            private String workMode; // normal、layered、skip
+            @Check(name = "工作模式")
+			private String workMode = "normal"; // normal、layered、skip
             
             // 当work_mode==layered时，需要下面两个参数
             @Check(name = "promoter层数")
