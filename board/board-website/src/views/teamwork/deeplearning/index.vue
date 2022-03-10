@@ -44,7 +44,7 @@
                                 />
                             </el-form-item>
                             <el-form-item label="训练类型：">
-                                <p>{{ vData.flowType === 'PaddleDetection' ? '目标检测' : vData.flowType === 'PaddleClassify' ? '图像分类' : '' }}</p>
+                                <p>{{ vData.flowType === 'detection' ? '目标检测' : vData.flowType === 'classify' ? '图像分类' : '' }}</p>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -400,10 +400,10 @@
                     flow_desc: '',
                 },
                 deepLearnParams: {
-                    program:      training_type === 'PaddleDetection' ? 'paddle_detection' : training_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection',
+                    program:      training_type === 'detection' ? 'paddle_detection' : training_type === 'classify' ? 'paddle_clas' : 'paddle_detection',
                     max_iter:     10,
                     inner_step:   10,
-                    architecture: training_type === 'PaddleDetection' ? 'yolov3_darknet_voc' : training_type === 'PaddleClassify' ? 'LeNet' : 'ppyolo_r18vd',
+                    architecture: training_type === 'detection' ? 'yolov3_darknet_voc' : training_type === 'classify' ? 'LeNet' : 'ppyolo_r18vd',
                     // num_classes:  3,
                     base_lr:      0.00001,
                     image_shape:  [],
@@ -499,7 +499,7 @@
                 imageDataIONodeId:   '',
                 showDataIOResult:    false,
                 showDLResult:        false,
-                flowType:            training_type || 'PaddleDetection',
+                flowType:            training_type || 'detection',
                 isAllLabel:          false,
                 activeName:          'param',
                 isInResult:          false,
@@ -507,7 +507,7 @@
                 memberJobDetailList: [],
             });
 
-            if(vData.flowType === 'PaddleDetection') {
+            if(vData.flowType === 'detection') {
                 vData.image_shape.width = 608;
                 vData.image_shape.height = 608;
             }
@@ -624,7 +624,7 @@
                                     label: '训练',
                                     type:  'flow-node',
                                     data:  {
-                                        componentType: vData.flowType,
+                                        componentType: vData.flowType === 'detection' ? 'PaddleDetection' : 'PaddleClassify',
                                     },
                                 },
                             ],
@@ -664,6 +664,9 @@
                 next() {
                     vData.prevActive = vData.active;
                     if (vData.active++ > 2) vData.active = 0;
+                    if(vData.active === 1) {
+                        // 检查数据集是否被选
+                    }
                     if (vData.prevActive === 1 && vData.active === 2) {
                         // 保存数据资源信息
                         methods.saveImageDataIOInfo();
@@ -810,7 +813,7 @@
                         ref.searchField.member_role = vData.currentItem.member_role;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
                         ref.searchField.data_resource_type = 'ImageDataSet';
-                        ref.searchField.forJobType = vData.flowType === 'PaddleDetection' ? 'detection' : vData.flowType === 'PaddleClassify' ? 'classify' : '';
+                        ref.searchField.forJobType = vData.flowType || '';
                         ref.isFlow = true;
 
                         ref.getDataList({
@@ -984,7 +987,7 @@
 
                             vData.deepLearnNodeId = data.node_id;
                             vData.flowType = data.component_type;
-                            vData.deepLearnParams.program = data.component_type === 'PaddleDetection' ? 'paddle_detection' : data.component_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection';
+                            vData.deepLearnParams.program = data.component_type === 'detection' ? 'paddle_detection' : data.component_type === 'classify' ? 'paddle_clas' : 'paddle_detection';
                             if (params) {
                                 if (params.image_shape.length) {
                                     vData.image_shape.aisle = params.image_shape[0] || 3;
