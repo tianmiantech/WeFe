@@ -27,3 +27,7 @@ class ACLR_ABC(object):
     @abc.abstractmethod
     def mulm(self):
         pass
+
+    @abc.abstractmethod
+    def powm_base(self):
+        pass

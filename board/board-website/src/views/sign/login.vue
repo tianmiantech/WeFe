@@ -108,7 +108,6 @@
                                 type="primary"
                                 class="login-btn"
                                 native-type="submit"
-                                size="medium"
                                 @click="submit"
                             >
                                 立即登录
@@ -283,12 +282,18 @@
         }
 
         .el-carousel__item {
-            color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             padding: 0 60px;
             text-align: center;
             background: #333;
             align-items: center;
             display: flex;
+            color: #fff;
             h3{margin-bottom: 20px;}
         }
 

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,14 @@
 
 package com.welab.wefe.common.web.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.util.UrlUtil;
-import com.welab.wefe.common.web.ApiExecutor;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.dto.ApiResult;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.catalina.connector.RequestFacade;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -37,12 +38,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.TreeMap;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.util.UrlUtil;
+import com.welab.wefe.common.web.ApiExecutor;
+import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.dto.ApiResult;
 
 /**
  * @author Zane
@@ -86,6 +89,7 @@ public class BaseController {
                     .contentType(MediaType.IMAGE_PNG)
                     .body(data);
         }
+
 
         return post(httpServletRequest);
     }
@@ -152,7 +156,7 @@ public class BaseController {
                 }
 
                 if (values.length == 1) {
-                    getParams.put(key, "null".equalsIgnoreCase(values[0]) ? null : values[0]);
+                    getParams.put(key, "null" .equalsIgnoreCase(values[0]) ? null : values[0]);
                 } else {
                     getParams.put(key, values);
                 }
@@ -179,7 +183,7 @@ public class BaseController {
         while ((line = reader.readLine()) != null) {
             body.append(line);
         }
-        return JSON.parseObject(body.toString());
+        return JSON.parseObject(body.toString(), Feature.OrderedField);
     }
 
 

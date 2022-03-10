@@ -3,41 +3,26 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
-            <el-form-item
-                label="流水号："
-                label-width="80px"
-            >
+        <el-form inline>
+            <el-form-item label="流水号：">
                 <el-input
                     v-model="search.seq_no"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="成员ID："
-                label-width="80px"
-            >
+            <el-form-item label="成员ID：">
                 <el-input
                     v-model="search.member_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="模型ID："
-                label-width="80px"
-            >
+            <el-form-item label="模型ID：">
                 <el-input
                     v-model="search.model_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="算法类型："
-                label-width="100px"
-            >
+            <el-form-item label="算法类型：">
                 <el-select
                     v-model="search.algorithm"
                     clearable
@@ -50,10 +35,7 @@
                     />
                 </el-select>
             </el-form-item>
-            <el-form-item
-                label="训练类型："
-                label-width="100px"
-            >
+            <el-form-item label="训练类型：">
                 <el-select
                     v-model="search.fl_type"
                     clearable
@@ -67,12 +49,14 @@
                 </el-select>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getList('to')"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList({ to: true })"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
         </el-form>
 
         <el-table

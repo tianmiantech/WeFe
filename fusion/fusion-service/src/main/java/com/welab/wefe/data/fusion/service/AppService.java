@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
@@ -49,6 +50,7 @@ public class AppService implements ApplicationContextAware {
         Launcher
                 .instance()
                 .apiPackageClass(AppService.class)
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if (annotation.rsaVerify()) {
                         rsaVerify(params);
@@ -75,16 +77,16 @@ public class AppService implements ApplicationContextAware {
          * Searching for signature Information
          */
         PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
-        PartnerMySqlModel partner = partnerService.findByPartnerId(params.getString("partner_id"));
+        PartnerMySqlModel partner = partnerService.findByPartnerId(params.getString("member_id"));
 
         if (partner == null) {
-            throw new StatusCodeWithException("invalid partner_id：" + params.getString("partner_id"), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("成员校验失败 member_id：" + params.getString("member_id"), StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 
         boolean verified = RSAUtil.verify(params.getString("data").getBytes(), RSAUtil.getPublicKey(partner.getRsaPublicKey()), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("错误的签名！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         params.putAll(params.getJSONObject("data"));

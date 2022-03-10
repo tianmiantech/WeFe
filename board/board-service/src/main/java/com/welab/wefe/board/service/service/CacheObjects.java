@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,20 +16,20 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.union.MemberListApi;
-import com.welab.wefe.board.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.BlacklistRepository;
-import com.welab.wefe.board.service.database.repository.DataSetRepository;
+import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
-import com.welab.wefe.board.service.sdk.UnionService;
+import com.welab.wefe.board.service.sdk.union.UnionService;
+import com.welab.wefe.board.service.sdk.union.dto.MemberBaseInfo;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.data.domain.Sort;
 
 import java.util.*;
@@ -59,12 +59,16 @@ public class CacheObjects {
     private static String RSA_PRIVATE_KEY;
     private static String RSA_PUBLIC_KEY;
     private static String MEMBER_NAME;
+    private static SecretKeyType SECRET_KEY_TYPE = null;
 
     /**
-     * Data set tags
+     * Data resource tags
      * tag : count
      */
-    private static final TreeMap<String, Long> DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> DATA_RESOURCE_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> TABLE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> IMAGE_DATA_SET_TAGS = new TreeMap<>();
+    private static final TreeMap<String, Integer> BLOOM_FILTER_TAGS = new TreeMap<>();
 
     /**
      * accountId : nickname
@@ -77,9 +81,9 @@ public class CacheObjects {
     private static final List<String> ACCOUNT_ID_LIST = new ArrayList<>();
 
     /**
-     * accountId : member name
+     * memberId : member base info
      */
-    private static final LinkedHashMap<String, String> MEMBER_MAP = new LinkedHashMap<>();
+    private static LinkedHashMap<String, MemberBaseInfo> MEMBER_MAP = new LinkedHashMap<>();
 
     /**
      * member blacklist
@@ -94,7 +98,7 @@ public class CacheObjects {
     }
 
     public synchronized static void refreshMemberBlacklist() {
-        BlacklistRepository repository = Launcher.CONTEXT.getBean(BlacklistRepository.class);
+        BlacklistRepository repository = Launcher.getBean(BlacklistRepository.class);
         MEMBER_BLACKLIST.clear();
         repository.findAll().forEach(x -> MEMBER_BLACKLIST.add(x.getBlacklistMemberId()));
     }
@@ -104,6 +108,13 @@ public class CacheObjects {
             refreshMemberInfo();
         }
         return MEMBER_ID;
+    }
+
+    /**
+     * 判断指定的 member_id 是属于当前本地成员
+     */
+    public static boolean isCurrentMember(String memberId) {
+        return getMemberId().equals(memberId);
     }
 
     public static String getRsaPrivateKey() {
@@ -127,11 +138,32 @@ public class CacheObjects {
         return MEMBER_NAME;
     }
 
-    public static TreeMap<String, Long> getDataSetTags() {
-        if (DATA_SET_TAGS.isEmpty()) {
-            refreshDataSetTags();
+    public static TreeMap<String, Integer> getDataResourceTags(DataResourceType dataResourceType) {
+        TreeMap<String, Integer> map = null;
+
+        if (dataResourceType == null) {
+            map = DATA_RESOURCE_TAGS;
+        } else {
+            switch (dataResourceType) {
+                case TableDataSet:
+                    map = TABLE_DATA_SET_TAGS;
+                    break;
+                case ImageDataSet:
+                    map = IMAGE_DATA_SET_TAGS;
+                    break;
+                case BloomFilter:
+                    map = BLOOM_FILTER_TAGS;
+                    break;
+                default:
+
+            }
         }
-        return DATA_SET_TAGS;
+
+        if (map.isEmpty()) {
+            refreshDataResourceTags(dataResourceType, map);
+        }
+
+        return map;
     }
 
     public static List<String> getAccountIdList() {
@@ -161,11 +193,11 @@ public class CacheObjects {
     /**
      * Determine whether accountId belongs to the current member
      */
-    public static synchronized boolean isCurrentMember(String accountId) {
+    public static synchronized boolean isCurrentMemberAccount(String accountId) {
         return getAccountIdList().contains(accountId);
     }
 
-    private static LinkedHashMap<String, String> getMemberMap() throws StatusCodeWithException {
+    private static LinkedHashMap<String, MemberBaseInfo> getMemberMap() throws StatusCodeWithException {
         if (MEMBER_MAP.isEmpty()) {
             refreshMemberMap();
         }
@@ -176,7 +208,11 @@ public class CacheObjects {
      * Check if an id is member_id
      */
     public static boolean isMemberId(String memberId) {
-        return getMemberName(memberId) != null;
+        try {
+            return getMemberMap().get(memberId) != null;
+        } catch (StatusCodeWithException e) {
+            return false;
+        }
     }
 
     public static synchronized String getMemberName(String memberId) {
@@ -185,12 +221,16 @@ public class CacheObjects {
         }
 
         try {
-            String memberName = getMemberMap().get(memberId);
-            if (memberName == null) {
+            MemberBaseInfo member = getMemberMap().get(memberId);
+            if (member == null) {
                 CacheObjects.refreshMemberMap();
-                memberName = getMemberMap().get(memberId);
+                member = getMemberMap().get(memberId);
             }
-            return memberName;
+
+            if (member == null) {
+                return null;
+            }
+            return member.name;
 
         } catch (StatusCodeWithException e) {
             return null;
@@ -202,7 +242,7 @@ public class CacheObjects {
      * Reload member information
      */
     public static synchronized void refreshMemberInfo() {
-        GlobalConfigService service = Launcher.CONTEXT.getBean(GlobalConfigService.class);
+        GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
         MemberInfoModel model = service.getMemberInfo();
 
         if (model == null) {
@@ -213,42 +253,50 @@ public class CacheObjects {
         RSA_PUBLIC_KEY = model.getRsaPublicKey();
         RSA_PRIVATE_KEY = model.getRsaPrivateKey();
         MEMBER_NAME = model.getMemberName();
+        SECRET_KEY_TYPE = model.getSecretKeyType();
     }
 
-    /**
-     * Reload the number of data sets corresponding to each tag
-     */
-    public static synchronized void refreshDataSetTags() {
-        // Query all tags from the database
-        DataSetRepository repo = Launcher.CONTEXT.getBean(DataSetRepository.class);
-        List<Object[]> rows = repo.listAllTags();
-        DATA_SET_TAGS.clear();
+    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType) {
+        TreeMap<String, Integer> map = getDataResourceTags(dataResourceType);
+        refreshDataResourceTags(dataResourceType, map);
+    }
 
+    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType, TreeMap<String, Integer> map) {
+
+        // Query all tags from the database
+        DataResourceRepository repo = Launcher.getBean(DataResourceRepository.class);
+        List<Object[]> rows = dataResourceType == null
+                ? repo.listAllTags()
+                : repo.listAllTags(dataResourceType.name());
+
+        map.clear();
         // Count the number of data sets corresponding to each tag
         for (Object[] row : rows) {
             List<String> tags = StringUtil.splitWithoutEmptyItem(String.valueOf(row[0]), ",");
-            long count = Convert.toLong(row[1]);
+            int count = Convert.toInt(row[1]);
             for (String tag : tags) {
-                if (!DATA_SET_TAGS.containsKey(tag)) {
-                    DATA_SET_TAGS.put(tag, 0L);
+                if (StringUtil.isEmpty(tag)) {
+                    continue;
                 }
-
-                DATA_SET_TAGS.put(tag, DATA_SET_TAGS.get(tag) + count);
-
+                if (!map.containsKey(tag)) {
+                    map.put(tag, 0);
+                }
+                map.put(tag, map.get(tag) + count);
             }
         }
     }
+
 
     /**
      * Reload account list
      */
     public static synchronized void refreshAccountMap() {
-        AccountRepository repo = Launcher.CONTEXT.getBean(AccountRepository.class);
-        List<AccountMySqlModel> list = repo.findAll(Sort.by("nickname"));
+        AccountRepository repo = Launcher.getBean(AccountRepository.class);
+        List<AccountMysqlModel> list = repo.findAll(Sort.by("nickname"));
 
         ACCOUNT_MAP.clear();
         ACCOUNT_ID_LIST.clear();
-        for (AccountMySqlModel item : list) {
+        for (AccountMysqlModel item : list) {
             ACCOUNT_MAP.put(item.getId(), item.getNickname());
             ACCOUNT_ID_LIST.add(item.getId());
         }
@@ -265,35 +313,17 @@ public class CacheObjects {
         }
         LAST_REFRESH_MEMBER_MAP_TIME = System.currentTimeMillis();
 
-        UnionService service = Launcher.CONTEXT.getBean(UnionService.class);
+        UnionService service = Launcher.getBean(UnionService.class);
         MEMBER_MAP.clear();
-        MemberListApi.Input input = new MemberListApi.Input();
-        while (true) {
+        MEMBER_MAP = service.getMemberMap();
 
-            JSONObject json = service.queryMembers(input);
+    }
 
-            JSONArray list = json
-                    .getJSONObject("data")
-                    .getJSONArray("list");
-
-            if (list.isEmpty()) {
-                break;
-            }
-
-            list
-                    .stream()
-                    .map(x -> (JSONObject) x)
-                    .forEach(x -> MEMBER_MAP.put(x.getString("id"), x.getString("name")));
-
-            if (list.size() < input.getPageSize()) {
-                break;
-            }
-
-            input.setPageIndex(input.getPageIndex() + 1);
-
-
+    public static synchronized SecretKeyType getSecretKeyType() {
+        if (null == SECRET_KEY_TYPE) {
+            refreshMemberInfo();
         }
-
+        return null == SECRET_KEY_TYPE ? SecretKeyType.rsa : SECRET_KEY_TYPE;
     }
 
 }

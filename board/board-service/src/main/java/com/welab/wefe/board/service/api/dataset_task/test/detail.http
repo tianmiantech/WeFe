@@ -1,7 +1,0 @@
-POST {{baseUrl}}/data_set_task/detail
-Content-Type: application/json
-token: ac266310-0c98-46ac-b9d0-d7d8ff9ff888
-
-{
-  "id": ""
-}

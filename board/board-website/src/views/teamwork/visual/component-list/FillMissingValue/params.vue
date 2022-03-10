@@ -3,6 +3,7 @@
         ref="form"
         v-loading="vData.loading"
         :disabled="disabled"
+        @submit.prevent
     >
         <el-form-item
             v-for="(item, index) in vData.selectList"
@@ -30,7 +31,6 @@
                 @change="methods.changeMethodCount(item, index)"
             />
             <el-button
-                size="mini"
                 class="ml10"
                 style="margin-top:2px;"
                 :disabled="vData.total_column_count === 0"

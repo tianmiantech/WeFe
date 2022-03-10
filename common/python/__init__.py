@@ -1,11 +1,37 @@
+# Copyright 2021 Tianmian Tech. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-
+# Copyright 2019 The FATE Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 
 from enum import IntEnum
 
 from common.python.calculation.acceleration.abc.aclr_abc import ACLR_ABC
 from common.python.common import consts
+from common.python.common.consts import RuntimeOptionKey
 from common.python.p_federation.federation import Federation
 from common.python.p_session.build import Builder
 from common.python.utils import conf_utils
@@ -25,10 +51,13 @@ class WorkMode(IntEnum):
         return self.value == self.CLUSTER
 
 
-class Backend(IntEnum):
-    LOCAL = 0
-    SPARK = 1
-    FC = 2
+class Backend(object):
+    LOCAL = "LOCAL"
+    SPARK = "SPARK"
+    FC = "FC"
+
+    def __init__(self, value):
+        self.value = value
 
     def is_spark(self):
         return self.value == self.SPARK
@@ -39,13 +68,15 @@ class Backend(IntEnum):
     def is_fc(self):
         return self.value == self.FC
 
+    def get(self):
+        return self.value
+
+    def __str__(self):
+        return self.value
+
     @staticmethod
-    def get(task_config_json):
-        # backend = task_config_json['job']['env']['backend']
-        backend = conf_utils.get_backend_from_string(
-            conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
-        )
-        backend = int(backend) if backend else task_config_json['job']['env']['backend']
+    def get_by_task_config(task_config_json: dict):
+        backend = task_config_json['job']['env']['backend']
         return Backend(backend)
 
 
@@ -61,15 +92,19 @@ class RuntimeInstance(object):
 
     @classmethod
     def get_fc_partition(cls):
-        return cls.OPTIONS.get("fc_partition")
+        return cls.OPTIONS.get(RuntimeOptionKey.FC_PARTITION)
 
     @classmethod
     def get_spark_partition(cls):
-        pass
+        return cls.OPTIONS.get(RuntimeOptionKey.SPARK_PARTITION)
 
     @classmethod
     def get_features_count(cls):
-        return cls.OPTIONS.get("features_count")
+        return cls.OPTIONS.get(RuntimeOptionKey.FEATURE_COUNT)
+
+    @classmethod
+    def get_member_backend(cls, member_id) -> str:
+        return cls.OPTIONS.get(RuntimeOptionKey.MEMBERS_BACKEND).get(member_id)
 
     @classmethod
     def get_alcr_ins(cls):

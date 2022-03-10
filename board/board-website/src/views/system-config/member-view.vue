@@ -4,6 +4,7 @@
             <el-form
                 class="mb20"
                 :model="form"
+                @submit.prevent
             >
                 <el-row>
                     <el-col
@@ -47,7 +48,7 @@
                             </el-radio>
                             <p class="tips-alert" v-if="form.member_hidden"> ※ 隐身后其他成员从联邦中不能看到关于您的所有信息</p>
                         </el-form-item>
-                        <el-form-item label="是否允许对外公开数据集基础信息：">
+                        <el-form-item label="是否允许对外公开数据资源基础信息：">
                             <el-radio
                                 v-model="form.member_allow_public_data_set"
                                 :label="true"
@@ -62,7 +63,7 @@
                             >
                                 否
                             </el-radio>
-                            <p class="tips-alert" v-if="!form.member_allow_public_data_set"> ※ 其他成员目前不能查看到您的任何数据集</p>
+                            <p class="tips-alert" v-if="!form.member_allow_public_data_set"> ※ 其他成员目前不能查看到您的任何数据资源</p>
                         </el-form-item>
                         <el-form-item label="邮箱：">
                             <el-input
@@ -104,7 +105,63 @@
                         style="padding-left: 100px;"
                     >
                         <p class="mb10">名片预览：</p>
-                        <MemberCard />
+                        <MemberCard :realNameAuth="enterpriseAuth === 2" />
+
+                        <div v-if="enterpriseAuth !== ''" class="mt40">
+                            <el-form-item label="企业实名认证：">
+                                <p
+                                    v-if="enterpriseAuth === -1"
+                                    class="color-danger"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    已拒绝 (原因: {{ audit_comment }})
+                                </p>
+                                <span
+                                    v-if="enterpriseAuth === 0"
+                                    class="el-link el-link--danger"
+                                    style="white-space: nowrap;"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    未认证
+                                    <p class="ml10 f12">(超级管理员可申请实名认证)</p>
+                                </span>
+
+                                <span
+                                    v-if="enterpriseAuth === 1"
+                                    class="el-link el-link--danger"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    审核中
+                                </span>
+                                <span
+                                    v-if="enterpriseAuth === 2"
+                                    class="el-link el-link--success"
+                                >
+                                    <el-icon class="mr5">
+                                        <elicon-circle-check />
+                                    </el-icon>
+                                    已认证
+                                </span>
+                                <router-link
+                                    v-if="userInfo.super_admin_role && enterpriseAuth !== 1"
+                                    :to="{ name: 'enterprise-certification' }"
+                                    class="f12 ml20"
+                                >
+                                    {{ enterpriseAuth === 0 ? '去认证' : '重新认证' }}
+                                </router-link>
+                            </el-form-item>
+                            <p
+                                v-if="enterpriseAuth === 2 && real_name_auth_useful_life"
+                                class="color-danger f13"
+                                style="margin-top:-10px;"
+                            ><strong>认证有效期：{{ real_name_auth_useful_life }}</strong></p>
+                        </div>
                     </el-col>
                 </el-row>
             </el-form>
@@ -113,7 +170,6 @@
                 v-loading="loading"
                 class="save-btn"
                 type="primary"
-                size="medium"
                 @click="update"
             >
                 更新
@@ -134,7 +190,7 @@
             />
             <br>
             <el-button
-                size="medium"
+                size="small"
                 @click="syncToUnion"
             >
                 同步数据到 Union
@@ -177,13 +233,15 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                 },
-                audit_comment: '',
+                enterpriseAuth: '',
+                audit_comment:  '',
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.getAuthStatus();
             this.getMemberDetail();
         },
         methods: {
@@ -201,11 +259,7 @@
 
                     const info = Object.assign({
                         ...this.userInfo,
-                    }, {
-                        member_logo:  data.member_logo,
-                        member_name:  this.form.member_name,
-                        member_email: this.form.member_email,
-                    });
+                    }, this.form);
 
                     this.$store.commit('UPDATE_USERINFO', info);
 
@@ -224,6 +278,16 @@
                 }
 
                 this.loading = false;
+            },
+
+            async getAuthStatus() {
+                const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
+
+                if(code === 0) {
+                    this.enterpriseAuth = data.real_name_auth_status;
+                    this.audit_comment = data.audit_comment;
+                    this.real_name_auth_useful_life = data.real_name_auth_useful_life;
+                }
             },
 
             // upload avatar

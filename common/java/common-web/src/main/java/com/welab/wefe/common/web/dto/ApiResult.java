@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +28,7 @@ public class ApiResult<T> {
     public String message;
     public T data;
     public long spend;
+
     /**
      * The HTTP response code
      */
@@ -35,19 +36,19 @@ public class ApiResult<T> {
     public int httpCode = 200;
 
 
-    public static ApiResult<Object> ofErrorWithStatusCode(StatusCode statusCode) {
+    public static <T> ApiResult<T> ofErrorWithStatusCode(StatusCode statusCode) {
         return ofErrorWithStatusCode(statusCode, statusCode.getMessage());
     }
 
-    public static ApiResult<Object> ofErrorWithStatusCode(StatusCode statusCode, String message) {
-        ApiResult<Object> response = new ApiResult<>();
+    public static <T> ApiResult<T> ofErrorWithStatusCode(StatusCode statusCode, String message) {
+        ApiResult<T> response = new ApiResult<>();
         response.code = statusCode.getCode();
         response.message = message;
         return response;
     }
 
-    public static ApiResult<Object> ofSuccess(Object data) {
-        ApiResult<Object> response = new ApiResult<>();
+    public static <T> ApiResult<T> ofSuccess(T data) {
+        ApiResult<T> response = new ApiResult<>();
         response.data = data;
         return response;
     }

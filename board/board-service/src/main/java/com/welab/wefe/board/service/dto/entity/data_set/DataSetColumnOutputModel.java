@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,8 @@
 package com.welab.wefe.board.service.dto.entity.data_set;
 
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
-import com.welab.wefe.common.enums.ColumnDataType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.ColumnDataType;
 
 import java.util.Map;
 
@@ -26,33 +27,19 @@ import java.util.Map;
  */
 public class DataSetColumnOutputModel extends AbstractOutputModel {
 
-    /**
-     * 数据集Id
-     */
+    @Check(name = "数据集Id")
     private String dataSetId;
-    /**
-     * 字段序号
-     */
+    @Check(name = "字段序号")
     private Integer index;
-    /**
-     * 字段名称
-     */
+    @Check(name = "字段名称")
     private String name;
-    /**
-     * 数据类型
-     */
+    @Check(name = "数据类型")
     private ColumnDataType dataType;
-    /**
-     * 注释
-     */
+    @Check(name = "注释")
     private String comment;
-    /**
-     * 空值数据行数
-     */
+    @Check(name = "空值数据行数")
     private Long emptyRows;
-    /**
-     * 数值分布
-     */
+    @Check(name = "数值分布")
     private Map<String, Object> valueDistribution;
 
 

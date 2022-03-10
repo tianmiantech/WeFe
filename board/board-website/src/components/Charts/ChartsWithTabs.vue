@@ -167,7 +167,8 @@
             async getChartsData() {
                 const { tabName } = this;
                 const { type } = this.charts[tabName].config;
-                const ref = this.$refs[this.tabName];
+                const $ref = this.$refs[this.tabName];
+                const ref = Array.isArray($ref) ? $ref[0] : $ref;
                 const Queue = [];
 
                 ref.loading = true;
@@ -340,7 +341,7 @@
                     }
                 }
 
-                ref.chartResize();
+                ref && ref.chartResize && ref.chartResize();
 
                 setTimeout(_ => {
                     ref.loading = false;
@@ -386,7 +387,7 @@
 
                 const ref = this.$refs[this.tabName];
 
-                ref && ref.chartResize();
+                ref && ref.chartResize && ref.chartResize();
             },
 
             renderChart(tabName, lineNames, { result }) {

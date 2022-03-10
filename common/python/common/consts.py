@@ -45,11 +45,12 @@ COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE = "flow.spark.submit.default.
 COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS = "flow.spark.submit.default.num.executors"
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY = "flow.spark.submit.default.executor.memory"
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES = "flow.spark.submit.default.executor.cores"
-COMM_CONF_KEY_BACKEND = "wefe.job.backend"
+# COMM_CONF_KEY_BACKEND = "wefe.job.backend"
 COMM_CONF_KEY_ACCELERATION = "wefe.job.acceleration"
 
 COMM_CONF_KEY_FC_STORAGE_TYPE = "fc.storage.type"
 COMM_CONF_KEY_FC_REGION = "fc.region"
+COMM_CONF_KEY_FC_ACCOUNT_ID = "fc.account_id"
 COMM_CONF_KEY_FC_OTS_END_POINT = "fc.ots.end_point"
 COMM_CONF_KEY_FC_OTS_INTERNAL_END_POINT = "fc.ots.internal_end_point"
 COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT = "fc.cloud_store.temp_auth_internal_end_point"
@@ -118,8 +119,8 @@ class STORAGETYPE(object):
     """
     Storage Type： ck, lmdb, ots
     """
-    CLICKHOUSE = 'clickhouse',
-    LMDB = 'lmdb',
+    CLICKHOUSE = 'clickhouse'
+    LMDB = 'lmdb'
     OTS = 'ots'
     OSS = 'oss'
 
@@ -222,6 +223,7 @@ class ComponentName:
     VERT_LR = "VertLR"
     HORZ_SECURE_BOOST = "HorzSecureBoost"
     VERT_SECURE_BOOST = "VertSecureBoost"
+    VERT_FAST_SECURE_BOOST = "VertFastSecureBoost"
     HORZ_LR_VALIDATION_DATA_SET_LOADER = "HorzLRValidationDataSetLoader"
     VERT_LR_VALIDATION_DATA_SET_LOADER = "VertLRValidationDataSetLoader"
     HORZ_XG_BOOST_VALIDATION_DATA_SET_LOADER = "HorzXGBoostValidationDataSetLoader"
@@ -286,5 +288,24 @@ class AccelerationType(object):
     FPGA = "FPGA"
 
 
+class IntermediateDataFlag(object):
+    """
+    Intermediate data serialization type
+    """
+    ITEM_SERIALIZATION = 1
+    BATCH_SERIALIZATION = 2
+
+
+class RuntimeOptionKey(object):
+    """
+    Runtime option key
+    """
+    FC_PARTITION = "fc_partition"
+    SPARK_PARTITION = "spark_partition"
+    FEATURE_COUNT = "features_count"
+    MEMBERS_BACKEND = "members_backend"
+
+
 if __name__ == '__main__':
-    print(BACKEND.__dict__.get("SPARK")[0])
+    pass
+    # print(BACKEND.__dict__.get("SPARK")[0])

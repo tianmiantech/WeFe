@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,6 +18,10 @@ package com.welab.wefe.serving.service.database.serving.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 
 /**
  * @author hunter.zhao
@@ -25,8 +29,9 @@ import javax.persistence.Entity;
 @Entity(name = "account")
 public class AccountMySqlModel extends AbstractBaseMySqlModel {
 
+	private static final long serialVersionUID = -6835962000573567824L;
 
-    @Column(name = "phone_number")
+	@Column(name = "phone_number")
     private String phoneNumber;
 
     private String password;
@@ -47,7 +52,22 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
     @Column(name = "admin_role")
     private Boolean adminRole;
 
+    /**
+     * 审核状态
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "audit_status")
+    private AuditStatus auditStatus;
+    /**
+     * 审核意见
+     */
+    @Column(name = "audit_comment")
+    private String auditComment;
 
+    /**
+     * 是否可用
+     */
+    private Boolean enable;
     //region getter/setter
 
     public String getPhoneNumber() {
@@ -106,6 +126,29 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
         this.adminRole = adminRole;
     }
 
+	public AuditStatus getAuditStatus() {
+		return auditStatus;
+	}
+
+	public void setAuditStatus(AuditStatus auditStatus) {
+		this.auditStatus = auditStatus;
+	}
+
+	public String getAuditComment() {
+		return auditComment;
+	}
+
+	public void setAuditComment(String auditComment) {
+		this.auditComment = auditComment;
+	}
+
+	public Boolean getEnable() {
+		return enable;
+	}
+
+	public void setEnable(Boolean enable) {
+		this.enable = enable;
+	}
 
     //endregion
 }

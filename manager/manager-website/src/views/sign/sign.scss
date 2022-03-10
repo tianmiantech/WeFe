@@ -1,0 +1,61 @@
+.sign-box {
+    padding: 70px 40px 30px;
+    padding-top: 10vh;
+    margin: 0 auto;
+    width: 440px;
+}
+.sign-form{
+    max-width: 300px;
+    margin: 0 auto;
+}
+.logo {
+    width : 150px;
+    height: 150px;
+    display: block;
+    margin: 0 auto;
+    img {height: 100%;}
+}
+
+.sign-title {
+    font-size: 20px;
+    color: rgb(73, 80, 87, .6);
+}
+
+.sub-title{
+    font-size: 16px;
+}
+
+.el-divider{
+    margin: 14px 0;
+    background:#e9ecef;
+}
+
+.el-form-item{
+    margin-bottom: 16px;
+}
+
+.form-code{
+    :deep(.el-input-group__append){
+        padding:0;
+        width: 90px;
+        overflow: hidden;
+    }
+}
+.code-img{
+    width: 90px;
+    height: 30px;
+    cursor: pointer;
+}
+.el-checkbox{
+    font-weight: normal;
+}
+
+:deep(.el-form-item__label,
+    .el-checkbox__label) {
+        font-size: 13px;
+    }
+
+.sign-action {
+    text-align: right;
+    font-size: 14px;
+}

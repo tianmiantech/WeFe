@@ -5,7 +5,7 @@
         </template>
 
         <template #params>
-            编写数据集的过滤表达式, 对成员的特征按照<span class="strong">指定过滤规则</span>进行筛选
+            编写数据资源的过滤表达式, 对成员的特征按照<span class="strong">指定过滤规则</span>进行筛选
         </template>
 
         <template #desc>
@@ -29,11 +29,11 @@
         </template>
 
         <template #output>
-            过滤完之后的数据集。
+            过滤完之后的数据资源。
         </template>
 
         <template #error-tip>
-            过滤完数据集为空
+            过滤完数据资源为空
         </template>
     </CommonHelp>
 </template>

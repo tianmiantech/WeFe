@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,21 +18,19 @@ package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.data.fusion.service.api.datasource.AddApi;
-import com.welab.wefe.data.fusion.service.api.datasource.DeleteApi;
-import com.welab.wefe.data.fusion.service.api.datasource.QueryApi;
-import com.welab.wefe.data.fusion.service.api.datasource.TestDBConnectApi;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.datasource.*;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
+import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
 import com.welab.wefe.data.fusion.service.database.repository.DataSourceRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
+import com.welab.wefe.data.fusion.service.dto.entity.DataSourceOverviewOutput;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
-import com.welab.wefe.data.fusion.service.utils.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
@@ -57,11 +55,17 @@ public class DataSourceService extends AbstractService {
     @Value("${file.upload.dir}")
     private String fileUploadDir;
 
+    @Autowired
+    DataSetRepository dataSetRepository;
+
+    @Autowired
+    BloomFilterRepository bloomFilterRepository;
+
 
     public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
         if (dataSourceRepo.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("This data source name already exists, please change the data source name", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据源名称已存在, 请更该数据源名称再提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // 测试连接
@@ -82,17 +86,17 @@ public class DataSourceService extends AbstractService {
         // Test the connection
         testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(), input.getPassword(), input.getDatabaseName());
         Map<String, Object> params = new HashMap<>(16);
-        params.put("id",input.getId());
-        params.put("name",input.getName());
-        params.put("databaseType",input.getDatabaseType());
-        params.put("databaseName",input.getDatabaseName());
-        params.put("host",input.getHost());
-        params.put("port",input.getPort());
-        params.put("userName",input.getName());
-        params.put("password",input.getPassword());
-        params.put("updatedBy",CurrentAccount.id());
-        params.put("updatedTime",new Date());
-        dataSourceRepo.updateById(input.getId(),params,DataSourceMySqlModel.class);
+        params.put("id", input.getId());
+        params.put("name", input.getName());
+        params.put("databaseType", input.getDatabaseType());
+        params.put("databaseName", input.getDatabaseName());
+        params.put("host", input.getHost());
+        params.put("port", input.getPort());
+        params.put("userName", input.getUserName());
+        params.put("password", input.getPassword());
+        params.put("updatedBy", CurrentAccount.id());
+        params.put("updatedTime", new Date());
+        dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
 
         UpdateApi.DataSourceUpdateOutput output = new UpdateApi.DataSourceUpdateOutput();
         DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
@@ -145,7 +149,7 @@ public class DataSourceService extends AbstractService {
         if (conn != null) {
             boolean success = jdbcManager.testQuery(conn);
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
+                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
             }
         }
 
@@ -170,7 +174,7 @@ public class DataSourceService extends AbstractService {
     public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
         DataSourceMySqlModel model = getDataSourceById(dataSourceId);
         if (model == null) {
-            throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -204,6 +208,12 @@ public class DataSourceService extends AbstractService {
         }
 
         return file;
+    }
+
+    public DataSourceOverviewOutput overview() {
+        Long dataSetCount = dataSetRepository.count();
+        Long bloomFilterCount = bloomFilterRepository.count();
+        return DataSourceOverviewOutput.of(dataSetCount, bloomFilterCount);
     }
 
 }

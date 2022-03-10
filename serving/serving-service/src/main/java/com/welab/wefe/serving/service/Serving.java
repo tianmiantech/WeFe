@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,11 @@
  */
 
 package com.welab.wefe.serving.service;
+
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
@@ -26,14 +31,12 @@ import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
+import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.MemberService;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author hunter.zhao
@@ -63,6 +66,9 @@ public class Serving {
                         case Board:
                             rsaVerifyBoard(params);
                             break;
+                        case Customer:
+                        	rsaVerifyCustomer(params);
+                        	break;
                         default:
                             throw new RuntimeException("Unexpected enumeration value");
                     }
@@ -79,7 +85,35 @@ public class Serving {
         CaptchaService.init();
     }
 
-    /**
+	/**
+	 * rsa Signature check
+	 * <p>
+	 * customer
+	 * </p>
+	 */
+	private static void rsaVerifyCustomer(JSONObject params) throws Exception {
+		SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+		/**
+		 * Find signature information
+		 */
+		ClientService clientService = Launcher.CONTEXT.getBean(ClientService.class);
+		ClientMysqlModel clientMysqlModel = clientService.queryByCode(signedApiInput.getCustomerId());
+
+		if (clientMysqlModel == null) {
+			throw new StatusCodeWithException("Invalid customer_id：" + signedApiInput.getCustomerId(),
+					StatusCode.PARAMETER_VALUE_INVALID);
+		}
+		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
+				RSAUtil.getPublicKey(clientMysqlModel.getPubKey()), signedApiInput.getSign());
+		if (!verified) {
+			throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+		}
+		params.putAll(JSONObject.parseObject(signedApiInput.getData()));
+		// params.putAll(JSONObject.parseObject(RSAUtil.decryptByPublicKey(signedApiInput.getData(), clientMysqlModel.getPubKey())));
+		params.put("customer_id", signedApiInput.getCustomerId());
+	}
+
+	/**
      * rsa Signature check
      * <p>
      * Federal member

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,9 +18,9 @@ package com.welab.wefe.gateway.service;
 
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.service.StorageService;
-import com.welab.wefe.common.enums.JobBackendType;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ThreadUtil;
+import com.welab.wefe.common.wefe.enums.JobBackendType;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.util.SerializeUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;
@@ -71,7 +71,7 @@ public class TransferMetaDataAsyncSaveService {
             LOG.error("transferMeta deserialization fail, path: " + processingTransferMetaData.serializePath, e);
 
             processingTransferMetaData.status = TransferMetaDataSink.PROCESS_STATUS_FAIL;
-            FileUtil.deleteFile(processingTransferMetaData.serializePath);
+            FileUtil.deleteFileOrDir(processingTransferMetaData.serializePath);
             messageService.saveError("数据反序列化失败", e.getMessage());
             return;
         }
@@ -111,6 +111,7 @@ public class TransferMetaDataAsyncSaveService {
                 String fcTableName = TransferMetaUtil.getFCName(transferMeta);
                 // Number of target partitions
                 int fcPartitions = TransferMetaUtil.getFCPartitions(transferMeta);
+                String storageType = TransferMetaUtil.getStorageType(transferMeta);
                 // Own use OTS
                 Map<String, Object> args = new HashMap<>();
                 args.put("fc_partitions", fcPartitions);
@@ -118,22 +119,26 @@ public class TransferMetaDataAsyncSaveService {
                 args.put("fc_name", fcTableName);
                 LOG.info("The amount of data is：" + dateItemModelList.size());
                 LOG.info("flowBackend is：" + flowBackend.toString());
+                LOG.info("storageType: " + storageType);
 
-                if (flowBackend == JobBackendType.FC && "ots".equals(storageType.toLowerCase())) {
+                if ("ots".equalsIgnoreCase(storageType)) {
                     LOG.info("The data from CK has been received and is now uploaded to OTS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
                     args.put("storage_type", "ots");
                     storageService.saveList(dateItemModelList, args);
 
-                } else if (flowBackend == JobBackendType.FC && "oss".equals(storageType.toLowerCase())) {
+                } else if ("oss".equalsIgnoreCase(storageType)) {
                     LOG.info("The data from CK has been received and is now uploaded to OSS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
                     args.put("storage_type", "oss");
                     storageService.saveList(dateItemModelList, args);
-                } else {
+                } else if ("clickhouse".equalsIgnoreCase(storageType)) {
                     // Own use Ck
                     storageService.saveList(dstDbName, dstTableName, dateItemModelList);
                     LOG.info("Data sink finish, session id: {}, sequence no: {}, db name: {}, table name: {}, dst db name: {}, dst table name: {}, data size: {}, time spent: {}", transferMeta.getSessionId(), transferMeta.getSequenceNo(), srcDbName, srcTableName, dstDbName, dstTableName, dataList.size(), (System.currentTimeMillis() - startTime));
 
+                } else {
+                    LOG.error("storage type: " + storageType + " is undefined");
                 }
+
                 processingTransferMetaData.status = TransferMetaDataSink.PROCESS_STATUS_SUCCESS;
                 break;
             } catch (Exception e) {
@@ -149,6 +154,6 @@ public class TransferMetaDataAsyncSaveService {
             // Update status is processing failed
             processingTransferMetaData.status = TransferMetaDataSink.PROCESS_STATUS_FAIL;
         }
-        FileUtil.deleteFile(processingTransferMetaData.serializePath);
+        FileUtil.deleteFileOrDir(processingTransferMetaData.serializePath);
     }
 }

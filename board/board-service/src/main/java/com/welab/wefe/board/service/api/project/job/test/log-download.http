@@ -1,4 +1,4 @@
-POST {{baseUrl}}/job/log/download
+POST http://localhost:8080/board-service/job/log/download
 Content-Type: application/json
 
 {

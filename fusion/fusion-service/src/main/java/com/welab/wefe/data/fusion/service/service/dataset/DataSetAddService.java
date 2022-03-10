@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,13 +67,13 @@ public class DataSetAddService extends AbstractService {
     @Value("${file.filter.dir}")
     private String filterDir;
 
-    public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws StatusCodeWithException, IOException {
+    public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws Exception {
         if (input.getRows().size() > 5 ) {
-            throw new StatusCodeWithException("选择字段数量不宜超过5", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("选择字段数量不宜超过5个", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         if (dataSetRepository.countByName(input.getName()) > 0) {
-            throw new StatusCodeWithException("This dataset name already exists, please change it to another dataset name", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据集名称已存在, 请更改其他名称再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         DataSetMySqlModel model = new DataSetMySqlModel();
@@ -84,39 +84,27 @@ public class DataSetAddService extends AbstractService {
         model.setDataResourceSource(input.getDataResourceSource());
         model.setName(input.getName());
         model.setRows(StringUtil.join(input.getRows(), ','));
-
-        int rowsCount = 0;
         model.setUsedCount(0);
-        model.setRowCount(rowsCount);
+        model.setRowCount(0);
         model.setUpdatedTime(new Date());
+        model.setStatement(input.getSql());
+        model.setSourcePath(input.getFilename());
+        model.setDataSourceId(input.getDataSourceId());
         dataSetRepository.save(model);
 
-        File file = null;
         CommonThreadPool.TASK_SWITCH = true;
+
         if (DataResourceSource.Sql.equals(input.getDataResourceSource())) {
-            model.setDataSourceId(input.getDataSourceId());
-            DataSourceMySqlModel dataSourceMySqlModel = dataSourceService.getDataSourceById(input.getDataSourceId());
-            //String sql = "select * from " + dataSourceMySqlModel.getDatabaseName();
-
-            rowsCount = readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
-            model.setStatement(input.getSql());
+            readAndSaveFromDB(model, input.getDataSourceId(), input.getRows(), input.getSql(), input.isDeduplication());
         } else {
-            file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
-
+            // Parse and save the dataset file
             try {
-                rowsCount = readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
-                model.setSourcePath(input.getFilename());
+                File file = dataSourceService.getDataSetFile(input.getDataResourceSource(), input.getFilename());
+                readAndSaveFromFile(model, file, input.getRows(), input.isDeduplication());
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "File reading failure");
             }
-        }
-
-        if (CommonThreadPool.TASK_SWITCH) {
-            model.setUsedCount(0);
-            model.setRowCount(rowsCount);
-            model.setUpdatedTime(new Date());
-            dataSetRepository.save(model);
         }
 
         AddApi.DataSetAddOutput output = new AddApi.DataSetAddOutput();
@@ -151,16 +139,24 @@ public class DataSetAddService extends AbstractService {
                 : new ExcelDataSetReader(file);
 
         // Gets the data set column header
-        List<String> headers = dataSetReader.getHeader(rows);
+        List<String> headers = dataSetReader.getHeader();
 
         DataSetStorageHelper.createDataSetTable(model.getId(), rows);
-
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, file, rows);
 
-        dataSetReader.readAllWithSelectRow(dataRowConsumer, rows, 0);
+        CommonThreadPool.run(() -> {
+            try {
+                dataSetReader.readAllWithSelectRow(dataRowConsumer, rows, 0);
+            } catch (StatusCodeWithException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            } catch (IOException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            }
+
+        });
 
         // Wait for the consumption queue to complete
-        dataRowConsumer.waitForFinishAndClose();
+//        dataRowConsumer.waitForFinishAndClose();
 
         model.setStoraged(true);
 
@@ -174,13 +170,13 @@ public class DataSetAddService extends AbstractService {
     /**
      * Read data from the specified database according to SQL and save to mysql
      */
-    private int readAndSaveFromDB(DataSetMySqlModel model, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws StatusCodeWithException {
+    private int readAndSaveFromDB(DataSetMySqlModel model, String dataSourceId, List<String> headers, String sql, boolean deduplication) throws Exception {
         long start = System.currentTimeMillis();
         LOG.info("Start parsing the data set：" + model.getId());
 
         DataSourceMySqlModel dsModel = dataSourceService.getDataSourceById(dataSourceId);
         if (dsModel == null) {
-            throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+            throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
         }
 
         JdbcManager jdbcManager = new JdbcManager();
@@ -199,10 +195,10 @@ public class DataSetAddService extends AbstractService {
 
         DataSetAddServiceDataRowConsumer dataRowConsumer = new DataSetAddServiceDataRowConsumer(model, deduplication, rowsCount, headers);
 
-        jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
-//
-//        // Wait for the consumption queue to complete
-        dataRowConsumer.waitForFinishAndClose();
+        CommonThreadPool.run(() -> {
+            jdbcManager.readWithSelectRow(conn, sql, dataRowConsumer, headers);
+        });
+
         model.setStoraged(true);
 
         LOG.info("The dataset is parsed：" + model.getId() + " spend:" + ((System.currentTimeMillis() - start) / 1000) + "s");

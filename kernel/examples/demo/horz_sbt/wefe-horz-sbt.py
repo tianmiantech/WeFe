@@ -63,7 +63,7 @@ def main(config="../../config.yaml", param='./binary_config.yaml', namespace="we
                                    table_name=provider_data_table,
                                    namespace=namespace,
                                    head=1, partition=1)
-    handler_upload.upload(work_mode=work_mode, backend=backend)
+    handler_upload.upload(work_mode=work_mode, backend=backend, db_type=db_type)
 
     handler = Handler(job_id="job_horz_sbt_0001", work_mode=work_mode, backend=backend, db_type=db_type,
                       fl_type="horizontal").set_initiator(role='promoter', member_id=promoter).set_roles(

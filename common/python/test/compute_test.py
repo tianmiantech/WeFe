@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import inspect
+import time
 import uuid
 
 from common.python import session, Backend, RuntimeInstance
@@ -44,11 +45,18 @@ class ComputerTest(object):
         self.map_partition2()
         self.reduce()
         self.join()
+        self.union()
+        self.filter()
+        self.flat_map()
+        self.apply_partitions()
+        self.map_reduce_partitions()
+
 
     def reset_data(self, backend, multi_dataset=1, diff_count=0):
         RuntimeInstance.SESSION = None
-        session.init(job_id="computer-test", db_type=DBTypes.CLICKHOUSE, backend=backend, options={
-            "fc_partition": FunctionConfig.FC_DEFAULT_PARTITION,
+        session.init(job_id="computer-test", db_type=DBTypes.LMDB, backend=backend, options={
+            # "fc_partition": FunctionConfig.FC_DEFAULT_PARTITION,
+            "fc_partition": 2,
             "features_count": 10})
         self.current_backend = backend
 
@@ -260,15 +268,15 @@ class ComputerTest(object):
         self.check_result_and_clear()
 
     def apply_partitions(self):
-        def f(it):
-            r = []
-            for k, v in it:
-                r.append((v, v ** 2, v ** 3))
-            return r
+        def _func(data_list):
+            deal_result = []
+            for item in data_list:
+                deal_result.append((f'mp:{item[0]}', f'mp:{item[1]}'))
+            return deal_result
 
         for backend in self.backend_list:
-            datatable = self.reset_data(backend).apply_partitions(f)
-            self.record_data(datatable, get_function_name())
+            datatable = self.reset_data(backend).applyPartitions(_func)
+            self.record_data(datatable, get_function_name(), True)
         self.check_result_and_clear()
 
     def map_reduce_partitions(self):
@@ -280,7 +288,7 @@ class ComputerTest(object):
             return x + y
 
         for backend in self.backend_list:
-            datatable = self.reset_data(backend).map_reduce_partitions(_map_func, _reduce_func)
+            datatable = self.reset_data(backend).mapReducePartitions(_map_func, _reduce_func)
             self.record_data(datatable, get_function_name())
         self.check_result_and_clear()
 
@@ -316,4 +324,5 @@ def process_pool_test():
 
 
 if __name__ == '__main__':
-    pass
+    ct = ComputerTest(backend_list=[Backend.LOCAL, Backend.FC], data_size=100)
+    ct.main()
