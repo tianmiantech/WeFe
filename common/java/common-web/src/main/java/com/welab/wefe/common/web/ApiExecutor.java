@@ -138,7 +138,7 @@ public class ApiExecutor {
         return result;
     }
 
-    private static void logResponse(Api annotation, ApiResult<?> result) {
+    public static void logResponse(Api annotation, ApiResult<?> result) {
 
         String content = "";
         /**

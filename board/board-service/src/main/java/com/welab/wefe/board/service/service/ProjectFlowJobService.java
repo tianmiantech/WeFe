@@ -743,7 +743,7 @@ public class ProjectFlowJobService extends AbstractService {
 
             AbstractDataIOParam params = (AbstractDataIOParam) Components
                     .get(node.getComponentType())
-                    .deserializationParam(null, node.getParams());
+                    .deserializationParam(node.getParams());
 
             switch (node.getComponentType()) {
                 case DataIO:
