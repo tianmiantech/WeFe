@@ -18,6 +18,7 @@ from visualfl.utils.core_utils import current_datetime,get_commit_id
 import datetime
 import json
 from visualfl.utils.logger import Logger
+from visualfl.utils.consts import TaskStatus
 import logging
 
 class TaskDao(Logger):
@@ -39,6 +40,7 @@ class TaskDao(Logger):
 
                 task.start_time = current_datetime()
                 task.updated_time = current_datetime()
+                task.status = TaskStatus.RUNNING
                 task.save()
         except Exception as e:
             self.exception(e)

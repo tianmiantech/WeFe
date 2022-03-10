@@ -380,7 +380,7 @@ public class ProjectFlowJobService extends AbstractService {
 
         projectFlowService.updateFlowStatus(job.getFlowId(), ProjectFlowStatus.stop_on_running);
 
-        flowActionQueueService.notifyFlow(input, input.getJobId(), FlowActionType.stop_job);
+        flowActionQueueService.stopJob(input, input.getJobId(), project.getProjectType());
 
         gatewayService.syncToOtherJobMembers(job.getJobId(), input, StopJobApi.class);
 
@@ -654,19 +654,19 @@ public class ProjectFlowJobService extends AbstractService {
                 taskResultRepository.save(newResult);
             }
 
-			List<TableDataSetMysqlModel> dataSetModels = tableDataSetService.queryAll(oldJob.getJobId(),
-					node.getComponentType());
+            List<TableDataSetMysqlModel> dataSetModels = tableDataSetService.queryAll(oldJob.getJobId(),
+                    node.getComponentType());
 
-			if (CollectionUtils.isNotEmpty(dataSetModels)) {
-				for (TableDataSetMysqlModel dataSetModel : dataSetModels) {
-					TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
-					BeanUtils.copyProperties(dataSetModel, newDataSetModel);
-					newDataSetModel.setId(new TableDataSetMysqlModel().getId());
-					newDataSetModel.setDerivedFromJobId(newJob.getJobId());
-					newDataSetModel.setDerivedFrom(node.getComponentType());
-					tableDataSetService.save(newDataSetModel);
-				}
-			}
+            if (CollectionUtils.isNotEmpty(dataSetModels)) {
+                for (TableDataSetMysqlModel dataSetModel : dataSetModels) {
+                    TableDataSetMysqlModel newDataSetModel = new TableDataSetMysqlModel();
+                    BeanUtils.copyProperties(dataSetModel, newDataSetModel);
+                    newDataSetModel.setId(new TableDataSetMysqlModel().getId());
+                    newDataSetModel.setDerivedFromJobId(newJob.getJobId());
+                    newDataSetModel.setDerivedFrom(node.getComponentType());
+                    tableDataSetService.save(newDataSetModel);
+                }
+            }
         }
         return newTasks;
     }
@@ -742,7 +742,7 @@ public class ProjectFlowJobService extends AbstractService {
 
             AbstractDataIOParam params = (AbstractDataIOParam) Components
                     .get(node.getComponentType())
-                    .deserializationParam(null, node.getParams());
+                    .deserializationParam(node.getParams());
 
             switch (node.getComponentType()) {
                 case DataIO:

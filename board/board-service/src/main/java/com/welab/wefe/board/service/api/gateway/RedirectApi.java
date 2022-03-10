@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.api.gateway;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.ApiExecutor;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -46,7 +47,13 @@ public class RedirectApi extends AbstractApi<RedirectApi.Input, Object> {
                 new GatewayMemberInfo(input.callerMemberId, input.callerMemberName, input.callerMemberRole)
         );
 
-        return api.execute("gateway", JObject.create(input.data));
+        ApiResult result = api.execute("gateway", JObject.create(input.data));
+
+        // 由于这个 api 对象由 RedirectApi 调用，没有走 ApiExecutor，会导致没有响应日志，所以在这里补一个日志。
+        Api annotation = api.getClass().getAnnotation(Api.class);
+        ApiExecutor.logResponse(annotation, result);
+
+        return result;
 
     }
 

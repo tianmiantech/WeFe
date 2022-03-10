@@ -62,7 +62,7 @@ def _maybe_create_python_venv(machine: dict):
     with fabric.Connection(machine["ssh_string"]) as c:
         version = c.run(
             f"{machine['python_for_venv_create']} "
-            f"-c 'import sys; assert sys.version_info.major >= 3 and sys.version_info.minor >= 6'",
+            f"-c 'import sys; assert sys.version_info.major >= 3 and sys.version_info.minor >= 7'",
             warn=True,
         )
         if version.failed:

@@ -16,6 +16,9 @@
 
 package com.welab.wefe.mpc.pir.protocol.ro.mac;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -25,6 +28,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @Date 2020-11-19
  **/
 public class Sha256MAC extends HashBasedMessageAuthenticationCode {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sha256MAC.class);
 
     Mac mac;
     byte[] key;
@@ -37,7 +41,7 @@ public class Sha256MAC extends HashBasedMessageAuthenticationCode {
             mac = Mac.getInstance(mode);
             mac.init(secretKey);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

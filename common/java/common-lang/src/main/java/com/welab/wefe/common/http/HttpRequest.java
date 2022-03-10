@@ -319,7 +319,6 @@ public class HttpRequest {
                                     .custom()
                                     .setSocketTimeout(socketTimeout)
                                     .setConnectTimeout(connectTimeout)
-
                                     .build()
                     )
                     .setRedirectStrategy(myRedirectStrategy)

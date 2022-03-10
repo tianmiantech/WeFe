@@ -1,5 +1,5 @@
 architecture: SSD
-use_gpu: true
+use_gpu: false
 max_iters: 120001
 snapshot_iter: 10000
 log_iter: 20
@@ -9,7 +9,7 @@ pretrain_weights: https://paddle-imagenet-models-name.bj.bcebos.com/VGG16_caffe_
 save_dir: output
 weights: output/ssd_vgg16_300_voc/model_final
 # 20(label_class) + 1(background)
-num_classes: 21
+num_classes: 4
 
 SSD:
   backbone: VGG
@@ -62,9 +62,9 @@ TrainReader:
     fields: ['image', 'gt_bbox', 'gt_class']
   dataset:
     !VOCDataSet
-    dataset_dir: dataset/voc
-    anno_path: trainval.txt
-    use_default_label: true
+    dataset_dir: dataset/fruit
+    anno_path: train.txt
+    use_default_label: false
   sample_transforms:
   - !DecodeImage
     to_rgb: true
@@ -91,9 +91,6 @@ TrainReader:
     std: [1, 1, 1]
   batch_size: 8
   shuffle: true
-  worker_num: 8
-  bufsize: 16
-  use_process: true
 
 EvalReader:
   inputs_def:
@@ -101,9 +98,9 @@ EvalReader:
     fields: ['image', 'gt_bbox', 'gt_class', 'im_shape', 'im_id', 'is_difficult']
   dataset:
     !VOCDataSet
-    anno_path: test.txt
-    dataset_dir: dataset/voc
-    use_default_label: true
+    anno_path: val.txt
+    dataset_dir: dataset/fruit
+    use_default_label: false
   sample_transforms:
   - !DecodeImage
     to_rgb: true
@@ -120,8 +117,7 @@ EvalReader:
     mean: [104, 117, 123]
     std: [1, 1, 1]
   batch_size: 32
-  worker_num: 8
-  bufsize: 16
+
 
 TestReader:
   inputs_def:
@@ -130,7 +126,7 @@ TestReader:
   dataset:
     !ImageFolder
     anno_path: test.txt
-    use_default_label: true
+    use_default_label: false
   sample_transforms:
   - !DecodeImage
     to_rgb: true
