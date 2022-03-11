@@ -351,11 +351,11 @@
                     </div>
                 </div>
                 <div class="operations_btn">
-                    <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
+                    <el-button v-if="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next" :disabled="vData.stopNext">下一步</el-button>
                     <span v-if="vData.stopNext" class="stop_next_tips">请确保成员数据资源标注标签统一！</span>
-                    <el-form v-if="vData.active === 2" class="mt20">
-                        <el-form-item class="f12">任务操作:</el-form-item>
+                    <div v-show="vData.active === 2" class="mt20">
+                        <p class="f14 mb10">任务操作:</p>
                         <el-button
                             type="primary"
                             @click="methods.saveDeeplearningNode"
@@ -379,7 +379,7 @@
                                 继续运行
                             </el-button>
                         </template>
-                    </el-form>
+                    </div>
                 </div>
             </div>
             <div class="step_header">
