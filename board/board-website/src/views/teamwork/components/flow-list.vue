@@ -113,7 +113,7 @@
                         </el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item>
+                                <el-dropdown-item v-if="!form.project_type === 'DeepLearning'">
                                     <el-button
                                         type="text"
                                         size="small"

@@ -3,7 +3,7 @@
         <el-alert
             v-if="vData.isInResult"
             :title="vData.jobInfo.status"
-            :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
+            :type="vData.jobInfo.status === 'running' || vData.jobInfo.status === 'wait_run' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
             class="fixed_alert"
         >
             <elicon-bell-filled :width="14" :height="14" style="margin-left:-20px; position:relative; top:-7px;" />
@@ -609,6 +609,14 @@
                     nextTick(()=>{
                         if (code === 0 && data) {
                             vData.memberJobDetailList = data;
+
+                            const isRunning = data.filter(x => x.job_status === 'running');
+
+                            if(isRunning) {
+                                setTimeout(() => {
+                                    methods.getJobMemberDetail();
+                                }, 3000);
+                            }
                         }
                     });
                 },
