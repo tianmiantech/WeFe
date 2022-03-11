@@ -405,7 +405,8 @@ CREATE TABLE `task_result`
     KEY              `idx_create_time` (`created_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='task 执行结果';
-
+ALTER TABLE `task_result`
+    ADD INDEX `index_project_serving_model`(`project_id`, `serving_model`, `flow_id`) USING BTREE;
 
 --
 -- 项目表 project

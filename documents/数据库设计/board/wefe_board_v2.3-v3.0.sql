@@ -442,3 +442,10 @@ CREATE TABLE `verification_code` (
 -- -------------------------------------
 ALTER TABLE `task`
     ADD INDEX `index_job_id__role`(`job_id`, `role`) USING BTREE;
+
+-- -------------------------------------
+-- task_result 表加索引
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `task_result`
+    ADD INDEX `index_project_serving_model`(`project_id`, `serving_model`, `flow_id`) USING BTREE;
