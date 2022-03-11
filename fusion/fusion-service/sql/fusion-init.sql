@@ -49,7 +49,7 @@ CREATE TABLE `bloom_filter`
     `process_count`        int(255) DEFAULT NULL COMMENT '处理总数',
     `hash_function`        varchar(255) DEFAULT NULL COMMENT '加密组合方式',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='布隆过滤器';
 
 
 -- data_set definition
@@ -94,7 +94,7 @@ CREATE TABLE `data_source`
     `name`          varchar(255) DEFAULT NULL COMMENT '名称',
     `updated_by`    varchar(255) DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='源数据库';
 
 
 -- field_info definition
@@ -113,7 +113,7 @@ CREATE TABLE `field_info`
     `updated_time` datetime    DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `position`     tinyint(1) NOT NULL COMMENT '位置',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='加密信息';
 
 
 -- global_config definition
@@ -131,7 +131,7 @@ CREATE TABLE `global_config`
     `comment`      text COMMENT '配置项的解释说明',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique_group_name` (`group`,`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置。';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置';
 
 
 -- global_setting definition
@@ -166,7 +166,7 @@ CREATE TABLE `partner`
     `created_time`   datetime     NOT NULL COMMENT '创建时间',
     `updated_time`   datetime    DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='合作方';
 
 
 -- task definition
@@ -197,4 +197,4 @@ CREATE TABLE `task`
     `my_role`            varchar(255)  DEFAULT NULL COMMENT '角色',
     `processed_count`    int(10) DEFAULT NULL COMMENT '处理总数',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC  COMMENT='融合任务';
