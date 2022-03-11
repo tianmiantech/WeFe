@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.project.flow.UpdateFlowGraphApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.api.project.project.AddApi;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
@@ -146,6 +147,15 @@ public class GatewayService extends BaseGatewayService {
 		boolean needSkipOtherPromoters = false;
 		if (input instanceof UpdateApi.Input) {
 			String flowId = ((UpdateApi.Input) input).getFlowId();
+			ProjectFlowMySqlModel flow = projectFlowService.findOne(flowId);
+			if (flow.getFederatedLearningType() == FederatedLearningType.horizontal
+					|| flow.getFederatedLearningType() == FederatedLearningType.vertical) {
+				needSkipOtherPromoters = true;
+			}
+		}
+		
+		else if(input instanceof UpdateFlowGraphApi.Input) {
+			String flowId = ((UpdateFlowGraphApi.Input) input).getFlowId();
 			ProjectFlowMySqlModel flow = projectFlowService.findOne(flowId);
 			if (flow.getFederatedLearningType() == FederatedLearningType.horizontal
 					|| flow.getFederatedLearningType() == FederatedLearningType.vertical) {
