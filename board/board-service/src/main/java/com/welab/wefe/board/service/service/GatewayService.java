@@ -17,8 +17,10 @@
 package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.api.project.project.AddApi;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
@@ -32,6 +34,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -60,6 +63,8 @@ public class GatewayService extends BaseGatewayService {
     private JobMemberService jobMemberService;
     @Autowired
     private GlobalConfigService globalConfigService;
+    @Autowired
+    private ProjectFlowService projectFlowService;
 
     /**
      * Synchronize messages to all job participants
@@ -137,7 +142,17 @@ public class GatewayService extends BaseGatewayService {
         if (me == null) {
             return;
         }
-
+        
+		boolean needSkipOtherPromoters = false;
+		if (input instanceof UpdateApi.Input) {
+			String flowId = ((UpdateApi.Input) input).getFlowId();
+			ProjectFlowMySqlModel flow = projectFlowService.findOne(flowId);
+			if (flow.getFederatedLearningType() == FederatedLearningType.horizontal
+					|| flow.getFederatedLearningType() == FederatedLearningType.vertical) {
+				needSkipOtherPromoters = true;
+			}
+		}
+        
         checkProjectMemberList(members);
         for (ProjectMemberMySqlModel member : members) {
             // Skip self
@@ -159,6 +174,10 @@ public class GatewayService extends BaseGatewayService {
             if (input instanceof AddApi.Input) {
                 ((AddApi.Input) input).setRole(member.getMemberRole());
             }
+
+			if (needSkipOtherPromoters && member.getMemberRole() == JobMemberRole.promoter) {
+				continue;
+			}
             callOtherMemberBoard(member.getMemberId(), me.getMemberRole(), api, input);
 
         }
