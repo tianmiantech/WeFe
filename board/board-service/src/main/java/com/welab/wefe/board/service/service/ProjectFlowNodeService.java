@@ -48,7 +48,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -183,24 +182,6 @@ public class ProjectFlowNodeService {
         }
         // If the node already exists, update it.
         else {
-            // 如果 params 没有变化，则无需更新数据库。
-            if (input.getParams().equals(node.getParams())) {
-
-                // Repeat the update, the DataIO data has not changed,
-                // but the previous operation may not be completed. In order to have a better experience,
-                // the feature selection component list with empty parameters is also returned.
-                if (node.getComponentType() == ComponentType.DataIO) {
-                    List<ProjectFlowNodeMySqlModel> nodes = findNodesByFlowId(node.getFlowId());
-
-                    list = nodes
-                            .stream()
-                            .filter(x -> Components.get(x.getComponentType()).canSelectFeatures() && x.getParams() == null)
-                            .map(x -> ModelMapper.map(x, ProjectFlowNodeOutputModel.class))
-                            .collect(Collectors.toList());
-                }
-                return list;
-            }
-
             node.setParams(input.getParams());
             node.setParamsVersion(System.currentTimeMillis());
             node.setUpdatedBy(input);
@@ -211,7 +192,7 @@ public class ProjectFlowNodeService {
         if (node.getComponentType() == ComponentType.DataIO) {
             List<ProjectFlowNodeMySqlModel> nodes = findNodesByFlowId(node.getFlowId());
             for (ProjectFlowNodeMySqlModel flowNode : nodes) {
-                if (Objects.requireNonNull(Components.get(flowNode.getComponentType())).canSelectFeatures()) {
+                if (Components.get(flowNode.getComponentType()).canSelectFeatures()) {
                     flowNode.setParams(null);
                     projectFlowNodeRepository.save(flowNode);
                     list.add(ModelMapper.map(flowNode, ProjectFlowNodeOutputModel.class));
