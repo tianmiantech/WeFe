@@ -44,6 +44,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -152,6 +153,7 @@ public class ProjectFlowNodeService {
     /**
      * Nodes in the update flow
      */
+    @Transactional(rollbackFor = Exception.class)
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
 
         // Update flow status
