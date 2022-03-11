@@ -17,6 +17,10 @@
 package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.project.flow.AddFlowApi;
+import com.welab.wefe.board.service.api.project.flow.CopyFlowApi;
+import com.welab.wefe.board.service.api.project.flow.DeleteApi;
+import com.welab.wefe.board.service.api.project.flow.UpdateFlowBaseInfoApi;
 import com.welab.wefe.board.service.api.project.flow.UpdateFlowGraphApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.api.project.project.AddApi;
@@ -39,9 +43,10 @@ import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.clickhouse.util.apache.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -143,19 +148,24 @@ public class GatewayService extends BaseGatewayService {
         if (me == null) {
             return;
         }
-        
+
 		boolean needSkipOtherPromoters = false;
+		String flowId = "";
+		// 对流程相关操作特殊处理
 		if (input instanceof UpdateApi.Input) {
-			String flowId = ((UpdateApi.Input) input).getFlowId();
-			ProjectFlowMySqlModel flow = projectFlowService.findOne(flowId);
-			if (flow.getFederatedLearningType() == FederatedLearningType.horizontal
-					|| flow.getFederatedLearningType() == FederatedLearningType.vertical) {
-				needSkipOtherPromoters = true;
-			}
+			flowId = ((UpdateApi.Input) input).getFlowId();
+		} else if (input instanceof UpdateFlowGraphApi.Input) {
+			flowId = ((UpdateFlowGraphApi.Input) input).getFlowId();
+		} else if (input instanceof UpdateFlowBaseInfoApi.Input) {
+			flowId = ((UpdateFlowBaseInfoApi.Input) input).getFlowId();
+		} else if (input instanceof AddFlowApi.Input) {
+			flowId = ((AddFlowApi.Input) input).getFlowId();
+		} else if (input instanceof CopyFlowApi.Input) {
+			flowId = ((CopyFlowApi.Input) input).getSourceFlowId();
+		} else if (input instanceof DeleteApi.Input) {
+			flowId = ((DeleteApi.Input) input).getFlowId();
 		}
-		
-		else if(input instanceof UpdateFlowGraphApi.Input) {
-			String flowId = ((UpdateFlowGraphApi.Input) input).getFlowId();
+		if (StringUtils.isNotBlank(flowId)) {
 			ProjectFlowMySqlModel flow = projectFlowService.findOne(flowId);
 			if (flow.getFederatedLearningType() == FederatedLearningType.horizontal
 					|| flow.getFederatedLearningType() == FederatedLearningType.vertical) {
@@ -189,7 +199,6 @@ public class GatewayService extends BaseGatewayService {
 				continue;
 			}
             callOtherMemberBoard(member.getMemberId(), me.getMemberRole(), api, input);
-
         }
     }
 
