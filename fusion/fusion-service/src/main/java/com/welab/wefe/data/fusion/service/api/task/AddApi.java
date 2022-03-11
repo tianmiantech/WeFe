@@ -52,7 +52,7 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Check(name = "任务名称", require = true, regex = "^.{4,40}$", messageOnInvalid = "任务名称长度不能少于4，不能大于40")
         private String name;
 
-        @Check(name = "描述", regex = "^.{0,1024}$", messageOnInvalid = "你写的描述太多了~")
+        @Check(name = "描述", regex = "^[\\s\\S]{0,1024}$", messageOnInvalid = "你写的描述太多了~")
         private String description;
 
         @Check(name = "合作方成员id", require = true)

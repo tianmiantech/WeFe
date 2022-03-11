@@ -16,7 +16,6 @@
 package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 
 
-
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.StatusCode;
@@ -47,7 +46,8 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        actuator.status = PSIActuatorStatus.success;
+        actuator.status = PSIActuatorStatus.valueOf(input.getStatus());
+        actuator.error = input.getError();
         return success();
     }
 
@@ -55,8 +55,16 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
         @Check(name = "businessId", require = true)
         String businessId;
 
-        public Input(String businessId) {
+        @Check(name = "任务状态", require = true)
+        String status;
+
+        @Check(name = "错误信息")
+        String error;
+
+        public Input(String businessId, String status, String error) {
             this.businessId = businessId;
+            this.status = status;
+            this.error = error;
         }
 
         public String getBusinessId() {
@@ -65,6 +73,22 @@ public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> 
 
         public void setBusinessId(String businessId) {
             this.businessId = businessId;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public String getError() {
+            return error;
+        }
+
+        public void setError(String error) {
+            this.error = error;
         }
     }
 }

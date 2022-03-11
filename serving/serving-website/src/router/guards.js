@@ -1,64 +1,145 @@
 /*!
  * @author claude
- * date 07/05/2019
- * 全局路由守卫
+ * global router guards
  */
 
 /**
- * 实现思路:
- * - 根据 to.meta 判断是否需要登录权限
- *      1, 不需要
- *          - 直接 next
- *          - 登录时访问登录页, 则自动跳转到首页
- *      2, 需要
- *          - 未登录
- *              - 前往登录页并带上当前页地址
- *          - 已登录
- *              - 判断路由是否带有 redirect
+ * thinking path:
+ * - get to.meta go different path
+ *      1, need to login
+ *          1.1 logged in
+ *              1.1.1 url has redirect
+ *                  1.1.1.1 redirect has params
+ *                          to.path === redirect => next
+ *                  1.1.1.2 no params
+ *                          next => redirect
+ *          1.2 not login
+ *              next => login
+ *      2, no need to login
+ *          next
+ *          logged in and to.path === login or like register, go index
  */
 
-import { baseIsLogin } from './auth';
+import { baseIsLogin, setStorage } from './auth';
 
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
+const blacklist = ['register', 'find-password', 'init'];
 
-export default (router) => {
-
-    // 导航前置导航
+export default router => {
     router.beforeEach((to, from, next) => {
-        // 获取登录状态
+        const { baseUrl } = window.api;
         const isLogin = baseIsLogin();
 
-        // 无需登录
-        if (to.matched.some(record => record.meta.requiresAuth === false)) {
-            // 登录后访问了不可访问的路由, 比如登录页
-            if (isLogin && to.matched.some(record => record.meta.requiresLogout)) {
-                router.replace({
-                    path: prefixPath,
-                });
-            }
-        } else {
-            // 需要登录
-            if (!isLogin) {
-                // 没有登录/登录失效则带上当前 url 跳转到登录页
-                let query = {};
-                const { location: { pathname, href } } = window;
+        let inited = setStorage().getItem(`${baseUrl}_system_inited`);
 
-                if (pathname !== prefixPath && !href.includes('?redirect=')) {
-                    query = {
-                        redirect: pathname,
-                    };
+        inited == null ? inited = false : inited = JSON.parse(inited);
+
+        if(isLogin) {
+            if (inited) {
+                if (to.name === 'init') {
+                    next({ name: 'index', replace: true });
                 }
-                router.replace({
-                    name: 'login',
-                    query,
-                });
+            } else if(to.name === 'init') {
+                return next();
+            } else {
+                next({ name: 'init', replace: true });
             }
         }
-        // 最后必须调用 next
+
+        // matched is all path
+        if (to.matched.some(record => record.meta.requiresAuth !== false)) {
+            // need to login
+            if (isLogin) {
+                const { redirect } = from.query;
+
+                if(redirect) {
+                    let pathIsBlackList = false;
+                    const redirectUrl = decodeURIComponent(redirect);
+                    const params = redirectUrl.split('?');
+                    const path = params[0];
+                    const query = params[1];
+                    const queryArr = query && query.length ? query.split(/=|&/) : [];
+                    const queryObject = {};
+
+                    queryArr.forEach((val, i) => {
+                        if (i % 2 === 0) {
+                            queryObject[val] = '';
+                        } else {
+                            queryObject[queryArr[i - 1]] = val;
+                        }
+                    });
+
+                    for (let i = 0; i < blacklist.length; i++) {
+                        if (path === `${prefixPath}${blacklist[i]}`) {
+                            pathIsBlackList = true;
+                            break;
+                        }
+                    }
+
+                    if (pathIsBlackList) {
+                        next();
+                    } else {
+                        if (to.fullPath === redirectUrl) { // break the loop
+                            next();
+                        } else {
+                            next({ path, query: queryObject, replace: true });
+                        }
+                    }
+                } else {
+                    if (inited) {
+                        next();
+                    } else {
+                        if (to.fullPath === `${prefixPath}init`) {
+                            next();
+                        } else {
+                            next({
+                                name:    'init',
+                                replace: true,
+                            });
+                        }
+                    }
+                }
+            } else {
+                next({
+                    path:    `${prefixPath}login`,
+                    query:   { redirect: encodeURIComponent(to.fullPath) },
+                    replace: true,
+                });
+            }
+        } else if (to.matched.some(record => record.meta.requiresLogout)) {
+            // logged in and to.path === login
+            if (isLogin) {
+                next({ name: 'index', replace: true });
+            } else {
+                next();
+            }
+        } else {
+            // no need to login
+            next();
+        }
+    });
+
+    router.beforeResolve((to, from, next) => {
+        const { baseUrl } = window.api;
+        const isLogin = baseIsLogin();
+
+        let inited = setStorage().getItem(`${baseUrl}_system_inited`);
+
+        inited == null ? inited = false : inited = JSON.parse(inited);
+
+        if (isLogin) {
+            if (!inited) {
+                if (to.name !== 'init') {
+                    return next({
+                        name:    'init',
+                        replace: true,
+                    });
+                }
+            }
+        }
         next();
     });
 
-    // 导航后置守卫
     router.afterEach(route => {
         if (route.meta) {
             document.title = route.meta.title || '';

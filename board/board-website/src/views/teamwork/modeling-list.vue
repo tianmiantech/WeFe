@@ -7,7 +7,7 @@
         name="模型列表"
     >
         <h3 class="mb10">模型列表</h3>
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
                 <el-select v-model="vData.search.component_type">
                     <el-option

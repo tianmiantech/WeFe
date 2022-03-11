@@ -37,7 +37,7 @@
                         :disable-transitions="true"
                         class="mr5"
                     />
-                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id, project_id: project_id } }">
+                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id, project_id: project_id, training_type: form.project_type === 'DeepLearning' ? scope.row.deep_learning_job_type : '' } }">
                         {{ scope.row.flow_name }}
                     </router-link>
                 </template>
@@ -82,21 +82,23 @@
                 fixed="right"
             >
                 <template v-slot="scope">
+                    <template v-if="form.project_type === 'DeepLearning'">
+                        <router-link
+                            class="link mr10"
+                            :to="{ name: 'project-deeplearning-flow', query: { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type }}"
+                        >
+                            查看
+                        </router-link>
+                        <router-link
+                            v-if="scope.row.flow_status === 'success'"
+                            class="link mr10"
+                            :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id, project_id: project_id }}"
+                        >
+                            校验
+                        </router-link>
+                    </template>
                     <router-link
-                        class="link mr10"
-                        :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id, project_id: project_id }}"
-                    >
-                        查看
-                    </router-link>
-                    <router-link
-                        v-if="form.project_type === 'DeepLearning' && scope.row.flow_status === 'success'"
-                        class="link mr10"
-                        :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id, project_id: project_id }}"
-                    >
-                        校验
-                    </router-link>
-                    <router-link
-                        v-if="form.project_type !== 'DeepLearning'"
+                        v-else
                         class="link mr10"
                         :to="{ name: 'project-job-history', query: { project_id, flow_id: scope.row.flow_id }}"
                     >
@@ -157,7 +159,7 @@
             destroy-on-close
             width="400px"
         >
-            <el-form>
+            <el-form @submit.prevent>
                 <el-form-item
                     label="选择目标项目："
                     label-width="100px"
@@ -296,7 +298,7 @@
             >
                 <div
                     class="li empty-flow"
-                    @click="createFlow($event, { federated_learning_type: 'PaddleDetection' })"
+                    @click="createFlow($event, { federated_learning_type: 'detection' })"
                 >
                     <span class="model-img f20">
                         目标检测
@@ -304,7 +306,7 @@
                 </div>
                 <div
                     class="li empty-flow"
-                    @click="createFlow($event, { federated_learning_type: 'PaddleClassify' })"
+                    @click="createFlow($event, { federated_learning_type: 'classify' })"
                 >
                     <span class="model-img f20">
                         图像分类
@@ -485,15 +487,19 @@
                 if(this.locker) return;
                 this.locker = true;
 
+                const deeplearning = this.form.project_type === 'DeepLearning';
                 const params = {
                     project_id:            this.project_id,
-                    federatedLearningType: this.form.project_type === 'DeepLearning' ? 'horizontal' : opt.federated_learning_type,
+                    federatedLearningType: deeplearning ? 'horizontal' : opt.federated_learning_type,
                     name:                  `${opt.name || '新流程'}-${this.getDateTime()}`,
                     desc:                  '',
                 };
 
                 if(opt.id) {
                     params.templateId = opt.id;
+                }
+                if(deeplearning) {
+                    params.deepLearningJobType = opt.federated_learning_type;
                 }
 
                 // add loading after 1s
@@ -513,12 +519,12 @@
                 if(code === 0) {
                     const query = {
                         flow_id:       data.flow_id,
-                        training_type: this.form.project_type === 'DeepLearning' ? opt.federated_learning_type : '',
+                        training_type: deeplearning ? opt.federated_learning_type : '',
                         project_id:    this.project_id,
                     };
 
                     this.$router.push({
-                        name: this.form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow',
+                        name: deeplearning ? 'project-deeplearning-flow' : 'project-flow',
                         query,
                     });
                 }

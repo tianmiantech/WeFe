@@ -1,5 +1,5 @@
 <template>
-    <el-form class="f14 mt20">
+    <el-form class="f14 mt20" @submit.prevent>
         <el-form-item v-for="(li, i) in vData.encryptionList" :key="i">
             <el-select
                 v-model="li.features"

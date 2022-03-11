@@ -159,8 +159,8 @@
                 show:          false,
                 sourceTypeMap: {
                     BloomFilter:  '布隆过滤器',
-                    ImageDataSet: 'ImageDataSet',
-                    TableDataSet: '数据集',
+                    ImageDataSet: '图像数据集',
+                    TableDataSet: '结构化数据集',
                 },
                 search: {
                     name:       '',

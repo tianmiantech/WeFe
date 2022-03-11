@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <el-form-item label="聚类数目">
             <el-input v-model="vData.soften_rules"></el-input>
@@ -50,12 +51,8 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0) {
-                        const { params } = data;
-
-                        if(params) {
-                            vData.soften_rules = params.soften_rules;
-                        }
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        vData.soften_rules = data.params.soften_rules;
                         vData.inited = true;
                     }
                 },

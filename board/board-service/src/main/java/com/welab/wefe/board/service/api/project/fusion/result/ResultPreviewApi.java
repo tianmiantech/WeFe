@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/result/preview", name = "结果预览", desc = "结果预览",login = false)
+@Api(path = "fusion/result/preview", name = "结果预览", desc = "结果预览")
 public class ResultPreviewApi extends AbstractApi<ResultPreviewApi.Input, ResultPreviewApi.Output> {
 
     @Autowired
@@ -49,6 +49,10 @@ public class ResultPreviewApi extends AbstractApi<ResultPreviewApi.Input, Result
     protected ApiResult<ResultPreviewApi.Output> handle(Input input) throws Exception {
         FusionTaskMySqlModel model = fusionTaskService.findByBusinessId(input.getBusinessId());
         if (model == null) {
+            return success();
+        }
+
+        if (model.getFusionCount() == 0) {
             return success();
         }
 

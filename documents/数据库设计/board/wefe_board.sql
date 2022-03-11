@@ -375,7 +375,8 @@ CREATE TABLE `task`
     UNIQUE KEY `index_unique_task` (`task_id`, `role`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='子任务 task 是 job 的基本构成单元，也是发送到 wefe-flow 被执行的标准对象。';
-
+ALTER TABLE `task`
+    ADD INDEX `index_job_id__role`(`job_id`, `role`) USING BTREE;
 
 -- ----------------------------
 -- Table structure for task_result
@@ -519,6 +520,7 @@ CREATE TABLE `project_flow`
     `flow_id`                 varchar(36)  NOT NULL COMMENT '流程ID',
     `flow_status`             varchar(32)  NOT NULL COMMENT '流程状态',
     `federated_learning_type` varchar(32)  NOT NULL COMMENT '联邦任务类型（横向/纵向）',
+    `deep_learning_job_type`  varchar(32) COMMENT '深度学习任务类型（classify/detection）',
     `status_updated_time`     datetime(6) COMMENT '状态更新时间',
     `message`                 text COMMENT '相关消息',
     `my_role`                 varchar(32)  NOT NULL COMMENT '我方角色',

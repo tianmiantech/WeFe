@@ -16,6 +16,9 @@
 
 package com.welab.wefe.mpc.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.crypto.Cipher;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +35,8 @@ import java.util.Enumeration;
  * @author zane.luo
  */
 public class RSAUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RSAUtil.class);
 
     public static final String KEY_ALGORITHM = "RSA";
     private static final String SIGN_ALGORITHM = "SHA1withRSA";
@@ -374,7 +379,7 @@ public class RSAUtil {
             }
             return baos.toByteArray();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
         return null;
     }

@@ -11,13 +11,20 @@
             @submit.prevent
         >
             <el-form-item
-                v-if="memberRole !== 'provider'"
+                v-if="myMemberId === memberId"
                 label="上传者："
             >
-                <el-input
+                <el-select
                     v-model="search.creator"
                     clearable
-                />
+                >
+                    <el-option
+                        v-for="item in accounts"
+                        :key="item.id"
+                        :label="item.nickname"
+                        :value="item.id"
+                    />
+                </el-select>
             </el-form-item>
             <el-form-item label="名称：">
                 <el-input
@@ -42,7 +49,7 @@
                     filterable
                 >
                     <el-option
-                        label="ImageDataSet"
+                        label="图像数据集"
                         value="ImageDataSet"
                     />
                 </el-select>
@@ -112,6 +119,7 @@
             :data-add-btn="dataAddBtn"
             :emit-event-name="emitEventName"
             :project-type="projectType"
+            :member-id="memberId"
             @close-dialog="closeDialog"
             @selectDataSet="selectDataSet"
             @batchDataSet="batchDataSet"
@@ -150,6 +158,7 @@
                 jobRole:     '',
                 projectType: '',
                 myMemberId:  '',
+                accounts:    [],
                 search:      {
                     id:               '',
                     name:             '',
@@ -190,6 +199,7 @@
                 handler(val) {
                     if (val) {
                         this.resetSearch();
+                        this.loadMemberList();
                         this.isShow = val;
                         this.$nextTick(_ => {
                             this.$refs['raw'].isShowData = true;
@@ -264,6 +274,18 @@
                     this.myMemberId = this.userInfo.member_id;
                     this.searchList({ resetPagination, $data_set });
                 });
+            },
+            async loadMemberList() {
+                const { code, data } = await this.$http.post({
+                    url:  '/account/query',
+                    data: {
+                        page_size: 100,
+                    },
+                });
+
+                if (code === 0) {
+                    this.accounts = data.list;
+                }
             },
 
             searchList(opt = {}) {

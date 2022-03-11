@@ -64,17 +64,24 @@ export const syncLogin = async (userInfo = {}) => {
 /**
  * force to logout
  */
-export const baseLogout = (opt = { redirect: true }) => {
+export const baseLogout = async (opt = { redirect: true }) => {
     const { baseUrl } = window.api;
+    const { $router, $http } = window.$app;
+    const userInfo = setStorage().getItem(`${baseUrl}_userInfo`);
 
     // reset store & localstorage
+    if (userInfo) {
+        await $http.get({
+            url:         `/logout?token=${JSON.parse(userInfo).token}`,
+            systemError: false,
+        });
+    }
     clearUserInfo();
     setStorage().removeItem(`${baseUrl}_system_inited`);
 
     let query = {};
-    const { $router } = window.$app;
 
-    if(opt.redirect) {
+    if (opt.redirect) {
         if ($router.currentRoute.path !== prefixPath) {
             query = {
                 redirect: $router.currentRoute.fullPath,

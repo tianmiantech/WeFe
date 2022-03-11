@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <el-tabs>
             <el-tab-pane
@@ -132,7 +133,7 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
                         const { params: { members } } = data;
 
                         members.forEach(item => {

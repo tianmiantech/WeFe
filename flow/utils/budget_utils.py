@@ -71,7 +71,7 @@ class BudgetUtils(object):
             function computing day cost
         """
 
-        return self._get_resource_cost(is_month=False) * FC_RESOURCE_UNIT_PRICE + self._get_resource_cost(
+        return self._get_resource_cost(is_month=False) * FC_RESOURCE_UNIT_PRICE + self.get_total_fc_call(
             is_month=False) * FC_CALL_UNIT_PRICE
 
     def _get_resource_cost(self, is_month=True):
@@ -96,6 +96,7 @@ class BudgetUtils(object):
         request.set_Namespace("acs_fc")
         request.set_action_name("DescribeMetricList")
         request.set_MetricName("FunctionOnDemandUsage")
+        request.set_EndTime(self.get_now_time())
         request.set_Dimensions({
             "userId": conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCOUNT_ID),
             "region": conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_REGION),
@@ -134,6 +135,7 @@ class BudgetUtils(object):
         request.set_StartTime(start_time)
         request.set_Namespace("acs_fc")
         request.set_MetricName("FunctionTotalInvocations")
+        request.set_EndTime(self.get_now_time())
         request.set_Dimensions({
             "userId": conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCOUNT_ID),
             "region": conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_REGION),
@@ -148,6 +150,7 @@ class BudgetUtils(object):
 
         for datapoint in data_points:
             total_value += datapoint['Value']
+        print(total_value)
         return total_value / 10000
 
     @staticmethod
@@ -157,3 +160,7 @@ class BudgetUtils(object):
     @staticmethod
     def get_current_daytime():
         return datetime.now().strftime('%Y-%m-%d 00:00:00')
+
+    @staticmethod
+    def get_now_time():
+        return datetime.now()

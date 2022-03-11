@@ -14,6 +14,7 @@ env:
   aggregator_endpoint: 127.0.0.1:12003
   aggregator_assignee: worker2
 data_set:
+  name: xxx
   download_url: http://x.x
 algorithm_config:
   program: paddle_detection

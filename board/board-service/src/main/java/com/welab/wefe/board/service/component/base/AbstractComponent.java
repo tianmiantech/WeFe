@@ -447,7 +447,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Deserialize form parameters into Param objects
      */
-    public T deserializationParam(FlowGraphNode node, String json) throws FlowNodeException {
+    public T deserializationParam(String json) throws StatusCodeWithException {
         if (json == null) {
             json = "{}";
         }
@@ -456,12 +456,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                 .create(json)
                 .toJavaObject(paramsClass);
 
-        // Basic check of entry (non-empty, regular check)
-        try {
-            params.checkAndStandardize();
-        } catch (StatusCodeWithException e) {
-            throw new FlowNodeException(node, e.getMessage());
-        }
+        params.checkAndStandardize();
 
         return params;
     }

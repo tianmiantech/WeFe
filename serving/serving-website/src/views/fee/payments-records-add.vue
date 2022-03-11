@@ -65,7 +65,7 @@
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
-                <router-link
+                <router-link class="ml10"
                     :to="{
                             name: 'payments-records',
                         }"

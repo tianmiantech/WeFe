@@ -30,6 +30,7 @@
 machines:
   - name: machine1
     ip: 127.0.0.1
+    ssh_string: 127.0.0.1:22
     base_dir: /data
     python_for_venv_create: python3 # use to create venv, python3.7+ required
 
@@ -63,7 +64,7 @@ masters:
     machine: machine1
     submit_port: 10002
     cluster: cluster1
-    standalone: True
+    local: false
 
 
 

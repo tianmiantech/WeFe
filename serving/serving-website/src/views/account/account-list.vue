@@ -5,31 +5,24 @@
     >
         <el-form
             inline
-            class="mb20"
             @submit.prevent
         >
             <el-form-item
+                v-if="userInfo.admin_role"
                 label="手机号："
-                label-width="80px"
             >
                 <el-input
                     v-model="search.phone_number"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="姓名："
-                label-width="80px"
-            >
+            <el-form-item label="姓名：">
                 <el-input
                     v-model="search.nickname"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="审核状态："
-                label-width="100px"
-            >
+            <el-form-item label="审核状态：">
                 <el-select
                     v-model="search.audit_status"
                     style="width: 176px;"
@@ -50,14 +43,22 @@
                 </el-select>
             </el-form-item>
             <el-button
+                class="mb10"
                 type="primary"
-                class="inline-block"
                 @click="getList({ to: true })"
             >
                 查询
             </el-button>
         </el-form>
-
+        <div>
+            <el-button
+                v-if="userInfo.super_admin_role"
+                type="danger"
+                @click="transformSuperUserDialog.visible=true"
+            >
+                超级管理员转移
+            </el-button>
+        </div>
         <el-table
             v-loading="loading"
             :data="list"
@@ -90,7 +91,7 @@
                 align="center"
                 width="70"
             >
-                <template v-slot="scope">
+                <template slot-scope="scope">
                     <span
                         v-if="scope.row.admin_role"
                         class="super_admin_role"
@@ -111,7 +112,7 @@
                 align="center"
                 width="100"
             >
-                <template v-slot="scope">
+                <template slot-scope="scope">
                     <span
                         v-if="scope.row.super_admin_role"
                         class="super_admin_role"
@@ -130,15 +131,16 @@
                 label="注册时间"
                 min-width="140"
             >
-                <template v-slot="scope">
+                <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="userInfo.admin_role"
                 min-width="340"
                 label="操作"
             >
-                <template v-slot="scope">
+                <template slot-scope="scope">
                     <template v-if="userInfo.admin_role && userInfo.id !== scope.row.id">
                         <el-button
                             v-if="scope.row.audit_status === 'auditing'"
@@ -292,7 +294,7 @@
             是否将 <strong>{{ userRoleDialog.nickname }}</strong> 设置为 <strong class="primary-color">
                 {{ userRoleDialog.admin_role ? '普通用户' : '管理员' }}
             </strong>?
-            <p class="f12 mt10 color-danger">* 只有管理员能对“全局设置”中的配置项进行变更<br>* 只有超级管理员能对“成员信息”中的配置项进行变更</p>
+            <p class="f12 mt10 color-danger">* 只有超级管理员能对“member信息”中的配置项进行变更</p>
             <template #footer>
                 <el-button
                     type="danger"
@@ -328,13 +330,59 @@
                 </el-button>
             </template>
         </el-dialog>
+        
+        
+        <el-dialog
+            width="440px"
+            title="超级管理员转移"
+            :visible.sync="transformSuperUserDialog.visible"
+            destroy-on-close
+        >
+            <el-alert
+                type="error"
+                title="超级管理员角色转让以后你将变成【普通角色】, 并【失去】所有超级管理员权限! 请谨慎操作"
+                :closable="false"
+            />
+            <el-form
+                label-width="120px"
+                class="flex-form mt30"
+            >
+                <el-form-item
+                    label="选择目标用户"
+                    required
+                >
+                    <el-autocomplete
+                        v-model="transformSuperUserDialog.user"
+                        placeholder="输入姓名或者11位手机号搜索"
+                        :fetch-suggestions="getUsers"
+                        @select="selectUser"
+                        style="width: 260px;"
+                        clearable
+                        @clear="clearSuggestions"
+                    />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button
+                    type="primary"
+                    :disabled="!transformSuperUserDialog.id || transformSuperUserDialog.id === userInfo.id"
+                    @click="transformSuperUser"
+                >
+                    确定
+                </el-button>
+                <el-button @click="transformSuperUserDialog.visible=false">
+                    取消
+                </el-button>
+            </template>
+        </el-dialog>
     </el-card>
 </template>
 
 <script>
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table.js';
-
+	import { baseLogout } from '@src/router/auth';
+	
     export default {
         mixins: [table],
         inject: ['refresh'],
@@ -377,6 +425,11 @@
                     enable:   false,
                     nickname: '',
                     id:       '',
+                },
+                transformSuperUserDialog: {
+                    visible: false,
+                    user:    '',
+                    id:      '',
                 },
             };
         },
@@ -508,6 +561,34 @@
                     });
 
                     cb(list);
+                }
+            },
+            
+            clearSuggestions() {
+                this.transformSuperUserDialog.id = '';
+            },
+
+            selectUser(item) {
+                if(item.id === this.userInfo.id) {
+                    return this.$message.error('不能将超级管理员转移给自己!');
+                }
+                this.transformSuperUserDialog.id = item.id;
+            },
+
+            async transformSuperUser($event) {
+                const { code } = await this.$http.post({
+                    url:  '/super/admin/change',
+                    data: {
+                        id: this.transformSuperUserDialog.id,
+                    },
+                    btnState: {
+                        target: $event,
+                    },
+                });
+
+                if(code === 0) {
+                    baseLogout();
+                    this.$message.success('操作成功, 请重新登录!');
                 }
             },
         },

@@ -23,11 +23,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.api.member.QueryApi;
+import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,7 @@ public class ApiRequestRecordService {
         return apiRequestRecordRepository.findAll(where);
     }
 
-    public PagingOutput<ApiRequestRecordMysqlModel> getListById(QueryListApi.Input input) {
+    public PagingOutput<QueryListApi.Output> getListById(QueryListApi.Input input) {
         Specification<ApiRequestRecordMysqlModel> where = Where
                 .create()
                 .equal("serviceId", input.getServiceId())
@@ -113,7 +114,23 @@ public class ApiRequestRecordService {
                 .orderBy("createdTime", OrderBy.desc)
                 .build(ApiRequestRecordMysqlModel.class);
 
-        return apiRequestRecordRepository.paging(where, input);
+        PagingOutput<ApiRequestRecordMysqlModel> page = apiRequestRecordRepository.paging(where, input);
+
+        List<QueryListApi.Output> list = new ArrayList<>();
+        page.getList()
+                .forEach(x -> {
+                    QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
+                    output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
+                    output.setRequestResult(ServiceResultEnum.getValueByCode(x.getRequestResult()));
+                    list.add(output);
+                });
+
+        return PagingOutput.of(
+                page.getTotal(),
+                list
+        );
+
+//        return apiRequestRecordRepository.paging(where, input);
 
     }
 
@@ -169,6 +186,7 @@ public class ApiRequestRecordService {
             }
         }
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
+        bw.write('\ufeff');
         bw.write(sw.toString());
         bw.flush();
         bw.close();

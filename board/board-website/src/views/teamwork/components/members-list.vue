@@ -385,8 +385,8 @@
                 memberTabName:       '',
                 batchDataSetList:    [],
                 sourceTypeMap:       {
-                    TableDataSet: '数据集',
-                    ImageDataSet: 'ImageDataSet',
+                    TableDataSet: '结构化数据集',
+                    ImageDataSet: '图像数据集',
                     BloomFilter:  '布隆过滤器',
                 },
             };
