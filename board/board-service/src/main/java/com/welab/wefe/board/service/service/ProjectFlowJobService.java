@@ -326,6 +326,10 @@ public class ProjectFlowJobService extends AbstractService {
                         com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob kernelJob = JSONObject.parseObject(x.getTaskConf()).toJavaObject(com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob.class);
                         kernelJob.env.resume = true;
                         x.setTaskConf(JSON.toJSONString(kernelJob));
+
+                        if (x.getStatus() != TaskStatus.success) {
+                            x.setStatus(TaskStatus.wait_run);
+                        }
                         taskRepository.save(x);
                     });
 
