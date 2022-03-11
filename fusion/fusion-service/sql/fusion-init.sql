@@ -197,4 +197,4 @@ CREATE TABLE `task`
     `my_role`            varchar(255)  DEFAULT NULL COMMENT '角色',
     `processed_count`    int(10) DEFAULT NULL COMMENT '处理总数',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC  COMMENT='融合任务';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='融合任务';
