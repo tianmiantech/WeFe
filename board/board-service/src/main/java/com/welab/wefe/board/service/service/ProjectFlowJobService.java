@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.flow.StartFlowApi;
 import com.welab.wefe.board.service.api.project.job.ResumeJobApi;
@@ -325,9 +324,9 @@ public class ProjectFlowJobService extends AbstractService {
                     .filter(x -> x.getTaskType() == ComponentType.PaddleClassify || x.getTaskType() == ComponentType.PaddleDetection)
                     .filter(x -> x.getStatus() != TaskStatus.success)
                     .forEach(x -> {
-                        com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob kernelJob = JSONObject.parseObject(x.getTaskConf()).toJavaObject(com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob.class);
-                        kernelJob.env.resume = true;
-                        x.setTaskConf(JSON.toJSONString(kernelJob));
+                        JSONObject taskConfig = JSONObject.parseObject(x.getTaskConf());
+                        taskConfig.getJSONObject("env").put("resume", true);
+                        x.setTaskConf(taskConfig.toJSONString());
                         x.setMessage("resume task(" + DateUtil.getCurrentDate() + ")");
                         x.setStatus(TaskStatus.wait_run);
                         taskRepository.save(x);
