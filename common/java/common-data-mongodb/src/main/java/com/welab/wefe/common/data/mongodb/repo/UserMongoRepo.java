@@ -20,6 +20,7 @@ import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -77,6 +78,22 @@ public class UserMongoRepo extends AbstractMongoRepo {
     public void changeUserRole(String userId, boolean adminRole) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder().append("adminRole", adminRole).build();
+        mongoManagerTemplate.updateFirst(query, update, User.class);
+    }
+
+    public void enableUser(String userId, boolean enable) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder().append("enable", enable).build();
+        mongoManagerTemplate.updateFirst(query, update, User.class);
+    }
+
+
+    public void auditUser(String userId, AuditStatus auditStatus,String auditComment) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder()
+                .append("auditStatus", auditStatus.name())
+                .append("auditComment", auditComment)
+                .build();
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 

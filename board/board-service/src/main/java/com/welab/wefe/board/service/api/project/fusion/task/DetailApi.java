@@ -35,7 +35,7 @@ import java.math.BigInteger;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/task/detail", name = "任务列表", desc = "任务列表", login = false)
+@Api(path = "fusion/task/detail", name = "任务列表", desc = "任务列表")
 public class DetailApi extends AbstractApi<DetailApi.Input, FusionTaskOutput> {
     @Autowired
     FusionTaskService fusionTaskService;

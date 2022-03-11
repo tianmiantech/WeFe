@@ -21,7 +21,7 @@
                 ref="sign-form"
                 :model="form"
                 inline-message
-                @submit.prevent
+                @submit.native.prevent
             >
                 <el-form-item
                     prop="phone"
@@ -110,13 +110,13 @@
                         </template>
                     </el-input>
                 </el-form-item>
-                <div class="terms">
+                <!-- <div class="terms">
                     <el-checkbox v-model="form.terms">注册即代表同意我们的</el-checkbox>
                     《<span
                         class="el-link el-link--primary"
                         @click="termsDialog=true"
                     >隐私权限</span>》
-                </div>
+                </div> -->
                 <el-divider />
                 <el-button
                     v-loading="submitting"
@@ -265,8 +265,7 @@
                 this.submitting = true;
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
-                        if (!this.form.terms)
-                            return this.$message.error('请先勾选隐私权限');
+                        // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
                         const password = [
                             this.form.phone,
                             this.form.password,

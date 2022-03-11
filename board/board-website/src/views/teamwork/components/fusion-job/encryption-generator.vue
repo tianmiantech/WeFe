@@ -1,5 +1,5 @@
 <template>
-    <el-form class="f14 mt20">
+    <el-form class="f14 mt20" @submit.prevent>
         <el-form-item v-for="(li, i) in vData.encryptionList" :key="i">
             <el-select
                 v-model="li.features"
@@ -32,7 +32,8 @@
             </el-select>
 
             <i class="iconfont icon-circle-plus" @click="methods.addLi" />
-            <i :class="['iconfont', 'icon-circle-minus', { disabled: vData.encryptionList.length === 1 }]" @click="methods.removeLi($event, i)" />
+            <i v-if="vData.encryptionList.length === 1" :class="['iconfont', 'icon-circle-minus', { disabled: vData.encryptionList.length === 1 }]" />
+            <i v-else :class="['iconfont', 'icon-circle-minus', { disabled: vData.encryptionList.length === 1 }]" @click="methods.removeLi($event, i)" />
         </el-form-item>
         <p v-if="hash_func">主键组合方式: {{ hash_func }}</p>
 

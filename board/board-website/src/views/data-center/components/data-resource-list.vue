@@ -32,7 +32,7 @@
                 <span class="p-id">{{ scope.row.id }}</span>
             </template>
         </el-table-column>
-        <el-table-column label="关键词">
+        <el-table-column label="关键词" min-width="140">
             <template v-slot="scope">
                 <template
                     v-for="(item, index) in scope.row.tags.split(',')"
@@ -231,11 +231,11 @@
                         type:  'BloomFilter',
                     },
                     ImageDataSet: {
-                        label: 'ImageDataSet',
+                        label: '图像数据集',
                         type:  'img',
                     },
                     TableDataSet: {
-                        label: 'TableDataSet',
+                        label: '数据集',
                         type:  'csv',
                     },
                 },

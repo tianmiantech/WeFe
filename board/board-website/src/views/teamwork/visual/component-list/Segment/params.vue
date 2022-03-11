@@ -97,12 +97,10 @@
                     });
 
                     vData.loading = false;
-                    if(code === 0) {
+                    if(code === 0 && data && data.params && Object.keys(data.params).length) {
                         const { params } = data;
 
-                        if(params) {
-                            vData.form = params;
-                        }
+                        vData.form = params;
                         vData.inited = true;
                     }
                 },

@@ -48,7 +48,8 @@ public class MysqlStorage extends AbstractStorage {
             String sql = String.format("CREATE TABLE %s (", tbName);
             StringBuilder s = new StringBuilder();
             for (String row : rows) {
-                s.append(row).append(" VARCHAR(32) NOT NULL,");
+                s.append("`").append(row).append("`");
+                s.append(" VARCHAR(160) NOT NULL,");
             }
             if (s.length() > 0) {
                 s = new StringBuilder(s.substring(0, s.length() - 1));
@@ -78,7 +79,7 @@ public class MysqlStorage extends AbstractStorage {
             statement = conn.prepareStatement(sql);
             statement.execute();
         } catch (Exception e) {
-            LOG.error("创建表失败:" + e.getMessage());
+            LOG.error("删除表失败:" + e.getMessage());
         } finally {
             close(statement, conn);
         }
@@ -93,11 +94,20 @@ public class MysqlStorage extends AbstractStorage {
         try {
             List<String> fields = new ArrayList<>(data.keySet());
             List<Object> values = new ArrayList<>(data.values());
-//            checkTB(dbName, tbName);
             conn = getConnection();
             conn.setAutoCommit(false);
-            String sql = "INSERT INTO " + tbName + " (" + StringUtil.join(fields, ",") + ") values(";
 
+            String sql = String.format("INSERT INTO %s (", tbName);
+            StringBuilder s = new StringBuilder();
+            for (String field : fields) {
+                s.append("`").append(field).append("`").append(",");
+            }
+            if (s.length() > 0) {
+                s = new StringBuilder(s.substring(0, s.length() - 1));
+                s.append(") values(");
+            }
+
+            sql = sql + s;
 
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < fields.size(); i++) {
@@ -130,7 +140,19 @@ public class MysqlStorage extends AbstractStorage {
 
         Map<String, Object> d = list.get(0);
         List<String> fields = new ArrayList<>(d.keySet());
-        String sql = "INSERT INTO " + tbName + " (" + StringUtil.join(fields, ",") + ") values(";
+
+        String sql = String.format("INSERT INTO %s (", tbName);
+        StringBuilder s = new StringBuilder();
+        for (String field : fields) {
+            s.append("`").append(field).append("`").append(",");
+        }
+        if (s.length() > 0) {
+            s = new StringBuilder(s.substring(0, s.length() - 1));
+            s.append(") values(");
+        }
+
+        sql = sql + s;
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < fields.size(); i++) {
             sb.append("?").append(",");
@@ -142,7 +164,6 @@ public class MysqlStorage extends AbstractStorage {
         for (Map<String, Object> data : list) {
             try {
                 List<Object> values = new ArrayList<>(data.values());
-//            checkTB(dbName, tbName);
                 StringBuilder check = new StringBuilder();
                 for (int i = 0; i < values.size(); i++) {
                     statement.setString(i + 1, values.get(i).toString());

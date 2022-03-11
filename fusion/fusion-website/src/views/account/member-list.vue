@@ -3,7 +3,7 @@
         <el-form
             inline
             class="mb20"
-            @submit.prevent
+            @submit.native.prevent
         >
             <el-form-item label="成员名称">
                 <el-input v-model="search.name" />

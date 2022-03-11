@@ -8,7 +8,7 @@
             shadow="never"
             class="nav-title mb30"
         >
-            <el-form>
+            <el-form @submit.prevent>
                 <el-alert
                     v-if="project.closed"
                     :title="`该项目已由 ${ project.close_operator_nickname } (${ project.closed_by }) 于 ${ dateFormat(project.closed_time) } 关闭`"
@@ -17,7 +17,7 @@
                 />
                 <el-alert
                     v-if="form.is_exited"
-                    :title="`${exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
+                    :title="`${form.exit_operator_nickname} 已于 ${ dateFormat(form.exited_time) } 退出该项目`"
                     :closable="false"
                     type="error"
                 />
@@ -101,9 +101,9 @@
 
         <MembersList
             ref="membersListRef"
+            :form="form"
             :promoter="promoter"
             :projectType="form.project_type"
-            :form="form"
             @deleteDataSetEmit="deleteDataSetEmit"
         />
 
@@ -307,6 +307,7 @@
                         is_creator,
                         my_role,
                         closed,
+                        exit_operator_nickname,
                         close_operator_nickname,
                         closed_time,
                         closed_by,
@@ -329,13 +330,15 @@
                     this.project.is_exited = is_exited;
 
                     this.form.name = name;
-                    this.form.project_type = project_type;
                     this.form.is_exited = is_exited;
                     this.form.exited_time = exited_time;
+                    this.form.exit_nickname = exit_operator_nickname;
                     this.form.updated_time = updated_time;
+                    this.form.project_type = project_type;
                     this.form.closed = closed;
                     this.form.desc = project_desc;
                     this.form.exited = promoter.exited;
+                    this.form.exit_operator_nickname = exit_operator_nickname;
                     this.form.audit_status = audit_status;
                     this.form.isPromoter = my_role === 'promoter';
                     this.form.isCreator = is_creator || data.is_creator === undefined;
@@ -408,7 +411,27 @@
                     const { memberTabName } = this.$refs['membersListRef'];
 
                     if(!memberTabName) {
-                        this.$refs['membersListRef'].memberTabName = `${this.promoter.member_id}-${this.promoter.member_role}`;
+                        let role;
+
+                        if(this.userInfo.member_id === promoter.member_id) {
+                            role = 'promoter';
+                        } else {
+                            let i = 0;
+
+                            promoter_list.forEach(member => {
+                                if(member.member_id === this.userInfo.member_id) {
+                                    i++;
+                                }
+                            });
+
+                            if(i) {
+                                role = 'promoter';
+                            } else {
+                                role = 'provider';
+                            }
+                        }
+
+                        this.$refs['membersListRef'].memberTabName = `${this.userInfo.member_id}-${role}`;
                     }
 
                     // refresh audit state every 30s

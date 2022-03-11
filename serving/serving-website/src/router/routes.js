@@ -28,7 +28,7 @@ const baseRoutes = [
         children:  [
             {
                 path: `${prefixPath}`,
-                name: 'model-list',
+                name: 'index',
                 meta: {
                     title: '模型列表',
                     index: '0-0',
@@ -214,10 +214,30 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}account`,
+        meta: {
+            title: '用户中心',
+            icon:  'el-icon-user-solid',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}account-list`,
+                name: 'account-list',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '用户列表',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/account/account-list'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}member`,
         meta: {
             title: 'member管理',
-            icon:  'el-icon-user-solid',
+            icon:  'el-icon-user',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -226,7 +246,6 @@ const baseRoutes = [
                 name: 'member-list',
                 meta: {
                     title: '成员列表',
-                    index: '1-0',
                 },
                 component: () => import('@views/member/member-list.vue'),
             },
@@ -235,7 +254,6 @@ const baseRoutes = [
                 name: 'member-view',
                 meta: {
                     title:  '模型详情',
-                    index:  '1-1',
                     hidden: true,
                     active: `${prefixPath}member-view`,
                 },

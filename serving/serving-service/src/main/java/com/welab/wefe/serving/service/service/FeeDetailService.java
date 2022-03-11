@@ -18,17 +18,22 @@ package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.feedetail.QueryListApi;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.FeeDetailOutputModel;
 import com.welab.wefe.serving.service.database.serving.repository.FeeDetailRepository;
 import com.welab.wefe.serving.service.database.serving.repository.FeeRecordRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import com.welab.wefe.serving.service.enums.QueryDateTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -64,8 +69,8 @@ public class FeeDetailService {
     }
 
 
-    public PagingOutput<FeeDetailOutputModel> queryList(QueryListApi.Input input) {
-        List<FeeDetailOutputModel> models = null;
+    public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
+        List<FeeDetailOutputModel> models = new ArrayList<>();
         Integer total = 0;
         if (input.getQueryDateType() == null || input.getQueryDateType() == QueryDateTypeEnum.HOUR.getValue()) {
             models = feeRecordRepository.queryList(input.getClientName(), input.getServiceName(),
@@ -95,8 +100,16 @@ public class FeeDetailService {
                     input.getStartTime(), input.getEndTime());
         }
 
+        List<QueryListApi.Output> list = new ArrayList<>();
+        models.forEach(x -> {
+            QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
+            output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
+            output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
+            list.add(output);
+        });
 
-        return PagingOutput.of(total == null ? 0 : total, models);
+
+        return PagingOutput.of(total == null ? 0 : total, list);
     }
 
     public FeeDetailMysqlModel getByIdAndDateTime(String serviceId, String clientId, Date lastTime) {

@@ -46,7 +46,7 @@
                         ref="sign-form"
                         :model="form"
                         inline-message
-                        @submit.prevent
+                        @submit.native.prevent
                     >
                         <el-form-item
                             prop="phone"
@@ -105,21 +105,23 @@
                         </el-checkbox> -->
                         <div class="sign-action">
                             <el-button
+                                :loading="submitting"
                                 type="primary"
                                 class="login-btn"
                                 size="medium"
+                                native-type="submit"
                                 @click="submit"
                             >
                                 立即登录
                             </el-button>
                         </div>
                         <h4 class="text-r f14 mt20">
-                            <router-link
+                            <!-- <router-link
                                 :to="{name: 'find-password'}"
                                 class="mr20 float-left"
                             >
                                 忘记密码?
-                            </router-link>
+                            </router-link> -->
                             还没有账号?
                             <router-link :to="{ name: 'register', query: { redirect: $route.query.redirect } }">
                                 立即注册

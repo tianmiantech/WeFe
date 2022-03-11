@@ -19,13 +19,15 @@
                         clearable
                     />
                 </el-form-item>
-                <el-button
-                    type="primary"
-                    native-type="submit"
-                    @click="methods.getList"
-                >
-                    搜索
-                </el-button>
+                <el-form-item>
+                    <el-button
+                        type="primary"
+                        native-type="submit"
+                        @click="methods.getList"
+                    >
+                        搜索
+                    </el-button>
+                </el-form-item>
             </el-form>
 
             <el-table
@@ -43,7 +45,7 @@
                 >
                     <template v-slot="scope">
                         {{ scope.row.data_resource.name }}
-                        <p class="p-id">{{ scope.row.data_resource_id }}</p>
+                        <p class="p-id">{{ scope.row.data_resource.data_resource_id }}</p>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -77,7 +79,7 @@
                 >
                     <template v-slot="scope">
                         <p v-if="scope.row.data_resource_type === 'TableDataSet'">
-                            <el-icon v-if="scope.row.contains_y" style="color: #67C23A">
+                            <el-icon v-if="scope.row.data_resource.contains_y" style="color: #67C23A">
                                 <elicon-check />
                             </el-icon>
                             <el-icon v-else>
@@ -96,7 +98,7 @@
                         <p v-if="scope.row.data_resource_type === 'BloomFilter'">
                             样本量：{{ scope.row.data_resource.total_data_count }}
                             <br>
-                            主键组合方式: {{ scope.row.data_resource.hash_function }}
+                            主键组合方式: {{ scope.row.data_resource.hash_function || '无' }}
                         </p>
                         <template v-else>
                             特征量：{{ scope.row.data_resource.feature_count }}
@@ -112,8 +114,8 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    label="上传者"
-                    min-width="120"
+                    label="上传时间"
+                    min-width="140"
                 >
                     <template v-slot="scope">
                         {{ scope.row.creator_nickname }}<br>
@@ -157,8 +159,8 @@
                 show:          false,
                 sourceTypeMap: {
                     BloomFilter:  '布隆过滤器',
-                    ImageDataSet: 'ImageDataSet',
-                    TableDataSet: 'TableDataSet',
+                    ImageDataSet: '图像数据集',
+                    TableDataSet: '结构化数据集',
                 },
                 search: {
                     name:       '',

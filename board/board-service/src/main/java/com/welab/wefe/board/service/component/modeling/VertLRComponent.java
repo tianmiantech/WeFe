@@ -81,7 +81,8 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
                 .append("key_length", 1024)
                 .append("n_splits", params.getCvParam().getnSplits())
                 .append("shuffle", params.getCvParam().isShuffle())
-                .append("need_cv", params.getCvParam().isNeedCv());
+                .append("need_cv", params.getCvParam().isNeedCv())
+                .append("lr_method", params.getOtherParam().getLrMethod());
 
         return output;
     }
@@ -144,6 +145,8 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
         }
 
         public static class OtherParam extends AbstractCheckModel {
+        	@Check(name = "LR算法", require = true)
+        	private String lrMethod;
             @Check(name = "惩罚方式", require = true)
             private String penalty;
 
@@ -183,7 +186,15 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
             @Check(name = "提前结束的迭代次数", require = true)
             private int earlyStoppingRounds;
 
-            public String getPenalty() {
+            public String getLrMethod() {
+				return lrMethod;
+			}
+
+			public void setLrMethod(String lrMethod) {
+				this.lrMethod = lrMethod;
+			}
+
+			public String getPenalty() {
                 return penalty;
             }
 

@@ -17,10 +17,11 @@
 package com.welab.wefe.serving.service.service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,15 +37,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,8 +57,9 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.mpc.cache.result.QueryDataResult;
-import com.welab.wefe.mpc.cache.result.QueryDataResultFactory;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
+import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
@@ -121,6 +121,9 @@ public class ServiceService {
 
 	@Autowired
 	private ClientService clientService;
+	
+	@Autowired
+	private ClientServiceService clientServiceService;
 
 	@Autowired
 	private Config config;
@@ -315,6 +318,8 @@ public class ServiceService {
 		} else {
 			unionServiceService.offline2Union(model);
 		}
+		clientServiceService.updateAllByServiceId(model.getId(), model.getName(), model.getUrl(),
+				model.getServiceType());
 		return output;
 	}
 
@@ -536,9 +541,9 @@ public class ServiceService {
 			throw e;
 		}
 		QueryDiffieHellmanKeyResponse response = service.handle(request);
-		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-		QueryDataResult<Double> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(request.getUuid(), Double.valueOf(resultStr));
+		// 将 0 步骤查询的数据 保存到 CacheOperation
+		CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
+		queryResult.save(request.getUuid(), Constants.RESULT, Double.valueOf(resultStr));
 		return response;
 	}
 
@@ -625,8 +630,6 @@ public class ServiceService {
 			try {
 				config.setTargetIndex(index); // right index
 				result = privateInformationRetrievalQuery.query(config, communicationConfig);
-				System.out.println("index = " + i);
-				System.out.println("result = " + result);
 				results.add(JObject.create("memberId", memberId).append("memberName", memberName).append("index", index)
 						.append("result", result));
 			} catch (Exception e) {
@@ -674,46 +677,69 @@ public class ServiceService {
 			e.printStackTrace();
 			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
 		}
-		// 将 0 步骤查询的数据 保存到 QueryResult -> LocalResultCache
-		QueryDataResult<Map<String, String>> queryResult = QueryDataResultFactory.getQueryDataResult();
-		queryResult.save(uuid, result);
+		// 将 0 步骤查询的数据 保存到 CacheOperation
+		CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
+		queryResult.save(uuid, Constants.RESULT, result);
 		return response;
 	}
 
-	public ResponseEntity<byte[]> exportSdk(String serviceId) throws StatusCodeWithException, FileNotFoundException {
+	public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
 		if (model == null) {
 			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
 		}
 		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-		String basePath = config.getFileBasePath();
+		Path basePath = Paths.get(config.getFileBasePath());
+//		String basePath = config.getFileBasePath();
 		List<File> fileList = new ArrayList<>();
+		File readme = new File(basePath.resolve("readme.md").toString());
 		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "mpc-pir-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			fileList.add(new File(basePath.resolve("mpc-pir-sdk-1.0.0.jar").toString()));
+			fillReadmeFile(model, readme);
 		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "mpc-psi-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			fileList.add(new File(basePath.resolve("mpc-psi-sdk-1.0.0.jar").toString()));
+			fillReadmeFile(model, readme);
 		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
 			// TODO 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath + "mpc-sa-sdk-1.0.0.jar"));
-			fileList.add(new File(basePath + "readme.md"));
+			fileList.add(new File(basePath.resolve("mpc-sa-sdk-1.0.0.jar").toString()));
+			fillReadmeFile(model, readme);
+		} else {
+			fillReadmeFile(null, readme);
 		}
+		fileList.add(readme);
 		String sdkZipName = "sdk.zip";
-		String outputPath = basePath + sdkZipName;
+		String outputPath = basePath.resolve(sdkZipName).toString();
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
 		File file = new File(outputPath);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-		headers.setContentDispositionFormData("attachment", sdkZipName);
-		try {
-			return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+//		HttpHeaders headers = new HttpHeaders();
+//		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//		headers.setContentDispositionFormData("attachment", sdkZipName);
+//		try {
+//			return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+//		}
+		return file;
+	}
+
+	private void fillReadmeFile(ServiceMySqlModel model, File readme) throws IOException {
+		Map<String, Object> valuesMap = new HashMap<>();
+		if (model != null) {
+			valuesMap.put("url", model.getUrl());
+			valuesMap.put("params", model.getQueryParams() == null ? "" : model.getQueryParams());
+			valuesMap.put("desc", model.getName());
+			valuesMap.put("method", "POST");
+			String templateString = "# url:\n" + "	${url}\n" + "	\n" + "# method:\n" + "	${method}\n" + "	\n"
+					+ "# params:\n" + "	${params}\n" + "	\n" + "# desc\n" + "	${desc}";
+			StringSubstitutor sub = new StringSubstitutor(valuesMap);
+			String content = sub.replace(templateString);
+			FileUtils.write(readme, content);
+		} else {
+			FileUtils.write(readme, "readme.md");
 		}
 	}
 

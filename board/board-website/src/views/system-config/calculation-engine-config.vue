@@ -1,30 +1,30 @@
 <template>
     <div class="page" v-loading="vData.loading">
         <el-card class="page_layer">
-            <el-form :model="vData.form" :disabled="!vData.userInfo.admin_role">
+            <el-form
+                :model="vData.form"
+                :disabled="!vData.userInfo.admin_role"
+                @submit.prevent
+                class="config_form"
+            >
                 <el-row :gutter="24">
+                    <el-col>
+                        <el-form-item label="环境：">
+                            <el-radio-group v-model="vData.form.calculation_engine_config.backend" size="small">
+                                <el-radio label="SPARK"></el-radio>
+                                <el-radio label="FC"></el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                    </el-col>
                     <el-divider content-position="left">函数计算相关配置</el-divider>
                     <div class="flex_box">
-                        <el-col :span="12">
-                            <el-form-item label="环境：">
-                                <el-radio-group v-model="vData.form.calculation_engine_config.backend" size="small">
-                                    <el-radio label="SPARK"></el-radio>
-                                    <el-radio label="FC"></el-radio>
-                                </el-radio-group>
-                            </el-form-item>
-                            <el-card :style="{border: vData.form.calculation_engine_config.backend === 'SPARK' ? '1px solid #438bff' : '', boxShadow: '2px 2px 2px insert rgba(67,139,255, .2)', height: '230px'}">
-                                SPARK：
-                                显示一些信息～
-                            </el-card>
-                        </el-col>
-                        <el-col :span="12">
-                            <el-card :style="{marginTop: 88+'px', border: vData.form.calculation_engine_config.backend === 'FC' ? '1px solid #438bff' : ''}">
-                                FC：
-                                <el-form-item label="每日费用上线：">
-                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_day" style="width: 95%" clearable /> <span style="color: #999">¥</span>
+                        <el-col :span="11">
+                            <el-card>
+                                <el-form-item label="每日费用上限：">
+                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_day" style="width: 95%" clearable :disabled="vData.form.calculation_engine_config.backend === 'SPARK'" /> <span style="color: #999">¥</span>
                                 </el-form-item>
-                                <el-form-item label="每月费用上线：">
-                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_month" style="width: 95%" clearable /> <span style="color: #999">¥</span>
+                                <el-form-item label="每月费用上限：">
+                                    <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_month" style="width: 95%" clearable :disabled="vData.form.calculation_engine_config.backend === 'SPARK'" /> <span style="color: #999">¥</span>
                                 </el-form-item>
                             </el-card>
                         </el-col>
@@ -41,7 +41,7 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="飞浆可视化服务地址：">
-                                <el-input v-model="vData.form.deep_learning_config.paddle_visual_dl_base_url" style="width: 86%; margin-right: 5px;" placeholder="请输入地址" clearable />
+                                <el-input v-model="vData.form.deep_learning_config.paddle_visual_dl_base_url" style="width: 82%; margin-right: 5px;" placeholder="请输入地址" clearable />
                                 <el-button type="primary" @click="methods.jumpToNewPage">跳转</el-button>
                             </el-form-item>
                         </div>
@@ -148,5 +148,10 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+}
+.config_form {
+    :deep(.el-form-item) {
+        margin-bottom: 0;
+    }
 }
 </style>

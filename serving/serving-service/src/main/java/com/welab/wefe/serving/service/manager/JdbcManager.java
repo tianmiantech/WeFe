@@ -29,7 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 //import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
@@ -44,7 +45,7 @@ import com.welab.wefe.serving.service.enums.DatabaseType;
  * @date 2020/9/17
  */
 public class JdbcManager {
-	private static final Logger log = Logger.getLogger(JdbcManager.class);
+	private static final Logger log = LoggerFactory.getLogger(JdbcManager.class);
 
 	public JdbcManager() {
 
@@ -145,7 +146,7 @@ public class JdbcManager {
 			}
 
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("queryTables error", e);
 			return tables;
 		} finally {
 			close(conn, ps, rs);
@@ -168,7 +169,7 @@ public class JdbcManager {
 			}
 
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("query error", e);
 			return fieldMap;
 		} finally {
 			close(conn, ps, rs);
@@ -193,7 +194,7 @@ public class JdbcManager {
 			}
 
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("queryList error", e);
 			return result;
 		} finally {
 			close(conn, ps, rs);
@@ -215,7 +216,7 @@ public class JdbcManager {
 			}
 
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("queryTableFields error", e);
 			return fieldMap;
 		} finally {
 			close(conn, ps, rs);
@@ -238,7 +239,6 @@ public class JdbcManager {
 	}
 
 	public void batchInsert(Connection conn, String sql, Set<String> ids) throws SQLException {
-		long start = System.currentTimeMillis();
 		conn.setAutoCommit(false);
 		PreparedStatement ps = null;
 		try {
@@ -259,10 +259,8 @@ public class JdbcManager {
 			ps.executeBatch();
 			conn.commit();
 			ps.clearBatch();
-			long end = System.currentTimeMillis();
-			System.out.println("batch insert duration : " + (end - start));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("batchInsert error", e);
 		} finally {
 			close(conn, ps, null);
 		}
@@ -291,12 +289,7 @@ public class JdbcManager {
 				}
 			}
 		} catch (SQLException e) {
-			log.error(e);
-
-//            if (e instanceof MySQLSyntaxErrorException) {
-//                throw new StatusCodeWithException(StatusCode.SQL_SYNTAX_ERROR);
-//            }
-
+			log.error("testQuery error", e);
 			return false;
 		} finally {
 			close(conn, ps, rs);
@@ -360,7 +353,7 @@ public class JdbcManager {
 				}
 			}
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("readWithSelectRow error", e);
 		} finally {
 			close(conn, ps, rs);
 		}
@@ -408,7 +401,7 @@ public class JdbcManager {
 				}
 			}
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("readWithFieldRow error", e);
 		} finally {
 			close(conn, ps, rs);
 		}
@@ -445,7 +438,7 @@ public class JdbcManager {
 				}
 			}
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("readWithFieldRow error", e);
 		} finally {
 			close(conn, ps, rs);
 		}
@@ -482,7 +475,7 @@ public class JdbcManager {
 				}
 			}
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("readWithFieldRow error", e);
 		} finally {
 			close(conn, ps, rs);
 		}
@@ -504,7 +497,7 @@ public class JdbcManager {
 				totalCount = rs.getLong(1);
 			}
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("count error", e);
 		} finally {
 			close(ps, rs);
 		}
@@ -540,7 +533,7 @@ public class JdbcManager {
 				}
 			}
 		} catch (SQLException e) {
-			log.error(e);
+			log.error("getRowHeaders error", e);
 		} finally {
 			close(ps, rs);
 		}
@@ -553,19 +546,19 @@ public class JdbcManager {
 			try {
 				rs.close();
 			} catch (SQLException e) {
-				log.error(e);
+				log.error("rs.close error", e);
 			}
 		if (ps != null)
 			try {
 				ps.close();
 			} catch (SQLException e) {
-				log.error(e);
+				log.error("ps.close error", e);
 			}
 		if (conn != null)
 			try {
 				conn.close();
 			} catch (SQLException e) {
-				log.error(e);
+				log.error("conn.close error", e);
 			}
 	}
 
@@ -574,14 +567,14 @@ public class JdbcManager {
 			try {
 				rs.close();
 			} catch (SQLException e) {
-				log.error(e);
+				log.error("rs close error", e);
 			}
 		}
 		if (ps != null) {
 			try {
 				ps.close();
 			} catch (SQLException e) {
-				log.error(e);
+				log.error("ps close error", e);
 			}
 		}
 	}

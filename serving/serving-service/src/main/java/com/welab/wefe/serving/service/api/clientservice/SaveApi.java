@@ -55,7 +55,7 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         private String clientId;
 
         @Check(name = "use status")
-        private Integer status = ServiceStatusEnum.USED.getValue();
+        private Integer status = ServiceStatusEnum.USED.getCode();
 
         @Check(name = "pay type")
         private int payType;

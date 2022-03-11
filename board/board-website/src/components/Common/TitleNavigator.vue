@@ -97,11 +97,14 @@
                     if(titles.length) {
                         for (const item of titles) {
                             const title = item.getAttribute('name');
+                            const show = item.getAttribute('show');
 
-                            vData.list.push({
-                                title,
-                                highlight: false,
-                            });
+                            if (show !== 'false') {
+                                vData.list.push({
+                                    title,
+                                    highlight: false,
+                                });
+                            }
                         }
                     }
                 }
@@ -119,7 +122,7 @@
                         const item = titles[i];
                         const { top, bottom } = item.getBoundingClientRect();
 
-                        if(top <= 120 && bottom >= 90) {
+                        if(top <= 120 && bottom >= 90 && vData.list[i]) {
                             vData.list[i].highlight = true;
                         }
                     }

@@ -48,7 +48,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -211,7 +211,7 @@ public class DataResourceService extends AbstractDataResourceService {
 
         // When the PublicLevel is PublicWithMemberList, if list contains yourself,
         // you will be removed, and union will handle the data that you must be visible.
-        if (model.getPublicLevel() == DataSetPublicLevel.PublicWithMemberList) {
+        if (model.getPublicLevel() == DataResourcePublicLevel.PublicWithMemberList) {
             String memberId = CacheObjects.getMemberId();
 
 
@@ -323,6 +323,7 @@ public class DataResourceService extends AbstractDataResourceService {
                 .contains("name", input.getName())
                 .containsItem("tags", input.getTag())
                 .equal("createdBy", input.getCreator())
+                .equal("derivedResource", false)
                 .orderBy("createdTime", OrderBy.asc);
 
         // 查所有资源

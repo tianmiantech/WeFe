@@ -26,9 +26,8 @@ from common.python.common import consts
 from common.python.protobuf.pyproto import intermediate_data_pb2
 from common.python.storage.fc_storage import FCStorage
 from common.python.utils import log_utils, conf_utils, network_utils
-from common.python.utils.core_utils import deserialize
+from common.python.utils.core_utils import deserialize, serialize
 
-# from multiprocessing import Pool
 
 LOGGER = log_utils.get_logger()
 
@@ -233,13 +232,19 @@ class OssStorage(FCStorage):
 
         # encapsulated into the protobuf structure
         intermediate_data = intermediate_data_pb2.IntermediateData()
-        for k, v in partition_data:
-            k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v)
-            item_data = intermediate_data.intermediateData.add()
-            item_data.key = k_bytes
-            item_data.value = v_bytes
-        object_val = intermediate_data.SerializeToString()
 
+        # for k, v in partition_data:
+        #     k_bytes, v_bytes = self.kv_to_bytes(k=k, v=v)
+        #     item_data = intermediate_data.intermediateData.add()
+        #     item_data.key = k_bytes
+        #     item_data.value = v_bytes
+
+        # use batch serialize data
+        intermediate_data.dataFlag = consts.IntermediateDataFlag.BATCH_SERIALIZATION
+        batch_serialize_data = intermediate_data.serializationData
+        batch_serialize_data.value = serialize(partition_data)
+
+        object_val = intermediate_data.SerializeToString()
         self._bucket.put_object(object_key, object_val)
 
     def put_all(self, kv_list: Iterable, use_serialize=True, chunk_size=100000, debug_info=None):
@@ -247,10 +252,9 @@ class OssStorage(FCStorage):
 
         if self._is_fc_env():
             for item_param_list in batch_data:
-                write_partition_data_4poolmap(item_param_list)
+                self.write_partition_data(item_param_list[0], item_param_list[1])
         else:
             with multiprocessing.Pool() as pool:
-                # pool = PROCESS_POOL
                 pool.map(write_partition_data_4poolmap, batch_data)
 
     def put_if_absent(self, k, v, use_serialize=True):
@@ -284,11 +288,21 @@ class OssStorage(FCStorage):
 
             intermediate_data = intermediate_data_pb2.IntermediateData()
             intermediate_data.ParseFromString(obj)
-            for item_data in intermediate_data.intermediateData:
-                if only_key:
-                    yield deserialize(item_data.key)
-                else:
-                    yield deserialize(item_data.key), deserialize(item_data.value)
+
+            if intermediate_data.dataFlag == consts.IntermediateDataFlag.BATCH_SERIALIZATION:
+                serialization_data = intermediate_data.serializationData
+                result_list = deserialize(serialization_data.value)
+                for k, v in result_list:
+                    if only_key:
+                        yield k
+                    else:
+                        yield k, v
+            else:
+                for item_data in intermediate_data.intermediateData:
+                    if only_key:
+                        yield deserialize(item_data.key)
+                    else:
+                        yield deserialize(item_data.key), deserialize(item_data.value)
 
     def collect(self, min_chunk_size=0, use_serialize=True, partition=None, dispersal=True,
                 debug_info=None, only_key=False) -> list:
@@ -341,7 +355,6 @@ class OssStorage(FCStorage):
             else:
 
                 # Multi-process parallel processing
-                # pool = PROCESS_POOL
                 with multiprocessing.Pool() as pool:
 
                     for each_batch_object_index in itertools.zip_longest(*object_key_list):
@@ -374,6 +387,15 @@ class OssStorage(FCStorage):
         for obj in oss2.ObjectIterator(self._bucket, prefix=prefix):
             cnt += self._get_data_count_in_file(obj.key)
         return cnt
+
+    def each_partition_count(self):
+        prefix = self._get_file_dir() + "/"
+        partition_count = dict([(i, 0) for i in range(self._partitions)])
+        for obj in oss2.ObjectIterator(self._bucket, prefix=prefix):
+            p = int(obj.key.replace("\\", "/").split("/")[2])
+            cnt = self._get_data_count_in_file(obj.key)
+            partition_count[p] = partition_count[p] + cnt
+        return partition_count
 
     def take(self, n=1, keysOnly=False, use_serialize=True, partition=None):
         if n <= 0:
@@ -434,9 +456,9 @@ def get_object_data_4poolmap(param_list):
     return list(ins.read_each_object(param_list[0], only_key=param_list[5]))
 
 
-PROCESS_POOL = None
-
 if __name__ == '__main__':
+    pass
     oss_ins = OssStorage("test", "20220125", partitions=10)
-    # oss_ins.put("k", "v")
-    print(list(oss_ins.collect()))
+    oss_ins.count()
+    # # oss_ins.put("k", "v")
+    # print(list(oss_ins.collect()))

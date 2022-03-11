@@ -19,6 +19,7 @@ package com.welab.wefe.fusion.core.actuator;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.utils.FusionThreadPool;
 import org.slf4j.Logger;
@@ -47,16 +48,16 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     public LongAdder fusionCount = new LongAdder();
 
-
+    public volatile String error;
     /**
      * Task start time
      */
-    public long startTime = System.currentTimeMillis();
+    public final long startTime = System.currentTimeMillis();
 
     /**
      * Maximum execution time of a task
      */
-    private TimeSpan maxExecuteTimeSpan = new TimeSpan(30 * 60 * 1000);
+    private TimeSpan maxExecuteTimeSpan = new TimeSpan(15 * 60 * 1000);
 
     /**
      * Maximum execution time
@@ -166,7 +167,7 @@ public abstract class AbstractActuator implements AutoCloseable {
      *
      * @throws StatusCodeWithException
      */
-    public abstract void fusion() throws StatusCodeWithException;
+    public abstract void fusion() throws StatusCodeWithException, InterruptedException;
 
     /**
      * Alignment data into the library implementation method
@@ -198,7 +199,8 @@ public abstract class AbstractActuator implements AutoCloseable {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.info("error: ", e);
-            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage());
+            this.error = e.getMessage();
+            LOG.info("error message: {}", e.getMessage());
         }
     }
 
@@ -208,7 +210,8 @@ public abstract class AbstractActuator implements AutoCloseable {
         while (true) {
             sleep(1000);
 
-            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs() && !isFinish()) {
+            if (System.currentTimeMillis() - startTime < maxExecuteTimeSpan.toMs()
+                    && !isFinish() && StringUtil.isEmpty(error)) {
                 continue;
             }
 

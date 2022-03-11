@@ -54,10 +54,10 @@
                     <p class="p-id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="查看数据集" width="100">
+            <el-table-column label="查看资源" width="100">
                 <template v-slot="scope">
                     <router-link :to="{ name: 'data-list', query: { member_id: scope.row.id }}">
-                        数据集
+                        资源
                     </router-link>
                 </template>
             </el-table-column>
@@ -303,13 +303,14 @@
                 };
             },
             async getFile(fileId, files) {
-                const { code, data, response: { headers: { filename } } } = await this.$http.post({
+                const { code, data, response: { headers } } = await this.$http.post({
                     url:          '/download/file',
                     responseType: 'blob',
                     data:         {
                         fileId,
                     },
                 });
+                const filename = headers.filename || headers.FileName;
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {

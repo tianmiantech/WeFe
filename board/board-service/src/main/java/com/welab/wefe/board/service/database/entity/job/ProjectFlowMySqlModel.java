@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.database.entity.job;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
@@ -43,6 +44,11 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
      */
     @Enumerated(EnumType.STRING)
     private FederatedLearningType federatedLearningType;
+    /**
+     * 深度学习任务类型
+     */
+    @Enumerated(EnumType.STRING)
+    private DeepLearningJobType deepLearningJobType;
     /**
      * 项目ID
      */
@@ -99,6 +105,14 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
 
     public void setFederatedLearningType(FederatedLearningType federatedLearningType) {
         this.federatedLearningType = federatedLearningType;
+    }
+
+    public DeepLearningJobType getDeepLearningJobType() {
+        return deepLearningJobType;
+    }
+
+    public void setDeepLearningJobType(DeepLearningJobType deepLearningJobType) {
+        this.deepLearningJobType = deepLearningJobType;
     }
 
     public String getMessage() {

@@ -22,6 +22,7 @@ import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.BloomfilterAddMethod;
 import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
@@ -44,7 +45,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,14 +156,12 @@ public class BloomFilterService extends DataResourceService {
         // delete bloom_filter from folder
         bloomfilterStorageService.deleteBloomfilter(model.getId());
 
-        // is raw bloom_filter
-        if (model.isDerivedResource()) {
-            // Notify the union to do not public the bloom_filter
-            unionService.doNotPublicDataSet(model);
+        // Notify the union to do not public the bloom_filter
+        unionService.deleteDataResource(model);
 
-            // Refresh the bloom_filter tag list
-            CacheObjects.refreshDataResourceTags(model.getDataResourceType());
-        }
+        // Refresh the bloom_filter tag list
+        CacheObjects.refreshDataResourceTags(model.getDataResourceType());
+
 
     }
 
@@ -175,7 +174,7 @@ public class BloomFilterService extends DataResourceService {
 
         // When the PublicLevel is PublicWithMemberList, if list contains yourself,
         // you will be removed, and union will handle the data that you must be visible.
-        if (model.getPublicLevel() == DataSetPublicLevel.PublicWithMemberList) {
+        if (model.getPublicLevel() == DataResourcePublicLevel.PublicWithMemberList) {
             String memberId = CacheObjects.getMemberId();
 
 
@@ -235,60 +234,22 @@ public class BloomFilterService extends DataResourceService {
             throw new StatusCodeWithException("未找到相应的项目！", StatusCode.ILLEGAL_REQUEST);
         }
 
-        List<ProjectDetailMemberOutputModel> allMemberList = projectMemberService
-                .findListByProjectId(input.getProjectId())
-                .parallelStream()
-                .map(x -> ModelMapper.map(x, ProjectDetailMemberOutputModel.class))
-                .collect(Collectors.toList());
-
-        List<ProjectDataResourceOutputModel> allDataSetList = projectDataSetService.listRawDataSet(input.getProjectId(), null, null, null, null);
-
-
-        // Populate the member's data set list
-        allMemberList.forEach(member ->
-                member.setDataResourceList(
-                        allDataSetList
-                                .stream()
-                                .filter(dataSet ->
-                                        dataSet != null
-                                                && dataSet.getMemberId().equals(member.getMemberId())
-                                                && dataSet.getMemberRole() == member.getMemberRole()
-                                )
-                                .collect(Collectors.toList())
-                )
-        );
-
-        List<ProjectDetailMemberOutputModel> promoters = allMemberList.stream()
-                .filter(x -> x.getMemberRole() == JobMemberRole.promoter).collect(Collectors.toList());
-        ProjectDetailMemberOutputModel promoter = null;
-        if (promoters.size() == 1) {
-            promoter = allMemberList.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter).findFirst()
-                    .orElse(null);
-//            promoters = null;
-        } else if (promoters.size() > 1) {
-            promoter = allMemberList.stream()
-                    .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtils.isBlank(x.getInviterId()))
-                    .findFirst().orElse(null);
-//            String creator = promoter.getMemberId();
-//            promoters = promoters.stream().filter(p -> !p.getMemberId().equals(creator)).collect(Collectors.toList());
-        }
-
-        List<ProjectDetailMemberOutputModel> providers = allMemberList.stream()
-                .filter(x -> x.getMemberRole() == JobMemberRole.provider).collect(Collectors.toList());
-
         BloomFilterDataResourceListOutputModel output = ModelMapper.map(project, BloomFilterDataResourceListOutputModel.class);
 
-        if (input.getRole().equals("promoter") && input.getMemberId().equals(promoter.getMemberId()) && input.getProjectId().equals(promoter.getProjectId())) {
-            output.setDataSetList(promoter.getDataResourceList());
-        }
 
-        if (input.getRole().equals("provider")) {
-            for (ProjectDetailMemberOutputModel provider : providers) {
-                if (input.getProjectId().equals(provider.getProjectId()) && input.getMemberId().equals(provider.getMemberId())) {
-                    output.setDataSetList(provider.getDataResourceList());
-                }
-            }
-        }
+        ProjectMemberMySqlModel memberMySqlModel = projectMemberService.findOneByMemberId(input.getProjectId(), input.getMemberId(), input.getRole());
+        ProjectDetailMemberOutputModel memberOutputModel = ModelMapper.map(memberMySqlModel, ProjectDetailMemberOutputModel.class);
+
+        List<ProjectDataResourceOutputModel> allDataSetList = projectDataSetService.listRawDataSet(input.getProjectId(), null, input.getMemberId(), input.getRole(), null);
+        memberOutputModel.setDataResourceList(
+                allDataSetList.stream().filter(
+                                x -> StringUtils.isEmpty(input.getName()) ? true : x.getDataResource().getName().contains(input.getName()))
+                        .collect(Collectors.toList())
+        );
+
+
+        output.setDataSetList(memberOutputModel.getDataResourceList());
+
         return output;
     }
 

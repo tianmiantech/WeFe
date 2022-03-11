@@ -34,9 +34,7 @@
                     />
                 </el-select>
                 <el-button
-                    size="small"
                     class="ml10"
-                    style="margin-top:2px;"
                     :disabled="item.feature_count === 0 || vData.selectList.length > index + 1"
                     @click="methods.showDialog(item, index)"
                 >
@@ -52,7 +50,6 @@
                 <div class="mt10">
                     <el-button
                         v-if="item.select_count > 0 && item.feature_count > 1 && vData.selectList.length <= index + 1"
-                        size="small"
                         @click="methods.addPolicy"
                     >
                         + 继续筛选
@@ -294,8 +291,8 @@
 
                     nextTick(_ => {
                         vData.loading = false;
-                        if (code === 0) {
-                            const { params } = data || {};
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const { params } = data;
 
                             vData.hasError = '';
                             if (params.members) {
@@ -508,7 +505,7 @@
                                     $checkedColumns:    '',
                                 };
                             });
-                            console.log(vData.manualLastList);
+
                             nextTick(_ => {
                                 CheckFeatureDialogRef.value.methods.show();
                             });

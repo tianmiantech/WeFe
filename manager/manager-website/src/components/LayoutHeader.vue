@@ -128,10 +128,6 @@
 
                 const policy = {
                     async logout() {
-                        await $http.post({
-                            url: '/logout',
-                        });
-
                         vData.loading = false;
                         baseLogout();
                     },

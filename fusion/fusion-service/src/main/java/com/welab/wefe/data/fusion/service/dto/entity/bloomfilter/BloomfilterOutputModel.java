@@ -44,25 +44,6 @@ public class BloomfilterOutputModel extends AbstractOutputModel {
     @Enumerated(EnumType.STRING)
     private DataResourceSource dataResourceSource;
 
-    /**
-     * The exponent publicKey
-     */
-    private String e;
-
-    /**
-     * The publicKey modulus
-     */
-    private String n;
-
-    /**
-     * The exponent privateKey
-     */
-    private String d;
-
-    /**
-     * Bloom filter source file address
-     */
-    private String src;
 
     /**
      * Data article number
@@ -73,11 +54,6 @@ public class BloomfilterOutputModel extends AbstractOutputModel {
      * Use the number
      */
     private int usedCount = 0;
-
-    /**
-     * The file path
-     */
-    private String sourcePath;
 
     /**
      * The SQL statement
@@ -102,7 +78,7 @@ public class BloomfilterOutputModel extends AbstractOutputModel {
     /**
      * 主键hash方式
      */
-    private String hashFusion;
+    private String hashFunction;
 
     DataResourceType type = DataResourceType.BloomFilter;
 
@@ -138,37 +114,6 @@ public class BloomfilterOutputModel extends AbstractOutputModel {
         this.dataResourceSource = dataResourceSource;
     }
 
-    public String getE() {
-        return e;
-    }
-
-    public void setE(String e) {
-        this.e = e;
-    }
-
-    public String getN() {
-        return n;
-    }
-
-    public void setN(String n) {
-        this.n = n;
-    }
-
-    public String getD() {
-        return d;
-    }
-
-    public void setD(String d) {
-        this.d = d;
-    }
-
-    public String getSrc() {
-        return src;
-    }
-
-    public void setSrc(String src) {
-        this.src = src;
-    }
 
     public DataResourceType getType() {
         return type;
@@ -190,13 +135,6 @@ public class BloomfilterOutputModel extends AbstractOutputModel {
         this.usedCount = usedCount;
     }
 
-    public String getSourcePath() {
-        return sourcePath;
-    }
-
-    public void setSourcePath(String sourcePath) {
-        this.sourcePath = sourcePath;
-    }
 
     public String getStatement() {
         return statement;
@@ -234,11 +172,11 @@ public class BloomfilterOutputModel extends AbstractOutputModel {
         this.process = process;
     }
 
-    public String getHashFusion() {
-        return hashFusion;
+    public String getHashFunction() {
+        return hashFunction;
     }
 
-    public void setHashFusion(String hashFusion) {
-        this.hashFusion = hashFusion;
+    public void setHashFunction(String hashFunction) {
+        this.hashFunction = hashFunction;
     }
 }

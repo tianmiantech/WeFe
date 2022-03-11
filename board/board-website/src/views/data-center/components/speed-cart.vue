@@ -37,7 +37,7 @@
             </h4>
         </template>
 
-        <el-form class="flex-form">
+        <el-form class="flex-form" @submit.prevent>
             <el-form-item label="项目名称:" label-width="74px">
                 <el-input v-model.trim="vData.name" clearable />
             </el-form-item>
@@ -63,7 +63,7 @@
                         v-for="(dataset, index) in promoterDataSetList"
                         :key="dataset.id"
                     >
-                        <el-form>
+                        <el-form @submit.prevent>
                             <el-form-item>
                                 <router-link :to="{ name: 'data-view', query: { id: dataset.id }}" class="data-link">
                                     {{ dataset.name }}
@@ -105,7 +105,7 @@
                             v-for="(dataset, index) in providerListMap[member.member_id]"
                             :key="dataset.id"
                         >
-                            <el-form>
+                            <el-form @submit.prevent>
                                 <el-form-item>
                                     <router-link :to="{ name: 'union-data-view', query: { id: dataset.id }}" class="data-link">
                                         {{ dataset.name }}
@@ -377,7 +377,7 @@
         z-index: 10;
         width: 44px;
         height: 44px;
-        padding-top: 10px;
+        padding-top: 13px;
         overflow: visible;
         &:hover{background: #f0f0f0;}
         .num{

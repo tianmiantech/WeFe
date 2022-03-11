@@ -224,6 +224,13 @@ ALTER TABLE `project`
     ADD COLUMN `project_type` varchar(36) NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型' AFTER `flow_status_statistics`;
 
 -- -------------------------------------
+-- project_flow 表增加字段
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `project_flow`
+    ADD COLUMN `deep_learning_job_type` varchar(32) NULL COMMENT '深度学习任务类型（classify/detection）' AFTER `federated_learning_type`;
+
+-- -------------------------------------
 -- project_data_set 表增加字段
 -- author: zane.luo
 -- -------------------------------------
@@ -413,17 +420,25 @@ CREATE TABLE `fusion_result_export_progress`
 
 DROP TABLE IF EXISTS `verification_code`;
 CREATE TABLE `verification_code` (
-  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
-  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
-  `created_time` datetime(6) NOT NULL COMMENT '创建时间',
-  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
-  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
-  `mobile` varchar(30) NOT NULL COMMENT '手机号',
-  `code` varchar(30) NOT NULL COMMENT '验证码',
-  `success` varchar(10) DEFAULT NULL COMMENT 'true：成功，false：失败',
-  `send_channel` varchar(10) DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
-  `business_type` varchar(30) DEFAULT NULL COMMENT '业务类型，memberRegister：成员注册、accountForgetPassword：账号忘记密码',
-  `resp_content` varchar(500) DEFAULT NULL COMMENT '响应内容',
-  `biz_id` varchar(64) DEFAULT NULL COMMENT '业务ID',
-  PRIMARY KEY (`id`) USING BTREE
+                                     `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+                                     `created_by`    varchar(32)  DEFAULT NULL COMMENT '创建人',
+                                     `created_time`  datetime(6) NOT NULL COMMENT '创建时间',
+                                     `updated_by`    varchar(32)  DEFAULT NULL COMMENT '更新人',
+                                     `updated_time`  datetime(6) DEFAULT NULL COMMENT '更新时间',
+                                     `mobile`        varchar(30) NOT NULL COMMENT '手机号',
+                                     `code`          varchar(30) NOT NULL COMMENT '验证码',
+                                     `success`       varchar(10)  DEFAULT NULL COMMENT 'true：成功，false：失败',
+                                     `send_channel`  varchar(10)  DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
+                                     `business_type` varchar(30)  DEFAULT NULL COMMENT '业务类型，memberRegister：成员注册、accountForgetPassword：账号忘记密码',
+                                     `resp_content`  varchar(500) DEFAULT NULL COMMENT '响应内容',
+                                     `biz_id`        varchar(64)  DEFAULT NULL COMMENT '业务ID',
+                                     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';
+
+
+-- -------------------------------------
+-- task 表加索引
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `task`
+    ADD INDEX `index_job_id__role`(`job_id`, `role`) USING BTREE;

@@ -89,44 +89,86 @@ GET http://localhost:8080/board-service/project/flow/node/update?nodeId=16088878
 
 POST http://localhost:8080/board-service/project/flow/node/update
 Content-Type: application/json
-
+token:{{token}}
 
 {
-  "nodeId": "16088893089992860",
-  "componentType": "FeatureStatistic",
-  "flow_id": "a9632fcc436f4400bba1726532475f7b",
+  "nodeId": "16195987735668056",
+  "componentType": "DataIO",
+  "flowId": "fd4606478e734212955ea8dc3f8bcf70",
   "params": {
-    "featureMethods": [
+    "dataset_list": [
       {
-        "name": "Max",
-        "value": ""
-      },
-      {
-        "name": "Min",
-        "value": ""
-      },
-      {
-        "name": "Percentile",
-        "value": 50
-      }
-    ],
-    "members": [
-      {
-        "memberId": "682d087e965a4c5d8a2807a772a571c1",
+        "member_id": "087973c99d26410683944bf3f46c8635",
+        "member_role": "promoter",
+        "data_set_id": "037aa3c2d6134de4868129a0397a2ed2",
         "features": [
+          "x0",
+          "x1",
+          "x2",
+          "x3",
           "x4",
           "x5",
           "x6",
-          "x7"
-        ]
+          "x7",
+          "x8",
+          "x9",
+          "x10",
+          "x11",
+          "x12",
+          "x13",
+          "x14",
+          "x15",
+          "x16",
+          "x17",
+          "x18",
+          "x19",
+          "x20",
+          "x21",
+          "x22",
+          "x23",
+          "x24",
+          "x25",
+          "x26",
+          "x27",
+          "x28"
+        ],
+        "feature_name_list": "x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24,x25,x26,x27,x28",
+        "feature_count": 29,
+        "contains_y": true,
+        "row_count": 11851,
+        "name": "阳光保险"
       },
       {
-        "memberId": "269330b21e1342b48124303e55c75ce0",
+        "member_id": "727c393686b74eb680a0ed8ba539f58a",
+        "member_role": "provider",
+        "data_set_id": "79a33d5dfc2e4dc7a452da928d5aa259",
         "features": [
-          "id",
-          "y",
-          "x1"
-        ]
+          "x0",
+          "x1",
+          "x2",
+          "x3",
+          "x4",
+          "x5",
+          "x6",
+          "x7",
+          "x8",
+          "x9",
+          "x10",
+          "x11",
+          "x12",
+          "x13",
+          "x14",
+          "x15",
+          "x16",
+          "x17",
+          "x18",
+          "x19"
+        ],
+        "feature_name_list": "x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19",
+        "feature_count": 20,
+        "contains_y": false,
+        "row_count": 569,
+        "name": "569-noy"
       }
     ]
   }

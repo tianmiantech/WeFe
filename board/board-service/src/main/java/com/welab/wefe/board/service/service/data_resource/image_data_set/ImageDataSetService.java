@@ -129,7 +129,7 @@ public class ImageDataSetService extends DataResourceService {
         FileUtil.deleteFileOrDir(model.getStorageNamespace());
         CacheObjects.refreshDataResourceTags(model.getDataResourceType());
 
-        unionService.doNotPublicDataSet(model);
+        unionService.deleteDataResource(model);
     }
 
 

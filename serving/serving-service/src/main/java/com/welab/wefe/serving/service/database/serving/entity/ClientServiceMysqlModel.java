@@ -42,7 +42,7 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
     /**
      * status: false means unused, true means used, default = 0
      */
-    private Integer status = ServiceStatusEnum.UNUSED.getValue();
+    private Integer status = ServiceStatusEnum.UNUSED.getCode();
 
     @Column(name = "ip_add")
     private String ipAdd;

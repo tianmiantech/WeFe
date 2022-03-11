@@ -6,13 +6,13 @@ token: {{token}}
 
 {
   "publicLevel": "Public",
-  "name": "zane test9",
+  "name": "zane test10",
   "tags": [
     "12321"
   ],
   "description": "",
   "public_member_list": "",
-  "filename": "fl_fruit.zip",
+  "filename": "fl_fruit_yippee.zip",
   "for_job_type": "detection"
 }
 

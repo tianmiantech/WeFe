@@ -73,8 +73,8 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
                 output = readFromDatabase(input.getDataSourceId(), input.getSql());
             }
         } else {
-
-            File file = bloomfilterService.getBloomfilterFile(input.getBloomfilterAddMethod(), input.getFilename());
+            String filename = input.getFilename();
+            File file = bloomfilterService.getBloomfilterFile(input.getBloomfilterAddMethod(), filename);
             try {
                 output = readFile(file);
             } catch (IOException e) {

@@ -150,7 +150,7 @@ public class AccountService extends AbstractService {
 
         // Check if it's in the small black room
         if (LoginSecurityPolicy.inDarkRoom(phoneNumber)) {
-            throw new StatusCodeWithException("账号已被禁止登陆，请一个小时后再试，或联系管理员。", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("【小黑屋】账号已被禁止登陆，请一个小时后再试。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
@@ -214,7 +214,8 @@ public class AccountService extends AbstractService {
 
         // Check old password
         if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
-            throw new StatusCodeWithException("您输入的旧密码不正确", StatusCode.PARAMETER_VALUE_INVALID);
+            CurrentAccount.logout();
+            throw new StatusCodeWithException("您输入的旧密码不正确，为确保安全，请重新登录后重试。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Regenerate salt
@@ -289,12 +290,42 @@ public class AccountService extends AbstractService {
      * Update user basic information
      */
     public void update(UpdateApi.Input input) throws StatusCodeWithException {
+        /**
+         * 这里分为两种情况
+         * 1. 用户修改自己的资料
+         * 2. 超级管理员把普通用户设置为管理员，或将管理员设置为普通用户。这种情况理论上不应该存在，但是由于档期问题暂时共用一个接口，等前端有时间之后再单独开一个接口。
+         */
+        if (CurrentAccount.id().equals(input.id)) {
+            updateBaseInfo(input);
+        } else {
+            updateAdminRole(input);
+        }
+    }
 
-        AccountMysqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
+    private void updateAdminRole(UpdateApi.Input input) throws StatusCodeWithException {
+        if (!CurrentAccount.isSuperAdmin()) {
+            throw new StatusCodeWithException("非超级管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (input.getAdminRole() == null) {
+            return;
+        }
+
+        AccountMysqlModel account = accountRepository.findById(input.id).orElse(null);
 
         if (account == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
         }
+
+        account.setAdminRole(input.getAdminRole());
+        account.setUpdatedBy(CurrentAccount.id());
+        account.setUpdatedTime(new Date());
+
+        accountRepository.save(account);
+    }
+
+    private void updateBaseInfo(UpdateApi.Input input) throws StatusCodeWithException {
+        AccountMysqlModel account = accountRepository.findById(CurrentAccount.id()).orElse(null);
 
         if (StringUtil.isNotEmpty(input.getNickname())) {
             account.setNickname(input.getNickname());
@@ -302,14 +333,6 @@ public class AccountService extends AbstractService {
 
         if (StringUtil.isNotEmpty(input.getEmail())) {
             account.setEmail(input.getEmail());
-        }
-
-        // Set someone else to be an administrator
-        if (input.getAdminRole() != null) {
-            if (!CurrentAccount.isSuperAdmin()) {
-                throw new StatusCodeWithException("非超级管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
-            }
-            account.setAdminRole(input.getAdminRole());
         }
 
         account.setUpdatedBy(CurrentAccount.id());

@@ -53,7 +53,7 @@ public abstract class AbstractDataSetReader implements Closeable {
         }
 
         if (list.stream().distinct().count() != list.size()) {
-            throw new StatusCodeWithException("The dataset contains duplicate fields. Please handle and re-upload.", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("数据集包含重复的字段。请处理并重新上传.", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         list = list.stream().map(x -> "Y".equals(x) ? "y" : x).collect(Collectors.toList());
@@ -153,6 +153,45 @@ public abstract class AbstractDataSetReader implements Closeable {
             if (count < processCount + 1) {
                 continue;
             }
+
+            List<Object> fields = new ArrayList<>(line.keySet());
+            List<Object> values = new ArrayList<>(line.values());
+            LinkedHashMap<String, Object> newLine = new LinkedHashMap<>();
+            for (int i = 0; i < line.size(); i++) {
+                if (rows.contains(fields.get(i))) {
+                    newLine.put((String) fields.get(i), values.get(i));
+                }
+            }
+
+            dataRowConsumer.accept(newLine);
+
+            readDataRows++;
+
+
+            if (maxReadRows > 0 && readDataRows >= maxReadRows) {
+                break;
+            }
+
+            if (maxReadTimeInMs > 0 && System.currentTimeMillis() - start > maxReadTimeInMs) {
+                break;
+            }
+        }
+    }
+
+    /**
+     * Read data row
+     *
+     * @param dataRowConsumer Data row consumption method
+     * @param maxReadRows     Maximum number of rows that can be read
+     * @param maxReadTimeInMs Maximum read time allowed
+     */
+    public void readWithSelectRow(Consumer<Map<String, Object>> dataRowConsumer, long maxReadRows, long maxReadTimeInMs, List<String> rows) throws StatusCodeWithException {
+
+        long start = System.currentTimeMillis();
+
+        LinkedHashMap<String, Object> line;
+        while ((line = readOneRow()) != null) {
+
 
             List<Object> fields = new ArrayList<>(line.keySet());
             List<Object> values = new ArrayList<>(line.values());

@@ -99,7 +99,7 @@ public class ImageDataSetAddService extends AbstractDataResourceAddService {
                         imageDataSetSampleRepository.save(sample);
                         count.incrementAndGet();
                         if (count.get() % 50 == 0) {
-                            dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get() + 1, 0, "正在保存样本信息...");
+                            dataResourceUploadTaskService.updateProgress(model.getId(), totalCount, count.get(), 0, "正在保存样本信息...");
                             LOG.info("{} 样本信息保存中，当前进度 {}/{}", m.getId(), count.get(), totalCount);
                         }
                     } catch (Exception e) {

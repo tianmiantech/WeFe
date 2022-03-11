@@ -140,6 +140,13 @@ public class VerificationCodeService {
     }
 
     /**
+     * Get send channel
+     */
+    public String getSendChannel() {
+        return config.getVerificationCodeSendChannel();
+    }
+
+    /**
      * save model
      */
     private void save(VerificationCodeMysqlModel model) {

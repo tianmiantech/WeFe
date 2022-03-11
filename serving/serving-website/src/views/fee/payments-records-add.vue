@@ -49,13 +49,15 @@
             <!--                </el-select>-->
             <!--            </el-form-item>-->
 
-            <el-form-item label="金额" prop="amount" class="amount">
+            <el-form-item label="金额(￥)" prop="amount" class="amount">
                 <el-input v-model="paymentsRecords.amount"></el-input>
             </el-form-item>
 
 
             <el-form-item label="备注">
-                <el-input v-model="paymentsRecords.remark" type="textarea"
+                <el-input v-model="paymentsRecords.remark"
+                          type="textarea"
+                          rows="6"
                           :maxlength="300"
                           :minlength="0"
                           show-word-limit
@@ -63,7 +65,7 @@
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
-                <router-link
+                <router-link class="ml10"
                     :to="{
                             name: 'payments-records',
                         }"

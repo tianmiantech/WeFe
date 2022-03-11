@@ -4,13 +4,12 @@
             v-if="vData.isInResult"
             :title="vData.jobInfo.status"
             :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
-            description="点击查看任务详情"
-            show-icon
             class="fixed_alert"
         >
-            <slot>
-                <p @click.stop="methods.jumpToTaskDetail">点击查看任务详情</p>
-            </slot>
+            <elicon-bell-filled :width="14" :height="14" style="margin-left:-20px; position:relative; top:-7px;" />
+            <span style="text-decoration: underline;" class="ml5" @click.stop="methods.jumpToTaskDetail">
+                点击查看任务详情
+            </span>
         </el-alert>
         <div class="deep_flow">
             <div class="left_content">
@@ -44,7 +43,7 @@
                                 />
                             </el-form-item>
                             <el-form-item label="训练类型：">
-                                <p>{{ vData.flowType === 'PaddleDetection' ? '目标检测' : vData.flowType === 'PaddleClassify' ? '图像分类' : '' }}</p>
+                                <p>{{ vData.flowType === 'detection' ? '目标检测' : vData.flowType === 'classify' ? '图像分类' : '' }}</p>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -105,7 +104,7 @@
                                             >
                                                 <el-form-item label="数据资源名称：">
                                                     {{ row.data_resource.name }}
-                                                    <el-icon 
+                                                    <el-icon
                                                         v-if="!vData.disabled"
                                                         class="el-icon-circle-close f16 ml10"
                                                         @click="methods.removeDataSet(index)"
@@ -254,6 +253,7 @@
                                 :search-field="vData.rawSearch"
                                 :paramsExclude="['allList', 'list']"
                                 :project-type="vData.flowInfo.project.project_type"
+                                :member-id="vData.memberId"
                                 @list-loaded="methods.listLoaded"
                                 @selectDataSet="methods.selectDataSet"
                                 @close-dialog="vData.showSelectDataSet=false;"
@@ -351,10 +351,35 @@
                     </div>
                 </div>
                 <div class="operations_btn">
-                    <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
+                    <el-button v-if="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next" :disabled="vData.stopNext">下一步</el-button>
                     <span v-if="vData.stopNext" class="stop_next_tips">请确保成员数据资源标注标签统一！</span>
-                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
+                    <div v-show="vData.active === 2" class="mt20">
+                        <p class="f14 mb10">任务操作:</p>
+                        <el-button
+                            type="primary"
+                            @click="methods.saveDeeplearningNode"
+                            :disabled="vData.flowInfo.my_role !=='promoter'"
+                        >
+                            开始训练
+                        </el-button>
+                        <template v-if="vData.jobInfo.status === 'running'">
+                            <el-button
+                                type="warning"
+                                @click="methods.pause"
+                            >
+                                暂停运行
+                            </el-button>
+                        </template>
+                        <template v-if="vData.jobInfo.status === 'stop_on_running' || vData.jobInfo.status === 'error_on_running'">
+                            <el-button
+                                type="primary"
+                                @click="methods.resume"
+                            >
+                                继续运行
+                            </el-button>
+                        </template>
+                    </div>
                 </div>
             </div>
             <div class="step_header">
@@ -369,11 +394,20 @@
 </template>
 
 <script>
-    import { reactive, getCurrentInstance, ref } from 'vue';
+    import {
+        reactive,
+        getCurrentInstance,
+        nextTick,
+        ref,
+        watch,
+        onBeforeMount,
+        onBeforeUnmount,
+    } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { nextTick, onBeforeMount, watch, onBeforeUnmount } from '@vue/runtime-core';
     import DataSetList from '@comp/views/data-set-list';
     import DeeplearningResult from './components/deeplearning-result.vue';
+
+    const imageAlgorithmList = ['LeNet', 'AlexNet', 'VGG11', 'VGG13', 'VGG16', 'VGG19', 'ShuffleNetV2_x0_25', 'ShuffleNetV2_x0_33', 'ShuffleNetV2_x0_5', 'ShuffleNetV2_x1_0', 'ShuffleNetV2_x1_5', 'ShuffleNetV2_x2_0', 'SqueezeNet1_0', 'SqueezeNet1_1', 'InceptionV4', 'Xception41', 'Xception65', 'Xception71', 'ResNet18', 'ResNet34','ResNet50', 'ResNet101', 'ResNet152', 'ResNet50_vc', 'ResNet101_vc', 'ResNet152_vc', 'ResNet18_vd', 'ResNet34_vd', 'ResNet50_vd', 'ResNet101_vd', 'ResNet152_vd', 'ResNet200_vd', 'SE_ResNet18_vd', 'SE_ResNet34_vd', 'SE_ResNet50_vd', 'SE_ResNet101_vd', 'SE_ResNet152_vd', 'SE_ResNet200_vd', 'SE_ResNeXt50_32x4d', 'SE_ResNeXt101_32x4d', 'SE_ResNeXt152_32x4d', 'SE_ResNeXt50_vd_32x4d', 'SE_ResNeXt101_vd_32x4d', 'SENet154_vd', 'DenseNet121', 'DenseNet161', 'DenseNet169', 'DenseNet201', 'DenseNet264', 'DarkNet53', 'ResNeXt50_64x4d', 'ResNeXt101_64x4d', 'ResNeXt152_64x4d', 'ResNeXt50_32x4d', 'ResNeXt101_32x4d', 'ResNeXt152_32x4d', 'ResNeXt50_vd_64x4d', 'ResNeXt101_vd_64x4d', 'ResNeXt152_vd_64x4d', 'ResNeXt50_vd_32x4d', 'ResNeXt101_vd_32x4d', 'ResNeXt152_vd_32x4d', 'Res2Net50_48w_2s', 'Res2Net50_26w_4s', 'Res2Net50_14w_8s', 'Res2Net50_26w_6s', 'Res2Net50_26w_8s', 'Res2Net101_26w_4s', 'Res2Net152_26w_4s', 'Res2Net50_vd_48w_2s', 'Res2Net50_vd_26w_4s', 'Res2Net50_vd_14w_8s', 'Res2Net50_vd_26w_6s', 'Res2Net50_vd_26w_8s', 'Res2Net101_vd_26w_4s', 'Res2Net152_vd_26w_4s', 'Res2Net200_vd_26w_4s', 'DPN68','DPN92', 'DPN98','DPN107', 'DPN131', 'MobileNetV1_x0_25', 'MobileNetV1_x0_5', 'MobileNetV1_x1_0', 'MobileNetV1_x0_75','MobileNetV3_small_x0_25', 'MobileNetV3_small_x0_5', 'MobileNetV3_small_x0_75', 'MobileNetV3_small_x1_0','MobileNetV3_small_x1_25', 'HRNet_W18_C', 'HRNet_W32_C', 'HRNet_W48_C','HRNet_W64_C'];
 
     export default {
         components: {
@@ -382,10 +416,11 @@
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http, $notify, $message, $bus } = appContext.config.globalProperties;
+            const { $http, $notify, $confirm, $message, $bus } = appContext.config.globalProperties;
             const route = useRoute();
             const router = useRouter();
             const rawDataSetListRef = ref();
+            const { training_type } = route.query;
             const vData = reactive({
                 loading:    false,
                 active:     0,
@@ -396,17 +431,19 @@
                     flow_desc: '',
                 },
                 deepLearnParams: {
-                    program:      route.query.training_type === 'PaddleDetection' ? 'paddle_detection' : route.query.training_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection',
+                    program:      training_type === 'detection' ? 'paddle_detection' : training_type === 'classify' ? 'paddle_clas' : 'paddle_detection',
                     max_iter:     10,
                     inner_step:   10,
-                    architecture: route.query.training_type === 'PaddleDetection' ? 'YOLOv3' : route.query.training_type === 'PaddleClassify' ? 'LeNet' : '',
+                    architecture: training_type === 'detection' ? 'yolov3_darknet_voc' : training_type === 'classify' ? 'LeNet' : 'ppyolo_r18vd',
                     // num_classes:  3,
                     base_lr:      0.00001,
                     image_shape:  [],
                     batch_size:   128,
                 },
                 image_shape: {
-                    aisle: 3,
+                    aisle:  3,
+                    width:  224,
+                    height: 224,
                 },
                 flowInfo: {
                     project_id: '',
@@ -436,61 +473,36 @@
                 ],
                 targetAlgorithmList: [
                     {
-                        label: 'Faster R-CNN',
-                        value: 'Faster R-CNN',
+                        label: 'ppyolo_r18vd',
+                        value: 'ppyolo_r18vd',
                     },
                     {
-                        label: 'Mask R-CNN',
-                        value: 'Mask R-CNN',
+                        label: 'ssd_vgg16_300_voc',
+                        value: 'ssd_vgg16_300_voc',
                     },
                     {
-                        label: 'Cascade R-CNN',
-                        value: 'Cascade R-CNN',
+                        label: 'ssd_vgg16_512_voc',
+                        value: 'ssd_vgg16_512_voc',
                     },
                     {
-                        label: 'YOLOv3',
-                        value: 'YOLOv3',
+                        label: 'yolov3_darknet_voc',
+                        value: 'yolov3_darknet_voc',
                     },
                     {
-                        label: 'YOLOv4',
-                        value: 'YOLOv4',
+                        label: 'yolov3_mobilenet_v1_voc',
+                        value: 'yolov3_mobilenet_v1_voc',
                     },
                     {
-                        label: 'PP-YOLO',
-                        value: 'PP-YOLO',
+                        label: 'yolov3_r34_voc',
+                        value: 'yolov3_r34_voc',
                     },
                     {
-                        label: 'SSD',
-                        value: 'SSD',
+                        label: 'yolov4_cspdarknet_voc',
+                        value: 'yolov4_cspdarknet_voc',
                     },
                 ],
-                imageAlgorithmList: [
-                    {
-                        label: 'LeNet',
-                        value: 'LeNet',
-                    },
-                    {
-                        label: 'AlexNet',
-                        value: 'AlexNet',
-                    },
-                    {
-                        label: 'GoogleNet',
-                        value: 'GoogleNet',
-                    },
-                    {
-                        label: 'VGGNet',
-                        value: 'VGGNet',
-                    },
-                    {
-                        label: 'ResNet',
-                        value: 'ResNet',
-                    },
-                    {
-                        label: 'DenseNet',
-                        value: 'DenseNet',
-                    },
-                ],
-                formImageDataIO: {
+                imageAlgorithmList: [],
+                formImageDataIO:    {
                     componentType: 'ImageDataIO',
                     flowId:        '',
                     nodeId:        '',
@@ -518,13 +530,26 @@
                 imageDataIONodeId:   '',
                 showDataIOResult:    false,
                 showDLResult:        false,
-                flowType:            route.query.training_type || 'PaddleDetection',
+                flowType:            training_type || 'detection',
                 isAllLabel:          false,
                 activeName:          'param',
                 isInResult:          false,
                 stopNext:            false,
                 memberJobDetailList: [],
             });
+
+            if(vData.flowType === 'detection') {
+                vData.image_shape.width = 608;
+                vData.image_shape.height = 608;
+            }
+
+            vData.imageAlgorithmList = imageAlgorithmList.map(x => {
+                return {
+                    label: x,
+                    value: x,
+                };
+            });
+
             const methods = {
                 async getFlowInfo() {
                     vData.startLoading = true;
@@ -630,7 +655,7 @@
                                     label: '训练',
                                     type:  'flow-node',
                                     data:  {
-                                        componentType: vData.flowType,
+                                        componentType: vData.flowType === 'detection' ? 'PaddleDetection' : 'PaddleClassify',
                                     },
                                 },
                             ],
@@ -670,6 +695,9 @@
                 next() {
                     vData.prevActive = vData.active;
                     if (vData.active++ > 2) vData.active = 0;
+                    if(vData.active === 1) {
+                        // 检查数据集是否被选
+                    }
                     if (vData.prevActive === 1 && vData.active === 2) {
                         // 保存数据资源信息
                         methods.saveImageDataIOInfo();
@@ -816,7 +844,7 @@
                         ref.searchField.member_role = vData.currentItem.member_role;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
                         ref.searchField.data_resource_type = 'ImageDataSet';
-                        ref.searchField.forJobType = vData.flowType === 'PaddleDetection' ? 'detection' : vData.flowType === 'PaddleClassify' ? 'classify' : '';
+                        ref.searchField.forJobType = vData.flowType || '';
                         ref.isFlow = true;
 
                         ref.getDataList({
@@ -985,12 +1013,12 @@
                     });
 
                     nextTick(() => {
-                        if (code === 0) {
-                            const { params } = data || {};
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const { params } = data;
 
                             vData.deepLearnNodeId = data.node_id;
                             vData.flowType = data.component_type;
-                            vData.deepLearnParams.program = data.component_type === 'PaddleDetection' ? 'paddle_detection' : data.component_type === 'PaddleClassify' ? 'paddle_clas' : 'paddle_detection';
+                            vData.deepLearnParams.program = data.component_type === 'detection' ? 'paddle_detection' : data.component_type === 'classify' ? 'paddle_clas' : 'paddle_detection';
                             if (params) {
                                 if (params.image_shape.length) {
                                     vData.image_shape.aisle = params.image_shape[0] || 3;
@@ -1082,13 +1110,65 @@
                         if(code === 0) {
                             if(data.job_id) {
                                 $message.success('启动成功! ');
-                                router.replace({
-                                    name:  'project-detail',
-                                    query: { project_id: vData.flowInfo.project_id },
-                                });
+                                methods.getJobDetail();
+
                             }
                         }
                         vData.startLoading = false;
+                    });
+                },
+                pause() {
+                    $confirm('确定要暂停任务吗', '警告', {
+                        type: 'warning',
+                    }).then(async action => {
+                        if(action === 'confirm') {
+                            vData.startLoading = true;
+                            const { code, data } = await $http.post({
+                                url:  '/flow/job/stop',
+                                data: {
+                                    jobId: vData.jobInfo.job_id,
+                                },
+                            });
+
+                            nextTick(_ => {
+                                vData.startLoading = false;
+                                if(code === 0) {
+                                    setTimeout(() => {
+                                        methods.getJobDetail();
+                                    }, 500);
+                                    $message.success('操作成功! 请稍后');
+                                } else {
+                                    $message.error(data.message || '未知错误');
+                                }
+                            });
+                        }
+                    });
+                },
+                resume() {
+                    $confirm('确定要继续执行任务吗', '警告', {
+                        type: 'warning',
+                    }).then(async action => {
+                        if(action === 'confirm') {
+                            vData.startLoading = true;
+                            const { code, data } = await $http.post({
+                                url:  '/flow/job/resume',
+                                data: {
+                                    jobId: vData.jobInfo.job_id,
+                                },
+                            });
+
+                            nextTick(_ => {
+                                vData.startLoading = false;
+                                if(code === 0) {
+                                    setTimeout(() => {
+                                        methods.getJobDetail();
+                                    }, 500);
+                                    $message.success('操作成功! 请稍后');
+                                } else {
+                                    $message.error(data.message || '未知错误');
+                                }
+                            });
+                        }
                     });
                 },
             };
@@ -1138,13 +1218,11 @@
     .fixed_alert {
         position: fixed;
         left: 50%;
-        transform: translateX(-50%);
-        z-index: 2;
+        z-index:20;
         width: 30%;
+        transform: translateX(-50%);
+        padding-left: 20px;
         cursor: pointer;
-        :deep(.el-alert__description) {
-            text-decoration: underline;
-        }
     }
 }
 .deep_flow {

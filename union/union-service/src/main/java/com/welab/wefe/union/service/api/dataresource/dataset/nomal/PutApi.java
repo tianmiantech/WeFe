@@ -22,7 +22,7 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.DataSetOutput;
 import com.welab.wefe.union.service.entity.DataSet;
@@ -53,15 +53,15 @@ public class PutApi extends AbstractApi<PutApi.Input, DataSetOutput> {
 
         String publicMemberList = input.publicMemberList;
 
-        if (DataSetPublicLevel.OnlyMyself.name().equals(input.publicLevel)) {
+        if (DataResourcePublicLevel.OnlyMyself.name().equals(input.publicLevel)) {
             mDataSetMemberPermissionContractService.deleteByDataSetId(dataSet.getId());
             dataSet.setPublicLevel(input.publicLevel);
 
-        } else if (DataSetPublicLevel.Public.name().equals(input.publicLevel)) {
+        } else if (DataResourcePublicLevel.Public.name().equals(input.publicLevel)) {
             mDataSetMemberPermissionContractService.deleteByDataSetId(dataSet.getId());
             dataSet.setPublicLevel(input.publicLevel);
 
-        } else if (DataSetPublicLevel.PublicWithMemberList.name().equals(input.publicLevel)) {
+        } else if (DataResourcePublicLevel.PublicWithMemberList.name().equals(input.publicLevel)) {
             mDataSetMemberPermissionContractService.save(dataSet.getId(), publicMemberList);
             dataSet.setPublicLevel(input.publicLevel);
 

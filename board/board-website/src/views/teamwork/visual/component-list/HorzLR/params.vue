@@ -5,8 +5,10 @@
         <h4 class="mb10">HorzLR参数设置</h4>
         <el-form
             ref="form"
+            class="flex-form"
             :model="vData.form"
             :disabled="disabled"
+            @submit.prevent
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
@@ -328,9 +330,7 @@
 .el-form-item{
     margin-bottom: 10px;
     :deep(.el-form-item__label){
-        text-align: left;
-        font-size: 12px;
-        display: block;
+        flex:1;
     }
 }
 .el-collapse-item {

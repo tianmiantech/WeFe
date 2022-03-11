@@ -26,19 +26,17 @@
 #|                                 machine1    |       |                                   machine2   |
 #+---------------------------------------------+       +----------------------------------------------+
 
-
-
 machines:
   - name: machine1
-    ip:
-    ssh_string:  # [user@]ip:port
-    base_dir: /data
+    ip: xxx
+    ssh_string: xxx@xxxx # [user@]ip:port
+    base_dir: /data/visualfl
     python_for_venv_create: python3 # use to create venv
 
   - name: machine2
-    ip:
-    ssh_string:
-    base_dir: /data/projects/visualfl
+    ip: xxx
+    ssh_string: xxx@xxxx
+    base_dir: /data/visualfl
     python_for_venv_create: python3
 
 
@@ -53,23 +51,23 @@ clusters:
         ports: 12000-12999
         max_tasks: 10
       - name: worker2
-        machine: machine2
+        machine: machine1
         ports: 13000-13999
         max_tasks: 10
 
   - name: cluster2
-      manager:
+    manager:
+      machine: machine2
+      port: 10001
+    workers:
+      - name: worker1
         machine: machine2
-        port: 10001
-      workers:
-        - name: worker1
-          machine: machine1
-          ports: 12000-12999
-          max_tasks: 10
-        - name: worker2
-          machine: machine2
-          ports: 13000-13999
-          max_tasks: 10
+        ports: 12000-12999
+        max_tasks: 10
+      - name: worker2
+        machine: machine2
+        ports: 13000-13999
+        max_tasks: 10
 
 masters:
   - name: master1

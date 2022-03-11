@@ -67,27 +67,25 @@
                 </div>
             </el-form-item>
 
-
-            <el-button
+            <el-button class="ml10"
                 type="primary"
                 @click="getList({ to: true})"
             >
                 查询
             </el-button>
 
-            <router-link :to="{name: 'payments-records-add'}">
+
+            <router-link class="ml10" :to="{name: 'payments-records-add'}">
                 <el-button>
                     新增
                 </el-button>
             </router-link>
 
-
-            <el-button
+            <el-button class="ml10"
                 @click="downloadPaymentsRecords"
             >
                 下载
             </el-button>
-
 
         </el-form>
 
@@ -123,7 +121,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ serviceType[scope.row.service_type] }}</p>
+                    <p>{{ scope.row.service_type }}</p>
                 </template>
             </el-table-column>
 
@@ -142,7 +140,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ payType[scope.row.pay_type] }}</p>
+                    <p>{{ scope.row.pay_type }}</p>
                 </template>
             </el-table-column>
 
@@ -157,7 +155,7 @@
             </el-table-column>
 
             <el-table-column
-                label="金额"
+                label="金额(￥)"
                 min-width="50"
             >
                 <template slot-scope="scope">
@@ -166,7 +164,7 @@
             </el-table-column>
 
             <el-table-column
-                label="余额"
+                label="余额(￥)"
                 min-width="50"
             >
                 <template slot-scope="scope">
@@ -225,45 +223,29 @@ export default {
             },
             timeRange: '',
             getListApi: '/paymentsrecords/query-list',
-            serviceType: {
-                1: '两方匿踪查询',
-                2: '两方交集查询',
-                3: '多方安全统计(被查询方)',
-                4: '多方安全统计(查询方)',
-                5: '多方交集查询',
-                6: '多方匿踪查询',
-            },
-            payType: {
-                1: '充值',
-                2: '支出',
-            },
-            status: {
-                1: '正常',
-                2: '冲正',
-            },
             serviceTypes: [
                 {
-                    name:  '两方匿踪查询',
+                    name: '两方匿踪查询',
                     value: '1',
                 },
                 {
-                    name:  '多方匿踪查询',
+                    name: '多方匿踪查询',
                     value: '6',
                 },
                 {
-                    name:  '两方交集查询',
+                    name: '两方交集查询',
                     value: '2',
                 },
                 {
-                    name:  '多方交集查询',
+                    name: '多方交集查询',
                     value: '5',
                 },
                 {
-                    name:  '多方安全统计(查询方)',
+                    name: '多方安全统计(查询方)',
                     value: '4',
                 },
                 {
-                    name:  '多方安全统计(被查询方)',
+                    name: '多方安全统计(被查询方)',
                     value: '3',
                 },
             ],

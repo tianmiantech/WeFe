@@ -17,13 +17,15 @@
 package com.welab.wefe.board.service.dto.vo.data_resource;
 
 import com.welab.wefe.board.service.database.repository.data_resource.DataResourceRepository;
+import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.wefe.enums.DataSetPublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -43,7 +45,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
 
 
     @Check(name = "可见级别", require = true)
-    private DataSetPublicLevel publicLevel;
+    private DataResourcePublicLevel publicLevel;
     @Check(
             name = "可见成员列表",
             desc = "只有在列表中的联邦成员才可以看到该数据集的基本信息",
@@ -66,7 +68,20 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
     public void checkAndStandardize() throws StatusCodeWithException {
         super.checkAndStandardize();
 
-        if (publicLevel == DataSetPublicLevel.PublicWithMemberList && StringUtils.isEmpty(publicMemberList)) {
+        // 当全局拒绝暴露时，禁止选择暴露资源。
+        MemberInfoModel member = Launcher.getBean(GlobalConfigService.class).getMemberInfo();
+        if (publicLevel != DataResourcePublicLevel.OnlyMyself) {
+            if (!member.getMemberAllowPublicDataSet()) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("当前联邦成员不允许资源对外可见，请在[全局设置][成员设置]中开启。");
+            }
+
+            if (member.getMemberHidden()) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("当前联邦成员已被管理员隐身，隐身状态下不允许资源可见。");
+            }
+        }
+
+
+        if (publicLevel == DataResourcePublicLevel.PublicWithMemberList && StringUtils.isEmpty(publicMemberList)) {
             throw new StatusCodeWithException("请指定可见成员", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
@@ -119,11 +134,11 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         this.description = description;
     }
 
-    public DataSetPublicLevel getPublicLevel() {
+    public DataResourcePublicLevel getPublicLevel() {
         return publicLevel;
     }
 
-    public void setPublicLevel(DataSetPublicLevel publicLevel) {
+    public void setPublicLevel(DataResourcePublicLevel publicLevel) {
         this.publicLevel = publicLevel;
     }
 

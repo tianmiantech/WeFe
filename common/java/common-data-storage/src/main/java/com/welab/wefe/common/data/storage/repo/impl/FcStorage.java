@@ -24,6 +24,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.google.protobuf.ByteString;
 import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.common.IntermediateDataFlag;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.repo.MiddleStorage;
 import com.welab.wefe.common.proto.IntermediateDataOuterClass;
@@ -244,7 +245,7 @@ public class FcStorage extends MiddleStorage {
                 byte[] value = item.getV() instanceof byte[] ? (byte[]) item.getV() : pickler.dumps(item.getV());
                 int partition = hashKeyToPartition(key, partitions);
 
-                builderMap.putIfAbsent(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                builderMap.putIfAbsent(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(IntermediateDataFlag.ITEM_SERIALIZATION));
                 IntermediateDataOuterClass.IntermediateData.Builder dataItemList = builderMap.get(partition);
 
                 // add one row data
@@ -267,7 +268,7 @@ public class FcStorage extends MiddleStorage {
                     futures.add(future);
                     rowCountMap.put(partition, 0);
                     // reset byte_map
-                    builderMap.put(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                    builderMap.put(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(IntermediateDataFlag.ITEM_SERIALIZATION));
                     // reset byteSizeMap
                     byteSizeMap.put(partition, 0);
                 } else {
@@ -290,7 +291,7 @@ public class FcStorage extends MiddleStorage {
                 futures.add(future);
                 rowCountMap.put(partition, 0);
                 // reset byte_map
-                builderMap.put(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                builderMap.put(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(IntermediateDataFlag.ITEM_SERIALIZATION));
                 // reset byte_size
                 byteSizeMap.put(partition, 0);
             }
@@ -312,6 +313,7 @@ public class FcStorage extends MiddleStorage {
         }
 
     }
+
 
     /**
      * generate OSS file name
