@@ -53,16 +53,18 @@
                         <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" :width="700" @select-image="methods.selectImage" />
                     </div>
                     <!-- 预测结果出来后可显示上传文件按钮 -->
-                    <uploader-btn
-                        v-if="vData.isCheckFinished"
-                        :attrs="vData.img_upload_attrs"
-                        :single="true"
-                        class="upload_btn"
-                    >
-                        点击上传文件
-                    </uploader-btn>
-                    <el-button v-if="vData.isCheckFinished" type="primary" class="ml10" @click="methods.downloadModel">模型下载</el-button>
-                    <el-button v-if="vData.isCheckFinished" type="primary" class="ml10" @click="methods.downloadModelFile">下载模型文件</el-button>
+                    <div class="mt10">
+                        <uploader-btn
+                            v-if="vData.isCheckFinished"
+                            :attrs="vData.img_upload_attrs"
+                            :single="true"
+                            class="upload_btn"
+                        >
+                            点击上传文件
+                        </uploader-btn>
+                        <el-button type="primary" class="ml10" @click="methods.downloadModel">模型下载</el-button>
+                        <el-button type="primary" class="ml10" @click="methods.downloadModelFile">模型文件下载</el-button>
+                    </div>
                 </uploader>
             </div>
             <div class="show_box ml10" style="min-width: 430px;">
@@ -301,6 +303,7 @@
                                 }
                                 vData.sampleList = [];
                                 vData.isCheckFinished = false;
+                                vData.isCanUpload = false;
                                 list.forEach((item, idx) => {
                                     methods.downSingleImage(item.image, idx, item);
                                 });
@@ -309,7 +312,7 @@
                                 if (data.task_view.results[0].result.status === 'running') {
                                     methods.getPredictDetail();
                                 }
-                            }, 1000);
+                            }, 3000);
                         });
                     }
                 },

@@ -565,6 +565,7 @@
                             vData.flowInfo = data;
                             vData.form.flow_name = data.flow_name;
                             vData.form.flow_desc = data.flow_desc;
+                            vData.flowType = data.deep_learning_job_type;
                             methods.getJobDetail();
                             if(!data.graph) {
                                 methods.createNode();
@@ -1025,7 +1026,6 @@
                             const { params } = data;
 
                             vData.deepLearnNodeId = data.node_id;
-                            vData.flowType = data.component_type;
                             vData.deepLearnParams.program = data.component_type === 'detection' ? 'paddle_detection' : data.component_type === 'classify' ? 'paddle_clas' : 'paddle_detection';
                             if (params) {
                                 if (params.image_shape.length) {
