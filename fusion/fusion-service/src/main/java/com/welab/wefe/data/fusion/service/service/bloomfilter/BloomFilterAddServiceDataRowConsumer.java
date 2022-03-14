@@ -168,7 +168,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.src = model.getSrc();
         this.rowCount = model.getRowCount();
         this.keyPair = CryptoUtils.generateKeys(1024);
-        this.bf = new BloomFilters(0.001, model.getRowCount());
+        this.bf = new BloomFilters(0.0001, model.getRowCount());
         this.pk = (RSAKeyParameters) keyPair.getPublic();
         this.e = pk.getExponent();
         this.N = pk.getModulus();
