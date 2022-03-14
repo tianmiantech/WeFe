@@ -170,7 +170,7 @@
                 hideRelateSourceTab: false,
                 sourceTypeList:      [
                     {
-                        label: '数据集',
+                        label: '结构化数据集',
                         value: 'TableDataSet',
                     },
                     {
