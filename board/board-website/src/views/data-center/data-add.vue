@@ -688,6 +688,7 @@
                     total_row_count:     0,
                     added_row_count:     0,
                     repeat_id_row_count: 0,
+                    error_count:         0,
                     status:              '',
                 },
                 isCanClose:         false,
@@ -1199,6 +1200,7 @@
                 });
 
                 if(code === 0) {
+                    this.uploadTask.error_count = 0;
                     if(data) {
                         const { estimate_time, name, data_resource_id, progress, total_row_count, added_row_count, repeat_id_row_count, error_message, status, completed_data_count, total_data_count, estimate_remaining_time, invalid_data_count, progress_ratio } = data;
 
@@ -1252,6 +1254,16 @@
                                 }
                             }, 1000);
                         }
+                    }
+                } else {
+                    this.uploadTask.error_count++;
+
+                    if(this.uploadTask.error_count <= 5) {
+                        setTimeout(() => {
+                            this.getAddTask(id);
+                        }, 1000);
+                    } else {
+                        this.$message.error('任务传输失败, 请重新上传!');
                     }
                 }
             },
