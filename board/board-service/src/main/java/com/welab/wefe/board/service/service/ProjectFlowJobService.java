@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.project.flow.StartFlowApi;
 import com.welab.wefe.board.service.api.project.job.ResumeJobApi;
@@ -45,6 +44,7 @@ import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
@@ -322,10 +322,14 @@ public class ProjectFlowJobService extends AbstractService {
             tasks
                     .stream()
                     .filter(x -> x.getTaskType() == ComponentType.PaddleClassify || x.getTaskType() == ComponentType.PaddleDetection)
+                    .filter(x -> x.getStatus() != TaskStatus.success)
                     .forEach(x -> {
-                        com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob kernelJob = JSONObject.parseObject(x.getTaskConf()).toJavaObject(com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob.class);
-                        kernelJob.env.resume = true;
-                        x.setTaskConf(JSON.toJSONString(kernelJob));
+                        JSONObject taskConfig = JSONObject.parseObject(x.getTaskConf());
+                        taskConfig.getJSONObject("env").put("resume", true);
+                        x.setTaskConf(taskConfig.toJSONString());
+                        x.setMessage("resume task(" + DateUtil.getCurrentDate() + ")");
+                        x.setStatus(TaskStatus.wait_run);
+                        taskRepository.save(x);
                     });
 
         }
@@ -335,6 +339,7 @@ public class ProjectFlowJobService extends AbstractService {
                 jobService.updateJob(y, (x) -> {
                     x.setUpdatedBy(input);
                     x.setStatus(JobStatus.wait_run);
+                    x.setMessage("resume job(" + DateUtil.getCurrentDate() + ")");
                     return x;
                 })
         );
