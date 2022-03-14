@@ -37,7 +37,9 @@ public abstract class FileSecurityChecker {
      * 允许的文件类型
      */
     private static final List<String> ALLOW_FILE_TYPES = Arrays.asList(
-            "xls", "xlsx", "csv", "zip", "gz", "tgz", "7z"
+            "xls", "xlsx", "csv",
+            "zip", "gz", "tgz", "7z",
+            "jpg", "jpeg", "png"
     );
 
     protected abstract void doCheck(File file) throws Exception;
