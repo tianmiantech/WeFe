@@ -455,9 +455,12 @@ public class TaskResultService extends AbstractService {
                 .append("featureNum", selectMembers.size());
     }
 
-    /**
-     * Get feature list
-     */
+	/**
+	 * Get feature list
+	 * 
+	 * has_feature_calculation: true 表示支持CV/IV过滤 从计算特征价值 组件获取CV值/IV值
+	 * has_feature_statistic: true 表示支持缺失率 特征统计组件获取缺失率
+	 */
     public GetFeatureApi.Output getResultFeature(GetFeatureApi.Input input) throws StatusCodeWithException {
         GetFeatureApi.Output out = new GetFeatureApi.Output();
         FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
@@ -479,7 +482,7 @@ public class TaskResultService extends AbstractService {
 
                     TaskResultMySqlModel featureStatisticResult = findByTaskIdAndTypeAndRole(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name(), project.getMyRole());
                     if (featureStatisticResult != null) {
-                        out.setHasFeatureStatistic(true);
+                        out.setHasFeatureStatistic(true); // 缺失率
                     }
                 }
             }
@@ -492,14 +495,13 @@ public class TaskResultService extends AbstractService {
 
                     TaskResultMySqlModel featureCalculationResult = findByTaskIdAndTypeAndRole(featureCalculationTask.getTaskId(), TaskResultType.model_result.name(), project.getMyRole());
                     if (featureCalculationResult != null) {
-                        out.setHasFeatureCalculation(true);
+                        out.setHasFeatureCalculation(true); // cv_iv
                     }
                 }
             }
 
             FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
-                    x -> x.getComponentType() == ComponentType.MixBinning
-                            || x.getComponentType() == ComponentType.Binning);
+                    x -> x.getComponentType() == ComponentType.MixBinning);
             if (featureBinningNode != null && StringUtil.isNotEmpty(input.getJobId())) {
                 ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
                 TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(),
@@ -508,7 +510,8 @@ public class TaskResultService extends AbstractService {
                     TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
                             featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
                     if (featureBinningResult != null) {
-                        out.setHasFeatureCalculation(true && out.isHasFeatureStatistic());
+                    	// 对于混合流程 cv，缺失率 在特征统计组件获取，iv在分箱组件获取
+                    	out.setHasFeatureCalculation(out.isHasFeatureCalculation() && out.isHasFeatureStatistic()); // cv_iv	
                     }
                 }
             }
