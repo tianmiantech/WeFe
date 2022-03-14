@@ -299,7 +299,7 @@
                 sourceTypeMap:   {
                     BloomFilter:  '布隆过滤器',
                     ImageDataSet: '图像数据集',
-                    TableDataSet: '数据集',
+                    TableDataSet: '结构化数据集',
                 },
             };
         },

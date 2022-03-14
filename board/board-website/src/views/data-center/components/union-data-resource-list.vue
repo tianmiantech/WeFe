@@ -29,20 +29,29 @@
             min-width="160"
         >
             <template v-slot="scope">
+                <strong v-if="scope.row.member_id === userInfo.member_id">
+                    {{ scope.row.member_name }}
+                </strong>
                 <span
+                    v-else
                     class="p-name"
                     @click="checkCard(scope.row.member_id)"
                 >
                     <i class="iconfont icon-visiting-card" />
                     {{ scope.row.member_name }}
                 </span>
-                <span class="p-id">{{ scope.row.member_id }}</span>
+                <p class="p-id">{{ scope.row.member_id }}</p>
             </template>
         </el-table-column>
         <el-table-column label="名称 / Id" min-width="160">
             <template v-slot="scope">
                 <router-link :to="{ name: 'union-data-view', query: { id: scope.row.data_resource_id, type: dataResourceTypeMap[scope.row.data_resource_type], data_resource_type: scope.row.data_resource_type }}">
-                    {{ scope.row.name }}
+                    <strong v-if="scope.row.member_id === userInfo.member_id">
+                        {{ scope.row.name }}
+                    </strong>
+                    <template v-else>
+                        {{ scope.row.name }}
+                    </template>
                 </router-link>
                 <el-tag v-if="scope.row.data_resource_type === 'BloomFilter'" class="ml5" size="small">
                     bf
@@ -61,7 +70,12 @@
                         v-show="item"
                         class="mr10"
                     >
-                        {{ item }}
+                        <strong v-if="scope.row.member_id === userInfo.member_id">
+                            {{ item }}
+                        </strong>
+                        <template v-else>
+                            {{ item }}
+                        </template>
                     </el-tag>
                 </template>
             </template>
@@ -85,7 +99,12 @@
             width="130"
         >
             <template v-slot="scope">
-                {{ sourceTypeMap[scope.row.data_resource_type] }}
+                <strong v-if="scope.row.member_id === userInfo.member_id">
+                    {{ sourceTypeMap[scope.row.data_resource_type] }}
+                </strong>
+                <template v-else>
+                    {{ sourceTypeMap[scope.row.data_resource_type] }}
+                </template>
             </template>
         </el-table-column>
         <el-table-column
