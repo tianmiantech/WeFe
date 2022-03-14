@@ -124,7 +124,8 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
 
             // 如果是单张图片，要打包为 zip。
             if (FileUtil.isImage(filename)) {
-
+                File zipFile = WeFeFileSystem.CallDeepLearningModel.singleImageToZip(filename, taskId);
+                filename = zipFile.getName();
             }
 
             WeFeFileSystem.CallDeepLearningModel.renameZipFile(filename, taskId);
