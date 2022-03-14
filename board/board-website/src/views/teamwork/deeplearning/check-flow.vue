@@ -62,6 +62,7 @@
                         点击上传文件
                     </uploader-btn>
                     <el-button v-if="vData.isCheckFinished" type="primary" class="ml10" @click="methods.downloadModel">模型下载</el-button>
+                    <el-button v-if="vData.isCheckFinished" type="primary" class="ml10" @click="methods.downloadModelFile">下载模型文件</el-button>
                 </uploader>
             </div>
             <div class="show_box ml10" style="min-width: 430px;">
@@ -180,6 +181,7 @@
             });
             const methods = {
                 async getModelList() {
+                    vData.pageLoading = true;
                     const { code, data } = await $http.post({
                         url:  '/project/modeling/query',
                         data: {
@@ -194,6 +196,7 @@
                                 vData.modelList = data.list;
                                 vData.form.model = data.list[0].task_id;
                             }
+                            vData.pageLoading = false;
                         });
                     }
                 },
@@ -377,6 +380,16 @@
                 },
                 async downloadModel(){
                     const api = `${window.api.baseUrl}/model/deep_learning/download?task_id=${vData.form.model}&token=${userInfo.value.token}`;
+                    const link = document.createElement('a');
+
+                    link.href = api;
+                    link.target = '_blank';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                },
+                async downloadModelFile(){
+                    const api = `${window.api.baseUrl}/model/deep_learning/call/download/zip?task_id=${vData.form.model}&token=${userInfo.value.token}`;
                     const link = document.createElement('a');
 
                     link.href = api;
