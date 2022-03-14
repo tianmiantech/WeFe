@@ -94,7 +94,7 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            // this.systemStatusCheck();
+            this.systemStatusCheck();
         },
         methods: {
             emailFormat(rule, value, callback) {
@@ -110,13 +110,13 @@
                 this.loading = true;
 
                 const { code, data } = await this.$http.get({
-                    url: '/setting/initialize',
+                    url: '/global_setting/is_initialize',
                 });
 
                 this.loading = false;
                 if(code === 0) {
                     if(data.initialized) {
-                        if(this.userInfo.member_id) {
+                        if(this.userInfo.id) {
                             this.$store.commit('SYSTEM_INITED', true); // system inited
                             this.$router.replace({
                                 name: 'index',

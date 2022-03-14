@@ -1,21 +1,21 @@
 architecture: YOLOv3
-use_gpu: true
+use_gpu: false
 max_iters: 250000
 log_iter: 20
 save_dir: output
 snapshot_iter: 10000
-metric: COCO
+metric: VOC
 pretrain_weights: https://paddle-imagenet-models-name.bj.bcebos.com/ResNet18_vd_pretrained.tar
 weights: output/ppyolo_tiny/model_final
-num_classes: 80
-use_fine_grained_loss: true
+num_classes: 4
+use_fine_grained_loss: false
 use_ema: true
-ema_decay: 0.9998
+
 
 YOLOv3:
   backbone: ResNet
   yolo_head: YOLOv3Head
-  use_fine_grained_loss: true
+  use_fine_grained_loss: false
 
 ResNet:
   norm_type: sync_bn
@@ -35,13 +35,12 @@ YOLOv3Head:
   scale_x_y: 1.05
   yolo_loss: YOLOv3Loss
   nms: MatrixNMS
-  drop_block: true
 
 YOLOv3Loss:
   ignore_thresh: 0.7
   scale_x_y: 1.05
   label_smooth: false
-  use_fine_grained_loss: true
+  use_fine_grained_loss: false
   iou_loss: IouLoss
 
 IouLoss:
@@ -82,10 +81,9 @@ TrainReader:
     fields: ['image', 'gt_bbox', 'gt_class', 'gt_score']
     num_max_boxes: 50
   dataset:
-    !COCODataSet
-      image_dir: train2017
-      anno_path: annotations/instances_train2017.json
-      dataset_dir: train_data/dataset/coco
+    !VOCDataSet
+      anno_path: train.txt
+      dataset_dir: dataset/fruit
       with_background: false
   sample_transforms:
     - !DecodeImage
@@ -125,9 +123,5 @@ TrainReader:
               [81, 82], [135, 169], [344, 319]]
     downsample_ratios: [32, 16]
   batch_size: 32
-  shuffle: true
-  mixup_epoch: 500
-  drop_last: true
-  worker_num: 16
-  bufsize: 8
-  use_process: true
+
+

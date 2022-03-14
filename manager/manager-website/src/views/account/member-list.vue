@@ -303,13 +303,14 @@
                 };
             },
             async getFile(fileId, files) {
-                const { code, data, response: { headers: { filename } } } = await this.$http.post({
+                const { code, data, response: { headers } } = await this.$http.post({
                     url:          '/download/file',
                     responseType: 'blob',
                     data:         {
                         fileId,
                     },
                 });
+                const filename = headers.filename || headers.FileName;
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {

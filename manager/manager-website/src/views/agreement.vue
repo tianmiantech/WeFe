@@ -126,7 +126,7 @@
             v-model="preview.visible"
         >
             <div :class="['preview-box', { fullscreen: preview.fullscreen }]">
-                <i class="el-icon-full-screen" @click="preview.fullscreen = !preview.fullscreen"></i>
+                <!-- <i class="el-icon-full-screen" @click="preview.fullscreen = !preview.fullscreen"></i> -->
                 <embed
                     v-if="preview.visible"
                     :src="preview.fileData"
@@ -190,10 +190,11 @@
             async filePreview(event, row) {
                 this.editId = row.id;
                 this.loading = true;
-                const { code, data, response: { headers: { filename } }  } = await this.$http.post({
+                const { code, data, response: { headers }  } = await this.$http.post({
                     url:          '/download/file?fileId=' + row.template_file_id,
                     responseType: 'blob',
                 });
+                const filename = headers.filename || headers.FileName;
 
                 this.loading = false;
                 if(code === 0) {

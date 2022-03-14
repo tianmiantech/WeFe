@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.project.node;
 
+import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
 import com.welab.wefe.board.service.service.ProjectFlowNodeService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -57,6 +58,15 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, UpdateApi.Output> {
         @Check(name = "组件参数", require = true, blockXss = false)
         private String params;
 
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+
+            // 对表单有效性进行检查
+            Components
+                    .get(componentType)
+                    .deserializationParam(params);
+        }
 
         //region getter/setter
 

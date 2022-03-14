@@ -1,3 +1,17 @@
+# Copyright 2021 Tianmian Tech. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -166,7 +180,7 @@ def fl_trainer(
         data_dir = data_loader.job_download(download_url, job_id, get_data_dir())
         labelpath = os.path.join(data_dir, "label_list.txt")
         TaskDao(task_id).save_task_result({"label_path":labelpath}, ComponentName.DETECTION, TaskResultType.LABEL)
-        cfg = merger_algorithm_config(algorithm_config_json)
+        cfg = merger_algorithm_config(algorithm_config_json,os.path.basename(data_dir))
         check_config(cfg)
         check_version()
 
@@ -179,6 +193,7 @@ def fl_trainer(
         vdl_loss_step = 0
         # vdl_mAP_step = 0
         TaskDao(task_id).init_task_progress(max_iter)
+        TaskDao(task_id).start_task()
         if resume_checkpoint:
             try:
                 epoch_id = TaskDao(task_id).get_task_progress()
@@ -188,11 +203,6 @@ def fl_trainer(
                 logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
             except Exception as e:
                 logging.error(f"task id {task_id} train error {e}")
-        # elif cfg.pretrain_weights and not ignore_params:
-        #     checkpoint.load_and_fusebn(trainer.exe, trainer._main_program, cfg.pretrain_weights)
-        # elif cfg.pretrain_weights:
-        #     checkpoint.load_params(
-        #         trainer.exe, trainer._main_program, cfg.pretrain_weights, ignore_params=ignore_params)
 
         # redirect dataset path to VisualFL/data
         cfg.TrainReader["dataset"].dataset_dir = os.path.join(

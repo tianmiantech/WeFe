@@ -14,6 +14,6 @@ tree_num: 3
 learning_rate: 0.1
 "work_mode": "layered"
 "tree_num_per_member": 1
-"promoter_depth": 3
+"promoter_depth": 1
 "provider_depth": 2
 

@@ -45,6 +45,23 @@ public class AbstractOutputModel extends AbstractApiOutput {
     @Check(name = "修改者昵称")
     private String updaterNickname;
 
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+        this.creatorNickname = CacheObjects.getNickname(createdBy);
+        if (StringUtils.isBlank(this.creatorNickname)) {
+            this.creatorNickname = CacheObjects.getMemberName(createdBy);
+        }
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+        this.updaterNickname = CacheObjects.getNickname(updatedBy);
+        if (StringUtils.isBlank(this.updaterNickname)) {
+            this.updaterNickname = CacheObjects.getMemberName(updatedBy);
+        }
+    }
+
     //region getter/setter
 
     public String getId() {
@@ -59,14 +76,6 @@ public class AbstractOutputModel extends AbstractApiOutput {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-        this.creatorNickname = CacheObjects.getNickname(createdBy);
-        if (StringUtils.isBlank(this.creatorNickname)) {
-            this.creatorNickname = CacheObjects.getMemberName(createdBy);
-        }
-    }
-
     public Date getCreatedTime() {
         return createdTime;
     }
@@ -77,14 +86,6 @@ public class AbstractOutputModel extends AbstractApiOutput {
 
     public String getUpdatedBy() {
         return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-        this.updaterNickname = CacheObjects.getNickname(updatedBy);
-        if (StringUtils.isBlank(this.updaterNickname)) {
-            this.updaterNickname = CacheObjects.getMemberName(updatedBy);
-        }
     }
 
     public Date getUpdatedTime() {

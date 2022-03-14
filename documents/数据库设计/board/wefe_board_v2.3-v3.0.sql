@@ -224,6 +224,13 @@ ALTER TABLE `project`
     ADD COLUMN `project_type` varchar(36) NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型' AFTER `flow_status_statistics`;
 
 -- -------------------------------------
+-- project_flow 表增加字段
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `project_flow`
+    ADD COLUMN `deep_learning_job_type` varchar(32) NULL COMMENT '深度学习任务类型（classify/detection）' AFTER `federated_learning_type`;
+
+-- -------------------------------------
 -- project_data_set 表增加字段
 -- author: zane.luo
 -- -------------------------------------
@@ -435,3 +442,10 @@ CREATE TABLE `verification_code` (
 -- -------------------------------------
 ALTER TABLE `task`
     ADD INDEX `index_job_id__role`(`job_id`, `role`) USING BTREE;
+
+-- -------------------------------------
+-- task_result 表加索引
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `task_result`
+    ADD INDEX `index_project_serving_model`(`project_id`, `serving_model`, `flow_id`) USING BTREE;

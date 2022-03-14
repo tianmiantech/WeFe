@@ -26,7 +26,7 @@
                         <uploader-btn
                             :attrs="vData.img_upload_attrs"
                             :single="true"
-                            class="upload_btn"
+                            class="upload_btn mt10 mb10"
                         >
                             点击上传文件
                         </uploader-btn>
@@ -195,6 +195,7 @@
                             if (data && data.list.length) {
                                 vData.modelList = data.list;
                                 vData.form.model = data.list[0].task_id;
+                                methods.getPredictDetail();
                             }
                             vData.pageLoading = false;
                         });
@@ -304,10 +305,6 @@
                                     methods.downSingleImage(item.image, idx, item);
                                 });
                             }
-                            // if (data.task_view.results)
-                            // setTimeout(() => {
-                            //     methods.getPredictDetail();
-                            // }, 1000);
                             vData.timer3 = setTimeout(() => {
                                 if (data.task_view.results[0].result.status === 'running') {
                                     methods.getPredictDetail();
@@ -454,7 +451,6 @@
             background: #438bff;
             color: #fff;
             border: none;
-            margin: 10px 0;
             padding: 6px 14px;
             border-radius: 2px;
             font-size: 14px;

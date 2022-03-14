@@ -90,6 +90,10 @@ public class CacheObjects {
      */
     private static final Set<String> MEMBER_BLACKLIST = new HashSet<>();
 
+    static {
+        refreshMemberInfo();
+    }
+
     public static Set<String> getMemberBlackList() {
         if (MEMBER_BLACKLIST.isEmpty()) {
             refreshMemberBlacklist();
@@ -104,9 +108,6 @@ public class CacheObjects {
     }
 
     public static String getMemberId() {
-        if (MEMBER_ID == null) {
-            refreshMemberInfo();
-        }
         return MEMBER_ID;
     }
 
@@ -118,23 +119,14 @@ public class CacheObjects {
     }
 
     public static String getRsaPrivateKey() {
-        if (RSA_PRIVATE_KEY == null) {
-            refreshMemberInfo();
-        }
         return RSA_PRIVATE_KEY;
     }
 
     public static String getRsaPublicKey() {
-        if (RSA_PUBLIC_KEY == null) {
-            refreshMemberInfo();
-        }
         return RSA_PUBLIC_KEY;
     }
 
     public static String getMemberName() {
-        if (MEMBER_NAME == null) {
-            refreshMemberInfo();
-        }
         return MEMBER_NAME;
     }
 
@@ -183,7 +175,7 @@ public class CacheObjects {
     /**
      * Get the account's nickname
      */
-    public static synchronized String getNickname(String accountId) {
+    public static String getNickname(String accountId) {
         if (accountId == null) {
             return null;
         }
@@ -193,7 +185,7 @@ public class CacheObjects {
     /**
      * Determine whether accountId belongs to the current member
      */
-    public static synchronized boolean isCurrentMemberAccount(String accountId) {
+    public static boolean isCurrentMemberAccount(String accountId) {
         return getAccountIdList().contains(accountId);
     }
 
@@ -215,7 +207,7 @@ public class CacheObjects {
         }
     }
 
-    public static synchronized String getMemberName(String memberId) {
+    public static String getMemberName(String memberId) {
         if (StringUtil.isEmpty(memberId)) {
             return null;
         }
@@ -241,7 +233,7 @@ public class CacheObjects {
     /**
      * Reload member information
      */
-    public static synchronized void refreshMemberInfo() {
+    public static void refreshMemberInfo() {
         GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
         MemberInfoModel model = service.getMemberInfo();
 
@@ -302,7 +294,6 @@ public class CacheObjects {
         }
     }
 
-
     /**
      * Reload the list of union members
      */
@@ -319,10 +310,7 @@ public class CacheObjects {
 
     }
 
-    public static synchronized SecretKeyType getSecretKeyType() {
-        if (null == SECRET_KEY_TYPE) {
-            refreshMemberInfo();
-        }
+    public static SecretKeyType getSecretKeyType() {
         return null == SECRET_KEY_TYPE ? SecretKeyType.rsa : SECRET_KEY_TYPE;
     }
 

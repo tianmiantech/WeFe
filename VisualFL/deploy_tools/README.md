@@ -56,11 +56,11 @@ pyhon setup.py sdist
     
     1) standalone deployment
     ```bash
-    wefe_visualfl_deploy deploy deploy standalone_template.yaml
+    wefe_visualfl_deploy deploy deploy --config standalone_template.yaml
     ```
    2) cluster deployment
     ```bash
-    wefe_visualfl_deploy deploy deploy template.yaml
+    wefe_visualfl_deploy deploy deploy --config template.yaml
     ```
 
 ### Services start and stop 

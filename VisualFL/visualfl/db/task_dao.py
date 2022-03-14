@@ -12,12 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Copyright 2021 Tianmian Tech. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 
 from visualfl.db.db_models import DB, Task, TaskResult,TaskProgress,is_local
 from visualfl.utils.core_utils import current_datetime,get_commit_id
 import datetime
 import json
 from visualfl.utils.logger import Logger
+from visualfl.utils.consts import TaskStatus
 import logging
 
 class TaskDao(Logger):
@@ -39,6 +54,7 @@ class TaskDao(Logger):
 
                 task.start_time = current_datetime()
                 task.updated_time = current_datetime()
+                task.status = TaskStatus.RUNNING
                 task.save()
         except Exception as e:
             self.exception(e)
