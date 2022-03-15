@@ -150,7 +150,7 @@
                     },
                 },
                 img_upload_attrs: {
-                    accept: 'application/zip, application/x-rar-compressed, application/x-tar, application/x-7z-compressed, application/image', // zip, rar, tar, 7z
+                    accept: 'application/zip, application/x-rar-compressed, application/x-tar, application/x-7z-compressed, .jpg,.png,.jpeg', // zip, rar, tar, 7z
                 },
                 fileStatusText: {
                     success:   '成功',
@@ -266,14 +266,19 @@
                         },
                     });
 
-                    if(code === 0) {
-                        nextTick(_=> {
+                    nextTick(_=> {
+                        if(code === 0) {
+                        
                             if (data.file_count) {
                                 vData.isStartPredict = true;
                                 methods.getPredictDetail();
                             }
-                        });
-                    }
+                        
+                        } else {
+                            vData.isUploadedOk = false;
+                            vData.isCanUpload = true;
+                        }
+                    });
                 },
                 async getPredictDetail() {
                     // 获取预测结果 flow/job/task/detail
