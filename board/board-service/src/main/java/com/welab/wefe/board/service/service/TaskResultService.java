@@ -490,6 +490,8 @@ public class TaskResultService extends AbstractService {
                     TaskResultMySqlModel featureStatisticResult = findByTaskIdAndTypeAndRole(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name(), project.getMyRole());
                     if (featureStatisticResult != null) {
                         out.setHasFeatureStatistic(true); // 缺失率 cv
+                        out.setHasLossRate(true);
+                        out.setHasCV(true);
                     }
                 }
             }
@@ -502,6 +504,8 @@ public class TaskResultService extends AbstractService {
                     TaskResultMySqlModel featureCalculationResult = findByTaskIdAndTypeAndRole(featureCalculationTask.getTaskId(), TaskResultType.model_result.name(), project.getMyRole());
                     if (featureCalculationResult != null) {
                         out.setHasFeatureCalculation(true); // cv_iv
+                        out.setHasCV(true);
+                        out.setHasIV(true);
                     }
                 }
             }
@@ -521,6 +525,7 @@ public class TaskResultService extends AbstractService {
 						if (!out.isHasFeatureCalculation()) {
 							out.setHasFeatureCalculation(out.isHasFeatureStatistic());
 						}
+						out.setHasIV(true);
 					}
 				}
 			}

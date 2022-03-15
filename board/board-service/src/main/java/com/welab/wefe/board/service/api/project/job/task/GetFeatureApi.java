@@ -84,6 +84,12 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
         private boolean hasFeatureStatistic;
 
         private boolean hasFeatureCalculation;
+        
+        private boolean hasCV;
+        
+        private boolean hasIV;
+        
+        private boolean hasLossRate;
 
         List<MemberFeatureInfoModel> members;
 
@@ -110,5 +116,29 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
         public void setMembers(List<MemberFeatureInfoModel> members) {
             this.members = members;
         }
+
+		public boolean isHasCV() {
+			return hasCV;
+		}
+
+		public void setHasCV(boolean hasCV) {
+			this.hasCV = hasCV;
+		}
+
+		public boolean isHasIV() {
+			return hasIV;
+		}
+
+		public void setHasIV(boolean hasIV) {
+			this.hasIV = hasIV;
+		}
+
+		public boolean isHasLossRate() {
+			return hasLossRate;
+		}
+
+		public void setHasLossRate(boolean hasLossRate) {
+			this.hasLossRate = hasLossRate;
+		}
     }
 }
