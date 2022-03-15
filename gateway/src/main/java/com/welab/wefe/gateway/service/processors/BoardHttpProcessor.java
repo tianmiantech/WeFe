@@ -61,9 +61,9 @@ public class BoardHttpProcessor extends AbstractProcessor {
 
             String boardBaseUrl = boardConfig.intranetBaseUri;
             boardBaseUrl = (boardBaseUrl.endsWith("/") ? boardBaseUrl : (boardBaseUrl + "/"));
-            url = boardBaseUrl + url;
-            LOG.info("Gateway access board address：" + url);
-            HttpResponse response = BoardHelper.push(url, method, headers, BoardHelper.generateReqParam(body));
+            String fullUrl = boardBaseUrl + url;
+            LOG.info("Gateway access board address：" + fullUrl);
+            HttpResponse response = BoardHelper.push(fullUrl, method, headers, BoardHelper.generateReqParam(body));
             if (response.success()) {
                 return ReturnStatusBuilder.ok(transferMeta.getSessionId(), response.getBodyAsString());
             } else {
