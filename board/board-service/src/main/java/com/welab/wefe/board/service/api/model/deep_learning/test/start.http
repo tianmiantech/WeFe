@@ -1,0 +1,8 @@
+POST http://localhost:8080/board-service/model/deep_learning/call/start
+Content-Type: application/json
+token: {{token}}
+
+{
+  "taskId": "822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439",
+  "filename": "38471646284474_.pic_hd.jpg"
+}
