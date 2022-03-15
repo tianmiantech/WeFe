@@ -68,7 +68,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
                 return ReturnStatusBuilder.ok(transferMeta.getSessionId(), response.getBodyAsString());
             } else {
                 String errorMsg = "请求Board地址【" + url + "】失败，Http code: " + response.getCode() + ", errorMsg: " + response.getError().getMessage();
-                return ReturnStatusBuilder.create(ReturnStatusEnum.SYS_EXCEPTION.getCode(), errorMsg);
+                return ReturnStatusBuilder.sysExc(errorMsg, transferMeta.getSessionId());
             }
         } catch (Exception e) {
             LOG.error("BoardHttpProcessor fail, exception:", e);
