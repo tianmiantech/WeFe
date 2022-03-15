@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.operation;
 import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskDetailApi;
 import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskQueryApi;
 import com.welab.wefe.board.service.api.file.FileUploadApi;
+import com.welab.wefe.board.service.api.file.MergeApi;
 import com.welab.wefe.board.service.api.member.MemberAvailableCheckApi;
 import com.welab.wefe.board.service.api.project.flow.FlowQueryApi;
 import com.welab.wefe.board.service.api.project.job.GetJobProgressApi;
@@ -54,7 +55,7 @@ public class BoardApiLogger extends AbstractApiLogger {
                 DataResourceUploadTaskQueryApi.class,
                 DataResourceUploadTaskDetailApi.class,
                 FileUploadApi.class,
-                FileUploadApi.class
+                MergeApi.class
         );
     }
 
