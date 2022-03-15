@@ -291,35 +291,39 @@
 
                     nextTick(_ => {
                         vData.loading = false;
-                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
-                            const { params } = data;
+                        if (code === 0 && data) {
+                            if(data.params && Object.keys(data.params).length) {
+                                const { params } = data;
 
-                            vData.hasError = '';
-                            if (params.members) {
-                                const {
-                                    strategies,
-                                    members,
-                                } = params;
+                                vData.hasError = '';
+                                if (params.members) {
+                                    const {
+                                        strategies,
+                                        members,
+                                    } = params;
 
-                                vData.select_all_count = 0;
-                                if(strategies && strategies.length) {
-                                    const types = [];
+                                    vData.select_all_count = 0;
+                                    if(strategies && strategies.length) {
+                                        const types = [];
 
-                                    vData.selectList = strategies;
-                                    strategies.forEach((row, index) => {
-                                        if(!has_feature_calculation && row.select_type === 'cv_iv') {
-                                            types.push('[CV/IV]');
+                                        vData.selectList = strategies;
+                                        strategies.forEach((row, index) => {
+                                            if(!has_feature_calculation && row.select_type === 'cv_iv') {
+                                                types.push('[CV/IV]');
+                                            }
+                                            if(!has_feature_statistic && row.select_type === 'miss_rate') {
+                                                types.push('[缺失率]');
+                                            }
+                                            vData.select_all_count += row.select_count;
+                                        });
+                                        if(types.length) {
+                                            vData.hasError = `发生错误! 筛选策略中无法处理 ${types.join(' ')}, 请重新调整策略!`;
                                         }
-                                        if(!has_feature_statistic && row.select_type === 'miss_rate') {
-                                            types.push('[缺失率]');
-                                        }
-                                        vData.select_all_count += row.select_count;
-                                    });
-                                    if(types.length) {
-                                        vData.hasError = `发生错误! 筛选策略中无法处理 ${types.join(' ')}, 请重新调整策略!`;
                                     }
+                                    vData.lastList = members || [];
+                                } else {
+                                    vData.selectList[0].list = vData.featureSelectTab;
                                 }
-                                vData.lastList = members || [];
                             } else {
                                 vData.selectList[0].list = vData.featureSelectTab;
                             }
