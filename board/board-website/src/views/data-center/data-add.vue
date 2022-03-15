@@ -230,10 +230,12 @@
                             </el-form-item>
                         </el-form>
 
-                        <ul class="data-set-upload-tip">
-                            <li>主键字段必须是第一列，并且会被自动 hash</li>
-                            <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
-                            <li>y 值列的列名必须为 y</li>
+                        <ul v-if="addDataType !== 'img'" class="data-set-upload-tip">
+                            <template v-if="addDataType === 'csv'">
+                                <li>主键字段必须是第一列，并且会被自动 hash</li>
+                                <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
+                                <li>y 值列的列名必须为 y</li>
+                            </template>
                             <li>csv 文件请使用 utf-8 编码格式</li>
                         </ul>
                     </fieldset>
@@ -1142,10 +1144,7 @@
                         for(const i in encryptionList) {
                             const x = encryptionList[i];
 
-                            if(!x.features) {
-                                return this.$message.error('请选择特征列');
-                            }
-                            if(!x.encryption) {
+                            if(!x.encryption || x.features.length === 0) {
                                 return this.$message.error('请选择特征列');
                             }
 

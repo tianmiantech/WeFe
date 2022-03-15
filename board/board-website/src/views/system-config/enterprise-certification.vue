@@ -250,12 +250,18 @@
                         fileId,
                     },
                 });
-                const filename = headers.filename || headers.FileName;
+                const contentDisposition = headers['content-disposition'];
+
+                let fileName = '';
+
+                if (contentDisposition) {
+                    fileName = window.decodeURI(headers['content-disposition'].split('filename=')[1], 'UTF-8');
+                }
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {
                         this.fileList.push({
-                            name: window.decodeURIComponent(filename),
+                            name: window.decodeURIComponent(fileName),
                             url:  result,
                             fileId,
                         });
