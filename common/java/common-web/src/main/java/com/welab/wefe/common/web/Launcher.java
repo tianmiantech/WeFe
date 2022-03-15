@@ -17,6 +17,7 @@
 package com.welab.wefe.common.web;
 
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.function.*;
 import com.welab.wefe.common.web.service.CaptchaService;
 import org.slf4j.Logger;
@@ -61,7 +62,10 @@ public class Launcher {
      * The API performs event delegation after the exception
      */
     public static OnApiExceptionFunction ON_API_EXCEPTION_FUNCTION;
-
+    /**
+     * API Logger
+     */
+    public static AbstractApiLogger API_LOGGER;
 
     /**
      * Disable external instantiation
@@ -134,6 +138,11 @@ public class Launcher {
      */
     public Launcher afterApiExecuteFunction(AfterApiExecuteFunction func) {
         AFTER_API_EXECUTE_FUNCTION = func;
+        return this;
+    }
+
+    public Launcher apiLogger(AbstractApiLogger logger) {
+        API_LOGGER = logger;
         return this;
     }
 

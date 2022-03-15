@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.board.service.operation;
-
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.web.api.base.AbstractApi;
-import com.welab.wefe.common.web.function.BeforeApiExecuteFunction;
+package com.welab.wefe.common.web.delegate.api_log;
 
 /**
- * User operation log
+ * api 调用者类型
  *
- * @author eval
- **/
-public class OperationLogBeforeApiExecute implements BeforeApiExecuteFunction {
-
-    @Override
-    public void action(AbstractApi<?, ?> api, JSONObject params) {
-
-    }
+ * @author zane
+ * @date 2022/3/15
+ */
+public enum ApiCallerType {
+    User
 }
