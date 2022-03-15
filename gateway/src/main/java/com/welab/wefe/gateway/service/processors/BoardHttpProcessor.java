@@ -61,15 +61,14 @@ public class BoardHttpProcessor extends AbstractProcessor {
 
             String boardBaseUrl = boardConfig.intranetBaseUri;
             boardBaseUrl = (boardBaseUrl.endsWith("/") ? boardBaseUrl : (boardBaseUrl + "/"));
-            url = boardBaseUrl + url;
-            LOG.info("Gateway access board address：" + url);
-            HttpResponse response = BoardHelper.push(url, method, headers, BoardHelper.generateReqParam(body));
+            String fullUrl = boardBaseUrl + url;
+            LOG.info("Gateway access board address：" + fullUrl);
+            HttpResponse response = BoardHelper.push(fullUrl, method, headers, BoardHelper.generateReqParam(body));
             if (response.success()) {
                 return ReturnStatusBuilder.ok(transferMeta.getSessionId(), response.getBodyAsString());
             } else {
-                String responseStr = response.getBodyAsString();
-                responseStr = (StringUtil.isEmpty(responseStr) ? response.getMessage() : responseStr);
-                return ReturnStatusBuilder.create(ReturnStatusEnum.SYS_EXCEPTION, transferMeta.getSessionId(), responseStr);
+                String errorMsg = "请求Board地址【" + url + "】失败，Http code: " + response.getCode() + ", errorMsg: " + response.getError().getMessage();
+                return ReturnStatusBuilder.create(ReturnStatusEnum.SYS_EXCEPTION.getCode(), errorMsg);
             }
         } catch (Exception e) {
             LOG.error("BoardHttpProcessor fail, exception:", e);
