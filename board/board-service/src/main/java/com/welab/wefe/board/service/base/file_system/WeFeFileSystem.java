@@ -18,12 +18,14 @@ package com.welab.wefe.board.service.base.file_system;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.file.compression.impl.Zip;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -155,6 +157,33 @@ public class WeFeFileSystem {
          */
         public static Path getZipFileUnzipDir(String taskId) {
             return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId);
+        }
+
+        public static File singleImageToZip(String filename, String taskId) throws StatusCodeWithException {
+            File rawFile = getBaseDir(UseType.CallDeepLearningModel).resolve(filename).toFile();
+            // 检查文件是否是图片
+            if (!FileUtil.isImage(rawFile)) {
+                if (rawFile.exists()) {
+                    rawFile.delete();
+                }
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("文件不是图片");
+            }
+
+            // 创建文件夹
+            Path dir = getBaseDir(UseType.CallDeepLearningModel).resolve(taskId);
+            // 将图片移动到文件夹
+            FileUtil.moveFile(rawFile, dir.toString());
+            // 压缩文件夹
+            Zip zip = new Zip();
+            File zipFile = null;
+            try {
+                zipFile = zip.compression(
+                        getBaseDir(UseType.CallDeepLearningModel).resolve(taskId).toString()
+                );
+            } catch (IOException e) {
+                return null;
+            }
+            return zipFile;
         }
 
         /**
