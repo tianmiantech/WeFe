@@ -348,14 +348,23 @@ public class AccountService {
      * Reset user password (administrator rights)
      */
     public String resetPassword(ResetPasswordApi.Input input) throws StatusCodeWithException {
-        AccountMySqlModel model = accountRepository.findById(input.getId()).orElse(null);
-
-        if (model == null) {
-            throw new StatusCodeWithException("找不到更新的账号信息。", StatusCode.DATA_NOT_FOUND);
-        }
-
         if (!CurrentAccount.isAdmin()) {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
+        }
+        
+        String phoneNumber = CurrentAccount.phoneNumber();
+        if (phoneNumber == null) {
+            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
+        }
+        AccountMySqlModel currentAdmin = accountRepository.findByPhoneNumber(phoneNumber);
+        // Check password
+        if (!StringUtil.equals(currentAdmin.getPassword(), Sha1.of(input.getPassword() + currentAdmin.getSalt()))) {
+            throw new StatusCodeWithException("密码不正确，请重新输入", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        
+        AccountMySqlModel model = accountRepository.findById(input.getId()).orElse(null);
+        if (model == null) {
+            throw new StatusCodeWithException("找不到更新的账号信息。", StatusCode.DATA_NOT_FOUND);
         }
 
         if (model.getSuperAdminRole()) {
@@ -377,4 +386,28 @@ public class AccountService {
 
         return newPassword;
     }
+    
+	/**
+	 * update password
+	 */
+	public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
+		String phoneNumber = CurrentAccount.phoneNumber();
+		if (phoneNumber == null) {
+			throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
+		}
+		AccountMySqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
+		// Check old password
+		if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
+			CurrentAccount.logout();
+			throw new StatusCodeWithException("您输入的旧密码不正确，为确保安全，请重新登录后重试。", StatusCode.PARAMETER_VALUE_INVALID);
+		}
+		// Regenerate salt
+		String salt = createRandomSalt();
+		// sha hash
+		newPassword = Sha1.of(newPassword + salt);
+		model.setSalt(salt);
+		model.setPassword(newPassword);
+		accountRepository.save(model);
+		CurrentAccount.logout(model.getId());
+	}
 }
