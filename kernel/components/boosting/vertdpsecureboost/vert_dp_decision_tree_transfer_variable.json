@@ -1,0 +1,48 @@
+{
+  "VertDPDecisionTreeTransferVariable": {
+    "dispatch_node_provider": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "dispatch_node_provider_result": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "tree": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "predict_data": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "predict_data_by_provider": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "predict_finish_tag": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "sync_flag": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    }
+  }
+}

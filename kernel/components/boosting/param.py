@@ -460,6 +460,66 @@ class VertSecureBoostParam(BoostingTreeParam):
 
         return True
 
+class VertDPSecureBoostParam(BoostingTreeParam):
+    """
+        Define boosting tree parameters that used in federated ml.
+
+        run_goss: bool, activate Gradient-based One-Side Sampling, which selects large gradient and small
+                   gradient samples using top_rate and other_rate.
+
+        top_rate: float, the retain ratio of large gradient data, used when run_goss is True
+
+        other_rate: float, the retain ratio of small gradient data, used when run_goss is True
+
+        epsilon: float, The budget of the Differential Privacy.
+
+        """
+
+    def __init__(self, tree_param: DecisionTreeParam = DecisionTreeParam(), task_type=consts.CLASSIFICATION,
+                 objective_param=ObjectiveParam(),
+                 learning_rate=0.3, num_trees=5, subsample_feature_rate=1, n_iter_no_change=True,
+                 tol=0.0001, encrypt_param=EncryptParam(),
+                 bin_num=32,
+                 encrypted_mode_calculator_param=EncryptedModeCalculatorParam(),
+                 predict_param=PredictParam(), cv_param=CrossValidationParam(),
+                 validation_freqs=None, early_stopping_rounds=None,
+                 use_missing=False, zero_as_missing=False, metrics=None, use_first_metric_only=True,
+                 run_goss=False, top_rate=0.2, other_rate=0.1,epsilon=3):
+
+        super(VertDPSecureBoostParam, self).__init__(tree_param, task_type, objective_param, learning_rate,
+                                                   num_trees, subsample_feature_rate, n_iter_no_change, tol,
+                                                   encrypt_param, bin_num, encrypted_mode_calculator_param,
+                                                   predict_param, cv_param, validation_freqs,
+                                                   early_stopping_rounds, use_missing, zero_as_missing, metrics,
+                                                   use_first_metric_only)
+        self.run_goss = run_goss
+        self.top_rate = top_rate
+        self.other_rate = other_rate
+        self.epsilon = epsilon
+
+
+    def check(self):
+
+        super(VertDPSecureBoostParam, self).check()
+        self.tree_param.check()
+        if type(self.use_missing) != bool:
+            raise ValueError('use missing should be bool type')
+        if type(self.zero_as_missing) != bool:
+            raise ValueError('zero as missing should be bool type')
+
+        self.check_boolean(self.run_goss, 'run goss')
+        self.check_decimal_float(self.top_rate, 'top rate')
+        self.check_decimal_float(self.other_rate, 'other rate')
+        # self.check_decimal_float(self.epsilon, 'epsilon')
+        self.check_positive_number(self.other_rate, 'other_rate')
+        self.check_positive_number(self.top_rate, 'top_rate')
+        self.check_positive_number(self.epsilon, 'epsilon')
+
+        if self.top_rate + self.other_rate >= 1:
+            raise ValueError('sum of top rate and other rate should be smaller than 1')
+
+        return True
+
 
 class VertFastSecureBoostParam(VertSecureBoostParam):
 
