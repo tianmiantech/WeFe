@@ -105,7 +105,7 @@ public class AccountService extends AbstractAccountService {
 
         String salt = createRandomSalt();
 
-        String password = Sha1.of(input.getPassword() + salt);
+        String password = hashPasswordWithSalt(input.getPassword(), salt);
 
         AccountMySqlModel model = new AccountMySqlModel();
         model.setCreatedBy(CurrentAccount.id());
@@ -311,7 +311,7 @@ public class AccountService extends AbstractAccountService {
         }
         AccountMySqlModel currentAdmin = accountRepository.findByPhoneNumber(phoneNumber);
         // Check password
-        if (!StringUtil.equals(currentAdmin.getPassword(), Sha1.of(input.getPassword() + currentAdmin.getSalt()))) {
+        if (!StringUtil.equals(currentAdmin.getPassword(), hashPasswordWithSalt(input.getPassword(), currentAdmin.getSalt()))) {
             throw new StatusCodeWithException("密码不正确，请重新输入", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
@@ -354,14 +354,14 @@ public class AccountService extends AbstractAccountService {
         }
         AccountMySqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
         // Check old password
-        if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
+        if (!StringUtil.equals(model.getPassword(), hashPasswordWithSalt(oldPassword, model.getSalt()))) {
             CurrentAccount.logout();
             throw new StatusCodeWithException("您输入的旧密码不正确，为确保安全，请重新登录后重试。", StatusCode.PARAMETER_VALUE_INVALID);
         }
         // Regenerate salt
         String salt = createRandomSalt();
         // sha hash
-        newPassword = Sha1.of(newPassword + salt);
+        newPassword = hashPasswordWithSalt(newPassword, salt);
         model.setSalt(salt);
         model.setPassword(newPassword);
         accountRepository.save(model);

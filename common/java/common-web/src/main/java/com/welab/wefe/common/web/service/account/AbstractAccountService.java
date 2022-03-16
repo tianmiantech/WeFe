@@ -71,7 +71,7 @@ public abstract class AbstractAccountService {
 
         AccountInfo account = getAccountInfo(phoneNumber);
         // phone number error
-        if (account == null || !account.password.equals(hashInputPassword(password, account.salt))) {
+        if (account == null || !account.password.equals(hashPasswordWithSalt(password, account.salt))) {
             if (account != null) {
                 LoginSecurityPolicy.onLoginFail(phoneNumber);
             }
@@ -116,7 +116,7 @@ public abstract class AbstractAccountService {
      * <p>
      * 如果hash方式与此默认方式不同，请在子类中重写此方法。
      */
-    protected String hashInputPassword(String inputPassword, String salt) {
+    protected String hashPasswordWithSalt(String inputPassword, String salt) {
         return Sha1.of(inputPassword + salt);
     }
 
