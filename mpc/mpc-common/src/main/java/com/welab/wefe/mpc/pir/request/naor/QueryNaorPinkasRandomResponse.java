@@ -22,9 +22,22 @@ public class QueryNaorPinkasRandomResponse {
 
     private String uuid;
 
+    /**
+     * 底数
+     */
     private String g;
+    /**
+     * 模数
+     */
     private String p;
+    /**
+     * g^a, a为服务器的密钥
+     */
     private String secret;
+    /**
+     * 随机大数，十六进制字符串
+     * 大小比混淆ids少1
+     */
     private List<String> randoms;
 
     public String getUuid() {

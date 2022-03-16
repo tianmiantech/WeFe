@@ -50,7 +50,7 @@ public class NaorPinkasQuery {
 
         BigInteger pk = DiffieHellmanUtil.encrypt(g, k, p);
         if (targetIndex != 0) {
-            BigInteger c = DiffieHellmanUtil.hexStringToBigInteger(randomResponse.getRandoms().get(targetIndex));
+            BigInteger c = DiffieHellmanUtil.hexStringToBigInteger(randomResponse.getRandoms().get(targetIndex - 1));
             pk = DiffieHellmanUtil.modDivide(c, pk, p);
         }
         QueryNaorPinkasResultRequest request = new QueryNaorPinkasResultRequest();

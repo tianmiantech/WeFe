@@ -20,6 +20,9 @@ public class QueryNaorPinkasResultRequest {
 
     private String uuid;
 
+    /**
+     * pk0
+     */
     private String pk;
 
     public String getUuid() {
