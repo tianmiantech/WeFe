@@ -42,4 +42,18 @@ public interface AccountRepository extends BaseRepository<AccountMySqlModel, Str
     @Modifying(clearAutomatically = true)
     @Query(value = "update account set last_action_time = now() where id =?1 ", nativeQuery = true)
     void updateLastActionTime(String id);
+    
+    /**
+     * 禁用 90 天未活动的账号
+     */
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update account set cancelled=true where DATEDIFF(now(),last_action_time)>90", nativeQuery = true)
+    int disableAccountWithoutAction90Days();
+    
+    /**
+     * 注销 180 天未活动的账号
+     */
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update account set cancelled=true where DATEDIFF(now(),last_action_time)>180", nativeQuery = true)
+    int cancelAccountWithoutAction180Days();
 }

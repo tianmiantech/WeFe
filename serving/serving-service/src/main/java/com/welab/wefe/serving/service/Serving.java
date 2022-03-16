@@ -34,6 +34,7 @@ import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
+import com.welab.wefe.serving.service.operation.ServingApiLogger;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.MemberService;
@@ -51,6 +52,7 @@ public class Serving {
         Launcher
                 .instance()
                 .apiPackageClass(Serving.class)
+                .apiLogger(new ServingApiLogger())
                 // Login status check method
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
