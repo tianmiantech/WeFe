@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.data.mongodb.entity.manager;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
@@ -34,6 +35,7 @@ public class User extends AbstractNormalMongoModel {
     private String realname;
     private String salt;
     private String email;
+    private JSONArray historyPasswordList;
     /**
      * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
      */
@@ -157,5 +159,13 @@ public class User extends AbstractNormalMongoModel {
 
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public JSONArray getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setHistoryPasswordList(JSONArray historyPasswordList) {
+        this.historyPasswordList = historyPasswordList;
     }
 }

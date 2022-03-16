@@ -16,6 +16,7 @@
 
 package com.welab.wefe.manager.service.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
@@ -73,22 +74,15 @@ public class UserService extends AbstractAccountService {
         userMongoRepo.save(user);
     }
 
-    public void changePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
-        User user = userMongoRepo.findByUserId(CurrentAccount.id());
+    @Override
+    public void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException {
+        userMongoRepo.changePassword(CurrentAccount.id(), password, salt, historyPasswords);
+    }
 
-        // Check old password
-        if (!user.getPassword().equals(Md5.of(oldPassword + user.getSalt()))) {
-            CurrentAccount.logout(CurrentAccount.id());
-            throw new StatusCodeWithException("账号已被禁止登陆，请一个小时后再试，或联系管理员。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
 
-        // Regenerate salt
-        String salt = createRandomSalt();
-
-        newPassword = Md5.of(newPassword + salt);
-
-        userMongoRepo.changePassword(CurrentAccount.id(), newPassword, salt);
-        CurrentAccount.logout(CurrentAccount.id());
+    @Override
+    protected String hashPasswordWithSalt(String inputPassword, String salt) {
+        return Md5.of(inputPassword + salt);
     }
 
     public void resetPassword(String userId) throws StatusCodeWithException {
@@ -179,6 +173,7 @@ public class UserService extends AbstractAccountService {
         info.setSuperAdminRole(model.isSuperAdminRole());
         info.setEnable(model.isEnable());
         info.setCancelled(model.isCancelled());
+        info.setHistoryPasswordList(model.getHistoryPasswordList());
         return info;
     }
 }

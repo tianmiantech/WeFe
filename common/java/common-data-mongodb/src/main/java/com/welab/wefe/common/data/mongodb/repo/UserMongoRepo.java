@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
@@ -88,7 +89,7 @@ public class UserMongoRepo extends AbstractMongoRepo {
     }
 
 
-    public void auditUser(String userId, AuditStatus auditStatus,String auditComment) {
+    public void auditUser(String userId, AuditStatus auditStatus, String auditComment) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder()
                 .append("auditStatus", auditStatus.name())
@@ -97,11 +98,12 @@ public class UserMongoRepo extends AbstractMongoRepo {
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 
-    public void changePassword(String userId, String password,String salt) {
+    public void changePassword(String userId, String password, String salt, JSONArray historyPasswords) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder()
                 .append("password", password)
-                .append("salt",salt)
+                .append("salt", salt)
+                .append("historyPasswordList", historyPasswords)
                 .build();
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }

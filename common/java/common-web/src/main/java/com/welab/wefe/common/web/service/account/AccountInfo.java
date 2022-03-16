@@ -15,7 +15,11 @@
  */
 package com.welab.wefe.common.web.service.account;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author zane
@@ -63,7 +67,29 @@ public class AccountInfo {
      * 账号是否已被注销
      */
     public boolean cancelled;
+    /**
+     * 曾经使用过的密码
+     */
+    public List<HistoryPasswordItem> historyPasswordList;
 
+    public void setHistoryPasswordList(JSONArray array) {
+        if (array == null) {
+            this.historyPasswordList = new ArrayList<>();
+        } else {
+            this.historyPasswordList = array.toJavaList(HistoryPasswordItem.class);
+        }
+
+    }
+
+    /**
+     * 获取
+     */
+    public List<HistoryPasswordItem> getPasswordHistoryList(int count) {
+        if (this.historyPasswordList == null) {
+            return new ArrayList<>();
+        }
+        return historyPasswordList.subList(Math.max(historyPasswordList.size() - count, 0), historyPasswordList.size());
+    }
 
     // region getter/setter
 
@@ -153,6 +179,14 @@ public class AccountInfo {
 
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public List<HistoryPasswordItem> getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setPasswordHistoryList(List<HistoryPasswordItem> passwordHistoryList) {
+        this.historyPasswordList = passwordHistoryList;
     }
 
     // endregion

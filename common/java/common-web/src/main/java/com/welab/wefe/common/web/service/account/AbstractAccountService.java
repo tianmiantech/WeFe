@@ -15,10 +15,13 @@
  */
 package com.welab.wefe.common.web.service.account;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.Sha1;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.LoginSecurityPolicy;
@@ -26,6 +29,7 @@ import com.welab.wefe.common.web.config.CommonConfig;
 import com.welab.wefe.common.web.service.CaptchaService;
 
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -45,6 +49,67 @@ public abstract class AbstractAccountService {
      * 获取系统中的超级管理员
      */
     public abstract AccountInfo getSuperAdmin();
+
+    /**
+     * 保存新的密码
+     */
+    public abstract void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException;
+
+    public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
+        String phoneNumber = CurrentAccount.phoneNumber();
+        if (phoneNumber == null) {
+            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
+        }
+        AccountInfo model = getAccountInfo(phoneNumber);
+        // 检查旧密码是否正确
+        if (!StringUtil.equals(model.getPassword(), hashPasswordWithSalt(oldPassword, model.getSalt()))) {
+            CurrentAccount.logout();
+            throw new StatusCodeWithException("您输入的旧密码不正确，为确保安全，请重新登录后重试。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        int historyCount = 4;
+        if (inHistoryPassword(newPassword, historyCount, model)) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("您输入的新密码必须与前四次设置的密码不一致");
+        }
+
+        // 当前密码成为历史
+        model
+                .getHistoryPasswordList()
+                .add(
+                        new HistoryPasswordItem(model.getPassword(), model.getSalt())
+                );
+
+        // 历史密码
+        String historyPasswordListString = JSON.toJSONString(model.getPasswordHistoryList(historyCount - 1));
+        // 生成新的盐和密码
+        String salt = createRandomSalt();
+        newPassword = hashPasswordWithSalt(newPassword, salt);
+
+        saveSelfPassword(newPassword, salt, JSON.parseArray(historyPasswordListString));
+        CurrentAccount.logout(model.getId());
+    }
+
+    /**
+     * 检查密码是否在历史密码中
+     *
+     * @param newPassword 新密码
+     * @param count       历史密码的个数
+     */
+    public boolean inHistoryPassword(String newPassword, int count, AccountInfo model) {
+        // 检查新密码是否与当前密码一样
+        if (model.password.equals(hashPasswordWithSalt(newPassword, model.getSalt()))) {
+            return true;
+        }
+        // 当前密码算一次，所以要减一。
+        count -= 1;
+        List<HistoryPasswordItem> list = model.getPasswordHistoryList(count);
+        for (HistoryPasswordItem item : list) {
+            if (item.password.equals(hashPasswordWithSalt(newPassword, item.salt))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * @param phoneNumber 用户唯一标识（用户登录账号：通常是手机号）

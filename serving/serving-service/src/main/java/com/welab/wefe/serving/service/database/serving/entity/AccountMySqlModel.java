@@ -16,7 +16,11 @@
 
 package com.welab.wefe.serving.service.database.serving.entity;
 
+import com.alibaba.fastjson.JSONArray;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +31,7 @@ import javax.persistence.Enumerated;
  * @author hunter.zhao
  */
 @Entity(name = "account")
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class AccountMySqlModel extends AbstractBaseMySqlModel {
 
     private static final long serialVersionUID = -6835962000573567824L;
@@ -73,6 +78,12 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
      * 是否已注销
      */
     private boolean cancelled = false;
+    /**
+     * 历史曾用密码
+     */
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private JSONArray historyPasswordList;
 
     //region getter/setter
 
@@ -162,6 +173,14 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
 
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public JSONArray getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setHistoryPasswordList(JSONArray historyPasswordList) {
+        this.historyPasswordList = historyPasswordList;
     }
 
     //endregion
