@@ -63,17 +63,20 @@ public class RealnameAuthInfoQueryApi extends AbstractApi<RealnameAuthInfoQueryA
                 String realNameAuthUsefulLife = DateUtil.toStringYYYY_MM_DD(DateUtil.addYears(DateUtil.getDate(realNameAuthTime),1));
                 realNameAuthInfoQueryOutput.setRealNameAuthUsefulLife(realNameAuthUsefulLife);
             }
+            List<RealnameAuthInfoQueryOutput.FileInfo> fileInfoList = new ArrayList<>();
             List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealnameAuthFileInfoList();
             if(realnameAuthFileInfoList != null && !realnameAuthFileInfoList.isEmpty()){
-                realnameAuthFileInfoList = realnameAuthFileInfoList
+                fileInfoList = realnameAuthFileInfoList
                         .stream()
                         .map(realnameAuthFileInfo -> {
-                            realnameAuthFileInfo.setSign(null);
-                            return realnameAuthFileInfo;
+                            RealnameAuthInfoQueryOutput.FileInfo fileInfo = new RealnameAuthInfoQueryOutput.FileInfo();
+                            fileInfo.setFilename(realnameAuthFileInfo.getFilename());
+                            fileInfo.setFileId(realnameAuthFileInfo.getFileId());
+                            return fileInfo;
                         })
                         .collect(Collectors.toList());
             }
-            realNameAuthInfoQueryOutput.setFileInfoList(realnameAuthFileInfoList);
+            realNameAuthInfoQueryOutput.setFileInfoList(fileInfoList);
             return success(realNameAuthInfoQueryOutput);
         } catch (Exception e) {
             LOG.error("Failed to query RealNameAuthInfo information in pagination:", e);

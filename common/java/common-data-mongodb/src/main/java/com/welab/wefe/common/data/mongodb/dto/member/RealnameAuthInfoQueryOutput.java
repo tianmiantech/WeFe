@@ -33,9 +33,29 @@ public class RealnameAuthInfoQueryOutput {
     private String authType;
     private String description;
     private String realNameAuthUsefulLife;
-    private List<RealnameAuthFileInfo> fileInfoList;
 
+    private List<FileInfo> fileInfoList;
 
+    public static class FileInfo {
+        private String fileId;
+        private String filename;
+
+        public String getFileId() {
+            return fileId;
+        }
+
+        public void setFileId(String fileId) {
+            this.fileId = fileId;
+        }
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
+    }
     public int getRealNameAuthStatus() {
         return realNameAuthStatus;
     }
@@ -68,11 +88,11 @@ public class RealnameAuthInfoQueryOutput {
         this.description = description;
     }
 
-    public List<RealnameAuthFileInfo> getFileInfoList() {
+    public List<FileInfo> getFileInfoList() {
         return fileInfoList;
     }
 
-    public void setFileInfoList(List<RealnameAuthFileInfo> fileInfoList) {
+    public void setFileInfoList(List<FileInfo> fileInfoList) {
         this.fileInfoList = fileInfoList;
     }
 
