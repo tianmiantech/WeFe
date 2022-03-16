@@ -196,3 +196,6 @@ CREATE TABLE `operator_log` (
   PRIMARY KEY (`id`),
   KEY `query_index` (`created_time`,`operator_phone`,`log_action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `account` ADD COLUMN `cancelled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销' AFTER `updated_time`;
+ALTER TABLE `account` ADD COLUMN `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间' AFTER `cancelled`;
