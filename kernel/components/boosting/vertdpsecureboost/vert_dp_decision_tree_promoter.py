@@ -20,7 +20,6 @@
 import copy
 import functools
 
-from common.python import session
 from common.python.utils import log_utils
 from kernel.components.boosting import DecisionTree
 from kernel.components.boosting import Node
@@ -60,7 +59,7 @@ class VertDPDecisionTreePromoter(DecisionTree):
         self.top_rate, self.other_rate = 0.2, 0.1  # goss sampling rate
 
         self.max_sample_weight = 1
-        self.feature_sitenames = {}
+        self.feature_sitenames = []
 
     def report_init_status(self):
 
@@ -183,13 +182,9 @@ class VertDPDecisionTreePromoter(DecisionTree):
                 new_tree_node_queue.append(right_node)
 
                 self.tree_node_queue[i].sitename = split_info[i].sitename
-                if self.tree_node_queue[i].sitename == self.sitename:
-                    self.tree_node_queue[i].fid = split_info[i].best_fid
-                    self.tree_node_queue[i].bid = split_info[i].best_bid
-                    self.tree_node_queue[i].missing_dir = split_info[i].missing_dir
-                else:
-                    self.tree_node_queue[i].fid = split_info[i].best_fid
-                    self.tree_node_queue[i].bid = split_info[i].best_bid
+                self.tree_node_queue[i].fid = split_info[i].best_fid
+                self.tree_node_queue[i].bid = split_info[i].best_bid
+                self.tree_node_queue[i].missing_dir = split_info[i].missing_dir
 
                 self.update_feature_importance(split_info[i])
 
@@ -202,6 +197,7 @@ class VertDPDecisionTreePromoter(DecisionTree):
                       return_node_id=True):
 
         fid, bid = node.fid, node.bid
+
         missing_dir = node.missing_dir
         zero_val = 0 if bin_sparse_point is None else bin_sparse_point[fid]
         go_left = DecisionTree.make_decision(data_inst, fid, bid, missing_dir, use_missing, zero_as_missing, zero_val)
@@ -215,7 +211,7 @@ class VertDPDecisionTreePromoter(DecisionTree):
             return node.right_nodeid
 
     @staticmethod
-    def dispatch_node(value, tree_=None, sitename=consts.PROMOTER, bin_sparse_points=None,
+    def dispatch_node(value, tree_=None, bin_sparse_points=None,
                            use_missing=False, zero_as_missing=False):
 
         unleaf_state, nodeid = value[1]
@@ -223,44 +219,35 @@ class VertDPDecisionTreePromoter(DecisionTree):
         if tree_[nodeid].is_leaf is True:
             return tree_[nodeid].id
         else:
-            if tree_[nodeid].sitename == sitename:
+            next_layer_nid = VertDPDecisionTreePromoter.go_next_layer(tree_[nodeid], value[0], use_missing,
+                                                                   zero_as_missing,bin_sparse_points)
+            return 1, next_layer_nid
 
-                next_layer_nid = VertDPDecisionTreePromoter.go_next_layer(tree_[nodeid], value[0], use_missing,
-                                                                       zero_as_missing, bin_sparse_points)
-                return 1, next_layer_nid
-
-            else:
-                return (1, tree_[nodeid].fid, tree_[nodeid].bid, tree_[nodeid].sitename,
-                        nodeid, tree_[nodeid].left_nodeid, tree_[nodeid].right_nodeid,tree_[nodeid].missing_dir)
-
-    def sync_dispatch_node_provider(self, dispatch_to_provider_data, dep=-1, idx=-1):
-
-        LOGGER.info("send node to provider to dispath, depth is {}".format(dep))
-        self.transfer_inst.dispatch_node_provider.remote(dispatch_to_provider_data,
-                                                         role=consts.PROVIDER,
-                                                         idx=idx,
-                                                         suffix=(dep,))
-        LOGGER.info("get provider dispatch result, depth is {}".format(dep))
-        ret = self.transfer_inst.dispatch_node_provider_result.get(idx=idx, suffix=(dep,))
-        return ret if idx == -1 else [ret]
 
     def redispatch_node(self, dep, reach_max_depth=False):
 
         LOGGER.info("redispatch node of depth {}".format(dep))
+
+        tree_nodes = copy.deepcopy(self.tree_)
+        for node in tree_nodes:
+            if node.fid is not None:
+                index=0
+                for feature_num, sitename in self.feature_sitenames:
+                    if node.sitename==sitename:
+                        node.fid += index
+                        break
+                    index += feature_num
+
         dispatch_node_method = functools.partial(self.dispatch_node,
-                                                 tree_=self.tree_,
-                                                 sitename=self.sitename,
+                                                 tree_=tree_nodes,
                                                  bin_sparse_points=self.bin_sparse_points,
                                                  use_missing=self.use_missing,
                                                  zero_as_missing=self.zero_as_missing)
 
+
         dispatch_promoter_result = self.data_bin_with_node_dispatch.mapValues(dispatch_node_method)
         LOGGER.info("remask dispatch node result of depth {}".format(dep))
 
-        dispatch_to_provider_result = dispatch_promoter_result.filter(
-            lambda key, value: isinstance(value, tuple) and len(value) > 2, need_send=True)
-
-        dispatch_promoter_result = dispatch_promoter_result.subtractByKey(dispatch_to_provider_result)
         leaf = dispatch_promoter_result.filter(lambda key, value: isinstance(value, tuple) is False)
 
         if self.sample_leaf_pos is None:
@@ -271,20 +258,7 @@ class VertDPDecisionTreePromoter(DecisionTree):
         if reach_max_depth:  # if reach max_depth only update weight samples
             return
 
-        dispatch_promoter_result = dispatch_promoter_result.subtractByKey(leaf)
-        dispatch_node_provider_result = self.sync_dispatch_node_provider(dispatch_to_provider_result, dep)
-
-        self.node_dispatch = None
-        for idx in range(len(dispatch_node_provider_result)):
-            if self.node_dispatch is None:
-                self.node_dispatch = dispatch_node_provider_result[idx]
-            else:
-                self.node_dispatch = self.node_dispatch.join(dispatch_node_provider_result[idx],
-                                                             lambda unleaf_state_nodeid1, unleaf_state_nodeid2:
-                                                             unleaf_state_nodeid1 if len(
-                                                                 unleaf_state_nodeid1) == 2 else unleaf_state_nodeid2)
-
-        self.node_dispatch = self.node_dispatch.union(dispatch_promoter_result, need_send=True)
+        self.node_dispatch = dispatch_promoter_result.subtractByKey(leaf)
 
     def sync_tree(self):
         LOGGER.info("sync tree to provider")
@@ -368,7 +342,7 @@ class VertDPDecisionTreePromoter(DecisionTree):
             fid = split_info.best_fid
             if fid is not None:
                 index = 0
-                for feature_num ,sitename in self.feature_sitenames.items():
+                for feature_num ,sitename in self.feature_sitenames:
                     if fid < feature_num:
                         split_info.sitename = sitename
                         split_info.best_fid -= index

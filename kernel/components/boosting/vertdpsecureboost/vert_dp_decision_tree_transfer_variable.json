@@ -1,17 +1,5 @@
 {
   "VertDPDecisionTreeTransferVariable": {
-    "dispatch_node_provider": {
-      "src": "promoter",
-      "dst": [
-        "provider"
-      ]
-    },
-    "dispatch_node_provider_result": {
-      "src": "provider",
-      "dst": [
-        "promoter"
-      ]
-    },
     "tree": {
       "src": "promoter",
       "dst": [

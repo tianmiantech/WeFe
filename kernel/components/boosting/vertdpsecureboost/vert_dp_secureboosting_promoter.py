@@ -101,7 +101,7 @@ class VertDPSecureBoostingPromoter(BoostingTree):
         self.top_rate = None
         self.other_rate = None
         self.epsilon = None
-        self.feature_sitenames = {}
+        self.feature_sitenames = []
 
     def _init_model(self, param: VertDPSecureBoostParam):
 
@@ -157,14 +157,14 @@ class VertDPSecureBoostingPromoter(BoostingTree):
         privider_data_bins = self.sync_provider_data_bin_with_dp()
         promoter_sitename = ":".join([consts.PROMOTER, str(self.component_properties.local_member_id,)])
         feature_num = self.bin_split_points.shape[0]
-        self.feature_sitenames = {feature_num: promoter_sitename}
+        self.feature_sitenames = [(feature_num,promoter_sitename)]
         for data_bin, bin_split_points, bin_sparse_points, sitename in privider_data_bins:
             self.data_bin = binning_obj.merge_data_bins(self.data_bin,data_bin)
             self.bin_split_points = np.vstack((self.bin_split_points,bin_split_points))
             for k,v in bin_sparse_points.items():
                 self.bin_sparse_points[k+feature_num] = v
             feature_num += bin_split_points.shape[0]
-            self.feature_sitenames.update({feature_num: sitename})
+            self.feature_sitenames.append((feature_num,sitename))
 
     def set_y(self):
         LOGGER.info("set label from data and check label")

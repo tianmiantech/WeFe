@@ -18,8 +18,6 @@
 
 import functools
 
-import numpy as np
-
 from common.python.utils import log_utils
 from kernel.components.boosting import DecisionTree
 from kernel.components.boosting import Node
@@ -47,8 +45,6 @@ class VertDPDecisionTreeeProvider(DecisionTree):
         self.encrypted_grad_and_hess = None
         self.tree_node_queue = None
         self.cur_split_nodes = None
-        self.missing_dir_mask_left = {}  # mask for left direction
-        self.missing_dir_mask_right = {}  # mask for right direction
         self.tree_node_num = 0
         self.sitename = consts.PROVIDER
         self.node_dispatch = None
@@ -88,18 +84,6 @@ class VertDPDecisionTreeeProvider(DecisionTree):
     def set_provider_member_idlist(self, provider_member_idlist):
         self.provider_member_idlist = provider_member_idlist
 
-    def sync_dispatch_node_provider(self, dep):
-        LOGGER.info("get node from provider to dispath, depth is {}".format(dep))
-        dispatch_node_provider = self.transfer_inst.dispatch_node_provider.get(idx=0,
-                                                                               suffix=(dep,))
-        """
-        dispatch_node_provider = federation.get(name=self.transfer_inst.dispatch_node_provider.name,
-                                            tag=self.transfer_inst.generate_transferid(
-                                                self.transfer_inst.dispatch_node_provider, dep),
-                                            idx=0)
-        """
-        return dispatch_node_provider
-
     @staticmethod
     def dispatch_node(value1, value2, sitename=None, bin_sparse_points=None,
                       use_missing=False, zero_as_missing=False,):
@@ -133,32 +117,6 @@ class VertDPDecisionTreeeProvider(DecisionTree):
                     return unleaf_state, left_nodeid
                 else:
                     return unleaf_state, right_nodeid
-
-    def sync_dispatch_node_provider_result(self, dispatch_node_provider_result, dep=-1):
-        LOGGER.info("send provider dispatch result, depth is {}".format(dep))
-
-        self.transfer_inst.dispatch_node_provider_result.remote(dispatch_node_provider_result,
-                                                                role=consts.PROMOTER,
-                                                                idx=-1,
-                                                                suffix=(dep,))
-
-        """
-        federation.remote(obj=dispatch_node_provider_result,
-                          name=self.transfer_inst.dispatch_node_provider_result.name,
-                          tag=self.transfer_inst.generate_transferid(self.transfer_inst.dispatch_node_provider_result, dep),
-                          role=consts.PROMOTER,
-                          idx=-1)
-        """
-
-    def find_dispatch(self, dispatch_node_provider, dep=-1):
-        LOGGER.info("start to find provider dispath of depth {}".format(dep))
-        dispatch_node_method = functools.partial(self.dispatch_node,
-                                                 sitename=self.sitename,
-                                                 bin_sparse_points=self.bin_sparse_points,
-                                                 use_missing=self.use_missing,
-                                                 zero_as_missing=self.zero_as_missing)
-        dispatch_node_provider_result = dispatch_node_provider.join(self.data_bin, dispatch_node_method, need_send=True)
-        self.sync_dispatch_node_provider_result(dispatch_node_provider_result, dep)
 
     def sync_tree(self):
         LOGGER.info("sync tree from promoter")
@@ -257,11 +215,6 @@ class VertDPDecisionTreeeProvider(DecisionTree):
 
     def fit(self):
         LOGGER.info("begin to fit dp provider decision tree")
-
-        for dep in range(self.max_depth):
-
-            dispatch_node_provider = self.sync_dispatch_node_provider(dep)
-            self.find_dispatch(dispatch_node_provider, dep)
 
         self.sync_tree()
         self.convert_bin_to_real()

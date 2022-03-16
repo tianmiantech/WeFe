@@ -29,8 +29,6 @@ from kernel.transfer.variables.base_transfer_variable import BaseTransferVariabl
 class VertDPDecisionTreeTransferVariable(BaseTransferVariables):
     def __init__(self, flowid=0):
         super().__init__(flowid)
-        self.dispatch_node_provider = self._create_variable(name='dispatch_node_provider')
-        self.dispatch_node_provider_result = self._create_variable(name='dispatch_node_provider_result')
         self.predict_data = self._create_variable(name='predict_data')
         self.predict_data_by_provider = self._create_variable(name='predict_data_by_provider')
         self.predict_finish_tag = self._create_variable(name='predict_finish_tag')
