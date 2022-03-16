@@ -17,7 +17,7 @@
             >
                 <el-form-item
                     label="联邦成员名称："
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model.trim="form.member_name"
@@ -57,7 +57,7 @@
                 </el-form-item>
                 <!-- <el-form-item
                     label="Board Service Address："
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model.trim="form.board_uri"
@@ -67,7 +67,7 @@
                 </el-form-item> -->
                 <!-- <el-form-item
                     label="Gateway Uri："
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model.trim="form.gateway_uri"

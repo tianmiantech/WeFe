@@ -46,7 +46,7 @@
                         </div>
                         <el-form-item
                             label="流程名称："
-                            required
+                            class="is-required"
                         >
                             <el-input
                                 v-model="flow_name"

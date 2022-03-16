@@ -26,7 +26,7 @@
                         >
                             <el-form-item
                                 label="流程名称："
-                                required
+                                class="is-required"
                             >
                                 <el-input
                                     v-model="vData.form.flow_name"
@@ -271,7 +271,7 @@
                                     @submit.prevent
                                     :disabled="vData.flowInfo.my_role !=='promoter'"
                                 >
-                                    <el-form-item label="算法类型：" required>
+                                    <el-form-item label="算法类型：" class="is-required">
                                         <el-select v-model="vData.deepLearnParams.program" disabled placeholder="请选择算法类型">
                                             <el-option
                                                 v-for="item in vData.classifyList"
@@ -281,7 +281,7 @@
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
-                                    <el-form-item label="模型名称：" required>
+                                    <el-form-item label="模型名称：" class="is-required">
                                         <el-select v-model="vData.deepLearnParams.architecture" placeholder="请选择模型名称">
                                             <el-option
                                                 v-for="item in vData.deepLearnParams.program === 'paddle_detection' ? vData.targetAlgorithmList : vData.imageAlgorithmList"
@@ -291,43 +291,43 @@
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
-                                    <el-form-item label="迭代次数：" required>
+                                    <el-form-item label="迭代次数：" class="is-required">
                                         <el-input
                                             v-model="vData.deepLearnParams.max_iter"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="聚合步长：" required>
+                                    <el-form-item label="聚合步长：" class="is-required">
                                         <el-input
                                             v-model="vData.deepLearnParams.inner_step"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="学习率：" required>
+                                    <el-form-item label="学习率：" class="is-required">
                                         <el-input
                                             v-model="vData.deepLearnParams.base_lr"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="图片通道数：" required>
+                                    <el-form-item label="图片通道数：" class="is-required">
                                         <el-radio-group v-model="vData.image_shape.aisle">
                                             <el-radio :label="3">彩色（3）</el-radio>
                                             <el-radio :label="1">黑白（1）</el-radio>
                                         </el-radio-group>
                                     </el-form-item>
-                                    <el-form-item label="图片宽度( px )：" required>
+                                    <el-form-item label="图片宽度( px )：" class="is-required">
                                         <el-input
                                             type="number"
                                             v-model="vData.image_shape.width"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="图片高度( px )：" required>
+                                    <el-form-item label="图片高度( px )：" class="is-required">
                                         <el-input
                                             type="number"
                                             v-model="vData.image_shape.height"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="批量大小：" required>
+                                    <el-form-item label="批量大小：" class="is-required">
                                         <el-input
                                             v-model="vData.deepLearnParams.batch_size"
                                             @blur="methods.saveFlowInfo($event)"
