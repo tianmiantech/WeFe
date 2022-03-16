@@ -51,7 +51,6 @@ public class ServingApiLogger extends AbstractApiLogger {
         model.setRequestTime(apiLog.getRequestTime());
         model.setRequestIp(apiLog.getCallerIp());
         model.setOperatorId(apiLog.getCallerId());
-        model.setOperatorPhone(apiLog.getCallerName());
         model.setSpend(apiLog.getSpend());
         model.setLogInterface(apiLog.getApiName());
         model.setResultCode(apiLog.getResponseCode());
