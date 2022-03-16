@@ -63,6 +63,8 @@ public class User extends AbstractNormalMongoModel {
      */
     private String auditComment;
 
+    private boolean needUpdatePassword;
+
 
     public String getUserId() {
         return userId;
@@ -167,5 +169,13 @@ public class User extends AbstractNormalMongoModel {
 
     public void setHistoryPasswordList(JSONArray historyPasswordList) {
         this.historyPasswordList = historyPasswordList;
+    }
+
+    public boolean isNeedUpdatePassword() {
+        return needUpdatePassword;
+    }
+
+    public void setNeedUpdatePassword(boolean needUpdatePassword) {
+        this.needUpdatePassword = needUpdatePassword;
     }
 }

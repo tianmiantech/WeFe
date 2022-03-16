@@ -104,6 +104,7 @@ public class UserMongoRepo extends AbstractMongoRepo {
                 .append("password", password)
                 .append("salt", salt)
                 .append("historyPasswordList", historyPasswords)
+                .append("needUpdatePassword",false)
                 .build();
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
