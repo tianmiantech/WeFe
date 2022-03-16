@@ -60,6 +60,13 @@ public class UserMongoRepo extends AbstractMongoRepo {
         return mongoManagerTemplate.findOne(query, User.class);
     }
 
+    public User getSuperAdmin() {
+        Query query = new QueryBuilder()
+                .append("superAdminRole", true)
+                .build();
+        return mongoManagerTemplate.findOne(query, User.class);
+    }
+
     public User findByUserId(String userId) {
         Query query = new QueryBuilder()
                 .append("userId", userId)
@@ -128,5 +135,13 @@ public class UserMongoRepo extends AbstractMongoRepo {
         List<User> list = mongoManagerTemplate.find(query, User.class);
         long count = mongoManagerTemplate.count(query, User.class);
         return new PageOutput<User>(pageIndex, count, pageSize, list);
+    }
+
+    public void updateLastActionTime(String userId) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder()
+                .append("lastActionTime", System.currentTimeMillis())
+                .build();
+        mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 }

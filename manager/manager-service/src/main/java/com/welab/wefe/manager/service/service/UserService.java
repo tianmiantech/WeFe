@@ -23,6 +23,7 @@ import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Md5;
+import com.welab.wefe.common.util.RandomUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
@@ -32,10 +33,13 @@ import com.welab.wefe.manager.service.constant.UserConstant;
 import com.welab.wefe.manager.service.dto.user.QueryUserInput;
 import com.welab.wefe.manager.service.dto.user.UserUpdateInput;
 import com.welab.wefe.manager.service.mapper.UserMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Random;
 
 /**
  * @author yuxin.zhang
@@ -65,7 +69,7 @@ public class UserService extends AbstractAccountService {
             throw new StatusCodeWithException("该账号已存在", StatusCode.PARAMETER_VALUE_INVALID);
         }
         String salt = createRandomSalt();
-        user.setPassword(Md5.of(user.getPassword() + salt));
+        user.setPassword(hashPasswordWithSalt(user.getPassword(),salt));
         user.setSalt(salt);
 
         if (!user.isSuperAdminRole()) {
@@ -85,7 +89,7 @@ public class UserService extends AbstractAccountService {
         return Md5.of(inputPassword + salt);
     }
 
-    public void resetPassword(String userId) throws StatusCodeWithException {
+    public String resetPassword(String userId,String adminPassword) throws StatusCodeWithException {
         if (!CurrentAccount.isAdmin()) {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
@@ -94,13 +98,18 @@ public class UserService extends AbstractAccountService {
             throw new StatusCodeWithException("不能重置超级管理员密码", StatusCode.PERMISSION_DENIED);
         }
 
+        if(!user.getPassword().equals(hashPasswordWithSalt(adminPassword,user.getSalt()))){
+            throw new StatusCodeWithException("管理员密码错误", StatusCode.PERMISSION_DENIED);
+        }
         // Regenerate salt
         String salt = createRandomSalt();
-        String newPassword = Md5.of(Md5.of(UserConstant.DEFAULT_PASSWORD) + salt);
+
+        String newPassword =RandomUtil.generateRandomPwd(8);
         user.setSalt(salt);
-        user.setPassword(newPassword);
+        user.setPassword(hashPasswordWithSalt(newPassword,salt));
         user.setNeedUpdatePassword(true);
         userMongoRepo.save(user);
+        return newPassword;
     }
 
     public void enableUser(String userId, boolean enable) throws StatusCodeWithException {
@@ -153,8 +162,8 @@ public class UserService extends AbstractAccountService {
 
     @Override
     public AccountInfo getSuperAdmin() {
-        // TODO: yuxin 待补充
-        return null;
+        User user = userMongoRepo.getSuperAdmin();
+        return toAccountInfo(user);
     }
 
     private AccountInfo toAccountInfo(User model) {
