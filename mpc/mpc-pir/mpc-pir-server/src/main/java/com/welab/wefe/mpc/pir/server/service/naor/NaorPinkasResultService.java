@@ -24,6 +24,7 @@ import com.welab.wefe.mpc.commom.Conversion;
 import com.welab.wefe.mpc.pir.protocol.ro.hf.HashFunction;
 import com.welab.wefe.mpc.pir.protocol.ro.hf.Sha256;
 import com.welab.wefe.mpc.pir.protocol.se.SymmetricKey;
+import com.welab.wefe.mpc.pir.protocol.se.aes.AESDecryptKey;
 import com.welab.wefe.mpc.pir.protocol.se.aes.AESEncryptKey;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultResponse;
@@ -37,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class NaorPinkasResultService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NaorPinkasResultService.class);
@@ -68,16 +68,27 @@ public class NaorPinkasResultService {
         List<String> conditions = operation.get(uuid, Constants.PIR.NAORPINKAS_CONDITION);
 
         HashFunction hash = new Sha256();
-        List<SymmetricKey> keys = randoms.stream().map(DiffieHellmanUtil::hexStringToBigInteger)
-                .map(value -> DiffieHellmanUtil.modDivide(value, enPk, p))
-                .map(BigInteger::toByteArray)
-                .map(hash::digest)
-                .map(value -> new AESEncryptKey(value))
-                .collect(Collectors.toList());
+
+        CompletableFuture[] futures = randoms.stream().map(e -> CompletableFuture.supplyAsync(() -> {
+            BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
+            BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
+            return new AESDecryptKey(hash.digest(key.toByteArray()));
+        })).toArray(CompletableFuture[]::new);
 
         SymmetricKey k0 = new AESEncryptKey(hash.digest(enPk.toByteArray()));
-        keys.add(0, k0);
+        List<SymmetricKey> keys = new ArrayList<>(randoms.size() + 1);
+        keys.add(k0);
 
+        CompletableFuture.allOf(futures).join();
+        for (CompletableFuture future : futures) {
+            try {
+                keys.add((SymmetricKey) future.get());
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+
+        CompletableFuture.allOf(queryResult).join();
         Map<String, String> results = null;
         try {
             results = queryResult.get();

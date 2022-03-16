@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class NaorPinkasRandomService {
@@ -70,14 +71,26 @@ public class NaorPinkasRandomService {
         mCacheOperation.save(uuid, Constants.PIR.NAORPINKAS_P, DiffieHellmanUtil.bigIntegerToHexString(key.getP()));
         mCacheOperation.save(uuid, Constants.PIR.NAORPINKAS_A, DiffieHellmanUtil.bigIntegerToHexString(a));
 
-        CacheOperation<List<String>> cacheOperation = CacheOperationFactory.getCacheOperation();
-        List<String> randomExponential = randoms.stream()
-                .map(value -> DiffieHellmanUtil.encrypt(value, a, key.getP()))
-                .map(DiffieHellmanUtil::bigIntegerToHexString)
-                .collect(Collectors.toList());
-        List<String> conditions = queryConditions.stream().map(Object::toString).collect(Collectors.toList());
+        CompletableFuture[] futures = randoms.stream().map(e -> CompletableFuture.supplyAsync(
+                        () -> {
+                            BigInteger en = DiffieHellmanUtil.encrypt(e, a, key.getP());
+                            return DiffieHellmanUtil.bigIntegerToHexString(en);
+                        }
+                )
+        ).toArray(CompletableFuture[]::new);
+        CompletableFuture.allOf(futures).join();
+        List<String> enRandoms = new ArrayList<>(futures.length);
+        for (CompletableFuture future : futures) {
+            try {
+                enRandoms.add((String) future.get());
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
 
-        cacheOperation.save(uuid, Constants.PIR.NAORPINKAS_RANDOM, randomExponential);
+        CacheOperation<List<String>> cacheOperation = CacheOperationFactory.getCacheOperation();
+        List<String> conditions = queryConditions.stream().map(Object::toString).collect(Collectors.toList());
+        cacheOperation.save(uuid, Constants.PIR.NAORPINKAS_RANDOM, enRandoms);
         cacheOperation.save(uuid, Constants.PIR.NAORPINKAS_CONDITION, conditions);
         LOGGER.info("{} save params finish", uuid);
     }
