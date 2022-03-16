@@ -254,6 +254,21 @@
             :visible.sync="resetPwDialog.visible"
             destroy-on-close
         >
+            <el-form
+                ref="resetPwdForm"
+                :model="resetPwdForm"
+                :rules="resetFormRules"
+            >
+                <el-form-item
+                    label="您的登录密码："
+                    prop="password"
+                >
+                    <el-input
+                        v-model="resetPwdForm.password"
+                        show-password
+                    />
+                </el-form-item>
+            </el-form>
             将重置 <strong class="primary-color">
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!
@@ -355,9 +370,9 @@
                         v-model="transformSuperUserDialog.user"
                         placeholder="输入姓名或者11位手机号搜索"
                         :fetch-suggestions="getUsers"
-                        @select="selectUser"
                         style="width: 260px;"
                         clearable
+                        @select="selectUser"
                         @clear="clearSuggestions"
                     />
                 </el-form-item>
@@ -431,6 +446,14 @@
                     user:    '',
                     id:      '',
                 },
+                resetPwdForm: {
+                    password: '',
+                },
+                resetFormRules: {
+                    password: [
+                        { required: true, message: '请输入您的登录密码', trigger: 'blur' },
+                    ],
+                },
             };
         },
         computed: {
@@ -469,21 +492,30 @@
                 this.resetPwDialog.visible = true;
             },
             async confirmReset($event) {
-                const { code, data } = await this.$http.post({
-                    url:  '/account/reset/password',
-                    data: {
-                        id: this.resetPwDialog.id,
-                    },
-                    btnState: {
-                        target: $event,
-                    },
-                });
+                this.$refs['resetPwdForm'].validate(async(valid) => {
+                    if (valid) {
+                        const { code, data } = await this.$http.post({
+                            url:  '/account/reset/password',
+                            data: {
+                                id:       this.resetPwDialog.id,
+                                password: this.resetPwdForm.password,
+                            },
+                            btnState: {
+                                target: $event,
+                            },
+                        });
 
-                if(code === 0) {
-                    this.resetPwDialog.visible = false;
-                    this.resetPwDialog.result = true;
-                    this.resetPwDialog.new_password = data;
-                }
+                        if(code === 0) {
+                            this.resetPwDialog.visible = false;
+                            this.resetPwDialog.result = true;
+                            this.resetPwDialog.new_password = data;
+                            this.resetPwdForm.password = '';
+                        }
+                    } else {
+                        return false;
+                    }
+                });
+                
             },
             changeUserRole(row) {
                 this.userRoleDialog.visible = true;
