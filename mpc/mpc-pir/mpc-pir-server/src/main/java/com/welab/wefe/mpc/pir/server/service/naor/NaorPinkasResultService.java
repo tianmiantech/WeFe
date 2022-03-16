@@ -75,6 +75,9 @@ public class NaorPinkasResultService {
                 .map(value -> new AESEncryptKey(value))
                 .collect(Collectors.toList());
 
+        SymmetricKey k0 = new AESEncryptKey(hash.digest(enPk.toByteArray()));
+        keys.add(0, k0);
+
         Map<String, String> results = null;
         try {
             results = queryResult.get();

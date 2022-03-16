@@ -53,7 +53,7 @@ public class NaorPinkasRandomService {
         response.setSecret(DiffieHellmanUtil.bigIntegerToHexString(secret));
         List<String> randoms = new ArrayList<>(queryConditions.size());
         List<BigInteger> bigIntegers = new ArrayList<>(queryConditions.size());
-        for (int i = 0; i < queryConditions.size(); i++) {
+        for (int i = 0; i < queryConditions.size() - 1; i++) {
             BigInteger random = DiffieHellmanUtil.generateRandomKey(keySize);
             bigIntegers.add(random);
             randoms.add(DiffieHellmanUtil.bigIntegerToHexString(random));
