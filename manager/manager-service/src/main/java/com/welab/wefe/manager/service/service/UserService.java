@@ -105,6 +105,7 @@ public class UserService extends AbstractAccountService {
         String newPassword = Md5.of(Md5.of(UserConstant.DEFAULT_PASSWORD) + salt);
         user.setSalt(salt);
         user.setPassword(newPassword);
+        user.setNeedUpdatePassword(true);
         userMongoRepo.save(user);
     }
 

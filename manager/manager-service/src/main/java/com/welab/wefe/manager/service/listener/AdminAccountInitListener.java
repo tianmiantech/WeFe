@@ -54,6 +54,7 @@ public class AdminAccountInitListener implements ApplicationListener<Application
             user.setSuperAdminRole(true);
             user.setRealname(UserConstant.ADMIN_ACCOUNT);
             user.setAuditStatus(AuditStatus.agree);
+            user.setNeedUpdatePassword(true);
             try {
                 userService.register(user);
             } catch (StatusCodeWithException e) {
