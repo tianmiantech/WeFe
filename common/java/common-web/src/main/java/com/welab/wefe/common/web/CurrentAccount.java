@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.web;
 
+import com.welab.wefe.common.web.service.account.AccountInfo;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 
@@ -32,7 +33,7 @@ public class CurrentAccount {
     /**
      * token : Info
      */
-    private static ExpiringMap<String, Info> ACCOUNT_MAP_BY_TOKEN = ExpiringMap
+    private static ExpiringMap<String, AccountInfo> ACCOUNT_MAP_BY_TOKEN = ExpiringMap
             .builder()
             .expirationPolicy(ExpirationPolicy.ACCESSED)
             .expiration(60, TimeUnit.MINUTES)
@@ -47,28 +48,10 @@ public class CurrentAccount {
      */
     private static ThreadLocal<String> tokens = new ThreadLocal<>();
 
-    /**
-     * After a user logs in successfully, this method is invoked to register and obtain its information.
-     */
-    public synchronized static void logined(String token, String id, String phoneNumber, boolean adminRole, boolean superAdminRole, boolean enable) {
-        logined(token, new Info(id, phoneNumber, adminRole, superAdminRole, enable));
-    }
-
-    /**
-     * After a user logs in successfully, this method is invoked to register and obtain its information.
-     */
-    public synchronized static void logined(String token, String id, String phoneNumber, boolean adminRole, boolean superAdminRole) {
-        logined(token, new Info(id, phoneNumber, adminRole, superAdminRole));
-    }
-
-    public synchronized static void logined(String token, String id, String phoneNumber) {
-        logined(token, new Info(id, phoneNumber));
-    }
-
-    public synchronized static void logined(String token, Info info) {
+    public synchronized static void logined(String token, AccountInfo accountInfo) {
         // To avoid multi-point login, locate and delete the old token.
-        ACCOUNT_MAP_BY_TOKEN.entrySet().removeIf(item -> info.getId().equals(item.getValue().getId()));
-        ACCOUNT_MAP_BY_TOKEN.put(token, info);
+        ACCOUNT_MAP_BY_TOKEN.entrySet().removeIf(item -> accountInfo.getId().equals(item.getValue().getId()));
+        ACCOUNT_MAP_BY_TOKEN.put(token, accountInfo);
     }
 
     /**
@@ -94,50 +77,50 @@ public class CurrentAccount {
      * Gets the ID of the current user
      */
     public static String id() {
-        Info info = get();
-        if (info == null) {
+        AccountInfo accountInfo = get();
+        if (accountInfo == null) {
             return null;
         }
-        return info.id;
+        return accountInfo.id;
     }
 
     /**
      * Gets the mobile number of the current user
      */
     public static String phoneNumber() {
-        Info info = get();
-        if (info == null) {
+        AccountInfo accountInfo = get();
+        if (accountInfo == null) {
             return null;
         }
-        return info.phoneNumber;
+        return accountInfo.phoneNumber;
     }
 
     /**
      * Administrator or not
      */
     public static boolean isAdmin() {
-        Info info = get();
-        if (info == null) {
+        AccountInfo accountInfo = get();
+        if (accountInfo == null) {
             return false;
         }
-        return info.isAdminRole();
+        return accountInfo.isAdminRole();
     }
 
     /**
      * Whether to be a super administrator
      */
     public static boolean isSuperAdmin() {
-        Info info = get();
-        if (info == null) {
+        AccountInfo accountInfo = get();
+        if (accountInfo == null) {
             return false;
         }
-        return info.isSuperAdminRole();
+        return accountInfo.isSuperAdminRole();
     }
 
     /**
      * Get the current user information
      */
-    public static Info get() {
+    public static AccountInfo get() {
         String token = tokens.get();
         if (token == null) {
             return null;
@@ -149,7 +132,7 @@ public class CurrentAccount {
     /**
      * Obtain the user information of the specified token
      */
-    public static Info get(String token) {
+    public static AccountInfo get(String token) {
         return ACCOUNT_MAP_BY_TOKEN.get(token);
     }
 
@@ -169,73 +152,5 @@ public class CurrentAccount {
 
     public static String generateToken() {
         return UUID.randomUUID().toString().replace("-", "");
-    }
-
-    public static class Info {
-        public String id;
-        public String phoneNumber;
-        public boolean adminRole;
-        public boolean superAdminRole;
-        public boolean enable;
-
-        public Info(String id, String phoneNumber) {
-            this.id = id;
-            this.phoneNumber = phoneNumber;
-        }
-
-        public Info(String id, String phoneNumber, boolean adminRole, boolean superAdminRole) {
-            this.id = id;
-            this.phoneNumber = phoneNumber;
-            this.adminRole = adminRole;
-            this.superAdminRole = superAdminRole;
-        }
-
-        public Info(String id, String phoneNumber, boolean adminRole, boolean superAdminRole, boolean enable) {
-            this.id = id;
-            this.phoneNumber = phoneNumber;
-            this.adminRole = adminRole;
-            this.superAdminRole = superAdminRole;
-            this.enable = enable;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getPhoneNumber() {
-            return phoneNumber;
-        }
-
-        public void setPhoneNumber(String phoneNumber) {
-            this.phoneNumber = phoneNumber;
-        }
-
-        public boolean isAdminRole() {
-            return adminRole;
-        }
-
-        public void setAdminRole(boolean adminRole) {
-            this.adminRole = adminRole;
-        }
-
-        public boolean isSuperAdminRole() {
-            return superAdminRole;
-        }
-
-        public void setSuperAdminRole(boolean superAdminRole) {
-            this.superAdminRole = superAdminRole;
-        }
-
-        public boolean isEnable() {
-            return enable;
-        }
-
-        public void setEnable(boolean enable) {
-            this.enable = enable;
-        }
     }
 }

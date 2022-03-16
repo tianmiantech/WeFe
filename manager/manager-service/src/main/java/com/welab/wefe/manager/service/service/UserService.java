@@ -21,16 +21,13 @@ import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.LoginSecurityPolicy;
-import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.common.web.service.account.AbstractAccountService;
+import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.manager.service.api.user.AuditApi;
 import com.welab.wefe.manager.service.constant.UserConstant;
-import com.welab.wefe.manager.service.dto.user.LoginInput;
-import com.welab.wefe.manager.service.dto.user.LoginOutput;
 import com.welab.wefe.manager.service.dto.user.QueryUserInput;
 import com.welab.wefe.manager.service.dto.user.UserUpdateInput;
 import com.welab.wefe.manager.service.mapper.UserMapper;
@@ -39,15 +36,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
-import java.util.Random;
-
 /**
  * @author yuxin.zhang
  */
 @Service
 @Transactional(transactionManager = "transactionManagerManager", rollbackFor = Exception.class)
-public class UserService {
+public class UserService extends AbstractAccountService {
 
 
     @Autowired
@@ -156,55 +150,35 @@ public class UserService {
         );
     }
 
-    private String createRandomSalt() {
-        final Random r = new SecureRandom();
-        byte[] salt = new byte[16];
-        r.nextBytes(salt);
-
-        return Base64Util.encode(salt);
+    @Override
+    public AccountInfo getAccountInfo(String account) {
+        User user = userMongoRepo.findByAccount(account);
+        return toAccountInfo(user);
     }
 
+    @Override
+    public AccountInfo getSuperAdmin() {
+        // TODO: yuxin 待补充
+        return null;
+    }
 
-    public LoginOutput login(LoginInput input) throws StatusCodeWithException {
-        // Verification code verification
-        if (!CaptchaService.verify(input.getKey(), input.getCode())) {
-            throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
+    private AccountInfo toAccountInfo(User model) {
+        if (model == null) {
+            return null;
         }
 
-        User user = userMongoRepo.findByAccount(input.getAccount());
-        if (user == null) {
-            throw new StatusCodeWithException("账号不存在!", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        // Check if it's in the small black room
-        if (LoginSecurityPolicy.inDarkRoom(input.getAccount())) {
-            throw new StatusCodeWithException("账号已被禁止登陆，请一个小时后再试，或联系管理员。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        if (!user.getPassword().equals(Md5.of(input.getPassword() + user.getSalt()))) {
-            // Log a login failure event
-            LoginSecurityPolicy.onLoginFail(input.getAccount());
-            StatusCode
-                    .PARAMETER_VALUE_INVALID
-                    .throwException("密码错误, 连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
-        }
-
-        if (user.getAuditStatus() != AuditStatus.agree) {
-            throw new StatusCodeWithException("账号尚未审核，请联系管理员对您的账号审核后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-
-        if (!user.isEnable()) {
-            throw new StatusCodeWithException("账号被禁用，请联系管理员!", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-
-        LoginOutput output = mUserMapper.transfer(user);
-        String token = CurrentAccount.generateToken();
-        output.setToken(token);
-        CurrentAccount.logined(token, user.getUserId(), user.getAccount(), user.isAdminRole(), user.isSuperAdminRole(), user.isEnable());
-        // Record a successful login event
-        LoginSecurityPolicy.onLoginSuccess(input.getAccount());
-        return output;
+        AccountInfo info = new AccountInfo();
+        info.setId(model.getUserId());
+        info.setPhoneNumber(model.getAccount());
+        info.setNickname(model.getRealname());
+        info.setPassword(model.getPassword());
+        info.setSalt(model.getSalt());
+        info.setAuditStatus(model.getAuditStatus());
+        info.setAuditComment(model.getAuditComment());
+        info.setAdminRole(model.isAdminRole());
+        info.setSuperAdminRole(model.isSuperAdminRole());
+        info.setEnable(model.isEnable());
+        info.setCancelled(model.isCancelled());
+        return info;
     }
 }

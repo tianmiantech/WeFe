@@ -449,3 +449,10 @@ ALTER TABLE `task`
 -- -------------------------------------
 ALTER TABLE `task_result`
     ADD INDEX `index_project_serving_model`(`project_id`, `serving_model`, `flow_id`) USING BTREE;
+
+-- -------------------------------------
+-- account 表加字段
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `account`
+    ADD COLUMN `cancelled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已注销' AFTER `enable`;

@@ -22,11 +22,11 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.CurrentAccount.Info;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.function.AfterApiExecuteFunction;
+import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.util.HttpServletRequestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,20 +71,20 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
 
     @Override
     public void action(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result) {
-        final Info info = CurrentAccount.get();
+        final AccountInfo accountInfo = CurrentAccount.get();
 
         // 暂时只记录用户登录状态下调用的 api
-        if (info == null) {
+        if (accountInfo == null) {
             return;
         }
 
         // 异步保存日志
         CommonThreadPool.run(
-                () -> saveLog(httpServletRequest, start, api, params, result, info)
+                () -> saveLog(httpServletRequest, start, api, params, result, accountInfo)
         );
     }
 
-    private void saveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, Info info) {
+    private void saveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, AccountInfo accountInfo) {
         Api annotation = api.getClass().getAnnotation(Api.class);
 
         if (ignore(httpServletRequest, annotation)) {
@@ -98,8 +98,8 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
         log.setSpend(result.spend);
         log.setResponseTime(new Date(start + result.spend));
         log.setCallerIp(ip);
-        log.setCallerId(info.getId());
-        log.setCallerName(info.getPhoneNumber());
+        log.setCallerId(accountInfo.getId());
+        log.setCallerName(accountInfo.getPhoneNumber());
         log.setApiName(annotation.path());
         log.setRequestData(JSON.toJSONString(params, LoggerSerializeConfig.instance()));
         log.setResponseCode(result.code);

@@ -16,12 +16,12 @@
 
 package com.welab.wefe.serving.service.database.serving.entity;
 
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-
-import com.welab.wefe.common.wefe.enums.AuditStatus;
 
 /**
  * @author hunter.zhao
@@ -29,9 +29,9 @@ import com.welab.wefe.common.wefe.enums.AuditStatus;
 @Entity(name = "account")
 public class AccountMySqlModel extends AbstractBaseMySqlModel {
 
-	private static final long serialVersionUID = -6835962000573567824L;
+    private static final long serialVersionUID = -6835962000573567824L;
 
-	@Column(name = "phone_number")
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     private String password;
@@ -68,6 +68,12 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
      * 是否可用
      */
     private Boolean enable;
+
+    /**
+     * 是否已注销
+     */
+    private boolean cancelled = false;
+
     //region getter/setter
 
     public String getPhoneNumber() {
@@ -126,29 +132,37 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
         this.adminRole = adminRole;
     }
 
-	public AuditStatus getAuditStatus() {
-		return auditStatus;
-	}
+    public AuditStatus getAuditStatus() {
+        return auditStatus;
+    }
 
-	public void setAuditStatus(AuditStatus auditStatus) {
-		this.auditStatus = auditStatus;
-	}
+    public void setAuditStatus(AuditStatus auditStatus) {
+        this.auditStatus = auditStatus;
+    }
 
-	public String getAuditComment() {
-		return auditComment;
-	}
+    public String getAuditComment() {
+        return auditComment;
+    }
 
-	public void setAuditComment(String auditComment) {
-		this.auditComment = auditComment;
-	}
+    public void setAuditComment(String auditComment) {
+        this.auditComment = auditComment;
+    }
 
-	public Boolean getEnable() {
-		return enable;
-	}
+    public Boolean getEnable() {
+        return enable;
+    }
 
-	public void setEnable(Boolean enable) {
-		this.enable = enable;
-	}
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
 
     //endregion
 }

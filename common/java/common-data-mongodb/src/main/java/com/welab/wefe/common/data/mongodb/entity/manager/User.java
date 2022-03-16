@@ -47,7 +47,10 @@ public class User extends AbstractNormalMongoModel {
      * 是否可用
      */
     private boolean enable = true;
-
+    /**
+     * 是否已注销
+     */
+    private boolean cancelled = false;
 
     /**
      * 审核状态
@@ -146,5 +149,13 @@ public class User extends AbstractNormalMongoModel {
 
     public void setAuditComment(String auditComment) {
         this.auditComment = auditComment;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 }

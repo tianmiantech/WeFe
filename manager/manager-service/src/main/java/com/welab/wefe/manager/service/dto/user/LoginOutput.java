@@ -16,6 +16,7 @@
 
 package com.welab.wefe.manager.service.dto.user;
 
+import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 
 /**
@@ -25,11 +26,24 @@ public class LoginOutput extends AbstractApiOutput {
     private String userId;
     private String token;
     private String account;
-    private String password;
     private String realname;
     private String email;
     private boolean superAdminRole;
     private boolean adminRole;
+
+    public LoginOutput() {
+    }
+
+    public LoginOutput(String token, User model) {
+
+        this.token = token;
+        this.userId = model.getUserId();
+        this.account = model.getAccount();
+        this.realname = model.getRealname();
+        this.email = model.getEmail();
+        this.superAdminRole = model.isSuperAdminRole();
+        this.adminRole = model.isAdminRole();
+    }
 
 
     public String getUserId() {
@@ -54,14 +68,6 @@ public class LoginOutput extends AbstractApiOutput {
 
     public void setAccount(String account) {
         this.account = account;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getRealname() {

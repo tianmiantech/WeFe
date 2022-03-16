@@ -71,6 +71,10 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
      * 是否可用
      */
     private Boolean enable;
+    /**
+     * 是否已注销
+     */
+    private boolean cancelled;
 
 
     //region getter/setter
@@ -153,6 +157,14 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     public void setEnable(Boolean enable) {
         this.enable = enable;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 
     //endregion

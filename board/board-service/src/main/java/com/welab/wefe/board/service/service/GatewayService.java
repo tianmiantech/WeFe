@@ -37,7 +37,6 @@ import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.clickhouse.util.apache.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -198,7 +197,7 @@ public class GatewayService extends BaseGatewayService {
         List<ProjectMemberMySqlModel> members = projectMemberService.findListByProjectId(projectId);
 
         ProjectMemberMySqlModel promoter = members.stream()
-                .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtils.isBlank(x.getInviterId()))
+                .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtil.isBlank(x.getInviterId()))
                 .findFirst().orElse(null);
 
         // Since the initiator models with itself, the records of the initiator as a provider should be eliminated to
