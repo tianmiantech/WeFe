@@ -310,12 +310,12 @@
                         fileId,
                     },
                 });
-                const contentDisposition = headers['content-disposition'];
+                const contentDisposition = headers['content-disposition'] || headers['Content-Disposition'];
 
                 let fileName = '';
 
                 if (contentDisposition) {
-                    fileName = window.decodeURI(headers['content-disposition'].split('filename=')[1], 'UTF-8');
+                    fileName = window.decodeURI(contentDisposition.split('filename=')[1], 'UTF-8');
                 }
 
                 if(code === 0) {

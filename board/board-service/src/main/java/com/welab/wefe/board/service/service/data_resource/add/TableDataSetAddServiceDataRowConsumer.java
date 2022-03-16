@@ -272,6 +272,8 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
             return;
         }
 
+        // When it comes in, the y of row has moved to the position with index 1
+        yIndex = 1;
         for (List<Object> row : rows) {
             Object value = row.get(yIndex);
             if (null == value) {

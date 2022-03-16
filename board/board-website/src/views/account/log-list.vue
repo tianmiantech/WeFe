@@ -10,9 +10,6 @@
             <el-form-item label="操作类型">
                 <el-input v-model="search.action" clearable />
             </el-form-item>
-            <el-form-item label="操作人手机号">
-                <el-input v-model="search.operator_phone" maxlength="11" clearable />
-            </el-form-item>
             <el-form-item label="起止时间">
                 <DateTimePicker
                     type="datetimerange"
@@ -49,17 +46,6 @@
                     {{ scope.row.interface_name }}
                     <br>
                     {{ scope.row.log_interface }}
-                </template>
-            </el-table-column>
-            <el-table-column
-                label="操作人"
-                prop="operator_phone"
-                min-width="250"
-            >
-                <template v-slot="scope">
-                    {{ scope.row.operator_phone }}
-                    <br>
-                    {{ scope.row.operator_id }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -112,10 +98,9 @@
                 }],
                 datePicker: '',
                 search:     {
-                    action:         '',
-                    operator_phone: '',
-                    startTime:      '',
-                    endTime:        '',
+                    action:    '',
+                    startTime: '',
+                    endTime:   '',
                 },
                 getListApi:   '/log/query',
                 fillUrlQuery: false,
@@ -128,10 +113,9 @@
         methods: {
             syncUrlParams() {
                 this.search = {
-                    action:         '',
-                    operator_phone: '',
-                    startTime:      '',
-                    endTime:        '',
+                    action:    '',
+                    startTime: '',
+                    endTime:   '',
                     ...this.$route.query,
                 };
                 if(this.search.startTime && this.search.endTime) {

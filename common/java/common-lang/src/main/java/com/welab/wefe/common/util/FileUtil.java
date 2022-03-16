@@ -19,10 +19,7 @@ package com.welab.wefe.common.util;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 
 /**
  * @author zane.luo
@@ -200,8 +197,15 @@ public class FileUtil {
     }
 
     public static void moveFile(File file, String distDir) {
+        moveFile(file, Paths.get(distDir));
+    }
+
+    public static void moveFile(File file, Path distDir) {
         String fileName = file.getName();
-        File distFile = new File(distDir, fileName);
+
+        distDir.toFile().mkdirs();
+
+        File distFile = distDir.resolve(fileName).toFile();
         if (distFile.exists()) {
             distFile.delete();
         }
