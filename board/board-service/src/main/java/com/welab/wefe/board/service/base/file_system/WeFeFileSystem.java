@@ -195,6 +195,11 @@ public class WeFeFileSystem {
             File rawFile = getBaseDir(UseType.CallDeepLearningModel).resolve(filename).toFile();
             File renamedFile = getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
 
+            // 在重命名之前先检查是否需要重命名
+            if (rawFile.getAbsolutePath().equals(renamedFile.getAbsolutePath())) {
+                return renamedFile;
+            }
+
             if (!rawFile.exists()) {
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("未找到文件：" + filename);
             }
