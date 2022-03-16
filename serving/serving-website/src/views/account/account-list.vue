@@ -279,7 +279,7 @@
             destroy-on-close
         >
             <div style="margin-top:-15px">
-                密码已重置为:
+                密码已重置为：
                 <p class="new_password">{{ resetPwDialog.new_password }}</p>
                 <p class="color-danger f12">请勿随意传播!</p>
             </div>
@@ -330,8 +330,8 @@
                 </el-button>
             </template>
         </el-dialog>
-        
-        
+
+
         <el-dialog
             width="440px"
             title="超级管理员转移"
@@ -382,7 +382,7 @@
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table.js';
 	import { baseLogout } from '@src/router/auth';
-	
+
     export default {
         mixins: [table],
         inject: ['refresh'],
@@ -563,7 +563,7 @@
                     cb(list);
                 }
             },
-            
+
             clearSuggestions() {
                 this.transformSuperUserDialog.id = '';
             },

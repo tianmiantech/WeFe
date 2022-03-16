@@ -75,6 +75,8 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
         // 调用飞桨开始推理
         TaskMySqlModel task = taskService.findOne(input.taskId);
         if (task == null) {
+            zipFile.delete();
+            result.deleteAllDirAndFiles();
             StatusCode.PARAMETER_VALUE_INVALID.throwException("此task不存在:" + input.taskId);
         }
 
@@ -124,7 +126,8 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
 
             // 如果是单张图片，要打包为 zip。
             if (FileUtil.isImage(filename)) {
-
+                File zipFile = WeFeFileSystem.CallDeepLearningModel.singleImageToZip(filename, taskId);
+                filename = zipFile.getName();
             }
 
             WeFeFileSystem.CallDeepLearningModel.renameZipFile(filename, taskId);

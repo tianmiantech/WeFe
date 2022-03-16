@@ -26,7 +26,7 @@
                         <uploader-btn
                             :attrs="vData.img_upload_attrs"
                             :single="true"
-                            class="upload_btn"
+                            class="upload_btn mt10 mb10"
                         >
                             点击上传文件
                         </uploader-btn>
@@ -53,15 +53,18 @@
                         <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" :width="700" @select-image="methods.selectImage" />
                     </div>
                     <!-- 预测结果出来后可显示上传文件按钮 -->
-                    <uploader-btn
-                        v-if="vData.isCheckFinished"
-                        :attrs="vData.img_upload_attrs"
-                        :single="true"
-                        class="upload_btn"
-                    >
-                        点击上传文件
-                    </uploader-btn>
-                    <el-button v-if="vData.isCheckFinished" type="primary" class="ml10" @click="methods.downloadModel">模型下载</el-button>
+                    <div class="mt10">
+                        <uploader-btn
+                            v-if="vData.isCheckFinished"
+                            :attrs="vData.img_upload_attrs"
+                            :single="true"
+                            class="upload_btn"
+                        >
+                            点击上传文件
+                        </uploader-btn>
+                        <el-button type="primary" class="ml10" @click="methods.downloadModel">模型下载</el-button>
+                        <el-button type="primary" class="ml10" @click="methods.downloadModelFile">模型文件下载</el-button>
+                    </div>
                 </uploader>
             </div>
             <div class="show_box ml10" style="min-width: 430px;">
@@ -147,7 +150,7 @@
                     },
                 },
                 img_upload_attrs: {
-                    accept: 'application/zip, application/x-rar-compressed, application/x-tar, application/x-7z-compressed, application/image', // zip, rar, tar, 7z
+                    accept: 'application/zip, application/x-rar-compressed, application/x-tar, application/x-7z-compressed, .jpg,.png,.jpeg', // zip, rar, tar, 7z
                 },
                 fileStatusText: {
                     success:   '成功',
@@ -180,6 +183,7 @@
             });
             const methods = {
                 async getModelList() {
+                    vData.pageLoading = true;
                     const { code, data } = await $http.post({
                         url:  '/project/modeling/query',
                         data: {
@@ -193,7 +197,9 @@
                             if (data && data.list.length) {
                                 vData.modelList = data.list;
                                 vData.form.model = data.list[0].task_id;
+                                methods.getPredictDetail();
                             }
+                            vData.pageLoading = false;
                         });
                     }
                 },
@@ -260,14 +266,19 @@
                         },
                     });
 
-                    if(code === 0) {
-                        nextTick(_=> {
+                    nextTick(_=> {
+                        if(code === 0) {
+                        
                             if (data.file_count) {
                                 vData.isStartPredict = true;
                                 methods.getPredictDetail();
                             }
-                        });
-                    }
+                        
+                        } else {
+                            vData.isUploadedOk = false;
+                            vData.isCanUpload = true;
+                        }
+                    });
                 },
                 async getPredictDetail() {
                     // 获取预测结果 flow/job/task/detail
@@ -297,19 +308,16 @@
                                 }
                                 vData.sampleList = [];
                                 vData.isCheckFinished = false;
+                                vData.isCanUpload = false;
                                 list.forEach((item, idx) => {
                                     methods.downSingleImage(item.image, idx, item);
                                 });
                             }
-                            // if (data.task_view.results)
-                            // setTimeout(() => {
-                            //     methods.getPredictDetail();
-                            // }, 1000);
                             vData.timer3 = setTimeout(() => {
                                 if (data.task_view.results[0].result.status === 'running') {
                                     methods.getPredictDetail();
                                 }
-                            }, 1000);
+                            }, 3000);
                         });
                     }
                 },
@@ -385,6 +393,16 @@
                     document.body.appendChild(link);
                     link.click();
                 },
+                async downloadModelFile(){
+                    const api = `${window.api.baseUrl}/model/deep_learning/call/download/zip?task_id=${vData.form.model}&token=${userInfo.value.token}`;
+                    const link = document.createElement('a');
+
+                    link.href = api;
+                    link.target = '_blank';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                },
             };
 
             onBeforeMount(()=> {
@@ -441,7 +459,6 @@
             background: #438bff;
             color: #fff;
             border: none;
-            margin: 10px 0;
             padding: 6px 14px;
             border-radius: 2px;
             font-size: 14px;
