@@ -36,31 +36,19 @@ public class User extends AbstractNormalMongoModel {
     private String salt;
     private String email;
     private JSONArray historyPasswordList;
-    /**
-     * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
-     */
+
     private boolean superAdminRole;
-    /**
-     * 是否是管理员;管理员有更多权限，比如设置 member 是否对外可见。
-     */
+
     private boolean adminRole;
 
-    /**
-     * 是否可用
-     */
+
     private boolean enable = true;
-    /**
-     * 是否已注销
-     */
+
     private boolean cancelled = false;
 
-    /**
-     * 审核状态
-     */
+
     private AuditStatus auditStatus;
-    /**
-     * 审核意见
-     */
+
     private String auditComment;
 
     private boolean needUpdatePassword;
