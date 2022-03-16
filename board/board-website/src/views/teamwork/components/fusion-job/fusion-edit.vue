@@ -22,7 +22,7 @@
 
         <h3 class="mb30">新建融合任务</h3>
         <el-form @submit.prevent style="max-width:700px;">
-            <el-form-item label="任务名称:" required>
+            <el-form-item label="任务名称:" class="is-required">
                 <el-input
                     v-model="vData.name"
                     :disabled="vData.myRole !== 'promoter' || (vData.myRole === 'promoter' && vData.status === 'Await')"
@@ -40,7 +40,7 @@
                     clearable
                 />
             </el-form-item>
-            <el-form-item required>
+            <el-form-item class="is-required">
                 <template #label>
                     选择算法
                     <el-tooltip>

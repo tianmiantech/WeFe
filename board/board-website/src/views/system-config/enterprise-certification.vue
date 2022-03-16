@@ -9,6 +9,7 @@
             >
                 <!-- :disabled="!userInfo.super_admin_role" -->
                 <el-form-item
+                    prop="principalName"
                     :rules="[{required: true, message: '名称必填!'}]"
                     label="企业名称及类型："
                 >
@@ -67,7 +68,6 @@
                         :before-upload="beforeUpload"
                         :headers="{ token: userInfo.token }"
                         accept=".png,.jpg,.pdf"
-                        list-type="picture"
                         action="#"
                         drag
                     >
@@ -250,12 +250,12 @@
                         fileId,
                     },
                 });
-                const contentDisposition = headers['content-disposition'];
+                const contentDisposition = headers['content-disposition'] || headers['Content-Disposition'];
 
                 let fileName = '';
 
                 if (contentDisposition) {
-                    fileName = window.decodeURI(headers['content-disposition'].split('filename=')[1], 'UTF-8');
+                    fileName = window.decodeURI(contentDisposition.split('filename=')[1], 'UTF-8');
                 }
 
                 if(code === 0) {
@@ -275,7 +275,7 @@
                 }
             },
 
-            onRemove(file) {
+            onRemove(file, list) {
                 const index = this.form.fileIdList.findIndex(id => id === file.fileId);
                 const i = this.fileList.findIndex(item => item.fileId === file.fileId);
 
