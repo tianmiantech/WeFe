@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.operation;
 
+import com.welab.wefe.board.service.api.account.CaptchaApi;
 import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskDetailApi;
 import com.welab.wefe.board.service.api.data_resource.upload_task.DataResourceUploadTaskQueryApi;
 import com.welab.wefe.board.service.api.file.FileUploadApi;
@@ -27,6 +28,7 @@ import com.welab.wefe.board.service.api.project.job.task.TaskProgressDetailApi;
 import com.welab.wefe.board.service.api.project.member.audit.ProjectMemberAuditListApi;
 import com.welab.wefe.board.service.api.service.ServiceAvailableApi;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
+import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.OperationLogRepository;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -46,6 +48,7 @@ public class BoardApiLogger extends AbstractApiLogger {
     @Override
     protected List<Class<? extends AbstractApi>> getIgnoreLogApiList() {
         return Arrays.asList(
+                CaptchaApi.class,
                 FlowQueryApi.class,
                 ProjectMemberAuditListApi.class,
                 GetJobProgressApi.class,
@@ -72,6 +75,11 @@ public class BoardApiLogger extends AbstractApiLogger {
         model.setResultMessage(apiLog.getResponseMessage());
 
         Launcher.getBean(OperationLogRepository.class).save(model);
+    }
+
+    @Override
+    protected void updateAccountLastActionTime(String accountId) throws Exception {
+        Launcher.getBean(AccountRepository.class).updateLastActionTime(accountId);
     }
 
 }

@@ -41,6 +41,7 @@ CREATE TABLE `account`
     `audit_comment`    varchar(512) COMMENT '审核意见',
     `enable`           tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可用',
     `cancelled`        tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
+    `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '最后活动时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
     KEY                `idx_create_time` (`created_time`)

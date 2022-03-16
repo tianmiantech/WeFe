@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +43,12 @@ import java.util.stream.Collectors;
  **/
 public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    /**
+     * 用户的最后活动时间
+     * <p>
+     * id : Date
+     */
+    private static ConcurrentHashMap<String, Date> ACCOUNT_LAST_ACTION_TIME_MAP = new ConcurrentHashMap();
     /**
      * 不需要记录日志的 api 列表
      */
@@ -59,6 +66,11 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
      */
     protected abstract void save(ApiLog apiLog) throws Exception;
 
+    /**
+     * 更新用户的最后活动时间
+     */
+    protected abstract void updateAccountLastActionTime(String userId) throws Exception;
+
     public AbstractApiLogger() {
         // 初始化列表到静态对象进行缓存，以增强性能。
         List<Class<? extends AbstractApi>> list = getIgnoreLogApiList();
@@ -67,6 +79,9 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
                     .map(x -> x.getAnnotation(Api.class).path())
                     .collect(Collectors.toList());
         }
+
+        new Thread(() -> {
+        }).start();
     }
 
     @Override
@@ -80,8 +95,31 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
 
         // 异步保存日志
         CommonThreadPool.run(
-                () -> saveLog(httpServletRequest, start, api, params, result, accountInfo)
+                () -> {
+                    // 存日志
+                    saveLog(httpServletRequest, start, api, params, result, accountInfo);
+
+                    // 更新用户的最后活动时间
+                    try {
+                        logAccountLastActionTime(accountInfo.id);
+                    } catch (Exception e) {
+                        LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+                    }
+                }
         );
+    }
+
+    private void logAccountLastActionTime(String userId) throws Exception {
+        // 如果是第一次访问，立即更新一次。
+        if (!ACCOUNT_LAST_ACTION_TIME_MAP.contains(userId)) {
+            updateAccountLastActionTime(userId);
+        }
+        // 每间隔一分钟更新一次
+        else if (System.currentTimeMillis() - ACCOUNT_LAST_ACTION_TIME_MAP.get(userId).getTime() > 60_000) {
+            updateAccountLastActionTime(userId);
+        }
+
+        ACCOUNT_LAST_ACTION_TIME_MAP.put(userId, new Date());
     }
 
     private void saveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, AccountInfo accountInfo) {

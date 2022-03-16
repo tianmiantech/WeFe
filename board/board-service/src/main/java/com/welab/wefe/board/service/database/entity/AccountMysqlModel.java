@@ -22,6 +22,7 @@ import com.welab.wefe.common.wefe.enums.AuditStatus;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.util.Date;
 
 /**
  * @author Zane
@@ -75,6 +76,10 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
      * 是否已注销
      */
     private boolean cancelled;
+    /**
+     * 最后活动时间
+     */
+    private Date lastActionTime;
 
 
     //region getter/setter
@@ -165,6 +170,14 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public Date getLastActionTime() {
+        return lastActionTime;
+    }
+
+    public void setLastActionTime(Date lastActionTime) {
+        this.lastActionTime = lastActionTime;
     }
 
     //endregion

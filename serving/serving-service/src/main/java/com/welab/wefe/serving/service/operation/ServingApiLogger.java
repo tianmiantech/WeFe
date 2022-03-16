@@ -16,9 +16,6 @@
 
 package com.welab.wefe.serving.service.operation;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
@@ -29,7 +26,11 @@ import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForRand
 import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForResultsApi;
 import com.welab.wefe.serving.service.api.sa.SecureAggregationForResultApi;
 import com.welab.wefe.serving.service.database.serving.entity.OperationLogMysqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.OperationLogRepository;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class ServingApiLogger extends AbstractApiLogger {
 
@@ -57,6 +58,11 @@ public class ServingApiLogger extends AbstractApiLogger {
         model.setResultMessage(apiLog.getResponseMessage());
 
         Launcher.getBean(OperationLogRepository.class).save(model);
+    }
+
+    @Override
+    protected void updateAccountLastActionTime(String accountId) throws Exception {
+        Launcher.getBean(AccountRepository.class).updateLastActionTime(accountId);
     }
 
 }

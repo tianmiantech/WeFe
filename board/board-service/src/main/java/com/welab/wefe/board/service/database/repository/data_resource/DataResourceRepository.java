@@ -43,7 +43,7 @@ public interface DataResourceRepository<T extends DataResourceMysqlModel> extend
     @Query(value = "select count(*) from #{#entityName} where name=?1 and id<>?2", nativeQuery = true)
     int countByName(String name, String id);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "update #{#entityName} set usage_count_in_project=(select count(*) from project_data_set where data_set_id=?1 and audit_status='agree') where id=?1", nativeQuery = true)
     void updateUsageCountInProject(String dataSetId);

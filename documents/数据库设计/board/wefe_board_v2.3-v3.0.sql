@@ -456,3 +456,5 @@ ALTER TABLE `task_result`
 -- -------------------------------------
 ALTER TABLE `account`
     ADD COLUMN `cancelled` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否已注销' AFTER `enable`;
+ALTER TABLE `account`
+    ADD COLUMN `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间' AFTER `cancelled`;
