@@ -17,6 +17,8 @@
 package com.welab.wefe.mpc.pir.sdk.naor;
 
 import com.welab.wefe.mpc.commom.Constants;
+import com.welab.wefe.mpc.pir.protocol.ro.hf.HashFunction;
+import com.welab.wefe.mpc.pir.protocol.ro.hf.Sha256;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
@@ -56,7 +58,8 @@ public class NaorPinkasQuery {
         request.setPk(DiffieHellmanUtil.bigIntegerToHexString(pk));
         QueryNaorPinkasResultResponse response = transferVariable.queryNaorPinkasResult(request);
 
-        byte[] key = DiffieHellmanUtil.encrypt(secret, k, p).toByteArray();
+        HashFunction hash = new Sha256();
+        byte[] key = hash.digest(DiffieHellmanUtil.encrypt(secret, k, p).toByteArray());
         return CryptUtil.decrypt(response.getEncryptResults().get(targetIndex), key);
     }
 }

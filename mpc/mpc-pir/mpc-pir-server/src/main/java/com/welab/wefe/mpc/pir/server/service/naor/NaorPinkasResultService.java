@@ -21,6 +21,8 @@ import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.commom.Conversion;
+import com.welab.wefe.mpc.pir.protocol.ro.hf.HashFunction;
+import com.welab.wefe.mpc.pir.protocol.ro.hf.Sha256;
 import com.welab.wefe.mpc.pir.protocol.se.SymmetricKey;
 import com.welab.wefe.mpc.pir.protocol.se.aes.AESEncryptKey;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
@@ -65,9 +67,11 @@ public class NaorPinkasResultService {
         List<String> randoms = operation.get(uuid, Constants.PIR.NAORPINKAS_RANDOM);
         List<String> conditions = operation.get(uuid, Constants.PIR.NAORPINKAS_CONDITION);
 
+        HashFunction hash = new Sha256();
         List<SymmetricKey> keys = randoms.stream().map(DiffieHellmanUtil::hexStringToBigInteger)
                 .map(value -> DiffieHellmanUtil.modDivide(value, enPk, p))
                 .map(BigInteger::toByteArray)
+                .map(hash::digest)
                 .map(value -> new AESEncryptKey(value))
                 .collect(Collectors.toList());
 
