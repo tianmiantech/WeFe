@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.operation;
+package com.welab.wefe.union.service.operation;
 
 
 import com.welab.wefe.common.data.mongodb.entity.common.OperationLog;
-import com.welab.wefe.common.data.mongodb.repo.ManagerOperationLogMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.UnionOperationLogMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.delegate.api_log.ApiLog;
-import com.welab.wefe.manager.service.api.agreement.UploadRealnameAuthAgreementTemplateApi;
+import com.welab.wefe.union.service.api.common.MemberFileUploadSyncApi;
+import com.welab.wefe.union.service.api.common.RealnameAuthAgreementTemplateSyncApi;
+import com.welab.wefe.union.service.api.member.FileUploadApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,23 +36,24 @@ import java.util.List;
  * @author zane
  **/
 @Component
-public class ManagerApiLogger extends AbstractApiLogger {
+public class UnionApiLogger extends AbstractApiLogger {
 
     @Autowired
-    private ManagerOperationLogMongoRepo managerOperationLogMongoRepo;
+    private UnionOperationLogMongoRepo unionOperationLogMongoRepo;
 
-    @Autowired
-    private UserMongoRepo userMongoRepo;
+
 
     @Override
     protected List<Class<? extends AbstractApi>> getIgnoreLogApiList() {
         return Arrays.asList(
-                UploadRealnameAuthAgreementTemplateApi.class
+                FileUploadApi.class,
+                MemberFileUploadSyncApi.class,
+                RealnameAuthAgreementTemplateSyncApi.class
         );
     }
 
     @Override
-    protected void save(ApiLog apiLog) throws Exception {
+    protected void save(ApiLog apiLog) {
         OperationLog model = new OperationLog();
         model.setRequestTime(apiLog.getRequestTime());
         model.setRequestIp(apiLog.getCallerIp());
@@ -59,12 +62,11 @@ public class ManagerApiLogger extends AbstractApiLogger {
         model.setLogInterface(apiLog.getApiName());
         model.setResultCode(apiLog.getResponseCode());
         model.setResultMessage(apiLog.getResponseMessage());
-        managerOperationLogMongoRepo.save(model);
+        unionOperationLogMongoRepo.save(model);
     }
 
     @Override
     protected void updateAccountLastActionTime(String accountId) {
-        userMongoRepo.updateLastActionTime(accountId);
     }
 
 }

@@ -17,23 +17,14 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Repository;
+
 
 /**
  * @author aaron.li
  * @date 2021/10/22 17:41
  **/
-@Repository
-public class OperationLogMongoRepo extends AbstractMongoRepo {
 
-    @Autowired
-    protected MongoTemplate mongoManagerTemplate;
+public abstract class AbstractOperationLogMongoRepo extends AbstractMongoRepo {
 
 
-    @Override
-    protected MongoTemplate getMongoTemplate() {
-        return mongoManagerTemplate;
-    }
 }
