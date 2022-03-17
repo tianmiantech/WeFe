@@ -32,19 +32,27 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class NaorPinkasRandomService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NaorPinkasRandomService.class);
 
     public QueryNaorPinkasRandomResponse handle(QueryKeysRequest request) {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return handle(request, uuid);
+    }
+
+    public QueryNaorPinkasRandomResponse handle(QueryKeysRequest request, String uuid) {
+        return handle(request, uuid, 1024);
+    }
+
+    public QueryNaorPinkasRandomResponse handle(QueryKeysRequest request, String uuid, int keySize) {
         List<Object> queryConditions = request.getIds();
         if (queryConditions == null || queryConditions.isEmpty()) {
             throw new IllegalArgumentException("query condition is empty");
         }
-        int keySize = 1024;
         DiffieHellmanKey diffieHellmanKey = DiffieHellmanUtil.generateKey(keySize);
         QueryNaorPinkasRandomResponse response = new QueryNaorPinkasRandomResponse();
-        String uuid = UUID.randomUUID().toString().replace("-", "");
         response.setUuid(uuid);
         response.setG(DiffieHellmanUtil.bigIntegerToHexString(diffieHellmanKey.getG()));
         response.setP(DiffieHellmanUtil.bigIntegerToHexString(diffieHellmanKey.getP()));
@@ -52,18 +60,31 @@ public class NaorPinkasRandomService {
         BigInteger key = DiffieHellmanUtil.generateRandomKey(keySize);
         BigInteger secret = DiffieHellmanUtil.encrypt(key, diffieHellmanKey);
         response.setSecret(DiffieHellmanUtil.bigIntegerToHexString(secret));
-        List<String> randoms = new ArrayList<>(queryConditions.size());
-        List<BigInteger> bigIntegers = new ArrayList<>(queryConditions.size());
-        for (int i = 0; i < queryConditions.size() - 1; i++) {
-            BigInteger random = DiffieHellmanUtil.generateRandomKey(keySize);
-            bigIntegers.add(random);
-            randoms.add(DiffieHellmanUtil.bigIntegerToHexString(random));
-        }
-        response.setRandoms(randoms);
+        List<BigInteger> rnds = generateRandom(queryConditions.size() - 1, keySize, diffieHellmanKey);
+        List<String> rndString = rnds.stream().map(DiffieHellmanUtil::bigIntegerToHexString).collect(Collectors.toList());
+        response.setRandoms(rndString);
 
-        new Thread(() -> process(uuid, diffieHellmanKey, key, bigIntegers, queryConditions)).start();
+        new Thread(() -> process(uuid, diffieHellmanKey, key, rnds, queryConditions)).start();
 
         return response;
+    }
+
+    public List<BigInteger> generateRandom(int num, int keySize, DiffieHellmanKey key) {
+        CompletableFuture[] futures = IntStream.range(0, num)
+                .mapToObj(i -> CompletableFuture.supplyAsync(() -> {
+                    BigInteger rnd = DiffieHellmanUtil.generateRandomKey(keySize);
+                    return DiffieHellmanUtil.encrypt(rnd, key);
+                })).toArray(CompletableFuture[]::new);
+        CompletableFuture.allOf(futures).join();
+        List<BigInteger> rnds = new ArrayList<>(num);
+        for (CompletableFuture future : futures) {
+            try {
+                rnds.add((BigInteger) future.get());
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        return rnds;
     }
 
     public void process(String uuid, DiffieHellmanKey key, BigInteger a, List<BigInteger> randoms, List<Object> queryConditions) {
