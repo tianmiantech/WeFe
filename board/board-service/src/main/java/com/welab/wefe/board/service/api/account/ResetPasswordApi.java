@@ -44,6 +44,11 @@ public class ResetPasswordApi extends AbstractApi<ResetPasswordApi.Input, String
         @Check(name = "用户唯一标识", require = true)
         private String id;
 
+        @Check(name = "操作者的密码", require = true)
+        private String operatorPassword;
+
+        // region getter/setter
+
         public String getId() {
             return id;
         }
@@ -51,6 +56,16 @@ public class ResetPasswordApi extends AbstractApi<ResetPasswordApi.Input, String
         public void setId(String id) {
             this.id = id;
         }
+
+        public String getOperatorPassword() {
+            return operatorPassword;
+        }
+
+        public void setOperatorPassword(String operatorPassword) {
+            this.operatorPassword = operatorPassword;
+        }
+
+        // endregion
     }
 
 }

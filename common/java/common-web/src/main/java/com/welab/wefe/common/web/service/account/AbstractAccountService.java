@@ -136,7 +136,7 @@ public abstract class AbstractAccountService {
 
         AccountInfo account = getAccountInfo(phoneNumber);
         // phone number error
-        if (account == null || !account.password.equals(hashPasswordWithSalt(password, account.salt))) {
+        if (account == null || !verifyPassword(account.password, password, account.salt)) {
             if (account != null) {
                 LoginSecurityPolicy.onLoginFail(phoneNumber);
             }
@@ -194,5 +194,25 @@ public abstract class AbstractAccountService {
         r.nextBytes(salt);
 
         return Base64Util.encode(salt);
+    }
+
+    /**
+     * 检查用户输入的密码是否正确
+     *
+     * @param realPassword  数据库储存的真实密码
+     * @param inputPassword 用户输入的密码
+     * @param salt          数据库储存的盐
+     */
+    protected boolean verifyPassword(String realPassword, String inputPassword, String salt) {
+        if (StringUtil.isEmpty(realPassword) || StringUtil.isEmpty(inputPassword)) {
+            return false;
+        }
+        String hashPasswordWithSalt = hashPasswordWithSalt(inputPassword, salt);
+        boolean success = realPassword.equals(hashPasswordWithSalt);
+        // 当密码输入错误时，退出登录状态。
+        if (!success) {
+            CurrentAccount.logout();
+        }
+        return success;
     }
 }

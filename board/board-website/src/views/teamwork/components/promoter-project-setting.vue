@@ -17,7 +17,7 @@
                 <el-form-item
                     label="项目名称："
                     label-width="100px"
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model="project.name"
@@ -28,7 +28,7 @@
                 <el-form-item
                     label="项目描述："
                     label-width="100px"
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model="project.desc"

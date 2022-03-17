@@ -313,6 +313,13 @@ public class AccountService extends AbstractAccountService {
      * Reset user password (administrator rights)
      */
     public String resetPassword(ResetPasswordApi.Input input) throws StatusCodeWithException {
+        // 操作者
+        AccountMysqlModel operator = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        if (!super.verifyPassword(operator.getPassword(), input.getOperatorPassword(), operator.getSalt())) {
+            throw new StatusCodeWithException("密码错误，身份核实失败，已退出登录。", StatusCode.PERMISSION_DENIED);
+        }
+
+        // 被重置密码的账号
         AccountMysqlModel model = accountRepository.findById(input.getId()).orElse(null);
 
         if (model == null) {
@@ -325,6 +332,10 @@ public class AccountService extends AbstractAccountService {
 
         if (model.getSuperAdminRole()) {
             throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (model.getAdminRole() && !CurrentAccount.isSuperAdmin()) {
+            throw new StatusCodeWithException("只有超级管理员才能重置管理员的密码", StatusCode.PERMISSION_DENIED);
         }
 
         String salt = createRandomSalt();

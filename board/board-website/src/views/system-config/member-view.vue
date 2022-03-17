@@ -23,6 +23,7 @@
                         </el-form-item>
                         <el-form-item
                             :rules="[{required: true, message: '名称必填!'}]"
+                            prop="member_name"
                             label="成员名称："
                         >
                             <el-input
