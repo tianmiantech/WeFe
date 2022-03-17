@@ -24,10 +24,10 @@ nas_upload(){
   has_env=`s nas command ls  -l nas:///mnt/auto`
   if [[ $has_env == $nas_env ]]
   then
-    echo 'has env dir, upload env dir'
+    echo 'has env dir, upload pythonCode ...'
     s nas upload -r -o ./$nas_env/pythonCode /mnt/auto/$nas_env/ --debug
   else
-    echo 'has not env dir, upload pythonCode ...'
+    echo 'has not env dir, upload env dir ...'
     s nas upload -r -o ./$nas_env /mnt/auto/ --debug
   fi
   rm -rf $nas_env
