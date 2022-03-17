@@ -295,7 +295,7 @@
             destroy-on-close
         >
             <div style="margin-top:-15px">
-                密码已重置为:
+                密码已重置为：
                 <p class="new_password">{{ resetPwDialog.new_password }}</p>
                 <p class="color-danger f12">请勿随意传播!</p>
             </div>

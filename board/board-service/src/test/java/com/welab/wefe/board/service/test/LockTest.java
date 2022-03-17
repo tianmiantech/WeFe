@@ -13,29 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.serving.service.enums;
+package com.welab.wefe.board.service.test;
 
 /**
- * @author ivenn.zheng
- * @date 2021/12/23
+ * @author zane
+ * @date 2022/3/11
  */
-public enum QueryDateTypeEnum {
-
-
-    YEAR(1),
-
-    MONTH(2),
-
-    DAY(3),
-
-    HOUR(4);
-
-    private int value;
-
-    QueryDateTypeEnum(int value) {
-        this.value = value;
+public class LockTest {
+    public static void main(String[] args) {
+        new Thread(() -> func()).start();
     }
-    public int getValue(){
-        return value;
+
+    private synchronized static void func() {
+        System.out.println("in to func()" + Thread.currentThread().getName());
+
+        try {
+            Thread.sleep(10_000);
+            new Thread(() -> func()).start();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

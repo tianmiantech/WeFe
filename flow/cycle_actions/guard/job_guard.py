@@ -62,6 +62,8 @@ class JobGuard(threading.Thread):
                     self.logger.error(message, e)
                     JobStopAction(job.job_id, job.my_role).do(JobStatus.ERROR_ON_RUNNING, message)
 
+            time.sleep(5)
+
     def observe(self, job):
         """
         Observe the job and close the tasks that need to be closed.

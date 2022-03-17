@@ -125,7 +125,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         this.bloomfilterReader = bloomfilterReader;
         this.keyPair = CryptoUtils.generateKeys(1024);
         this.totalDataCount = (int) bloomfilterReader.getTotalDataRowCount();
-        this.bf = new BloomFilters(0.001, totalDataCount);
+        this.bf = new BloomFilters(0.0001, totalDataCount);
         this.rsaPK = (RSAKeyParameters) keyPair.getPublic();
         this.rsaE = rsaPK.getExponent();
         this.rsaN = rsaPK.getModulus();
