@@ -26,7 +26,7 @@ nas_upload(){
 
   # copy root, python, config.properties
   has_python=`s nas command ls  -l nas:///mnt/auto/$nas_env`
-  if [[ $has_python =~ 'python' ]]
+  if [[ $has_python == 'python' ]]
   then
     echo "has python, root environment."
   else
