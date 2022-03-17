@@ -91,17 +91,6 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
         @Check(require = true, desc = "验证码")
         private String code;
 
-        @Override
-        public void checkAndStandardize() throws StatusCodeWithException {
-            super.checkAndStandardize();
-            if (Launcher.getBean(Config.class).getEnvName().isProductionEnv()) {
-                // Verification code verification
-                if (!CaptchaService.verify(key, code)) {
-                    throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
-                }
-            }
-        }
-
         //region getter/setter
 
         public String getPhoneNumber() {
