@@ -59,6 +59,9 @@ public class CurrentAccount {
      */
     public synchronized static void logout() {
         String token = token();
+        if (null == token) {
+            return;
+        }
         if (ACCOUNT_MAP_BY_TOKEN.containsKey(token)) {
             ACCOUNT_MAP_BY_TOKEN.remove(token);
         }
