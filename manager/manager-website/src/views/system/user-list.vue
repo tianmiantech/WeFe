@@ -75,36 +75,38 @@
             >
                 <template v-slot="scope">
                     <template v-if="scope.row.audit_status === 'agree' && userInfo.admin_role">
-                        <template v-if="userInfo.super_admin_role && scope.row.user_id !== userInfo.user_id">
+                        <template v-if="scope.row.user_id !== userInfo.user_id">
+                            <template v-if="userInfo.super_admin_role">
+                                <el-button
+                                    v-if="scope.row.admin_role"
+                                    @click="changeRole($event, scope.row)"
+                                >
+                                    设为普通用户
+                                </el-button>
+                                <el-button
+                                    v-else
+                                    type="danger"
+                                    @click="changeRole($event, scope.row)"
+                                >
+                                    设为管理员
+                                </el-button>
+                            </template>
                             <el-button
-                                v-if="scope.row.admin_role"
-                                @click="changeRole($event, scope.row)"
+                                v-if="userInfo.admin_role"
+                                type="primary"
+                                @click="resetPassword($event, scope.row)"
                             >
-                                设为普通用户
+                                重置用户密码
                             </el-button>
                             <el-button
-                                v-else
-                                type="danger"
-                                @click="changeRole($event, scope.row)"
+                                v-if="!scope.row.super_admin_role"
+                                :type="scope.row.enable ? 'danger' : 'success'"
+                                plain
+                                @click="changeStatus($event, scope.row)"
                             >
-                                设为管理员
+                                {{scope.row.enable ? '禁用' : '启用'}}
                             </el-button>
                         </template>
-                        <el-button
-                            v-if="userInfo.admin_role"
-                            type="primary"
-                            @click="resetPassword($event, scope.row)"
-                        >
-                            重置用户密码
-                        </el-button>
-                        <el-button
-                            v-if="!scope.row.super_admin_role"
-                            :type="scope.row.enable ? 'danger' : 'success'"
-                            plain
-                            @click="changeStatus($event, scope.row)"
-                        >
-                            {{scope.row.enable ? '禁用' : '启用'}}
-                        </el-button>
                     </template>
                     <template v-else>
                         <el-popconfirm
@@ -141,10 +143,42 @@
                 @size-change="pageSizeChange"
             />
         </div>
+
+        <el-dialog
+            width="340px"
+            title="重置用户密码"
+            v-model="resetPwDialog.visible"
+            destroy-on-close
+        >
+            <p class="mb10">将重置 <strong class="primary-color">
+                {{ resetPwDialog.nickname }}
+            </strong> 的登录密码!</p>
+            <span class="color-danger">*</span> 操作人密码:
+            <el-input
+                v-model="resetPwDialog.operatorPassword"
+                style="width: 200px;"
+                type="password"
+                @paste.prevent
+                @copy.prevent
+                @contextmenu.prevent
+            />
+            <template #footer>
+                <el-button
+                    type="danger"
+                    @click="confirmReset"
+                >
+                    确定
+                </el-button>
+                <el-button @click="resetPwDialog.visible = false">
+                    取消
+                </el-button>
+            </template>
+        </el-dialog>
     </el-card>
 </template>
 
 <script>
+    import md5 from 'js-md5';
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
 
@@ -162,6 +196,12 @@
                 defaultSearch: true,
                 requestMethod: 'post',
                 getListApi:    '/user/query',
+                resetPwDialog: {
+                    visible:          false,
+                    id:               '',
+                    nickname:         '',
+                    operatorPassword: '',
+                },
             };
         },
         computed: {
@@ -194,28 +234,36 @@
                 });
             },
             resetPassword(event, row) {
-                this.$confirm('确定要将该用户密码重置吗?', '警告', {
-                    type:              'warning',
-                    cancelButtonText:  '取消',
-                    confirmButtonText: '确定',
-                }).then(async () => {
-                    const { code } = await this.$http.post({
-                        url:  '/user/reset/password',
-                        data: {
-                            userId: row.user_id,
-                        },
-                        btnState: {
-                            target: event,
-                        },
-                    });
+                this.resetPwDialog.id = row.user_id;
+                this.resetPwDialog.nickname = row.account;
+                this.resetPwDialog.visible = true;
+            },
+            async confirmReset($event) {
+                const { operatorPassword } = this.resetPwDialog;
 
-                    if(code === 0) {
-                        this.$message.success('操作成功! 该用户密码已重置为 wefe123456');
-                        setTimeout(() => {
-                            this.refresh();
-                        }, 300);
-                    }
+                if(!operatorPassword) {
+                    return this.$message.error('请输入你的帐号密码');
+                }
+
+                const { code } = await this.$http.post({
+                    url:  '/account/reset/password',
+                    data: {
+                        userId:        this.resetPwDialog.id,
+                        adminPassword: md5(this.operatorPassword),
+                    },
+                    btnState: {
+                        target: $event,
+                    },
                 });
+
+                if(code === 0) {
+                    this.$message.success('操作成功! 该用户密码已重置为 wefe123456');
+                    setTimeout(() => {
+                        this.refresh();
+                    }, 300);
+                    this.resetPwDialog.operatorPassword = '';
+                    this.resetPwDialog.visible = false;
+                }
             },
             changeUserInfo() {
                 this.form.realname = this.userInfo.realname;

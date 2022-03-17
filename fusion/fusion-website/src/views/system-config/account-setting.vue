@@ -51,6 +51,9 @@
                         <el-input
                             v-model="form.old_password"
                             type="password"
+                            @paste.native.prevent
+                            @copy.native.prevent
+                            @contextmenu.native.prevent
                         />
                     </el-form-item>
                     <el-form-item
@@ -61,6 +64,9 @@
                         <el-input
                             v-model="form.new_password"
                             type="password"
+                            @paste.native.prevent
+                            @copy.native.prevent
+                            @contextmenu.native.prevent
                         />
                     </el-form-item>
                     <el-form-item
@@ -71,6 +77,9 @@
                         <el-input
                             v-model="form.repeat_password"
                             type="password"
+                            @paste.native.prevent
+                            @copy.native.prevent
+                            @contextmenu.native.prevent
                         />
                     </el-form-item>
                     <el-button

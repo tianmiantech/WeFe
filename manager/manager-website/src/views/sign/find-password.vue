@@ -4,11 +4,11 @@
             <div class="logo">
                 <img src="@assets/images/x-logo.png">
             </div>
-            <h2 class="sign-title">找回密码</h2>
+            <h2 class="sign-title mt20">找回密码</h2>
             <el-divider />
             <el-form
                 ref="sign-form"
-                v-model="form"
+                :model="form"
                 inline-message
                 @submit.prevent
             >
@@ -40,7 +40,7 @@
                 </el-form-item>
                 <el-divider />
                 <div class="sign-action">
-                    <router-link :to="{name: 'login'}">立即登录</router-link>
+                    <router-link class="float-left mt5" :to="{name: 'login'}">立即登录</router-link>
                     <el-button
                         type="primary"
                         class="ml10"

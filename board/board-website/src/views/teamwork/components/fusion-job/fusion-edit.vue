@@ -381,6 +381,9 @@
                         type="password"
                         v-model="vData.exportDialog.password"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
             </el-form>

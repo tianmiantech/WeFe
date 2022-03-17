@@ -98,9 +98,10 @@
                 }],
                 datePicker: '',
                 search:     {
-                    action:    '',
-                    startTime: '',
-                    endTime:   '',
+                    action:                 '',
+                    startTime:              '',
+                    endTime:                '',
+                    'request-from-refresh': false,
                 },
                 getListApi:   '/log/query',
                 fillUrlQuery: false,
@@ -113,9 +114,10 @@
         methods: {
             syncUrlParams() {
                 this.search = {
-                    action:    '',
-                    startTime: '',
-                    endTime:   '',
+                    action:                 '',
+                    startTime:              '',
+                    endTime:                '',
+                    'request-from-refresh': false,
                     ...this.$route.query,
                 };
                 if(this.search.startTime && this.search.endTime) {

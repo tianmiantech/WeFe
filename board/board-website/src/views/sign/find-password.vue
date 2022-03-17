@@ -56,6 +56,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
                 <el-form-item
@@ -70,6 +73,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
                 <el-divider />
