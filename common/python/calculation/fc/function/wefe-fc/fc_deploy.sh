@@ -22,7 +22,7 @@ nas_upload(){
   # create env dir
   mkdir -p $nas_env/pythonCode
   has_env=`s nas command ls  -l nas:///mnt/auto`
-  if [[ $has_env == $nas_env ]]
+  if [[ $has_env =~ $nas_env ]]
   then
     echo 'has env dir, upload pythonCode ...'
     s nas upload -r -o ./$nas_env/pythonCode /mnt/auto/$nas_env/ --debug
@@ -145,8 +145,3 @@ fc_deploy(){
 }
 
 fc_deploy
-
-
-
-
-
