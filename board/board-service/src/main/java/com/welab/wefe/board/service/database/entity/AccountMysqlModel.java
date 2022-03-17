@@ -16,9 +16,14 @@
 
 package com.welab.wefe.board.service.database.entity;
 
+import com.alibaba.fastjson.JSONArray;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -28,6 +33,7 @@ import java.util.Date;
  * @author Zane
  */
 @Entity(name = "account")
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     /**
@@ -80,6 +86,12 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
      * 最后活动时间
      */
     private Date lastActionTime;
+    /**
+     * 历史曾用密码
+     */
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private JSONArray historyPasswordList;
 
 
     //region getter/setter
@@ -178,6 +190,14 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     public void setLastActionTime(Date lastActionTime) {
         this.lastActionTime = lastActionTime;
+    }
+
+    public JSONArray getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setHistoryPasswordList(JSONArray historyPasswordList) {
+        this.historyPasswordList = historyPasswordList;
     }
 
     //endregion

@@ -28,11 +28,23 @@ public class ResetPasswordInput extends AbstractApiInput {
     @Check(require = true)
     private String userId;
 
+    @Check(require = true)
+    private String adminPassword;
+
     public String getUserId() {
         return userId;
     }
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+
+    public String getAdminPassword() {
+        return adminPassword;
+    }
+
+    public void setAdminPassword(String adminPassword) {
+        this.adminPassword = adminPassword;
     }
 }

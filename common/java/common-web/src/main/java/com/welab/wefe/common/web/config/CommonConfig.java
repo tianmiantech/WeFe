@@ -18,22 +18,26 @@ package com.welab.wefe.common.web.config;
 
 import com.welab.wefe.common.wefe.enums.env.EnvBranch;
 import com.welab.wefe.common.wefe.enums.env.EnvName;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 /**
  * config.properties
  *
  * @author lonnie
  */
+@Component
 public class CommonConfig {
 
-    @Value("${wefe.union.base-url}")
+    @Value("${wefe.union.base-url:}")
     private String unionBaseUrl;
 
-    @Value("${wefe.file.upload.dir}")
+    @Value("${wefe.file.upload.dir:}")
     private String fileUploadDir;
 
-    @Value("${env.name}")
+    @Value("${env.name:}")
     private EnvName envName;
 
     /**

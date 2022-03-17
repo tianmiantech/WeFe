@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.service.account;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.board.service.api.account.*;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
@@ -139,39 +140,14 @@ public class AccountService extends AbstractAccountService {
         CacheObjects.refreshAccountMap();
     }
 
-
-    /**
-     * update password
-     */
-    public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
-
-        String phoneNumber = CurrentAccount.phoneNumber();
-        if (phoneNumber == null) {
-            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
-        }
-
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
-
-        // Check old password
-        if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
-            CurrentAccount.logout();
-            throw new StatusCodeWithException("您输入的旧密码不正确，为确保安全，请重新登录后重试。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        // Regenerate salt
-        String salt = createRandomSalt();
-
-        // sha hash
-        newPassword = Sha1.of(newPassword + salt);
-
+    @Override
+    public void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException {
+        AccountMysqlModel model = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        model.setPassword(password);
         model.setSalt(salt);
-        model.setPassword(newPassword);
-
+        model.setHistoryPasswordList(historyPasswords);
         accountRepository.save(model);
-
-        CurrentAccount.logout(model.getId());
     }
-
 
     /**
      * query all of account
@@ -224,6 +200,7 @@ public class AccountService extends AbstractAccountService {
         info.setSuperAdminRole(model.getSuperAdminRole());
         info.setEnable(model.getEnable());
         info.setCancelled(model.isCancelled());
+        info.setHistoryPasswordList(model.getHistoryPasswordList());
         return info;
     }
 

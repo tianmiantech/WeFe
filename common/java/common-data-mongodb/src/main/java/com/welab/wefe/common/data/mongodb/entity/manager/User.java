@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.data.mongodb.entity.manager;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
@@ -34,32 +35,23 @@ public class User extends AbstractNormalMongoModel {
     private String realname;
     private String salt;
     private String email;
-    /**
-     * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
-     */
+    private JSONArray historyPasswordList;
+
     private boolean superAdminRole;
-    /**
-     * 是否是管理员;管理员有更多权限，比如设置 member 是否对外可见。
-     */
+
     private boolean adminRole;
 
-    /**
-     * 是否可用
-     */
+
     private boolean enable = true;
-    /**
-     * 是否已注销
-     */
+
     private boolean cancelled = false;
 
-    /**
-     * 审核状态
-     */
+
     private AuditStatus auditStatus;
-    /**
-     * 审核意见
-     */
+
     private String auditComment;
+
+    private boolean needUpdatePassword;
 
 
     public String getUserId() {
@@ -157,5 +149,21 @@ public class User extends AbstractNormalMongoModel {
 
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public JSONArray getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setHistoryPasswordList(JSONArray historyPasswordList) {
+        this.historyPasswordList = historyPasswordList;
+    }
+
+    public boolean isNeedUpdatePassword() {
+        return needUpdatePassword;
+    }
+
+    public void setNeedUpdatePassword(boolean needUpdatePassword) {
+        this.needUpdatePassword = needUpdatePassword;
     }
 }

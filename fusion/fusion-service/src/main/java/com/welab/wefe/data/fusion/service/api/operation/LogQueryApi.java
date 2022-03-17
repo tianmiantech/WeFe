@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.operation;
+package com.welab.wefe.data.fusion.service.api.operation;
 
-import com.welab.wefe.board.service.dto.base.PagingInput;
-import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.OperationLogOutputModel;
-import com.welab.wefe.board.service.service.OperationLogService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.data.fusion.service.dto.base.PagingInput;
+import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
+import com.welab.wefe.data.fusion.service.dto.entity.OperationLogOutputModel;
+import com.welab.wefe.data.fusion.service.service.OperationLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -41,16 +41,17 @@ public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<Ope
     }
 
     public static class Input extends PagingInput {
-        private String action;
+        private String apiName;
+        private String nickname;
         private Long startTime;
         private Long endTime;
 
-        public String getAction() {
-            return action;
+        public String getApiName() {
+            return apiName;
         }
 
-        public void setAction(String action) {
-            this.action = action;
+        public void setApiName(String apiName) {
+            this.apiName = apiName;
         }
 
         public Long getStartTime() {
@@ -67,6 +68,15 @@ public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<Ope
 
         public void setEndTime(Long endTime) {
             this.endTime = endTime;
+        }
+
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public void setNickname(String nickname) {
+            this.nickname = nickname;
         }
     }
 }

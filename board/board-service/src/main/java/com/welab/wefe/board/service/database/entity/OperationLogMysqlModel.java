@@ -48,11 +48,6 @@ public class OperationLogMysqlModel extends AbstractMySqlModel {
     private String operatorId;
 
     /**
-     * 操作人员手机号
-     */
-    private String operatorPhone;
-
-    /**
      * 请求token
      */
     private String token;
@@ -112,14 +107,6 @@ public class OperationLogMysqlModel extends AbstractMySqlModel {
 
     public void setOperatorId(String operatorId) {
         this.operatorId = operatorId;
-    }
-
-    public String getOperatorPhone() {
-        return operatorPhone;
-    }
-
-    public void setOperatorPhone(String operatorPhone) {
-        this.operatorPhone = operatorPhone;
     }
 
     public String getToken() {

@@ -1,5 +1,6 @@
 -- account definition
 
+DROP TABLE IF EXISTS `account`;
 CREATE TABLE `account`
 (
     `id`               varchar(32)  NOT NULL COMMENT '全局唯一标识',
@@ -17,6 +18,8 @@ CREATE TABLE `account`
     `audit_status`     varchar(32)  NOT NULL COMMENT '审核状态',
     `audit_comment`    varchar(512) DEFAULT NULL COMMENT '审核意见',
     `enable`           tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可用',
+    `cancelled`        tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
+    `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '最后活动时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
     KEY                `idx_create_time` (`created_time`)
@@ -25,6 +28,7 @@ CREATE TABLE `account`
 
 -- bloom_filter definition
 
+DROP TABLE IF EXISTS `bloom_filter`;
 CREATE TABLE `bloom_filter`
 (
     `id`                   varchar(64)  NOT NULL COMMENT '全局唯一标识',
@@ -54,6 +58,7 @@ CREATE TABLE `bloom_filter`
 
 -- data_set definition
 
+DROP TABLE IF EXISTS `data_set`;
 CREATE TABLE `data_set`
 (
     `id`                   varchar(32) NOT NULL COMMENT '全局唯一标识',
@@ -68,7 +73,7 @@ CREATE TABLE `data_set`
     `row_count`            int(20) DEFAULT NULL COMMENT '数据行数',
     `source_path`          varchar(255)  DEFAULT NULL COMMENT '文件源地址',
     `data_source_id`       varchar(32)   DEFAULT NULL COMMENT '数据源id',
-    `is_storaged`          tinyint(255) DEFAULT '0'  COMMENT '是否已存',
+    `is_storaged`          tinyint(255) DEFAULT '0' COMMENT '是否已存',
     `statement`            varchar(255)  DEFAULT NULL COMMENT 'sql语句',
     `rows`                 varchar(255)  DEFAULT NULL COMMENT '数据列名',
     `process`              varchar(255)  DEFAULT NULL COMMENT '处理进度',
@@ -79,6 +84,7 @@ CREATE TABLE `data_set`
 
 -- data_source definition
 
+DROP TABLE IF EXISTS `data_source`;
 CREATE TABLE `data_source`
 (
     `database_type` varchar(255) DEFAULT NULL COMMENT '数据库类型',
@@ -98,7 +104,7 @@ CREATE TABLE `data_source`
 
 
 -- field_info definition
-
+DROP TABLE IF EXISTS `field_info`;
 CREATE TABLE `field_info`
 (
     `id`           varchar(64)  NOT NULL COMMENT '全局唯一标识',
@@ -117,7 +123,7 @@ CREATE TABLE `field_info`
 
 
 -- global_config definition
-
+DROP TABLE IF EXISTS `global_config`;
 CREATE TABLE `global_config`
 (
     `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
@@ -136,6 +142,7 @@ CREATE TABLE `global_config`
 
 -- global_setting definition
 
+DROP TABLE IF EXISTS `global_setting`;
 CREATE TABLE `global_setting`
 (
     `id`               varchar(32)  NOT NULL COMMENT '全局唯一标识',
@@ -154,6 +161,7 @@ CREATE TABLE `global_setting`
 
 -- partner definition
 
+DROP TABLE IF EXISTS `partner`;
 CREATE TABLE `partner`
 (
     `id`             varchar(64)  NOT NULL COMMENT '全局唯一标识',
@@ -170,7 +178,7 @@ CREATE TABLE `partner`
 
 
 -- task definition
-
+DROP TABLE IF EXISTS `task`;
 CREATE TABLE `task`
 (
     `id`                 varchar(64)  NOT NULL COMMENT '全局唯一标识',
@@ -198,3 +206,27 @@ CREATE TABLE `task`
     `processed_count`    int(10) DEFAULT NULL COMMENT '处理总数',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='融合任务';
+
+DROP TABLE IF EXISTS `operator_log`;
+CREATE TABLE `operator_log`
+(
+    `id`             varchar(32) NOT NULL COMMENT '操作日志编号',
+    `api_name`       varchar(1024) COMMENT '请求接口',
+    `caller_type`    varchar(50) COMMENT '调用者类型',
+    `caller_id`      varchar(32) COMMENT '调用者id',
+    `caller_name`    varchar(255) COMMENT '调用者名称',
+    `caller_ip`      varchar(20) COMMENT '请求来源IP',
+    `request_data`   varchar(1024) COMMENT '请求参数',
+    `response_data`  text COMMENT '响应内容',
+    `response_code`    int(20) COMMENT '请求结果code',
+    `response_message` text COMMENT '请求结果消息',
+    `request_time`   datetime(6) COMMENT '请求时间',
+    `response_time`  datetime(6) COMMENT '响应时间',
+    `spend`          int(11) COMMENT '处理时长',
+    `created_time`   datetime(6) COMMENT '创建时间',
+    `updated_time`   datetime(6) COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY              `created_time_index` (`created_time`),
+    KEY              `caller_name_index` (`caller_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户操作日志';

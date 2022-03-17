@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service;
+package com.welab.wefe.data.fusion.service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import com.welab.wefe.board.service.api.operation.LogQueryApi;
-import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
-import com.welab.wefe.board.service.database.repository.OperationLogRepository;
-import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.OperationLogOutputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.data.fusion.service.api.operation.LogQueryApi;
+import com.welab.wefe.data.fusion.service.database.entity.OperationLogMysqlModel;
+import com.welab.wefe.data.fusion.service.database.repository.OperationLogRepository;
+import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
+import com.welab.wefe.data.fusion.service.dto.entity.OperationLogOutputModel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 /**
  * @author eval
@@ -47,7 +46,8 @@ public class OperationLogService extends AbstractService {
 
         Specification<OperationLogMysqlModel> where = Where
                 .create()
-                .equal("logAction", input.getAction())
+                .equal("nickname", input.getNickname())
+                .equal("apiName", input.getApiName())
                 .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(OperationLogMysqlModel.class);

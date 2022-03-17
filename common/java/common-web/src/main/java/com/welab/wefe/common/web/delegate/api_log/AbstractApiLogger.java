@@ -137,7 +137,7 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
         log.setResponseTime(new Date(start + result.spend));
         log.setCallerIp(ip);
         log.setCallerId(accountInfo.getId());
-        log.setCallerName(accountInfo.getPhoneNumber());
+        log.setCallerName(accountInfo.getNickname());
         log.setApiName(annotation.path());
         log.setRequestData(JSON.toJSONString(params, LoggerSerializeConfig.instance()));
         log.setResponseCode(result.code);

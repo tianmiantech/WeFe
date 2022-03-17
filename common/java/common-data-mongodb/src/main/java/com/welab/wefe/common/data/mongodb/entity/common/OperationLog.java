@@ -1,50 +1,63 @@
-/*
- * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.welab.wefe.common.data.mongodb.entity.common;
 
-package com.welab.wefe.board.service.dto.entity;
+import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
+import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import java.util.Date;
 
-/**
- * @author eval
- **/
-public class OperationLogOutputModel extends AbstractOutputModel {
-    @Check(name = "请求接口")
+@Document(collection = MongodbTable.Common.OPERATION_LOG)
+
+public class OperationLog extends AbstractNormalMongoModel {
+    /**
+     * 请求接口
+     */
     private String logInterface;
 
-    @Check(name = "请求接口名称")
+    /**
+     * 请求接口名称
+     */
     private String interfaceName;
 
-    @Check(name = "请求IP")
+    /**
+     * 请求IP
+     */
     private String requestIp;
 
-    @Check(name = "操作人员编号")
+    /**
+     * 操作人员编号
+     */
     private String operatorId;
 
-    @Check(name = "请求token")
+    /**
+     * 请求token
+     */
     private String token;
 
-    @Check(name = "操作行为")
+    /**
+     * 操作行为
+     */
     private String logAction;
 
-    @Check(name = "请求结果编码")
+    /**
+     * 请求结果编码
+     */
     private int resultCode;
 
-    @Check(name = "请求结果")
+    /**
+     * 请求结果
+     */
     private String resultMessage;
+
+    /**
+     * 请求时间
+     */
+    private Date requestTime;
+
+    /**
+     * 耗时
+     */
+    private long spend;
 
     public String getLogInterface() {
         return logInterface;
@@ -108,5 +121,21 @@ public class OperationLogOutputModel extends AbstractOutputModel {
 
     public void setResultMessage(String resultMessage) {
         this.resultMessage = resultMessage;
+    }
+
+    public Date getRequestTime() {
+        return requestTime;
+    }
+
+    public void setRequestTime(Date requestTime) {
+        this.requestTime = requestTime;
+    }
+
+    public long getSpend() {
+        return spend;
+    }
+
+    public void setSpend(long spend) {
+        this.spend = spend;
     }
 }
