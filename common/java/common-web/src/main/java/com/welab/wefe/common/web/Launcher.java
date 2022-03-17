@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
@@ -96,17 +97,20 @@ public class Launcher {
 
     public static <T> T getBean(Class<T> requiredType) {
         Service service = requiredType.getAnnotation(Service.class);
+        Component component = requiredType.getAnnotation(Component.class);
+        Repository repository = requiredType.getAnnotation(Repository.class);
         String name = null;
         if (service != null) {
             if (StringUtil.isNotEmpty(service.value())) {
                 name = service.value();
             }
-        } else {
-            Repository repository = requiredType.getAnnotation(Repository.class);
-            if (repository != null) {
-                if (StringUtil.isNotEmpty(repository.value())) {
-                    name = repository.value();
-                }
+        } else if (component != null) {
+            if (StringUtil.isNotEmpty(component.value())) {
+                name = component.value();
+            }
+        } else if (repository != null) {
+            if (StringUtil.isNotEmpty(repository.value())) {
+                name = repository.value();
             }
         }
 

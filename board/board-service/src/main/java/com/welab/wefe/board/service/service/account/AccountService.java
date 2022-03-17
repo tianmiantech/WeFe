@@ -117,6 +117,7 @@ public class AccountService extends AbstractAccountService {
         model.setSuperAdminRole(accountRepository.count() < 1);
         model.setAdminRole(model.getSuperAdminRole());
         model.setEnable(true);
+        model.setLastActionTime(new Date());
 
         // Super administrator does not need to review
         if (model.getSuperAdminRole() || userSource == BoardUserSource.online_demo) {
