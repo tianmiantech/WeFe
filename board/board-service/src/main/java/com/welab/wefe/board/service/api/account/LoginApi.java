@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -49,7 +50,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
         String token = accountService.login(input.phoneNumber, input.password, input.key, input.code);
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(input.phoneNumber);
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(input.phoneNumber));
         Output output = new Output(token, model);
 
         /**
@@ -144,7 +145,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
         public Output() {
         }
 
-        public Output(String token, AccountMysqlModel model) {
+        public Output(String token, AccountMysqlModel model) throws StatusCodeWithException {
             this.id = model.getId();
             this.token = token;
             this.phoneNumber = model.getPhoneNumber();

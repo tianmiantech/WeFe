@@ -1112,3 +1112,11 @@ CREATE TABLE `verification_code`
     `biz_id`        varchar(64)  DEFAULT NULL COMMENT '业务ID',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';
+
+
+-- -------------------------------------
+-- 修改相关表手机号字段长度
+-- author: aaron.li
+-- -------------------------------------
+ALTER TABLE verification_code MODIFY COLUMN mobile VARCHAR(200);
+ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);
