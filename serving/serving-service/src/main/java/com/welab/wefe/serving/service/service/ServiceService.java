@@ -63,9 +63,11 @@ import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
 import com.welab.wefe.mpc.pir.sdk.PrivateInformationRetrievalQuery;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
+import com.welab.wefe.mpc.pir.server.service.naor.NaorPinkasRandomService;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.psi.sdk.PrivateSetIntersection;
@@ -404,7 +406,8 @@ public class ServiceService {
 				log(service, client, duration, clientIp, res.getIntValue("code"));
 				return res;
 			}
-			if (!Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
+            if (StringUtils.isNotBlank(client.getIpAdd()) && !"*".equalsIgnoreCase(client.getIpAdd())
+                    && !Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
 				res.append("code", ServiceResultEnum.IP_NOT_AUTHORITY.getCode());
 				res.append("message", "invalid request: url = " + serviceUrl + ",clientIp="+clientIp);
 				long duration = System.currentTimeMillis() - start;
@@ -427,8 +430,8 @@ public class ServiceService {
 			
 			if (serviceType == ServiceTypeEnum.PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
-				QueryKeysResponse result = pir(ids, service);
-				res = JObject.create(result);
+                String otMethod = data.getString("otMethod", "huack_ot");
+				res = pir(ids, service, otMethod);
 			} else if (serviceType == ServiceTypeEnum.PSI.getCode()) {
 				String p = data.getString("p");
 				List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
@@ -458,7 +461,8 @@ public class ServiceService {
 			} else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				int idx = data.getIntValue("index");
-				List<JObject> results = multi_pir(ids, idx,  service, currentClient);
+                String otMethod = data.getString("otMethod", "huack_ot");
+				List<JObject> results = multi_pir(ids, idx,  service, currentClient, otMethod);
 				res = JObject.create("result", results);
 			}
 			res.append("code", ServiceResultEnum.SUCCESS.getCode());
@@ -497,8 +501,8 @@ public class ServiceService {
 			communicationConfig.setApiName(apiName);
 			communicationConfig.setServerUrl(base_url);
 			communicationConfig.setCommercialId(currentClient.getCode());
-			communicationConfig.setNeedSign(true);// TODO
-			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());// TODO
+			communicationConfig.setNeedSign(true);
+			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());
 			config.setCommunicationConfig(communicationConfig);
 			HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
 			transferVariables.add(httpTransferVariable);
@@ -596,8 +600,8 @@ public class ServiceService {
 			communicationConfig.setApiName(apiName);
 			communicationConfig.setServerUrl(base_url);
 			communicationConfig.setCommercialId(currentClient.getCode());
-			communicationConfig.setNeedSign(true);// TODO
-			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());// TODO
+			communicationConfig.setNeedSign(true);
+			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());
 			communicationConfigs.add(communicationConfig);
 		}
 
@@ -606,7 +610,8 @@ public class ServiceService {
 		return result;
 	}
 
-	private List<JObject> multi_pir(List<String> ids, int index, ServiceMySqlModel model, ClientMysqlModel currentClient) {
+    private List<JObject> multi_pir(List<String> ids, int index, ServiceMySqlModel model,
+            ClientMysqlModel currentClient, String otMethod) {
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
 		List<JObject> results = new ArrayList<>();
@@ -619,7 +624,7 @@ public class ServiceService {
 			String base_url = serviceConfig.getString("base_url");
 
 			communicationConfig.setApiName(apiName);
-			communicationConfig.setNeedSign(true);// TODO
+			communicationConfig.setNeedSign(true);
 			communicationConfig.setCommercialId(currentClient.getCode());
 			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());
 			communicationConfig.setServerUrl(base_url);
@@ -629,7 +634,7 @@ public class ServiceService {
 			String result = null;
 			try {
 				config.setTargetIndex(index); // right index
-				result = privateInformationRetrievalQuery.query(config, communicationConfig);
+				result = privateInformationRetrievalQuery.query(config, communicationConfig, otMethod);
 				results.add(JObject.create("memberId", memberId).append("memberName", memberName).append("index", index)
 						.append("result", result));
 			} catch (Exception e) {
@@ -639,7 +644,7 @@ public class ServiceService {
 		return results;
 	}
 
-	private QueryKeysResponse pir(List<String> ids, ServiceMySqlModel model) throws StatusCodeWithException {
+	private JObject pir(List<String> ids, ServiceMySqlModel model, String otMethod) throws StatusCodeWithException {
 		Map<String, String> result = new HashMap<>();
 		// 0 根据ID查询对应的数据
 		for (String id : ids) {// params
@@ -662,21 +667,45 @@ public class ServiceService {
 				throw e;
 			}
 		}
-		QueryKeysRequest request = new QueryKeysRequest();
-		request.setIds((List) ids);
-		request.setMethod("plain");
-		HuackKeyService service = new HuackKeyService();
 		String uuid = "";
-		QueryKeysResponse response = null;
-		try {
-			response = service.handle(request);
-			// 3 取出 QueryKeysResponse 的uuid
-			// 将uuid传入QueryResult
-			uuid = response.getUuid();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+		JObject response = JObject.create();
+		if(Constants.PIR.NAORPINKAS_OT.equalsIgnoreCase(otMethod)) {
+		    NaorPinkasRandomService service = new NaorPinkasRandomService();
+		    QueryKeysRequest request = new QueryKeysRequest();
+            request.setIds((List) ids);
+            request.setMethod("plain");
+            request.setOtMethod(Constants.PIR.NAORPINKAS_OT);
+            QueryNaorPinkasRandomResponse resp = null;
+            try {
+                resp = service.handle(request);
+                // 3 取出 QueryKeysResponse 的uuid
+                // 将uuid传入QueryResult
+                uuid = resp.getUuid();
+                response = JObject.create(resp);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+            }
 		}
+		else {
+		    QueryKeysRequest request = new QueryKeysRequest();
+	        request.setIds((List) ids);
+	        request.setMethod("plain");
+	        request.setOtMethod(Constants.PIR.HUACK_OT);
+	        HuackKeyService service = new HuackKeyService();
+	        QueryKeysResponse resp = null;
+	        try {
+	            resp = service.handle(request);
+	            // 3 取出 QueryKeysResponse 的uuid
+	            // 将uuid传入QueryResult
+	            uuid = resp.getUuid();
+	            response = JObject.create(resp);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+	        }
+		}
+		
 		// 将 0 步骤查询的数据 保存到 CacheOperation
 		CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
 		queryResult.save(uuid, Constants.RESULT, result);
@@ -694,15 +723,15 @@ public class ServiceService {
 		List<File> fileList = new ArrayList<>();
 		File readme = new File(basePath.resolve("readme.md").toString());
 		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
-			// TODO 将需要提供的文件加到这个列表
+			// 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath.resolve("mpc-pir-sdk-1.0.0.jar").toString()));
 			fillReadmeFile(model, readme);
 		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
-			// TODO 将需要提供的文件加到这个列表
+			// 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath.resolve("mpc-psi-sdk-1.0.0.jar").toString()));
 			fillReadmeFile(model, readme);
 		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
-			// TODO 将需要提供的文件加到这个列表
+			// 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath.resolve("mpc-sa-sdk-1.0.0.jar").toString()));
 			fillReadmeFile(model, readme);
 		} else {
