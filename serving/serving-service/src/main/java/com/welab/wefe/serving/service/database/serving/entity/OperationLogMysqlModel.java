@@ -16,9 +16,8 @@
 
 package com.welab.wefe.serving.service.database.serving.entity;
 
-import java.util.Date;
-
 import javax.persistence.Entity;
+import java.util.Date;
 
 /**
  * @author eval
@@ -47,11 +46,6 @@ public class OperationLogMysqlModel extends AbstractMySqlModel {
      * 操作人员编号
      */
     private String operatorId;
-
-    /**
-     * 操作人员手机号
-     */
-    private String operatorPhone;
 
     /**
      * 请求token
@@ -113,14 +107,6 @@ public class OperationLogMysqlModel extends AbstractMySqlModel {
 
     public void setOperatorId(String operatorId) {
         this.operatorId = operatorId;
-    }
-
-    public String getOperatorPhone() {
-        return operatorPhone;
-    }
-
-    public void setOperatorPhone(String operatorPhone) {
-        this.operatorPhone = operatorPhone;
     }
 
     public String getToken() {

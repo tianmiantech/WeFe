@@ -26,10 +26,13 @@ public class LoginOutput extends AbstractApiOutput {
     private String userId;
     private String token;
     private String account;
+
+
     private String realname;
     private String email;
     private boolean superAdminRole;
     private boolean adminRole;
+    private boolean needUpdatePassword;
 
     public LoginOutput() {
     }
@@ -100,5 +103,13 @@ public class LoginOutput extends AbstractApiOutput {
 
     public void setAdminRole(boolean adminRole) {
         this.adminRole = adminRole;
+    }
+
+    public boolean isNeedUpdatePassword() {
+        return needUpdatePassword;
+    }
+
+    public void setNeedUpdatePassword(boolean needUpdatePassword) {
+        this.needUpdatePassword = needUpdatePassword;
     }
 }

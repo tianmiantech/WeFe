@@ -16,6 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
@@ -124,37 +125,6 @@ public class AccountService extends AbstractAccountService {
         accountRepository.save(model);
 
         CacheObjects.refreshAccountMap();
-    }
-
-    /**
-     * update password
-     */
-    public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
-
-        String phoneNumber = CurrentAccount.phoneNumber();
-        if (phoneNumber == null) {
-            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
-        }
-
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
-
-        // Check old password
-        if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
-            throw new StatusCodeWithException("您输入的旧密码不正确", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        // Regenerate salt
-        String salt = createRandomSalt();
-
-        // sha hash
-        newPassword = Sha1.of(newPassword + salt);
-
-        model.setSalt(salt);
-        model.setPassword(newPassword);
-
-        accountRepository.save(model);
-
-        CurrentAccount.logout(model.getId());
     }
 
 
@@ -407,6 +377,15 @@ public class AccountService extends AbstractAccountService {
         return toAccountInfo(list.get(0));
     }
 
+    @Override
+    public void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException {
+        AccountMysqlModel model = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        model.setPassword(password);
+        model.setSalt(salt);
+        model.setHistoryPasswordList(historyPasswords);
+        accountRepository.save(model);
+    }
+
     private AccountInfo toAccountInfo(AccountMysqlModel model) {
         if (model == null) {
             return null;
@@ -423,6 +402,7 @@ public class AccountService extends AbstractAccountService {
         info.setSuperAdminRole(model.getSuperAdminRole());
         info.setEnable(model.getEnable());
         info.setCancelled(model.isCancelled());
+        info.setHistoryPasswordList(model.getHistoryPasswordList());
         return info;
     }
 }

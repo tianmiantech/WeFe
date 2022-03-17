@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.service;
 
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
@@ -171,6 +172,7 @@ public class AccountService extends AbstractAccountService {
         info.setSuperAdminRole(model.getSuperAdminRole());
         info.setEnable(model.getEnable());
         info.setCancelled(model.isCancelled());
+        info.setHistoryPasswordList(model.getHistoryPasswordList());
         return info;
     }
 
@@ -344,27 +346,12 @@ public class AccountService extends AbstractAccountService {
         return newPassword;
     }
 
-    /**
-     * update password
-     */
-    public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
-        String phoneNumber = CurrentAccount.phoneNumber();
-        if (phoneNumber == null) {
-            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
-        }
-        AccountMySqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
-        // Check old password
-        if (!StringUtil.equals(model.getPassword(), hashPasswordWithSalt(oldPassword, model.getSalt()))) {
-            CurrentAccount.logout();
-            throw new StatusCodeWithException("您输入的旧密码不正确，为确保安全，请重新登录后重试。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-        // Regenerate salt
-        String salt = createRandomSalt();
-        // sha hash
-        newPassword = hashPasswordWithSalt(newPassword, salt);
+    @Override
+    public void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException {
+        AccountMySqlModel model = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        model.setPassword(password);
         model.setSalt(salt);
-        model.setPassword(newPassword);
+        model.setHistoryPasswordList(historyPasswords);
         accountRepository.save(model);
-        CurrentAccount.logout(model.getId());
     }
 }

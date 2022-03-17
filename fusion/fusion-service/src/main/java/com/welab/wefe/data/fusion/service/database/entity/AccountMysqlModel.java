@@ -16,8 +16,13 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
+import com.alibaba.fastjson.JSONArray;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -75,6 +80,12 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
      * 是否已注销
      */
     private boolean cancelled;
+    /**
+     * 历史曾用密码
+     */
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private JSONArray historyPasswordList;
 
     /**
      * 最后活动时间
@@ -171,6 +182,14 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public JSONArray getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setHistoryPasswordList(JSONArray historyPasswordList) {
+        this.historyPasswordList = historyPasswordList;
     }
 
     public Date getLastActionTime() {

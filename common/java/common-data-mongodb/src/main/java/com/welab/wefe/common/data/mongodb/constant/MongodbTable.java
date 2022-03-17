@@ -23,6 +23,7 @@ public class MongodbTable {
 
     public static final class Common {
         public static final String FLOW_LIMIT = "FlowLimit";
+        public static final String OPERATION_LOG = "OperationLog";
     }
 
     public static final class Union {
