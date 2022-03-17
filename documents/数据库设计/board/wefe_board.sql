@@ -30,7 +30,7 @@ CREATE TABLE `account`
     `created_time`          datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
     `updated_by`            varchar(32) COMMENT '更新人',
     `updated_time`          datetime(6) COMMENT '更新时间',
-    `phone_number`          varchar(32)  NOT NULL COMMENT '手机号',
+    `phone_number`          varchar(200)  NOT NULL COMMENT '手机号',
     `password`              varchar(128) NOT NULL COMMENT '密码',
     `salt`                  varchar(128) NOT NULL COMMENT '盐',
     `nickname`              varchar(32)  NOT NULL COMMENT '昵称',
@@ -1103,7 +1103,7 @@ CREATE TABLE `verification_code`
     `created_time`  datetime(6) NOT NULL COMMENT '创建时间',
     `updated_by`    varchar(32)  DEFAULT NULL COMMENT '更新人',
     `updated_time`  datetime(6) DEFAULT NULL COMMENT '更新时间',
-    `mobile`        varchar(30) NOT NULL COMMENT '手机号',
+    `mobile`        varchar(200) NOT NULL COMMENT '手机号',
     `code`          varchar(30) NOT NULL COMMENT '验证码',
     `success`       varchar(10)  DEFAULT NULL COMMENT 'true：成功，false：失败',
     `send_channel`  varchar(10)  DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
@@ -1112,11 +1112,3 @@ CREATE TABLE `verification_code`
     `biz_id`        varchar(64)  DEFAULT NULL COMMENT '业务ID',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';
-
-
--- -------------------------------------
--- 修改相关表手机号字段长度
--- author: aaron.li
--- -------------------------------------
-ALTER TABLE verification_code MODIFY COLUMN mobile VARCHAR(200);
-ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);
