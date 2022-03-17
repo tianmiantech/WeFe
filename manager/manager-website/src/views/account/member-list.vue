@@ -290,9 +290,11 @@
                 this.fileList = [];
                 this.pending = true;
 
-                list.forEach(file => {
-                    this.getFile(file.file_id, list.length);
-                });
+                if(list.length) {
+                    list.forEach(({ file_id, filename }) => {
+                        this.getFile(file_id, filename, list.length);
+                    });
+                }
             },
             blobToDataURI(blob, callback) {
                 const reader = new FileReader();
@@ -302,21 +304,14 @@
                     callback(e.target.result);
                 };
             },
-            async getFile(fileId, files) {
-                const { code, data, response: { headers } } = await this.$http.post({
+            async getFile(fileId, fileName, files) {
+                const { code, data } = await this.$http.post({
                     url:          '/download/file',
                     responseType: 'blob',
                     data:         {
                         fileId,
                     },
                 });
-                const contentDisposition = headers['content-disposition'] || headers['Content-Disposition'];
-
-                let fileName = '';
-
-                if (contentDisposition) {
-                    fileName = window.decodeURI(contentDisposition.split('filename=')[1], 'UTF-8');
-                }
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {
