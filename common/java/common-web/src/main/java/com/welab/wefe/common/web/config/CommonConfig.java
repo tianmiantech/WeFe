@@ -18,9 +18,7 @@ package com.welab.wefe.common.web.config;
 
 import com.welab.wefe.common.wefe.enums.env.EnvBranch;
 import com.welab.wefe.common.wefe.enums.env.EnvName;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,7 +26,7 @@ import org.springframework.stereotype.Component;
  *
  * @author lonnie
  */
-@Component
+@Component("commonConfig")
 public class CommonConfig {
 
     @Value("${wefe.union.base-url:}")
