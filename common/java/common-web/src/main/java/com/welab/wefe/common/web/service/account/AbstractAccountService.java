@@ -43,12 +43,12 @@ public abstract class AbstractAccountService {
      *
      * @param phoneNumber 登录账号，通常是手机号。
      */
-    public abstract AccountInfo getAccountInfo(String phoneNumber);
+    public abstract AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException;
 
     /**
      * 获取系统中的超级管理员
      */
-    public abstract AccountInfo getSuperAdmin();
+    public abstract AccountInfo getSuperAdmin() throws StatusCodeWithException;
 
     /**
      * 保存新的密码
