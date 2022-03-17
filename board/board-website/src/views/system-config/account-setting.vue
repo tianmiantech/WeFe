@@ -6,13 +6,13 @@
                 <el-form style="max-width: 300px" @submit.prevent>
                     <el-form-item
                         label="用户昵称"
-                        required
+                        class="is-required"
                     >
                         <el-input v-model="accountInfo.nickname" />
                     </el-form-item>
                     <el-form-item
                         label="邮箱"
-                        required
+                        class="is-required"
                     >
                         <el-input v-model="accountInfo.email" />
                     </el-form-item>

@@ -127,7 +127,10 @@
                 background: transparent;
             }
         }
-        :deep(.el-input__inner){color: #fff;}
+        :deep(.el-input__inner){
+            color: #fff;
+            box-shadow:none;
+        }
     }
     .certification{
         position: absolute;

@@ -361,7 +361,7 @@
             >
                 <el-form-item
                     label="选择目标用户"
-                    required
+                    class="is-required"
                 >
                     <el-autocomplete
                         v-model="transformSuperUserDialog.user"
