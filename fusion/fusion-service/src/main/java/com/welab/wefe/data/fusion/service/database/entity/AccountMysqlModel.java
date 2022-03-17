@@ -32,6 +32,7 @@ import java.util.Date;
  * @author Zane
  */
 @Entity(name = "account")
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     /**
