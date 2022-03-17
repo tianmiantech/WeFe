@@ -39,8 +39,8 @@ nas_upload(){
       cp -rf .s/build/artifacts/wefe-fc/index/.s/root /data/environment/.s/
 
       echo 'upload new python to NAS ...'
-      s nas upload -r -o /data/environment/.s/python /mnt/auto/$nas_env/ --debug
-      s nas upload -r -o /data/environment/.s/root /mnt/auto/$nas_env/ --debug
+      s nas upload -r -o /data/environment/.s/python /mnt/auto/$nas_env --debug
+      s nas upload -r -o /data/environment/.s/root /mnt/auto/$nas_env --debug
     fi
   fi
 
