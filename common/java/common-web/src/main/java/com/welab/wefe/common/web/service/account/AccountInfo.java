@@ -68,6 +68,11 @@ public class AccountInfo {
      */
     public boolean cancelled;
     /**
+     * 账号是否需要修改密码
+     */
+    public boolean needUpdatePassword;
+
+    /**
      * 曾经使用过的密码
      */
     public List<HistoryPasswordItem> historyPasswordList;
@@ -179,6 +184,14 @@ public class AccountInfo {
 
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public boolean isNeedUpdatePassword() {
+        return needUpdatePassword;
+    }
+
+    public void setNeedUpdatePassword(boolean needUpdatePassword) {
+        this.needUpdatePassword = needUpdatePassword;
     }
 
     public List<HistoryPasswordItem> getHistoryPasswordList() {

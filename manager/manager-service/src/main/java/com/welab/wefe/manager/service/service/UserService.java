@@ -184,6 +184,7 @@ public class UserService extends AbstractAccountService {
         info.setSuperAdminRole(model.isSuperAdminRole());
         info.setEnable(model.isEnable());
         info.setCancelled(model.isCancelled());
+        info.setNeedUpdatePassword(model.isNeedUpdatePassword());
         info.setHistoryPasswordList(model.getHistoryPasswordList());
         return info;
     }
