@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.api.operation;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -41,9 +42,16 @@ public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<Ope
     }
 
     public static class Input extends PagingInput {
+        @Check(name = "接口名称")
         private String apiName;
+
+        @Check(name = "调用者名称")
         private String callerName;
+
+        @Check(name = "开始时间")
         private Long startTime;
+
+        @Check(name = "结束时间")
         private Long endTime;
 
         public String getApiName() {

@@ -46,6 +46,7 @@ public class LoginOutput extends AbstractApiOutput {
         this.email = model.getEmail();
         this.superAdminRole = model.isSuperAdminRole();
         this.adminRole = model.isAdminRole();
+        this.needUpdatePassword = model.isNeedUpdatePassword();
     }
 
 
