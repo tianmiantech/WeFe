@@ -20,6 +20,7 @@ import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
+import com.welab.wefe.manager.service.operation.ManagerApiLogger;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -61,6 +62,7 @@ public class ManagerService implements ApplicationContextAware {
     public static void main(String[] args) {
 
         Launcher.instance()
+                .apiLogger(new ManagerApiLogger())
                 .apiPackageClass(ManagerService.class)
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .launch(ManagerService.class, args);

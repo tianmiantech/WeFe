@@ -119,6 +119,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     }
 
     public static class Output extends AbstractApiOutput {
+        private String id;
 
         private String token;
 
@@ -136,6 +137,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
         }
 
         public Output(String token, AccountMySqlModel model) {
+            this.id = model.getId();
             this.token = token;
             this.phoneNumber = model.getPhoneNumber();
             this.nickname = model.getNickname();
@@ -146,6 +148,15 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
 
 
         //region getter/setter
+
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
 
         public String getToken() {
             return token;

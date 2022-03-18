@@ -234,14 +234,21 @@ public class AccountService extends AbstractAccountService {
      * Reset user password (administrator rights)
      */
     public String resetPassword(ResetPasswordApi.Input input) throws StatusCodeWithException {
+
+        if (!CurrentAccount.isAdmin()) {
+            throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
+        }
+
+
+        AccountMysqlModel operator = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        if (!super.verifyPassword(operator.getPassword(), input.getPassword(), operator.getSalt())) {
+            throw new StatusCodeWithException("密码错误，身份核实失败，已退出登录。", StatusCode.PERMISSION_DENIED);
+        }
+
         AccountMysqlModel model = accountRepository.findById(input.getId()).orElse(null);
 
         if (model == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
-        }
-
-        if (!CurrentAccount.isAdmin()) {
-            throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
 
         if (model.getSuperAdminRole()) {

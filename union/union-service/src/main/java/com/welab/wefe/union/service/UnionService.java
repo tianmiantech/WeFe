@@ -34,6 +34,7 @@ import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.union.service.cache.MemberActivityCache;
 import com.welab.wefe.union.service.dto.common.SM2SignedApiInput;
+import com.welab.wefe.union.service.operation.UnionApiLogger;
 import com.welab.wefe.union.service.service.flowlimit.FlowLimitByIpService;
 import com.welab.wefe.union.service.service.flowlimit.FlowLimitByMobileService;
 import org.springframework.beans.BeansException;
@@ -78,6 +79,7 @@ public class UnionService implements ApplicationContextAware {
     public static void main(String[] args) {
 
         Launcher.instance()
+                .apiLogger(new UnionApiLogger())
                 .apiPackageClass(UnionService.class)
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if (annotation.rsaVerify()) {
