@@ -65,7 +65,7 @@
 
                     <el-form-item
                         prop="tol"
-                        label="收敛阀值"
+                        label="收敛阈值"
                     >
                         <el-input
                             v-model="vData.form.other_param.tol"

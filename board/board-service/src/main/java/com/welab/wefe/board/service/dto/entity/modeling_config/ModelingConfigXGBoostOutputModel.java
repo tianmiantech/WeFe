@@ -34,7 +34,7 @@ public class ModelingConfigXGBoostOutputModel extends AbstractModelingConfigOutp
     private Double subsampleFeatureRate;
     @Check(name = "n次迭代没变化是否停止")
     private Boolean nIterNoChange;
-    @Check(name = "收敛阀值")
+    @Check(name = "收敛阈值")
     private Double tol;
     @Check(name = "最大桶数量")
     private Integer binNum;
