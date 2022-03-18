@@ -25,21 +25,31 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 
 public class AccountMysqlModelListener {
+
+    /**
+     * before save
+     */
     @PrePersist
-    public void PrePersist(Object entity) throws StatusCodeWithException {
+    public void prePersist(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             AccountMysqlModel model = (AccountMysqlModel) entity;
             model.setPhoneNumber(BoardSM4Util.encryptPhoneNumber(model.getPhoneNumber()));
         }
     }
 
+    /**
+     * before update
+     */
     @PreUpdate
-    public void PreUpdate(Object entity) throws StatusCodeWithException {
-        PrePersist(entity);
+    public void preUpdate(Object entity) throws StatusCodeWithException {
+        prePersist(entity);
     }
 
+    /**
+     * query
+     */
     @PostLoad
-    public void PostLoad(Object entity) throws StatusCodeWithException {
+    public void postLoad(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             AccountMysqlModel model = (AccountMysqlModel) entity;
             model.setPhoneNumber(BoardSM4Util.decryptPhoneNumber(model.getPhoneNumber()));
