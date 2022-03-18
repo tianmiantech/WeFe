@@ -98,9 +98,10 @@ public class UserService extends AbstractAccountService {
             throw new StatusCodeWithException("不能重置超级管理员密码", StatusCode.PERMISSION_DENIED);
         }
 
-        if(!CurrentAccount.get().getPassword().equals(hashPasswordWithSalt(adminPassword, CurrentAccount.get().getSalt()))){
-            throw new StatusCodeWithException("管理员密码错误", StatusCode.PERMISSION_DENIED);
+        if (!super.verifyPassword(CurrentAccount.get().getPassword(), adminPassword, CurrentAccount.get().getSalt())) {
+            throw new StatusCodeWithException("管理员密码错误，身份核实失败，已退出登录。", StatusCode.PERMISSION_DENIED);
         }
+
         // Regenerate salt
         String salt = createRandomSalt();
 

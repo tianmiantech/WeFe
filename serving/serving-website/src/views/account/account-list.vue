@@ -397,6 +397,7 @@
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table.js';
 	import { baseLogout } from '@src/router/auth';
+    import md5 from 'js-md5';
 
     export default {
         mixins: [table],
@@ -494,11 +495,18 @@
             async confirmReset($event) {
                 this.$refs['resetPwdForm'].validate(async(valid) => {
                     if (valid) {
+                        const password = [
+                            this.userInfo.phone_number,
+                            this.resetPwdForm.password,
+                            this.userInfo.phone_number,
+                            this.userInfo.phone_number.substr(0, 3),
+                            this.resetPwdForm.password.substr(this.resetPwdForm.password.length - 3),
+                        ].join('');
                         const { code, data } = await this.$http.post({
                             url:  '/account/reset/password',
                             data: {
                                 id:       this.resetPwDialog.id,
-                                password: this.resetPwdForm.password,
+                                password: md5(password),
                             },
                             btnState: {
                                 target: $event,
