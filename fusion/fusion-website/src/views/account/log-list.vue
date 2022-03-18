@@ -120,10 +120,11 @@
                 }],
                 datePicker: '',
                 search:     {
-                    api_name:    '',
-                    caller_name: '',
-                    startTime:   '',
-                    endTime:     '',
+                    api_name:               '',
+                    caller_name:            '',
+                    startTime:              '',
+                    endTime:                '',
+                    'request-from-refresh': false,
                 },
                 getListApi:   '/log/query',
                 fillUrlQuery: false,
@@ -137,10 +138,11 @@
         methods: {
             syncUrlParams() {
                 this.search = {
-                    api_name:    '',
-                    caller_name: '',
-                    startTime:   '',
-                    endTime:     '',
+                    api_name:               '',
+                    caller_name:            '',
+                    startTime:              '',
+                    endTime:                '',
+                    'request-from-refresh': false,
                     ...this.$route.query,
                 };
                 if(this.search.startTime && this.search.endTime) {
