@@ -46,7 +46,7 @@ public class OperationLogService extends AbstractService {
 
         Specification<OperationLogMysqlModel> where = Where
                 .create()
-                .equal("nickname", input.getNickname())
+                .equal("callerName", input.getCallerName())
                 .equal("apiName", input.getApiName())
                 .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
                 .orderBy("createdTime", OrderBy.desc)
