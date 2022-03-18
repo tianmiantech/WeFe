@@ -239,14 +239,10 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
 
-        String phoneNumber = CurrentAccount.phoneNumber();
-        if (phoneNumber == null) {
-            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
-        }
-        AccountMysqlModel currentAdmin = accountRepository.findByPhoneNumber(phoneNumber);
-        // Check password
-        if (!StringUtil.equals(currentAdmin.getPassword(), hashPasswordWithSalt(input.getPassword(), currentAdmin.getSalt()))) {
-            throw new StatusCodeWithException("密码不正确，请重新输入", StatusCode.PARAMETER_VALUE_INVALID);
+
+        AccountMysqlModel operator = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        if (!super.verifyPassword(operator.getPassword(), input.getPassword(), operator.getSalt())) {
+            throw new StatusCodeWithException("密码错误，身份核实失败，已退出登录。", StatusCode.PERMISSION_DENIED);
         }
 
         AccountMysqlModel model = accountRepository.findById(input.getId()).orElse(null);
