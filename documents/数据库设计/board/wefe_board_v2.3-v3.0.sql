@@ -460,3 +460,10 @@ ALTER TABLE `account`
     ADD COLUMN `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间' AFTER `cancelled`;
 ALTER TABLE `account`
     ADD COLUMN `history_password_list` text NULL COMMENT '历史曾用密码' AFTER `last_action_time`;
+
+-- -------------------------------------
+-- 修改相关表手机号字段长度
+-- author: aaron.li
+-- -------------------------------------
+ALTER TABLE verification_code MODIFY COLUMN mobile VARCHAR(200);
+ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);

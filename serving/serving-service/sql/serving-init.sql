@@ -208,7 +208,7 @@ DROP TABLE IF EXISTS client;
 CREATE TABLE client
 (
     id           VARCHAR(32)  NOT NULL COMMENT '客户id',
-    name         VARCHAR(255) NOT NULL COMMENT '客户名称',
+    name         VARCHAR(255) NOT NULL UNIQUE COMMENT '客户名称',
     created_by   varchar(32)           DEFAULT NULL COMMENT '创建人',
     created_time datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_by   varchar(32)           DEFAULT NULL COMMENT '更新人',

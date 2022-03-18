@@ -57,6 +57,11 @@ public class ClientService {
             throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
         }
 
+        ClientMysqlModel clientMysqlModel1 = queryByClientName(input.getName());
+        if (null != clientMysqlModel1) {
+            throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
+        }
+
 
         ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
 
@@ -159,8 +164,7 @@ public class ClientService {
     }
     
     public ClientMysqlModel queryByClientName(String name) {
-    	 ClientMysqlModel model = clientRepository.findOne("name", name, ClientMysqlModel.class);
-         return model;
+        return clientRepository.findOne("name", name, ClientMysqlModel.class);
     }
 
     public QueryClientApi.Output queryById(String id) {

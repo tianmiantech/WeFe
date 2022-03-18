@@ -92,7 +92,8 @@ public enum StatusCode {
      * serving
      */
     CLIENT_SERVICE_EXIST(40001, "该客户已存在此服务！"),
-    ERROR_PUBKEY_LENGTH(40002,"公钥长度不符合规范！");
+    ERROR_PUBKEY_LENGTH(40002, "公钥长度不符合规范！"),
+    CLIENT_NAME_EXIST(40003, "客户名称已存在！");
 
     private int code;
     private String description;

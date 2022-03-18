@@ -42,7 +42,7 @@ public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<Ope
 
     public static class Input extends PagingInput {
         private String apiName;
-        private String nickname;
+        private String callerName;
         private Long startTime;
         private Long endTime;
 
@@ -70,13 +70,12 @@ public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<Ope
             this.endTime = endTime;
         }
 
-
-        public String getNickname() {
-            return nickname;
+        public String getCallerName() {
+            return callerName;
         }
 
-        public void setNickname(String nickname) {
-            this.nickname = nickname;
+        public void setCallerName(String callerName) {
+            this.callerName = callerName;
         }
     }
 }

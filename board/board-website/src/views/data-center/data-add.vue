@@ -478,7 +478,7 @@
                 class="flex-form"
                 @submit.prevent
             >
-                <el-form-item label="数据源名称" required>
+                <el-form-item label="数据源名称" class="is-required">
                     <el-input v-model="dataSource.name" placeholder="dataset-sql"></el-input>
                 </el-form-item>
                 <el-form-item label="数据库类型">
@@ -490,21 +490,21 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="IP" required>
+                <el-form-item label="IP" class="is-required">
                     <el-input
                         v-model="dataSource.host"
                         placeholder="192.168.10.1"
                         clearable
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="端口" required>
+                <el-form-item label="端口" class="is-required">
                     <el-input
                         v-model="dataSource.port"
                         placeholder="3306"
                         clearable
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="库名" required>
+                <el-form-item label="库名" class="is-required">
                     <el-input
                         v-model="dataSource.databaseName"
                         placeholder="test"
