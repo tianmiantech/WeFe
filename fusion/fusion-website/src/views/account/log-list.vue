@@ -5,36 +5,42 @@
     >
         <el-form
             inline
-            @submit.native.prevent
+            @submit.prevent
         >
-            <el-form-item label="操作类型">
+            <el-form-item label="接口">
                 <el-input
-                    v-model="search.action"
+                    v-model="search.api_name"
                     clearable
                 />
             </el-form-item>
-            <el-form-item label="操作人手机号">
+            <el-form-item label="操作人">
                 <el-input
-                    v-model="search.operator_phone"
+                    v-model="search.caller_name"
                     maxlength="11"
                     clearable
                 />
             </el-form-item>
             <el-form-item label="起止时间">
-                <DateTimePicker
-                    ref="dateTimePicker"
-                    type="datetimerange"
-                    value-format="x"
-                    clearable
+                <el-date-picker
+                    v-model="time"
+                    type="daterange"
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    format="yyyy-MM-dd"
+                    value-format="timestamp"
                     @change="datePickerChange"
                 />
             </el-form-item>
-            <el-button
-                type="primary"
-                @click="getList({ to: true, resetPagination: true })"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    native-type="button"
+                    @click="getList({ to: true, resetPagination: true })"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
         </el-form>
 
         <el-table
@@ -46,46 +52,41 @@
         >
             <el-table-column
                 label="接口"
-                prop="interface_name"
+                prop="api_name"
                 width="200"
             >
                 <template v-slot="scope">
-                    {{ scope.row.interface_name }}
+                    {{ scope.row.api_name }}
                     <br>
                     {{ scope.row.log_interface }}
                 </template>
             </el-table-column>
             <el-table-column
                 label="操作人"
-                prop="operator_phone"
+                prop="caller_name"
                 min-width="250"
             >
                 <template v-slot="scope">
-                    {{ scope.row.operator_phone }}
+                    {{ scope.row.caller_name }}
                     <br>
-                    {{ scope.row.operator_id }}
+                    {{ scope.row.caller_id }}
                 </template>
             </el-table-column>
             <el-table-column
                 label="请求结果编码"
-                prop="result_code"
+                prop="response_code"
             />
             <el-table-column
                 label="请求 IP"
-                prop="request_ip"
+                prop="caller_ip"
                 min-width="100"
-            />
-            <el-table-column
-                label="操作类型"
-                prop="log_action"
-                min-width="120"
             />
             <el-table-column
                 label="时间"
                 width="140px"
             >
                 <template v-slot="scope">
-                    {{ dateFormat(scope.row.created_time) }}
+                    {{ scope.row.created_time | dateFormat }}
                 </template>
             </el-table-column>
         </el-table>
@@ -119,13 +120,14 @@
                 }],
                 datePicker: '',
                 search:     {
-                    action:         '',
-                    operator_phone: '',
-                    startTime:      '',
-                    endTime:        '',
+                    api_name:    '',
+                    caller_name: '',
+                    startTime:   '',
+                    endTime:     '',
                 },
                 getListApi:   '/log/query',
                 fillUrlQuery: false,
+                time:         '',
             };
         },
         mounted() {
@@ -135,14 +137,14 @@
         methods: {
             syncUrlParams() {
                 this.search = {
-                    action:         '',
-                    operator_phone: '',
-                    startTime:      '',
-                    endTime:        '',
+                    api_name:    '',
+                    caller_name: '',
+                    startTime:   '',
+                    endTime:     '',
                     ...this.$route.query,
                 };
                 if(this.search.startTime && this.search.endTime) {
-                    this.$refs['dateTimePicker'].vData.value = [this.search.startTime, this.search.endTime];
+                    this.time = [this.search.startTime, this.search.endTime];
                 }
             },
             datePickerChange(val) {
