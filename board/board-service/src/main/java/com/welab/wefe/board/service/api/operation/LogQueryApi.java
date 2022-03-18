@@ -42,7 +42,6 @@ public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<Ope
 
     public static class Input extends PagingInput {
         private String action;
-        private String operatorPhone;
         private Long startTime;
         private Long endTime;
 
@@ -52,14 +51,6 @@ public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<Ope
 
         public void setAction(String action) {
             this.action = action;
-        }
-
-        public String getOperatorPhone() {
-            return operatorPhone;
-        }
-
-        public void setOperatorPhone(String operatorPhone) {
-            this.operatorPhone = operatorPhone;
         }
 
         public Long getStartTime() {

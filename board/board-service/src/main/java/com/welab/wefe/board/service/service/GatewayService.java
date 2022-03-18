@@ -198,7 +198,7 @@ public class GatewayService extends BaseGatewayService {
         List<ProjectMemberMySqlModel> members = projectMemberService.findListByProjectId(projectId);
 
         ProjectMemberMySqlModel promoter = members.stream()
-                .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtils.isBlank(x.getInviterId()))
+                .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtil.isBlank(x.getInviterId()))
                 .findFirst().orElse(null);
 
         // Since the initiator models with itself, the records of the initiator as a provider should be eliminated to

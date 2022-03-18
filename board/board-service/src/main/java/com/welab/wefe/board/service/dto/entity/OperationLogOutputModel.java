@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.dto.entity;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author eval
@@ -35,9 +34,6 @@ public class OperationLogOutputModel extends AbstractOutputModel {
     @Check(name = "操作人员编号")
     private String operatorId;
 
-    @Check(name = "操作人员手机号")
-    private String operatorPhone;
-
     @Check(name = "请求token")
     private String token;
 
@@ -49,14 +45,6 @@ public class OperationLogOutputModel extends AbstractOutputModel {
 
     @Check(name = "请求结果")
     private String resultMessage;
-
-    /**
-     * 输出的手机号要脱敏
-     */
-    public void setOperatorPhone(String operatorPhone) {
-        this.operatorPhone = StringUtils.overlay(operatorPhone, "****", 3, 7);
-    }
-
 
     public String getLogInterface() {
         return logInterface;
@@ -88,10 +76,6 @@ public class OperationLogOutputModel extends AbstractOutputModel {
 
     public void setOperatorId(String operatorId) {
         this.operatorId = operatorId;
-    }
-
-    public String getOperatorPhone() {
-        return operatorPhone;
     }
 
     public String getToken() {

@@ -26,8 +26,10 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
+import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
 import com.welab.wefe.data.fusion.service.service.AccountService;
 import com.welab.wefe.data.fusion.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +42,18 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
 
     @Autowired
     private AccountService accountService;
-
+    @Autowired
+    private AccountRepository accountRepository;
     @Autowired
     private GlobalConfigService globalConfigService;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
-        Output output = accountService.login(input.phoneNumber, input.password, input.key, input.code);
+        String token = accountService.login(input.phoneNumber, input.password, input.key, input.code);
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(input.phoneNumber);
+
+        Output output = new Output(token, model);
 
         /**
          * After successful login, check whether the system has been initialized
@@ -63,7 +69,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
             }
             // If you are not a super administrator, you will be prompted that you cannot log in.
             else {
-                AccountMysqlModel superAdmin = accountService.findSuperAdmin();
+                AccountInfo superAdmin = accountService.getSuperAdmin();
                 return fail("系统尚未初始化, 请联系管理员 " + superAdmin.getNickname() + " 初始化系统.");
             }
         }
@@ -84,17 +90,6 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
 
         @Check(require = true, desc = "验证码")
         private String code;
-
-        @Override
-        public void checkAndStandardize() throws StatusCodeWithException {
-            super.checkAndStandardize();
-            if (Launcher.getBean(Config.class).getEnvName().isProductionEnv()) {
-                // Verification code verification
-                if (!CaptchaService.verify(key, code)) {
-                    throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
-                }
-            }
-        }
 
         //region getter/setter
 
@@ -149,7 +144,18 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
 
         private Boolean adminRole;
 
+        public Output() {
+        }
 
+        public Output(String token, AccountMysqlModel model) {
+            this.id = model.getId();
+            this.token = token;
+            this.phoneNumber = model.getPhoneNumber();
+            this.nickname = model.getNickname();
+            this.email = model.getEmail();
+            this.superAdminRole = model.getSuperAdminRole();
+            this.adminRole = model.getAdminRole();
+        }
         //region getter/setter
 
         public String getId() {

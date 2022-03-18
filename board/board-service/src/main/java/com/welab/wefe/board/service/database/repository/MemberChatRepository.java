@@ -47,7 +47,7 @@ public interface MemberChatRepository extends BaseRepository<MemberChatMySqlMode
     List<Object[]> queryChatList(@Param("selfMemberId") String selfMemberId);
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "update member_chat set status = :newStatus where from_account_id = :fromAccountId " +
             "and to_account_id = :toAccountId and status = :status", nativeQuery = true)
     void updateMessageStatus(@Param("fromAccountId") String fromAccountId, @Param("toAccountId") String toAccountId, @Param("status") int status, @Param("newStatus") int newStatus);

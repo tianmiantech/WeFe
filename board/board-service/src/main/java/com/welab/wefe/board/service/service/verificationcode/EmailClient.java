@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.board.service.service.EmailService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
@@ -49,7 +50,7 @@ public class EmailClient extends AbstractClient {
     @Override
     public AbstractResponse send(String mobile, String verificationCode) throws Exception {
         AccountRepository accountRepository = Launcher.CONTEXT.getBean(AccountRepository.class);
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", mobile, AccountMysqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(mobile), AccountMysqlModel.class);
         if (StringUtil.isEmpty(model.getEmail())) {
             throw new StatusCodeWithException("用户未设置邮箱地址", StatusCode.PERMISSION_DENIED);
         }

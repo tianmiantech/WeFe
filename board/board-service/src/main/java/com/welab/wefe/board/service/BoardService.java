@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.base.OnlineDemoApi;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.exception.FlowNodeException;
-import com.welab.wefe.board.service.operation.OperationLogAfterApiExecute;
+import com.welab.wefe.board.service.operation.BoardApiLogger;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.storage.StorageManager;
@@ -68,6 +68,7 @@ public class BoardService implements ApplicationContextAware {
     public static void main(String[] args) {
         Launcher
                 .instance()
+                .apiLogger(new BoardApiLogger())
                 .apiPackageClass(BoardService.class)
                 // Login status check method
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
@@ -107,10 +108,6 @@ public class BoardService implements ApplicationContextAware {
                     }
                 })
                 .launch(BoardService.class, args);
-
-        Launcher
-                .instance()
-                .afterApiExecuteFunction(Launcher.getBean(OperationLogAfterApiExecute.class));
     }
 
 

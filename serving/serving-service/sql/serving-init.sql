@@ -328,3 +328,21 @@ CREATE TABLE payments_records
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '收支记录';
 CREATE UNIQUE INDEX payments_records_index ON payments_records (id, service_id, client_id);
 
+CREATE TABLE `operator_log` (
+  `id` varchar(32) NOT NULL COMMENT '操作日志编号',
+  `log_interface` varchar(50) DEFAULT NULL COMMENT '请求接口',
+  `interface_name` varchar(1024) DEFAULT NULL COMMENT '请求接口名称',
+  `request_ip` varchar(20) DEFAULT NULL COMMENT '请求IP',
+  `operator_id` varchar(32) DEFAULT NULL COMMENT '操作人员编号',
+  `operator_phone` varchar(13) DEFAULT NULL COMMENT '操作人员手机号',
+  `token` varchar(100) DEFAULT NULL COMMENT '请求token',
+  `log_action` varchar(50) DEFAULT NULL COMMENT '操作行为',
+  `result_code` int(20) DEFAULT NULL COMMENT '请求结果code',
+  `result_message` text COMMENT '请求结果消息',
+  `request_time` datetime(6) DEFAULT NULL COMMENT '请求时间',
+  `spend` int(11) DEFAULT NULL COMMENT '处理时长',
+  `created_time` datetime(6) DEFAULT NULL COMMENT '创建时间',
+  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `query_index` (`created_time`,`operator_phone`,`log_action`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
