@@ -19,16 +19,13 @@ package com.welab.wefe.board.service.database.entity;
 import com.alibaba.fastjson.JSONArray;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.board.service.util.BoardSM4Util;
+import com.welab.wefe.board.service.database.listener.AccountMysqlModelListener;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -36,6 +33,7 @@ import java.util.Date;
  */
 @Entity(name = "account")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
+@EntityListeners(AccountMysqlModelListener.class)
 public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     /**
@@ -99,11 +97,11 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
     //region getter/setter
 
     public String getPhoneNumber() throws StatusCodeWithException {
-        return BoardSM4Util.decryptPhoneNumber(phoneNumber);
+        return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) throws StatusCodeWithException {
-        this.phoneNumber = BoardSM4Util.encryptPhoneNumber(phoneNumber);
+        this.phoneNumber = phoneNumber;
     }
 
     public String getPassword() {
