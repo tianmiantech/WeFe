@@ -59,7 +59,8 @@ class JobGuard(threading.Thread):
                 except Exception as e:
                     # When an exception is encountered, close the job.
                     message = "observe job error:" + repr(e)
-                    self.logger.error(message, e)
+                    self.logger.error(message)
+                    self.logger.error(e)
                     JobStopAction(job.job_id, job.my_role).do(JobStatus.ERROR_ON_RUNNING, message)
 
             time.sleep(5)
