@@ -35,7 +35,7 @@ public class CommonConfig {
     @Value("${wefe.file.upload.dir:}")
     private String fileUploadDir;
 
-    @Value("${env.name:}")
+    @Value("${env.name:prod}")
     private EnvName envName;
 
     /**
