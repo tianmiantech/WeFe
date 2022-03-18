@@ -151,9 +151,9 @@ public class AccountService {
      */
     public LoginApi.Output login(String phoneNumber, String password, String key, String code) throws StatusCodeWithException {
         //Verification code verification
-//        if (!CaptchaService.verify(key, code)) {
-//            throw new StatusCodeWithException("Verification code error！", StatusCode.PARAMETER_VALUE_INVALID);
-//        }
+        if (!CaptchaService.verify(key, code)) {
+            throw new StatusCodeWithException("Verification code error！", StatusCode.PARAMETER_VALUE_INVALID);
+        }
 
         // Check whether it is in the small black room
         if (LoginSecurityPolicy.inDarkRoom(phoneNumber)) {

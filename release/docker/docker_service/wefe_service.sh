@@ -43,7 +43,7 @@ edit_wefe_config(){
     # ************
 
     # 计算引擎选择
-    sed -i "/wefe.job.backend/s/=.*/=$CALCULATION_ENGINE/g" ./config.properties
+#    sed -i "/wefe.job.backend/s/=.*/=$CALCULATION_ENGINE/g" ./config.properties
 
     # spark
     sed -i "/driver.memory/s/=.*/=$SPARK_DRIVER_MEMORY/g" ./config.properties
@@ -97,13 +97,21 @@ _run_python_service(){
     if [ ${ACCELERATION,,} = "gpu" ];then
       cd $PWD/wefe_python_service
       sh wefe_python_service_start.sh gpu
-    elif [ $SPARK_MODE = "STANDALONE" ];then
-      # 集群方式启动
-      start_cluster
     else
-      # 单机启动
-      cd $PWD/wefe_python_service
-      sh wefe_python_service_start.sh
+      if [ $SPARK_MODE = "STANDALONE" ]; then
+        # 集群方式启动
+        start_cluster
+      else
+        if [ $CALCULATION_ENGINE = "FC" ]; then
+          # 函数计算启动
+          cd $PWD/wefe_python_service
+          sh wefe_python_service_start.sh fc
+        else
+          # 单机启动
+          cd $PWD/wefe_python_service
+          sh wefe_python_service_start.sh
+        fi
+      fi
     fi
 }
 

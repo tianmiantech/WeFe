@@ -11,7 +11,7 @@
                 <el-form-item
                     label="项目名称"
                     label-width="80px"
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model="form.name"
@@ -23,7 +23,7 @@
                 <el-form-item
                     label="项目类型"
                     label-width="80px"
-                    required
+                    class="is-required"
                 >
                     <el-select v-model="form.projectType" placeholder="请选择项目类型" style="width:400px;" @change="changeProjectType">
                         <el-option
@@ -37,7 +37,7 @@
                 <el-form-item
                     label="项目描述"
                     label-width="80px"
-                    required
+                    class="is-required"
                 >
                     <el-input
                         v-model="form.desc"
