@@ -55,12 +55,27 @@ public abstract class AbstractAccountService {
      */
     public abstract void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException;
 
+
+
+    public void updateInitPassword(String account, String oldPassword, String newPassword) throws StatusCodeWithException {
+        AccountInfo model = getAccountInfo(account);
+        if(model == null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("账号不存在");
+        }
+
+        updatePassword(model,oldPassword,newPassword);
+    }
+
     public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
-        String phoneNumber = CurrentAccount.phoneNumber();
-        if (phoneNumber == null) {
+        String account = CurrentAccount.phoneNumber();
+        if (account == null) {
             throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
         }
-        AccountInfo model = getAccountInfo(phoneNumber);
+
+        updatePassword(getAccountInfo(account),oldPassword,newPassword);
+    }
+
+    private void updatePassword(AccountInfo model, String oldPassword, String newPassword) throws StatusCodeWithException {
         // 检查旧密码是否正确
         if (!StringUtil.equals(model.getPassword(), hashPasswordWithSalt(oldPassword, model.getSalt()))) {
             CurrentAccount.logout();
@@ -88,6 +103,7 @@ public abstract class AbstractAccountService {
         saveSelfPassword(newPassword, salt, JSON.parseArray(historyPasswordListString));
         CurrentAccount.logout(model.getId());
     }
+
 
     /**
      * 检查密码是否在历史密码中
