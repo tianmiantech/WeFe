@@ -106,7 +106,7 @@ public class UserService extends AbstractAccountService {
 
         String newPassword =RandomUtil.generateRandomPwd(8);
         user.setSalt(salt);
-        user.setPassword(hashPasswordWithSalt(newPassword,salt));
+        user.setPassword(hashPasswordWithSalt(Md5.of(newPassword),salt));
         user.setNeedUpdatePassword(true);
         userMongoRepo.save(user);
         return newPassword;
