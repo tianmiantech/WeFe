@@ -164,9 +164,8 @@ const baseRoutes = [
         path: `${prefixPath}change-password`,
         name: 'change-password',
         meta: {
-            title:          '修改登录密码',
-            requiresAuth:   false,
-            requiresLogout: true,
+            title:        '修改登录密码',
+            requiresAuth: true,
         },
         component: () => import('../views/sign/change-password.vue'),
     },

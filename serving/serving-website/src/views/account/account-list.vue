@@ -50,7 +50,7 @@
                 查询
             </el-button>
         </el-form>
-        <div>
+        <div class="mb20">
             <el-button
                 v-if="userInfo.super_admin_role"
                 type="danger"
@@ -166,7 +166,7 @@
                                     设为普通用户
                                 </el-button>
                             </template>
-                            <el-button @click="resetPassword(scope.row)">
+                            <el-button @click="resetPassword($event, scope.row)">
                                 重置密码
                             </el-button>
                             <el-button
@@ -257,32 +257,27 @@
             将重置 <strong class="primary-color">
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!
-            <p class="mt10 mb10">原密码将失效, <strong class="color-danger">新密码仅可查看一次!</strong></p>
-            <p>是否继续操作?</p>
+            <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
+            <span class="color-danger">*</span> 操作人密码:
+            <el-input
+                v-model="resetPwDialog.operatorPassword"
+                style="width: 200px;"
+                type="password"
+                @paste.prevent
+                @copy.prevent
+                @contextmenu.prevent
+            />
             <template #footer>
                 <el-button
                     type="danger"
                     @click="confirmReset"
                 >
-                    是
+                    确定
                 </el-button>
                 <el-button @click="resetPwDialog.visible = false">
-                    否
+                    取消
                 </el-button>
             </template>
-        </el-dialog>
-
-        <el-dialog
-            width="340px"
-            title="新用户密码"
-            :visible.sync="resetPwDialog.result"
-            destroy-on-close
-        >
-            <div style="margin-top:-15px">
-                密码已重置为：
-                <p class="new_password">{{ resetPwDialog.new_password }}</p>
-                <p class="color-danger f12">请勿随意传播!</p>
-            </div>
         </el-dialog>
 
         <el-dialog
@@ -355,9 +350,9 @@
                         v-model="transformSuperUserDialog.user"
                         placeholder="输入姓名或者11位手机号搜索"
                         :fetch-suggestions="getUsers"
-                        @select="selectUser"
                         style="width: 260px;"
                         clearable
+                        @select="selectUser"
                         @clear="clearSuggestions"
                     />
                 </el-form-item>
@@ -408,11 +403,10 @@
                     audit_comment: '',
                 },
                 resetPwDialog: {
-                    visible:      false,
-                    id:           '',
-                    nickname:     '',
-                    result:       false,
-                    new_password: '',
+                    visible:          false,
+                    id:               '',
+                    nickname:         '',
+                    operatorPassword: '',
                 },
                 userRoleDialog: {
                     id:         '',
@@ -463,7 +457,7 @@
                     this.getList();
                 }
             },
-            resetPassword(row) {
+            resetPassword(event, row) {
                 this.resetPwDialog.id = row.id;
                 this.resetPwDialog.nickname = row.nickname;
                 this.resetPwDialog.visible = true;
@@ -480,9 +474,16 @@
                 });
 
                 if(code === 0) {
+                    this.resetPwDialog.operatorPassword = '';
                     this.resetPwDialog.visible = false;
-                    this.resetPwDialog.result = true;
-                    this.resetPwDialog.new_password = data;
+                    this.$alert(`该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`, '操作成功', {
+                        type:                     'warning',
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText:        '确定',
+                    });
+                    setTimeout(() => {
+                        this.refresh();
+                    }, 300);
                 }
             },
             changeUserRole(row) {

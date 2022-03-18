@@ -194,17 +194,10 @@
                         });
 
                         if (code === 0) {
-                            if(data.need_update_password) {
-                                this.$message.error('密码强度不够需重新设置密码');
-                                this.$router.replace({
-                                    name: 'change-password',
-                                });
-                            } else {
-                                this.$store.commit('UPDATE_USERINFO', data);
-                                this.$router.replace({
-                                    name: 'index',
-                                });
-                            }
+                            this.$store.commit('UPDATE_USERINFO', data);
+                            this.$router.replace({
+                                name: 'index',
+                            });
                         } else {
                             this.getImgCode();
                         }

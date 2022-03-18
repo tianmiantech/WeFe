@@ -46,7 +46,16 @@
                     <el-tooltip>
                         <template #content>
                             <p class='mb5'>算法选择: </p>
-                            RSA-PSI
+                            <div class='small-width'>
+                                RSA-PSI: 基于RSA、布隆过滤器的隐私集合求交PSI算法
+                                <br>
+                                1、数据量大一方A生成RSA公、私钥，根据允许误差率和数据量大小生成布隆过滤器，把本方所有数据按每一条采用RSA私钥加密添加到布隆过滤器中，公布RSA公钥和布隆过滤器
+                                <br>
+                                2、另一方B，对每一条数据生成一个随机数，并使用公布的RAS公钥加密，并计算随机数的逆和加密随机数与B方数据的乘积，发送乘积结果给A方
+                                <br>
+                                3、A方对收到的乘积使用RSA私钥进行解密，并把结果返回给B方
+                                4、B方收到结果乘以步骤2计算的随机数的逆得值，判断这个值是否在布隆过滤器中，所有在布隆过滤器的值为A和B两方的交集
+                            </div>
                         </template>
                         <i class="iconfont icon-why" />
                     </el-tooltip>

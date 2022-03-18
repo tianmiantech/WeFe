@@ -270,7 +270,7 @@
             将重置 <strong class="primary-color">
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!
-            <p class="mt10 mb10">原密码将失效, <strong class="color-danger">新密码仅可查看一次!</strong></p>
+            <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
             <span class="color-danger">*</span> 操作人密码:
             <el-input
                 v-model="resetPwDialog.operatorPassword"
@@ -280,31 +280,17 @@
                 @copy.prevent
                 @contextmenu.prevent
             />
-            <p class="mt10">是否继续操作?</p>
             <template #footer>
                 <el-button
                     type="danger"
                     @click="confirmReset"
                 >
-                    是
+                    确定
                 </el-button>
                 <el-button @click="resetPwDialog.visible = false">
-                    否
+                    取消
                 </el-button>
             </template>
-        </el-dialog>
-
-        <el-dialog
-            width="340px"
-            title="新用户密码"
-            v-model="resetPwDialog.result"
-            destroy-on-close
-        >
-            <div style="margin-top:-15px">
-                密码已重置为：
-                <p class="new_password">{{ resetPwDialog.new_password }}</p>
-                <p class="color-danger f12">请勿随意传播!</p>
-            </div>
         </el-dialog>
 
         <el-dialog
@@ -433,9 +419,7 @@
                     visible:          false,
                     id:               '',
                     nickname:         '',
-                    result:           false,
                     operatorPassword: '',
-                    new_password:     '',
                 },
                 userRoleDialog: {
                     id:         '',
@@ -519,8 +503,14 @@
                 if(code === 0) {
                     this.resetPwDialog.operatorPassword = '';
                     this.resetPwDialog.visible = false;
-                    this.resetPwDialog.result = true;
-                    this.resetPwDialog.new_password = data;
+                    this.$alert(`该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`, '操作成功', {
+                        type:                     'warning',
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText:        '确定',
+                    });
+                    setTimeout(() => {
+                        this.refresh();
+                    }, 300);
                 }
             },
             changeUserRole(row) {

@@ -85,6 +85,12 @@ httpInstance.interceptors.response.use(
                 } else if (data.code === 10000) {
                     // system is not inited, logout
                     baseLogout();
+                } else if (data.code === 10050) {
+                    window.$app.config.globalProperties.$message.error({
+                        message:  '密码强度不够需重新设置密码',
+                        grouping: true,
+                    });
+                    window.$app.config.globalProperties.$router.push('change-password');
                 } else if(data.code === 30001) {
                     // graph node has exception occurred
                     window.$app.config.globalProperties.$bus.$emit('node-error', {

@@ -186,7 +186,7 @@
             submit() {
                 this.$refs['form'].validate(async valid => {
                     if(valid) {
-                        if(this.$refs['password-strength'].value.pwStrength < 3) {
+                        if(this.$refs['password-strength'].pwStrength < 3) {
                             return this.$message.error('密码强度太弱');
                         }
                         const oldPassword = [

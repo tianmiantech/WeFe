@@ -74,8 +74,8 @@
                 label="操作"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.audit_status === 'agree' && userInfo.admin_role">
-                        <template v-if="scope.row.user_id !== userInfo.user_id">
+                    <template v-if="scope.row.user_id !== userInfo.user_id">
+                        <template v-if="scope.row.audit_status === 'agree' && userInfo.admin_role">
                             <template v-if="userInfo.super_admin_role">
                                 <el-button
                                     v-if="scope.row.admin_role"
@@ -107,23 +107,23 @@
                                 {{scope.row.enable ? '禁用' : '启用'}}
                             </el-button>
                         </template>
-                    </template>
-                    <template v-else>
-                        <el-popconfirm
-                            confirm-button-text="同意"
-                            cancel-button-text="拒绝"
-                            cancelButtonType="danger"
-                            :hide-icon="true"
-                            trigger="hover"
-                            @confirm="memberAduit($event, scope.row, 'agree')"
-                            @cancel="memberAduit($event, scope.row, 'disagree')"
-                        >
-                            <template #reference>
-                                <el-button plain>
-                                    {{ scope.row.audit_status === 'auditing' ? '审核' : scope.row.audit_status === 'disagree' ? '重新审核' : '' }}
-                                </el-button>
-                            </template>
-                        </el-popconfirm>
+                        <template v-else>
+                            <el-popconfirm
+                                confirm-button-text="同意"
+                                cancel-button-text="拒绝"
+                                cancelButtonType="danger"
+                                :hide-icon="true"
+                                trigger="hover"
+                                @confirm="memberAduit($event, scope.row, 'agree')"
+                                @cancel="memberAduit($event, scope.row, 'disagree')"
+                            >
+                                <template #reference>
+                                    <el-button plain>
+                                        {{ scope.row.audit_status === 'auditing' ? '审核' : scope.row.audit_status === 'disagree' ? '重新审核' : '' }}
+                                    </el-button>
+                                </template>
+                            </el-popconfirm>
+                        </template>
                     </template>
                 </template>
             </el-table-column>
@@ -153,6 +153,7 @@
             <p class="mb10">将重置 <strong class="primary-color">
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!</p>
+            <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
             <span class="color-danger">*</span> 操作人密码:
             <el-input
                 v-model="resetPwDialog.operatorPassword"
@@ -245,11 +246,11 @@
                     return this.$message.error('请输入你的帐号密码');
                 }
 
-                const { code } = await this.$http.post({
-                    url:  '/account/reset/password',
+                const { code, data } = await this.$http.post({
+                    url:  '/user/reset/password',
                     data: {
                         userId:        this.resetPwDialog.id,
-                        adminPassword: md5(this.operatorPassword),
+                        adminPassword: md5(operatorPassword),
                     },
                     btnState: {
                         target: $event,
@@ -257,12 +258,16 @@
                 });
 
                 if(code === 0) {
-                    this.$message.success('操作成功! 该用户密码已重置为 wefe123456');
+                    this.resetPwDialog.operatorPassword = '';
+                    this.resetPwDialog.visible = false;
+                    this.$alert(`该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`, '操作成功', {
+                        type:                     'warning',
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText:        '确定',
+                    });
                     setTimeout(() => {
                         this.refresh();
                     }, 300);
-                    this.resetPwDialog.operatorPassword = '';
-                    this.resetPwDialog.visible = false;
                 }
             },
             changeUserInfo() {

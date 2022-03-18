@@ -68,6 +68,10 @@
                             @copy.native.prevent
                             @contextmenu.native.prevent
                         />
+                        <PasswordStrength
+                            ref="password-strength"
+                            :password="form.new_password"
+                        />
                     </el-form-item>
                     <el-form-item
                         label="再次确认新密码"
@@ -193,6 +197,9 @@
             submit() {
                 this.$refs['form'].validate(async valid => {
                     if(valid) {
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
                         const oldPassword = [
                             this.userInfo.phone_number,
                             this.form.old_password,

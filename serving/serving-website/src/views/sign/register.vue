@@ -270,6 +270,9 @@ export default {
             this.$refs['sign-form'].validate(async valid => {
                 if (valid) {
                     // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                    if(this.$refs['password-strength'].pwStrength < 3) {
+                        return this.$message.error('密码强度太弱');
+                    }
                     const password = [
                         this.form.phone,
                         this.form.password,
@@ -294,6 +297,8 @@ export default {
                             name: 'login',
                         });
                         this.$message.success('恭喜, 注册成功! 请重新登录');
+                    } else {
+                        this.getImgCode();
                     }
                 } else {
                     this.getImgCode();
