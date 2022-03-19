@@ -22,6 +22,7 @@ import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -52,6 +53,9 @@ public class User extends AbstractNormalMongoModel {
     private String auditComment;
 
     private boolean needUpdatePassword;
+
+
+    private Date lastActionTime;
 
 
     public String getUserId() {
@@ -157,6 +161,14 @@ public class User extends AbstractNormalMongoModel {
 
     public void setHistoryPasswordList(JSONArray historyPasswordList) {
         this.historyPasswordList = historyPasswordList;
+    }
+
+    public Date getLastActionTime() {
+        return lastActionTime;
+    }
+
+    public void setLastActionTime(Date lastActionTime) {
+        this.lastActionTime = lastActionTime;
     }
 
     public boolean isNeedUpdatePassword() {

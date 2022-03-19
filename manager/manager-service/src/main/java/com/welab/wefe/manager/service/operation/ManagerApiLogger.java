@@ -24,8 +24,8 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.delegate.api_log.ApiLog;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.manager.service.api.agreement.UploadRealnameAuthAgreementTemplateApi;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -47,15 +47,7 @@ public class ManagerApiLogger extends AbstractApiLogger {
 
     @Override
     protected void save(ApiLog apiLog) throws Exception {
-        OperationLog model = new OperationLog();
-        model.setRequestTime(apiLog.getRequestTime());
-        model.setRequestIp(apiLog.getCallerIp());
-        model.setOperatorId(apiLog.getCallerId());
-        model.setSpend(apiLog.getSpend());
-        model.setLogInterface(apiLog.getApiName());
-        model.setResultCode(apiLog.getResponseCode());
-        model.setResultMessage(apiLog.getResponseMessage());
-        
+        OperationLog model = ModelMapper.map(apiLog,OperationLog.class);
         Launcher.getBean(ManagerOperationLogMongoRepo.class).save(model);
     }
 
