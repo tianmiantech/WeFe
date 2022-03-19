@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -45,12 +46,14 @@ public class EncryptPhoneNumberService {
         List<AccountMysqlModel> accountMysqlModelList = accountRepository.findAll();
         if (!CollectionUtils.isEmpty(accountMysqlModelList)) {
             for (AccountMysqlModel model : accountMysqlModelList) {
+                model.setUpdatedTime(new Date());
                 accountRepository.save(model);
             }
         }
         List<VerificationCodeMysqlModel> verificationCodeMysqlModelList = verificationCodeRepository.findAll();
         if (!CollectionUtils.isEmpty(verificationCodeMysqlModelList)) {
             for (VerificationCodeMysqlModel model : verificationCodeMysqlModelList) {
+                model.setUpdatedTime(new Date());
                 verificationCodeRepository.save(model);
             }
         }
