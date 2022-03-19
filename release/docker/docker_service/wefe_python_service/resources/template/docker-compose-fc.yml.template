@@ -21,6 +21,7 @@ services:
       - sh
       - -c
       - |
+            sh /opt/welab/wefe/common/python/calculation/fc/function/wefe-fc/fc_deploy.sh &
             sh /opt/welab/wefe/flow/service.sh start
             tail -f /dev/null
 

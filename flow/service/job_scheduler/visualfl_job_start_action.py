@@ -17,6 +17,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 
 from common.python.common.consts import JobStatus
 from common.python.common.consts import MemberRole
+from common.python.db.flow_dao import ProjectFlowDao
 from common.python.utils.core_utils import current_datetime, current_timestamp
 from common.python.utils.log_utils import schedule_logger
 from common.python.db.db_models import Job
@@ -86,7 +87,7 @@ class VisualFLJobStartAction(object):
         # 更新 job 进度
         JobService.update_progress(self.job)
         # # 更新 flow 状态
-        # ProjectFlowDao.update_status_by_job(self.job)
+        ProjectFlowDao.update_status_by_job(self.job)
 
     def wait_for_all_members_are_ready(self):
         """
