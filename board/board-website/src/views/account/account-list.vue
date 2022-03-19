@@ -120,6 +120,24 @@
                 </template>
             </el-table-column>
             <el-table-column
+                label="已注销"
+                align="center"
+                width="70"
+            >
+                <template v-slot="scope">
+                    <span
+                        v-if="scope.row.cancelled"
+                    >
+                        是
+                    </span>
+                    <span
+                        v-else
+                    >
+                        否
+                    </span>
+                </template>
+            </el-table-column>
+            <el-table-column
                 v-if="userInfo.super_admin_role"
                 label="超级管理员"
                 align="center"
