@@ -52,7 +52,7 @@ public interface AccountRepository extends BaseRepository<AccountMySqlModel, Str
      */
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query(value = "update account set cancelled=true, audit_comment='scheduled' where DATEDIFF(now(),last_action_time)>90", nativeQuery = true)
+    @Query(value = "update account set enable=false, audit_comment='scheduled' where DATEDIFF(now(),last_action_time)>90", nativeQuery = true)
     int disableAccountWithoutAction90Days();
     
     /**

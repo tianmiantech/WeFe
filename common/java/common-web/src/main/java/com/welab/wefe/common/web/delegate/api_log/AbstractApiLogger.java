@@ -151,8 +151,13 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
         log.setSpend(result.spend);
         log.setResponseTime(new Date(start + result.spend));
         log.setCallerIp(ip);
-        log.setCallerId(accountInfo.getId());
-        log.setCallerName(accountInfo.getNickname());
+        //union api accountInfo is null
+        if(accountInfo != null) {
+            log.setCallerId(accountInfo.getId());
+            log.setCallerName(accountInfo.getNickname());
+        } else {
+            log.setCallerId(params.getString("member_id"));
+        }
         log.setApiName(annotation.path());
         log.setRequestData(JSON.toJSONString(params, LoggerSerializeConfig.instance()));
         log.setResponseCode(result.code);
