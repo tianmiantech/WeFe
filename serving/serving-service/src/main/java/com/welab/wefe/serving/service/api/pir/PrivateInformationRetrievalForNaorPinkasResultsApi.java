@@ -61,12 +61,25 @@ public class PrivateInformationRetrievalForNaorPinkasResultsApi
 
         private String uuid;
 
+        /**
+         * pk0
+         */
+        private String pk;
+
         public String getUuid() {
             return uuid;
         }
 
         public void setUuid(String uuid) {
             this.uuid = uuid;
+        }
+
+        public String getPk() {
+            return pk;
+        }
+
+        public void setPk(String pk) {
+            this.pk = pk;
         }
     }
 
