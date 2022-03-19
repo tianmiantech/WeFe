@@ -45,7 +45,7 @@
             <el-form-item>
                 <el-button
                     type="primary"
-                    native-type="submit"
+                    native-type="button"
                     @click="getList({ to: true, resetPagination: true })"
                 >
                     查询
