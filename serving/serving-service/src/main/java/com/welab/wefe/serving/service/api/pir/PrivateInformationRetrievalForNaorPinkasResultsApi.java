@@ -23,21 +23,22 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
-import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
-import com.welab.wefe.mpc.pir.server.service.naor.NaorPinkasRandomService;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultResponse;
+import com.welab.wefe.mpc.pir.server.service.naor.NaorPinkasResultService;
 
 @Api(path = PrivateInformationRetrievalApiName.NAORPINKAS_RESULTS, name = "results", login = false)
 public class PrivateInformationRetrievalForNaorPinkasResultsApi
-        extends AbstractApi<PrivateInformationRetrievalForNaorPinkasResultsApi.Input, QueryNaorPinkasRandomResponse> {
+        extends AbstractApi<PrivateInformationRetrievalForNaorPinkasResultsApi.Input, QueryNaorPinkasResultResponse> {
 
     @Override
-    protected ApiResult<QueryNaorPinkasRandomResponse> handle(Input input) throws Exception {
-        NaorPinkasRandomService service = new NaorPinkasRandomService();
+    protected ApiResult<QueryNaorPinkasResultResponse> handle(Input input) throws Exception {
+        NaorPinkasResultService service = new NaorPinkasResultService();
         LOG.info("request path = " + PrivateInformationRetrievalApiName.NAORPINKAS_RESULTS + "\t request ="
                 + JObject.toJSONString(input));
-        QueryKeysRequest request = ModelMapper.map(input.getData(), QueryKeysRequest.class);
-        QueryNaorPinkasRandomResponse response = service.handle(request);
+        QueryNaorPinkasResultRequest request = ModelMapper.map(input.getData(), QueryNaorPinkasResultRequest.class);
+        QueryNaorPinkasResultResponse response = service.handle(request);
         LOG.info("request path = " + PrivateInformationRetrievalApiName.NAORPINKAS_RESULTS + "\t response ="
                 + JObject.toJSONString(response));
         return success(response);
