@@ -31,7 +31,7 @@ import com.welab.wefe.serving.service.service.OperationLogService;
 /**
  * @author eval
  **/
-@Api(path = "log/query", name = "query log")
+@Api(path = "operation_log/query", name = "query log")
 public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<OperationLogOutputModel>> {
 
     @Autowired
