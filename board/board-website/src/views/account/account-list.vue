@@ -128,12 +128,16 @@
                     <span
                         v-if="scope.row.cancelled"
                     >
-                        是
+                        <el-icon>
+                            <elicon-check />
+                        </el-icon>
                     </span>
                     <span
                         v-else
                     >
-                        否
+                        <el-icon>
+                            <elicon-close />
+                        </el-icon>
                     </span>
                 </template>
             </el-table-column>
