@@ -16,8 +16,10 @@
 
 package com.welab.wefe.serving.service.database.serving.entity;
 
-import javax.persistence.Entity;
 import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 /**
  * @author eval
@@ -30,21 +32,25 @@ public class OperationLogMysqlModel extends AbstractMySqlModel {
 	/**
      * 请求接口
      */
+	@Column(name="log_interface")
     private String logInterface;
 
     /**
      * 请求接口名称
      */
+    @Column(name="interface_name")
     private String interfaceName;
 
     /**
      * 请求IP
      */
+    @Column(name="request_ip")
     private String requestIp;
 
     /**
      * 操作人员编号
      */
+    @Column(name="operator_id")
     private String operatorId;
 
     /**
@@ -55,21 +61,25 @@ public class OperationLogMysqlModel extends AbstractMySqlModel {
     /**
      * 操作行为
      */
+    @Column(name="log_action")
     private String logAction;
 
     /**
      * 请求结果编码
      */
+    @Column(name="result_code")
     private int resultCode;
 
     /**
      * 请求结果
      */
+    @Column(name="result_message")
     private String resultMessage;
 
     /**
      * 请求时间
      */
+    @Column(name="request_time")
     private Date requestTime;
 
     /**

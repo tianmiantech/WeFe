@@ -184,7 +184,6 @@ CREATE TABLE `operator_log` (
   `interface_name` varchar(1024) DEFAULT NULL COMMENT '请求接口名称',
   `request_ip` varchar(20) DEFAULT NULL COMMENT '请求IP',
   `operator_id` varchar(32) DEFAULT NULL COMMENT '操作人员编号',
-  `operator_phone` varchar(13) DEFAULT NULL COMMENT '操作人员手机号',
   `token` varchar(100) DEFAULT NULL COMMENT '请求token',
   `log_action` varchar(50) DEFAULT NULL COMMENT '操作行为',
   `result_code` int(20) DEFAULT NULL COMMENT '请求结果code',
@@ -194,8 +193,16 @@ CREATE TABLE `operator_log` (
   `created_time` datetime(6) DEFAULT NULL COMMENT '创建时间',
   `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `query_index` (`created_time`,`operator_phone`,`log_action`)
+  KEY `query_index` (`created_time`,`log_action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE `account` ADD COLUMN `cancelled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销' AFTER `updated_time`;
 ALTER TABLE `account` ADD COLUMN `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间' AFTER `cancelled`;
+ALTER TABLE `account` ADD COLUMN `history_password_list` text NULL COMMENT '历史曾用密码' AFTER `last_action_time`;
+
+
+-- -------------------------------------
+-- 修改相关表手机号字段长度
+-- author: aaron.li
+-- -------------------------------------
+ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);

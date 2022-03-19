@@ -20,6 +20,7 @@ package com.welab.wefe.manager.service.operation;
 import com.welab.wefe.common.data.mongodb.entity.common.OperationLog;
 import com.welab.wefe.common.data.mongodb.repo.ManagerOperationLogMongoRepo;
 import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.delegate.api_log.ApiLog;
@@ -36,11 +37,6 @@ import java.util.List;
 @Component
 public class ManagerApiLogger extends AbstractApiLogger {
 
-    @Autowired
-    private ManagerOperationLogMongoRepo managerOperationLogMongoRepo;
-
-    @Autowired
-    private UserMongoRepo userMongoRepo;
 
     @Override
     protected List<Class<? extends AbstractApi>> getIgnoreLogApiList() {
@@ -59,12 +55,13 @@ public class ManagerApiLogger extends AbstractApiLogger {
         model.setLogInterface(apiLog.getApiName());
         model.setResultCode(apiLog.getResponseCode());
         model.setResultMessage(apiLog.getResponseMessage());
-        managerOperationLogMongoRepo.save(model);
+        
+        Launcher.getBean(ManagerOperationLogMongoRepo.class).save(model);
     }
 
     @Override
     protected void updateAccountLastActionTime(String accountId) {
-        userMongoRepo.updateLastActionTime(accountId);
+        Launcher.getBean(UserMongoRepo.class).updateLastActionTime(accountId);
     }
 
 }
