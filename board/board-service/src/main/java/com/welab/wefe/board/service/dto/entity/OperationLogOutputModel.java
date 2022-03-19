@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.dto.entity;
 
+import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
@@ -45,6 +46,10 @@ public class OperationLogOutputModel extends AbstractOutputModel {
 
     @Check(name = "请求结果")
     private String resultMessage;
+
+    public String getOperatorNickname() {
+        return CacheObjects.getNickname(operatorId);
+    }
 
     public String getLogInterface() {
         return logInterface;
