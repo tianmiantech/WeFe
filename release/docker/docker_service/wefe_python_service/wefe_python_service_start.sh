@@ -44,6 +44,10 @@ spark_cluster_config(){
         echo 'GPU 加速模式'
         cp -f resources/template/docker-compose-gpu.yml.template resources/docker-compose.yml
         ;;
+      fc)
+        echo '函数计算模式'
+        cp -f resources/template/docker-compose-fc.yml.template resources/docker-compose.yml
+        ;;
       *)
         # echo '非集群模式'
         ;;

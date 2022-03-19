@@ -84,23 +84,30 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
         }).start();
     }
 
+    /**
+     * 默认忽略未登录状态的请求日志
+     */
+    protected boolean ignoreWithoutLogin() {
+        return true;
+    }
+
     @Override
     public void action(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result) {
         final AccountInfo accountInfo = CurrentAccount.get();
 
-        // 暂时只记录用户登录状态下调用的 api
-        if (accountInfo == null) {
+        if (ignoreWithoutLogin() && accountInfo == null) {
             return;
         }
 
         // 异步保存日志
         CommonThreadPool.run(
                 () -> {
-                    // 存日志
-                    saveLog(httpServletRequest, start, api, params, result, accountInfo);
-
-                    // 更新用户的最后活动时间
                     try {
+                        // 存日志
+                        beforeSaveLog(httpServletRequest, start, api, params, result, accountInfo);
+                        saveLog(httpServletRequest, start, api, params, result, accountInfo);
+
+                        // 更新用户的最后活动时间
                         logAccountLastActionTime(accountInfo.id);
                     } catch (Exception e) {
                         LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
@@ -120,6 +127,14 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
         }
 
         ACCOUNT_LAST_ACTION_TIME_MAP.put(userId, new Date());
+    }
+
+
+    /**
+     * 调用 saveLog 之前的动作，可以在这里对参数进行处理。
+     */
+    protected void beforeSaveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, AccountInfo accountInfo) {
+        return;
     }
 
     private void saveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, AccountInfo accountInfo) {

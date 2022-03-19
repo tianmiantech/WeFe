@@ -16,10 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.welab.wefe.board.service.api.operation.LogQueryApi;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.board.service.database.repository.OperationLogRepository;
@@ -30,6 +26,9 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 /**
  * @author eval
@@ -47,7 +46,8 @@ public class OperationLogService extends AbstractService {
 
         Specification<OperationLogMysqlModel> where = Where
                 .create()
-                .equal("logAction", input.getAction())
+                .equal("logInterface", input.logInterface)
+                .equal("operatorId", input.operatorId)
                 .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(OperationLogMysqlModel.class);

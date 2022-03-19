@@ -17,10 +17,12 @@
 package com.welab.wefe.common.data.mongodb.repo;
 
 import com.alibaba.fastjson.JSONArray;
+import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -28,6 +30,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -140,8 +143,27 @@ public class UserMongoRepo extends AbstractMongoRepo {
     public void updateLastActionTime(String userId) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder()
-                .append("lastActionTime", System.currentTimeMillis())
+                .append("lastActionTime", new Date())
                 .build();
         mongoManagerTemplate.updateFirst(query, update, User.class);
+    }
+
+
+    public long disableAccountWithoutAction90Days() {
+        Query query = new QueryBuilder().gte("lastActionTime", DateUtil.addDays(new Date(),90)).build();
+        Update update = new UpdateBuilder()
+                .append("enable", false)
+                .build();
+        UpdateResult updateResult = mongoManagerTemplate.updateMulti(query, update, User.class);
+        return updateResult.getModifiedCount();
+    }
+
+    public long cancelAccountWithoutAction180Days() {
+        Query query = new QueryBuilder().gte("lastActionTime", DateUtil.addDays(new Date(),180)).build();
+        Update update = new UpdateBuilder()
+                .append("cancelled", true)
+                .build();
+        UpdateResult updateResult = mongoManagerTemplate.updateMulti(query, update, User.class);
+        return updateResult.getModifiedCount();
     }
 }

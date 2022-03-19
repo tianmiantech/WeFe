@@ -455,9 +455,18 @@ public class TaskResultService extends AbstractService {
                 .append("featureNum", selectMembers.size());
     }
 
-    /**
-     * Get feature list
-     */
+	/**
+	 * Get feature list
+	 * 
+	 * has_feature_calculation: true 表示支持CV/IV过滤 从计算特征价值 组件获取CV值/IV值
+	 * has_feature_statistic: true 表示支持缺失率 特征统计组件获取缺失率
+	 * 
+	 * 1.做了特征统计（不管横向还是纵向还是混合），那就有 缺失率和cv
+	 * 
+	 * 2.做了计算特征价值（只有纵向流程有），就有cv和iv。
+	 * 
+	 * 3.做了分箱（不管横向还是纵向还是混合），那就有iv
+	 */
     public GetFeatureApi.Output getResultFeature(GetFeatureApi.Input input) throws StatusCodeWithException {
         GetFeatureApi.Output out = new GetFeatureApi.Output();
         FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
@@ -469,7 +478,8 @@ public class TaskResultService extends AbstractService {
         if (node.getComponentType() == ComponentType.FeatureSelection) {
             FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node,
                     x -> x.getComponentType() == ComponentType.MixStatistic
-                            || x.getComponentType() == ComponentType.FeatureStatistic);
+                            || x.getComponentType() == ComponentType.FeatureStatistic
+                            || x.getComponentType() == ComponentType.HorzStatistic);
             out.setHasFeatureStatistic(false);
             out.setHasFeatureCalculation(false);
             if (featureStatisticNode != null && StringUtil.isNotEmpty(input.getJobId())) {
@@ -479,7 +489,9 @@ public class TaskResultService extends AbstractService {
 
                     TaskResultMySqlModel featureStatisticResult = findByTaskIdAndTypeAndRole(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name(), project.getMyRole());
                     if (featureStatisticResult != null) {
-                        out.setHasFeatureStatistic(true);
+                        out.setHasFeatureStatistic(true); // 缺失率 cv
+                        out.setHasLossRate(true);
+                        out.setHasCV(true);
                     }
                 }
             }
@@ -489,29 +501,34 @@ public class TaskResultService extends AbstractService {
                 ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
                 TaskMySqlModel featureCalculationTask = taskRepository.findOne(input.getJobId(), featureCalculationNode.getNodeId(), project.getMyRole().name());
                 if (featureCalculationTask != null) {
-
                     TaskResultMySqlModel featureCalculationResult = findByTaskIdAndTypeAndRole(featureCalculationTask.getTaskId(), TaskResultType.model_result.name(), project.getMyRole());
                     if (featureCalculationResult != null) {
-                        out.setHasFeatureCalculation(true);
+                        out.setHasFeatureCalculation(true); // cv_iv
+                        out.setHasCV(true);
+                        out.setHasIV(true);
                     }
                 }
             }
 
-            FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
-                    x -> x.getComponentType() == ComponentType.MixBinning
-                            || x.getComponentType() == ComponentType.Binning);
-            if (featureBinningNode != null && StringUtil.isNotEmpty(input.getJobId())) {
-                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-                TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(),
-                        featureBinningNode.getNodeId(), project.getMyRole().name());
-                if (featureBinningTask != null) {
-                    TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
-                            featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
-                    if (featureBinningResult != null) {
-                        out.setHasFeatureCalculation(true && out.isHasFeatureStatistic());
-                    }
-                }
-            }
+			FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
+					x -> x.getComponentType() == ComponentType.MixBinning
+							|| x.getComponentType() == ComponentType.Binning
+							|| x.getComponentType() == ComponentType.HorzFeatureBinning);
+			if (featureBinningNode != null && StringUtil.isNotEmpty(input.getJobId())) {
+				ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+				TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(),
+						featureBinningNode.getNodeId(), project.getMyRole().name());
+				if (featureBinningTask != null) {
+					TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
+							featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
+					if (featureBinningResult != null) {
+						if (!out.isHasFeatureCalculation()) {
+							out.setHasFeatureCalculation(out.isHasFeatureStatistic());
+						}
+						out.setHasIV(true);
+					}
+				}
+			}
         }
 
         List<MemberFeatureInfoModel> members = getMemberFeatures(graph, node);
