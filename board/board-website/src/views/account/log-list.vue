@@ -7,13 +7,27 @@
             inline
             @submit.prevent
         >
-            <el-form-item label="操作类型">
-                <el-input v-model="search.action" clearable />
+            <el-form-item label="请求接口：">
+                <el-input v-model="search.logInterface" clearable />
             </el-form-item>
-            <el-form-item label="操作人手机号">
-                <el-input v-model="search.operator_phone" maxlength="11" clearable />
+            <el-form-item
+                label="操作人："
+                label-width="120"
+            >
+                <el-select
+                    v-model="search.operatorId"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        v-for="(user, index) in userList"
+                        :key="index"
+                        :label="user.nickname"
+                        :value="user.id"
+                    />
+                </el-select>
             </el-form-item>
-            <el-form-item label="起止时间">
+            <el-form-item label="起止时间:">
                 <DateTimePicker
                     type="datetimerange"
                     ref="dateTimePicker"
@@ -41,7 +55,7 @@
             stripe
         >
             <el-table-column
-                label="接口"
+                label="请求接口"
                 prop="interface_name"
                 width="200"
             >
@@ -53,11 +67,11 @@
             </el-table-column>
             <el-table-column
                 label="操作人"
-                prop="operator_phone"
-                min-width="250"
+                prop="operator_nickname"
+                min-width="230"
             >
                 <template v-slot="scope">
-                    {{ scope.row.operator_phone }}
+                    {{ scope.row.operator_nickname }}
                     <br>
                     {{ scope.row.operator_id }}
                 </template>
@@ -72,9 +86,9 @@
                 min-width="100"
             />
             <el-table-column
-                label="操作类型"
-                prop="log_action"
-                min-width="120"
+                label="响应信息"
+                prop="result_message"
+                min-width="100"
             />
             <el-table-column label="时间" width="140px">
                 <template v-slot="scope">
@@ -112,26 +126,35 @@
                 }],
                 datePicker: '',
                 search:     {
-                    action:         '',
-                    operator_phone: '',
-                    startTime:      '',
-                    endTime:        '',
+                    logInterface: '',
+                    operatorId:   '',
+                    startTime:    '',
+                    endTime:      '',
                 },
                 getListApi:   '/log/query',
                 fillUrlQuery: false,
+                userList:     [],
             };
         },
         mounted() {
+            this.getUploaders();
             this.syncUrlParams();
             this.getList();
         },
         methods: {
+            async getUploaders() {
+                const { code, data } = await this.$http.get('/account/query');
+
+                if (code === 0) {
+                    this.userList = data.list;
+                }
+            },
             syncUrlParams() {
                 this.search = {
-                    action:         '',
-                    operator_phone: '',
-                    startTime:      '',
-                    endTime:        '',
+                    logInterface: '',
+                    operatorId:   '',
+                    startTime:    '',
+                    endTime:      '',
                     ...this.$route.query,
                 };
                 if(this.search.startTime && this.search.endTime) {
