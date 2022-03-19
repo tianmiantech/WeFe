@@ -24,6 +24,8 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
 import com.welab.wefe.serving.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,8 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
 
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Autowired
     private GlobalSettingRepository globalSettingRepository;
@@ -43,7 +47,10 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
-        Output output = accountService.login(input.phoneNumber, input.password, input.getKey(), input.getCode());
+        String token = accountService.login(input.phoneNumber, input.password, input.getKey(), input.getCode());
+        AccountMySqlModel model = accountRepository.findByPhoneNumber(input.phoneNumber);
+
+        Output output = new Output(token, model);
 
         /**
          * After successful login, check whether the system has been initialized
@@ -112,6 +119,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     }
 
     public static class Output extends AbstractApiOutput {
+        private String id;
 
         private String token;
 
@@ -125,8 +133,30 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
 
         private Boolean adminRole;
 
+        public Output() {
+        }
+
+        public Output(String token, AccountMySqlModel model) {
+            this.id = model.getId();
+            this.token = token;
+            this.phoneNumber = model.getPhoneNumber();
+            this.nickname = model.getNickname();
+            this.email = model.getEmail();
+            this.superAdminRole = model.getSuperAdminRole();
+            this.adminRole = model.getAdminRole();
+        }
+
 
         //region getter/setter
+
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
 
         public String getToken() {
             return token;

@@ -16,6 +16,8 @@
 
 package com.welab.wefe.manager.service.api.user;
 
+import com.welab.wefe.common.data.mongodb.entity.manager.User;
+import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -35,10 +37,14 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserMongoRepo userMongoRepo;
 
     @Override
     protected ApiResult<LoginOutput> handle(LoginInput input) throws StatusCodeWithException {
-        LoginOutput output = userService.login(input);
+        String token = userService.login(input.getAccount(), input.getPassword(), input.getKey(), input.getCode());
+        User user = userMongoRepo.findByAccount(input.getAccount());
+        LoginOutput output = new LoginOutput(token, user);
         return success(output);
     }
 }

@@ -17,9 +17,13 @@
 package com.welab.wefe.manager.service;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
+import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.manager.service.operation.ManagerApiLogger;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -61,8 +65,17 @@ public class ManagerService implements ApplicationContextAware {
     public static void main(String[] args) {
 
         Launcher.instance()
+                .apiLogger(new ManagerApiLogger())
                 .apiPackageClass(ManagerService.class)
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                .apiPermissionPolicy((api, annotation, params) -> {
+                    if(CurrentAccount.get() != null && CurrentAccount.get().isNeedUpdatePassword()){
+                        if(!annotation.path().equals("user/change/password")) {
+                            throw new StatusCodeWithException(StatusCode.UPDATE_PASWWORD);
+                        }
+                    }
+
+                })
                 .launch(ManagerService.class, args);
 
     }

@@ -33,14 +33,13 @@ import java.io.IOException;
  * @date: 2021/11/2
  */
 @Api(path = "user/reset/password", name = "password reset")
-public class ResetPasswordApi extends AbstractApi<ResetPasswordInput, AbstractApiOutput> {
+public class ResetPasswordApi extends AbstractApi<ResetPasswordInput, String> {
     @Autowired
     private UserService userService;
 
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(ResetPasswordInput input) throws StatusCodeWithException, IOException {
-        userService.resetPassword(input.getUserId());
-        return success();
+    protected ApiResult<String> handle(ResetPasswordInput input) throws StatusCodeWithException, IOException {
+        return success(userService.resetPassword(input.getUserId(), input.getAdminPassword()));
     }
 }

@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface DataSetColumnRepository extends BaseRepository<DataSetColumnMysqlModel, String> {
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     void deleteByDataSetId(String dataSetId);
 }

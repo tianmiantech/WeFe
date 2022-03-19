@@ -1,5 +1,5 @@
 -- account definition
-
+DROP TABLE IF EXISTS `account`;
 CREATE TABLE `account`
 (
     `id`               varchar(32)  NOT NULL COMMENT '全局唯一标识',
@@ -23,7 +23,7 @@ CREATE TABLE `account`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号';
 
 -- global_config definition
-
+DROP TABLE IF EXISTS `global_config`;
 CREATE TABLE `global_config`
 (
     `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
@@ -53,4 +53,35 @@ ALTER TABLE task ADD `my_role` varchar(255) DEFAULT NULL;
 ALTER TABLE task ADD `processed_count` int(10) DEFAULT NULL;
 
 
+-- 用户操作日志表
+DROP TABLE IF EXISTS `operator_log`;
+CREATE TABLE `operator_log`
+(
+    `id`             varchar(32) NOT NULL COMMENT '操作日志编号',
+    `api_name`       varchar(1024) COMMENT '请求接口',
+    `caller_type`    varchar(50) COMMENT '调用者类型',
+    `caller_id`      varchar(32) COMMENT '调用者id',
+    `caller_name`    varchar(255) COMMENT '调用者名称',
+    `caller_ip`      varchar(20) COMMENT '请求来源IP',
+    `request_data`   varchar(1024) COMMENT '请求参数',
+    `response_data`  text COMMENT '响应内容',
+    `response_code`    int(20) COMMENT '请求结果code',
+    `response_message` text COMMENT '请求结果消息',
+    `request_time`   datetime(6) COMMENT '请求时间',
+    `response_time`  datetime(6) COMMENT '响应时间',
+    `spend`          int(11) COMMENT '处理时长',
+    `created_time`   datetime(6) COMMENT '创建时间',
+    `updated_time`   datetime(6) COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY              `created_time_index` (`created_time`),
+    KEY              `caller_name_index` (`caller_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户操作日志';
+
+ALTER TABLE `account`
+    ADD COLUMN `cancelled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销' AFTER `enable`;
+ALTER TABLE `account`
+    ADD COLUMN `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间' AFTER `cancelled`;
+ALTER TABLE `account`
+    ADD COLUMN `history_password_list` text NULL COMMENT '历史曾用密码' AFTER `last_action_time`;
 

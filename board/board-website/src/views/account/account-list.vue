@@ -120,6 +120,28 @@
                 </template>
             </el-table-column>
             <el-table-column
+                label="已注销"
+                align="center"
+                width="70"
+            >
+                <template v-slot="scope">
+                    <span
+                        v-if="scope.row.cancelled"
+                    >
+                        <el-icon>
+                            <elicon-check />
+                        </el-icon>
+                    </span>
+                    <span
+                        v-else
+                    >
+                        <el-icon>
+                            <elicon-close />
+                        </el-icon>
+                    </span>
+                </template>
+            </el-table-column>
+            <el-table-column
                 v-if="userInfo.super_admin_role"
                 label="超级管理员"
                 align="center"
@@ -142,6 +164,15 @@
                             <elicon-close />
                         </el-icon>
                     </span>
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="是否已注销"
+                min-width="140"
+                align="center"
+            >
+                <template v-slot="scope">
+                    {{ scope.row.cancelled ? '是' : '否' }}
                 </template>
             </el-table-column>
             <el-table-column

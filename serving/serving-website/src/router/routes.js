@@ -231,6 +231,16 @@ const baseRoutes = [
                 },
                 component: () => import('../views/account/account-list'),
             },
+            {
+                path: `${prefixPath}log-list`,
+                name: 'log-list',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '用户日志',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/account/log-list'),
+            },
         ],
     },
     {
