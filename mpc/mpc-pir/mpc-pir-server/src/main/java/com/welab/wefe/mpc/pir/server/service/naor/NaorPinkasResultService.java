@@ -72,7 +72,7 @@ public class NaorPinkasResultService {
         CompletableFuture[] futures = randoms.stream().map(e -> CompletableFuture.supplyAsync(() -> {
             BigInteger r = DiffieHellmanUtil.hexStringToBigInteger(e);
             BigInteger key = DiffieHellmanUtil.modDivide(r, enPk, p);
-            return new AESDecryptKey(hash.digest(key.toByteArray()));
+            return new AESEncryptKey(hash.digest(key.toByteArray()));
         })).toArray(CompletableFuture[]::new);
 
         SymmetricKey k0 = new AESEncryptKey(hash.digest(enPk.toByteArray()));
