@@ -21,7 +21,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.user.RegisterInput;
+import com.welab.wefe.manager.service.dto.account.RegisterInput;
 import com.welab.wefe.manager.service.mapper.AccountMapper;
 import com.welab.wefe.manager.service.service.AccountService;
 import org.mapstruct.factory.Mappers;

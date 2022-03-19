@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -24,27 +24,26 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-public class ResetPasswordInput extends AbstractApiInput {
+public class UpdatePasswordInput extends AbstractApiInput {
+    @Check(require = true)
+    private String oldPassword;
 
-    @Check(name = "用户唯一标识", require = true)
-    private String accountId;
+    @Check(require = true)
+    private String newPassword;
 
-    @Check(name = "操作者的密码", require = true)
-    private String operatorPassword;
-
-    public String getAccountId() {
-        return accountId;
+    public String getOldPassword() {
+        return oldPassword;
     }
 
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
     }
 
-    public String getOperatorPassword() {
-        return operatorPassword;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setOperatorPassword(String operatorPassword) {
-        this.operatorPassword = operatorPassword;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 }

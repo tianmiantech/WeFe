@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
 import com.welab.wefe.common.data.mongodb.entity.manager.Account;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;

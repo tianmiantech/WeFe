@@ -21,7 +21,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.user.AccountRoleChangeInput;
+import com.welab.wefe.manager.service.dto.account.AccountRoleChangeInput;
 import com.welab.wefe.manager.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 

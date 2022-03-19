@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 
-public class AccountEnableInput extends AbstractApiInput {
-    @Check(require = true)
+/**
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/11/2
+ */
+public class ResetPasswordInput extends AbstractApiInput {
+
+    @Check(name = "用户唯一标识", require = true)
     private String accountId;
 
-    @Check(name = "是否可用", require = true)
-    private boolean enable;
+    @Check(name = "操作者的密码", require = true)
+    private String operatorPassword;
 
     public String getAccountId() {
         return accountId;
@@ -34,11 +40,11 @@ public class AccountEnableInput extends AbstractApiInput {
         this.accountId = accountId;
     }
 
-    public boolean isEnable() {
-        return enable;
+    public String getOperatorPassword() {
+        return operatorPassword;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public void setOperatorPassword(String operatorPassword) {
+        this.operatorPassword = operatorPassword;
     }
 }

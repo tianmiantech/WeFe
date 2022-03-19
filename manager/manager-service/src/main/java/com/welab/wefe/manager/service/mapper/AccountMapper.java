@@ -17,9 +17,9 @@
 package com.welab.wefe.manager.service.mapper;
 
 import com.welab.wefe.common.data.mongodb.entity.manager.Account;
-import com.welab.wefe.manager.service.dto.user.LoginOutput;
-import com.welab.wefe.manager.service.dto.user.QueryAccountOutput;
-import com.welab.wefe.manager.service.dto.user.RegisterInput;
+import com.welab.wefe.manager.service.dto.account.LoginOutput;
+import com.welab.wefe.manager.service.dto.account.QueryAccountOutput;
+import com.welab.wefe.manager.service.dto.account.RegisterInput;
 import org.mapstruct.Mapper;
 
 /**

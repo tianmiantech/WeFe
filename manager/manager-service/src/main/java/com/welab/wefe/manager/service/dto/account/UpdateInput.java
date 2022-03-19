@@ -14,29 +14,23 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
-import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.manager.service.dto.base.PageInput;
+import com.welab.wefe.common.fieldvalidate.StandardFieldType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-public class QueryAccountInput extends PageInput {
-    private String phoneNumber;
+public class UpdateInput extends AbstractApiInput {
+    @Check(name = "昵称")
     private String nickname;
-    private AuditStatus auditStatus;
-    private Boolean adminRole;
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+    @Check(name = "邮箱", type = StandardFieldType.Email)
+    private String email;
 
     public String getNickname() {
         return nickname;
@@ -46,19 +40,11 @@ public class QueryAccountInput extends PageInput {
         this.nickname = nickname;
     }
 
-    public AuditStatus getAuditStatus() {
-        return auditStatus;
+    public String getEmail() {
+        return email;
     }
 
-    public void setAuditStatus(AuditStatus auditStatus) {
-        this.auditStatus = auditStatus;
-    }
-
-    public Boolean getAdminRole() {
-        return adminRole;
-    }
-
-    public void setAdminRole(Boolean adminRole) {
-        this.adminRole = adminRole;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
