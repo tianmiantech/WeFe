@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.listener;
+package com.welab.wefe.serving.service.listener;
 
-import com.welab.wefe.data.fusion.service.service.EncryptPhoneNumberService;
+import com.welab.wefe.serving.service.service.EncryptPhoneNumberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -366,8 +366,8 @@ public class AccountService extends AbstractAccountService {
     }
 
     @Override
-    public AccountInfo getAccountInfo(String phoneNumber) {
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
+    public AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException {
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(FusionSM4Util.encryptPhoneNumber(phoneNumber));
         return toAccountInfo(model);
     }
 

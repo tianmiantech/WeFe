@@ -19,19 +19,18 @@ package com.welab.wefe.serving.service.database.serving.entity;
 import com.alibaba.fastjson.JSONArray;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.serving.service.database.serving.listener.AccountMysqlModelListener;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
 /**
  * @author hunter.zhao
  */
 @Entity(name = "account")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
+@EntityListeners(AccountMysqlModelListener.class)
 public class AccountMySqlModel extends AbstractBaseMySqlModel {
 
     private static final long serialVersionUID = -6835962000573567824L;
