@@ -120,6 +120,28 @@
                 </template>
             </el-table-column>
             <el-table-column
+                label="已注销"
+                align="center"
+                width="70"
+            >
+                <template v-slot="scope">
+                    <span
+                        v-if="scope.row.cancelled"
+                    >
+                        <el-icon>
+                            <elicon-check />
+                        </el-icon>
+                    </span>
+                    <span
+                        v-else
+                    >
+                        <el-icon>
+                            <elicon-close />
+                        </el-icon>
+                    </span>
+                </template>
+            </el-table-column>
+            <el-table-column
                 v-if="userInfo.super_admin_role"
                 label="超级管理员"
                 align="center"
@@ -142,6 +164,15 @@
                             <elicon-close />
                         </el-icon>
                     </span>
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="是否已注销"
+                min-width="140"
+                align="center"
+            >
+                <template v-slot="scope">
+                    {{ scope.row.cancelled ? '是' : '否' }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -271,7 +302,7 @@
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!
             <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
-            <span class="color-danger">*</span> 操作人密码:
+            <span class="color-danger">*</span> 操作人登录密码:
             <el-input
                 v-model="resetPwDialog.operatorPassword"
                 style="width: 200px;"

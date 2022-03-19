@@ -414,11 +414,13 @@
             afterTableRender() {
                 clearTimeout(this.timer);
 
-                this.timer = setTimeout(() => {
-                    this.getFlowList({
-                        requestFromRefresh: true,
-                    });
-                }, 3000);
+                if(this.userInfo && this.userInfo.id) {
+                    this.timer = setTimeout(() => {
+                        this.getFlowList({
+                            requestFromRefresh: true,
+                        });
+                    }, 3000);
+                }
             },
 
             async getFlowList(opt = { resetPagination: false, requestFromRefresh: false }) {

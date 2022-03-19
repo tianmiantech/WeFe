@@ -258,7 +258,7 @@
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!
             <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
-            <span class="color-danger">*</span> 操作人密码:
+            <span class="color-danger">*</span> 操作人登录密码:
             <el-input
                 v-model="resetPwDialog.operatorPassword"
                 style="width: 200px;"
@@ -377,6 +377,7 @@
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table.js';
 	import { baseLogout } from '@src/router/auth';
+    import md5 from 'js-md5';
 
     export default {
         mixins: [table],
@@ -463,17 +464,32 @@
                 this.resetPwDialog.visible = true;
             },
             async confirmReset($event) {
+                const { operatorPassword } = this.resetPwDialog;
+                const { phone_number } = this.userInfo;
+
+                if(!operatorPassword) {
+                    return this.$message.error('请输入你的帐号密码');
+                }
+
+                const password = [
+                    phone_number,
+                    operatorPassword,
+                    phone_number,
+                    phone_number.substr(0, 3),
+                    operatorPassword.substr(operatorPassword.length - 3),
+                ].join('');
                 const { code, data } = await this.$http.post({
                     url:  '/account/reset/password',
                     data: {
-                        id: this.resetPwDialog.id,
+                        id:       this.resetPwDialog.id,
+                        password: md5(password),
                     },
                     btnState: {
                         target: $event,
                     },
                 });
 
-                if(code === 0) {
+                if (code === 0) {
                     this.resetPwDialog.operatorPassword = '';
                     this.resetPwDialog.visible = false;
                     this.$alert(`该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`, '操作成功', {

@@ -73,6 +73,10 @@
                         @copy.native.prevent
                         @contextmenu.native.prevent
                     />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.password"
+                    />
                 </el-form-item>
                 <el-form-item
                     prop="passwordAgain"

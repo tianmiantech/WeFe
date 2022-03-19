@@ -7,10 +7,27 @@
             inline
             @submit.prevent
         >
-            <el-form-item label="操作类型">
-                <el-input v-model="search.action" clearable />
+            <el-form-item label="请求接口：">
+                <el-input v-model="search.logInterface" clearable />
             </el-form-item>
-            <el-form-item label="起止时间">
+            <el-form-item
+                label="操作人："
+                label-width="120"
+            >
+                <el-select
+                    v-model="search.operatorId"
+                    filterable
+                    clearable
+                >
+                    <el-option
+                        v-for="(user, index) in userList"
+                        :key="index"
+                        :label="user.nickname"
+                        :value="user.id"
+                    />
+                </el-select>
+            </el-form-item>
+            <el-form-item label="起止时间:">
                 <DateTimePicker
                     type="datetimerange"
                     ref="dateTimePicker"
@@ -38,7 +55,7 @@
             stripe
         >
             <el-table-column
-                label="接口"
+                label="请求接口"
                 prop="interface_name"
                 width="200"
             >
@@ -46,6 +63,17 @@
                     {{ scope.row.interface_name }}
                     <br>
                     {{ scope.row.log_interface }}
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="操作人"
+                prop="operator_nickname"
+                min-width="230"
+            >
+                <template v-slot="scope">
+                    {{ scope.row.operator_nickname }}
+                    <br>
+                    {{ scope.row.operator_id }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -58,10 +86,26 @@
                 min-width="100"
             />
             <el-table-column
-                label="操作类型"
-                prop="log_action"
-                min-width="120"
-            />
+                label="响应信息"
+                min-width="160"
+            >
+                <template v-slot="scope">
+                    <template v-if="scope.row.response_message">
+                        <p>{{ scope.row.response_message.length > 100 ? scope.row.response_message.substring(0, 101) + '...' : scope.row.response_message }}</p>
+                        <el-button
+                            v-if="scope.row.response_message.length > 100"
+                            type="primary"
+                            size="mini"
+                            @click="checkLog($event, scope.row)"
+                        >
+                            查看更多
+                        </el-button>
+                    </template>
+                    <template v-else>
+                        success
+                    </template>
+                </template>
+            </el-table-column>
             <el-table-column label="时间" width="140px">
                 <template v-slot="scope">
                     {{ dateFormat(scope.row.created_time) }}
@@ -98,23 +142,34 @@
                 }],
                 datePicker: '',
                 search:     {
-                    action:                 '',
+                    logInterface:           '',
+                    operatorId:             '',
                     startTime:              '',
                     endTime:                '',
                     'request-from-refresh': false,
                 },
                 getListApi:   '/log/query',
                 fillUrlQuery: false,
+                userList:     [],
             };
         },
         mounted() {
+            this.getUploaders();
             this.syncUrlParams();
             this.getList();
         },
         methods: {
+            async getUploaders() {
+                const { code, data } = await this.$http.get('/account/query');
+
+                if (code === 0) {
+                    this.userList = data.list;
+                }
+            },
             syncUrlParams() {
                 this.search = {
-                    action:                 '',
+                    logInterface:           '',
+                    operatorId:             '',
                     startTime:              '',
                     endTime:                '',
                     'request-from-refresh': false,
@@ -132,6 +187,11 @@
                     this.search.startTime = '';
                     this.search.endTime = '';
                 }
+            },
+            checkLog(event, row) {
+                this.$alert(row.response_message, '响应信息', {
+                    confirmButtonText: '确定',
+                });
             },
         },
     };

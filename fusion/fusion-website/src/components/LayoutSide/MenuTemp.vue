@@ -29,7 +29,7 @@
                 </el-menu-item>
             </template>
 
-            <template v-else-if="!item.meta.hidden || (userInfo.admin_role && (item.meta.normalUserCanSee !== false && !userInfo.admin_role))">
+            <template v-else-if="!item.meta.hidden && (userInfo.admin_role || (!userInfo.admin_role && item.meta.normalUserCanSee !== false))">
                 <el-menu-item
                     :key="index"
                     :index="item.path"

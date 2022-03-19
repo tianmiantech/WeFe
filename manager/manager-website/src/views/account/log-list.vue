@@ -83,15 +83,14 @@
             />
             <el-table-column
                 label="响应信息"
-                min-width="160"
+                width="280"
             >
                 <template v-slot="scope">
                     <template v-if="scope.row.response_message">
                         <p>{{ scope.row.response_message.length > 100 ? scope.row.response_message.substring(0, 101) + '...' : scope.row.response_message }}</p>
                         <el-button
                             v-if="scope.row.response_message.length > 100"
-                            type="primary"
-                            size="mini"
+                            type="text"
                             @click="checkLog($event, scope.row)"
                         >
                             查看更多
@@ -102,12 +101,13 @@
                     </template>
                 </template>
             </el-table-column>
+
             <el-table-column
                 label="时间"
                 width="140px"
             >
                 <template v-slot="scope">
-                    {{ scope.row.created_time | dateFormat }}
+                    {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
         </el-table>
@@ -147,7 +147,7 @@
                     endTime:                '',
                     'request-from-refresh': false,
                 },
-                getListApi:   '/log/query',
+                getListApi:   '/operation_log/query',
                 fillUrlQuery: false,
                 time:         '',
             };
@@ -178,6 +178,13 @@
                     this.search.startTime = '';
                     this.search.endTime = '';
                 }
+            },
+            showResquest (data) {
+                this.logDialog = true;
+                this.title = '请求体';
+                setTimeout(() => {
+                    this.jsonData = JSON.parse(data);
+                });
             },
             checkLog(event, row) {
                 this.$alert(row.response_message, '响应信息', {

@@ -309,8 +309,8 @@
                     } else {
                         this.getImgCode();
                     }
-                    this.submitting = false;
                 });
+                this.submitting = false;
             },
         },
     };

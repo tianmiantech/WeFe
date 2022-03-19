@@ -357,7 +357,6 @@
             </el-row>
         </el-form>
 
-
         <el-button
             style="margin: 0 20px;"
             class="save-btn"
@@ -374,15 +373,11 @@
 
 <script>
     import { TreeGraph, Grid, Tooltip, Minimap } from '@antv/g6';
-    import jsonView from 'vue-json-views';
 
     /* console.log(G6);
     const { TreeGraph, Grid, Tooltip, Minimap } = G6; */
 
     export default {
-        components: {
-            jsonView,
-        },
         inject: ['refresh'],
         data() {
             return {

@@ -7,20 +7,30 @@
             inline
             @submit.prevent
         >
-            <el-form-item label="接口">
+            <el-form-item label="请求接口：">
                 <el-input
-                    v-model="search.api_name"
+                    v-model="search.log_interface"
                     clearable
                 />
             </el-form-item>
-            <el-form-item label="操作人">
-                <el-input
-                    v-model="search.caller_name"
-                    maxlength="11"
+            <el-form-item
+                label="操作人："
+                label-width="120"
+            >
+                <el-select
+                    v-model="search.operator_id"
+                    filterable
                     clearable
-                />
+                >
+                    <el-option
+                        v-for="(user, index) in userList"
+                        :key="index"
+                        :label="user.nickname"
+                        :value="user.id"
+                    />
+                </el-select>
             </el-form-item>
-            <el-form-item label="起止时间">
+            <el-form-item label="起止时间:">
                 <el-date-picker
                     v-model="time"
                     type="daterange"
@@ -51,43 +61,44 @@
             stripe
         >
             <el-table-column
-                label="接口"
-                prop="api_name"
+                label="请求接口"
+                prop="interface_name"
                 width="200"
             >
                 <template v-slot="scope">
-                    {{ scope.row.api_name }}
+                    {{ scope.row.interface_name }}
                     <br>
                     {{ scope.row.log_interface }}
                 </template>
             </el-table-column>
             <el-table-column
                 label="操作人"
-                prop="caller_name"
-                min-width="250"
+                prop="operator_nickname"
+                min-width="230"
             >
                 <template v-slot="scope">
-                    {{ scope.row.caller_name }}
+                    {{ scope.row.operator_nickname }}
                     <br>
-                    {{ scope.row.caller_id }}
+                    {{ scope.row.operator_id }}
                 </template>
             </el-table-column>
             <el-table-column
                 label="请求结果编码"
-                prop="response_code"
+                prop="result_code"
             />
             <el-table-column
                 label="请求 IP"
-                prop="caller_ip"
+                prop="request_ip"
                 min-width="100"
             />
             <el-table-column
                 label="响应信息"
-                min-width="160"
+                prop="result_message"
+                min-width="100"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.response_message">
-                        <p>{{ scope.row.response_message.length > 100 ? scope.row.response_message.substring(0, 101) + '...' : scope.row.response_message }}</p>
+                    <template v-if="scope.row.result_message">
+                        <p>{{ scope.row.result_message.length > 100 ? scope.row.result_message.substring(0, 101) + '...' : scope.row.result_message }}</p>
                         <el-button
                             v-if="scope.row.response_message.length > 100"
                             type="primary"
@@ -141,26 +152,35 @@
                 }],
                 datePicker: '',
                 search:     {
-                    api_name:               '',
-                    caller_name:            '',
+                    log_interface:          '',
+                    operator_id:            '',
                     startTime:              '',
                     endTime:                '',
                     'request-from-refresh': false,
                 },
-                getListApi:   '/log/query',
+                getListApi:   '/operation_log/query',
                 fillUrlQuery: false,
+                userList:     [],
                 time:         '',
             };
         },
         mounted() {
+            this.getUploaders();
             this.syncUrlParams();
             this.getList();
         },
         methods: {
+            async getUploaders() {
+                const { code, data } = await this.$http.get('/account/query');
+
+                if (code === 0) {
+                    this.userList = data.list;
+                }
+            },
             syncUrlParams() {
                 this.search = {
-                    api_name:               '',
-                    caller_name:            '',
+                    log_interface:          '',
+                    operator_id:            '',
                     startTime:              '',
                     endTime:                '',
                     'request-from-refresh': false,
