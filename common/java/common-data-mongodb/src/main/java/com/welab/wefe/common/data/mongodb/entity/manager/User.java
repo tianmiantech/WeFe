@@ -16,11 +16,13 @@
 
 package com.welab.wefe.common.data.mongodb.entity.manager;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -34,29 +36,26 @@ public class User extends AbstractNormalMongoModel {
     private String realname;
     private String salt;
     private String email;
-    /**
-     * 是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人
-     */
+    private JSONArray historyPasswordList;
+
     private boolean superAdminRole;
-    /**
-     * 是否是管理员;管理员有更多权限，比如设置 member 是否对外可见。
-     */
+
     private boolean adminRole;
 
-    /**
-     * 是否可用
-     */
+
     private boolean enable = true;
 
+    private boolean cancelled = false;
 
-    /**
-     * 审核状态
-     */
+
     private AuditStatus auditStatus;
-    /**
-     * 审核意见
-     */
+
     private String auditComment;
+
+    private boolean needUpdatePassword;
+
+
+    private Date lastActionTime;
 
 
     public String getUserId() {
@@ -146,5 +145,37 @@ public class User extends AbstractNormalMongoModel {
 
     public void setAuditComment(String auditComment) {
         this.auditComment = auditComment;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public JSONArray getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setHistoryPasswordList(JSONArray historyPasswordList) {
+        this.historyPasswordList = historyPasswordList;
+    }
+
+    public Date getLastActionTime() {
+        return lastActionTime;
+    }
+
+    public void setLastActionTime(Date lastActionTime) {
+        this.lastActionTime = lastActionTime;
+    }
+
+    public boolean isNeedUpdatePassword() {
+        return needUpdatePassword;
+    }
+
+    public void setNeedUpdatePassword(boolean needUpdatePassword) {
+        this.needUpdatePassword = needUpdatePassword;
     }
 }

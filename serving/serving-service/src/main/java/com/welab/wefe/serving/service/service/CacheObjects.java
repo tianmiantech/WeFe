@@ -120,4 +120,14 @@ public class CacheObjects {
         }
         return ACCOUNT_MAP;
     }
+
+    /**
+     * Get the account's nickname
+     */
+    public static String getNickname(String accountId) {
+        if (accountId == null) {
+            return null;
+        }
+        return getAccountMap().get(accountId) == null ? "未知" : getAccountMap().get(accountId);
+    }
 }

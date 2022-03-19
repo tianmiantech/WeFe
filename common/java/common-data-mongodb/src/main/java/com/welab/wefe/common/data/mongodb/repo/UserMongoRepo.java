@@ -16,10 +16,13 @@
 
 package com.welab.wefe.common.data.mongodb.repo;
 
+import com.alibaba.fastjson.JSONArray;
+import com.mongodb.client.result.UpdateResult;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,6 +30,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,6 +59,13 @@ public class UserMongoRepo extends AbstractMongoRepo {
     public User findByAccount(String account) {
         Query query = new QueryBuilder()
                 .append("account", account)
+                .build();
+        return mongoManagerTemplate.findOne(query, User.class);
+    }
+
+    public User getSuperAdmin() {
+        Query query = new QueryBuilder()
+                .append("superAdminRole", true)
                 .build();
         return mongoManagerTemplate.findOne(query, User.class);
     }
@@ -88,7 +99,7 @@ public class UserMongoRepo extends AbstractMongoRepo {
     }
 
 
-    public void auditUser(String userId, AuditStatus auditStatus,String auditComment) {
+    public void auditUser(String userId, AuditStatus auditStatus, String auditComment) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder()
                 .append("auditStatus", auditStatus.name())
@@ -97,11 +108,13 @@ public class UserMongoRepo extends AbstractMongoRepo {
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
 
-    public void changePassword(String userId, String password,String salt) {
+    public void changePassword(String userId, String password, String salt, JSONArray historyPasswords) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder()
                 .append("password", password)
-                .append("salt",salt)
+                .append("salt", salt)
+                .append("historyPasswordList", historyPasswords)
+                .append("needUpdatePassword",false)
                 .build();
         mongoManagerTemplate.updateFirst(query, update, User.class);
     }
@@ -125,5 +138,32 @@ public class UserMongoRepo extends AbstractMongoRepo {
         List<User> list = mongoManagerTemplate.find(query, User.class);
         long count = mongoManagerTemplate.count(query, User.class);
         return new PageOutput<User>(pageIndex, count, pageSize, list);
+    }
+
+    public void updateLastActionTime(String userId) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder()
+                .append("lastActionTime", new Date())
+                .build();
+        mongoManagerTemplate.updateFirst(query, update, User.class);
+    }
+
+
+    public long disableAccountWithoutAction90Days() {
+        Query query = new QueryBuilder().gte("lastActionTime", DateUtil.addDays(new Date(),90)).build();
+        Update update = new UpdateBuilder()
+                .append("enable", false)
+                .build();
+        UpdateResult updateResult = mongoManagerTemplate.updateMulti(query, update, User.class);
+        return updateResult.getModifiedCount();
+    }
+
+    public long cancelAccountWithoutAction180Days() {
+        Query query = new QueryBuilder().gte("lastActionTime", DateUtil.addDays(new Date(),180)).build();
+        Update update = new UpdateBuilder()
+                .append("cancelled", true)
+                .build();
+        UpdateResult updateResult = mongoManagerTemplate.updateMulti(query, update, User.class);
+        return updateResult.getModifiedCount();
     }
 }

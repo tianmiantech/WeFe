@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.operation;
+package com.welab.wefe.serving.service.database.serving.repository;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.web.api.base.AbstractApi;
-import com.welab.wefe.common.web.function.BeforeApiExecuteFunction;
+import org.springframework.stereotype.Repository;
+
+import com.welab.wefe.serving.service.database.serving.entity.OperationLogMysqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
 
 /**
- * User operation log
- *
- * @author eval
- **/
-public class OperationLogBeforeApiExecute implements BeforeApiExecuteFunction {
-
-    @Override
-    public void action(AbstractApi<?, ?> api, JSONObject params) {
-
-    }
+ * @author zane.luo
+ */
+@Repository
+public interface OperationLogRepository extends BaseRepository<OperationLogMysqlModel, String> {
 }

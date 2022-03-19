@@ -16,17 +16,17 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.LoginSecurityPolicy;
-import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.web.service.account.AbstractAccountService;
+import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import com.welab.wefe.data.fusion.service.api.account.*;
@@ -42,17 +42,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * @author Zane
  */
 @Service
-public class AccountService extends AbstractService {
+public class AccountService extends AbstractAccountService {
 
     @Autowired
     private AccountRepository accountRepository;
@@ -105,6 +103,7 @@ public class AccountService extends AbstractService {
         model.setSuperAdminRole(accountRepository.count() < 1);
         model.setAdminRole(model.getSuperAdminRole());
         model.setEnable(true);
+        model.setLastActionTime(new Date());
 
         // Super administrator does not need to review
         if (model.getSuperAdminRole() || userSource == BoardUserSource.online_demo) {
@@ -129,108 +128,12 @@ public class AccountService extends AbstractService {
         CacheObjects.refreshAccountMap();
     }
 
-    /**
-     * login
-     */
-    public LoginApi.Output login(String phoneNumber, String password, String key, String code) throws StatusCodeWithException {
-
-        // Check if it's in the small black room
-        if (LoginSecurityPolicy.inDarkRoom(phoneNumber)) {
-            throw new StatusCodeWithException("账号已被禁止登陆，请一个小时后再试，或联系管理员。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
-        // phone number error
-        if (model == null) {
-            StatusCode
-                    .PARAMETER_VALUE_INVALID
-                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
-        }
-
-        if (!model.getEnable()) {
-            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
-        }
-
-        // wrong password
-        if (!model.getPassword().equals(Sha1.of(password + model.getSalt()))) {
-
-            // Log a login failure event
-            LoginSecurityPolicy.onLoginFail(phoneNumber);
-            StatusCode
-                    .PARAMETER_VALUE_INVALID
-                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
-        }
-
-        // Check audit status
-        if (model.getAuditStatus() != null) {
-            switch (model.getAuditStatus()) {
-                case auditing:
-                    AccountMysqlModel superAdmin = findSuperAdmin();
-
-                    throw new StatusCodeWithException("账号尚未审核，请联系管理员 " + superAdmin.getNickname() + " （或其他任意管理员）对您的账号进行审核后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
-                case disagree:
-                    throw new StatusCodeWithException("账号审核不通过：" + model.getAuditComment(), StatusCode.PARAMETER_VALUE_INVALID);
-                default:
-            }
-        }
-
-        String token = UUID.randomUUID().toString();
-        CurrentAccount.logined(token, model.getId(), model.getPhoneNumber(), model.getAdminRole(), model.getSuperAdminRole());
-
-        LoginApi.Output output = ModelMapper.map(model, LoginApi.Output.class);
-        output.setToken(token);
-
-        // Record a successful login event
-        LoginSecurityPolicy.onLoginSuccess(phoneNumber);
-
-        return output;
-    }
-
-    /**
-     * update password
-     */
-    public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
-
-        String phoneNumber = CurrentAccount.phoneNumber();
-        if (phoneNumber == null) {
-            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
-        }
-
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
-
-        // Check old password
-        if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
-            throw new StatusCodeWithException("您输入的旧密码不正确", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        // Regenerate salt
-        String salt = createRandomSalt();
-
-        // sha hash
-        newPassword = Sha1.of(newPassword + salt);
-
-        model.setSalt(salt);
-        model.setPassword(newPassword);
-
-        accountRepository.save(model);
-
-        CurrentAccount.logout(model.getId());
-    }
-
 
     /**
      * query all of account
      */
     public List<AccountMysqlModel> queryAll() {
         return accountRepository.findAll();
-    }
-
-    private String createRandomSalt() {
-        final Random r = new SecureRandom();
-        byte[] salt = new byte[16];
-        r.nextBytes(salt);
-
-        return Base64Util.encode(salt);
     }
 
     /**
@@ -253,22 +156,6 @@ public class AccountService extends AbstractService {
         accountRepository.save(account);
     }
 
-    /**
-     * Query super administrator
-     */
-    public AccountMysqlModel findSuperAdmin() {
-        List<AccountMysqlModel> list = accountRepository.findAll(Where
-                .create()
-                .equal("superAdminRole", true)
-                .build(AccountMysqlModel.class)
-        );
-
-        if (list.isEmpty()) {
-            return null;
-        }
-
-        return list.get(0);
-    }
 
     /**
      * Update user basic information
@@ -347,14 +234,21 @@ public class AccountService extends AbstractService {
      * Reset user password (administrator rights)
      */
     public String resetPassword(ResetPasswordApi.Input input) throws StatusCodeWithException {
+
+        if (!CurrentAccount.isAdmin()) {
+            throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
+        }
+
+
+        AccountMysqlModel operator = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        if (!super.verifyPassword(operator.getPassword(), input.getPassword(), operator.getSalt())) {
+            throw new StatusCodeWithException("密码错误，身份核实失败，已退出登录。", StatusCode.PERMISSION_DENIED);
+        }
+
         AccountMysqlModel model = accountRepository.findById(input.getId()).orElse(null);
 
         if (model == null) {
             throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
-        }
-
-        if (!CurrentAccount.isAdmin()) {
-            throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
 
         if (model.getSuperAdminRole()) {
@@ -468,5 +362,55 @@ public class AccountService extends AbstractService {
         model.setSalt(salt);
         model.setPassword(Sha1.of(input.getPassword() + salt));
         accountRepository.save(model);
+    }
+
+    @Override
+    public AccountInfo getAccountInfo(String phoneNumber) {
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
+        return toAccountInfo(model);
+    }
+
+    @Override
+    public AccountInfo getSuperAdmin() {
+        List<AccountMysqlModel> list = accountRepository.findAll(Where
+                .create()
+                .equal("superAdminRole", true)
+                .build(AccountMysqlModel.class)
+        );
+
+        if (list.isEmpty()) {
+            return null;
+        }
+
+        return toAccountInfo(list.get(0));
+    }
+
+    @Override
+    public void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException {
+        AccountMysqlModel model = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        model.setPassword(password);
+        model.setSalt(salt);
+        model.setHistoryPasswordList(historyPasswords);
+        accountRepository.save(model);
+    }
+
+    private AccountInfo toAccountInfo(AccountMysqlModel model) {
+        if (model == null) {
+            return null;
+        }
+        AccountInfo info = new AccountInfo();
+        info.setId(model.getId());
+        info.setPhoneNumber(model.getPhoneNumber());
+        info.setNickname(model.getNickname());
+        info.setPassword(model.getPassword());
+        info.setSalt(model.getSalt());
+        info.setAuditStatus(model.getAuditStatus());
+        info.setAuditComment(model.getAuditComment());
+        info.setAdminRole(model.getAdminRole());
+        info.setSuperAdminRole(model.getSuperAdminRole());
+        info.setEnable(model.getEnable());
+        info.setCancelled(model.isCancelled());
+        info.setHistoryPasswordList(model.getHistoryPasswordList());
+        return info;
     }
 }
