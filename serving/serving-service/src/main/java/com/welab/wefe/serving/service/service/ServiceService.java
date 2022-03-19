@@ -635,8 +635,10 @@ public class ServiceService {
 			try {
 				config.setTargetIndex(index); // right index
 				result = privateInformationRetrievalQuery.query(config, communicationConfig, otMethod);
-				results.add(JObject.create("memberId", memberId).append("memberName", memberName).append("index", index)
-						.append("result", result));
+                JObject tmp = JObject.create("memberId", memberId).append("memberName", memberName)
+                        .append("index", index).append("result", result);
+                LOG.info("multi_pir result\t" + tmp);
+                results.add(tmp);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
