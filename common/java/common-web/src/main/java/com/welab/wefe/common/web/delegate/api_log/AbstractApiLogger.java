@@ -104,8 +104,8 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
                 () -> {
                     try {
                         // 存日志
-                        beforeSaveLog(httpServletRequest, start, api, params, result, accountInfo);
-                        saveLog(httpServletRequest, start, api, params, result, accountInfo);
+                        JSONObject requestParams = beforeSaveLog(httpServletRequest, start, api, params, result, accountInfo);
+                        saveLog(httpServletRequest, start, api, requestParams, result, accountInfo);
 
                         // 更新用户的最后活动时间
                         logAccountLastActionTime(accountInfo.id);
@@ -133,8 +133,8 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
     /**
      * 调用 saveLog 之前的动作，可以在这里对参数进行处理。
      */
-    protected void beforeSaveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, AccountInfo accountInfo) {
-        return;
+    protected JSONObject beforeSaveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, AccountInfo accountInfo) {
+        return params;
     }
 
     private void saveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, AccountInfo accountInfo) {
@@ -156,7 +156,7 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
             log.setCallerId(accountInfo.getId());
             log.setCallerName(accountInfo.getNickname());
         } else {
-            log.setCallerId(params.getString("member_id"));
+            log.setCallerId(params.getString("caller_id"));
         }
         log.setApiName(annotation.path());
         log.setRequestData(JSON.toJSONString(params, LoggerSerializeConfig.instance()));
