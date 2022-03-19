@@ -538,10 +538,10 @@
                 isInResult:          false,
                 stopNext:            false,
                 memberJobDetailList: [],
-                timer1:              null,
-                timer2:              null,
-                timer3:              null,
-                timer4:              null,
+                jobDetailTimer:      null,
+                jobProgressTimer:    null,
+                pauseJobTimer:       null,
+                resumeJobTimer:      null,
             });
 
             if(vData.flowType === 'detection') {
@@ -602,8 +602,8 @@
                             vData.isInResult = data.job.status;
                             methods.getJobMemberDetail();
                             if(data.job.status === 'wait_run' || data.job.status === 'wait_stop') {
-                                if (vData.timer1) clearTimeout(vData.timer1);
-                                vData.timer1 = setTimeout(() => {
+                                if (vData.jobDetailTimer) clearTimeout(vData.jobDetailTimer);
+                                vData.jobDetailTimer = setTimeout(() => {
                                     methods.getJobDetail();
                                 }, 3000);
                             }
@@ -626,8 +626,8 @@
                             const isRunning = data.filter(x => x.job_status === 'running');
 
                             if(isRunning) {
-                                if (vData.timer2) clearTimeout(vData.timer2);
-                                vData.timer2 = setTimeout(() => {
+                                if (vData.jobProgressTimer) clearTimeout(vData.jobProgressTimer);
+                                vData.jobProgressTimer = setTimeout(() => {
                                     methods.getJobMemberDetail();
                                 }, 3000);
                             }
@@ -1153,8 +1153,8 @@
                             nextTick(_ => {
                                 vData.startLoading = false;
                                 if(code === 0) {
-                                    if (vData.timer3) clearTimeout(vData.timer3);
-                                    vData.timer3 = setTimeout(() => {
+                                    if (vData.pauseJobTimer) clearTimeout(vData.pauseJobTimer);
+                                    vData.pauseJobTimer = setTimeout(() => {
                                         methods.getJobDetail();
                                         deeplearningResultRef.value.methods.tabChange();
                                     }, 500);
@@ -1182,8 +1182,8 @@
                             nextTick(_ => {
                                 vData.startLoading = false;
                                 if(code === 0) {
-                                    if (vData.timer4) clearTimeout(vData.timer4);
-                                    vData.timer4 = setTimeout(() => {
+                                    if (vData.resumeJobTimer) clearTimeout(vData.resumeJobTimer);
+                                    vData.resumeJobTimer = setTimeout(() => {
                                         methods.getJobDetail();
                                         deeplearningResultRef.value.methods.tabChange();
                                     }, 500);
@@ -1212,10 +1212,10 @@
 
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
-                clearTimeout(vData.timer1);
-                clearTimeout(vData.timer2);
-                clearTimeout(vData.timer3);
-                clearTimeout(vData.timer4);
+                clearTimeout(vData.jobDetailTimer);
+                clearTimeout(vData.jobProgressTimer);
+                clearTimeout(vData.pauseJobTimer);
+                clearTimeout(vData.resumeJobTimer);
             });
 
             watch(
