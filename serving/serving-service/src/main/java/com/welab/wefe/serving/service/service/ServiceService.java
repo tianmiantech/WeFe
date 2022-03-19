@@ -431,6 +431,9 @@ public class ServiceService {
 			if (serviceType == ServiceTypeEnum.PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
                 String otMethod = data.getString("otMethod", "huack_ot");
+                if(StringUtils.isBlank(otMethod)) {
+                    otMethod = data.getString("ot_method", "huack_ot");
+                }
 				res = pir(ids, service, otMethod);
 			} else if (serviceType == ServiceTypeEnum.PSI.getCode()) {
 				String p = data.getString("p");
@@ -462,6 +465,9 @@ public class ServiceService {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
 				int idx = data.getIntValue("index");
                 String otMethod = data.getString("otMethod", "huack_ot");
+                if(StringUtils.isBlank(otMethod)) {
+                    otMethod = data.getString("ot_method", "huack_ot");
+                }
 				List<JObject> results = multi_pir(ids, idx,  service, currentClient, otMethod);
 				res = JObject.create("result", results);
 			}
