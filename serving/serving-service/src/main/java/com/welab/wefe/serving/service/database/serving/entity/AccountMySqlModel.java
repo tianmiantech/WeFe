@@ -82,7 +82,7 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
      * 历史曾用密码
      */
     @Type(type = "json")
-    @Column(columnDefinition = "json")
+    @Column(columnDefinition = "json", name = "history_password_list")
     private JSONArray historyPasswordList;
 
     //region getter/setter

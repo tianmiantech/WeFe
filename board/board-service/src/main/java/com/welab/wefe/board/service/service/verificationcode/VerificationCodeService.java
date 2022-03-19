@@ -106,7 +106,7 @@ public class VerificationCodeService {
             // send
             AbstractResponse response = client.send(mobile, verificationCode);
             // save model
-            save(buildModel(BoardSM4Util.encryptPhoneNumber(mobile), verificationCode, sendChannel, businessType, response));
+            save(buildModel(mobile, verificationCode, sendChannel, businessType, response));
             if (!response.success()) {
                 throw new StatusCodeWithException("发送验证码异常:" + response.getMessage(), StatusCode.SYSTEM_ERROR);
             }
