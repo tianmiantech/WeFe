@@ -43,6 +43,10 @@
                         @copy.native.prevent
                         @contextmenu.native.prevent
                     />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.new_password"
+                    />
                 </el-form-item>
                 <el-divider />
                 <div class="sign-action">
@@ -81,6 +85,9 @@ export default {
         submit() {
             this.$refs['sign-form'].validate(async valid => {
                 if(valid) {
+                    if(this.$refs['password-strength'].pwStrength < 3) {
+                        return this.$message.error('密码强度太弱');
+                    }
                     const { code, message } = await this.$http.post({
                         url:  '/account/update_password',
                         data: this.form,

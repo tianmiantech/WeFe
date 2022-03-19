@@ -97,7 +97,20 @@
                 min-width="100"
             >
                 <template v-slot="scope">
-                    {{ scope.row.result_message ? scope.row.result_message : 'success' }}
+                    <template v-if="scope.row.result_message">
+                        <p>{{ scope.row.result_message.length > 100 ? scope.row.result_message.substring(0, 101) + '...' : scope.row.result_message }}</p>
+                        <el-button
+                            v-if="scope.row.response_message.length > 100"
+                            type="primary"
+                            size="mini"
+                            @click="checkLog($event, scope.row)"
+                        >
+                            查看更多
+                        </el-button>
+                    </template>
+                    <template v-else>
+                        success
+                    </template>
                 </template>
             </el-table-column>
             <el-table-column
@@ -185,6 +198,11 @@
                     this.search.startTime = '';
                     this.search.endTime = '';
                 }
+            },
+            checkLog(event, row) {
+                this.$alert(row.response_message, '响应信息', {
+                    confirmButtonText: '确定',
+                });
             },
         },
     };

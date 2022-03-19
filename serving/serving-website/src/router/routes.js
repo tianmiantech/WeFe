@@ -216,8 +216,9 @@ const baseRoutes = [
     {
         path: `${prefixPath}account`,
         meta: {
-            title: '用户中心',
-            icon:  'el-icon-user-solid',
+            title:            '用户中心',
+            icon:             'el-icon-user-solid',
+            normalUserCanSee: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [

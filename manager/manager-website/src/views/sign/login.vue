@@ -68,6 +68,9 @@
                                 type="password"
                                 maxlength="30"
                                 clearable
+                                @paste.prevent
+                                @copy.prevent
+                                @contextmenu.prevent
                             />
                         </el-form-item>
                         <el-form-item
@@ -96,12 +99,6 @@
                             </el-input>
                         </el-form-item>
                         <div class="sign-action">
-                            <!-- <router-link
-                                :to="{name: 'find-password'}"
-                                class="mr20"
-                            >
-                                忘记密码
-                            </router-link> -->
                             <el-button
                                 type="primary"
                                 class="login-btn"
@@ -113,6 +110,12 @@
                             </el-button>
                         </div>
                         <h4 class="text-r f14 mt20">
+                            <!-- <router-link
+                                :to="{name: 'find-password'}"
+                                class="float-left"
+                            >
+                                忘记密码
+                            </router-link> -->
                             还没有账号?
                             <router-link :to="{ name: 'register', query: { redirect: $route.query.redirect } }">
                                 立即注册

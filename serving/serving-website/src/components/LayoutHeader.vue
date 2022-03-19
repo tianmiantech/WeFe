@@ -27,18 +27,19 @@
                         <i class="el-icon-arrow-down el-icon--right" />
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="logout">
-                            <i class="el-icon-switch-button" />
-                            注销
-                        </el-dropdown-item>
                         <el-dropdown-item command="changepwd">
                             <i class="el-icon-edit" />
                             修改密码
+                        </el-dropdown-item>
+                        <el-dropdown-item command="logout">
+                            <i class="el-icon-switch-button" />
+                            注销
                         </el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
         </div>
+
         <el-dialog
             width="340px"
             title="修改密码"
@@ -60,6 +61,9 @@
                     <el-input
                         v-model="form.old_password"
                         type="password"
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
                     />
                 </el-form-item>
                 <el-form-item
@@ -70,6 +74,13 @@
                     <el-input
                         v-model="form.new_password"
                         type="password"
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
+                    />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.new_password"
                     />
                 </el-form-item>
                 <el-form-item
@@ -80,6 +91,9 @@
                     <el-input
                         v-model="form.repeat_password"
                         type="password"
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
                     />
                 </el-form-item>
                 <el-button
@@ -95,10 +109,10 @@
 </template>
 
 <script>
+import md5 from 'js-md5';
 import { mapGetters } from 'vuex';
 import { baseLogout } from '@src/router/auth';
 import LayoutTags from './LayoutTags.vue';
-import md5 from 'js-md5';
 import { PASSWORDREG } from '@js/const/reg';
 
 export default {
@@ -236,6 +250,9 @@ export default {
             submit() {
                 this.$refs['form'].validate(async valid => {
                     if(valid) {
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
                         const oldPassword = [
                             this.userInfo.phone_number,
                             this.form.old_password,

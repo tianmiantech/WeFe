@@ -63,10 +63,17 @@
                 >
                     <el-input
                         v-model="form.password"
-                        placeholder="密码"
+                        placeholder="8-30 位数字字母特殊符号组合"
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
+                    />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.password"
                     />
                 </el-form-item>
                 <el-form-item
@@ -80,6 +87,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
                 <el-form-item
@@ -253,6 +263,9 @@
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
                         // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
                         const { code } = await this.$http.post({
                             url:  '/user/register',
                             data: {
@@ -298,6 +311,18 @@
         background: #fff;
         border-radius: 3px;
         padding: 20px 50px;
+    }
+    .pw-strength{
+        .strength-level{
+            width: 30px;
+            height: 6px;
+            margin-right:4px;
+            display: inline-block;
+            vertical-align:middle;
+        }
+        .level-1{background:#D54724;}
+        .level-2{background:#E98737;}
+        .level-3{background:#76A030;}
     }
     .terms{
         color: #6C757D;
