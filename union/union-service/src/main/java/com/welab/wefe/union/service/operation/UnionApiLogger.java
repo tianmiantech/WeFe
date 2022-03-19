@@ -17,18 +17,22 @@
 package com.welab.wefe.union.service.operation;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.data.mongodb.entity.common.OperationLog;
 import com.welab.wefe.common.data.mongodb.repo.UnionOperationLogMongoRepo;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.delegate.api_log.ApiLog;
+import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.union.service.api.common.MemberFileUploadSyncApi;
 import com.welab.wefe.union.service.api.common.RealnameAuthAgreementTemplateSyncApi;
 import com.welab.wefe.union.service.api.member.FileUploadApi;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,15 +53,21 @@ public class UnionApiLogger extends AbstractApiLogger {
     }
 
     @Override
+    protected boolean ignoreWithoutLogin() {
+        return false;
+    }
+
+    @Override
+    protected void beforeSaveLog(HttpServletRequest httpServletRequest, long start, AbstractApi<?, ?> api, JSONObject params, ApiResult<?> result, AccountInfo accountInfo) {
+        if(params != null && params.containsKey("data")) {
+            params.getJSONObject("data").remove("public_key");
+            params.getJSONObject("data").remove("logo");
+        }
+    }
+
+    @Override
     protected void save(ApiLog apiLog) {
-        OperationLog model = new OperationLog();
-        model.setRequestTime(apiLog.getRequestTime());
-        model.setRequestIp(apiLog.getCallerIp());
-        model.setOperatorId(apiLog.getCallerId());
-        model.setSpend(apiLog.getSpend());
-        model.setLogInterface(apiLog.getApiName());
-        model.setResultCode(apiLog.getResponseCode());
-        model.setResultMessage(apiLog.getResponseMessage());
+        OperationLog model = ModelMapper.map(apiLog,OperationLog.class);
         Launcher.getBean(UnionOperationLogMongoRepo.class).save(model);
     }
 
