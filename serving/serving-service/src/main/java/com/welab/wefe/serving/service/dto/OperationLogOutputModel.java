@@ -16,6 +16,8 @@
 
 package com.welab.wefe.serving.service.dto;
 
+import java.util.Date;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.serving.service.service.CacheObjects;
 
@@ -45,6 +47,8 @@ public class OperationLogOutputModel {
     private String creatorNickname;
     @Check(name = "修改者昵称")
     private String updaterNickname;
+    @Check(name = "创建时间")
+    private Date createdTime;
     //region getter/setter
 
     public String getId() {
@@ -137,5 +141,13 @@ public class OperationLogOutputModel {
 
     public void setResultMessage(String resultMessage) {
         this.resultMessage = resultMessage;
+    }
+
+    public Date getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Date createdTime) {
+        this.createdTime = createdTime;
     }
 }

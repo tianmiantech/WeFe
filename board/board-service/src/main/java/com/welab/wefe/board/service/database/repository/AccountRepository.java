@@ -47,7 +47,7 @@ public interface AccountRepository extends BaseRepository<AccountMysqlModel, Str
      */
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query(value = "update #{#entityName} set cancelled=true where DATEDIFF(now(),last_action_time)>90", nativeQuery = true)
+    @Query(value = "update #{#entityName} set enable=false where DATEDIFF(now(),last_action_time)>90", nativeQuery = true)
     int disableAccountWithoutAction90Days();
 
     /**
