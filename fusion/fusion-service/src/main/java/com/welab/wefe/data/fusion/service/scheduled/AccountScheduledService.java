@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.serving.service.scheduler;
+package com.welab.wefe.data.fusion.service.scheduled;
 
+import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 
 /**
  * 对 account 表的定时任务
@@ -39,6 +38,7 @@ public class AccountScheduledService {
     private AccountRepository accountRepository;
 
     @Scheduled(fixedDelay = 600_000, initialDelay = 10_000)
+//    @Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
     public void run() {
 
         LOG.info("begin disableAccountWithoutAction90Days...");

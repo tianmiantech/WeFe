@@ -314,6 +314,7 @@ public class AccountService extends AbstractAccountService {
         AccountMySqlModel currentAdmin = accountRepository.findByPhoneNumber(phoneNumber);
         // Check password
         if (!StringUtil.equals(currentAdmin.getPassword(), hashPasswordWithSalt(input.getPassword(), currentAdmin.getSalt()))) {
+            CurrentAccount.logout();
             throw new StatusCodeWithException("密码不正确，请重新输入", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
