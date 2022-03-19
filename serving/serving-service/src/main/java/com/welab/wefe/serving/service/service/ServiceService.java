@@ -430,7 +430,7 @@ public class ServiceService {
 			
 			if (serviceType == ServiceTypeEnum.PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
-                String otMethod = data.getString("otMethod", "huack_ot");
+                String otMethod = data.getString("otMethod");
                 if(StringUtils.isBlank(otMethod)) {
                     otMethod = data.getString("ot_method", "huack_ot");
                 }
@@ -461,16 +461,16 @@ public class ServiceService {
 				}
 				List<String> result = multi_psi(clientIds, service, currentClient);
 				res = JObject.create("result", result);
-			} else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
-				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
-				int idx = data.getIntValue("index");
-                String otMethod = data.getString("otMethod", "huack_ot");
-                if(StringUtils.isBlank(otMethod)) {
+            } else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
+                List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
+                int idx = data.getIntValue("index");
+                String otMethod = data.getString("otMethod");
+                if (StringUtils.isBlank(otMethod)) {
                     otMethod = data.getString("ot_method", "huack_ot");
                 }
-				List<JObject> results = multi_pir(ids, idx,  service, currentClient, otMethod);
-				res = JObject.create("result", results);
-			}
+                List<JObject> results = multi_pir(ids, idx, service, currentClient, otMethod);
+                res = JObject.create("result", results);
+            }
 			res.append("code", ServiceResultEnum.SUCCESS.getCode());
 			long duration = System.currentTimeMillis() - start;
 			log(service, client, duration, clientIp, res.getIntValue("code"));
