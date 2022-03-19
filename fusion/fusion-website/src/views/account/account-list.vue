@@ -135,6 +135,15 @@
                 </template>
             </el-table-column>
             <el-table-column
+                label="是否已注销"
+                min-width="140"
+                align="center"
+            >
+                <template v-slot="scope">
+                    {{ scope.row.cancelled ? '是' : '否' }}
+                </template>
+            </el-table-column>
+            <el-table-column
                 label="注册时间"
                 min-width="140"
             >
