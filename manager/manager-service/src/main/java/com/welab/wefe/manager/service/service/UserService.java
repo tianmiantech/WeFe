@@ -29,17 +29,13 @@ import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.manager.service.api.user.AuditApi;
-import com.welab.wefe.manager.service.constant.UserConstant;
 import com.welab.wefe.manager.service.dto.user.QueryUserInput;
 import com.welab.wefe.manager.service.dto.user.UserUpdateInput;
 import com.welab.wefe.manager.service.mapper.UserMapper;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Random;
 
 /**
  * @author yuxin.zhang
@@ -53,7 +49,7 @@ public class UserService extends AbstractAccountService {
     private UserMongoRepo userMongoRepo;
     private UserMapper mUserMapper = Mappers.getMapper(UserMapper.class);
 
-    public boolean checkAdminAccountIsExist(String account) {
+    public boolean checkSuperAdminAccountIsExist(String account) {
         boolean result = false;
         User user = userMongoRepo.findByAccount(account);
         if (user != null && user.isSuperAdminRole() && user.isAdminRole()) {
@@ -64,7 +60,7 @@ public class UserService extends AbstractAccountService {
 
 
     public void register(User user) throws StatusCodeWithException {
-        boolean isExist = checkAdminAccountIsExist(user.getAccount());
+        boolean isExist = checkSuperAdminAccountIsExist(user.getAccount());
         if (isExist) {
             throw new StatusCodeWithException("该账号已存在", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -110,6 +106,7 @@ public class UserService extends AbstractAccountService {
         user.setPassword(hashPasswordWithSalt(Md5.of(newPassword),salt));
         user.setNeedUpdatePassword(true);
         userMongoRepo.save(user);
+        CurrentAccount.logout(userId);
         return newPassword;
     }
 

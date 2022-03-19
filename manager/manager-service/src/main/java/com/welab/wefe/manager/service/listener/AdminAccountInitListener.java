@@ -44,7 +44,7 @@ public class AdminAccountInitListener implements ApplicationListener<Application
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         LOG.info("init admin account start");
-        boolean isExist = userService.checkAdminAccountIsExist(UserConstant.ADMIN_ACCOUNT);
+        boolean isExist = userService.checkSuperAdminAccountIsExist(UserConstant.ADMIN_ACCOUNT);
         if(!isExist) {
             User user = new User();
             user.setAccount(UserConstant.ADMIN_ACCOUNT);
