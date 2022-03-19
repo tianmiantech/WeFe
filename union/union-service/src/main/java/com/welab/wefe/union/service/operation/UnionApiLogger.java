@@ -19,7 +19,7 @@ package com.welab.wefe.union.service.operation;
 
 import com.welab.wefe.common.data.mongodb.entity.common.OperationLog;
 import com.welab.wefe.common.data.mongodb.repo.UnionOperationLogMongoRepo;
-import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
+import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.delegate.api_log.ApiLog;
@@ -37,10 +37,6 @@ import java.util.List;
  **/
 @Component
 public class UnionApiLogger extends AbstractApiLogger {
-
-    @Autowired
-    private UnionOperationLogMongoRepo unionOperationLogMongoRepo;
-
 
 
     @Override
@@ -62,7 +58,7 @@ public class UnionApiLogger extends AbstractApiLogger {
         model.setLogInterface(apiLog.getApiName());
         model.setResultCode(apiLog.getResponseCode());
         model.setResultMessage(apiLog.getResponseMessage());
-        unionOperationLogMongoRepo.save(model);
+        Launcher.getBean(UnionOperationLogMongoRepo.class).save(model);
     }
 
     @Override
