@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.manager.service.api.account;
 
-import com.welab.wefe.common.data.mongodb.entity.manager.User;
-import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
+import com.welab.wefe.common.data.mongodb.entity.manager.Account;
+import com.welab.wefe.common.data.mongodb.repo.AccountMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.user.LoginInput;
 import com.welab.wefe.manager.service.dto.user.LoginOutput;
-import com.welab.wefe.manager.service.service.UserService;
+import com.welab.wefe.manager.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -32,19 +32,20 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-@Api(path = "user/login", name = "登录", login = false)
+@Api(path = "account/login", name = "login", login = false)
 public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
 
     @Autowired
-    private UserService userService;
+    private AccountService accountService;
     @Autowired
-    private UserMongoRepo userMongoRepo;
+    private AccountMongoRepo accountMongoRepo;
 
     @Override
     protected ApiResult<LoginOutput> handle(LoginInput input) throws StatusCodeWithException {
-        String token = userService.login(input.getAccount(), input.getPassword(), input.getKey(), input.getCode());
-        User user = userMongoRepo.findByAccount(input.getAccount());
-        LoginOutput output = new LoginOutput(token, user);
+        String token = accountService.login(input.getPhoneNumber()
+                , input.getPassword(), input.getKey(), input.getCode());
+        Account account = accountMongoRepo.findByPhoneNumber(input.getPhoneNumber());
+        LoginOutput output = new LoginOutput(token, account);
         return success(output);
     }
 }

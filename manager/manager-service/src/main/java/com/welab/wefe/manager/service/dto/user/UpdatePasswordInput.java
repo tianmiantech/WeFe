@@ -19,26 +19,31 @@ package com.welab.wefe.manager.service.dto.user;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 
-public class UserEnableInput extends AbstractApiInput {
+/**
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/11/2
+ */
+public class UpdatePasswordInput extends AbstractApiInput {
     @Check(require = true)
-    private String userId;
+    private String oldPassword;
 
-    private boolean enable;
+    @Check(require = true)
+    private String newPassword;
 
-
-    public String getUserId() {
-        return userId;
+    public String getOldPassword() {
+        return oldPassword;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
     }
 
-    public boolean isEnable() {
-        return enable;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 }

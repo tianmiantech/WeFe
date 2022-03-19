@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.manager.service.api.account;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.user.UserUpdateInput;
-import com.welab.wefe.manager.service.service.UserService;
+import com.welab.wefe.manager.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -32,14 +33,29 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-@Api(path = "user/update", name = "user update")
-public class UpdateApi extends AbstractApi<UserUpdateInput, AbstractApiOutput> {
+@Api(path = "user/change/password", name = "password change")
+public class SuperAdminChangeApi extends AbstractApi<SuperAdminChangeApi.Input, AbstractApiOutput> {
     @Autowired
-    private UserService userService;
+    private AccountService accountService;
+
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(UserUpdateInput input) throws StatusCodeWithException, IOException {
-        userService.update(input);
+    protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
+        accountService.changeSuperAdmin(input.accountId);
         return success();
+    }
+
+    public static class Input extends AbstractApiInput {
+
+        @Check(name = "唯一标识", require = true)
+        private String accountId;
+
+        public String getAccountId() {
+            return accountId;
+        }
+
+        public void setAccountId(String accountId) {
+            this.accountId = accountId;
+        }
     }
 }

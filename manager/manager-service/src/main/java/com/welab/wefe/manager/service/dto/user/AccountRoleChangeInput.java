@@ -24,26 +24,25 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-public class ChangePasswordInput extends AbstractApiInput {
+public class AccountRoleChangeInput extends AbstractApiInput {
     @Check(require = true)
-    private String oldPassword;
-
+    private String userId;
     @Check(require = true)
-    private String newPassword;
+    private boolean adminRole;
 
-    public String getOldPassword() {
-        return oldPassword;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setOldPassword(String oldPassword) {
-        this.oldPassword = oldPassword;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getNewPassword() {
-        return newPassword;
+    public boolean isAdminRole() {
+        return adminRole;
     }
 
-    public void setNewPassword(String newPassword) {
-        this.newPassword = newPassword;
+    public void setAdminRole(boolean adminRole) {
+        this.adminRole = adminRole;
     }
 }

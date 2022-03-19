@@ -16,46 +16,48 @@
 
 package com.welab.wefe.manager.service.dto.user;
 
-import com.welab.wefe.common.data.mongodb.entity.manager.User;
+import com.welab.wefe.common.data.mongodb.entity.manager.Account;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 
 /**
  * @author yuxin.zhang
  */
 public class LoginOutput extends AbstractApiOutput {
-    private String userId;
+    private String accountId;
+
     private String token;
-    private String account;
 
+    private String phoneNumber;
 
-    private String realname;
+    private String nickname;
+
     private String email;
-    private boolean superAdminRole;
-    private boolean adminRole;
+
+    private Boolean superAdminRole;
+
+    private Boolean adminRole;
     private boolean needUpdatePassword;
 
     public LoginOutput() {
     }
 
-    public LoginOutput(String token, User model) {
-
+    public LoginOutput(String token, Account model) {
+        this.accountId = model.getAccountId();
         this.token = token;
-        this.userId = model.getUserId();
-        this.account = model.getAccount();
-        this.realname = model.getRealname();
+        this.phoneNumber = model.getPhoneNumber();
+        this.nickname = model.getNickname();
         this.email = model.getEmail();
-        this.superAdminRole = model.isSuperAdminRole();
-        this.adminRole = model.isAdminRole();
+        this.superAdminRole = model.getSuperAdminRole();
+        this.adminRole = model.getAdminRole();
         this.needUpdatePassword = model.isNeedUpdatePassword();
     }
 
-
-    public String getUserId() {
-        return userId;
+    public String getAccountId() {
+        return accountId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
     public String getToken() {
@@ -66,20 +68,20 @@ public class LoginOutput extends AbstractApiOutput {
         this.token = token;
     }
 
-    public String getAccount() {
-        return account;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public String getRealname() {
-        return realname;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setRealname(String realname) {
-        this.realname = realname;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getEmail() {
@@ -90,19 +92,19 @@ public class LoginOutput extends AbstractApiOutput {
         this.email = email;
     }
 
-    public boolean isSuperAdminRole() {
+    public Boolean getSuperAdminRole() {
         return superAdminRole;
     }
 
-    public void setSuperAdminRole(boolean superAdminRole) {
+    public void setSuperAdminRole(Boolean superAdminRole) {
         this.superAdminRole = superAdminRole;
     }
 
-    public boolean isAdminRole() {
+    public Boolean getAdminRole() {
         return adminRole;
     }
 
-    public void setAdminRole(boolean adminRole) {
+    public void setAdminRole(Boolean adminRole) {
         this.adminRole = adminRole;
     }
 

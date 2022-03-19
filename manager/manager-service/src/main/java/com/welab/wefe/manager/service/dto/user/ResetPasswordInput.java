@@ -25,26 +25,26 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  * @date: 2021/11/2
  */
 public class ResetPasswordInput extends AbstractApiInput {
-    @Check(require = true)
-    private String userId;
 
-    @Check(require = true)
-    private String adminPassword;
+    @Check(name = "用户唯一标识", require = true)
+    private String accountId;
 
-    public String getUserId() {
-        return userId;
+    @Check(name = "操作者的密码", require = true)
+    private String operatorPassword;
+
+    public String getAccountId() {
+        return accountId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
-
-    public String getAdminPassword() {
-        return adminPassword;
+    public String getOperatorPassword() {
+        return operatorPassword;
     }
 
-    public void setAdminPassword(String adminPassword) {
-        this.adminPassword = adminPassword;
+    public void setOperatorPassword(String operatorPassword) {
+        this.operatorPassword = operatorPassword;
     }
 }

@@ -16,25 +16,19 @@
 
 package com.welab.wefe.manager.service.dto.user;
 
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.manager.service.dto.base.PageInput;
 
 /**
- * @author yuxin.zhang
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/11/2
  */
-public class LoginInput extends AbstractApiInput {
-
-    @Check(require = true)
+public class QueryAccountInput extends PageInput {
     private String phoneNumber;
-
-    @Check(require = true)
-    private String password;
-
-    @Check(require = true, desc = "验证码标识")
-    private String key;
-
-    @Check(require = true, desc = "验证码")
-    private String code;
+    private String nickname;
+    private AuditStatus auditStatus;
+    private Boolean adminRole;
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -44,27 +38,27 @@ public class LoginInput extends AbstractApiInput {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getPassword() {
-        return password;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
-    public String getKey() {
-        return key;
+    public AuditStatus getAuditStatus() {
+        return auditStatus;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setAuditStatus(AuditStatus auditStatus) {
+        this.auditStatus = auditStatus;
     }
 
-    public String getCode() {
-        return code;
+    public Boolean getAdminRole() {
+        return adminRole;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setAdminRole(Boolean adminRole) {
+        this.adminRole = adminRole;
     }
 }

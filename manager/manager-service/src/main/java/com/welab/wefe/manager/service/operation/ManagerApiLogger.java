@@ -19,7 +19,7 @@ package com.welab.wefe.manager.service.operation;
 
 import com.welab.wefe.common.data.mongodb.entity.common.OperationLog;
 import com.welab.wefe.common.data.mongodb.repo.ManagerOperationLogMongoRepo;
-import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.AccountMongoRepo;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
@@ -53,7 +53,7 @@ public class ManagerApiLogger extends AbstractApiLogger {
 
     @Override
     protected void updateAccountLastActionTime(String accountId) {
-        Launcher.getBean(UserMongoRepo.class).updateLastActionTime(accountId);
+        Launcher.getBean(AccountMongoRepo.class).updateLastActionTime(accountId);
     }
 
 }

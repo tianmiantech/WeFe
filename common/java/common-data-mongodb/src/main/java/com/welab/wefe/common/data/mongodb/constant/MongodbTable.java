@@ -53,5 +53,5 @@ public class MongodbTable {
         public static final String DETAIL_INFO = "SmsDetailInfo";
     }
 
-    public static final String USER = "User";
+    public static final String ACCOUNT = "account";
 }

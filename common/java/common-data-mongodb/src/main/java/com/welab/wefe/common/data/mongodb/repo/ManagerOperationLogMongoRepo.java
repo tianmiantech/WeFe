@@ -3,7 +3,6 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.common.OperationLog;
-import com.welab.wefe.common.data.mongodb.entity.manager.User;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;

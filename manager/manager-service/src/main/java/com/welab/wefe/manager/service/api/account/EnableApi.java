@@ -14,36 +14,30 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.manager.service.api.account;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.user.RegisterInput;
-import com.welab.wefe.manager.service.mapper.UserMapper;
-import com.welab.wefe.manager.service.service.UserService;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.manager.service.dto.user.AccountEnableInput;
+import com.welab.wefe.manager.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
 
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-@Api(path = "user/register", name = "register", login = false)
-public class RegisterApi extends AbstractApi<RegisterInput, AbstractApiOutput> {
+@Api(path = "account/enable", name = "change account enable status")
+public class EnableApi extends AbstractApi<AccountEnableInput, AbstractApiOutput> {
     @Autowired
-    private UserService userService;
+    private AccountService accountService;
 
-    private UserMapper mUserMapper = Mappers.getMapper(UserMapper.class);
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(RegisterInput input) throws StatusCodeWithException, IOException {
-        userService.register(mUserMapper.transfer(input));
-        return success();   
+    protected ApiResult<AbstractApiOutput> handle(AccountEnableInput input) throws Exception {
+        accountService.enableUser(input.getAccountId(),input.isEnable());
+        return success();
     }
 }

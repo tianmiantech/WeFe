@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.manager.service.api.account;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -25,21 +25,21 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.manager.service.service.UserService;
+import com.welab.wefe.manager.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
  */
-@Api(path = "user/audit", name = "audit the user")
+@Api(path = "account/audit", name = "audit the account")
 public class AuditApi extends AbstractNoneOutputApi<AuditApi.Input> {
 
     @Autowired
-    private UserService userService;
+    private AccountService accountService;
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        userService.audit(input);
+        accountService.audit(input);
         return success();
     }
 
@@ -47,7 +47,7 @@ public class AuditApi extends AbstractNoneOutputApi<AuditApi.Input> {
     public static class Input extends AbstractApiInput {
 
         @Check(name = "被审核人的id", require = true)
-        private String userId;
+        private String accountId;
 
         @Check(name = "审核结果", require = true)
         private AuditStatus auditStatus;
@@ -70,12 +70,12 @@ public class AuditApi extends AbstractNoneOutputApi<AuditApi.Input> {
         //region getter/setter
 
 
-        public String getUserId() {
-            return userId;
+        public String getAccountId() {
+            return accountId;
         }
 
-        public void setUserId(String userId) {
-            this.userId = userId;
+        public void setAccountId(String accountId) {
+            this.accountId = accountId;
         }
 
         public AuditStatus getAuditStatus() {

@@ -16,39 +16,35 @@
 
 package com.welab.wefe.manager.service.dto.user;
 
-import com.welab.wefe.manager.service.dto.base.PageInput;
+import com.welab.wefe.common.fieldvalidate.StandardFieldType;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-public class QueryUserInput extends PageInput {
-    private String account;
-    private String realname;
-    private Boolean adminRole;
+public class UpdateInput extends AbstractApiInput {
+    @Check(name = "昵称")
+    private String nickname;
 
-    public String getAccount() {
-        return account;
+    @Check(name = "邮箱", type = StandardFieldType.Email)
+    private String email;
+
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
-    public String getRealname() {
-        return realname;
+    public String getEmail() {
+        return email;
     }
 
-    public void setRealname(String realname) {
-        this.realname = realname;
-    }
-
-    public Boolean getAdminRole() {
-        return adminRole;
-    }
-
-    public void setAdminRole(Boolean adminRole) {
-        this.adminRole = adminRole;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
