@@ -8,14 +8,17 @@
             @submit.prevent
         >
             <el-form-item label="请求接口：">
-                <el-input v-model="search.logInterface" clearable />
+                <el-input
+                    v-model="search.log_interface"
+                    clearable
+                />
             </el-form-item>
             <el-form-item
                 label="操作人："
                 label-width="120"
             >
                 <el-select
-                    v-model="search.operatorId"
+                    v-model="search.operator_id"
                     filterable
                     clearable
                 >
@@ -28,11 +31,14 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="起止时间:">
-                <DateTimePicker
-                    type="datetimerange"
-                    ref="dateTimePicker"
-                    valueFormat="x"
-                    clearable
+                <el-date-picker
+                    v-model="time"
+                    type="daterange"
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    format="yyyy-MM-dd"
+                    value-format="timestamp"
                     @change="datePickerChange"
                 />
             </el-form-item>
@@ -48,8 +54,8 @@
         </el-form>
 
         <el-table
-            :data="list"
             v-loading="loading"
+            :data="list"
             class="mt20"
             border
             stripe
@@ -88,14 +94,18 @@
             <el-table-column
                 label="响应信息"
                 prop="result_message"
-                min-width="100">
+                min-width="100"
+            >
                 <template v-slot="scope">
                     {{ scope.row.result_message ? scope.row.result_message : 'success' }}
                 </template>
             </el-table-column>
-            <el-table-column label="时间" width="140px">
+            <el-table-column
+                label="时间"
+                width="140px"
+            >
                 <template v-slot="scope">
-                    {{ dateFormat(scope.row.created_time) }}
+                    {{ scope.row.created_time | dateFormat }}
                 </template>
             </el-table-column>
         </el-table>
@@ -129,14 +139,16 @@
                 }],
                 datePicker: '',
                 search:     {
-                    logInterface: '',
-                    operatorId:   '',
-                    startTime:    '',
-                    endTime:      '',
+                    log_interface:          '',
+                    operator_id:            '',
+                    startTime:              '',
+                    endTime:                '',
+                    'request-from-refresh': false,
                 },
-                getListApi:   '/log/query',
+                getListApi:   '/operation_log/query',
                 fillUrlQuery: false,
                 userList:     [],
+                time:         '',
             };
         },
         mounted() {
@@ -154,14 +166,15 @@
             },
             syncUrlParams() {
                 this.search = {
-                    logInterface: '',
-                    operatorId:   '',
-                    startTime:    '',
-                    endTime:      '',
+                    log_interface:          '',
+                    operator_id:            '',
+                    startTime:              '',
+                    endTime:                '',
+                    'request-from-refresh': false,
                     ...this.$route.query,
                 };
                 if(this.search.startTime && this.search.endTime) {
-                    this.$refs['dateTimePicker'].vData.value = [this.search.startTime, this.search.endTime];
+                    this.time = [this.search.startTime, this.search.endTime];
                 }
             },
             datePickerChange(val) {
