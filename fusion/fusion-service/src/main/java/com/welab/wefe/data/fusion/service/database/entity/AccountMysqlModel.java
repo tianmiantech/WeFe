@@ -19,13 +19,11 @@ package com.welab.wefe.data.fusion.service.database.entity;
 import com.alibaba.fastjson.JSONArray;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.data.fusion.service.database.listener.AccountMysqlModelListener;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -33,6 +31,7 @@ import java.util.Date;
  */
 @Entity(name = "account")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
+@EntityListeners(AccountMysqlModelListener.class)
 public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     /**

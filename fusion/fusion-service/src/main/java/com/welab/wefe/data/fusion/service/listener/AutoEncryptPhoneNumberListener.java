@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.listener;
+package com.welab.wefe.data.fusion.service.listener;
 
-import com.welab.wefe.board.service.service.EncryptPhoneNumberService;
 import com.welab.wefe.common.util.CommentedProperties;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.data.fusion.service.service.EncryptPhoneNumberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,7 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 
 /**
  * Auto encrypt mobile phone number
@@ -41,21 +42,24 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
-        String configPath = configurableEnvironment.getProperty("config.path");
-        if (StringUtil.isEmpty(configPath)) {
+        String applicationPath = configurableEnvironment.getProperty("spring.config.location");
+        System.out.println(System.getProperty("user.dir"));
+        System.out.println(ClassUtils.getDefaultClassLoader().getResource("").getPath());
+        String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        if (StringUtil.isEmpty(applicationPath)) {
             return;
         }
         String key = "has.auto.encrypt.phone.number";
         try {
             CommentedProperties properties = new CommentedProperties();
-            properties.load(configPath);
+            properties.load(applicationPath);
             if (properties.containsKey(key)) {
                 return;
             }
             LOG.info("Start auto encrypt phone number........");
             encryptPhoneNumberService.encrypt();
             properties.append(key, "true", "Whether the mobile phone number has been automatically encrypted. The presence of this field indicates that it has been encrypted");
-            properties.store(configPath);
+            properties.store(applicationPath);
             LOG.info("End auto encrypt phone number!!!");
         } catch (Exception e) {
             LOG.error("Auto encrypt phone number exception: ", e);
