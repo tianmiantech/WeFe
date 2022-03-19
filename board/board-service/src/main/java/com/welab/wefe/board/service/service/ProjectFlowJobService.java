@@ -140,10 +140,11 @@ public class ProjectFlowJobService extends AbstractService {
                 throw new StatusCodeWithException("当前任务不包含我方数据集，无法启动。", StatusCode.PARAMETER_VALUE_INVALID);
             }
         }
-        long memberCount = jobMembers.stream().filter(x -> x.getJobRole() != JobMemberRole.arbiter).count();
-        if (memberCount < MIX_FLOW_PROMOTER_NUM && !isOotMode) {
-            throw new StatusCodeWithException("需要在【" + ComponentType.DataIO.getLabel() + "】中选择两个或两个以上的数据集", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+		long memberCount = jobMembers.stream().filter(x -> x.getJobRole() != JobMemberRole.arbiter).count();
+		if (memberCount < 2 && !isOotMode) {
+			throw new StatusCodeWithException("需要在【" + ComponentType.DataIO.getLabel() + "】中选择两个或两个以上的数据集",
+					StatusCode.PARAMETER_VALUE_INVALID);
+		}
         long promoterMemberCount = jobMembers.stream().filter(x -> x.getJobRole() == JobMemberRole.promoter).count();
         if (promoterMemberCount >= MIX_FLOW_PROMOTER_NUM && !flow.getFederatedLearningType().equals(FederatedLearningType.mix)) {
             throw new StatusCodeWithException("【选择数据集】组件参数错误，请先移除再重新添加", StatusCode.PARAMETER_VALUE_INVALID);

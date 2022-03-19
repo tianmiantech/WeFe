@@ -1,4 +1,26 @@
+/*
+ Source Server         : fusion-fat
+ Source Server Type    : MySQL
+ Source Server Version : 50720
+ Source Host           : 10.**.**.33:3306
+ Source Schema         : fusion
+
+ Target Server Type    : MySQL
+ Target Server Version : 50720
+ File Encoding         : 65001
+
+ Date: 18/03/2022 15:50:08
+*/
+
+SET NAMES utf8mb4;
+SET
+FOREIGN_KEY_CHECKS = 0;
+
+-- drop all tables
+
+-- ----------------------------
 -- account definition
+-- ----------------------------
 
 CREATE TABLE `account`
 (
@@ -23,7 +45,9 @@ CREATE TABLE `account`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号';
 
 
+-- ----------------------------
 -- bloom_filter definition
+-- ----------------------------
 
 CREATE TABLE `bloom_filter`
 (
@@ -52,7 +76,9 @@ CREATE TABLE `bloom_filter`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='布隆过滤器';
 
 
+-- ----------------------------
 -- data_set definition
+-- ----------------------------
 
 CREATE TABLE `data_set`
 (
@@ -77,7 +103,9 @@ CREATE TABLE `data_set`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='数据集';
 
 
+-- ----------------------------
 -- data_source definition
+-- ----------------------------
 
 CREATE TABLE `data_source`
 (
@@ -97,7 +125,9 @@ CREATE TABLE `data_source`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='源数据库';
 
 
+-- ----------------------------
 -- field_info definition
+-- ----------------------------
 
 CREATE TABLE `field_info`
 (
@@ -116,7 +146,9 @@ CREATE TABLE `field_info`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='加密信息';
 
 
+-- ----------------------------
 -- global_config definition
+-- ----------------------------
 
 CREATE TABLE `global_config`
 (
@@ -134,7 +166,9 @@ CREATE TABLE `global_config`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置';
 
 
+-- ----------------------------
 -- global_setting definition
+-- ----------------------------
 
 CREATE TABLE `global_setting`
 (
@@ -152,7 +186,9 @@ CREATE TABLE `global_setting`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置 全局设置，这个表永远有且只有一条数据。';
 
 
+-- ----------------------------
 -- partner definition
+-- ----------------------------
 
 CREATE TABLE `partner`
 (
@@ -168,8 +204,9 @@ CREATE TABLE `partner`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='合作方';
 
-
+-- ----------------------------
 -- task definition
+-- ----------------------------
 
 CREATE TABLE `task`
 (

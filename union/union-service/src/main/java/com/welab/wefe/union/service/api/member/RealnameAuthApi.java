@@ -65,6 +65,8 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
             if (gridFSFile == null) {
                 throw new StatusCodeWithException(StatusCode.FILE_DOES_NOT_EXIST, fileId);
             }
+
+            realNameAuthFileInfo.setFilename(gridFSFile.getFilename());
             realNameAuthFileInfo.setFileId(fileId);
             realNameAuthFileInfo.setSign(gridFSFile.getMetadata().getString("sign"));
             realnameAuthFileInfoList.add(realNameAuthFileInfo);
