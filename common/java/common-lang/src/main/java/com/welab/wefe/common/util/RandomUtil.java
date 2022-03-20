@@ -39,8 +39,6 @@ public class RandomUtil extends RandomStringUtils {
         for (int x = 0; x < len; ++x) {
             int i;
             if(x < 3) {
-                i = 0;
-            } else if(x >=3 && x < 6) {
                 i = 1;
             } else {
                 i = 2;

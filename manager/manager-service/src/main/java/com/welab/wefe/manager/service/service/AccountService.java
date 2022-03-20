@@ -103,7 +103,7 @@ public class AccountService extends AbstractAccountService {
         // Regenerate salt
         String salt = createRandomSalt();
 
-        String newPassword = RandomUtil.generateRandomPwd(8);
+        String newPassword = RandomUtil.generateRandomPwd(6);
         account.setSalt(salt);
         account.setPassword(hashPasswordWithSalt(Md5.of(newPassword),salt));
         account.setNeedUpdatePassword(true);
