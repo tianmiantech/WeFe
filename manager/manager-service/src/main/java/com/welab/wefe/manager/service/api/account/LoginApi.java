@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.account.LoginInput;
 import com.welab.wefe.manager.service.dto.account.LoginOutput;
 import com.welab.wefe.manager.service.service.AccountService;
+import com.welab.wefe.manager.service.util.ManagerSM4Util;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -44,7 +45,10 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
     protected ApiResult<LoginOutput> handle(LoginInput input) throws StatusCodeWithException {
         String token = accountService.login(input.getPhoneNumber()
                 , input.getPassword(), input.getKey(), input.getCode());
-        Account account = accountMongoRepo.findByPhoneNumber(input.getPhoneNumber());
+        Account account = accountMongoRepo.findByPhoneNumber(ManagerSM4Util.encryptPhoneNumber(input.getPhoneNumber()));
+        if (null != account) {
+            account.setPhoneNumber(ManagerSM4Util.decryptPhoneNumber(account.getPhoneNumber()));
+        }
         LoginOutput output = new LoginOutput(token, account);
         return success(output);
     }
