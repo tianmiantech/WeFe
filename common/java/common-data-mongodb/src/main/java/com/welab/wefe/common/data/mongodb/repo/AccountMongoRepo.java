@@ -172,6 +172,10 @@ public class AccountMongoRepo extends AbstractMongoRepo {
         return new PageOutput<>(pageIndex, count, pageSize, list);
     }
 
+    public List<Account> findAll() {
+        return mongoManagerTemplate.findAll(Account.class);
+    }
+
     public void updateLastActionTime(String userId) {
         Query query = new QueryBuilder().append("userId", userId).build();
         Update update = new UpdateBuilder()

@@ -33,12 +33,14 @@ import com.welab.wefe.manager.service.api.account.AuditApi;
 import com.welab.wefe.manager.service.dto.account.QueryAccountInput;
 import com.welab.wefe.manager.service.dto.account.UpdateInput;
 import com.welab.wefe.manager.service.mapper.AccountMapper;
+import com.welab.wefe.manager.service.util.ManagerSM4Util;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author yuxin.zhang
@@ -53,7 +55,7 @@ public class AccountService extends AbstractAccountService {
     private AccountMapper mAccountMapper = Mappers.getMapper(AccountMapper.class);
 
     public void register(Account account) throws StatusCodeWithException {
-        boolean isExist = accountMongoRepo.checkAccountIsExist(account.getPhoneNumber());
+        boolean isExist = accountMongoRepo.checkAccountIsExist(ManagerSM4Util.encryptPhoneNumber(account.getPhoneNumber()));
         if (isExist) {
             throw new StatusCodeWithException("该账号已存在", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -73,7 +75,7 @@ public class AccountService extends AbstractAccountService {
         } else {
             account.setAuditStatus(AuditStatus.auditing);
         }
-        accountMongoRepo.save(account);
+        accountMongoRepo.save(encryptPhoneNumber(account));
     }
 
     @Override
@@ -92,7 +94,7 @@ public class AccountService extends AbstractAccountService {
         if (!CurrentAccount.isAdmin()) {
             throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
         }
-        Account account = accountMongoRepo.findByAccountId(accountId);
+        Account account = decryptPhoneNumber(accountMongoRepo.findByAccountId(accountId));
         if (account.getSuperAdminRole()) {
             throw new StatusCodeWithException("不能重置超级管理员密码", StatusCode.PERMISSION_DENIED);
         }
@@ -113,7 +115,7 @@ public class AccountService extends AbstractAccountService {
         account.setNeedUpdatePassword(true);
         account.setUpdatedBy(CurrentAccount.id());
         account.setUpdateTime(System.currentTimeMillis());
-        accountMongoRepo.save(account);
+        accountMongoRepo.save(encryptPhoneNumber(account));
         CurrentAccount.logout(accountId);
         return newPassword;
     }
@@ -186,25 +188,30 @@ public class AccountService extends AbstractAccountService {
         accountMongoRepo.update(CurrentAccount.id(), input.getNickname(), input.getEmail());
     }
 
-    public PageOutput<Account> findList(QueryAccountInput input) {
-        return accountMongoRepo.findList(
-                input.getPhoneNumber(),
+    public PageOutput<Account> findList(QueryAccountInput input) throws StatusCodeWithException {
+        PageOutput<Account> accountPageOutput = accountMongoRepo.findList(
+                ManagerSM4Util.encryptPhoneNumber(input.getPhoneNumber()),
                 input.getNickname(),
                 input.getAdminRole(),
                 input.getPageIndex(),
                 input.getPageSize()
         );
+        List<Account> list = accountPageOutput.getList();
+        for(Account account : list) {
+            decryptPhoneNumber(account);
+        }
+        return accountPageOutput;
     }
 
     @Override
-    public AccountInfo getAccountInfo(String phoneNumber) {
-        Account account = accountMongoRepo.findByPhoneNumber(phoneNumber);
+    public AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException {
+        Account account = decryptPhoneNumber(accountMongoRepo.findByPhoneNumber(ManagerSM4Util.encryptPhoneNumber(phoneNumber)));
         return toAccountInfo(account);
     }
 
     @Override
-    public AccountInfo getSuperAdmin() {
-        Account account = accountMongoRepo.getSuperAdmin();
+    public AccountInfo getSuperAdmin() throws StatusCodeWithException {
+        Account account = decryptPhoneNumber(accountMongoRepo.getSuperAdmin());
         return toAccountInfo(account);
     }
 
@@ -229,5 +236,21 @@ public class AccountService extends AbstractAccountService {
         info.setHistoryPasswordList(model.getHistoryPasswordList());
 
         return info;
+    }
+
+    private Account encryptPhoneNumber(Account account) throws StatusCodeWithException {
+        if(null == account) {
+            return null;
+        }
+        account.setPhoneNumber(ManagerSM4Util.encryptPhoneNumber(account.getPhoneNumber()));
+        return account;
+    }
+
+    private Account decryptPhoneNumber(Account account) throws StatusCodeWithException {
+        if(null == account) {
+            return null;
+        }
+        account.setPhoneNumber(ManagerSM4Util.decryptPhoneNumber(account.getPhoneNumber()));
+        return account;
     }
 }
