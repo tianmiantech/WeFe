@@ -8,7 +8,7 @@
                         label="姓名"
                         required
                     >
-                        <el-input v-model.trim="accountInfo.realname" />
+                        <el-input v-model.trim="accountInfo.nickname" />
                     </el-form-item>
                     <el-form-item
                         label="邮箱"
@@ -18,7 +18,7 @@
                     </el-form-item>
                     <el-button
                         type="primary"
-                        :disabled="!accountInfo.realname || !accountInfo.email"
+                        :disabled="!accountInfo.nickname || !accountInfo.email"
                         @click="updateUserInfo"
                     >
                         提交
@@ -137,19 +137,19 @@
             ...mapGetters(['userInfo']),
         },
         created() {
-            this.accountInfo.realname = this.userInfo.realname;
+            this.accountInfo.nickname = this.userInfo.nickname;
             this.accountInfo.email = this.userInfo.email;
         },
         methods: {
             async updateUserInfo(event) {
-                if (this.accountInfo.realname === '') {
+                if (this.accountInfo.nickname === '') {
                     return this.$message.error('姓名不能为空!');
                 } else if(this.accountInfo.email === '') {
                     return this.$message.error('邮箱不能为空!');
                 }
 
                 const { code } = await this.$http.post({
-                    url:      '/user/update',
+                    url:      '/account/update',
                     data:     this.accountInfo,
                     btnState: {
                         target: event,
@@ -188,11 +188,25 @@
                             return this.$message.error('密码强度太弱');
                         }
 
+                        const oldPassword = [
+                            this.form.phone,
+                            this.form.old_password,
+                            this.form.phone,
+                            this.form.phone.substr(0, 3),
+                            this.form.old_password.substr(this.form.old_password.length - 3),
+                        ].join('');
+                        const password = [
+                            this.form.phone,
+                            this.form.new_password,
+                            this.form.phone,
+                            this.form.phone.substr(0, 3),
+                            this.form.new_password.substr(this.form.new_password.length - 3),
+                        ].join('');
                         const { code } = await this.$http.post({
-                            url:  '/user/change/password',
+                            url:  '/account/update_password',
                             data: {
-                                oldPassword: md5(this.form.old_password),
-                                newPassword: md5(this.form.new_password),
+                                oldPassword: md5(oldPassword),
+                                newPassword: md5(password),
                             },
                         });
 

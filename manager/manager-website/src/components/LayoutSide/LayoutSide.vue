@@ -4,9 +4,9 @@
             <img style="width:60px;" src="../../assets/images/x-logo.png" alt="">
             <p
                 class="member-name mt10"
-                :title="userInfo.realname"
+                :title="userInfo.nickname"
             >
-                {{ userInfo.realname }}
+                {{ userInfo.nickname }}
             </p>
         </div>
         <el-menu

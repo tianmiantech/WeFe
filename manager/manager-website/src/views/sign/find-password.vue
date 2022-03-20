@@ -14,36 +14,78 @@
             >
                 <el-form-item
                     label="注册时的手机号"
-                    prop="phone"
                     :rules="phoneRules"
+                    prop="phone"
                 >
                     <el-input
                         v-model="form.phone"
-                        placeholder="注册时的手机号码"
                         maxlength="11"
                         type="tel"
                         clearable
                     />
                 </el-form-item>
                 <el-form-item
-                    label="注册时的邮箱"
-                    prop="email"
-                    :rules="emailRules"
+                    label="验证码"
+                    :rules="codeRules"
+                    prop="smsCode"
                 >
                     <el-input
-                        v-model="form.email"
-                        placeholder="注册时的邮箱"
-                        maxlength="60"
-                        type="text"
+                        v-model="form.smsCode"
+                        class="form-code"
+                        maxlength="6"
                         clearable
+                    >
+                        <template v-slot:append>
+                            <el-button
+                                type="primary"
+                                class="smsCount text-c"
+                                :disabled="form.phone.length !== 11 || smsCount < 121"
+                                @click="getSmsCode"
+                            >
+                                {{ smsCount > 120 ? '发送验证码' : `${smsCount}秒后重发` }}
+                            </el-button>
+                        </template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item
+                    label="新密码"
+                    prop="password"
+                    :rules="passwordRules"
+                >
+                    <el-input
+                        v-model="form.password"
+                        type="password"
+                        maxlength="30"
+                        clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
+                    />
+                </el-form-item>
+                <el-form-item
+                    label="确认新密码"
+                    prop="passwordAgain"
+                    :rules="passwordAgain"
+                    clearable
+                >
+                    <el-input
+                        v-model="form.passwordAgain"
+                        placeholder="再次输入密码"
+                        type="password"
+                        maxlength="30"
+                        clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
                 <el-divider />
                 <div class="sign-action">
-                    <router-link class="float-left mt5" :to="{name: 'login'}">立即登录</router-link>
+                    <router-link class="float-left" :to="{name: 'login'}">立即登录</router-link>
                     <el-button
+                        v-loading="submitting"
+                        style="width:80px;"
                         type="primary"
-                        class="ml10"
                         @click="submit"
                     >
                         提交
@@ -55,13 +97,21 @@
 </template>
 
 <script>
+    import md5 from 'js-md5';
+    import { mapGetters } from 'vuex';
+    import { PASSWORDREG } from '@js/const/reg';
+    import { baseLogout } from '@src/router/auth';
+
     export default {
         data() {
             return {
                 form: {
-                    old_password: '',
-                    new_password: '',
+                    phone:         '',
+                    smsCode:       '',
+                    password:      '',
+                    passwordAgain: '',
                 },
+                smsCount:   121,
                 phoneRules: [
                     { required: true, message: '请输入你的手机号' },
                     {
@@ -75,33 +125,116 @@
                         trigger: 'blur',
                     },
                 ],
+                codeRules: [
+                    { required: true, message: '请输入短信验证码' },
+                ],
                 passwordRules: [
-                    { required: true, message: '请输入你的用户名' },
-                    { min: 4, message: '用户名最少4位' },
+                    {
+                        required: true,
+                        message:  '请输入你的密码',
+                    },
+                    {
+                        validator: this.passwordType,
+                        message:   '密码至少8位, 需包含数字,字母,特殊字符任意组合',
+                        trigger:   'blur',
+                    },
                 ],
-                emailRules: [
-                    { required: true, message: '请输入注册时的邮箱' },
+                passwordAgain: [
+                    {
+                        required: true,
+                        message:  '请再次输入密码',
+                        trigger:  'blur',
+                    },
+                    {
+                        min:     8,
+                        message: '密码至少8位',
+                        trigger: 'blur',
+                    },
+                    {
+                        validator: this.passwordCheck,
+                        message:   '两次密码不一致',
+                        trigger:   'blur',
+                    },
                 ],
+                submitting: false,
             };
         },
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
         methods: {
+            passwordType(rule, value, callback) {
+                if (PASSWORDREG.test(value)) {
+                    callback();
+                } else {
+                    callback(false);
+                }
+            },
+            passwordCheck(rule, value, callback) {
+                if (value === this.form.password) {
+                    callback();
+                } else {
+                    callback(false);
+                }
+            },
+            async getSmsCode(event) {
+                const { code, data } = await this.$http.post({
+                    url: '/account/verification_code_send_channel',
+                });
+
+                if(code === 0 && data && data.channel) {
+                    const response = await this.$http.post({
+                        url:  '/account/send_forget_password_code',
+                        data: {
+                            phoneNumber: this.form.phone,
+                        },
+                        btnState: {
+                            target: event,
+                        },
+                    });
+
+                    if(response.code === 0) {
+                        if(data.channel === 'sms') {
+                            this.$alert('验证码以短信方式发送，请注意查看手机。验证码有效期 2分钟', '提示');
+                        } else if (data.channel === 'email') {
+                            this.$alert('验证码以邮件方式发送，请注意查看邮件。验证码有效期 2分钟', '提示');
+                        }
+                        this.smsCount--;
+                        const timer = setInterval(() => {
+                            this.smsCount--;
+                            if (this.smsCount < 0) {
+                                clearInterval(timer);
+                                this.smsCount = 121;
+                            }
+                        }, 1000);
+                    }/*  else if(response.code === 1){
+                        this.$alert('发送验证码异常: 无法向该号码发送验证码。');
+                    } */
+                }
+            },
             submit() {
                 this.$refs['sign-form'].validate(async valid => {
                     if(valid) {
-                        const { code, message } = await this.$http.post({
-                            url:  '/account/update_password',
-                            data: this.form,
+                        const password = [
+                            this.userInfo.phone_number,
+                            this.form.new_password,
+                            this.userInfo.phone_number,
+                            this.userInfo.phone_number.substr(0, 3),
+                            this.form.new_password.substr(this.form.new_password.length - 3),
+                        ].join('');
+
+                        const { code } = await this.$http.post({
+                            url:  '/account/forget_password',
+                            data: {
+                                phoneNumber:         this.form.phone,
+                                smsVerificationCode: this.form.smsCode,
+                                password:            md5(password),
+                            },
                         });
 
                         if(code === 0) {
+                            baseLogout({ redirect: false });
                             this.$message.success('密码更新成功! 请重新登录!');
-                            this.$store.commit('UPDATE_USERINFO', {});
-
-                            this.$router.replace({
-                                name: 'login',
-                            });
-                        } else {
-                            this.$message.error(message);
                         }
                     } else {
                         this.$message.error(valid.message);

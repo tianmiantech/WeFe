@@ -57,7 +57,7 @@
             >
                 查询
             </el-button>
-            <div>
+            <div class="mb20">
                 <el-button
                     v-if="userInfo.super_admin_role"
                     type="danger"

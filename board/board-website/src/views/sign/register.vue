@@ -130,9 +130,9 @@
                 <el-divider />
                 <el-button
                     v-loading="submitting"
-                    type="primary"
-                    native-type="submit"
                     class="btn-submit ml10"
+                    native-type="submit"
+                    type="primary"
                     round
                     @click="submit"
                 >
