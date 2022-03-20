@@ -24,6 +24,7 @@ import com.welab.wefe.common.data.mongodb.repo.AccountMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.util.RandomUtil;
+import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
@@ -104,8 +105,11 @@ public class AccountService extends AbstractAccountService {
         String salt = createRandomSalt();
 
         String newPassword = RandomUtil.generateRandomPwd(6);
+
+        String websitePassword = account.getPhoneNumber() + newPassword + account.getPhoneNumber() + account.getPhoneNumber().substring(0, 3) + newPassword.substring(newPassword.length() - 3);
+
         account.setSalt(salt);
-        account.setPassword(hashPasswordWithSalt(Md5.of(newPassword),salt));
+        account.setPassword(hashPasswordWithSalt(Md5.of(websitePassword),salt));
         account.setNeedUpdatePassword(true);
         account.setUpdatedBy(CurrentAccount.id());
         account.setUpdateTime(System.currentTimeMillis());
@@ -113,6 +117,8 @@ public class AccountService extends AbstractAccountService {
         CurrentAccount.logout(accountId);
         return newPassword;
     }
+
+
 
     public void enableUser(String accountId, boolean enable) throws StatusCodeWithException {
 
