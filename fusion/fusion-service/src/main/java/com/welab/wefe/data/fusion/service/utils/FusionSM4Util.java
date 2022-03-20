@@ -61,6 +61,9 @@ public class FusionSM4Util {
     }
 
     public static String encryptCommonText(String text) throws StatusCodeWithException {
+        if(StringUtil.isEmpty(text)) {
+            return text;
+        }
         try {
             return encrypt(text);
         } catch (Exception e) {
@@ -71,6 +74,9 @@ public class FusionSM4Util {
     }
 
     public static String decryptCommonText(String text) throws StatusCodeWithException {
+        if(StringUtil.isEmpty(text)) {
+            return text;
+        }
         try {
             return decrypt(text);
         } catch (Exception e) {
