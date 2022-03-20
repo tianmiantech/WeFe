@@ -70,7 +70,7 @@ public class ManagerService implements ApplicationContextAware {
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if(CurrentAccount.get() != null && CurrentAccount.get().isNeedUpdatePassword()){
-                        if(!annotation.path().equals("user/change/password")) {
+                        if(!annotation.path().equals("account/update_password") || !annotation.path().equals("account/login")) {
                             throw new StatusCodeWithException(StatusCode.UPDATE_PASWWORD);
                         }
                     }
