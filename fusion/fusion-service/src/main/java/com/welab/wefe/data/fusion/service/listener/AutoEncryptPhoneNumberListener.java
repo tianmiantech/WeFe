@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,10 +33,16 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
     private static final Logger LOG = LoggerFactory.getLogger(AutoEncryptPhoneNumberListener.class);
 
     @Autowired
+    private ConfigurableEnvironment configurableEnvironment;
+
+    @Autowired
     private EncryptPhoneNumberService encryptPhoneNumberService;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
+        if (configurableEnvironment.containsProperty("has.auto.encrypt.phone.number")) {
+            return;
+        }
         try {
             LOG.info("Start auto encrypt phone number........");
             encryptPhoneNumberService.encrypt();
