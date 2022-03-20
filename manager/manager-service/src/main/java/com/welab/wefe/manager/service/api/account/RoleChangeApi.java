@@ -32,14 +32,14 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/11/5
  */
-@Api(path = "user/role/change", name = "user role change")
-public class UserRoleChangeApi extends AbstractApi<AccountRoleChangeInput, AbstractApiOutput> {
+@Api(path = "account/role/change", name = "account role change")
+public class RoleChangeApi extends AbstractApi<AccountRoleChangeInput, AbstractApiOutput> {
     @Autowired
     private AccountService accountService;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(AccountRoleChangeInput input) throws StatusCodeWithException, IOException {
-        accountService.changeUserRole(input.getUserId(), input.isAdminRole());
+        accountService.changeAccountRole(input.getAccountId(), input.isAdminRole());
         return success();
     }
 }

@@ -28,6 +28,7 @@ import java.util.Date;
  * @author yuxin.zhang
  */
 public class QueryAccountOutput extends AbstractApiOutput {
+    private String accountId;
     @Check(name = "手机号")
     private String phoneNumber;
 
@@ -76,6 +77,14 @@ public class QueryAccountOutput extends AbstractApiOutput {
 
     //region getter/setter
 
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
+    }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;

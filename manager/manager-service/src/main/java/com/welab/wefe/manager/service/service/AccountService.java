@@ -169,11 +169,11 @@ public class AccountService extends AbstractAccountService {
     }
 
 
-    public void changeUserRole(String userId, boolean adminRole) throws StatusCodeWithException {
+    public void changeAccountRole(String accountId, boolean adminRole) throws StatusCodeWithException {
         if (!CurrentAccount.isSuperAdmin()) {
             throw new StatusCodeWithException("非超级管理员无法操作。", StatusCode.PERMISSION_DENIED);
         }
-        accountMongoRepo.changeAdminRole(userId, adminRole);
+        accountMongoRepo.changeAdminRole(accountId, adminRole);
     }
 
     public void update(UpdateInput input) {

@@ -33,7 +33,7 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-@Api(path = "user/change/password", name = "password change")
+@Api(path = "super/admin/change", name = "Super administrator change")
 public class SuperAdminChangeApi extends AbstractApi<SuperAdminChangeApi.Input, AbstractApiOutput> {
     @Autowired
     private AccountService accountService;

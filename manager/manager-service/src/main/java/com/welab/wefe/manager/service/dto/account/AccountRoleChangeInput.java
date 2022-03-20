@@ -26,16 +26,16 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  */
 public class AccountRoleChangeInput extends AbstractApiInput {
     @Check(require = true)
-    private String userId;
+    private String accountId;
     @Check(require = true)
     private boolean adminRole;
 
-    public String getUserId() {
-        return userId;
+    public String getAccountId() {
+        return accountId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
     public boolean isAdminRole() {
