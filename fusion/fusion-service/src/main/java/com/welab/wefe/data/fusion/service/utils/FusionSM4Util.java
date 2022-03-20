@@ -79,6 +79,18 @@ public class FusionSM4Util {
         }
     }
 
+    public static boolean isEncryptText(String text) {
+        if (StringUtil.isEmpty(text)) {
+            return false;
+        }
+        try {
+            decrypt(text);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private static String encrypt(String plaintext) throws Exception {
         Config config = Launcher.CONTEXT.getBean(Config.class);
         return SM4Util.encrypt(config.getSm4SecretKey(), plaintext);

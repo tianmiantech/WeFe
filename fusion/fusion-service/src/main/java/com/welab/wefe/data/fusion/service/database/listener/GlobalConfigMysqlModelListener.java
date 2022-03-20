@@ -57,7 +57,9 @@ public class GlobalConfigMysqlModelListener {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
             if (BaseGlobalConfigService.Group.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
-                model.setValue(FusionSM4Util.decryptCommonText(model.getValue()));
+                if (FusionSM4Util.isEncryptText(model.getValue())) {
+                    model.setValue(FusionSM4Util.decryptCommonText(model.getValue()));
+                }
             }
         }
     }
