@@ -50,6 +50,9 @@ public class QueryAccountOutput extends AbstractApiOutput {
      * 是否已注销
      */
     private boolean cancelled;
+
+    private boolean needUpdatePassword;
+
     /**
      * 最后活动时间
      */
@@ -144,6 +147,14 @@ public class QueryAccountOutput extends AbstractApiOutput {
 
     public void setLastActionTime(Date lastActionTime) {
         this.lastActionTime = lastActionTime;
+    }
+
+    public boolean isNeedUpdatePassword() {
+        return needUpdatePassword;
+    }
+
+    public void setNeedUpdatePassword(boolean needUpdatePassword) {
+        this.needUpdatePassword = needUpdatePassword;
     }
 
     //endregion
