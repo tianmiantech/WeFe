@@ -122,6 +122,9 @@
                                     type="password"
                                     placeholder="请输入密码"
                                     autocomplete="new-password"
+                                    @paste.prevent
+                                    @copy.prevent
+                                    @contextmenu.prevent
                                 >
                                     <template #suffix>
                                         <i

@@ -70,6 +70,13 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
+                    />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.password"
                     />
                 </el-form-item>
                 <el-form-item
@@ -83,6 +90,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
                     />
                 </el-form-item>
                 <el-form-item
@@ -266,6 +276,9 @@
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
                         // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
                         const password = [
                             this.form.phone,
                             this.form.password,
@@ -296,8 +309,8 @@
                     } else {
                         this.getImgCode();
                     }
-                    this.submitting = false;
                 });
+                this.submitting = false;
             },
         },
     };

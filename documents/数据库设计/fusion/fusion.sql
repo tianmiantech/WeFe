@@ -29,7 +29,7 @@ CREATE TABLE `account`
     `created_time`     datetime(6) NOT NULL COMMENT '创建时间',
     `updated_by`       varchar(32)  DEFAULT NULL COMMENT '更新人',
     `updated_time`     datetime(6) DEFAULT NULL COMMENT '更新时间',
-    `phone_number`     varchar(32)  NOT NULL COMMENT '手机号',
+    `phone_number`     varchar(200)  NOT NULL COMMENT '手机号',
     `password`         varchar(128) NOT NULL COMMENT '密码',
     `salt`             varchar(128) NOT NULL COMMENT '盐',
     `nickname`         varchar(32)  NOT NULL COMMENT '昵称',

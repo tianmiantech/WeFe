@@ -46,7 +46,7 @@
                     @command="handleCommand"
                 >
                     <span class="el-dropdown-link">
-                        <strong>{{ userInfo.account }}</strong>
+                        <strong>{{ userInfo.nickname }}</strong>
                         <i class="el-icon-arrow-down" />
                     </span>
                     <template #dropdown>

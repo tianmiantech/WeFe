@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.util;
+package com.welab.wefe.common.util;
 
-import com.welab.wefe.common.util.FileUtil;
-import com.welab.wefe.common.util.StringUtil;
-
-import java.io.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 /**

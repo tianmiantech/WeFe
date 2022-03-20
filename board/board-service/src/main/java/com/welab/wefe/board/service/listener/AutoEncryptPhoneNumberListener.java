@@ -17,7 +17,7 @@
 package com.welab.wefe.board.service.listener;
 
 import com.welab.wefe.board.service.service.EncryptPhoneNumberService;
-import com.welab.wefe.board.service.util.CommentedProperties;
+import com.welab.wefe.common.util.CommentedProperties;
 import com.welab.wefe.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,6 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
         }
         String key = "has.auto.encrypt.phone.number";
         try {
-
             CommentedProperties properties = new CommentedProperties();
             properties.load(configPath);
             if (properties.containsKey(key)) {

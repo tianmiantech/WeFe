@@ -526,6 +526,9 @@
                         placeholder="password"
                         type="password"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     ></el-input>
                 </el-form-item>
                 <el-form-item>

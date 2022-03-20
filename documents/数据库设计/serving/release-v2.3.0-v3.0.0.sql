@@ -199,3 +199,9 @@ CREATE TABLE `operator_log` (
 ALTER TABLE `account` ADD COLUMN `cancelled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销' AFTER `updated_time`;
 ALTER TABLE `account` ADD COLUMN `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间' AFTER `cancelled`;
 ALTER TABLE `account` ADD COLUMN `history_password_list` text NULL COMMENT '历史曾用密码' AFTER `last_action_time`;
+
+-- -------------------------------------
+-- 修改相关表手机号字段长度
+-- author: aaron.li
+-- -------------------------------------
+ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);

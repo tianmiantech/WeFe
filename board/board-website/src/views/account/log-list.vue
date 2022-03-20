@@ -87,10 +87,23 @@
             />
             <el-table-column
                 label="响应信息"
-                prop="result_message"
-                min-width="100">
+                min-width="160"
+            >
                 <template v-slot="scope">
-                    {{ scope.row.result_message ? scope.row.result_message : 'success' }}
+                    <template v-if="scope.row.response_message">
+                        <p>{{ scope.row.response_message.length > 100 ? scope.row.response_message.substring(0, 101) + '...' : scope.row.response_message }}</p>
+                        <el-button
+                            v-if="scope.row.response_message.length > 100"
+                            type="primary"
+                            size="mini"
+                            @click="checkLog($event, scope.row)"
+                        >
+                            查看更多
+                        </el-button>
+                    </template>
+                    <template v-else>
+                        success
+                    </template>
                 </template>
             </el-table-column>
             <el-table-column label="时间" width="140px">
@@ -129,10 +142,11 @@
                 }],
                 datePicker: '',
                 search:     {
-                    logInterface: '',
-                    operatorId:   '',
-                    startTime:    '',
-                    endTime:      '',
+                    logInterface:           '',
+                    operatorId:             '',
+                    startTime:              '',
+                    endTime:                '',
+                    'request-from-refresh': false,
                 },
                 getListApi:   '/log/query',
                 fillUrlQuery: false,
@@ -154,10 +168,11 @@
             },
             syncUrlParams() {
                 this.search = {
-                    logInterface: '',
-                    operatorId:   '',
-                    startTime:    '',
-                    endTime:      '',
+                    logInterface:           '',
+                    operatorId:             '',
+                    startTime:              '',
+                    endTime:                '',
+                    'request-from-refresh': false,
                     ...this.$route.query,
                 };
                 if(this.search.startTime && this.search.endTime) {
@@ -172,6 +187,11 @@
                     this.search.startTime = '';
                     this.search.endTime = '';
                 }
+            },
+            checkLog(event, row) {
+                this.$alert(row.response_message, '响应信息', {
+                    confirmButtonText: '确定',
+                });
             },
         },
     };
