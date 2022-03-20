@@ -72,12 +72,12 @@
     import md5 from 'js-md5';
     import { mapGetters } from 'vuex';
     import { PASSWORDREG } from '@js/const/reg';
+    import { baseLogout } from '@src/router/auth';
 
     export default {
         data() {
             return {
                 form: {
-                    account:         '',
                     old_password:    '',
                     new_password:    '',
                     repeat_password: '',
@@ -111,11 +111,6 @@
         computed: {
             ...mapGetters(['userInfo']),
         },
-        /* created() {
-            const { account } = this.$route.query;
-
-            this.form.account = account;
-        }, */
         methods: {
             passwordType(rule, value, callback) {
                 if (PASSWORDREG.test(value)) {
@@ -138,19 +133,31 @@
                             return this.$message.error('密码强度太弱');
                         }
 
+                        const oldPassword = [
+                            this.userInfo.phone_number,
+                            this.form.old_password,
+                            this.userInfo.phone_number,
+                            this.userInfo.phone_number.substr(0, 3),
+                            this.form.old_password.substr(this.form.old_password.length - 3),
+                        ].join('');
+                        const password = [
+                            this.userInfo.phone_number,
+                            this.form.new_password,
+                            this.userInfo.phone_number,
+                            this.userInfo.phone_number.substr(0, 3),
+                            this.form.new_password.substr(this.form.new_password.length - 3),
+                        ].join('');
                         const { code } = await this.$http.post({
-                            url:  '/user/change/password',
+                            url:  '/account/update_password',
                             data: {
-                                oldPassword: md5(this.form.old_password),
-                                newPassword: md5(this.form.new_password),
+                                oldPassword: md5(oldPassword),
+                                newPassword: md5(password),
                             },
                         });
 
                         if(code === 0) {
+                            baseLogout({ redirect: false });
                             this.$message.success('密码修改成功! 请重新登录');
-                            this.$router.replace({
-                                name: 'login',
-                            });
                         }
                     }
                 });

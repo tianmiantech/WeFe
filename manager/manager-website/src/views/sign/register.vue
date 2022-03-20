@@ -24,24 +24,27 @@
                 @submit.prevent
             >
                 <el-form-item
-                    prop="account"
-                    :rules="accountRules"
+                    prop="phone"
+                    :rules="phoneRules"
                 >
                     <el-input
-                        v-model.trim="form.account"
-                        placeholder="用户名"
-                        maxlength="32"
+                        v-model.trim="form.phone"
+                        placeholder="手机号"
+                        maxlength="11"
+                        id="username"
+                        type="tel"
                         clearable
                     />
                 </el-form-item>
                 <el-form-item
-                    prop="realname"
-                    :rules="realnameRules"
+                    prop="nickname"
+                    :rules="nicknameRules"
                 >
                     <el-input
-                        v-model.trim="form.realname"
-                        placeholder="姓名"
-                        maxlength="32"
+                        v-model.trim="form.nickname"
+                        placeholder="用户名"
+                        maxlength="40"
+                        type="text"
                         clearable
                     />
                 </el-form-item>
@@ -52,7 +55,7 @@
                     <el-input
                         v-model.trim="form.email"
                         placeholder="邮箱"
-                        maxlength="32"
+                        maxlength="60"
                         type="text"
                         clearable
                     />
@@ -127,10 +130,9 @@
                 <el-divider />
                 <el-button
                     v-loading="submitting"
-                    size="medium"
-                    type="primary"
-                    native-type="submit"
                     class="btn-submit ml10"
+                    native-type="submit"
+                    type="primary"
                     round
                     @click="submit"
                 >
@@ -152,19 +154,30 @@
                 form:       {
                     terms:         false,
                     email:         '',
-                    account:       '',
-                    realname:      '',
+                    phone:         '',
+                    nickname:      '',
                     password:      '',
                     passwordAgain: '',
                     code:          '',
                     key:           '',
                 },
-                imgCode:      '',
-                termsDialog:  false,
-                accountRules: [
+                imgCode:     '',
+                termsDialog: false,
+                phoneRules:  [
                     {
                         required: true,
-                        message:  '请输入用户名',
+                        message:  '请输入你的手机号',
+                    },
+                    {
+                        validator: (rule, value, callback) => {
+                            if (/^1[3-9]\d{9}/.test(value)) {
+                                callback();
+                            } else {
+                                callback(false);
+                            }
+                        },
+                        message: '请输入正确的手机号',
+                        trigger: 'blur',
                     },
                 ],
                 emailRules: [
@@ -179,7 +192,7 @@
                         trigger:   'blur',
                     },
                 ],
-                realnameRules: [
+                nicknameRules: [
                     {
                         required: true,
                         message:  '请输入你的姓名',
@@ -227,7 +240,7 @@
         },
         methods: {
             async getImgCode() {
-                const { code, data } = await this.$http.get('/user/captcha');
+                const { code, data } = await this.$http.get('/account/captcha');
 
                 if (code === 0) {
                     this.imgCode = data.image;
@@ -266,15 +279,22 @@
                         if(this.$refs['password-strength'].pwStrength < 3) {
                             return this.$message.error('密码强度太弱');
                         }
+                        const password = [
+                            this.form.phone,
+                            this.form.password,
+                            this.form.phone,
+                            this.form.phone.substr(0, 3),
+                            this.form.password.substr(this.form.password.length - 3),
+                        ].join('');
                         const { code } = await this.$http.post({
-                            url:  '/user/register',
+                            url:  '/account/register',
                             data: {
-                                email:    this.form.email,
-                                account:  this.form.account,
-                                realname: this.form.realname,
-                                password: md5(this.form.password),
-                                key:      this.form.key,
-                                code:     this.form.code,
+                                email:        this.form.email,
+                                phone_number: this.form.phone,
+                                nickname:     this.form.nickname,
+                                password:     md5(password),
+                                key:          this.form.key,
+                                code:         this.form.code,
                             },
                         });
 

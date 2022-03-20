@@ -48,13 +48,14 @@
                         @submit.prevent
                     >
                         <el-form-item
-                            prop="account"
-                            :rules="accountRules"
+                            prop="phone"
+                            :rules="phoneRules"
                         >
                             <el-input
-                                v-model="form.account"
-                                placeholder="用户名"
-                                maxlength="32"
+                                v-model="form.phone"
+                                placeholder="手机号"
+                                maxlength="11"
+                                type="tel"
                                 clearable
                             />
                         </el-form-item>
@@ -139,21 +140,21 @@
                 submitting: false,
                 form:       {
                     password: '',
-                    account:  '',
+                    phone:    '',
                     code:     '',
                     key:      '',
                 },
-                imgCode:      '',
-                accountRules: [
-                    { required: true, message: '请输入用户名' },
+                imgCode:    '',
+                phoneRules: [
+                    { required: true, message: '请输入你的手机号' },
                     {
-                        /* validator: (rule, value, callback) => {
+                        validator: (rule, value, callback) => {
                             if (/^1[3-9]\d{9}/.test(value)) {
                                 callback();
                             } else {
                                 callback(new Error('请输入正确的手机号'));
                             }
-                        }, */
+                        },
                         trigger: 'blur',
                     },
                 ],
@@ -166,7 +167,7 @@
         },
         methods: {
             async getImgCode() {
-                const { code, data } = await this.$http.get('/user/captcha');
+                const { code, data } = await this.$http.get('/account/captcha');
 
                 if (code === 0) {
                     this.imgCode = data.image;
@@ -180,13 +181,20 @@
                 this.submitting = true;
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
+                        const password = [
+                            this.form.phone,
+                            this.form.password,
+                            this.form.phone,
+                            this.form.phone.substr(0, 3),
+                            this.form.password.substr(this.form.password.length - 3),
+                        ].join('');
                         const { code, data } = await this.$http.post({
-                            url:  '/user/login',
+                            url:  '/account/login',
                             data: {
-                                code:     this.form.code,
-                                account:  this.form.account,
-                                password: md5(this.form.password),
-                                key:      this.form.key,
+                                phone_number: this.form.phone,
+                                password:     md5(password),
+                                key:          this.form.key,
+                                code:         this.form.code,
                             },
                             btnState: {
                                 target: event,
@@ -195,8 +203,9 @@
 
                         if (code === 0) {
                             this.$store.commit('UPDATE_USERINFO', data);
+                            this.$message.success(data.need_update_password ? '密码等级太弱需修改密码!' : '登录成功!');
                             this.$router.replace({
-                                name: 'index',
+                                name: data.need_update_password ? 'change-password' : 'index',
                             });
                         } else {
                             this.getImgCode();

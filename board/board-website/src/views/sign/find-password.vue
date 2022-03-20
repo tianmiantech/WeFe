@@ -27,6 +27,7 @@
                 <el-form-item
                     label="验证码"
                     :rules="codeRules"
+                    prop="smsCode"
                 >
                     <el-input
                         v-model="form.smsCode"

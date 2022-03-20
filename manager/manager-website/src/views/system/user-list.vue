@@ -6,7 +6,7 @@
             @submit.prevent
         >
             <el-form-item label="姓名">
-                <el-input v-model="search.realname" clearable />
+                <el-input v-model="search.nickname" clearable />
             </el-form-item>
             <el-form-item label="是否为管理员">
                 <el-select
@@ -26,6 +26,15 @@
             >
                 搜索
             </el-button>
+            <div class="mb20">
+                <el-button
+                    v-if="userInfo.super_admin_role"
+                    type="danger"
+                    @click="transformSuperUserDialog.visible=true"
+                >
+                    超级管理员转移
+                </el-button>
+            </div>
         </el-form>
 
         <el-table
@@ -39,8 +48,7 @@
                 <EmptyData />
             </template>
             <el-table-column label="序号" type="index"></el-table-column>
-            <el-table-column label="用户名" prop="account" width="140" />
-            <el-table-column label="姓名" prop="realname" width="130" />
+            <el-table-column label="用户名" prop="nickname" width="140" />
             <el-table-column label="邮箱" prop="email" width="180" />
             <el-table-column label="用户角色" width="140">
                 <template v-slot="scope">
@@ -74,7 +82,7 @@
                 label="操作"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.user_id !== userInfo.user_id">
+                    <template v-if="scope.row.account_id !== userInfo.account_id">
                         <template v-if="scope.row.audit_status === 'agree' && userInfo.admin_role">
                             <template v-if="userInfo.super_admin_role">
                                 <el-button
@@ -175,6 +183,50 @@
                 </el-button>
             </template>
         </el-dialog>
+
+        <el-dialog
+            width="440px"
+            title="超级管理员转移"
+            v-model="transformSuperUserDialog.visible"
+            destroy-on-close
+        >
+            <el-alert
+                type="error"
+                title="超级管理员角色转让以后你将变成【普通角色】, 并【失去】所有超级管理员权限! 请谨慎操作"
+                :closable="false"
+            />
+            <el-form
+                label-width="120px"
+                class="flex-form mt30"
+            >
+                <el-form-item
+                    label="选择目标用户"
+                    class="is-required"
+                >
+                    <el-autocomplete
+                        v-model="transformSuperUserDialog.user"
+                        placeholder="输入姓名或者11位手机号搜索"
+                        :fetch-suggestions="getUsers"
+                        @select="selectUser"
+                        style="width: 260px;"
+                        clearable
+                        @clear="clearSuggestions"
+                    />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button
+                    type="primary"
+                    :disabled="!transformSuperUserDialog.id || transformSuperUserDialog.id === userInfo.account_id"
+                    @click="transformSuperUser"
+                >
+                    确定
+                </el-button>
+                <el-button @click="transformSuperUserDialog.visible=false">
+                    取消
+                </el-button>
+            </template>
+        </el-dialog>
     </el-card>
 </template>
 
@@ -182,10 +234,11 @@
     import md5 from 'js-md5';
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
+    import { baseLogout } from '@src/router/auth';
 
     export default {
-        inject: ['refresh'],
         mixins: [table],
+        inject: ['refresh'],
         data() {
             return {
                 loading: false,
@@ -196,12 +249,17 @@
                 watchRoute:    true,
                 defaultSearch: true,
                 requestMethod: 'post',
-                getListApi:    '/user/query',
+                getListApi:    '/account/query',
                 resetPwDialog: {
                     visible:          false,
                     id:               '',
                     nickname:         '',
                     operatorPassword: '',
+                },
+                transformSuperUserDialog: {
+                    visible: false,
+                    user:    '',
+                    id:      '',
                 },
             };
         },
@@ -216,9 +274,9 @@
                     confirmButtonText: '确定',
                 }).then(async () => {
                     const { code } = await this.$http.post({
-                        url:  '/user/role/change',
+                        url:  '/account/role/change',
                         data: {
-                            userId:    row.user_id,
+                            accountId: row.account_id,
                             adminRole: !row.admin_role,
                         },
                         btnState: {
@@ -235,11 +293,12 @@
                 });
             },
             resetPassword(event, row) {
-                this.resetPwDialog.id = row.user_id;
-                this.resetPwDialog.nickname = row.account;
+                this.resetPwDialog.id = row.account_id;
+                this.resetPwDialog.nickname = row.nickname;
                 this.resetPwDialog.visible = true;
             },
             async confirmReset($event) {
+                const { phone_number } = this.userInfo;
                 const { operatorPassword } = this.resetPwDialog;
 
                 if(!operatorPassword) {
@@ -247,10 +306,16 @@
                 }
 
                 const { code, data } = await this.$http.post({
-                    url:  '/user/reset/password',
+                    url:  '/account/reset/password',
                     data: {
-                        userId:        this.resetPwDialog.id,
-                        adminPassword: md5(operatorPassword),
+                        accountId:        this.resetPwDialog.id,
+                        operatorPassword: md5([
+                            phone_number,
+                            operatorPassword,
+                            phone_number,
+                            phone_number.substr(0, 3),
+                            operatorPassword.substr(operatorPassword.length - 3),
+                        ].join('')),
                     },
                     btnState: {
                         target: $event,
@@ -271,7 +336,7 @@
                 }
             },
             changeUserInfo() {
-                this.form.realname = this.userInfo.realname;
+                this.form.nickname = this.userInfo.nickname;
                 this.form.email = this.userInfo.email;
             },
             changeStatus($event, row) {
@@ -281,10 +346,10 @@
                     confirmButtonText: '确定',
                 }).then(async _ => {
                     await this.$http.post({
-                        url:  '/user/enable',
+                        url:  '/account/enable',
                         data: {
-                            userId: row.user_id,
-                            enable: !row.enable,
+                            accountId: row.account_id,
+                            enable:    !row.enable,
                         },
                         btnState: {
                             target: $event,
@@ -310,9 +375,9 @@
                 result.then(async ({ action, value }) => {
                     if(flag || action === 'confirm') {
                         const { code } = await this.$http.post({
-                            url:  '/user/audit',
+                            url:  '/account/audit',
                             data: {
-                                userId:       row.user_id,
+                                accountId:    row.account_id,
                                 auditStatus:  flag,
                                 auditComment: value,
                             },
@@ -327,6 +392,64 @@
                         }
                     }
                 });
+            },
+
+            async getUsers(value, cb) {
+                if(value === '') {
+                    return cb([]);
+                }
+
+                const params = {};
+
+                if(/^1[3-9]\d{9}/.test(value)) {
+                    params.phone_number = value;
+                } else {
+                    params.nickname = value;
+                }
+
+                const { code, data } = await this.$http.get({
+                    url: this.getListApi,
+                    params,
+                });
+
+                if(code === 0) {
+                    const list = data.list.map(x => {
+                        return {
+                            value: `${x.nickname} (${x.phone_number})`,
+                            id:    x.account_id,
+                        };
+                    });
+
+                    cb(list);
+                }
+            },
+
+            clearSuggestions() {
+                this.transformSuperUserDialog.id = '';
+            },
+
+            selectUser(item) {
+                if(item.id === this.userInfo.account_id) {
+                    return this.$message.error('不能将超级管理员转移给自己!');
+                }
+                this.transformSuperUserDialog.id = item.id;
+            },
+
+            async transformSuperUser($event) {
+                const { code } = await this.$http.post({
+                    url:  '/super/admin/change',
+                    data: {
+                        accountId: this.transformSuperUserDialog.id,
+                    },
+                    btnState: {
+                        target: $event,
+                    },
+                });
+
+                if(code === 0) {
+                    baseLogout();
+                    this.$message.success('操作成功, 请重新登录!');
+                }
             },
         },
     };
