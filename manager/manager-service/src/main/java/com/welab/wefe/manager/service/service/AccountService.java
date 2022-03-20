@@ -105,10 +105,11 @@ public class AccountService extends AbstractAccountService {
         String historyPassword = account.getPassword();
         String historySalt = account.getSalt();
         JSONArray historyPasswordList = account.getHistoryPasswordList();
-        if(historyPasswordList != null){
+        if(historyPasswordList == null){
             historyPasswordList = new JSONArray();
-            historyPasswordList.add(new HistoryPasswordItem(historyPassword,historySalt));
         }
+
+        historyPasswordList.add(new HistoryPasswordItem(historyPassword,historySalt));
 
         // Regenerate salt
         String salt = createRandomSalt();
