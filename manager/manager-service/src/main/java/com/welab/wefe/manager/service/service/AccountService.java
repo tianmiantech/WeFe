@@ -28,6 +28,7 @@ import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.manager.service.api.account.AuditApi;
 import com.welab.wefe.manager.service.dto.account.QueryAccountInput;
@@ -103,6 +104,15 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("只有超级管理员才能重置管理员的密码", StatusCode.PERMISSION_DENIED);
         }
 
+        String historyPassword = account.getPassword();
+        String historySalt = account.getSalt();
+        JSONArray historyPasswordList = account.getHistoryPasswordList();
+        if(historyPasswordList == null){
+            historyPasswordList = new JSONArray();
+        }
+
+        historyPasswordList.add(new HistoryPasswordItem(historyPassword,historySalt));
+
         // Regenerate salt
         String salt = createRandomSalt();
 
@@ -115,6 +125,8 @@ public class AccountService extends AbstractAccountService {
         account.setNeedUpdatePassword(true);
         account.setUpdatedBy(CurrentAccount.id());
         account.setUpdateTime(System.currentTimeMillis());
+        account.setHistoryPasswordList(historyPasswordList);
+
         accountMongoRepo.save(encryptPhoneNumber(account));
         CurrentAccount.logout(accountId);
         return newPassword;
