@@ -179,16 +179,14 @@ public class QueryBuilder {
                 criteria.and(k).in(v);
             }
         });
-        likeMap.forEach((k, v) -> {
+        for (Map.Entry<String, String> entry : likeMap.entrySet()) {
+            String k = entry.getKey();
+            String v = entry.getValue();
             if (StringUtils.isNotEmpty(v)) {
-                char[] chars = v.toCharArray();
-                StringBuffer value = new StringBuffer();
-                for (int i = 0; i < v.length(); i++) {
-                    value.append("\\\\").append(chars[i]);
-                }
-                criteria.and(k).regex(".*?" + value.toString() + ".*");
+                v = escapeExprSpecialWord(v);
+                criteria.and(k).regex(".*?" + v + ".*");
             }
-        });
+        }
         if (Arrays.stream(timeBetween).allMatch(time -> time > 0)) {
             criteria.and("logTime").gt(timeBetween[0]).lt(timeBetween[1]);
         }
@@ -211,6 +209,26 @@ public class QueryBuilder {
         }
 
         return query;
+    }
+
+    String escapeExprSpecialWord(String keyword) {
+
+        if (StringUtils.isNotBlank(keyword)) {
+
+            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
+
+            for (String key : fbsArr) {
+
+                if (keyword.contains(key)) {
+
+                    keyword = keyword.replace(key, "\\" + key);
+
+                }
+
+            }
+
+        }
+        return keyword;
     }
 
 }
