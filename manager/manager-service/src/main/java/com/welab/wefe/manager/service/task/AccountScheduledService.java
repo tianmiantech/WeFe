@@ -15,7 +15,7 @@
  */
 package com.welab.wefe.manager.service.task;
 
-import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
+import com.welab.wefe.common.data.mongodb.repo.AccountMongoRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,18 +36,18 @@ public class AccountScheduledService {
 
 
     @Autowired
-    private UserMongoRepo userMongoRepo;
+    private AccountMongoRepo accountMongoRepo;
 
     @Scheduled(fixedDelay = 600_000, initialDelay = 10_000)
     //@Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
     public void run() {
 
         LOG.info("begin disableAccountWithoutAction90Days...");
-        long count = userMongoRepo.disableAccountWithoutAction90Days();
+        long count = accountMongoRepo.disableAccountWithoutAction90Days();
         LOG.info("end disableAccountWithoutAction90Days:" + count);
 
         LOG.info("begin cancelAccountWithoutAction180Days...");
-        count = userMongoRepo.cancelAccountWithoutAction180Days();
+        count = accountMongoRepo.cancelAccountWithoutAction180Days();
         LOG.info("end cancelAccountWithoutAction180Days:" + count);
     }
 }

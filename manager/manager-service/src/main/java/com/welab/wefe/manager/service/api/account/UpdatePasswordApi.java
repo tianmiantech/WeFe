@@ -14,37 +14,33 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.manager.service.api.account;
 
-import com.welab.wefe.common.data.mongodb.entity.manager.User;
-import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.user.LoginInput;
-import com.welab.wefe.manager.service.dto.user.LoginOutput;
-import com.welab.wefe.manager.service.service.UserService;
+import com.welab.wefe.manager.service.dto.account.UpdatePasswordInput;
+import com.welab.wefe.manager.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
 
 /**
  * @Description:
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-@Api(path = "user/login", name = "登录", login = false)
-public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
+@Api(path = "account/update_password", name = "password change")
+public class UpdatePasswordApi extends AbstractApi<UpdatePasswordInput, AbstractApiOutput> {
+    @Autowired
+    private AccountService accountService;
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserMongoRepo userMongoRepo;
 
     @Override
-    protected ApiResult<LoginOutput> handle(LoginInput input) throws StatusCodeWithException {
-        String token = userService.login(input.getAccount(), input.getPassword(), input.getKey(), input.getCode());
-        User user = userMongoRepo.findByAccount(input.getAccount());
-        LoginOutput output = new LoginOutput(token, user);
-        return success(output);
+    protected ApiResult<AbstractApiOutput> handle(UpdatePasswordInput input) throws StatusCodeWithException, IOException {
+        accountService.updatePassword(input.getOldPassword(), input.getNewPassword());
+        return success();
     }
 }

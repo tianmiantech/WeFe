@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.manager.service.api.account;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.entity.manager.User;
+import com.welab.wefe.common.data.mongodb.entity.manager.Account;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.user.QueryUserInput;
-import com.welab.wefe.manager.service.dto.user.QueryUserOutput;
-import com.welab.wefe.manager.service.mapper.UserMapper;
-import com.welab.wefe.manager.service.service.UserService;
+import com.welab.wefe.manager.service.dto.account.QueryAccountInput;
+import com.welab.wefe.manager.service.dto.account.QueryAccountOutput;
+import com.welab.wefe.manager.service.mapper.AccountMapper;
+import com.welab.wefe.manager.service.service.AccountService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,17 +38,17 @@ import java.util.stream.Collectors;
  * @author: yuxin.zhang
  * @date: 2021/11/5
  */
-@Api(path = "user/query", name = "query")
-public class QueryApi extends AbstractApi<QueryUserInput, PageOutput<QueryUserOutput>> {
+@Api(path = "account/query", name = "query account by pagination")
+public class QueryApi extends AbstractApi<QueryAccountInput, PageOutput<QueryAccountOutput>> {
     @Autowired
-    private UserService userService;
-    private UserMapper mUserMapper = Mappers.getMapper(UserMapper.class);
+    private AccountService accountService;
+    private AccountMapper mAccountMapper = Mappers.getMapper(AccountMapper.class);
 
     @Override
-    protected ApiResult<PageOutput<QueryUserOutput>> handle(QueryUserInput input) throws StatusCodeWithException, IOException {
-        PageOutput<User> pageOutput = userService.findList(input);
-        List<QueryUserOutput> list = pageOutput.getList().stream()
-                .map(mUserMapper::transferUserToQueryUserOutput)
+    protected ApiResult<PageOutput<QueryAccountOutput>> handle(QueryAccountInput input) throws StatusCodeWithException, IOException {
+        PageOutput<Account> pageOutput = accountService.findList(input);
+        List<QueryAccountOutput> list = pageOutput.getList().stream()
+                .map(mAccountMapper::transferAccountToQueryUserOutput)
                 .collect(Collectors.toList());
 
         return success(new PageOutput<>(

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.manager.service.api.account;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
@@ -27,7 +27,7 @@ import com.welab.wefe.common.web.service.CaptchaService;
 /**
  * @author hunter.zhao
  */
-@Api(path = "user/captcha", name = "get captcha", login = false)
+@Api(path = "account/captcha", name = "get captcha", login = false)
 public class CaptchaApi extends AbstractNoneInputApi<CaptchaApi.Output> {
 
     @Override

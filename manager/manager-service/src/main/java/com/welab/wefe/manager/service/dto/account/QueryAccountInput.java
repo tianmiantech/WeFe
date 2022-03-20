@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.manager.service.dto.base.PageInput;
 
 /**
@@ -23,25 +24,34 @@ import com.welab.wefe.manager.service.dto.base.PageInput;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-public class QueryUserInput extends PageInput {
-    private String account;
-    private String realname;
+public class QueryAccountInput extends PageInput {
+    private String phoneNumber;
+    private String nickname;
+    private AuditStatus auditStatus;
     private Boolean adminRole;
 
-    public String getAccount() {
-        return account;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public String getRealname() {
-        return realname;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setRealname(String realname) {
-        this.realname = realname;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public AuditStatus getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(AuditStatus auditStatus) {
+        this.auditStatus = auditStatus;
     }
 
     public Boolean getAdminRole() {

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.api.user;
+package com.welab.wefe.manager.service.api.account;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.manager.service.dto.user.UserRoleChangeInput;
-import com.welab.wefe.manager.service.service.UserService;
+import com.welab.wefe.manager.service.dto.account.AccountRoleChangeInput;
+import com.welab.wefe.manager.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -32,14 +32,14 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/11/5
  */
-@Api(path = "user/role/change", name = "user role change")
-public class UserRoleChangeApi extends AbstractApi<UserRoleChangeInput, AbstractApiOutput> {
+@Api(path = "account/role/change", name = "account role change")
+public class RoleChangeApi extends AbstractApi<AccountRoleChangeInput, AbstractApiOutput> {
     @Autowired
-    private UserService userService;
+    private AccountService accountService;
 
     @Override
-    protected ApiResult<AbstractApiOutput> handle(UserRoleChangeInput input) throws StatusCodeWithException, IOException {
-        userService.changeUserRole(input.getUserId(), input.isAdminRole());
+    protected ApiResult<AbstractApiOutput> handle(AccountRoleChangeInput input) throws StatusCodeWithException, IOException {
+        accountService.changeAccountRole(input.getAccountId(), input.isAdminRole());
         return success();
     }
 }

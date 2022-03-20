@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -24,25 +24,27 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-public class UserRoleChangeInput extends AbstractApiInput {
-    @Check(require = true)
-    private String userId;
-    @Check(require = true)
-    private boolean adminRole;
+public class ResetPasswordInput extends AbstractApiInput {
 
-    public String getUserId() {
-        return userId;
+    @Check(name = "用户唯一标识", require = true)
+    private String accountId;
+
+    @Check(name = "操作者的密码", require = true)
+    private String operatorPassword;
+
+    public String getAccountId() {
+        return accountId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
-    public boolean isAdminRole() {
-        return adminRole;
+    public String getOperatorPassword() {
+        return operatorPassword;
     }
 
-    public void setAdminRole(boolean adminRole) {
-        this.adminRole = adminRole;
+    public void setOperatorPassword(String operatorPassword) {
+        this.operatorPassword = operatorPassword;
     }
 }

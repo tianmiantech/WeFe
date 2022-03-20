@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -25,7 +25,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 public class LoginInput extends AbstractApiInput {
 
     @Check(require = true)
-    private String account;
+    private String phoneNumber;
 
     @Check(require = true)
     private String password;
@@ -36,12 +36,12 @@ public class LoginInput extends AbstractApiInput {
     @Check(require = true, desc = "验证码")
     private String code;
 
-    public String getAccount() {
-        return account;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getPassword() {

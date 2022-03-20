@@ -14,31 +14,37 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
+import com.welab.wefe.common.fieldvalidate.StandardFieldType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 
-public class UserEnableInput extends AbstractApiInput {
-    @Check(require = true)
-    private String userId;
+/**
+ * @Description:
+ * @author: yuxin.zhang
+ * @date: 2021/11/2
+ */
+public class UpdateInput extends AbstractApiInput {
+    @Check(name = "昵称")
+    private String nickname;
 
-    private boolean enable;
+    @Check(name = "邮箱", type = StandardFieldType.Email)
+    private String email;
 
-
-    public String getUserId() {
-        return userId;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
-    public boolean isEnable() {
-        return enable;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

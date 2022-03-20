@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.StandardFieldType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.service.CaptchaService;
 
@@ -29,13 +29,19 @@ import com.welab.wefe.common.web.service.CaptchaService;
  * @date: 2021/11/2
  */
 public class RegisterInput extends AbstractApiInput {
-    @Check(require = true)
-    private String account;
-    @Check(require = true)
+
+    @Check(require = true, type = StandardFieldType.PhoneNumber)
+    private String phoneNumber;
+
+    @Check(require = true, regex = "^.{2,15}$")
+    private String nickname;
+
+    @Check(require = true, regex = "^.{6,128}$")
     private String password;
-    @Check(require = true)
-    private String realname;
+
+    @Check(require = true, type = StandardFieldType.Email)
     private String email;
+
     @Check(require = true, desc = "验证码标识")
     private String key;
     @Check(require = true, desc = "验证码")
@@ -51,13 +57,20 @@ public class RegisterInput extends AbstractApiInput {
 
     }
 
-
-    public String getAccount() {
-        return account;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getPassword() {
@@ -68,14 +81,6 @@ public class RegisterInput extends AbstractApiInput {
         this.password = password;
     }
 
-    public String getRealname() {
-        return realname;
-    }
-
-    public void setRealname(String realname) {
-        this.realname = realname;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -83,7 +88,6 @@ public class RegisterInput extends AbstractApiInput {
     public void setEmail(String email) {
         this.email = email;
     }
-
 
     public String getKey() {
         return key;

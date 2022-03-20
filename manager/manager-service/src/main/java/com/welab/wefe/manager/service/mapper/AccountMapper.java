@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.mapper;
 
-import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.data.mongodb.entity.manager.Account;
+import com.welab.wefe.manager.service.dto.account.LoginOutput;
+import com.welab.wefe.manager.service.dto.account.QueryAccountOutput;
+import com.welab.wefe.manager.service.dto.account.RegisterInput;
+import org.mapstruct.Mapper;
 
 /**
- * @Description:
- * @author: yuxin.zhang
- * @date: 2021/11/2
- */
-public class UpdateInitPasswordInput extends ChangePasswordInput {
-    @Check(require = true)
-    private String account;
+ * @Author Jervis
+ * @Date 2020-06-09
+ **/
+@Mapper
+public interface AccountMapper {
 
-    public String getAccount() {
-        return account;
-    }
+    LoginOutput transfer(Account account);
 
-    public void setAccount(String account) {
-        this.account = account;
-    }
+    Account transfer(RegisterInput input);
+
+
+    QueryAccountOutput transferAccountToQueryUserOutput(Account account);
 }

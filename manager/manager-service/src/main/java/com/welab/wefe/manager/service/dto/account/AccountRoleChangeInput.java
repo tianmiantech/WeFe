@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.user;
+package com.welab.wefe.manager.service.dto.account;
 
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 
 /**
@@ -23,23 +24,25 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-public class UserUpdateInput extends AbstractApiInput {
-    private String realname;
-    private String email;
+public class AccountRoleChangeInput extends AbstractApiInput {
+    @Check(require = true)
+    private String accountId;
+    @Check(require = true)
+    private boolean adminRole;
 
-    public String getRealname() {
-        return realname;
+    public String getAccountId() {
+        return accountId;
     }
 
-    public void setRealname(String realname) {
-        this.realname = realname;
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
-    public String getEmail() {
-        return email;
+    public boolean isAdminRole() {
+        return adminRole;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setAdminRole(boolean adminRole) {
+        this.adminRole = adminRole;
     }
 }
