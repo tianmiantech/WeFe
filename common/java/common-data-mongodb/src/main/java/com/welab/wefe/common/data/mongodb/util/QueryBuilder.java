@@ -184,7 +184,7 @@ public class QueryBuilder {
                 char[] chars = v.toCharArray();
                 StringBuffer value = new StringBuffer();
                 for (int i = 0; i < v.length(); i++) {
-                    value.append("\\").append(chars[i]);
+                    value.append("\\\\").append(chars[i]);
                 }
                 criteria.and(k).regex(".*?" + value.toString() + ".*");
             }
