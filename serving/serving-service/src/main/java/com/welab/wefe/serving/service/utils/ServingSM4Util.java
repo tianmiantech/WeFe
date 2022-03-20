@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.util;
+package com.welab.wefe.serving.service.utils;
 
-import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.SM4Util;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.serving.service.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BoardSM4Util {
-    private static final Logger LOG = LoggerFactory.getLogger(BoardSM4Util.class);
+public class ServingSM4Util {
+    private static final Logger LOG = LoggerFactory.getLogger(ServingSM4Util.class);
 
     public static String encryptPhoneNumber(String phoneNumber) throws StatusCodeWithException {
         if(StringUtil.isEmpty(phoneNumber)) {

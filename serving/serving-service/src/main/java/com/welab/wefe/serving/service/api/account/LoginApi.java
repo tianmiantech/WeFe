@@ -28,6 +28,7 @@ import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
 import com.welab.wefe.serving.service.service.AccountService;
+import com.welab.wefe.serving.service.utils.ServingSM4Util;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -48,7 +49,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
         String token = accountService.login(input.phoneNumber, input.password, input.getKey(), input.getCode());
-        AccountMySqlModel model = accountRepository.findByPhoneNumber(input.phoneNumber);
+        AccountMySqlModel model = accountRepository.findByPhoneNumber(ServingSM4Util.encryptPhoneNumber(input.phoneNumber));
 
         Output output = new Output(token, model);
 

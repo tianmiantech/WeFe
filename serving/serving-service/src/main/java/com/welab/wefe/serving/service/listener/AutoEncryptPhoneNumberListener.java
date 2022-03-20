@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.listener;
+package com.welab.wefe.serving.service.listener;
 
-import com.welab.wefe.board.service.service.EncryptPhoneNumberService;
-import com.welab.wefe.common.util.CommentedProperties;
-import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.serving.service.service.EncryptPhoneNumberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,26 +34,18 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
 
     @Autowired
     private ConfigurableEnvironment configurableEnvironment;
+
     @Autowired
     private EncryptPhoneNumberService encryptPhoneNumberService;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
-        String configPath = configurableEnvironment.getProperty("config.path");
-        if (StringUtil.isEmpty(configPath)) {
+        if (configurableEnvironment.containsProperty("has.auto.encrypt.phone.number")) {
             return;
         }
-        String key = "has.auto.encrypt.phone.number";
         try {
-            CommentedProperties properties = new CommentedProperties();
-            properties.load(configPath);
-            if (properties.containsKey(key)) {
-                return;
-            }
             LOG.info("Start auto encrypt phone number........");
             encryptPhoneNumberService.encrypt();
-            properties.append(key, "true", "Whether the mobile phone number has been automatically encrypted. The presence of this field indicates that it has been encrypted");
-            properties.store(configPath);
             LOG.info("End auto encrypt phone number!!!");
         } catch (Exception e) {
             LOG.error("Auto encrypt phone number exception: ", e);

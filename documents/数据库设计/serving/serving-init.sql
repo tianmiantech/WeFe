@@ -9,7 +9,7 @@ CREATE TABLE `account` (
   `cancelled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
   `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间',
   `history_password_list` text COMMENT '历史曾用密码',
-  `phone_number` varchar(32) DEFAULT NULL,
+  `phone_number` varchar(200) DEFAULT NULL,
   `password` varchar(128) NOT NULL COMMENT '密码',
   `salt` varchar(128) NOT NULL COMMENT '盐',
   `nickname` varchar(32) NOT NULL COMMENT '昵称',
