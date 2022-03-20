@@ -181,7 +181,12 @@ public class QueryBuilder {
         });
         likeMap.forEach((k, v) -> {
             if (StringUtils.isNotEmpty(v)) {
-                criteria.and(k).regex(".*?" + v + ".*");
+                char[] chars = v.toCharArray();
+                StringBuffer value = new StringBuffer();
+                for (int i = 0; i < v.length(); i++) {
+                    value.append("\\").append(chars[i]);
+                }
+                criteria.and(k).regex(".*?" + value.toString() + ".*");
             }
         });
         if (Arrays.stream(timeBetween).allMatch(time -> time > 0)) {
