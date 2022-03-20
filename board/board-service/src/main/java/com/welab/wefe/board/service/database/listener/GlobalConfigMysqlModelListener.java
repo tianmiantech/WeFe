@@ -36,7 +36,7 @@ public class GlobalConfigMysqlModelListener {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
             if (BaseGlobalConfigService.Group.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
-                model.setValue(BoardSM4Util.encryptPhoneNumber(model.getValue()));
+                model.setValue(BoardSM4Util.encryptCommonText(model.getValue()));
             }
         }
     }
@@ -58,7 +58,7 @@ public class GlobalConfigMysqlModelListener {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
             if (BaseGlobalConfigService.Group.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
-                model.setValue(BoardSM4Util.decryptPhoneNumber(model.getValue()));
+                model.setValue(BoardSM4Util.decryptCommonText(model.getValue()));
             }
         }
     }

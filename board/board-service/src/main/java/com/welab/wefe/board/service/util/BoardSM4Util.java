@@ -60,6 +60,25 @@ public class BoardSM4Util {
         }
     }
 
+    public static String encryptCommonText(String text) throws StatusCodeWithException {
+        try {
+            return encrypt(text);
+        } catch (Exception e) {
+            LOG.error("加密字符串:" + text + " 失败, 原因：", e);
+            throw new StatusCodeWithException("加密字符串:" + text + " 失败, 原因：" + e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+    }
+
+    public static String decryptCommonText(String text) throws StatusCodeWithException {
+        try {
+            return decrypt(text);
+        } catch (Exception e) {
+            LOG.error("解密字符串:" + text + " 失败, 原因：", e);
+            throw new StatusCodeWithException("解密字符串:" + text + " 失败, 原因：" + e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        }
+    }
+
     private static String encrypt(String plaintext) throws Exception {
         Config config = Launcher.CONTEXT.getBean(Config.class);
         return SM4Util.encrypt(config.getSm4SecretKey(), plaintext);
