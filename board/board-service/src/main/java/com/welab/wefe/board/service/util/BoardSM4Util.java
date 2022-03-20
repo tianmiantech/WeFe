@@ -29,7 +29,7 @@ public class BoardSM4Util {
     private static final Logger LOG = LoggerFactory.getLogger(BoardSM4Util.class);
 
     public static String encryptPhoneNumber(String phoneNumber) throws StatusCodeWithException {
-        if(StringUtil.isEmpty(phoneNumber)) {
+        if (StringUtil.isEmpty(phoneNumber)) {
             return phoneNumber;
         }
         try {
@@ -45,7 +45,7 @@ public class BoardSM4Util {
     }
 
     public static String decryptPhoneNumber(String phoneNumber) throws StatusCodeWithException {
-        if(StringUtil.isEmpty(phoneNumber)) {
+        if (StringUtil.isEmpty(phoneNumber)) {
             return phoneNumber;
         }
         try {
@@ -57,6 +57,37 @@ public class BoardSM4Util {
         } catch (Exception e) {
             LOG.error("解密手机号:" + phoneNumber + " 失败, 原因：", e);
             throw new StatusCodeWithException("解密手机号:" + phoneNumber + " 失败, 原因：" + e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        }
+    }
+
+    public static String encryptCommonText(String text) throws StatusCodeWithException {
+        try {
+            return encrypt(text);
+        } catch (Exception e) {
+            LOG.error("加密字符串:" + text + " 失败, 原因：", e);
+            throw new StatusCodeWithException("加密字符串:" + text + " 失败, 原因：" + e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+    }
+
+    public static String decryptCommonText(String text) throws StatusCodeWithException {
+        try {
+            return decrypt(text);
+        } catch (Exception e) {
+            LOG.error("解密字符串:" + text + " 失败, 原因：", e);
+            throw new StatusCodeWithException("解密字符串:" + text + " 失败, 原因：" + e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        }
+    }
+
+    public static boolean isEncryptText(String text) {
+        if (StringUtil.isEmpty(text)) {
+            return false;
+        }
+        try {
+            decrypt(text);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
