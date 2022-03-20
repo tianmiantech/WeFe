@@ -17,7 +17,10 @@
 package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
+import com.welab.wefe.data.fusion.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
+import com.welab.wefe.data.fusion.service.database.repository.GlobalConfigRepository;
+import com.welab.wefe.data.fusion.service.service.globalconfig.BaseGlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,9 @@ public class EncryptPhoneNumberService {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    protected GlobalConfigRepository globalConfigRepository;
+
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
         List<AccountMysqlModel> accountMysqlModelList = accountRepository.findAll();
@@ -39,6 +45,14 @@ public class EncryptPhoneNumberService {
             for (AccountMysqlModel model : accountMysqlModelList) {
                 model.setUpdatedTime(new Date());
                 accountRepository.save(model);
+            }
+        }
+
+        List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(BaseGlobalConfigService.Group.MEMBER_INFO);
+        if (!CollectionUtils.isEmpty(globalConfigMysqlModelList)) {
+            for (GlobalConfigMysqlModel model : globalConfigMysqlModelList) {
+                model.setUpdatedTime(new Date());
+                globalConfigRepository.save(model);
             }
         }
     }
