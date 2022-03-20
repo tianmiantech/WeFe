@@ -669,12 +669,13 @@ public class ServiceService {
 					resultMap.put("rand", "thisisemptyresult");
 				}
 				String resultStr = JObject.toJSONString(resultMap);
-				LOG.info(id + "\t " + resultStr);
+                LOG.info("pir datasource result : " + id + "\t " + resultStr);
 				result.put(id, resultStr);
 			} catch (StatusCodeWithException e) {
 				throw e;
 			}
 		}
+		LOG.info("begin handle");
 		String uuid = "";
 		JObject response = JObject.create();
 		if(Constants.PIR.NAORPINKAS_OT.equalsIgnoreCase(otMethod)) {
@@ -685,7 +686,9 @@ public class ServiceService {
             request.setOtMethod(Constants.PIR.NAORPINKAS_OT);
             QueryNaorPinkasRandomResponse resp = null;
             try {
+                LOG.info("begin NAORPINKAS_OT service handle");
                 resp = service.handle(request);
+                LOG.info("end NAORPINKAS_OT service handle");
                 // 3 取出 QueryKeysResponse 的uuid
                 // 将uuid传入QueryResult
                 uuid = resp.getUuid();
@@ -703,7 +706,9 @@ public class ServiceService {
 	        HuackKeyService service = new HuackKeyService();
 	        QueryKeysResponse resp = null;
 	        try {
+	            LOG.info("begin HUACK_OT service handle");
 	            resp = service.handle(request);
+	            LOG.info("end HUACK_OT service handle");
 	            // 3 取出 QueryKeysResponse 的uuid
 	            // 将uuid传入QueryResult
 	            uuid = resp.getUuid();
@@ -716,6 +721,7 @@ public class ServiceService {
 		
 		// 将 0 步骤查询的数据 保存到 CacheOperation
 		CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
+        LOG.info("save service handle result");
 		queryResult.save(uuid, Constants.RESULT, result);
 		return response;
 	}
