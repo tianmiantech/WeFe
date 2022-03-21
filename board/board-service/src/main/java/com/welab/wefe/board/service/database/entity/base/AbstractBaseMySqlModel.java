@@ -45,35 +45,15 @@ public abstract class AbstractBaseMySqlModel extends AbstractMySqlModel {
         setCreatedBy(CurrentAccount.id());
     }
 
-    //region getter/setter
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public void setCreatedBy(AbstractApiInput input) {
         String id = getOperatorId(createdBy, input);
-        setCreatedBy(id);
-    }
-
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-        super.setUpdatedTime(new Date());
+        this.createdBy = id;
     }
 
     public void setUpdatedBy(AbstractApiInput input) {
         String id = getOperatorId(updatedBy, input);
         setUpdatedBy(id);
     }
-
     public String getOperatorId(AbstractApiInput input) {
         return getOperatorId(null, input);
     }
@@ -89,6 +69,25 @@ public abstract class AbstractBaseMySqlModel extends AbstractMySqlModel {
             result = CurrentAccount.id();
         }
         return result;
+    }
+
+    //region getter/setter
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+        super.setUpdatedTime(new Date());
     }
 
     //endregion

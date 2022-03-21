@@ -1,26 +1,28 @@
 -- 用户账号表
 
-CREATE TABLE `account`
-(
-    `id`               varchar(32)  NOT NULL COMMENT '全局唯一标识',
-    `created_by`       varchar(32)  DEFAULT NULL COMMENT '创建人',
-    `created_time`     datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`       varchar(32)  DEFAULT NULL COMMENT '更新人',
-    `updated_time`     datetime(6) DEFAULT NULL COMMENT '更新时间',
-    `phone_number`     varchar(32)  NOT NULL COMMENT '手机号',
-    `password`         varchar(128) NOT NULL COMMENT '密码',
-    `salt`             varchar(128) NOT NULL COMMENT '盐',
-    `nickname`         varchar(32)  NOT NULL COMMENT '昵称',
-    `email`            varchar(128) NOT NULL COMMENT '邮箱',
-    `super_admin_role` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员 超级管理员通常是第一个创建并初始化系统的那个人',
-    `admin_role`       tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是管理员 管理员有更多权限，比如设置 menber 是否对外可见。',
-    `audit_status`     varchar(32)  NOT NULL COMMENT '审核状态',
-    `audit_comment`    varchar(512) DEFAULT NULL COMMENT '审核意见',
-    `enable`           tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可用',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
-    KEY                `idx_create_time` (`created_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号';
+CREATE TABLE `account` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `cancelled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
+  `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间',
+  `history_password_list` text COMMENT '历史曾用密码',
+  `phone_number` varchar(32) DEFAULT NULL,
+  `password` varchar(128) NOT NULL COMMENT '密码',
+  `salt` varchar(128) NOT NULL COMMENT '盐',
+  `nickname` varchar(32) NOT NULL COMMENT '昵称',
+  `email` varchar(128) NOT NULL COMMENT '邮箱',
+  `super_admin_role` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员 超级管理员通常是第一个创建并初始化系统的那个人',
+  `admin_role` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是管理员 管理员有更多权限，比如设置 menber 是否对外可见。',
+  `audit_status` varchar(32) NOT NULL DEFAULT '' COMMENT '审核状态',
+  `audit_comment` varchar(512) DEFAULT NULL COMMENT '审核意见',
+  `enable` tinyint(1) NOT NULL COMMENT '是否可用',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
+  KEY `idx_create_time` (`created_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号 ';
 
 -- 全局设置表
 
@@ -33,7 +35,7 @@ CREATE TABLE `global_setting`
     `updated_time`    datetime              DEFAULT NULL COMMENT '更新时间',
     `member_id`       varchar(32)  NOT NULL COMMENT '联邦成员 Id 全局唯一，默认为uuid。',
     `member_name`     varchar(128) NOT NULL COMMENT '联邦成员名称',
-    `rsa_private_key` text         NOT NULL,
+    `rsa_private_key` text         NOT NULL COMMENT '私钥',
     `rsa_public_key`  text         NOT NULL COMMENT '公钥',
     `gateway_uri`     varchar(512)          DEFAULT NULL COMMENT '网关通信地址',
     PRIMARY KEY (`id`)
@@ -44,13 +46,13 @@ CREATE TABLE `global_setting`
 
 CREATE TABLE `member`
 (
-    `id`           varchar(32)  NOT NULL,
+    `id`           varchar(32)  NOT NULL COMMENT '全局唯一标识',
     `member_id`    varchar(256) NOT NULL COMMENT '成员id',
-    `name`         varchar(64)  NOT NULL,
+    `name`         varchar(64)  NOT NULL COMMENT '成员名称',
     `api`          varchar(256) DEFAULT NULL COMMENT '调用路警',
     `public_key`   text         NOT NULL COMMENT '公钥',
-    `created_time` datetime     NOT NULL,
-    `updated_time` datetime     DEFAULT NULL,
+    `created_time` datetime     NOT NULL COMMENT '创建日期',,
+    `updated_time` datetime     DEFAULT NULL COMMENT '最后操作日期',
     `created_by`   varchar(32)  DEFAULT NULL COMMENT '创建人',
     `updated_by`   varchar(32)  DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`id`)
@@ -65,10 +67,10 @@ CREATE TABLE `model`
     `model_id`       varchar(256) NOT NULL COMMENT '模型id',
     `algorithm`      varchar(64)  NOT NULL COMMENT '算法',
     `fl_type`        varchar(64)  NOT NULL COMMENT '联邦学习类型',
-    `feature_source` varchar(64)  NOT NULL,
+    `feature_source` varchar(64)  NOT NULL COMMENT '特征获取方法',
     `model_param`    mediumtext   NOT NULL COMMENT '模型参数',
-    `created_time`   datetime     NOT NULL,
-    `updated_time`   datetime    DEFAULT NULL,
+    `created_time`   datetime     NOT NULL COMMENT '创建时间',
+    `updated_time`   datetime    DEFAULT NULL COMMENT '最后更新时间',
     `created_by`     varchar(32) DEFAULT NULL COMMENT '创建人',
     `updated_by`     varchar(32) DEFAULT NULL COMMENT '更新人',
     `enable`         tinyint(1) NOT NULL DEFAULT '0' COMMENT 'true-在线 false-下线',
@@ -79,14 +81,14 @@ CREATE TABLE `model`
 
 CREATE TABLE `model_member`
 (
-    `id`           varchar(32)  NOT NULL,
+    `id`           varchar(32)  NOT NULL COMMENT '全局唯一标识',
     `model_id`     varchar(256) NOT NULL COMMENT '模型id',
     `member_id`    varchar(256) DEFAULT NULL COMMENT '成员id',
     `role`         varchar(64)  DEFAULT NULL COMMENT '角色',
-    `created_time` datetime     NOT NULL,
-    `updated_time` datetime     DEFAULT NULL,
-    `created_by`   varchar(32)  DEFAULT NULL,
-    `updated_by`   varchar(32)  DEFAULT NULL,
+    `created_time` datetime     NOT NULL COMMENT '创建时间',
+    `updated_time` datetime     DEFAULT NULL COMMENT '最后更新时间',
+    `created_by`   varchar(32)  DEFAULT NULL COMMENT '创建人',
+    `updated_by`   varchar(32)  DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='训练模型成员表';
 
@@ -101,29 +103,29 @@ CREATE TABLE `model_sql_config`
     `username`     varchar(255) DEFAULT NULL COMMENT '账号',
     `password`     varchar(255) DEFAULT NULL COMMENT '密码',
     `sql_context`  text COMMENT '执行SQL',
-    `created_time` datetime    NOT NULL ON UPDATE CURRENT_TIMESTAMP,
-    `created_by`   varchar(32)  DEFAULT NULL,
-    `updated_by`   varchar(32)  DEFAULT NULL,
-    `updated_time` datetime     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    `created_time` datetime    NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by`   varchar(32)  DEFAULT NULL COMMENT '创建人',
+    `updated_by`   varchar(32)  DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '模型SQL配置表';
 
 
 -- 调用日志表
 
 CREATE TABLE `predict_log`
 (
-    `id`           varchar(32)  NOT NULL,
+    `id`           varchar(32)  NOT NULL COMMENT '全局唯一标识',
     `seq_no`       varchar(64)  NOT NULL COMMENT '流水号',
     `member_id`    varchar(256) NOT NULL COMMENT '成员id',
     `model_id`     varchar(256) NOT NULL COMMENT '模型id',
-    `algorithm`    varchar(64) DEFAULT NULL,
-    `fl_type`      varchar(64) DEFAULT NULL,
-    `my_role`      varchar(64) DEFAULT NULL,
-    `created_time` timestamp    NOT NULL,
-    `request`      text,
+    `algorithm`    varchar(64) DEFAULT NULL COMMENT '算法类型',
+    `fl_type`      varchar(64) DEFAULT NULL COMMENT '训练类型 横向/纵向联邦',
+    `my_role`      varchar(64) DEFAULT NULL COMMENT '我的训练角色',
+    `created_time` timestamp    NOT NULL COMMENT '创建时间',
+    `request`      text COMMENT '请求参数',
     `response`     text COMMENT '返回结果',
-    `spend`        bigint(20) DEFAULT NULL,
+    `spend`        bigint(20) DEFAULT NULL COMMENT '调用耗时',
     `result`       tinyint(1) NOT NULL DEFAULT '0' COMMENT '调用结果：1成功，0失败',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='调用日志表';
@@ -134,7 +136,7 @@ CREATE TABLE `predict_log`
 
 CREATE TABLE `predict_statistics`
 (
-    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `id`           bigint(20) NOT NULL AUTO_INCREMENT COMMENT '全局位置标识',
     `member_id`    varchar(256) NOT NULL DEFAULT '' COMMENT '成员id',
     `model_id`     varchar(256) NOT NULL COMMENT '模型id',
     `month`        varchar(20)  NOT NULL COMMENT '月份',
@@ -208,7 +210,7 @@ DROP TABLE IF EXISTS client;
 CREATE TABLE client
 (
     id           VARCHAR(32)  NOT NULL COMMENT '客户id',
-    name         VARCHAR(255) NOT NULL COMMENT '客户名称',
+    name         VARCHAR(255) NOT NULL UNIQUE COMMENT '客户名称',
     created_by   varchar(32)           DEFAULT NULL COMMENT '创建人',
     created_time datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_by   varchar(32)           DEFAULT NULL COMMENT '更新人',
@@ -250,7 +252,7 @@ CREATE UNIQUE INDEX service_client_index ON client_service (id, service_id, clie
 DROP TABLE IF EXISTS fee_config;
 CREATE TABLE fee_config
 (
-    id           VARCHAR(32) NOT NULL COMMENT '',
+    id           VARCHAR(32) NOT NULL COMMENT '全局唯一标识',
     service_id   VARCHAR(32) COMMENT '服务id',
     client_id    VARCHAR(32) COMMENT '客户id',
     created_by   varchar(32)          DEFAULT NULL COMMENT '创建人',
@@ -280,7 +282,7 @@ CREATE TABLE api_request_record
     updated_by     varchar(32)           DEFAULT NULL COMMENT '更新人',
     updated_time   datetime              DEFAULT NULL COMMENT '更新时间',
     PRIMARY KEY (id)
-) COMMENT = 'API 调用记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = 'API 调用记录';
 CREATE UNIQUE INDEX service_client_index ON api_request_record (service_id, client_id, id);
 
 -- 计费详情表
@@ -310,7 +312,7 @@ CREATE UNIQUE INDEX fee_detail_index ON fee_detail (id, service_id, client_id);
 DROP TABLE IF EXISTS payments_records;
 CREATE TABLE payments_records
 (
-    id           VARCHAR(255) NOT NULL COMMENT '',
+    id           VARCHAR(255) NOT NULL COMMENT '全局唯一标识',
     created_by   varchar(32)           DEFAULT NULL COMMENT '创建人',
     created_time datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_by   varchar(32)           DEFAULT NULL COMMENT '更新人',
@@ -325,21 +327,23 @@ CREATE TABLE payments_records
     balance      DECIMAL(24, 6) COMMENT '余额',
     remark       VARCHAR(900) COMMENT '备注',
     PRIMARY KEY (id)
-) COMMENT = '收支记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '收支记录';
 CREATE UNIQUE INDEX payments_records_index ON payments_records (id, service_id, client_id);
 
--- 深度学习模型表
-DROP TABLE IF EXISTS deep_learning_model;
-CREATE TABLE deep_learning_model
-(
-    id           VARCHAR(32)  NOT NULL COMMENT '',
-    name         VARCHAR(255) NOT NULL COMMENT '模型名称',
-    source_path  VARCHAR(255) NOT NULL COMMENT '文件路径',
-    filename     VARCHAR(255) NOT NULL COMMENT '文件名',
-    use_count    INT          NOT NULL DEFAULT 0 COMMENT '使用计数',
-    created_by   varchar(32)           DEFAULT NULL COMMENT '创建人',
-    created_time datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_by   varchar(32)           DEFAULT NULL COMMENT '更新人',
-    updated_time datetime              DEFAULT NULL COMMENT '更新时间',
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '深度学习模型表';
+CREATE TABLE `operator_log` (
+  `id` varchar(32) NOT NULL COMMENT '操作日志编号',
+  `log_interface` varchar(50) DEFAULT NULL COMMENT '请求接口',
+  `interface_name` varchar(1024) DEFAULT NULL COMMENT '请求接口名称',
+  `request_ip` varchar(20) DEFAULT NULL COMMENT '请求IP',
+  `operator_id` varchar(32) DEFAULT NULL COMMENT '操作人员编号',
+  `token` varchar(100) DEFAULT NULL COMMENT '请求token',
+  `log_action` varchar(50) DEFAULT NULL COMMENT '操作行为',
+  `result_code` int(20) DEFAULT NULL COMMENT '请求结果code',
+  `result_message` text COMMENT '请求结果消息',
+  `request_time` datetime(6) DEFAULT NULL COMMENT '请求时间',
+  `spend` int(11) DEFAULT NULL COMMENT '处理时长',
+  `created_time` datetime(6) DEFAULT NULL COMMENT '创建时间',
+  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `query_index` (`created_time`,`log_action`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

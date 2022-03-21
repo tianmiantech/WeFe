@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
@@ -35,6 +36,8 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
     private Boolean deleted;
     @Check(name = "联邦任务类型（横向/纵向）")
     private FederatedLearningType federatedLearningType;
+    @Check(name = "深度学习任务类型（目标检测、图像分类）")
+    private DeepLearningJobType deepLearningJobType;
     @Check(name = "项目ID")
     private String projectId;
     @Check(name = "流程ID")
@@ -86,6 +89,14 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
 
     public void setFederatedLearningType(FederatedLearningType federatedLearningType) {
         this.federatedLearningType = federatedLearningType;
+    }
+
+    public DeepLearningJobType getDeepLearningJobType() {
+        return deepLearningJobType;
+    }
+
+    public void setDeepLearningJobType(DeepLearningJobType deepLearningJobType) {
+        this.deepLearningJobType = deepLearningJobType;
     }
 
     public String getProjectId() {

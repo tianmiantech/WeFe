@@ -74,6 +74,9 @@ public class ApiExecutor {
                 api = Launcher.CONTEXT.getBean(apiPath, AbstractApi.class);
             } catch (BeansException ex) {
                 int end = apiPath.lastIndexOf("/");
+                if (end < 0) {
+                    break;
+                }
                 apiPath = apiPath.substring(0, end);
             }
         }
@@ -117,15 +120,22 @@ public class ApiExecutor {
         } catch (Exception e) {
             result = api.fail(StatusCode.SYSTEM_ERROR.getCode(), e.getMessage());
         } finally {
-            // Doing things after the API is executed
-            if (Launcher.AFTER_API_EXECUTE_FUNCTION != null) {
-                Launcher.AFTER_API_EXECUTE_FUNCTION.action(httpServletRequest, start, api, params, result);
-            }
+
 
             if (result == null) {
                 result = api.fail(StatusCode.SYSTEM_ERROR.getCode(), "响应失败，疑似程序中发生了死循环。");
             }
             result.spend = System.currentTimeMillis() - start;
+
+            // Doing things after the API is executed
+            if (Launcher.AFTER_API_EXECUTE_FUNCTION != null) {
+                Launcher.AFTER_API_EXECUTE_FUNCTION.action(httpServletRequest, start, api, params, result);
+            }
+
+            // 调用自定义的 api 日志记录器
+            if (Launcher.API_LOGGER != null) {
+                Launcher.API_LOGGER.action(httpServletRequest, start, api, params, result);
+            }
 
             logResponse(annotation, result);
 
@@ -138,7 +148,7 @@ public class ApiExecutor {
         return result;
     }
 
-    private static void logResponse(Api annotation, ApiResult<?> result) {
+    public static void logResponse(Api annotation, ApiResult<?> result) {
 
         String content = "";
         /**

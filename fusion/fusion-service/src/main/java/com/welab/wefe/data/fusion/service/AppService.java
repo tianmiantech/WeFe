@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.data.fusion.service.database.entity.PartnerMySqlModel;
+import com.welab.wefe.data.fusion.service.operation.FusionApiLogger;
 import com.welab.wefe.data.fusion.service.service.PartnerService;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -56,6 +57,7 @@ public class AppService implements ApplicationContextAware {
                         rsaVerify(params);
                     }
                 })
+                .apiLogger(new FusionApiLogger())
                 .launch(AppService.class, args);
 //        Launcher.instance().afterApiExecuteFunction(Launcher.CONTEXT.getBean(OperationLogAfterApiExecute.class));
     }

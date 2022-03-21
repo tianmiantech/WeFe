@@ -1,3 +1,17 @@
+# Copyright 2021 Tianmian Tech. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) 2020 The FedVision Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,30 +72,30 @@ def start_all(
 
         cluster_address = f"{manager_machine['ip']}:{manager_config['port']}"
         cluster_address_map[cluster_name] = cluster_address
-        if status:
-            typer.echo(f"starting cluster workers for cluster {cluster_name}")
 
-            for worker_config in cluster_config.get("workers", []):
-                typer.echo(f"starting worker {worker_config['name']}")
-                worker_machine = machines_map[worker_config["machine"]]
-                if "data_base_dir" in worker_machine:
-                    data_base_dir = worker_machine["data_base_dir"]
-                else:
-                    data_base_dir = None
-                status = start_cluster_worker(
-                    machine_ssh=worker_machine["ssh_string"],
-                    machine_base_dir=worker_machine["base_dir"],
-                    name=worker_config["name"],
-                    local_ip=worker_machine["ip"],
-                    port_start=int(worker_config["ports"].split("-")[0]),
-                    port_end=int(worker_config["ports"].split("-")[1]),
-                    max_tasks=worker_config["max_tasks"],
-                    cluster_manager_address=cluster_address,
-                    data_base_dir=data_base_dir,
-                )
-                typer.echo(
-                    f"start worker {worker_config['name']} done, success: {status}\n"
-                )
+        # if status:
+        typer.echo(f"starting cluster workers for cluster {cluster_name}")
+        for worker_config in cluster_config.get("workers", []):
+            typer.echo(f"starting worker {worker_config['name']}")
+            worker_machine = machines_map[worker_config["machine"]]
+            if "data_base_dir" in worker_machine:
+                data_base_dir = worker_machine["data_base_dir"]
+            else:
+                data_base_dir = None
+            status = start_cluster_worker(
+                machine_ssh=worker_machine["ssh_string"],
+                machine_base_dir=worker_machine["base_dir"],
+                name=worker_config["name"],
+                local_ip=worker_machine["ip"],
+                port_start=int(worker_config["ports"].split("-")[0]),
+                port_end=int(worker_config["ports"].split("-")[1]),
+                max_tasks=worker_config["max_tasks"],
+                cluster_manager_address=cluster_address,
+                data_base_dir=data_base_dir,
+            )
+            typer.echo(
+                f"start worker {worker_config['name']} done, success: {status}\n"
+            )
 
     # start master
     for master_config in config_dict.get("masters", []):

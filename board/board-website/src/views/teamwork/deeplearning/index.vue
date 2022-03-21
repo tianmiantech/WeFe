@@ -3,14 +3,13 @@
         <el-alert
             v-if="vData.isInResult"
             :title="vData.jobInfo.status"
-            :type="vData.jobInfo.status === 'running' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
-            description="点击查看任务详情"
-            show-icon
+            :type="vData.jobInfo.status === 'running' || vData.jobInfo.status === 'wait_run' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
             class="fixed_alert"
         >
-            <slot>
-                <p @click.stop="methods.jumpToTaskDetail">点击查看任务详情</p>
-            </slot>
+            <elicon-bell-filled :width="14" :height="14" style="margin-left:-20px; position:relative; top:-7px;" />
+            <span style="text-decoration: underline;" class="ml5" @click.stop="methods.jumpToTaskDetail">
+                点击查看任务详情
+            </span>
         </el-alert>
         <div class="deep_flow">
             <div class="left_content">
@@ -27,7 +26,7 @@
                         >
                             <el-form-item
                                 label="流程名称："
-                                required
+                                class="is-required"
                             >
                                 <el-input
                                     v-model="vData.form.flow_name"
@@ -272,7 +271,7 @@
                                     @submit.prevent
                                     :disabled="vData.flowInfo.my_role !=='promoter'"
                                 >
-                                    <el-form-item label="算法类型：" required>
+                                    <el-form-item label="算法类型：" class="is-required">
                                         <el-select v-model="vData.deepLearnParams.program" disabled placeholder="请选择算法类型">
                                             <el-option
                                                 v-for="item in vData.classifyList"
@@ -282,7 +281,7 @@
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
-                                    <el-form-item label="模型名称：" required>
+                                    <el-form-item label="模型名称：" class="is-required">
                                         <el-select v-model="vData.deepLearnParams.architecture" placeholder="请选择模型名称">
                                             <el-option
                                                 v-for="item in vData.deepLearnParams.program === 'paddle_detection' ? vData.targetAlgorithmList : vData.imageAlgorithmList"
@@ -292,43 +291,43 @@
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
-                                    <el-form-item label="迭代次数：" required>
+                                    <el-form-item label="迭代次数：" class="is-required">
                                         <el-input
                                             v-model="vData.deepLearnParams.max_iter"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="聚合步长：" required>
+                                    <el-form-item label="聚合步长：" class="is-required">
                                         <el-input
                                             v-model="vData.deepLearnParams.inner_step"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="学习率：" required>
+                                    <el-form-item label="学习率：" class="is-required">
                                         <el-input
                                             v-model="vData.deepLearnParams.base_lr"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="图片通道数：" required>
+                                    <el-form-item label="图片通道数：" class="is-required">
                                         <el-radio-group v-model="vData.image_shape.aisle">
                                             <el-radio :label="3">彩色（3）</el-radio>
                                             <el-radio :label="1">黑白（1）</el-radio>
                                         </el-radio-group>
                                     </el-form-item>
-                                    <el-form-item label="图片宽度( px )：" required>
+                                    <el-form-item label="图片宽度( px )：" class="is-required">
                                         <el-input
                                             type="number"
                                             v-model="vData.image_shape.width"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="图片高度( px )：" required>
+                                    <el-form-item label="图片高度( px )：" class="is-required">
                                         <el-input
                                             type="number"
                                             v-model="vData.image_shape.height"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="批量大小：" required>
+                                    <el-form-item label="批量大小：" class="is-required">
                                         <el-input
                                             v-model="vData.deepLearnParams.batch_size"
                                             @blur="methods.saveFlowInfo($event)"
@@ -338,6 +337,7 @@
                             </el-tab-pane>
                             <el-tab-pane v-if="vData.jobInfo.status" label="执行结果" name="result">
                                 <deeplearning-result
+                                    ref="deeplearningResultRef"
                                     v-if="vData.showDLResult"
                                     :job-id="vData.jobInfo.job_id"
                                     :flow-node-id="vData.deepLearnNodeId"
@@ -352,10 +352,35 @@
                     </div>
                 </div>
                 <div class="operations_btn">
-                    <el-button v-show="vData.active !== 0" @click="methods.prev">上一步</el-button>
+                    <el-button v-if="vData.active !== 0" @click="methods.prev">上一步</el-button>
                     <el-button v-show="vData.active !== 2" type="primary" @click="methods.next" :disabled="vData.stopNext">下一步</el-button>
                     <span v-if="vData.stopNext" class="stop_next_tips">请确保成员数据资源标注标签统一！</span>
-                    <el-button v-show="vData.active === 2" type="primary" @click="methods.saveDeeplearningNode" :disabled="vData.flowInfo.my_role !=='promoter'">开始训练</el-button>
+                    <div v-show="vData.active === 2" class="mt20">
+                        <p class="f14 mb10">任务操作:</p>
+                        <el-button
+                            type="primary"
+                            @click="methods.saveDeeplearningNode"
+                            :disabled="vData.flowInfo.my_role !=='promoter'"
+                        >
+                            开始训练
+                        </el-button>
+                        <template v-if="vData.jobInfo.status === 'running'">
+                            <el-button
+                                type="warning"
+                                @click="methods.pause"
+                            >
+                                暂停运行
+                            </el-button>
+                        </template>
+                        <template v-if="vData.jobInfo.status === 'stop_on_running' || vData.jobInfo.status === 'error_on_running'">
+                            <el-button
+                                type="primary"
+                                @click="methods.resume"
+                            >
+                                继续运行
+                            </el-button>
+                        </template>
+                    </div>
                 </div>
             </div>
             <div class="step_header">
@@ -370,9 +395,16 @@
 </template>
 
 <script>
-    import { reactive, getCurrentInstance, ref } from 'vue';
+    import {
+        reactive,
+        getCurrentInstance,
+        nextTick,
+        ref,
+        watch,
+        onBeforeMount,
+        onBeforeUnmount,
+    } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    import { nextTick, onBeforeMount, watch, onBeforeUnmount } from '@vue/runtime-core';
     import DataSetList from '@comp/views/data-set-list';
     import DeeplearningResult from './components/deeplearning-result.vue';
 
@@ -385,10 +417,11 @@
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http, $notify, $message, $bus } = appContext.config.globalProperties;
+            const { $http, $notify, $confirm, $message, $bus } = appContext.config.globalProperties;
             const route = useRoute();
             const router = useRouter();
             const rawDataSetListRef = ref();
+            const deeplearningResultRef = ref();
             const { training_type } = route.query;
             const vData = reactive({
                 loading:    false,
@@ -505,6 +538,10 @@
                 isInResult:          false,
                 stopNext:            false,
                 memberJobDetailList: [],
+                jobDetailTimer:      null,
+                jobProgressTimer:    null,
+                pauseJobTimer:       null,
+                resumeJobTimer:      null,
             });
 
             if(vData.flowType === 'detection') {
@@ -534,6 +571,7 @@
                             vData.flowInfo = data;
                             vData.form.flow_name = data.flow_name;
                             vData.form.flow_desc = data.flow_desc;
+                            vData.flowType = data.deep_learning_job_type;
                             methods.getJobDetail();
                             if(!data.graph) {
                                 methods.createNode();
@@ -563,6 +601,12 @@
                             vData.taskInfo = data.task_views;
                             vData.isInResult = data.job.status;
                             methods.getJobMemberDetail();
+                            if(data.job.status === 'wait_run' || data.job.status === 'wait_stop') {
+                                if (vData.jobDetailTimer) clearTimeout(vData.jobDetailTimer);
+                                vData.jobDetailTimer = setTimeout(() => {
+                                    methods.getJobDetail();
+                                }, 3000);
+                            }
                         }
                     });
                 },
@@ -578,6 +622,15 @@
                     nextTick(()=>{
                         if (code === 0 && data) {
                             vData.memberJobDetailList = data;
+
+                            const isRunning = data.filter(x => x.job_status === 'running');
+
+                            if(isRunning) {
+                                if (vData.jobProgressTimer) clearTimeout(vData.jobProgressTimer);
+                                vData.jobProgressTimer = setTimeout(() => {
+                                    methods.getJobMemberDetail();
+                                }, 3000);
+                            }
                         }
                     });
                 },
@@ -986,7 +1039,6 @@
                             const { params } = data;
 
                             vData.deepLearnNodeId = data.node_id;
-                            vData.flowType = data.component_type;
                             vData.deepLearnParams.program = data.component_type === 'detection' ? 'paddle_detection' : data.component_type === 'classify' ? 'paddle_clas' : 'paddle_detection';
                             if (params) {
                                 if (params.image_shape.length) {
@@ -1080,10 +1132,67 @@
                             if(data.job_id) {
                                 $message.success('启动成功! ');
                                 methods.getJobDetail();
-
                             }
                         }
                         vData.startLoading = false;
+                    });
+                },
+                pause() {
+                    $confirm('确定要暂停任务吗', '警告', {
+                        type: 'warning',
+                    }).then(async action => {
+                        if(action === 'confirm') {
+                            vData.startLoading = true;
+                            const { code, data } = await $http.post({
+                                url:  '/flow/job/stop',
+                                data: {
+                                    jobId: vData.jobInfo.job_id,
+                                },
+                            });
+
+                            nextTick(_ => {
+                                vData.startLoading = false;
+                                if(code === 0) {
+                                    if (vData.pauseJobTimer) clearTimeout(vData.pauseJobTimer);
+                                    vData.pauseJobTimer = setTimeout(() => {
+                                        methods.getJobDetail();
+                                        deeplearningResultRef.value.methods.tabChange();
+                                    }, 500);
+                                    $message.success('操作成功! 请稍后');
+                                } else {
+                                    $message.error(data.message || '未知错误');
+                                }
+                            });
+                        }
+                    });
+                },
+                resume() {
+                    $confirm('确定要继续执行任务吗', '警告', {
+                        type: 'warning',
+                    }).then(async action => {
+                        if(action === 'confirm') {
+                            vData.startLoading = true;
+                            const { code, data } = await $http.post({
+                                url:  '/flow/job/resume',
+                                data: {
+                                    jobId: vData.jobInfo.job_id,
+                                },
+                            });
+
+                            nextTick(_ => {
+                                vData.startLoading = false;
+                                if(code === 0) {
+                                    if (vData.resumeJobTimer) clearTimeout(vData.resumeJobTimer);
+                                    vData.resumeJobTimer = setTimeout(() => {
+                                        methods.getJobDetail();
+                                        deeplearningResultRef.value.methods.tabChange();
+                                    }, 500);
+                                    $message.success('操作成功! 请稍后');
+                                } else {
+                                    $message.error(data.message || '未知错误');
+                                }
+                            });
+                        }
                     });
                 },
             };
@@ -1103,6 +1212,10 @@
 
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
+                clearTimeout(vData.jobDetailTimer);
+                clearTimeout(vData.jobProgressTimer);
+                clearTimeout(vData.pauseJobTimer);
+                clearTimeout(vData.resumeJobTimer);
             });
 
             watch(
@@ -1121,6 +1234,7 @@
                 vData,
                 methods,
                 rawDataSetListRef,
+                deeplearningResultRef,
             };
         },
     };
@@ -1133,13 +1247,11 @@
     .fixed_alert {
         position: fixed;
         left: 50%;
-        transform: translateX(-50%);
-        z-index: 2;
+        z-index:20;
         width: 30%;
+        transform: translateX(-50%);
+        padding-left: 20px;
         cursor: pointer;
-        :deep(.el-alert__description) {
-            text-decoration: underline;
-        }
     }
 }
 .deep_flow {

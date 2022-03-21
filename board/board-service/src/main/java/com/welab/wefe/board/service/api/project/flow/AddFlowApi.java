@@ -23,6 +23,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -47,6 +48,8 @@ public class AddFlowApi extends AbstractApi<AddFlowApi.Input, AddFlowApi.Output>
 
         @Check(name = "联邦类型（横向/纵向）", require = true)
         private FederatedLearningType federatedLearningType;
+        @Check(name = "深度学习任务类型（目标检测、图像分类）")
+        private DeepLearningJobType deepLearningJobType;
 
         @Check(name = "流程名", require = true)
         private String name;
@@ -73,6 +76,14 @@ public class AddFlowApi extends AbstractApi<AddFlowApi.Input, AddFlowApi.Output>
 
         public void setFederatedLearningType(FederatedLearningType federatedLearningType) {
             this.federatedLearningType = federatedLearningType;
+        }
+
+        public DeepLearningJobType getDeepLearningJobType() {
+            return deepLearningJobType;
+        }
+
+        public void setDeepLearningJobType(DeepLearningJobType deepLearningJobType) {
+            this.deepLearningJobType = deepLearningJobType;
         }
 
         public String getProjectId() {

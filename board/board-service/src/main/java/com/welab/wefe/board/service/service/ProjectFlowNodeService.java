@@ -44,11 +44,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -153,12 +153,14 @@ public class ProjectFlowNodeService {
     /**
      * Nodes in the update flow
      */
+    @Transactional(rollbackFor = Exception.class)
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
 
         // Update flow status
         projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
 
         ProjectFlowNodeMySqlModel node = findOne(input.getFlowId(), input.getNodeId());
+
         List<ProjectFlowNodeOutputModel> list = new ArrayList<>();
 
         // If the node does not exist, it will be created automatically.
@@ -177,22 +179,6 @@ public class ProjectFlowNodeService {
         }
         // If the node already exists, update it.
         else {
-            // If the parameters have not changed, jump out.
-            if (input.getParams().equals(node.getParams())) {
-
-                // Repeat the update, the DataIO data has not changed,
-                // but the previous operation may not be completed. In order to have a better experience,
-                // the feature selection component list with empty parameters is also returned.
-                if (node.getComponentType() == ComponentType.DataIO) {
-                    List<ProjectFlowNodeMySqlModel> nodes = findNodesByFlowId(node.getFlowId());
-
-                    list = nodes.stream().filter(x -> Objects.requireNonNull(Components.get(x.getComponentType())).canSelectFeatures() && x.getParams() == null)
-                            .map(x -> ModelMapper.map(x, ProjectFlowNodeOutputModel.class))
-                            .collect(Collectors.toList());
-                }
-                return list;
-            }
-
             node.setParams(input.getParams());
             node.setParamsVersion(System.currentTimeMillis());
             node.setUpdatedBy(input);
@@ -203,7 +189,7 @@ public class ProjectFlowNodeService {
         if (node.getComponentType() == ComponentType.DataIO) {
             List<ProjectFlowNodeMySqlModel> nodes = findNodesByFlowId(node.getFlowId());
             for (ProjectFlowNodeMySqlModel flowNode : nodes) {
-                if (Objects.requireNonNull(Components.get(flowNode.getComponentType())).canSelectFeatures()) {
+                if (Components.get(flowNode.getComponentType()).canSelectFeatures()) {
                     flowNode.setParams(null);
                     projectFlowNodeRepository.save(flowNode);
                     list.add(ModelMapper.map(flowNode, ProjectFlowNodeOutputModel.class));

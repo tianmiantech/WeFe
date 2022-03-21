@@ -37,7 +37,7 @@ public interface ProjectDataSetRepository extends BaseRepository<ProjectDataSetM
      * @param projectId project id
      * @param memberId  Id of the leaving member
      */
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "update #{#entityName} set audit_status='disagree',audit_comment='成员已退出，数据集不可用。' where project_id=?1 and member_id=?2 and member_role=?3", nativeQuery = true)
     void disableDataSetWhenMemberExist(String projectId, String memberId, String memberRole);

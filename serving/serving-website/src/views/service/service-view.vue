@@ -259,7 +259,7 @@
                             icon="icons el-icon-circle-plus-outline"
                             @click="addConditionFields"
                         >
-                            添加字段
+                            添加查询字段
                         </el-button>
                         <el-form-item label="参数逻辑符:">
                             <el-radio

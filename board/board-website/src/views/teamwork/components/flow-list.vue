@@ -37,9 +37,13 @@
                         :disable-transitions="true"
                         class="mr5"
                     />
-                    <router-link :to="{ name: form.project_type === 'DeepLearning' ? 'project-deeplearning-flow' : 'project-flow', query: { flow_id: scope.row.flow_id, project_id: project_id, training_type: form.project_type === 'DeepLearning' ? scope.row.deep_learning_job_type : '' } }">
+                    <el-link
+                        type="primary"
+                        :underline="false"
+                        @click="linkTo(form.project_type === 'DeepLearning' ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: form.project_type === 'DeepLearning' ? scope.row.deep_learning_job_type : '' })"
+                    >
                         {{ scope.row.flow_name }}
-                    </router-link>
+                    </el-link>
                 </template>
             </el-table-column>
             <el-table-column
@@ -83,27 +87,33 @@
             >
                 <template v-slot="scope">
                     <template v-if="form.project_type === 'DeepLearning'">
-                        <router-link
+                        <el-link
+                            type="primary"
                             class="link mr10"
-                            :to="{ name: 'project-deeplearning-flow', query: { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type }}"
+                            :underline="false"
+                            @click="linkTo('teamwork/detail/deep-learning/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type })"
                         >
                             查看
-                        </router-link>
-                        <router-link
+                        </el-link>
+                        <el-link
                             v-if="scope.row.flow_status === 'success'"
-                            class="link mr10"
-                            :to="{ name: 'check-flow', query: { flow_id: scope.row.flow_id, project_id: project_id }}"
+                            type="primary"
+                            class="mr10"
+                            :underline="false"
+                            @click="linkTo('teamwork/detail/deep-learning/check-flow', { flow_id: scope.row.flow_id, project_id: project_id })"
                         >
                             校验
-                        </router-link>
+                        </el-link>
                     </template>
-                    <router-link
+                    <el-link
                         v-else
-                        class="link mr10"
-                        :to="{ name: 'project-job-history', query: { project_id, flow_id: scope.row.flow_id }}"
+                        class="mr10"
+                        type="primary"
+                        :underline="false"
+                        @click="linkTo('teamwork/detail/job/history', { project_id, flow_id: scope.row.flow_id })"
                     >
                         执行记录
-                    </router-link>
+                    </el-link>
                     <el-dropdown v-if="scope.row.is_creator" size="small">
                         <el-button type="text" size="small">
                             更多
@@ -113,7 +123,7 @@
                         </el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item>
+                                <el-dropdown-item v-if="form.project_type !== 'DeepLearning'">
                                     <el-button
                                         type="text"
                                         size="small"
@@ -321,6 +331,8 @@
     import table from '@src/mixins/table';
     import FlowStatusTag from '@src/components/views/flow-status-tag';
 
+    const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
+
     export default {
         components: {
             FlowStatusTag,
@@ -402,11 +414,13 @@
             afterTableRender() {
                 clearTimeout(this.timer);
 
-                this.timer = setTimeout(() => {
-                    this.getFlowList({
-                        requestFromRefresh: true,
-                    });
-                }, 3000);
+                if(this.userInfo && this.userInfo.id) {
+                    this.timer = setTimeout(() => {
+                        this.getFlowList({
+                            requestFromRefresh: true,
+                        });
+                    }, 3000);
+                }
             },
 
             async getFlowList(opt = { resetPagination: false, requestFromRefresh: false }) {
@@ -523,11 +537,20 @@
                         project_id:    this.project_id,
                     };
 
-                    this.$router.push({
-                        name: deeplearning ? 'project-deeplearning-flow' : 'project-flow',
-                        query,
-                    });
+                    this.linkTo(deeplearning ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', query);
                 }
+            },
+
+            linkTo(path, query) {
+                let href = `${prefixPath}${path}?`;
+
+                for(const key in query) {
+                    const val = query[key];
+
+                    href += `${key}=${val}&`;
+                }
+
+                window.location.href = href;
             },
 
             changeProject(value) {

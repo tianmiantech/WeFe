@@ -130,6 +130,16 @@ const baseRoutes = [
                 component: () => import('../views/system/user-list'),
             },
             {
+                path: `${prefixPath}log-list`,
+                name: 'log-list',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '用户日志',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/account/log-list'),
+            },
+            {
                 path: `${prefixPath}account-setting`,
                 name: 'account-setting',
                 meta: {
@@ -159,6 +169,16 @@ const baseRoutes = [
             requiresLogout: true,
         },
         component: () => import('../views/sign/register.vue'),
+    },
+    {
+        path: `${prefixPath}change-password`,
+        name: 'change-password',
+        meta: {
+            title:        '修改登录密码',
+            hidden:       true,
+            requiresAuth: true,
+        },
+        component: () => import('../views/sign/change-password.vue'),
     },
     {
         path: `${prefixPath}find-password`,

@@ -21,6 +21,7 @@ import com.welab.wefe.data.fusion.service.database.repository.base.BaseRepositor
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Zane
@@ -34,4 +35,28 @@ public interface AccountRepository extends BaseRepository<AccountMysqlModel, Str
     @Modifying(clearAutomatically = true)
     @Query(value = "update account a set a.superAdminRole = false,a.adminRole = false where a.id =?1 ")
     void cancelSuperAdmin(String id);
+
+
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} set last_action_time = now() where id =?1 ", nativeQuery = true)
+    void updateLastActionTime(String id);
+
+
+    /**
+     * 禁用 90 天未活动的账号
+     */
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} set enable=false where DATEDIFF(now(),last_action_time)>90", nativeQuery = true)
+    int disableAccountWithoutAction90Days();
+
+    /**
+     * 注销 180 天未活动的账号
+     */
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} set cancelled=true where DATEDIFF(now(),last_action_time)>180", nativeQuery = true)
+    int cancelAccountWithoutAction180Days();
 }

@@ -325,6 +325,9 @@
                             placeholder="password"
                             type="password"
                             clearable
+                            @paste.native.prevent
+                            @copy.native.prevent
+                            @contextmenu.native.prevent
                         >
                             <template v-slot:append>
                                 <el-button

@@ -118,7 +118,11 @@
             <artifactId>dysmsapi20170525</artifactId>
             <version>2.0.5</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.vladmihalcea</groupId>
+            <artifactId>hibernate-types-52</artifactId>
+            <version>2.4.2</version>
+        </dependency>
 
     </dependencies>
 

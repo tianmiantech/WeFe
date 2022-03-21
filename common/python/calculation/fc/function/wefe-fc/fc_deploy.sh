@@ -2,22 +2,39 @@
 
 # code path
 wefe_code_path=$1
+# function dir
+if [ ! ${wefe_code_path} ]; then
+  echo "wefe_code_path is null"
+  wefe_code_path=/opt/welab/wefe
+fi
 
 # upload files to nas
 nas_upload(){
-
-  rm -rf .s/
-
-  s clean --all
 
   s config add --AccessKeyID $access_key_id --AccessKeySecret  $access_key_secret --AccountID $account_id --aliasName s-config
 
   # init project
   s nas init
 
+  # delete remote dir
+  s nas command rm -rf /mnt/auto/$nas_env/pythonCode --debug
+
+  # create env dir
+  mkdir -p $nas_env/pythonCode
+  has_env=`s nas command ls  -l nas:///mnt/auto`
+  if [[ $has_env =~ $nas_env ]]
+  then
+    echo 'has env dir, upload pythonCode ...'
+    s nas upload -r -o ./$nas_env/pythonCode /mnt/auto/$nas_env/ --debug
+  else
+    echo 'has not env dir, upload env dir ...'
+    s nas upload -r -o ./$nas_env /mnt/auto/ --debug
+  fi
+  rm -rf $nas_env
+
   # copy root, python, config.properties
-  has_python=`s nas command ls  -l nas:///mnt/auto`
-  if [[ $has_python =~ 'python' ]]
+  has_python=`s nas command ls  -l nas:///mnt/auto/$nas_env`
+  if [[ $has_python == 'python' ]]
   then
     echo "has python, root environment."
   else
@@ -25,19 +42,15 @@ nas_upload(){
     if [ ! -d $root_dir ]; then
       echo "local dir has no python, root environment, now run 's build --use-docker' command to download ..."
       s build --use-docker --debug
-    else
-      echo "remote nas has no python environment, now upload to nas ..."
-      s nas upload -r -o /data/environment/.s/python /mnt/auto/ --debug
+      echo 'copy new python, root to path: /data/environment/.s/ '
+      cp -rf .s/build/artifacts/wefe-fc/index/.s/python /data/environment/.s/
+      cp -rf .s/build/artifacts/wefe-fc/index/.s/root /data/environment/.s/
     fi
+
+    echo 'upload new python to NAS ...'
+    s nas upload -r -o /data/environment/.s/python /mnt/auto/$nas_env --debug
+    s nas upload -r -o /data/environment/.s/root /mnt/auto/$nas_env --debug
   fi
-
-  # delete remote dir
-  s nas command rm -rf /mnt/auto/$nas_env --debug
-
-  # create env dir
-  mkdir -p $nas_env/pythonCode
-  s nas upload -r -o ./$nas_env /mnt/auto/ --debug
-  rm -rf $nas_env
 
   # cp common, kernel to build dir
   cd ../../../../../../
@@ -93,6 +106,12 @@ fc_deploy(){
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
   fi
 
+  if [ ! ${nas_env} ]; then
+    echo "nas env is null"
+  else
+    sed -i "s|fc-env:.*|fc-env: ${nas_env}|" s.yaml
+  fi
+
   if [[ ${account_type,,} == "admin" ]]; then
     echo "account_type is admin, auto to create fc role"
     sed -i '9s/^/#/' s.yaml
@@ -105,13 +124,13 @@ fc_deploy(){
 
   if [[ ! $vpc_id ]] || [[ $vpc_id == "" ]]; then
     echo "vpc_id is null"
-    sed -i '11,14s/^/#/' s.yaml
+    sed -i  '11,14s/^/#/' s.yaml
   else
     echo "vpc_id is not null"
-    sed -i '11,14s/^#*//' s.yaml
-    sed -i "s|vpcId: .*|vpcId: ${vpc_id}|g" s.yaml
-    sed -i "s|vswitchIds: .*|vswitchIds: [\"${v_switch_ids}\"]|g" s.yaml
-    sed -i "s|securityGroupId: .*|securityGroupId: ${security_group_id}|g" s.yaml
+    sed -i  '11,14s/^#*//' s.yaml
+    sed -i  "s|vpcId: .*|vpcId: ${vpc_id}|g" s.yaml
+    sed -i  "s|vswitchIds: .*|vswitchIds: [\"${v_switch_ids}\"]|g" s.yaml
+    sed -i  "s|securityGroupId: .*|securityGroupId: ${security_group_id}|g" s.yaml
   fi
 
   echo '2. upload the python environment and code to NAS ...'
@@ -119,35 +138,10 @@ fc_deploy(){
 
   echo '3. deploying function ...'
   cd $fc_dir
-  # modify s.yaml
-  sed -i "s|mnt/auto/pythonCode|mnt/auto/${nas_env}/pythonCode|" s.yaml
 
   #fun deploy -y
   s deploy all --use-local -y
   echo 'deploy completed !'
 }
 
-
-if_fc(){
-
-  # function dir
-  if [ ! ${wefe_code_path} ]; then
-    echo "wefe_code_path is null"
-    wefe_code_path=/opt/welab/wefe
-  fi
-
-  backend=$(grep -v "^#" ${wefe_code_path}/config.properties | grep "wefe.job.backend=*")
-  backend=${backend##*=}
-
-  if [[ $backend == "FC" ]] || [[ $backend == "fc" ]] ; then
-    echo "use Function Computing, now deploy Functions ... "
-    fc_deploy
-  fi
-}
-
-if_fc
-
-
-
-
-
+fc_deploy

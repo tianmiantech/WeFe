@@ -235,7 +235,7 @@
                         type:  'img',
                     },
                     TableDataSet: {
-                        label: '数据集',
+                        label: '结构化数据集',
                         type:  'csv',
                     },
                 },

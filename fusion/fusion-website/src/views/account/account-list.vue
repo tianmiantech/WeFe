@@ -135,6 +135,15 @@
                 </template>
             </el-table-column>
             <el-table-column
+                label="是否已注销"
+                min-width="140"
+                align="center"
+            >
+                <template v-slot="scope">
+                    {{ scope.row.cancelled ? '是' : '否' }}
+                </template>
+            </el-table-column>
+            <el-table-column
                 label="注册时间"
                 min-width="140"
             >
@@ -273,32 +282,27 @@
             将重置 <strong class="primary-color">
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!
-            <p class="mt10 mb10">原密码将失效, <strong class="color-danger">新密码仅可查看一次!</strong></p>
-            <p>是否继续操作?</p>
+            <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
+            <span class="color-danger">*</span> 操作人登录密码:
+            <el-input
+                v-model="resetPwDialog.operatorPassword"
+                style="width: 200px;"
+                type="password"
+                @paste.prevent
+                @copy.prevent
+                @contextmenu.prevent
+            />
             <template #footer>
                 <el-button
                     type="danger"
                     @click="confirmReset"
                 >
-                    是
+                    确定
                 </el-button>
                 <el-button @click="resetPwDialog.visible = false">
-                    否
+                    取消
                 </el-button>
             </template>
-        </el-dialog>
-
-        <el-dialog
-            :visible.sync="resetPwDialog.result"
-            width="340px"
-            title="新用户密码"
-            destroy-on-close
-        >
-            <div style="margin-top:-15px">
-                密码已重置为:
-                <p class="new_password">{{ resetPwDialog.new_password }}</p>
-                <p class="color-danger f12">请勿随意传播!</p>
-            </div>
         </el-dialog>
 
         <el-dialog
@@ -397,6 +401,7 @@
 import { mapGetters } from 'vuex';
 import table from '@src/mixins/table.js';
 import { baseLogout } from '@src/router/auth';
+import md5 from 'js-md5';
 
 export default {
     mixins: [table],
@@ -424,11 +429,10 @@ export default {
                 audit_comment: '',
             },
             resetPwDialog: {
-                visible:      false,
-                id:           '',
-                nickname:     '',
-                result:       false,
-                new_password: '',
+                visible:          false,
+                id:               '',
+                nickname:         '',
+                operatorPassword: '',
             },
             userRoleDialog: {
                 id:         '',
@@ -518,10 +522,25 @@ export default {
             this.resetPwDialog.visible = true;
         },
         async confirmReset($event) {
+            const { operatorPassword } = this.resetPwDialog;
+            const { phone_number } = this.userInfo;
+
+            if(!operatorPassword) {
+                return this.$message.error('请输入你的帐号密码');
+            }
+
+            const password = [
+                phone_number,
+                operatorPassword,
+                phone_number,
+                phone_number.substr(0, 3),
+                operatorPassword.substr(operatorPassword.length - 3),
+            ].join('');
             const { code, data } = await this.$http.post({
                 url:  '/account/reset/password',
                 data: {
-                    id: this.resetPwDialog.id,
+                    id:       this.resetPwDialog.id,
+                    password: md5(password),
                 },
                 btnState: {
                     target: $event,
@@ -529,9 +548,16 @@ export default {
             });
 
             if (code === 0) {
+                this.resetPwDialog.operatorPassword = '';
                 this.resetPwDialog.visible = false;
-                this.resetPwDialog.result = true;
-                this.resetPwDialog.new_password = data;
+                this.$alert(`该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`, '操作成功', {
+                    type:                     'warning',
+                    dangerouslyUseHTMLString: true,
+                    confirmButtonText:        '确定',
+                });
+                setTimeout(() => {
+                    this.refresh();
+                }, 300);
             }
         },
         changeUserRole(row) {

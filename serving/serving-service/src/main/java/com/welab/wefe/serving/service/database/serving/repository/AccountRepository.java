@@ -16,12 +16,13 @@
 
 package com.welab.wefe.serving.service.database.serving.repository;
 
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
-
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
 
 /**
  * @author hunter.zhao
@@ -30,12 +31,35 @@ import org.springframework.stereotype.Repository;
 public interface AccountRepository extends BaseRepository<AccountMySqlModel, String> {
     /**
      * Look for the phone number
+     *
      * @param phoneNumber
      * @return AccountMySqlModel
      */
     AccountMySqlModel findByPhoneNumber(String phoneNumber);
-    
+
+    @Transactional
     @Modifying(clearAutomatically = true)
     @Query(value = "update account a set a.superAdminRole = false,a.adminRole = false where a.id =?1 ")
     void cancelSuperAdmin(String id);
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update account set last_action_time = now() where id =?1 ", nativeQuery = true)
+    void updateLastActionTime(String id);
+    
+    /**
+     * 禁用 90 天未活动的账号
+     */
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update account set enable=false, audit_comment='scheduled' where DATEDIFF(now(),last_action_time)>90", nativeQuery = true)
+    int disableAccountWithoutAction90Days();
+    
+    /**
+     * 注销 180 天未活动的账号
+     */
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update account set cancelled=true, audit_comment='scheduled' where DATEDIFF(now(),last_action_time)>180", nativeQuery = true)
+    int cancelAccountWithoutAction180Days();
 }
