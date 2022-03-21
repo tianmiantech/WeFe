@@ -126,7 +126,7 @@
                     callback(false);
                 }
             },
-            submit() {
+            submit(event) {
                 this.$refs['form'].validate(async valid => {
                     if(valid) {
                         if(this.$refs['password-strength'].pwStrength < 3) {
@@ -152,6 +152,9 @@
                             data: {
                                 oldPassword: md5(oldPassword),
                                 newPassword: md5(password),
+                            },
+                            btnState: {
+                                target: event,
                             },
                         });
 

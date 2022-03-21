@@ -181,7 +181,7 @@
                     callback(false);
                 }
             },
-            submit() {
+            submit(event) {
                 this.$refs['form'].validate(async valid => {
                     if(valid) {
                         if(this.$refs['password-strength'].pwStrength < 3) {
@@ -189,17 +189,17 @@
                         }
 
                         const oldPassword = [
-                            this.form.phone,
+                            this.userInfo.phone_number,
                             this.form.old_password,
-                            this.form.phone,
-                            this.form.phone.substr(0, 3),
+                            this.userInfo.phone_number,
+                            this.userInfo.phone_number.substr(0, 3),
                             this.form.old_password.substr(this.form.old_password.length - 3),
                         ].join('');
                         const password = [
-                            this.form.phone,
+                            this.userInfo.phone_number,
                             this.form.new_password,
-                            this.form.phone,
-                            this.form.phone.substr(0, 3),
+                            this.userInfo.phone_number,
+                            this.userInfo.phone_number.substr(0, 3),
                             this.form.new_password.substr(this.form.new_password.length - 3),
                         ].join('');
                         const { code } = await this.$http.post({
@@ -207,6 +207,9 @@
                             data: {
                                 oldPassword: md5(oldPassword),
                                 newPassword: md5(password),
+                            },
+                            btnState: {
+                                target: event,
                             },
                         });
 
