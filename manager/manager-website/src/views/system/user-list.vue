@@ -49,6 +49,7 @@
             </template>
             <el-table-column label="序号" type="index"></el-table-column>
             <el-table-column label="用户名" prop="nickname" width="140" />
+            <el-table-column label="手机号" prop="phone_number" width="140" />
             <el-table-column label="邮箱" prop="email" width="180" />
             <el-table-column label="用户角色" width="140">
                 <template v-slot="scope">
@@ -73,6 +74,24 @@
                     <el-tag v-if="scope.row.audit_status === 'auditing'">
                         待审核
                     </el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="已注销"
+                align="center"
+                width="70"
+            >
+                <template v-slot="scope">
+                    <span
+                        v-if="scope.row.cancelled"
+                    >
+                        <i class="el-icon-check"></i>
+                    </span>
+                    <span
+                        v-else
+                    >
+                        <i class="el-icon-close"></i>
+                    </span>
                 </template>
             </el-table-column>
             <el-table-column

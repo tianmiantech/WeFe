@@ -135,12 +135,21 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="是否已注销"
-                min-width="140"
+                label="已注销"
                 align="center"
+                width="70"
             >
                 <template v-slot="scope">
-                    {{ scope.row.cancelled ? '是' : '否' }}
+                    <span
+                        v-if="scope.row.cancelled"
+                    >
+                        <i class="el-icon-check" />
+                    </span>
+                    <span
+                        v-else
+                    >
+                        <i class="el-icon-close" />
+                    </span>
                 </template>
             </el-table-column>
             <el-table-column
