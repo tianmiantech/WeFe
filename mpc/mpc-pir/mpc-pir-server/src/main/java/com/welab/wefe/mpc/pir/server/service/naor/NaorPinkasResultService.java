@@ -16,9 +16,9 @@
 
 package com.welab.wefe.mpc.pir.server.service.naor;
 
-import cn.hutool.core.util.ObjectUtil;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import com.welab.wefe.mpc.cache.intermediate.CacheUtil;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.commom.Conversion;
 import com.welab.wefe.mpc.pir.protocol.ro.hf.HashFunction;
@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public class NaorPinkasResultService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NaorPinkasResultService.class);
@@ -55,8 +54,8 @@ public class NaorPinkasResultService {
         CompletableFuture<Map<String, String>> queryResult = CompletableFuture.supplyAsync(() -> queryResult(uuid));
 
         CacheOperation<String> cacheOperation = CacheOperationFactory.getCacheOperation();
-        String aString = cacheOperation.get(uuid, Constants.PIR.NAORPINKAS_A);
-        String pString = cacheOperation.get(uuid, Constants.PIR.NAORPINKAS_P);
+        String aString = CacheUtil.get(uuid, Constants.PIR.NAORPINKAS_A, cacheOperation);
+        String pString = CacheUtil.get(uuid, Constants.PIR.NAORPINKAS_P, cacheOperation);
         BigInteger a = DiffieHellmanUtil.hexStringToBigInteger(aString);
         BigInteger p = DiffieHellmanUtil.hexStringToBigInteger(pString);
         BigInteger pk = DiffieHellmanUtil.hexStringToBigInteger(pkHexString);
@@ -64,8 +63,8 @@ public class NaorPinkasResultService {
         BigInteger enPk = DiffieHellmanUtil.encrypt(pk, a, p);
 
         CacheOperation<List<String>> operation = CacheOperationFactory.getCacheOperation();
-        List<String> randoms = operation.get(uuid, Constants.PIR.NAORPINKAS_RANDOM);
-        List<String> conditions = operation.get(uuid, Constants.PIR.NAORPINKAS_CONDITION);
+        List<String> randoms = CacheUtil.get(uuid, Constants.PIR.NAORPINKAS_RANDOM, operation);
+        List<String> conditions = CacheUtil.get(uuid, Constants.PIR.NAORPINKAS_CONDITION, operation);
 
         HashFunction hash = new Sha256();
 
@@ -108,15 +107,7 @@ public class NaorPinkasResultService {
 
     private Map<String, String> queryResult(String uuid) {
         CacheOperation<Map<String, String>> queryDataResult = CacheOperationFactory.getCacheOperation();
-        Map<String, String> result = queryDataResult.get(uuid, Constants.RESULT);
-        while (ObjectUtil.isNull(result)) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-            result = queryDataResult.get(uuid, Constants.RESULT);
-        }
+        Map<String, String> result = CacheUtil.get(uuid, Constants.RESULT, queryDataResult);
         LOGGER.info("get result finish");
         return result;
     }
