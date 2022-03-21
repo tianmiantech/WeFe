@@ -173,7 +173,7 @@ public class MixSecureBoostComponent extends AbstractModelingComponent<MixSecure
             private float subsampleFeatureRate;
             @Check(name = "多次迭代无变化是允许停止", require = true)
             private boolean nIterNoChange;
-            @Check(name = "收敛阀值", require = true)
+            @Check(name = "收敛阈值", require = true)
             private float tol;
             @Check(name = "最大分箱数", require = true)
             private int binNum;
