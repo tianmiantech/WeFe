@@ -51,15 +51,6 @@ public class TransferMetaDataAsyncSaveService {
     private MessageService messageService;
 
     /**
-     * BaseStorage method used for function calculation
-     */
-    @Value(value = "${fc.storage.type}")
-    private String storageType;
-
-    @Value(value = "${wefe.job.backend}")
-    private JobBackendType flowBackend;
-
-    /**
      * Save entity data to database
      */
     @Async("transferMetaDataAsyncExecutor")
@@ -118,7 +109,6 @@ public class TransferMetaDataAsyncSaveService {
                 args.put("fc_namespace", fcDbName);
                 args.put("fc_name", fcTableName);
                 LOG.info("The amount of data is：" + dateItemModelList.size());
-                LOG.info("flowBackend is：" + flowBackend.toString());
                 LOG.info("storageType: " + storageType);
 
                 if ("ots".equalsIgnoreCase(storageType)) {
