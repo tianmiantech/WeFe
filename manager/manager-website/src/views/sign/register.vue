@@ -269,10 +269,7 @@
                     callback(false);
                 }
             },
-            submit() {
-                if (this.submitting) return;
-
-                this.submitting = true;
+            submit(event) {
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
                         // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
@@ -296,6 +293,9 @@
                                 key:          this.form.key,
                                 code:         this.form.code,
                             },
+                            btnState: {
+                                target: event,
+                            },
                         });
 
                         if (code === 0) {
@@ -310,7 +310,6 @@
                         this.getImgCode();
                     }
                 });
-                this.submitting = false;
             },
         },
     };
