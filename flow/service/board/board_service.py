@@ -94,12 +94,13 @@ class BoardService:
         BoardService.LOG.info(
             "board request url:{}, {}".format(url, str(data))
         )
-
+        start_time = current_timestamp()
+        spend = 0
         try:
-            start_time = current_timestamp()
             response: Response = requests.post(url, json=data)
             spend = current_timestamp() - start_time
         except Exception as e:
+            spend = current_timestamp() - start_time
             mess = "board response fail url:{}, {}".format(url, repr(e))
             BoardService.LOG.error(mess)
             return {

@@ -1,26 +1,28 @@
 -- 用户账号表
 
-CREATE TABLE `account`
-(
-    `id`               varchar(32)  NOT NULL COMMENT '全局唯一标识',
-    `created_by`       varchar(32)  DEFAULT NULL COMMENT '创建人',
-    `created_time`     datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`       varchar(32)  DEFAULT NULL COMMENT '更新人',
-    `updated_time`     datetime(6) DEFAULT NULL COMMENT '更新时间',
-    `phone_number`     varchar(32)  NOT NULL COMMENT '手机号',
-    `password`         varchar(128) NOT NULL COMMENT '密码',
-    `salt`             varchar(128) NOT NULL COMMENT '盐',
-    `nickname`         varchar(32)  NOT NULL COMMENT '昵称',
-    `email`            varchar(128) NOT NULL COMMENT '邮箱',
-    `super_admin_role` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员 超级管理员通常是第一个创建并初始化系统的那个人',
-    `admin_role`       tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是管理员 管理员有更多权限，比如设置 menber 是否对外可见。',
-    `audit_status`     varchar(32)  NOT NULL COMMENT '审核状态',
-    `audit_comment`    varchar(512) DEFAULT NULL COMMENT '审核意见',
-    `enable`           tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可用',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
-    KEY                `idx_create_time` (`created_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号';
+CREATE TABLE `account` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `cancelled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
+  `last_action_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '最后活动时间',
+  `history_password_list` text COMMENT '历史曾用密码',
+  `phone_number` varchar(32) DEFAULT NULL,
+  `password` varchar(128) NOT NULL COMMENT '密码',
+  `salt` varchar(128) NOT NULL COMMENT '盐',
+  `nickname` varchar(32) NOT NULL COMMENT '昵称',
+  `email` varchar(128) NOT NULL COMMENT '邮箱',
+  `super_admin_role` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员 超级管理员通常是第一个创建并初始化系统的那个人',
+  `admin_role` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是管理员 管理员有更多权限，比如设置 menber 是否对外可见。',
+  `audit_status` varchar(32) NOT NULL DEFAULT '' COMMENT '审核状态',
+  `audit_comment` varchar(512) DEFAULT NULL COMMENT '审核意见',
+  `enable` tinyint(1) NOT NULL COMMENT '是否可用',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
+  KEY `idx_create_time` (`created_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='账号 ';
 
 -- 全局设置表
 
@@ -208,7 +210,7 @@ DROP TABLE IF EXISTS client;
 CREATE TABLE client
 (
     id           VARCHAR(32)  NOT NULL COMMENT '客户id',
-    name         VARCHAR(255) NOT NULL COMMENT '客户名称',
+    name         VARCHAR(255) NOT NULL UNIQUE COMMENT '客户名称',
     created_by   varchar(32)           DEFAULT NULL COMMENT '创建人',
     created_time datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_by   varchar(32)           DEFAULT NULL COMMENT '更新人',
@@ -328,3 +330,20 @@ CREATE TABLE payments_records
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '收支记录';
 CREATE UNIQUE INDEX payments_records_index ON payments_records (id, service_id, client_id);
 
+CREATE TABLE `operator_log` (
+  `id` varchar(32) NOT NULL COMMENT '操作日志编号',
+  `log_interface` varchar(50) DEFAULT NULL COMMENT '请求接口',
+  `interface_name` varchar(1024) DEFAULT NULL COMMENT '请求接口名称',
+  `request_ip` varchar(20) DEFAULT NULL COMMENT '请求IP',
+  `operator_id` varchar(32) DEFAULT NULL COMMENT '操作人员编号',
+  `token` varchar(100) DEFAULT NULL COMMENT '请求token',
+  `log_action` varchar(50) DEFAULT NULL COMMENT '操作行为',
+  `result_code` int(20) DEFAULT NULL COMMENT '请求结果code',
+  `result_message` text COMMENT '请求结果消息',
+  `request_time` datetime(6) DEFAULT NULL COMMENT '请求时间',
+  `spend` int(11) DEFAULT NULL COMMENT '处理时长',
+  `created_time` datetime(6) DEFAULT NULL COMMENT '创建时间',
+  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `query_index` (`created_time`,`log_action`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

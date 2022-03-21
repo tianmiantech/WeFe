@@ -5,10 +5,22 @@
                 服务状态
             </div>
         </template>
-        <ServiceStatusItem service="UnionService" />
-        <ServiceStatusItem service="BoardService" />
-        <ServiceStatusItem service="GatewayService" />
-        <ServiceStatusItem service="FlowService" />
+        <ServiceStatusItem
+            service="UnionService"
+            desc="联邦服务"
+        />
+        <ServiceStatusItem
+            service="BoardService"
+            desc="控制台服务"
+        />
+        <ServiceStatusItem
+            service="GatewayService"
+            desc="网关服务"
+        />
+        <ServiceStatusItem
+            service="FlowService"
+            desc="工作流服务"
+        />
     </el-card>
 </template>
 

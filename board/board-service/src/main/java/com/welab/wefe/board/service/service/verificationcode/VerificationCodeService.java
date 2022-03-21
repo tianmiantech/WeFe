@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.VerificationCodeMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.VerificationCodeRepository;
+import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
@@ -88,7 +89,7 @@ public class VerificationCodeService {
             throw new StatusCodeWithException(VALID_DURATION_MINUTES + "分钟内禁止多次获取验证码", StatusCode.ILLEGAL_REQUEST);
         }
 
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", mobile, AccountMysqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(mobile), AccountMysqlModel.class);
         // phone number error
         if (model == null) {
             throw new StatusCodeWithException("手机号错误，该用户不存在", StatusCode.PARAMETER_VALUE_INVALID);

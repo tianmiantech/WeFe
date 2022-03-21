@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface BloomFilterColumnRepository extends BaseRepository<BloomFilterColumnMysqlModel, String> {
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     void deleteByBloomFilterId(String bloomFilterId);
 }

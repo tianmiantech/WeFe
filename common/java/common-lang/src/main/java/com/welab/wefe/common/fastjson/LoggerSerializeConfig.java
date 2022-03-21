@@ -16,6 +16,9 @@
 package com.welab.wefe.common.fastjson;
 
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import org.springframework.core.io.FileSystemResource;
+
+import java.io.File;
 
 /**
  * 当对象序列化后输出到日志中时，使用此自定义序列化可以避免输出过长的日志。
@@ -34,6 +37,8 @@ public class LoggerSerializeConfig {
 
     private LoggerSerializeConfig() {
         LOG_SERIALIZE_CONFIG.put(String.class, new LogCharSequenceSerializer());
+        LOG_SERIALIZE_CONFIG.put(File.class, new FileSerializer());
+        LOG_SERIALIZE_CONFIG.put(FileSystemResource.class, new FileSystemResourceSerializer());
     }
 
     public static SerializeConfig instance() {

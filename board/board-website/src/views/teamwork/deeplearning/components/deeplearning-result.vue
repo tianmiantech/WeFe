@@ -18,8 +18,8 @@
                         <li v-for="item in memberJobDetailList" :key="item.member_id">
                             {{item.member_name}}:
                             <div style="margin-left: 20px;">
-                                <p :style="{'color': item.job_status === 'success' ? 'green' : '#f00'}">job: {{item.job_status}}</p>
-                                <p :style="{'color': item.task_status === 'success' ? 'green' : '#f00'}">task: {{item.task_status}}</p>
+                                <p :style="{'color': item.job_status === 'success' ? 'green' : '#f85564'}">job: {{item.job_status}}</p>
+                                <p :style="{'color': item.task_status === 'success' ? 'green' : '#f85564'}">task: {{item.task_status}}</p>
                                 <p>message:  {{item.message}}</p>
                             </div>
                         </li>
@@ -115,7 +115,7 @@
 
             onMounted(_=> {
                 window.onresize = () => {
-                    LineChart.value.chartResize();
+                    LineChart.value && LineChart.value.chartResize();
                 };
             });
 

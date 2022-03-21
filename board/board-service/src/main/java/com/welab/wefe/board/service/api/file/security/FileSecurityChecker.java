@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,10 +37,12 @@ public abstract class FileSecurityChecker {
      * 允许的文件类型
      */
     private static final List<String> ALLOW_FILE_TYPES = Arrays.asList(
-            "xls", "xlsx", "csv", "zip", "gz", "tgz", "7z"
+            "xls", "xlsx", "csv",
+            "zip", "gz", "tgz", "7z",
+            "jpg", "jpeg", "png"
     );
 
-    protected abstract void doCheck(File file) throws IOException;
+    protected abstract void doCheck(File file) throws Exception;
 
     public static void check(File file) throws Exception {
 
@@ -62,6 +63,11 @@ public abstract class FileSecurityChecker {
                 case "gz":
                 case "tgz":
                 case "7z":
+                    break;
+                case "jpg":
+                case "jpeg":
+                case "png":
+                    new ImageSecurityChecker().doCheck(file);
                     break;
                 default:
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);

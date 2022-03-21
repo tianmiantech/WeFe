@@ -73,12 +73,12 @@ class PaddleFLJob(Job):
         self._weights = Path(__logs_dir__).joinpath(
                 f"jobs/{self.job_id}/trainer_{self._local_trainer_indexs[0]}/checkpoint/{cur_step}")
         self._algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{self.job_id}/master/algorithm_config.json")
+
+        architecture = algorithm_config["architecture"]
         if self._program == "paddle_detection":
-            architecture = algorithm_config["architecture"]
             program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
-            default_config_name = 'default_algorithm_config.yml'
-            self._algorithm_config_path = os.path.join(program_full_path, "configs", architecture.lower(),
-                                                    default_config_name)
+            config_name = f'{architecture}.yml'
+            self._algorithm_config_path = os.path.join(program_full_path, "configs", architecture.split('_')[0],config_name)
 
     @property
     def resource_required(self):

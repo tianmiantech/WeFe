@@ -47,15 +47,18 @@ public class DataResourceLazyUpdateTask {
             try {
                 LOG.info("DataResourceLazyUpdate start dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
                 DataResource dataResource = dataResourceMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
-                dataResource.setTotalDataCount(String.valueOf(dataResourceLazyUpdateModel.getTotalDataCount()));
-                dataResourceContractService.update(dataResource);
-
-                ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
-                imageDataSet.setDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
-                imageDataSet.setLabeledCount(String.valueOf(dataResourceLazyUpdateModel.getLabeledCount()));
-                imageDataSet.setLabelList(dataResourceLazyUpdateModel.getLabelList());
-                imageDataSet.setLabelCompleted(String.valueOf(dataResourceLazyUpdateModel.isLabelCompleted() ? 1 : 0));
-                imageDataSetContractService.update(imageDataSet);
+                if(dataResource != null) {
+                    dataResource.setTotalDataCount(String.valueOf(dataResourceLazyUpdateModel.getTotalDataCount()));
+                    dataResourceContractService.update(dataResource);
+                    ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
+                    if(imageDataSet != null) {
+                        imageDataSet.setDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
+                        imageDataSet.setLabeledCount(String.valueOf(dataResourceLazyUpdateModel.getLabeledCount()));
+                        imageDataSet.setLabelList(dataResourceLazyUpdateModel.getLabelList());
+                        imageDataSet.setLabelCompleted(String.valueOf(dataResourceLazyUpdateModel.isLabelCompleted() ? 1 : 0));
+                        imageDataSetContractService.update(imageDataSet);
+                    }
+                }
                 LOG.info("DataResourceLazyUpdate end dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
             } catch (StatusCodeWithException e) {
                 LOG.error("DataResourceLazyUpdate error dataResourceId: " + dataResourceLazyUpdateModel.getDataResourceId(), e);

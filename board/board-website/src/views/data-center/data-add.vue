@@ -230,10 +230,12 @@
                             </el-form-item>
                         </el-form>
 
-                        <ul class="data-set-upload-tip">
-                            <li>主键字段必须是第一列，并且会被自动 hash</li>
-                            <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
-                            <li>y 值列的列名必须为 y</li>
+                        <ul v-if="addDataType !== 'img'" class="data-set-upload-tip">
+                            <template v-if="addDataType === 'csv'">
+                                <li>主键字段必须是第一列，并且会被自动 hash</li>
+                                <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
+                                <li>y 值列的列名必须为 y</li>
+                            </template>
                             <li>csv 文件请使用 utf-8 编码格式</li>
                         </ul>
                     </fieldset>
@@ -476,7 +478,7 @@
                 class="flex-form"
                 @submit.prevent
             >
-                <el-form-item label="数据源名称" required>
+                <el-form-item label="数据源名称" class="is-required">
                     <el-input v-model="dataSource.name" placeholder="dataset-sql"></el-input>
                 </el-form-item>
                 <el-form-item label="数据库类型">
@@ -488,21 +490,21 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="IP" required>
+                <el-form-item label="IP" class="is-required">
                     <el-input
                         v-model="dataSource.host"
                         placeholder="192.168.10.1"
                         clearable
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="端口" required>
+                <el-form-item label="端口" class="is-required">
                     <el-input
                         v-model="dataSource.port"
                         placeholder="3306"
                         clearable
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="库名" required>
+                <el-form-item label="库名" class="is-required">
                     <el-input
                         v-model="dataSource.databaseName"
                         placeholder="test"
@@ -524,6 +526,9 @@
                         placeholder="password"
                         type="password"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     ></el-input>
                 </el-form-item>
                 <el-form-item>
@@ -1142,10 +1147,7 @@
                         for(const i in encryptionList) {
                             const x = encryptionList[i];
 
-                            if(!x.features) {
-                                return this.$message.error('请选择特征列');
-                            }
-                            if(!x.encryption) {
+                            if(!x.encryption || x.features.length === 0) {
                                 return this.$message.error('请选择特征列');
                             }
 
