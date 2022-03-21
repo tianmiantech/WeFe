@@ -344,7 +344,7 @@ public class ProjectFlowJobService extends AbstractService {
                     return x;
                 })
         );
-
+        projectFlowService.updateFlowStatus(job.getFlowId(), ProjectFlowStatus.wait_run);
         flowActionQueueService.runJob(input, input.getJobId(), project.getProjectType());
 
         gatewayService.syncToOtherJobMembers(job.getJobId(), input, ResumeJobApi.class);
