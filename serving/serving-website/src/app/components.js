@@ -1,6 +1,7 @@
 import Element from 'element-ui';
 import ElDialog from '../components/dialog';
-import TableEmptyData from '../components/TableEmptyData';
+import PasswordStrength from '../components/PasswordStrength.vue';
+import TableEmptyData from '../components/TableEmptyData.vue';
 
 export default {
     install (Vue) {
@@ -9,6 +10,7 @@ export default {
 
         Vue.prototype.$ELEMENT = { size: 'small' };
 
+        Vue.component('PasswordStrength', PasswordStrength);
         Vue.component('TableEmptyData', TableEmptyData);
     },
 };

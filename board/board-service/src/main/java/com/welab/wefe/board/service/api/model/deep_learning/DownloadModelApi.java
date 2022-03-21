@@ -83,7 +83,7 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
                 // 请求超时时间
                 .setConnectTimeout(10 * 1000)
                 // 响应超时时间
-                .setSocketTimeout(1000 * 60 * 60)
+                .setSocketTimeout(10_000)
                 .build();
         CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
         HttpGet httpGet = new HttpGet(url);

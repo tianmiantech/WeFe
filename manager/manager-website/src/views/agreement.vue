@@ -190,11 +190,10 @@
             async filePreview(event, row) {
                 this.editId = row.id;
                 this.loading = true;
-                const { code, data, response: { headers }  } = await this.$http.post({
+                const { code, data } = await this.$http.post({
                     url:          '/download/file?fileId=' + row.template_file_id,
                     responseType: 'blob',
                 });
-                const filename = headers.filename || headers.FileName;
 
                 this.loading = false;
                 if(code === 0) {
@@ -202,7 +201,7 @@
                     this.blobToDataURI(data, result => {
                         this.preview.visible = true;
                         this.preview.fullscreen = false;
-                        this.preview.fileName = filename;
+                        this.preview.fileName = row.file_name;
                         this.preview.fileId = row.template_file_id;
                         this.preview.fileData = result;
                     });

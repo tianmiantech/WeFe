@@ -19,7 +19,7 @@ const buildDate = '3.0.0';
 module.exports = {
     assetsDir:           isProd ? `${CONTEXT_ENV}` : '',
     indexPath:           isProd ? `${CONTEXT_ENV || '.'}/index.html` : 'index.html',
-    productionSourceMap: false,
+    productionSourceMap: process.env.NODE_ENV === 'development',
     pages:               {
         index: {
             entry:    'src/app/app.js',
@@ -33,6 +33,8 @@ module.exports = {
         extract: false, // close it for less tiny css files
     },
     configureWebpack: (config) => {
+        config.entry.app = ['@babel/polyfill', './src/app/app.js'];
+
         if (isProd) {
             // production...
             const DEPLOY_ENV = argvs[0] || 'prod';

@@ -23,6 +23,7 @@ public class MongodbTable {
 
     public static final class Common {
         public static final String FLOW_LIMIT = "FlowLimit";
+        public static final String OPERATION_LOG = "OperationLog";
     }
 
     public static final class Union {
@@ -52,5 +53,5 @@ public class MongodbTable {
         public static final String DETAIL_INFO = "SmsDetailInfo";
     }
 
-    public static final String USER = "User";
+    public static final String ACCOUNT = "account";
 }

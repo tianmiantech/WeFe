@@ -34,7 +34,7 @@ public interface ProjectMemberAuditRepository extends BaseRepository<ProjectMemb
      * 1. 需要他审核的记录
      * 2. 对他进行审核的记录
      */
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "delete from #{#entityName} where project_id=?1 and (auditor_id=?2 or member_id=?2)", nativeQuery = true)
     void deleteAuditingRecord(String projectId, String auditorId);

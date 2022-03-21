@@ -67,11 +67,14 @@ public enum StatusCode {
     FILE_DOES_NOT_EXIST(10038, "文件不存在，fileId: (%s)"),
     INVALID_PARAMETER(10039, "参数非法 (%s)"),
     MISSING_DATA(10040, "缺失数据 (%s)"),
+    UPDATE_PASWWORD(10050, "请先修改密码"),
+
     /**
      * Database related error status code
      */
     DATABASE_LOST(10300, "数据库连接失败"),
     INVALID_DATASET(10400, "非法的数据集"),
+
     /**
      * Service level status code
      */
