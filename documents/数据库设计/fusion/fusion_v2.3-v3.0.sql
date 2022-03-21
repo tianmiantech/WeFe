@@ -19,10 +19,10 @@ ALTER TABLE task CHANGE partner_id partner_member_id  varchar(32)  NOT NULL COMM
 ALTER TABLE task ADD `my_role` varchar(255) DEFAULT NULL;
 ALTER TABLE task ADD `processed_count` int(10) DEFAULT NULL;
 
--- -------------------------------------
+-- ----------------------------
 -- 修改相关表手机号字段长度
 -- author: aaron.li
--- -------------------------------------
+-- ----------------------------
 ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);
 
 
