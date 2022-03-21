@@ -147,12 +147,12 @@ public abstract class AbstractAccountService {
                     .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
         }
 
-        if (!account.enable) {
-            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
-        }
-
         if (account.cancelled) {
             throw new StatusCodeWithException("账号已被注销，无法使用此账号。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (!account.enable) {
+            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
         }
 
         // Check audit status
