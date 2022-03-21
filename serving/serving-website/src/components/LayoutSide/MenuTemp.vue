@@ -1,7 +1,7 @@
 <template>
     <ul class="sub-menu-list">
         <template v-for="(item, index) in menus">
-            <template v-if="!item.meta.asmenu && item.children && !item.meta.hidden">
+            <template v-if="!item.meta.asmenu && item.children && !item.meta.hidden && (userInfo.admin_role || (!userInfo.admin_role && item.meta.normalUserCanSee !== false))">
                 <el-submenu
                     :key="item.name"
                     :index="`${item.path}`"
