@@ -66,10 +66,17 @@
                 >
                     <el-input
                         v-model="form.password"
-                        placeholder="密码"
+                        placeholder="8-30 位数字字母特殊符号组合"
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
+                    />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.password"
                     />
                 </el-form-item>
                 <el-form-item
@@ -83,6 +90,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
                 <el-form-item
@@ -120,9 +130,9 @@
                 <el-divider />
                 <el-button
                     v-loading="submitting"
-                    type="primary"
-                    native-type="submit"
                     class="btn-submit ml10"
+                    native-type="submit"
+                    type="primary"
                     round
                     @click="submit"
                 >
@@ -266,6 +276,9 @@
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
                         // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
                         const password = [
                             this.form.phone,
                             this.form.password,
@@ -296,8 +309,8 @@
                     } else {
                         this.getImgCode();
                     }
-                    this.submitting = false;
                 });
+                this.submitting = false;
             },
         },
     };

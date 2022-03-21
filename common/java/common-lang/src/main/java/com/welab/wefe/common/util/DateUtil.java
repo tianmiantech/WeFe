@@ -650,6 +650,19 @@ public class DateUtil {
         return Date.from(localDateTime.plusMinutes(minutes).atZone(ZoneId.systemDefault()).toInstant());
     }
 
+
+    /**
+     * minus days to the current date
+     *
+     * @param date Current time date
+     * @param days Days minus
+     * @return Time after increase
+     */
+    public static Date minusDays(Date date, long days) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        return Date.from(localDateTime.minusDays(days).atZone(ZoneId.systemDefault()).toInstant());
+    }
+
     /**
      * Convert the time in "2015-01-14T2:11:28.914 +08:00" format to long time
      * In the test phase, when I ran the application form into CASS, I found that some data of the application time were blank instead of plus sign (very strange, it was normal when the application form was run separately, and the production did not find this problem).

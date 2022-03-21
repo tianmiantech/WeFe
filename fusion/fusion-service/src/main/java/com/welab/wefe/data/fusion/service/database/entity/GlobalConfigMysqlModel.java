@@ -16,13 +16,17 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
+import com.welab.wefe.data.fusion.service.database.listener.GlobalConfigMysqlModelListener;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 
 /**
  * @author Zane
  */
 @Entity(name = "global_config")
+@EntityListeners(GlobalConfigMysqlModelListener.class)
 public class GlobalConfigMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 配置项所在的组

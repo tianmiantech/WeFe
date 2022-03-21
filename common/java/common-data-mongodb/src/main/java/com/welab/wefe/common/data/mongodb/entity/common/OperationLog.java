@@ -6,121 +6,132 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
+
 @Document(collection = MongodbTable.Common.OPERATION_LOG)
 
 public class OperationLog extends AbstractNormalMongoModel {
-    /**
-     * 请求接口
-     */
-    private String logInterface;
 
     /**
      * 请求接口名称
      */
-    private String interfaceName;
-
+    public String apiName;
     /**
-     * 请求IP
+     * api 调用者类型
      */
-    private String requestIp;
-
+    public String callerType;
     /**
-     * 操作人员编号
+     * api 调用者 id
      */
-    private String operatorId;
-
+    public String callerId;
     /**
-     * 请求token
+     * api 调用者名称
      */
-    private String token;
-
+    public String callerName;
     /**
-     * 操作行为
+     * 请求来源IP
      */
-    private String logAction;
-
+    public String callerIp;
     /**
-     * 请求结果编码
+     * 请求参数
      */
-    private int resultCode;
-
+    public String requestData;
     /**
-     * 请求结果
+     * 响应 code
      */
-    private String resultMessage;
-
+    public int responseCode;
+    /**
+     * 响应 message
+     */
+    public String responseMessage;
+    /**
+     * 响应内容
+     */
+    public String responseData;
     /**
      * 请求时间
      */
-    private Date requestTime;
-
+    public Date requestTime;
+    /**
+     * 响应时间
+     */
+    public Date responseTime;
     /**
      * 耗时
      */
-    private long spend;
+    public long spend;
 
-    public String getLogInterface() {
-        return logInterface;
+    // region getter/setter
+
+    public String getApiName() {
+        return apiName;
     }
 
-    public void setLogInterface(String logInterface) {
-        this.logInterface = logInterface;
+    public void setApiName(String apiName) {
+        this.apiName = apiName;
     }
 
-    public String getInterfaceName() {
-        return interfaceName;
+    public String getCallerType() {
+        return callerType;
     }
 
-    public void setInterfaceName(String interfaceName) {
-        this.interfaceName = interfaceName;
+    public void setCallerType(String callerType) {
+        this.callerType = callerType;
     }
 
-    public String getRequestIp() {
-        return requestIp;
+    public String getCallerId() {
+        return callerId;
     }
 
-    public void setRequestIp(String requestIp) {
-        this.requestIp = requestIp;
+    public void setCallerId(String callerId) {
+        this.callerId = callerId;
     }
 
-    public String getOperatorId() {
-        return operatorId;
+    public String getCallerName() {
+        return callerName;
     }
 
-    public void setOperatorId(String operatorId) {
-        this.operatorId = operatorId;
+    public void setCallerName(String callerName) {
+        this.callerName = callerName;
     }
 
-    public String getToken() {
-        return token;
+    public String getCallerIp() {
+        return callerIp;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setCallerIp(String callerIp) {
+        this.callerIp = callerIp;
     }
 
-    public String getLogAction() {
-        return logAction;
+    public String getRequestData() {
+        return requestData;
     }
 
-    public void setLogAction(String logAction) {
-        this.logAction = logAction;
+    public void setRequestData(String requestData) {
+        this.requestData = requestData;
     }
 
-    public int getResultCode() {
-        return resultCode;
+    public int getResponseCode() {
+        return responseCode;
     }
 
-    public void setResultCode(int resultCode) {
-        this.resultCode = resultCode;
+    public void setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
     }
 
-    public String getResultMessage() {
-        return resultMessage;
+    public String getResponseMessage() {
+        return responseMessage;
     }
 
-    public void setResultMessage(String resultMessage) {
-        this.resultMessage = resultMessage;
+    public void setResponseMessage(String responseMessage) {
+        this.responseMessage = responseMessage;
+    }
+
+    public String getResponseData() {
+        return responseData;
+    }
+
+    public void setResponseData(String responseData) {
+        this.responseData = responseData;
     }
 
     public Date getRequestTime() {
@@ -131,6 +142,14 @@ public class OperationLog extends AbstractNormalMongoModel {
         this.requestTime = requestTime;
     }
 
+    public Date getResponseTime() {
+        return responseTime;
+    }
+
+    public void setResponseTime(Date responseTime) {
+        this.responseTime = responseTime;
+    }
+
     public long getSpend() {
         return spend;
     }
@@ -138,4 +157,6 @@ public class OperationLog extends AbstractNormalMongoModel {
     public void setSpend(long spend) {
         this.spend = spend;
     }
+
+    // endregion
 }

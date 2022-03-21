@@ -338,7 +338,9 @@ CREATE TABLE `operator_log`
     `spend`          int(11) COMMENT '处理时长',
     `created_time`   datetime(6) COMMENT '创建时间',
     `updated_time`   datetime(6) COMMENT '更新时间',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY              `idx_query_by_interface` (`log_interface`, `operator_id`, `created_time`) USING BTREE,
+    KEY              `idx_query_by_operator` (`operator_id`, `log_interface`, `created_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户操作日志';
 

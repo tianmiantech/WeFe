@@ -57,11 +57,11 @@ public abstract class AbstractAccountService {
 
 
     public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
-        String account = CurrentAccount.phoneNumber();
-        if (account == null) {
+        String phoneNumber = CurrentAccount.phoneNumber();
+        if (phoneNumber == null) {
             throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
         }
-        AccountInfo model = getAccountInfo(account);
+        AccountInfo model = getAccountInfo(phoneNumber);
         // 检查旧密码是否正确
         if (!StringUtil.equals(model.getPassword(), hashPasswordWithSalt(oldPassword, model.getSalt()))) {
             CurrentAccount.logout();

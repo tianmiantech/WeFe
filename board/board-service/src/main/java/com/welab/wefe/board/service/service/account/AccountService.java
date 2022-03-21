@@ -450,6 +450,10 @@ public class AccountService extends AbstractAccountService {
         accountRepository.save(account);
         // Cancel the super administrator privileges of the current account
         accountRepository.cancelSuperAdmin(CurrentAccount.id());
+
+        CurrentAccount.logout(account.getId());
+        CurrentAccount.logout(CurrentAccount.id());
+
     }
 
     public void forgetPassword(ForgetPasswordApi.Input input) throws StatusCodeWithException {

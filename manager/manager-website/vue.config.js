@@ -170,7 +170,7 @@ module.exports = {
          */
         proxy:      {
             '/api': {
-                target:       'http://localhost:8080/manager-service',
+                target:       'https://xxx.wolaidai.com/manager-service',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

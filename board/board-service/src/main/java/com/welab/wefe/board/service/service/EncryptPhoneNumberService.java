@@ -19,9 +19,13 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
+import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.database.entity.VerificationCodeMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
+import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.board.service.database.repository.VerificationCodeRepository;
+import com.welab.wefe.board.service.service.globalconfig.BaseGlobalConfigService;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +45,9 @@ public class EncryptPhoneNumberService {
     @Autowired
     private VerificationCodeRepository verificationCodeRepository;
 
+    @Autowired
+    protected GlobalConfigRepository globalConfigRepository;
+
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
         List<AccountMysqlModel> accountMysqlModelList = accountRepository.findAll();
@@ -55,6 +62,13 @@ public class EncryptPhoneNumberService {
             for (VerificationCodeMysqlModel model : verificationCodeMysqlModelList) {
                 model.setUpdatedTime(new Date());
                 verificationCodeRepository.save(model);
+            }
+        }
+        List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(BaseGlobalConfigService.Group.MEMBER_INFO);
+        if (!CollectionUtils.isEmpty(globalConfigMysqlModelList)) {
+            for (GlobalConfigMysqlModel model : globalConfigMysqlModelList) {
+                model.setUpdatedTime(new Date());
+                globalConfigRepository.save(model);
             }
         }
     }

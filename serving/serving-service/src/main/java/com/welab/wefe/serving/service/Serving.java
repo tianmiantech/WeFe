@@ -16,8 +16,11 @@
 
 package com.welab.wefe.serving.service;
 
+import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -46,7 +49,7 @@ import com.welab.wefe.serving.service.service.MemberService;
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @ComponentScan(nameGenerator = ApiBeanNameGenerator.class,
         basePackageClasses = {Launcher.class, Serving.class})
-public class Serving {
+public class Serving implements ApplicationContextAware {
 
     public static void main(String[] args) {
         Launcher
@@ -167,5 +170,10 @@ public class Serving {
 
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         //params.put("memberId", signedApiInput.getMemberId());
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        Launcher.CONTEXT = applicationContext;
     }
 }

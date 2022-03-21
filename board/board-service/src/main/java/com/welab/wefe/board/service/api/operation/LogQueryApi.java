@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.OperationLogOutputModel;
 import com.welab.wefe.board.service.service.OperationLogService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -41,17 +42,12 @@ public class LogQueryApi extends AbstractApi<LogQueryApi.Input, PagingOutput<Ope
     }
 
     public static class Input extends PagingInput {
-        private String action;
+        @Check(name = "请求接口")
+        public String logInterface;
+        @Check(name = "操作人员Id")
+        public String operatorId;
         private Long startTime;
         private Long endTime;
-
-        public String getAction() {
-            return action;
-        }
-
-        public void setAction(String action) {
-            this.action = action;
-        }
 
         public Long getStartTime() {
             return startTime;

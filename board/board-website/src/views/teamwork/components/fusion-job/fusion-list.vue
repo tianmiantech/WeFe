@@ -103,6 +103,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
 
     export default {
@@ -135,6 +136,9 @@
                 flowTimer: null,
             };
         },
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
         created() {
             this.project_id = this.$route.query.project_id;
             this.project_type = this.$route.query.project_type;
@@ -148,11 +152,13 @@
             afterTableRender() {
                 clearTimeout(this.timer);
 
-                this.timer = setTimeout(() => {
-                    this.getTaskList({
-                        requestFromRefresh: true,
-                    });
-                }, 3000);
+                if(this.userInfo && this.userInfo.id) {
+                    this.timer = setTimeout(() => {
+                        this.getTaskList({
+                            requestFromRefresh: true,
+                        });
+                    }, 3000);
+                }
             },
 
             async getTaskList(opt = { resetPagination: false, requestFromRefresh: false }) {

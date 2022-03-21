@@ -35,6 +35,7 @@ import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.utils.ServingSM4Util;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -99,7 +100,7 @@ public class AccountService extends AbstractAccountService {
         }
 
         //Judge whether the account has been registered
-        AccountMySqlModel one = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMySqlModel.class);
+        AccountMySqlModel one = accountRepository.findOne("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()), AccountMySqlModel.class);
         if (one != null) {
             throw new StatusCodeWithException("该手机号已注册", StatusCode.DATA_EXISTED);
         }
@@ -138,8 +139,8 @@ public class AccountService extends AbstractAccountService {
     }
 
     @Override
-    public AccountInfo getAccountInfo(String phoneNumber) {
-        AccountMySqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
+    public AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException {
+        AccountMySqlModel model = accountRepository.findByPhoneNumber(ServingSM4Util.encryptPhoneNumber(phoneNumber));
         return toAccountInfo(model);
     }
 
@@ -193,7 +194,7 @@ public class AccountService extends AbstractAccountService {
      */
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) throws StatusCodeWithException {
 
-        Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", input.getPhoneNumber())
+        Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus()).contains("nickname", input.getNickname())
                 .orderBy("createdTime", OrderBy.desc).build(AccountMySqlModel.class);
 
@@ -311,9 +312,10 @@ public class AccountService extends AbstractAccountService {
         if (phoneNumber == null) {
             throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
         }
-        AccountMySqlModel currentAdmin = accountRepository.findByPhoneNumber(phoneNumber);
+        AccountMySqlModel currentAdmin = accountRepository.findByPhoneNumber(ServingSM4Util.encryptPhoneNumber(phoneNumber));
         // Check password
         if (!StringUtil.equals(currentAdmin.getPassword(), hashPasswordWithSalt(input.getPassword(), currentAdmin.getSalt()))) {
+            CurrentAccount.logout();
             throw new StatusCodeWithException("密码不正确，请重新输入", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
