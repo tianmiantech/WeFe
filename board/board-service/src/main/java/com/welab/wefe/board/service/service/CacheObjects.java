@@ -297,7 +297,7 @@ public class CacheObjects {
     /**
      * Reload the list of union members
      */
-    public static synchronized void refreshMemberMap() throws StatusCodeWithException {
+    public static void refreshMemberMap() throws StatusCodeWithException {
         // Prohibit high frequency refresh
         if (System.currentTimeMillis() - LAST_REFRESH_MEMBER_MAP_TIME < 60_000) {
             return;
