@@ -347,3 +347,20 @@ CREATE TABLE `operator_log` (
   PRIMARY KEY (`id`),
   KEY `query_index` (`created_time`,`log_action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- 深度学习模型表
+DROP TABLE IF EXISTS deep_learning_model;
+CREATE TABLE deep_learning_model
+(
+    id           VARCHAR(32)  NOT NULL COMMENT '',
+    name         VARCHAR(255) NOT NULL COMMENT '模型名称',
+    source_path  VARCHAR(255) NOT NULL COMMENT '文件路径',
+    filename     VARCHAR(255) NOT NULL COMMENT '文件名',
+    use_count    INT          NOT NULL DEFAULT 0 COMMENT '使用计数',
+    created_by   varchar(32)           DEFAULT NULL COMMENT '创建人',
+    created_time datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_by   varchar(32)           DEFAULT NULL COMMENT '更新人',
+    updated_time datetime              DEFAULT NULL COMMENT '更新时间',
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '深度学习模型表';
