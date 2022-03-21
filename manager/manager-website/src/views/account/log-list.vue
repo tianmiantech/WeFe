@@ -27,8 +27,6 @@
                     range-separator="-"
                     start-placeholder="开始日期"
                     end-placeholder="结束日期"
-                    format="yyyy-MM-dd"
-                    value-format="timestamp"
                     @change="datePickerChange"
                 />
             </el-form-item>
@@ -107,7 +105,7 @@
                 width="140px"
             >
                 <template v-slot="scope">
-                    {{ dateFormat(scope.row.created_time) }}
+                    {{ dateFormat(scope.row.request_time) }}
                 </template>
             </el-table-column>
         </el-table>
@@ -167,13 +165,24 @@
                     ...this.$route.query,
                 };
                 if(this.search.startTime && this.search.endTime) {
-                    this.time = [this.search.startTime, this.search.endTime];
+                    this.time = [this.getLocalTime(Number(this.search.startTime)), this.getLocalTime(Number(this.search.endTime))];
                 }
             },
+            getLocalTime(nS) {  
+                const date = new Date(nS),
+                      Y = date.getFullYear() + '-',
+                      M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-',
+                      D = date.getDate() < 10 ? '0' + date.getDate() : date.getDate() + ' ';
+
+                return Y+M+D;
+            },
             datePickerChange(val) {
+                const val0 = new Date(val[0]).getTime();
+                const val1 = new Date(val[1]).getTime();
+
                 if(val) {
-                    this.search.startTime = val[0];
-                    this.search.endTime = val[1];
+                    this.search.startTime = val0;
+                    this.search.endTime = val1;
                 } else {
                     this.search.startTime = '';
                     this.search.endTime = '';
