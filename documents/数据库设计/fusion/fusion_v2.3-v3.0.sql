@@ -8,10 +8,13 @@ ALTER TABLE bloom_filter ADD hash_function varchar(255) NULL;
 
 -- ----------------------------
 -- 修改合作伙伴成员字段
+-- ----------------------------
 ALTER TABLE partner CHANGE partner_id member_id  varchar(64)  NOT NULL COMMENT '合作方id';
 ALTER TABLE partner CHANGE `name` member_name  varchar(255)  NOT NULL COMMENT '合作方名称';
 
+-- ----------------------------
 -- 修改任务相关字段
+-- ----------------------------
 ALTER TABLE task CHANGE partner_id partner_member_id  varchar(32)  NOT NULL COMMENT '合作成员id';
 ALTER TABLE task ADD `my_role` varchar(255) DEFAULT NULL;
 ALTER TABLE task ADD `processed_count` int(10) DEFAULT NULL;
