@@ -13,7 +13,7 @@
             </el-form-item>
             <el-form-item label="服务名称:">
                 <el-input
-                    v-model="search.name"
+                    v-model="search.service_name"
                     clearable
                 />
             </el-form-item>
@@ -104,7 +104,7 @@
                 visible: false,
                 search:  {
                     id:           '',
-                    name:         '',
+                    service_name: '',
                     service_type: 3,
                 },
                 fillUrlQuery:   false,

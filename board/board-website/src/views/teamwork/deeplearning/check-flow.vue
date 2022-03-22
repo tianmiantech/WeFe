@@ -325,7 +325,7 @@
                     vData.pageLoading = true;
                     const { code, data } = await $http.get({
                         url:          '/model/deep_learning/call/download/image',
-                        params:       { filename: img,  task_id: '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439' },
+                        params:       { filename: img,  task_id: vData.form.model },
                         responseType: 'blob',
                     });
 
@@ -344,8 +344,10 @@
                             vData.isUploadedOk = false;
                             vData.isUploading = false;
                             if (vData.sampleList.length === vData.totalResultCount) {
-                                labelSystemRef.value.methods.createStage();
-                                vData.pageLoading = false;
+                                setTimeout(_=> {
+                                    labelSystemRef.value.methods.createStage();
+                                    vData.pageLoading = false;
+                                }, 1000);
                             }
                             // setTimeout(_=>{
                             //     vData.isCheckFinished = false;
