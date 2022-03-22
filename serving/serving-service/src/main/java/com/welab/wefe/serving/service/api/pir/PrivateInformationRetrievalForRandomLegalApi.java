@@ -24,11 +24,11 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalRequest;
 import com.welab.wefe.mpc.pir.request.QueryRandomLegalResponse;
 import com.welab.wefe.mpc.pir.server.service.HauckRandomLegalService;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = PrivateInformationRetrievalApiName.RANDOM_LEGAL, name = "random_legal", login = false)
 public class PrivateInformationRetrievalForRandomLegalApi

@@ -21,13 +21,13 @@
         </el-form-item>
 
         <el-form-item label="训练与验证数据比例（%）：">
-            <div style="height: 50px;">
+            <div style="width:100%; overflow:hidden;">
                 <div class="float-left">
                     <p style="font-weight:bold;color:#4D84F7;" class="mb5">训练:</p>
                     <el-input-number
                         v-model="vData.form.training_ratio"
                         style="width:100px"
-                        size="mini"
+                        size="small"
                     />
                 </div>
 
@@ -36,7 +36,7 @@
                     <el-input-number
                         v-model="vData.form.verification_ratio"
                         style="width:100px"
-                        size="mini"
+                        size="small"
                         @change="methods.onDataSetVerificationRatioChange"
                     />
                 </div>
@@ -97,12 +97,10 @@
                     });
 
                     vData.loading = false;
-                    if(code === 0) {
+                    if(code === 0 && data && data.params && Object.keys(data.params).length) {
                         const { params } = data;
 
-                        if(params) {
-                            vData.form = params;
-                        }
+                        vData.form = params;
                         vData.inited = true;
                     }
                 },
@@ -135,10 +133,8 @@
 <style lang="scss" scoped>
     .el-form-item{
         margin-bottom: 10px;
-        :deep(.el-form-item__label){
-            text-align: left;
-            font-size: 12px;
-            display: block;
-        }
+    }
+    .el-slider{
+        margin:0 14px;
     }
 </style>

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.api.project.job.task;
 
 import com.welab.wefe.board.service.component.Components;
+import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.dto.entity.job.JobOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.TaskOutputView;
@@ -32,6 +33,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,10 +56,12 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         List<TaskResultOutputModel> results = null;
 
         if (input.needResult) {
-            results = Components
-                    .get(task.getTaskType())
-                    .getTaskAllResult(task.getTaskId());
-
+            AbstractComponent<?> component = Components.get(task.getTaskType());
+            if (StringUtil.isEmpty(input.resultType)) {
+                results = component.getTaskAllResult(task.getTaskId());
+            } else {
+                results = Arrays.asList(component.getTaskResult(task.getTaskId(), input.resultType));
+            }
         }
 
         return success(
@@ -116,6 +120,9 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         @Check(name = "是否需要返回 task 执行结果", require = true, desc = "task 的执行结果体积较大，在不需要时，请指定为 false")
         private boolean needResult;
+
+        @Check(name = "task result 的 type")
+        public String resultType;
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {

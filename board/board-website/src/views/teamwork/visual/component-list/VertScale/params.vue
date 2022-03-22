@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <el-form-item label="聚类数目">
             <el-input v-model="vData.scale_rules"></el-input>
@@ -50,13 +51,8 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0) {
-                        const { params } = data;
-
-                        if(params) {
-
-                            vData.scale_rules = params.scale_rules;
-                        }
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        vData.scale_rules = data.params.scale_rules;
                         vData.inited = true;
                     }
                 },

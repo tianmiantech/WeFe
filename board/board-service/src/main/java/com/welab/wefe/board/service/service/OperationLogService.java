@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,14 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.api.operation.QueryApi;
+import com.welab.wefe.board.service.api.operation.LogQueryApi;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.board.service.database.repository.OperationLogRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.OperationLogOutputModel;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +39,15 @@ public class OperationLogService extends AbstractService {
     @Autowired
     OperationLogRepository mOperationLogRepository;
 
-    public PagingOutput<OperationLogOutputModel> query(QueryApi.Input input) throws StatusCodeWithException {
+    public PagingOutput<OperationLogOutputModel> query(LogQueryApi.Input input) throws StatusCodeWithException {
         if (!CurrentAccount.isAdmin()) {
             StatusCode.PERMISSION_DENIED.throwException("普通用户无法进行此操作。");
         }
 
         Specification<OperationLogMysqlModel> where = Where
                 .create()
-                .equal("operatorPhone", input.getOperatorPhone())
-                .equal("logAction", input.getAction())
+                .equal("logInterface", input.logInterface)
+                .equal("operatorId", input.operatorId)
                 .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(OperationLogMysqlModel.class);

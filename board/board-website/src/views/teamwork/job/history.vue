@@ -3,7 +3,7 @@
         shadow="never"
         class="page"
     >
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="名称">
                 <el-input v-model="search.name" />
             </el-form-item>
@@ -166,49 +166,50 @@
                             }
                         }"
                     >
-                        <el-button type="primary">
+                        <el-button type="primary" size="small">
                             查看详情
                         </el-button>
                     </router-link>
                     <p class="mt10">
-                        <DownloadJobLog :job-id="scope.row.job_id" />
+                        <DownloadJobLog :job-id="scope.row.job_id" size="small" />
                     </p>
                 </template>
             </el-table-column>
         </el-table>
 
-        <el-button
-            class="plr"
-            type="primary"
-            :disabled="selection.length < 2"
-            style="bottom: -32px;"
-            @click="jobCompare"
-        >
-            <el-popover
-                width="200"
-                trigger="hover"
-                content="勾选任务后可对比, 最多勾选 3 个"
+        <div class="flex_box">
+            <el-button
+                type="primary"
+                :disabled="selection.length < 2"
+                style="bottom: -32px;"
+                @click="jobCompare"
             >
-                <template #reference>
-                    <el-icon>
-                        <elicon-info-filled />
-                    </el-icon>
-                </template>
-            </el-popover>
-            任务对比 ({{ selection.length }}/3)
-        </el-button>
+                <el-popover
+                    width="200"
+                    trigger="hover"
+                    content="勾选任务后可对比, 最多勾选 3 个"
+                >
+                    <template #reference>
+                        <el-icon>
+                            <elicon-info-filled />
+                        </el-icon>
+                    </template>
+                </el-popover>
+                任务对比 ({{ selection.length }}/3)
+            </el-button>
 
-        <el-pagination
-            class="text-r"
-            :pager-count="5"
-            :total="pagination.total"
-            :page-sizes="[10, 20, 30, 40, 50]"
-            :page-size="pagination.page_size"
-            :current-page="pagination.page_index"
-            layout="total, sizes, prev, pager, next, jumper"
-            @current-change="currentPageChange"
-            @size-change="pageSizeChange"
-        />
+            <el-pagination
+                class="text-r"
+                :pager-count="5"
+                :total="pagination.total"
+                :page-sizes="[10, 20, 30, 40, 50]"
+                :page-size="pagination.page_size"
+                :current-page="pagination.page_index"
+                layout="total, sizes, prev, pager, next, jumper"
+                @current-change="currentPageChange"
+                @size-change="pageSizeChange"
+            />
+        </div>
     </el-card>
 </template>
 
@@ -420,5 +421,12 @@
         border-radius: 50%;
         cursor: pointer;
     }
+}
+.flex_box {
+    height: 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
 }
 </style>

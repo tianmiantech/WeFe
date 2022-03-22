@@ -1,9 +1,10 @@
 <template>
     <el-form class="flex-form">
         <el-button
+            v-if="showHistory"
             class="history-btn"
             type="text"
-            size="mini"
+            size="small"
             @click="checkHistory"
         >执行历史</el-button>
 
@@ -40,7 +41,7 @@
         >
             <p style="color:#F85564;word-break: break-all;">{{ result.task.error_cause }}</p>
         </el-form-item>
-        <el-form-item label="任务执行顺序：">
+        <el-form-item v-if="showHistory" label="任务执行顺序：">
             {{ result.task.position }}
         </el-form-item>
     </el-form>
@@ -55,6 +56,10 @@
             result:         Object,
             currentObj:     Object,
             jobDetail:      Object,
+            showHistory:    {
+                type:    Boolean,
+                default: true,
+            },
         },
         emits: ['show-node-history'],
         setup(props) {

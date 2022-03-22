@@ -5,7 +5,11 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+<<<<<<< HEAD
+ * http://www.apache.org/licenses/LICENSE-2.0
+=======
  *     http://www.apache.org/licenses/LICENSE-2.0
+>>>>>>> refs/heads/release-v2.4.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +22,9 @@ package com.welab.wefe.common.web;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.SamplingLogger;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
 import com.welab.wefe.common.util.StringUtil;
@@ -46,6 +52,13 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ApiExecutor {
     protected static final Logger LOG = LoggerFactory.getLogger(ApiExecutor.class);
+    protected static final SamplingLogger SLOG;
+
+    private static final String REQUEST_FROM_REFRESH = "request-from-refresh";
+
+    static {
+        SLOG = new SamplingLogger(LOG, 1000, TimeSpan.MINUTE);
+    }
 
     /**
      * Implement the API
@@ -61,6 +74,9 @@ public class ApiExecutor {
                 api = Launcher.CONTEXT.getBean(apiPath, AbstractApi.class);
             } catch (BeansException ex) {
                 int end = apiPath.lastIndexOf("/");
+                if (end < 0) {
+                    break;
+                }
                 apiPath = apiPath.substring(0, end);
             }
         }
@@ -104,15 +120,22 @@ public class ApiExecutor {
         } catch (Exception e) {
             result = api.fail(StatusCode.SYSTEM_ERROR.getCode(), e.getMessage());
         } finally {
-            // Doing things after the API is executed
-            if (Launcher.AFTER_API_EXECUTE_FUNCTION != null) {
-                Launcher.AFTER_API_EXECUTE_FUNCTION.action(httpServletRequest, start, api, params, result);
-            }
+
 
             if (result == null) {
                 result = api.fail(StatusCode.SYSTEM_ERROR.getCode(), "响应失败，疑似程序中发生了死循环。");
             }
             result.spend = System.currentTimeMillis() - start;
+
+            // Doing things after the API is executed
+            if (Launcher.AFTER_API_EXECUTE_FUNCTION != null) {
+                Launcher.AFTER_API_EXECUTE_FUNCTION.action(httpServletRequest, start, api, params, result);
+            }
+
+            // 调用自定义的 api 日志记录器
+            if (Launcher.API_LOGGER != null) {
+                Launcher.API_LOGGER.action(httpServletRequest, start, api, params, result);
+            }
 
             logResponse(annotation, result);
 
@@ -125,7 +148,7 @@ public class ApiExecutor {
         return result;
     }
 
-    private static void logResponse(Api annotation, ApiResult<?> result) {
+    public static void logResponse(Api annotation, ApiResult<?> result) {
 
         String content = "";
         /**
@@ -138,7 +161,7 @@ public class ApiExecutor {
             Object body = ((ResponseEntity) result.data).getBody();
             if (body instanceof FileSystemResource) {
                 FileSystemResource fileSystemResource = (FileSystemResource) body;
-                content = "File:" + fileSystemResource.getPath();
+                content = "spend:" + result.spend + "ms File:" + fileSystemResource.getPath();
             }
         } else if (result.data instanceof byte[]) {
             byte[] bytes = (byte[]) result.data;

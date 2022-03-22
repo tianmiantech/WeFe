@@ -18,6 +18,7 @@ from common.python.db.job_dao import JobDao
 from common.python.db.task_dao import TaskDao
 from common.python.utils.core_utils import current_datetime
 from flow.service.board.board_service import BoardService
+from common.python.utils.log_utils import schedule_logger
 
 
 class JobService:
@@ -60,7 +61,7 @@ class JobService:
         """
         # get progress
         progress_list = BoardService.get_job_progress(job_id)
-
+        schedule_logger().info("get_job_progress result : {}".format(progress_list))
         # If you don't get the progress
         if not progress_list:
             return False

@@ -42,7 +42,7 @@
                 <el-select
                     v-model="search.queryDateType"
                     clearable
-                    placeholder="请选择统计方式"
+                    placeholder="请选择(默认每小时)"
                 >
                     <el-option
                         v-for="item in queryDateTypes"
@@ -53,7 +53,7 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="创建时间：">
+            <el-form-item label="时间范围：">
                 <div class="block">
                     <el-date-picker
                         v-model="timeRange"
@@ -70,7 +70,7 @@
 
             <el-button
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true })"
             >
                 查询
             </el-button>
@@ -126,7 +126,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ serviceType[scope.row.service_type] }}</p>
+                    <p>{{ scope.row.service_type }}</p>
                 </template>
             </el-table-column>
 
@@ -153,7 +153,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ payTypes[scope.row.pay_type] }}</p>
+                    <p>{{ scope.row.pay_type }}</p>
                 </template>
             </el-table-column>
 
@@ -242,9 +242,10 @@ export default {
                 },
             ],
             queryDateTypes: [
-                { value: '1', label: '按年' },
-                { value: '2', label: '按月' },
-                { value: '3', label: '按日' },
+                { value: '1', label: '每年' },
+                { value: '2', label: '每月' },
+                { value: '3', label: '每日' },
+                { value: '4', label: '每小时' },
             ],
             payTypes: {
                 1: '预付费',
@@ -261,8 +262,13 @@ export default {
     methods: {
 
         timeChange() {
-            this.search.startTime = this.timeRange[0];
-            this.search.endTime = this.timeRange[1];
+            if (!this.timeRange) {
+                this.search.startTime = '';
+                this.search.endTime = '';
+            } else {
+                this.search.startTime = this.timeRange[0];
+                this.search.endTime = this.timeRange[1];
+            }
         },
 
         handleServices(data) {

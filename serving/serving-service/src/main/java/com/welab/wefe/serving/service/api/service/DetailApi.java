@@ -34,10 +34,10 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.service.ServiceService;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = "service/detail", name = "服务详情")
 public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {

@@ -1,13 +1,15 @@
 <template>
     <div v-loading="loading" class="page">
         <el-card shadow="never">
-            <h3>企业认证 <span v-if="form.realNameAuth === 1" class="f14 color-danger">(审核中)</span></h3>
+            <h3>企业实名认证 <span v-if="form.realNameAuth === 1" class="f14 color-danger">(审核中)</span></h3>
             <el-form
                 class="mt20"
                 :model="form"
+                @submit.prevent
             >
                 <!-- :disabled="!userInfo.super_admin_role" -->
                 <el-form-item
+                    prop="principalName"
                     :rules="[{required: true, message: '名称必填!'}]"
                     label="企业名称及类型："
                 >
@@ -49,9 +51,9 @@
                             :closable="false"
                             type="info"
                         >
-                            1. 下载 <el-link type="primary" @click="downloadFile">认证文件</el-link>
-                            <p>2. 盖上公章</p>
-                            3. 上传带有公章的图片/word/pdf文件
+                            1. 请上传已盖贵司公章的认证文件。（<el-link type="primary" @click="downloadFile">下载认证文件 </el-link>）
+                            <p>2. 请上传贵司的营业执照、组织机构代码证等相关证明文件。</p>
+                            文件格式支持：图片、pdf （大小10MB内）
                         </el-alert>
                     </template>
 
@@ -65,8 +67,7 @@
                         :http-request="() => {}"
                         :before-upload="beforeUpload"
                         :headers="{ token: userInfo.token }"
-                        accept=".png,.jpg,.pdf,.doc,.docx"
-                        list-type="picture"
+                        accept=".png,.jpg,.pdf"
                         action="#"
                         drag
                     >
@@ -74,9 +75,9 @@
                             <elicon-upload-filled />
                         </el-icon>
                         <div>
-                            将文件 (.jpg/png/PDF/doc/docx) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
+                            将文件 (.jpg/png/PDF) 拖拽到此处或<p><el-button type="primary">点此上传</el-button>
                             </p>
-                            <div class="el-upload__tip">jpg/png/doc/docx 文件最大 5M, PDF 最大 10M</div>
+                            <div class="el-upload__tip">jpg/png 文件最大 5M, PDF 最大 10M</div>
                         </div>
                     </el-upload>
                 </el-form-item>
@@ -101,9 +102,9 @@
             v-model="preview.visible"
         >
             <div :class="['preview-box', { fullscreen: preview.fullscreen }]">
-                <el-icon @click="preview.fullscreen = !preview.fullscreen">
+                <!-- <el-icon @click="preview.fullscreen = !preview.fullscreen">
                     <elicon-full-screen />
-                </el-icon>
+                </el-icon> -->
                 <embed
                     v-if="preview.visible"
                     :src="preview.fileData"
@@ -167,19 +168,20 @@
                 const { code, data } = await this.$http.get('/union/member/realname/authInfo/query');
 
                 this.loading = false;
+                this.pending = false;
                 if(code === 0) {
-                    const { file_id_list } = data;
+                    const { file_info_list } = data;
 
                     this.form.realNameAuth = data.real_name_auth_status;
                     this.form.principalName = data.principal_name;
                     this.form.auditComment = data.audit_comment;
                     this.form.description = data.description;
-                    this.form.fileIdList = file_id_list;
+                    this.form.fileIdList = file_info_list;
                     this.form.authType = data.auth_type;
 
-                    if(file_id_list.length) {
-                        file_id_list.forEach(id => {
-                            this.getFile(id, data.file_id_list.length);
+                    if(file_info_list.length) {
+                        file_info_list.forEach(({ file_id, filename }) => {
+                            this.getFile(file_id, filename, data.file_info_list.length);
                         });
                     }
                     this.getAuthType();
@@ -190,7 +192,7 @@
                 const { code, data } = await this.$http.get('/union/member/authtype/query');
 
                 if(code === 0) {
-                    const index = data.list.findIndex(x => x.type_id === this.form.authType);
+                    const index = data.list.findIndex(x => x.type_name === this.form.authType);
 
                     if(index < 0) {
                         this.form.authType = '';
@@ -199,7 +201,7 @@
                     data.list.forEach(item => {
                         this.options.push({
                             label: item.type_name,
-                            value: item.type_id,
+                            value: item.type_name,
                         });
                     });
                 }
@@ -240,8 +242,8 @@
                 reader.readAsDataURL(blob);
             },
 
-            async getFile(fileId, files) {
-                const { code, data, response: { headers: { filename } } } = await this.$http.post({
+            async getFile(fileId, fileName, files) {
+                const { code, data } = await this.$http.post({
                     url:          '/union/download/file',
                     responseType: 'blob',
                     data:         {
@@ -252,7 +254,7 @@
                 if(code === 0) {
                     this.blobToDataURI(data, result => {
                         this.fileList.push({
-                            name: window.decodeURIComponent(filename),
+                            name: window.decodeURIComponent(fileName),
                             url:  result,
                             fileId,
                         });
@@ -266,10 +268,11 @@
                 }
             },
 
-            onRemove(file) {
-                const index = this.form.fileIdList.findIndex(id => id === file.fileId);
+            onRemove(file, list) {
+                const index = this.form.fileIdList.findIndex(({ file_id }) => file_id === file.fileId);
                 const i = this.fileList.findIndex(item => item.fileId === file.fileId);
 
+                console.log(file, this.form.fileIdList);
                 if(~index) {
                     this.form.fileIdList.splice(index, 1);
                 }
@@ -320,7 +323,7 @@
                 const formData = new FormData();
 
                 formData.append('file', file);
-                formData.append('filename', file.name);
+                formData.append('filename', file.name.toLowerCase());
                 formData.append('purpose', 'RealnameAuth');
 
                 const { code, data } = await this.$http.post({
@@ -329,12 +332,14 @@
                 });
 
                 if(code === 0) {
-                    const index = this.form.fileIdList.findIndex(id => id === data.file_id);
+                    const index = this.form.fileIdList.findIndex(({ file_id }) => file_id === data.file_id);
 
                     if(~index) {
                         this.$message.error('文件已在列表中!');
                     } else {
-                        this.form.fileIdList.push(data.file_id);
+                        this.form.fileIdList.push({
+                            file_id: data.file_id,
+                        });
                         this.blobToDataURI(file, result => {
                             this.fileList.push({
                                 name:   window.decodeURIComponent(file.name),
@@ -355,7 +360,7 @@
                     url:  '/union/member/realname/auth',
                     data: {
                         memberId:      this.userInfo.member_id,
-                        fileIdList:    this.form.fileIdList,
+                        fileIdList:    this.form.fileIdList.map(x => x.file_id),
                         principalName: this.form.principalName,
                         description:   this.form.description,
                         authType:      this.form.authType,
@@ -380,6 +385,7 @@
     .el-form{max-width: 500px;}
     .el-link{line-height: 1;}
     .el-uploader{
+        :deep(.el-upload-dragger){width:500px;}
         :deep(.el-upload-list__item-thumbnail){display: none;}
         :deep(.el-upload-list__item-name){
             line-height: 30px !important;
@@ -395,7 +401,10 @@
         padding:20px;
         line-height: 16px;
     }
-    .el-icon--upload{margin:20px 0 0;}
+    .el-icon--upload{
+        display: block;
+        margin:20px auto 0;
+    }
     .el-select{
         height:32px;
         :deep(.el-input) {

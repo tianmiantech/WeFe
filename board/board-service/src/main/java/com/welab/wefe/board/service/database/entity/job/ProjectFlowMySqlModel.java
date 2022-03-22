@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,9 +17,10 @@
 package com.welab.wefe.board.service.database.entity.job;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.common.enums.FederatedLearningType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.ProjectFlowStatus;
+import com.welab.wefe.common.wefe.enums.DeepLearningJobType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -43,6 +44,11 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
      */
     @Enumerated(EnumType.STRING)
     private FederatedLearningType federatedLearningType;
+    /**
+     * 深度学习任务类型
+     */
+    @Enumerated(EnumType.STRING)
+    private DeepLearningJobType deepLearningJobType;
     /**
      * 项目ID
      */
@@ -80,6 +86,10 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
      */
     @Enumerated(EnumType.STRING)
     private JobMemberRole myRole;
+    /**
+     * 是否置顶
+     */
+    private boolean top;
 
 
     //region getter/setter
@@ -99,6 +109,14 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
 
     public void setFederatedLearningType(FederatedLearningType federatedLearningType) {
         this.federatedLearningType = federatedLearningType;
+    }
+
+    public DeepLearningJobType getDeepLearningJobType() {
+        return deepLearningJobType;
+    }
+
+    public void setDeepLearningJobType(DeepLearningJobType deepLearningJobType) {
+        this.deepLearningJobType = deepLearningJobType;
     }
 
     public String getMessage() {
@@ -179,6 +197,14 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
 
     public void setCreatorMemberId(String creatorMemberId) {
         this.creatorMemberId = creatorMemberId;
+    }
+
+    public boolean isTop() {
+        return top;
+    }
+
+    public void setTop(boolean top) {
+        this.top = top;
     }
 
     //endregion

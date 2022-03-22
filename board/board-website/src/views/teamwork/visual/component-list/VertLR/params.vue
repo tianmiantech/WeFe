@@ -3,12 +3,29 @@
         <h4 class="mb10">VertLR参数设置</h4>
         <el-form
             ref="form"
+            class="flex-form"
             :model="vData.form"
             :disabled="disabled"
             @submit.prevent
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
+                    <el-form-item label="LR 方法：">
+                        <el-select
+                            v-model="vData.form.other_param.lr_method"
+                            clearable
+                        >
+                            <el-option
+                                label="lr"
+                                value="lr"
+                            />
+                            <el-option
+                                v-if="vData.member_list.length === 2"
+                                label="sshe-lr"
+                                value="sshe-lr"
+                            />
+                        </el-select>
+                    </el-form-item>
                     <el-form-item label="惩罚方式：">
                         <el-select
                             v-model="vData.form.other_param.penalty"
@@ -242,7 +259,7 @@
 </template>
 
 <script>
-    import { reactive } from 'vue';
+    import { getCurrentInstance, reactive } from 'vue';
     import dataStore from '../data-store-mixin';
 
     const LogisticRegression = {
@@ -257,6 +274,7 @@
             need_cv:  false,
         },
         other_param: {
+            lr_method:             'lr',
             penalty:               'L2',
             tol:                   0.00001,
             alpha:                 1,
@@ -285,7 +303,11 @@
             class:        String,
         },
         setup(props) {
+            const { appContext } = getCurrentInstance();
+            const { $http } = appContext.config.globalProperties;
+
             let vData = reactive({
+                member_list: [],
                 penaltyList: [
                     { value: 'L1',text: 'L1' },
                     { value: 'L2',text: 'L2' },
@@ -341,7 +363,26 @@
                         params: vData.form,
                     };
                 },
+                async getNodeData() {
+                    const { code, data } = await $http.get({
+                        url:    '/flow/dataset/info',
+                        params: {
+                            flow_id: props.flowId,
+                        },
+                    });
+
+                    if (code === 0) {
+                        if (data.flow_data_set_features.length) {
+                            const members = data.flow_data_set_features[0].members || [];
+
+                            // eslint-disable-next-line require-atomic-updates
+                            vData.member_list = members;
+                        }
+                    }
+                },
             };
+
+            methods.getNodeData();
 
             const { $data, $methods } = dataStore.mixin({
                 props,
@@ -364,9 +405,7 @@
 .el-form-item{
     margin-bottom: 10px;
     :deep(.el-form-item__label){
-        text-align: left;
-        font-size: 12px;
-        display: block;
+        flex:1;
     }
 }
 .el-collapse-item {

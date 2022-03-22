@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,55 @@ package com.welab.wefe.serving.service.enums;
 public enum PayTypeEnum {
 
 
-    POSTPAID(0),
+    POSTPAID(0, "后付费"),
 
-    PREPAID(1);
+    PREPAID(1, "预付费");
 
-    private int value;
+    private int code;
+    private String message;
 
-    PayTypeEnum(int value) {
-        this.value = value;
+    PayTypeEnum(int code, String message) {
+        this.code = code;
+        this.message = message;
     }
-    public int getValue(){
-        return value;
+
+
+    public int getCode() {
+        return code;
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public static String getValueByCode(int code) {
+        String result = null;
+        switch (code) {
+            case 0:
+                result = PayTypeEnum.POSTPAID.message;
+                break;
+            case 1:
+                result = PayTypeEnum.PREPAID.message;
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
+    public static int getCodeByValue(String value) {
+        int result = 0;
+        switch (value) {
+            case "后付费":
+                result = PayTypeEnum.POSTPAID.code;
+                break;
+            case "预付费":
+                result = PayTypeEnum.PREPAID.code;
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
 }

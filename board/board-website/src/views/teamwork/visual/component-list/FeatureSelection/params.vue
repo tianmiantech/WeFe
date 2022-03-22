@@ -34,9 +34,7 @@
                     />
                 </el-select>
                 <el-button
-                    size="mini"
                     class="ml10"
-                    style="margin-top:2px;"
                     :disabled="item.feature_count === 0 || vData.selectList.length > index + 1"
                     @click="methods.showDialog(item, index)"
                 >
@@ -52,7 +50,6 @@
                 <div class="mt10">
                     <el-button
                         v-if="item.select_count > 0 && item.feature_count > 1 && vData.selectList.length <= index + 1"
-                        size="mini"
                         @click="methods.addPolicy"
                     >
                         + 继续筛选
@@ -226,7 +223,7 @@
 
                             const { data_set_id } = data.members[0];
                             const response = await $http.get({
-                                url:    '/data_set/column/list',
+                                url:    '/table_data_set/column/list',
                                 params: {
                                     data_set_id,
                                 },
@@ -294,35 +291,39 @@
 
                     nextTick(_ => {
                         vData.loading = false;
-                        if (code === 0) {
-                            const { params } = data || {};
+                        if (code === 0 && data) {
+                            if(data.params && Object.keys(data.params).length) {
+                                const { params } = data;
 
-                            vData.hasError = '';
-                            if (params.members) {
-                                const {
-                                    strategies,
-                                    members,
-                                } = params;
+                                vData.hasError = '';
+                                if (params.members) {
+                                    const {
+                                        strategies,
+                                        members,
+                                    } = params;
 
-                                vData.select_all_count = 0;
-                                if(strategies && strategies.length) {
-                                    const types = [];
+                                    vData.select_all_count = 0;
+                                    if(strategies && strategies.length) {
+                                        const types = [];
 
-                                    vData.selectList = strategies;
-                                    strategies.forEach((row, index) => {
-                                        if(!has_feature_calculation && row.select_type === 'cv_iv') {
-                                            types.push('[CV/IV]');
+                                        vData.selectList = strategies;
+                                        strategies.forEach((row, index) => {
+                                            if(!has_feature_calculation && row.select_type === 'cv_iv') {
+                                                types.push('[CV/IV]');
+                                            }
+                                            if(!has_feature_statistic && row.select_type === 'miss_rate') {
+                                                types.push('[缺失率]');
+                                            }
+                                            vData.select_all_count += row.select_count;
+                                        });
+                                        if(types.length) {
+                                            vData.hasError = `发生错误! 筛选策略中无法处理 ${types.join(' ')}, 请重新调整策略!`;
                                         }
-                                        if(!has_feature_statistic && row.select_type === 'miss_rate') {
-                                            types.push('[缺失率]');
-                                        }
-                                        vData.select_all_count += row.select_count;
-                                    });
-                                    if(types.length) {
-                                        vData.hasError = `发生错误! 筛选策略中无法处理 ${types.join(' ')}, 请重新调整策略!`;
                                     }
+                                    vData.lastList = members || [];
+                                } else {
+                                    vData.selectList[0].list = vData.featureSelectTab;
                                 }
-                                vData.lastList = members || [];
                             } else {
                                 vData.selectList[0].list = vData.featureSelectTab;
                             }
@@ -508,7 +509,7 @@
                                     $checkedColumns:    '',
                                 };
                             });
-                            console.log(vData.manualLastList);
+
                             nextTick(_ => {
                                 CheckFeatureDialogRef.value.methods.show();
                             });

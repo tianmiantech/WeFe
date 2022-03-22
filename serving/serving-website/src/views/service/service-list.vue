@@ -7,17 +7,11 @@
             class="mb20"
             inline
         >
-            <el-form-item
-                label="服务名称:"
-                label-width="80px"
-            >
+            <el-form-item label="服务名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
 
-            <el-form-item
-                label="服务类型:"
-                label-width="100px"
-            >
+            <el-form-item label="服务类型:">
                 <el-select
                     v-model="search.service_type"
                     size="medium"
@@ -32,10 +26,7 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item
-                label="是否在线:"
-                label-width="100px"
-            >
+            <el-form-item label="是否在线:">
                 <el-select
                     v-model="search.status"
                     size="medium"
@@ -51,15 +42,31 @@
                     />
                 </el-select>
             </el-form-item>
+            <el-form-item label="创建人:">
+                <el-select
+                    v-model="search.created_by"
+                    clearable
+                >
+                    <el-option
+                        v-for="item in accounts"
+                        :key="item.id"
+                        :label="item.nickname"
+                        :value="item.id"
+                    />
+                </el-select>
+            </el-form-item>
 
             <el-button
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true })"
             >
                 查询
             </el-button>
 
-            <router-link :to="{name: 'service-view'}">
+            <router-link
+                class="ml20"
+                :to="{name: 'service-view'}"
+            >
                 <el-button>
                     新增
                 </el-button>
@@ -82,7 +89,9 @@
                 min-width="240px"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.name }}
+                    <router-link :to="{ name: 'service-view', query: { id: scope.row.id } }">
+                        {{ scope.row.name }}
+                    </router-link>
                     <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
@@ -128,6 +137,15 @@
                     {{ scope.row.updated_time | dateFormat }}
                 </template>
             </el-table-column>
+
+            <el-table-column
+                label="创建人"
+                prop="created_by"
+            />
+            <el-table-column
+                label="修改人"
+                prop="updated_by"
+            />
 
             <el-table-column
                 label="操作"
@@ -183,8 +201,10 @@
         mixins: [table],
         data() {
             return {
-                search: {
+                accounts: [],
+                search:   {
                     name:         '',
+                    created_by:   '',
                     service_type: '',
                     status:       '',
                 },
@@ -234,7 +254,17 @@
                 },
             };
         },
+        created() {
+            this.getAccounts();
+        },
         methods: {
+            async getAccounts () {
+                const { code, data } = await this.$http.get('/account/queryAll');
+
+                if(code === 0) {
+                    this.accounts = data;
+                }
+            },
             showStrategys (string) {
                 this.dataDialog = true;
                 setTimeout(() => {

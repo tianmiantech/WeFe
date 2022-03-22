@@ -3,11 +3,10 @@
         <h4 class="mb10">HorzSecureBoost参数设置</h4>
         <el-form
             ref="form"
+            class="flex-form"
             :model="vData.form"
             :disabled="disabled"
-            label-width="130px"
             @submit.prevent
-            inline
         >
             <el-collapse v-model="vData.activeNames">
                 <el-collapse-item title="模型参数" name="1">
@@ -66,7 +65,7 @@
 
                     <el-form-item
                         prop="tol"
-                        label="收敛阀值"
+                        label="收敛阈值"
                     >
                         <el-input
                             v-model="vData.form.other_param.tol"
@@ -353,11 +352,7 @@
     .el-form-item{
         margin-bottom: 10px;
         :deep(.el-form-item__label){
-            text-align: left;
-            line-height: 16px;
-            padding-bottom:6px;
-            font-size: 12px;
-            display: block;
+            flex:1;
         }
     }
     .el-collapse-item {

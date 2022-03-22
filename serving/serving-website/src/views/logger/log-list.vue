@@ -3,41 +3,26 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
-            <el-form-item
-                label="流水号："
-                label-width="80px"
-            >
+        <el-form inline>
+            <el-form-item label="流水号：">
                 <el-input
                     v-model="search.seq_no"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="成员ID："
-                label-width="80px"
-            >
+            <el-form-item label="成员ID：">
                 <el-input
                     v-model="search.member_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="模型ID："
-                label-width="80px"
-            >
+            <el-form-item label="模型ID：">
                 <el-input
                     v-model="search.model_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="算法类型："
-                label-width="100px"
-            >
+            <el-form-item label="算法类型：">
                 <el-select
                     v-model="search.algorithm"
                     clearable
@@ -50,10 +35,7 @@
                     />
                 </el-select>
             </el-form-item>
-            <el-form-item
-                label="训练类型："
-                label-width="100px"
-            >
+            <el-form-item label="训练类型：">
                 <el-select
                     v-model="search.fl_type"
                     clearable
@@ -67,12 +49,14 @@
                 </el-select>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getList('to')"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList({ to: true })"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
         </el-form>
 
         <el-table
@@ -138,13 +122,17 @@
                 label="request"
                 width="280"
             >
-                <template slot-scope="scope">
-                    <div
-                        class="cursor-pointer"
-                        @click="showResquest(JSON.parse(scope.row.request))"
-                    >
-                        {{ scope.row.request.length > 100 ? scope.row.request.substring(0, 101) + '...' : scope.row.request }}
-                    </div>
+                <template v-slot="scope">
+                    <template v-if="scope.row.request">
+                        <p>{{ scope.row.request.length > 100 ? scope.row.request.substring(0, 101) + '...' : scope.row.request }}</p>
+                        <el-button
+                            v-if="scope.row.request.length > 100"
+                            type="text"
+                            @click="showResquest(scope.row.request)"
+                        >
+                            查看更多
+                        </el-button>
+                    </template>
                 </template>
             </el-table-column>
 
@@ -152,13 +140,20 @@
                 label="response"
                 width="280"
             >
-                <template slot-scope="scope">
-                    <div
-                        class="cursor-pointer"
-                        @click="showResponse(JSON.parse(scope.row.response))"
-                    >
-                        {{ scope.row.response.length > 100 ? scope.row.response.substring(0, 101) + '...' : scope.row.response }}
-                    </div>
+                <template v-slot="scope">
+                    <template v-if="scope.row.response">
+                        <p>{{ scope.row.response.length > 100 ? scope.row.response.substring(0, 101) + '...' : scope.row.response }}</p>
+                        <el-button
+                            v-if="scope.row.response.length > 100"
+                            type="text"
+                            @click="showResponse(scope.row.response)"
+                        >
+                            查看更多
+                        </el-button>
+                    </template>
+                    <template v-else>
+                        success
+                    </template>
                 </template>
             </el-table-column>
 
@@ -195,16 +190,20 @@
             :title="title"
             :visible.sync="logDialog"
         >
-            <json-view :data="jsonData" />
+            <json-view
+                :value="jsonData"
+                :expand-depth="5"
+            />
         </el-dialog>
     </el-card>
 </template>
 
 <script>
 
+    import 'vue-json-viewer/style.css';
     import table from '@src/mixins/table.js';
     import RoleTag from '../components/role-tag';
-    import jsonView from 'vue-json-views';
+    import jsonView from 'vue-json-viewer';
 
     export default {
         components: {
@@ -243,7 +242,6 @@
         methods: {
             // 删除
             deleteData(row) {
-
                 this.$confirm('此操作将永久删除该条目, 是否继续?', '警告', {
                     type: 'warning',
                 }).then(async () => {
@@ -260,27 +258,18 @@
                     }
                 });
             },
-
-            showResquest (string) {
+            showResquest (data) {
                 this.logDialog = true;
                 this.title = '请求体';
                 setTimeout(() => {
-                    if(string){
-                        this.jsonData = string;
-                    }else{
-                        this.jsonData = '';
-                    }
+                    this.jsonData = JSON.parse(data);
                 });
             },
-            showResponse (string) {
+            showResponse (data) {
                 this.logDialog = true;
                 this.title = '响应体';
                 setTimeout(() => {
-                       if(string){
-                            this.jsonData = string;
-                        }else{
-                            this.jsonData = '';
-                        }
+                    this.jsonData = JSON.parse(data);
                 });
             },
         },

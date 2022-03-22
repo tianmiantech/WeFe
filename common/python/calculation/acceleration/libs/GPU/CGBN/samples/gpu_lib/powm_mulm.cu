@@ -26,6 +26,8 @@ IN THE SOFTWARE.
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
+#include <chrono>
 #include <cuda.h>
 #include <gmp.h>
 #include <cuda_runtime.h>
@@ -416,21 +418,37 @@ public:
   }
 
       // transform to instances
-  // __host__ static instance_t *to_instances(std::vector<powmod_param_int> arrs, uint32_t bits, uint32_t instance_count) {
-  //   instance_t *instances=(instance_t *)malloc(sizeof(instance_t)*instance_count);
+      // __host__ static instance_t *to_instances(std::vector<powmod_param_int> arrs, uint32_t bits, uint32_t instance_count) {
+      //   instance_t *instances=(instance_t *)malloc(sizeof(instance_t)*instance_count);
 
-  //   for (int index=0; index < instance_count ; index++){
-  //       str_to_limbs(instances[index].x._limbs, arrs[index].x , bits/32);
-  //       str_to_limbs(instances[index].power._limbs, arrs[index].p , bits/32);
-  //       str_to_limbs(instances[index].modulus._limbs,  arrs[index].modulus , bits/32);
-  //   }
-  //   return instances;
-  // }
+      //   for (int index=0; index < instance_count ; index++){
+      //       str_to_limbs(instances[index].x._limbs, arrs[index].x , bits/32);
+      //       str_to_limbs(instances[index].power._limbs, arrs[index].p , bits/32);
+      //       str_to_limbs(instances[index].modulus._limbs,  arrs[index].modulus , bits/32);
+      //   }
+      //   return instances;
+      // }
+
+    __host__ static std::time_t getTimeStamp()
+    {
+        std::chrono::time_point<std::chrono::system_clock,std::chrono::milliseconds> tp = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());//获取当前时间点
+        std::time_t timestamp =  tp.time_since_epoch().count(); //计算距离1970-1-1,00:00的时间长度
+        return timestamp;
+    }
+
+
+    __host__ static std::time_t getTimeStamp()
+    {
+        std::chrono::time_point<std::chrono::system_clock,std::chrono::milliseconds> tp = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());//获取当前时间点
+        std::time_t timestamp =  tp.time_since_epoch().count(); //计算距离1970-1-1,00:00的时间长度
+        return timestamp;
+    }
+
 
   __host__ static instance_t *to_instances(std::vector<tuple<py::bytes, py::bytes, py::bytes>> arrs, uint32_t bits, uint32_t instance_count)
   {
     instance_t *instances = (instance_t *)malloc(sizeof(instance_t) * instance_count);
-
+    // cout << "copy start currentTime =  " << getTimeStamp() << endl;
     for (int index = 0; index < instance_count; index++)
     {
       char *x, *p, *modulus;
@@ -439,6 +457,48 @@ public:
       PyBytes_AsStringAndSize(std::get<0>(arrs[index]).ptr(), &x, &len);
       PyBytes_AsStringAndSize(std::get<1>(arrs[index]).ptr(), &p, &len);
       PyBytes_AsStringAndSize(std::get<2>(arrs[index]).ptr(), &modulus, &len);
+
+      memcpy(&(instances[index].x._limbs), x, len);
+      memcpy(&(instances[index].power._limbs), p, len);
+      memcpy(&(instances[index].modulus._limbs), modulus, len);
+    }
+    // cout << "copy end currentTime =  " << getTimeStamp() << endl;
+    return instances;
+  }
+
+  __host__ static instance_t *to_instances_2(std::vector<py::bytes> arrs, py::bytes p_byte, py::bytes m_byte, uint32_t bits, uint32_t instance_count)
+  {
+    instance_t *instances = (instance_t *)malloc(sizeof(instance_t) * instance_count);
+
+    for (int index = 0; index < instance_count; index++)
+    {
+      char *x, *p, *modulus;
+
+      Py_ssize_t len;
+      PyBytes_AsStringAndSize(arrs[index].ptr(), &x, &len);
+      PyBytes_AsStringAndSize(p_byte.ptr(), &p, &len);
+      PyBytes_AsStringAndSize(m_byte.ptr(), &modulus, &len);
+
+      memcpy(&(instances[index].x._limbs), x, len);
+      memcpy(&(instances[index].power._limbs), p, len);
+      memcpy(&(instances[index].modulus._limbs), modulus, len);
+    }
+    // cout << "copy end currentTime =  " << getTimeStamp() << endl;
+    return instances;
+  }
+
+  __host__ static instance_t *to_instances_2(std::vector<py::bytes> arrs, py::bytes p_byte, py::bytes m_byte, uint32_t bits, uint32_t instance_count)
+  {
+    instance_t *instances = (instance_t *)malloc(sizeof(instance_t) * instance_count);
+
+    for (int index = 0; index < instance_count; index++)
+    {
+      char *x, *p, *modulus;
+
+      Py_ssize_t len;
+      PyBytes_AsStringAndSize(arrs[index].ptr(), &x, &len);
+      PyBytes_AsStringAndSize(p_byte.ptr(), &p, &len);
+      PyBytes_AsStringAndSize(m_byte.ptr(), &modulus, &len);
 
       memcpy(&(instances[index].x._limbs), x, len);
       memcpy(&(instances[index].power._limbs), p, len);
@@ -558,10 +618,72 @@ std::vector<py::bytes> powm(std::vector<tuple<py::bytes, py::bytes, py::bytes>> 
 
   instances = powm_odd_t<params>::to_instances(arrs, bits, instance_count);
 
-//   printf("Copying instances to the GPU ...\n");
+  // printf("Copying instances to the GPU ...\n");
   CUDA_CHECK(cudaSetDevice(0));
+
+  // cout << "copy to gpu start currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
   CUDA_CHECK(cudaMalloc((void **)&gpuInstances, sizeof(instance_t) * instance_count));
   CUDA_CHECK(cudaMemcpy(gpuInstances, instances, sizeof(instance_t) * instance_count, cudaMemcpyHostToDevice));
+  // cout << "copy to gpu end currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
+
+  // create a cgbn_error_report for CGBN to report back errors
+  CUDA_CHECK(cgbn_error_report_alloc(&report));
+
+  // printf("Running GPU kernel ...\n");
+
+  // launch kernel with blocks=ceil(instance_count/IPB) and threads=TPB
+  kernel_powm_odd<params><<<(instance_count + IPB - 1) / IPB, TPB>>>(report, gpuInstances, instance_count);
+
+  // error report uses managed memory, so we sync the device (or stream) and check for cgbn errors
+  CUDA_CHECK(cudaDeviceSynchronize());
+  CGBN_CHECK(report);
+
+  // copy the instances back from gpuMemory
+//   printf("Copying results back to CPU ...\n");
+    // cout << "back to host start currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
+  CUDA_CHECK(cudaMemcpy(instances, gpuInstances, sizeof(instance_t) * instance_count, cudaMemcpyDeviceToHost));
+    // cout << "back to host end currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
+
+  // printf("Verifying the results ...\n");
+  // powm_odd_t<params>::verify_results(instances, instance_count);
+
+  std::vector<py::bytes> gpu_result = powm_odd_t<params>::result_to_list(instances, bits, instance_count);
+
+  // clean up
+  free(instances);
+  CUDA_CHECK(cudaFree(gpuInstances));
+  CUDA_CHECK(cgbn_error_report_free(report));
+
+  return gpu_result;
+}
+
+
+
+template <uint32_t tpi, uint32_t bits, uint32_t window_bits>
+std::vector<py::bytes> powm_2(std::vector<py::bytes> arrs , py::bytes p, py::bytes m, uint32_t instance_count)
+{
+  //   TPI             - threads per instance
+  //   BITS            - number of bits per instance
+  //   WINDOW_BITS     - number of bits to use for the windowed exponentiation
+
+  typedef powm_params_t<tpi, bits, window_bits> params;
+  // typedef powm_params_t<_tpi, _bits, _ window_bits> params;
+  typedef typename powm_odd_t<params>::instance_t instance_t;
+
+  instance_t *instances, *gpuInstances;
+  cgbn_error_report_t *report;
+  int32_t TPB = (params::TPB == 0) ? 128 : params::TPB; // default threads per block to 128
+  int32_t TPI = params::TPI, IPB = TPB / TPI;           // IPB is instances per block
+
+  instances = powm_odd_t<params>::to_instances_2(arrs, p,m,bits, instance_count);
+
+//   printf("Copying instances to the GPU ...\n");
+  CUDA_CHECK(cudaSetDevice(0));
+
+  // cout << "copy to gpu start currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
+  CUDA_CHECK(cudaMalloc((void **)&gpuInstances, sizeof(instance_t) * instance_count));
+  CUDA_CHECK(cudaMemcpy(gpuInstances, instances, sizeof(instance_t) * instance_count, cudaMemcpyHostToDevice));
+  // cout << "copy to gpu end currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
 
   // create a cgbn_error_report for CGBN to report back errors
   CUDA_CHECK(cgbn_error_report_alloc(&report));
@@ -576,7 +698,63 @@ std::vector<py::bytes> powm(std::vector<tuple<py::bytes, py::bytes, py::bytes>> 
   CGBN_CHECK(report);
 
   // copy the instances back from gpuMemory
-//   printf("Copying results back to CPU ...\n");
+  // printf("Copying results back to CPU ...\n");
+  // cout << "back to host start currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
+  CUDA_CHECK(cudaMemcpy(instances, gpuInstances, sizeof(instance_t) * instance_count, cudaMemcpyDeviceToHost));
+  // cout << "back to host end currentTime =  " << powm_odd_t<params>::getTimeStamp() << endl;
+
+  // printf("Verifying the results ...\n");
+  // powm_odd_t<params>::verify_results(instances, instance_count);
+
+  std::vector<py::bytes> gpu_result = powm_odd_t<params>::result_to_list(instances, bits, instance_count);
+
+  // clean up
+  free(instances);
+  CUDA_CHECK(cudaFree(gpuInstances));
+  CUDA_CHECK(cgbn_error_report_free(report));
+
+  return gpu_result;
+}
+
+
+
+template <uint32_t tpi, uint32_t bits, uint32_t window_bits>
+std::vector<py::bytes> powm_2(std::vector<py::bytes> arrs , py::bytes p, py::bytes m, uint32_t instance_count)
+{
+  //   TPI             - threads per instance
+  //   BITS            - number of bits per instance
+  //   WINDOW_BITS     - number of bits to use for the windowed exponentiation
+
+  typedef powm_params_t<tpi, bits, window_bits> params;
+  // typedef powm_params_t<_tpi, _bits, _ window_bits> params;
+  typedef typename powm_odd_t<params>::instance_t instance_t;
+
+  instance_t *instances, *gpuInstances;
+  cgbn_error_report_t *report;
+  int32_t TPB = (params::TPB == 0) ? 128 : params::TPB; // default threads per block to 128
+  int32_t TPI = params::TPI, IPB = TPB / TPI;           // IPB is instances per block
+
+  instances = powm_odd_t<params>::to_instances_2(arrs, p,m,bits, instance_count);
+
+  // printf("Copying instances to the GPU ...\n");
+  CUDA_CHECK(cudaSetDevice(0));
+  CUDA_CHECK(cudaMalloc((void **)&gpuInstances, sizeof(instance_t) * instance_count));
+  CUDA_CHECK(cudaMemcpy(gpuInstances, instances, sizeof(instance_t) * instance_count, cudaMemcpyHostToDevice));
+
+  // create a cgbn_error_report for CGBN to report back errors
+  CUDA_CHECK(cgbn_error_report_alloc(&report));
+
+  // printf("Running GPU kernel ...\n");
+
+  // launch kernel with blocks=ceil(instance_count/IPB) and threads=TPB
+  kernel_powm_odd<params><<<(instance_count + IPB - 1) / IPB, TPB>>>(report, gpuInstances, instance_count);
+
+  // error report uses managed memory, so we sync the device (or stream) and check for cgbn errors
+  CUDA_CHECK(cudaDeviceSynchronize());
+  CGBN_CHECK(report);
+
+  // copy the instances back from gpuMemory
+  // printf("Copying results back to CPU ...\n");
   CUDA_CHECK(cudaMemcpy(instances, gpuInstances, sizeof(instance_t) * instance_count, cudaMemcpyDeviceToHost));
 
   // printf("Verifying the results ...\n");
@@ -613,7 +791,7 @@ std::vector<py::bytes> mulm(std::vector<tuple<py::bytes, py::bytes, py::bytes>> 
   instances = powm_odd_t<params>::to_instances(arrs, bits, instance_count);
 
   
-//   printf("Copying instances to the GPU ...\n");
+  // printf("Copying instances to the GPU ...\n");
   CUDA_CHECK(cudaSetDevice(0));
   CUDA_CHECK(cudaMalloc((void **)&gpuInstances, sizeof(instance_t)*instance_count));
   CUDA_CHECK(cudaMemcpy(gpuInstances, instances, sizeof(instance_t)*instance_count, cudaMemcpyHostToDevice));
@@ -621,7 +799,7 @@ std::vector<py::bytes> mulm(std::vector<tuple<py::bytes, py::bytes, py::bytes>> 
   // create a cgbn_error_report for CGBN to report back errors
   CUDA_CHECK(cgbn_error_report_alloc(&report)); 
   
-//   printf("Running GPU kernel ...\n");
+  // printf("Running GPU kernel ...\n");
   
   // launch kernel with blocks=ceil(instance_count/IPB) and threads=TPB
   kernel_mulm<params><<<(instance_count+IPB-1)/IPB, TPB>>>(report, gpuInstances, instance_count);
@@ -631,7 +809,115 @@ std::vector<py::bytes> mulm(std::vector<tuple<py::bytes, py::bytes, py::bytes>> 
   CGBN_CHECK(report);
     
   // copy the instances back from gpuMemory
+  // printf("Copying results back to CPU ...\n");
+  CUDA_CHECK(cudaMemcpy(instances, gpuInstances, sizeof(instance_t)*instance_count, cudaMemcpyDeviceToHost));
+
+  // std::vector<std::vector<uint32_t>> gpu_result = powm_odd_t<params>::result_to_list(instances,bits,instance_count);
+  std::vector<py::bytes> gpu_result = powm_odd_t<params>::result_to_list(instances, bits, instance_count);
+
+
+  // clean up
+  free(instances);
+  CUDA_CHECK(cudaFree(gpuInstances));
+  CUDA_CHECK(cgbn_error_report_free(report));
+
+  return gpu_result;
+}
+
+
+template<uint32_t tpi, uint32_t bits, uint32_t window_bits>
+std::vector<py::bytes> mulm_2(std::vector<py::bytes> arrs , py::bytes p, py::bytes m, uint32_t instance_count) {
+  //   TPI             - threads per instance
+  //   BITS            - number of bits per instance
+  //   WINDOW_BITS     - number of bits to use for the windowed exponentiation
+
+  typedef powm_params_t<tpi, bits, window_bits> params;
+  // typedef powm_params_t<_tpi, _bits, _ window_bits> params;
+  typedef typename powm_odd_t<params>::instance_t instance_t;
+
+
+  instance_t          *instances, *gpuInstances;
+  cgbn_error_report_t *report;
+  int32_t              TPB=(params::TPB==0) ? 128 : params::TPB;    // default threads per block to 128
+  int32_t              TPI=params::TPI, IPB=TPB/TPI;                // IPB is instances per block
+
+
+  instances = powm_odd_t<params>::to_instances_2(arrs, p, m, bits, instance_count);
+
+
+//   printf("Copying instances to the GPU ...\n");
+  CUDA_CHECK(cudaSetDevice(0));
+  CUDA_CHECK(cudaMalloc((void **)&gpuInstances, sizeof(instance_t)*instance_count));
+  CUDA_CHECK(cudaMemcpy(gpuInstances, instances, sizeof(instance_t)*instance_count, cudaMemcpyHostToDevice));
+
+  // create a cgbn_error_report for CGBN to report back errors
+  CUDA_CHECK(cgbn_error_report_alloc(&report));
+
+//   printf("Running GPU kernel ...\n");
+
+  // launch kernel with blocks=ceil(instance_count/IPB) and threads=TPB
+  kernel_mulm<params><<<(instance_count+IPB-1)/IPB, TPB>>>(report, gpuInstances, instance_count);
+
+  // error report uses managed memory, so we sync the device (or stream) and check for cgbn errors
+  CUDA_CHECK(cudaDeviceSynchronize());
+  CGBN_CHECK(report);
+
+  // copy the instances back from gpuMemory
 //   printf("Copying results back to CPU ...\n");
+  CUDA_CHECK(cudaMemcpy(instances, gpuInstances, sizeof(instance_t)*instance_count, cudaMemcpyDeviceToHost));
+
+  // std::vector<std::vector<uint32_t>> gpu_result = powm_odd_t<params>::result_to_list(instances,bits,instance_count);
+  std::vector<py::bytes> gpu_result = powm_odd_t<params>::result_to_list(instances, bits, instance_count);
+
+
+  // clean up
+  free(instances);
+  CUDA_CHECK(cudaFree(gpuInstances));
+  CUDA_CHECK(cgbn_error_report_free(report));
+
+  return gpu_result;
+}
+
+
+template<uint32_t tpi, uint32_t bits, uint32_t window_bits>
+std::vector<py::bytes> mulm_2(std::vector<py::bytes> arrs , py::bytes p, py::bytes m, uint32_t instance_count) {
+  //   TPI             - threads per instance
+  //   BITS            - number of bits per instance
+  //   WINDOW_BITS     - number of bits to use for the windowed exponentiation
+
+  typedef powm_params_t<tpi, bits, window_bits> params;
+  // typedef powm_params_t<_tpi, _bits, _ window_bits> params;
+  typedef typename powm_odd_t<params>::instance_t instance_t;
+
+
+  instance_t          *instances, *gpuInstances;
+  cgbn_error_report_t *report;
+  int32_t              TPB=(params::TPB==0) ? 128 : params::TPB;    // default threads per block to 128
+  int32_t              TPI=params::TPI, IPB=TPB/TPI;                // IPB is instances per block
+
+
+  instances = powm_odd_t<params>::to_instances_2(arrs, p, m, bits, instance_count);
+
+
+  // printf("Copying instances to the GPU ...\n");
+  CUDA_CHECK(cudaSetDevice(0));
+  CUDA_CHECK(cudaMalloc((void **)&gpuInstances, sizeof(instance_t)*instance_count));
+  CUDA_CHECK(cudaMemcpy(gpuInstances, instances, sizeof(instance_t)*instance_count, cudaMemcpyHostToDevice));
+
+  // create a cgbn_error_report for CGBN to report back errors
+  CUDA_CHECK(cgbn_error_report_alloc(&report));
+
+  // printf("Running GPU kernel ...\n");
+
+  // launch kernel with blocks=ceil(instance_count/IPB) and threads=TPB
+  kernel_mulm<params><<<(instance_count+IPB-1)/IPB, TPB>>>(report, gpuInstances, instance_count);
+
+  // error report uses managed memory, so we sync the device (or stream) and check for cgbn errors
+  CUDA_CHECK(cudaDeviceSynchronize());
+  CGBN_CHECK(report);
+
+  // copy the instances back from gpuMemory
+  // printf("Copying results back to CPU ...\n");
   CUDA_CHECK(cudaMemcpy(instances, gpuInstances, sizeof(instance_t)*instance_count, cudaMemcpyDeviceToHost));
 
   // std::vector<std::vector<uint32_t>> gpu_result = powm_odd_t<params>::result_to_list(instances,bits,instance_count);
@@ -653,6 +939,9 @@ PYBIND11_MODULE(gpu_lib, m) {
     //   .def(py::init<vector<uint32_t>, vector<uint32_t>, vector<uint32_t>>());
     m.def("mulm_2048", &mulm<8, 2048, 5>, py::return_value_policy::reference);
     m.def("mulm_1024", &mulm<8, 1024, 5>, py::return_value_policy::reference);
-    m.def("powm_2048", &powm<8, 2048, 5>, py::return_value_policy::reference);
 
+    m.def("powm_1024", &powm<8, 1024, 5>, py::return_value_policy::reference);
+    m.def("powm_2048", &powm<8, 2048, 5>, py::return_value_policy::reference);
+    m.def("powm_1024_2", &powm_2<8, 1024, 5>, py::return_value_policy::reference);
+    m.def("powm_2048_2", &powm_2<8, 2048, 5>, py::return_value_policy::reference);
 }

@@ -38,7 +38,8 @@ import traceback
 from common.python import federation
 from common.python import session
 from common.python.common import consts
-from common.python.common.consts import TaskStatus, ComponentName, FederatedLearningType, DataSetType, FunctionConfig
+from common.python.common.consts import TaskStatus, ComponentName, FederatedLearningType, DataSetType, \
+    FunctionConfig, RuntimeOptionKey
 from common.python.common.exception.custom_exception import *
 from common.python.common.global_config import global_config
 from common.python.db.db_models import DB, Job, Task
@@ -51,7 +52,6 @@ from kernel.tracker.parameter_util import ParameterUtil
 from kernel.tracker.runtime_config import RuntimeConfig
 from kernel.tracker.tracking import Tracking
 from kernel.utils.decorator_utils import load_config, update_task_status_env
-
 
 class TaskExecutor(object):
 
@@ -103,10 +103,10 @@ class TaskExecutor(object):
             schedule_logger().info(
                 'update task status to running , job_id = {}, role={}, task_id={}'.format(job_id, role, task_id))
             TaskExecutor.update_task_status(job_id, role, task_id, TaskStatus.RUNNING)
-            backend = conf_utils.get_backend_from_string(
-                conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
-            )
-            # backend = job_env.get('backend', int(backend))
+            # backend = conf_utils.get_backend_from_string(
+            #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
+            # )
+            backend = job_env.get('backend')
             # backend = 0
             options = TaskExecutor.session_options(task_config)
             RuntimeConfig.init_config(WORK_MODE=job_env['work_mode'],
@@ -124,7 +124,7 @@ class TaskExecutor(object):
             tracker = Tracking(project_id=project_id, job_id=job_id, role=role, member_id=member_id,
                                model_id=task_id, model_version=job_id,
                                component_name=component_name, module_name=module_name, task_id=task_id)
-            run_class_paths = parameters.get('CodePath').split('/')
+            run_class_paths = parameters.get('CodePath').replace("\\", "/").split('/')
             run_class_package = '.'.join(run_class_paths[:-2]) + '.' + run_class_paths[-2].replace('.py', '')
             run_class_name = run_class_paths[-1]
 
@@ -189,8 +189,7 @@ class TaskExecutor(object):
     @staticmethod
     def get_parameters(role, member_id, module_name, component_name, runtime_conf):
         component_root = os.path.join(file_utils.get_project_base_directory(), 'kernel', 'components')
-        federated_learning_type = runtime_conf["job"]["federated_learning_type"]
-        module_name_dir = TaskExecutor.generate_module_name_dir(module_name, federated_learning_type)
+        module_name_dir = TaskExecutor.generate_module_name_dir(module_name,runtime_conf)
 
         component_full_path = None
         if os.path.exists(os.path.join(component_root, module_name_dir)):
@@ -289,7 +288,7 @@ class TaskExecutor(object):
                     task.save()
 
     @staticmethod
-    def generate_module_name_dir(name, train_type):
+    def generate_module_name_dir(name, runtime_conf):
         """
 
         Generate the real catalog of the component according to the horizontal and vertical properties of the component
@@ -305,6 +304,7 @@ class TaskExecutor(object):
         -------
 
         """
+        train_type = runtime_conf["job"]["federated_learning_type"]
         if name == ComponentName.BINNING:
             if train_type == FederatedLearningType.VERTICAL:
                 return ComponentName.VERT_FEATURE_BINNING.lower()
@@ -315,14 +315,22 @@ class TaskExecutor(object):
                 return ComponentName.VERT_FEATURE_CALCULATION.lower()
             else:
                 raise ValueError("The HorzFeatureCalculation Does't Support Yet.")
+        elif name == ComponentName.VERT_SECURE_BOOST:
+            work_mode = runtime_conf["params"].get("work_mode")
+            if work_mode is None or work_mode == "normal":
+                return name.lower()
+            else:
+                return ComponentName.VERT_FAST_SECURE_BOOST.lower()
+
         else:
             return name.lower()
 
     @staticmethod
     def session_options(task_config: dict):
         options = {}
-        fc_partition_key = "fc_partition"
-        features_count_key = "features_count"
+        fc_partition_key = RuntimeOptionKey.FC_PARTITION
+        spark_partition_key = RuntimeOptionKey.SPARK_PARTITION
+        features_count_key = RuntimeOptionKey.FEATURE_COUNT
 
         # default partition
         default_partitions = FunctionConfig.FC_DEFAULT_PARTITION
@@ -357,7 +365,22 @@ class TaskExecutor(object):
             elif fc_partitions > 0:
                 options[fc_partition_key] = fc_partitions
 
+        # at present, the two parameters are consistent
+        options[spark_partition_key] = options[fc_partition_key]
+
+        # members_backend
+        options[RuntimeOptionKey.MEMBERS_BACKEND] = TaskExecutor.parse_members_backend(task_config)
+
         return options
+
+    @staticmethod
+    def parse_members_backend(task_config: dict):
+        members_backend = {}
+        job_config = task_config["job"]
+        members = job_config.get("members")
+        for member in members:
+            members_backend[member["member_id"]] = member.get("backend")
+        return members_backend
 
     @staticmethod
     def get_error_message(exc_value, e: Exception):

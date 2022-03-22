@@ -21,6 +21,7 @@ from common.python.calculation.fc.fc_storage import FCStorage
 from common.python.calculation.spark import util
 from common.python.common import consts
 from common.python.common.consts import NAMESPACE
+from common.python.common.exception.custom_exception import FCCommonError
 from common.python.table import Table
 from common.python.utils import log_utils, conf_utils, cloudpickle
 from common.python.utils.profile_util import log_elapsed
@@ -243,7 +244,8 @@ class FCSource(Table):
         return cloudpickle.dumps(func).hex()
 
     def _get_fc_input_param(self, func=None, others=None, key_func=None, fraction=None, seed=None,
-                            fc_name=None, execution_name=None, need_send=False, map_func=None, reduce_func=None):
+                            fc_name=None, execution_name=None, need_send=False, map_func=None, reduce_func=None,
+                            unfold_result=False, with_incr_id=False):
         """
         Builds input parameters for function
 
@@ -273,7 +275,8 @@ class FCSource(Table):
                  "source": source, "dest": dest,
                  "fraction": fraction, "seed": seed,
                  "fc_name": fc_name, "execution_name": execution_name,
-                 "single_call": fc_name == self.COLLECT_REDUCE_FC_NAME}
+                 "single_call": fc_name == self.COLLECT_REDUCE_FC_NAME,
+                 "unfold_result": unfold_result}
 
         if func:
             param["func"] = FCSource.pickle2hex(func)
@@ -290,6 +293,17 @@ class FCSource(Table):
 
         if reduce_func:
             param["reduce_func"] = FCSource.pickle2hex(reduce_func)
+
+        if with_incr_id:
+            if source["partitions"] != dest["partitions"]:
+                raise FCCommonError(message="global auto increment id only use in the same partitions")
+            each_part_count = self.fcs().each_partition_count()
+            global_incr_id = []
+            sum_incr_id = 0
+            for partition_index in range(source["partitions"]):
+                global_incr_id.append(sum_incr_id)
+                sum_incr_id += each_part_count[partition_index]
+            param["global_incr_id"] = global_incr_id
 
         return param
 
@@ -338,10 +352,19 @@ class FCSource(Table):
         if "reduce_func" in kwargs:
             reduce_func = kwargs.get("reduce_func")
 
+        # for collect reduce
+        unfold_result = False
+        if "unfold_result" in kwargs:
+            unfold_result = kwargs.get("unfold_result")
+
+        # global auto increment id
+        with_incr_id = kwargs.get("with_incr_id", False)
+
         execution_name = 'wefe-' + str(uuid.uuid1())
         input_param = self._get_fc_input_param(fc_name=fc_name, func=func, others=others, key_func=key_func,
                                                fraction=fraction, seed=seed, execution_name=execution_name,
-                                               need_send=need_send, map_func=map_func, reduce_func=reduce_func)
+                                               need_send=need_send, map_func=map_func, reduce_func=reduce_func,
+                                               unfold_result=unfold_result, with_incr_id=with_incr_id)
 
         start = time.time()
         from common.python.calculation.fc.fc_caller import FCCaller
@@ -372,7 +395,8 @@ class FCSource(Table):
                 consume = time.time() - start
                 LOGGER.debug(
                     f"function`{fc_name}`time-consuming:{consume},execution_name:{execution_name},\
-                    level:{int(consume)},param:{input_param if consume > 1 else None},function_name:{function_name}")
+                    level:{int(consume)},function_name:{function_name}, fc_name:{input_param['fc_name']} \
+                    source:{input_param['source']},dest:{input_param['dest']}")
                 return self._get_rtn_fcs(input_param)
 
             except Exception as ex:
@@ -436,10 +460,9 @@ class FCSource(Table):
             return ret
 
         fc_source = self.applyPartitions(_local_map_reduce)
-        data = fc_source.reduce(_dict_reduce)
-
-        from common.python import session
-        return session.parallelize(data.items(), include_key=True, partition=10)
+        rtn_fcs = fc_source._call_fc(fc_name=self.COLLECT_REDUCE_FC_NAME, func=_dict_reduce, key_func=None,
+                                     flow_name='singleJob_main', unfold_result=True)
+        return self._tmp_source_from_fcs(rtn_fcs)
 
     @log_elapsed
     def reduce(self, func, key_func=None):
@@ -573,7 +596,7 @@ class FCSource(Table):
         if partition is None:
             partition = self._partitions
         partition = partition or self._partitions
-        from common.python import RuntimeInstance
+        # from common.python import RuntimeInstance
         persistent_engine = RuntimeInstance.SESSION.get_persistent_engine()
         if self._dsource:
             _dtable = self._dsource.save_as(name, namespace, partition,

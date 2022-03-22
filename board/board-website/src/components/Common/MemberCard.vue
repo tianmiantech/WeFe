@@ -3,10 +3,10 @@
         :class="['member-card', { readonly: !edit }]"
         :style="{ width: size[0], height: size[1] }"
     >
-        <el-tooltip v-if="form && form.ext_json.real_name_auth_status === 2"  content="已通过企业认证" effect="light">
+        <el-tooltip v-if="form && form.ext_json && form.ext_json.real_name_auth_status === 2 || realNameAuth"  content="已通过企业实名认证" effect="light">
             <span class="certification">
-                <i class="iconfont icon-certification" title="已通过企业认证"></i>
-                已通过企业认证
+                <i class="iconfont icon-certification" title="已通过企业实名认证"></i>
+                已通过企业实名认证
             </span>
         </el-tooltip>
         <MemberAvatar
@@ -57,8 +57,9 @@
     export default {
         name:  'MemberCard',
         props: {
-            uploader: Boolean,
-            size:     {
+            realNameAuth: Boolean,
+            uploader:     Boolean,
+            size:         {
                 type:    Array,
                 default: () => ['400px', '200px'],
             },
@@ -126,7 +127,10 @@
                 background: transparent;
             }
         }
-        :deep(.el-input__inner){color: #fff;}
+        :deep(.el-input__inner){
+            color: #fff;
+            box-shadow:none;
+        }
     }
     .certification{
         position: absolute;

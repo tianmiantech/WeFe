@@ -24,10 +24,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: eval
@@ -38,49 +34,40 @@ public class PrivateInformationRetrievalQueryTest {
     @Test
     public void query() throws Exception {
         CommunicationConfig communicationConfig = new CommunicationConfig();
-        communicationConfig.setApiName("api/query/social_score");
-        communicationConfig.setNeedSign(true);
-        communicationConfig.setCommercialId("tianmain");
-        String privateKey = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKUOtGj39LY9PABvGuFNwZu520TNsRBCQSt0XCqqNsD+TsfUg8OMdaJVbzASrXeI57W5Za322dVirSTAgEekJIRU04zHfDeKc/JhQvuR0+5vMqDrFZ89KzfsN9TUJxHESwwZ0CV0ZOywCEH5VzcOa4cBjJtEGfJWExUBDKdlqXH/AgMBAAECgYBOXzMOfF23gk/RLPAodpEtbgxNGRWv0KW9Cl0Q7Q1eieHCRIfj+/eHAuXuf4/aKClNQiCjf4hjJ51qy/SdD7U+U+dm+UiBcgHrOhYm2Co9KNEGJKF978vv+CSngXtmOF/ZUdofW6yfTez9ZpsbtQYxmXYGQYVnooLbHEe9tCCioQJBAOUCWy4H8BjluZDFADb5jbwrQfVvtBdHmOu4Uu+WR/EgGBLTVMu4kpwKK6go9631Q47FdO2dWfoIzNvv6ZACPQkCQQC4gs1Tf4sx4r/2ou3C/qnLJerM+mLaYpQG3EZtw4zEjndtaklldftAh5xu019P3HessoT3NQ/xuuWUQ947jADHAkAhhz3IOHtLed64Nk94vQKmSQMIJwmL2vyljj/+Oddgkx1TLEOe6+/zDn4jyZOxkVYJwhkDbOUueTlc/fwJDHrZAkEAqzbFbWv3MG1nEGiUFNPXn2kp/teBj4DWN5+DwysonuRMsj1kqj/WzESKxtRhp2u/qYNmmzaj+v4hN3na6Iq71QJATMZBjksGzILd9oSwzVN8iQREkdtHdZnvakT44pp9a1UrgPEHS6YGI3BqVoPjJkiJSWr3S3OwzbMo5EKkAZ6fqw==";
-        communicationConfig.setSignPrivateKey(privateKey);
-        communicationConfig.setServerUrl("http://172.29.20.150:8080/serving-service/");
+        communicationConfig.setApiName("api/query/social_score"); // API name
+        communicationConfig.setNeedSign(true); // 是否需要签名
+        communicationConfig.setCommercialId("tianmain"); // 商户id
+        String privateKey = "xxxx";
+        communicationConfig.setSignPrivateKey(privateKey);// 签名RSA私钥
+        communicationConfig.setServerUrl("http://xxxx.com/serving-service-01/"); // url
 
-        JSONObject object = new JSONObject();
-        object.put("mobile", "13168730657");
-        object.put("name", "Zane");
+        // 混淆查询的用户
         List<JSONObject> ids = new ArrayList<>();
-        ids.add(object);
         JSONObject object1 = new JSONObject();
-        object1.put("mobile", "13800000000");
-        object1.put("name", "aaaaa");
+        object1.put("mobile", "18032642070");
+        object1.put("name", "李四");
         ids.add(object1);
         JSONObject object2 = new JSONObject();
-        object2.put("mobile", "13800003300");
-        object2.put("name", "aaaaa");
+        object2.put("mobile", "18132609320");
+        object2.put("name", "王五");
         ids.add(object2);
         JSONObject object3 = new JSONObject();
-        object3.put("mobile", "13800203300");
-        object3.put("name", "bbb");
+        object3.put("mobile", "13132840320");
+        object3.put("name", "赵四");
         ids.add(object3);
+        System.out.println("ids= " + JSONObject.toJSONString(ids));
 
+        // 实际要查询的用户
+        JSONObject object = new JSONObject();
+        object.put("mobile", "13032419870");
+        object.put("name", "张三");
+        int targetIndex = new Random().nextInt(3); //把真实用户放到混淆集中的位置
+        ids.add(targetIndex, object);
 
-        PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, 0, 10, null);
-
+        PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, targetIndex, 10, null);
         PrivateInformationRetrievalQuery privateInformationRetrievalQuery = new PrivateInformationRetrievalQuery();
-        ExecutorService executorService = new ThreadPoolExecutor(4, 10, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(2000));
-        for (int i = 0; i < 100_000; i++) {
-            executorService.execute(() -> {
-                String result = null;
-                try {
-                    int target = new Random().nextInt(ids.size());
-                    config.setTargetIndex(target);
-                    result = privateInformationRetrievalQuery.query(config, communicationConfig);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                System.out.println("query result:" + result);
-            });
-            TimeUnit.SECONDS.sleep(20);
-        }
+        String result = privateInformationRetrievalQuery.query(config, communicationConfig);
+        System.out.println("index = " + targetIndex);
+        System.out.println("query result:" + result);
     }
 }

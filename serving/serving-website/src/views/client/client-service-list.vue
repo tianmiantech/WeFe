@@ -3,10 +3,7 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
+        <el-form inline>
             <el-form-item label="客户名称：">
                 <el-input
                     v-model="search.clientName"
@@ -36,17 +33,22 @@
                 </el-select>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getList('to')"
-            >
-                查询
-            </el-button>
-            <router-link :to="{name: 'client-service-add'}">
-                <el-button>
-                    新增
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList({ to: true })"
+                >
+                    查询
                 </el-button>
-            </router-link>
+                <router-link
+                    class="ml10"
+                    :to="{name: 'client-service-add'}"
+                >
+                    <el-button>
+                        添加客户服务
+                    </el-button>
+                </router-link>
+            </el-form-item>
         </el-form>
 
         <el-table
@@ -56,16 +58,16 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData />
+                <TableEmptyData/>
             </div>
             <el-table-column
-                label="序号 ID"
-                min-width="80"
+                label="序号"
+                width="50"
                 type="index"
             />
             <el-table-column
                 label="客户名称"
-                min-width="80"
+                width="230"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
@@ -74,7 +76,7 @@
             </el-table-column>
             <el-table-column
                 label="服务名称"
-                min-width="80"
+                width="230"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
@@ -84,16 +86,16 @@
 
             <el-table-column
                 label="服务类型"
-                min-width="60"
+                width="100"
             >
                 <template slot-scope="scope">
-                    <p>{{ serviceType[scope.row.service_type] }}</p>
+                    <p>{{ scope.row.service_type }}</p>
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="IP 白名单"
-                min-width="80"
+                width="200"
             >
                 <template slot-scope="scope">
                     {{ scope.row.ip_add }}
@@ -102,7 +104,7 @@
 
             <el-table-column
                 label="请求地址"
-                min-width="80"
+                width="100"
             >
                 <template slot-scope="scope">
                     <el-tooltip
@@ -119,7 +121,7 @@
 
             <el-table-column
                 label="单价(￥)"
-                min-width="50"
+                width="65"
             >
                 <template slot-scope="scope">
                     {{ scope.row.unit_price }}
@@ -128,41 +130,85 @@
 
             <el-table-column
                 label="付费类型"
-                min-width="50"
+                width="70"
             >
                 <template slot-scope="scope">
-                    {{ payType[scope.row.pay_type] }}
+                    {{ scope.row.pay_type }}
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="启用状态"
-                min-width="40"
+                width="70"
             >
                 <template slot-scope="scope">
-                    {{ statusType[scope.row.status] }}
+                    {{ scope.row.status }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="创建时间"
+                width="120"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.created_time | dateFormat }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="创建人"
+                width="70"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.created_by }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="修改人"
+                width="70"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.updated_by }}
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="操作"
-                min-width="50"
+                width="140"
+                fixed="right"
             >
                 <template slot-scope="scope">
                     <el-button
-                        v-if="scope.row.status === 0"
+                        v-if="scope.row.status === '未启用'"
                         type="success"
                         @click="open(scope.row,1)"
                     >
                         启用
                     </el-button>
                     <el-button
-                        v-if="scope.row.status === 1"
+                        v-if="scope.row.status === '已启用'"
                         type="danger"
                         @click="open(scope.row,0)"
                     >
                         禁用
                     </el-button>
+
+
+                    <router-link
+                        :to="{
+                            name: 'client-service-edit',
+                            query: {
+                                serviceId: scope.row.service_id,
+                                clientId: scope.row.client_id,
+                                status: scope.row.status,
+                            }
+                        }"
+                    >
+                        <el-button>
+                            修改
+                        </el-button>
+                    </router-link>
                 </template>
             </el-table-column>
         </el-table>
@@ -186,20 +232,17 @@
 <script>
 
 import table from '@src/mixins/table.js';
-import RoleTag from '../components/role-tag';
+import {mapGetters} from 'vuex';
 
 export default {
-    name:       'ClientServiceList',
-    components: {
-        RoleTag,
-    },
+    name: 'ClientServiceList',
     mixins: [table],
     inject: ['refresh'],
     data() {
         return {
             search: {
-                clientName:  '',
-                status:      '',
+                clientName: '',
+                status: '',
                 serviceName: '',
             },
             options: [{
@@ -209,61 +252,51 @@ export default {
                 value: '0',
                 label: '未启用',
             }],
-            serviceType: {
-                1: '两方匿踪查询',
-                2: '两方交集查询',
-                3: '多方安全统计(被查询方)',
-                4: '多方安全统计(查询方)',
-                5: '多方交集查询',
-                6: '多方匿踪查询',
-            },
-            payType: {
-                1: '预付费',
-                0: '后付费',
-            },
-            // 启用状态
-            statusType: {
-                1: '已启用',
-                0: '未启用',
-            },
             changeStatusType: '',
-            getListApi:       '/clientservice/query-list',
-
+            getListApi: '/clientservice/query-list',
         };
+    },
+
+    computed: {
+        ...
+            mapGetters(['userInfo']),
     },
     methods: {
         open(row, status) {
-            this.$alert('是否确定修改启用状态？', '修改启用状态', {
+            this.$alert(status === 1 ? '是否启用？' : '是否禁用？', '警告', {
                 confirmButtonText: '确定',
-                callback:          action => {
-                    this.changeStatus(row, status);
-                    setTimeout(() => {
-                        this.refresh();
-                    }, 1000);
-                    this.$message({
-                        type:    'info',
-                        message: '修改成功',
-                    });
+                callback: action => {
+                    if (action === 'confirm') {
+                        this.changeStatus(row, status);
+                        setTimeout(() => {
+                            this.refresh();
+                        }, 1000);
+                    }
+
+
                 },
             });
         },
 
         async changeStatus(row, status) {
-            const { code } = await this.$http.post({
-                url:  '/clientservice/save',
+
+            const {code} = await this.$http.post({
+                url: '/clientservice/update',
                 data: {
                     serviceId: row.service_id,
-                    clientId:  row.client_id,
-                    status,
-                    payType:   row.pay_type,
+                    clientId: row.client_id,
+                    status: status,
                     unitPrice: row.unit_price,
-
+                    payType: row.pay_type === '后付费' ? 0 : 1,
+                    updatedBy: this.userInfo.nickname,
                 },
             });
 
             if (code === 0) {
-                this.success('修改成功');
-
+                this.$message({
+                    type: 'success',
+                    message: status === 1 ? '启用成功' : '禁用成功',
+                });
             }
         },
     },

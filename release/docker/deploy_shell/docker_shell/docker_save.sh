@@ -25,25 +25,24 @@ rm  -f wefe_python_service_$WEFE_VERSION.tar
 sudo docker save -o wefe_python_service_$WEFE_VERSION.tar wefe_python_service:$WEFE_VERSION
 echo "PYTHON SERVICE SAVED"
 
-echo "SAVING GPU PYTHON SERVICE"
-cd $SERVICE_WORK_DIR/wefe_python_service/resources
-rm  -f wefe_python_gpu_service_$WEFE_VERSION.tar
-sudo docker save -o wefe_python_gpu_service_$WEFE_VERSION.tar wefe_python_gpu_service:$WEFE_VERSION
-echo "GPU PYTHON SERVICE SAVED"
-
 echo "SAVING GATEWAY SERVICE"
 cd $SERVICE_WORK_DIR/wefe_gateway_service/resources
 rm -f wefe_gateway_service_$WEFE_VERSION.tar
 sudo docker save -o wefe_gateway_service_$WEFE_VERSION.tar wefe_gateway_service:$WEFE_VERSION
 echo "GATEWAY SERVICE SAVED"
 
+echo "packing welab_wefe tar "
 cd $SERVICE_WORK_DIR
-
 # 排除 gpu 版本 Python 包，另外打包
-sudo tar -cf welab_wefe_${WEFE_VERSION}.tar * --exclude=wefe_python_service/resources/wefe_python_gpu_service_$WEFE_VERSION.tar
+sudo tar -cf welab_wefe_$WEFE_VERSION.tar *
+echo "packed welab_wefe tar!"
 
 # 单独打包 gpu 镜像
-sudo tar -cf wefe_python_service/resources/wefe_python_gpu_service_$WEFE_VERSION.tar
+echo "SAVING GPU PYTHON SERVICE"
+cd $SERVICE_WORK_DIR/wefe_python_service/resources
+rm  -f wefe_python_gpu_service_$WEFE_VERSION.tar
+sudo docker save -o wefe_python_gpu_service_$WEFE_VERSION.tar wefe_python_gpu_service:$WEFE_VERSION
+echo "GPU PYTHON SERVICE SAVED"
 
 cp wefe_python_gpu_service_$WEFE_VERSION.tar /data/jenkins_docker_deploy/
 cd $SERVICE_WORK_DIR

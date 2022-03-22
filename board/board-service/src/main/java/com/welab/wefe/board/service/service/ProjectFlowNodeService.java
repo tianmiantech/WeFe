@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,28 +26,29 @@ import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlMode
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.repository.ProjectFlowNodeRepository;
 import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
-import com.welab.wefe.board.service.dto.entity.data_set.DataSetOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
-import com.welab.wefe.board.service.dto.kernel.JobDataSet;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.JobDataSet;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.board.service.util.ModelMapper;
+import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.JobMemberRole;
-import com.welab.wefe.common.enums.ProjectFlowStatus;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -63,7 +64,7 @@ public class ProjectFlowNodeService {
     @Autowired
     private ProjectFlowService projectFlowService;
     @Autowired
-    private DataSetService dataSetService;
+    private TableDataSetService tableDataSetService;
 
     @Autowired
     private ProjectFlowRepository projectFlowRepo;
@@ -112,10 +113,10 @@ public class ProjectFlowNodeService {
             for (DataIOComponent.DataSetItem item : params.getDataSetList()) {
                 JobDataSet.Member member = new JobDataSet.Member();
                 member.memberRole = item.getMemberRole();
-                DataSetOutputModel dataSetInfo = dataSetService.findDataSetFromLocalOrUnion(item.getMemberId(),
+                TableDataSetOutputModel dataSetInfo = tableDataSetService.findDataSetFromLocalOrUnion(item.getMemberId(),
                         item.getDataSetId());
                 if (dataSetInfo != null) {
-                    member.dataSetRows = dataSetInfo.getRowCount();
+                    member.dataSetRows = dataSetInfo.getTotalDataCount();
                     member.dataSetFeatures = dataSetInfo.getFeatureCount();
                 }
                 dataSet.members.add(member);
@@ -137,6 +138,7 @@ public class ProjectFlowNodeService {
                         .in("componentType",
                                 Arrays.asList(
                                         ComponentType.DataIO,
+                                        ComponentType.ImageDataIO,
                                         ComponentType.HorzXGBoostValidationDataSetLoader,
                                         ComponentType.VertXGBoostValidationDataSetLoader,
                                         ComponentType.HorzLRValidationDataSetLoader,
@@ -151,12 +153,14 @@ public class ProjectFlowNodeService {
     /**
      * Nodes in the update flow
      */
+    @Transactional(rollbackFor = Exception.class)
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
 
         // Update flow status
         projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
 
         ProjectFlowNodeMySqlModel node = findOne(input.getFlowId(), input.getNodeId());
+
         List<ProjectFlowNodeOutputModel> list = new ArrayList<>();
 
         // If the node does not exist, it will be created automatically.
@@ -175,22 +179,6 @@ public class ProjectFlowNodeService {
         }
         // If the node already exists, update it.
         else {
-            // If the parameters have not changed, jump out.
-            if (input.getParams().equals(node.getParams())) {
-
-                // Repeat the update, the DataIO data has not changed,
-                // but the previous operation may not be completed. In order to have a better experience,
-                // the feature selection component list with empty parameters is also returned.
-                if (node.getComponentType() == ComponentType.DataIO) {
-                    List<ProjectFlowNodeMySqlModel> nodes = findNodesByFlowId(node.getFlowId());
-
-                    list = nodes.stream().filter(x -> Objects.requireNonNull(Components.get(x.getComponentType())).canSelectFeatures() && x.getParams() == null)
-                            .map(x -> ModelMapper.map(x, ProjectFlowNodeOutputModel.class))
-                            .collect(Collectors.toList());
-                }
-                return list;
-            }
-
             node.setParams(input.getParams());
             node.setParamsVersion(System.currentTimeMillis());
             node.setUpdatedBy(input);
@@ -201,7 +189,7 @@ public class ProjectFlowNodeService {
         if (node.getComponentType() == ComponentType.DataIO) {
             List<ProjectFlowNodeMySqlModel> nodes = findNodesByFlowId(node.getFlowId());
             for (ProjectFlowNodeMySqlModel flowNode : nodes) {
-                if (Objects.requireNonNull(Components.get(flowNode.getComponentType())).canSelectFeatures()) {
+                if (Components.get(flowNode.getComponentType()).canSelectFeatures()) {
                     flowNode.setParams(null);
                     projectFlowNodeRepository.save(flowNode);
                     list.add(ModelMapper.map(flowNode, ProjectFlowNodeOutputModel.class));

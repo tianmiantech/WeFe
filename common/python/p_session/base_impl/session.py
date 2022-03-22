@@ -40,7 +40,7 @@ from common.python.utils.store_type import StoreTypes
 
 def build_db_runtime(work_mode: WorkMode, storage_session):
     if work_mode.is_standalone() or work_mode.is_cluster():
-        from common.python.storage.impl.dsource import DBRuntime
+        from common.python.p_session.base_impl.db_runtime import DBRuntime
         return DBRuntime(storage_session)
     else:
         raise ValueError(f"work_mode: {work_mode} not supported!")

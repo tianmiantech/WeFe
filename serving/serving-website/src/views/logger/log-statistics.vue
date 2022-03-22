@@ -3,34 +3,28 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
-            <el-form-item
-                label="模型ID："
-                label-width="100px"
-            >
+        <el-form inline>
+            <el-form-item label="模型ID：">
                 <el-input
                     v-model="search.model_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="成员ID："
-                label-width="100px"
-            >
+            <el-form-item label="成员ID：">
                 <el-input
                     v-model="search.member_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="日期类型："
-                label-width="100px"
-            >
+            <el-form-item label="区间：">
+                <el-input
+                    v-model="search.interval"
+                    style="width:70px"
+                    clearable
+                />
                 <el-select
                     v-model="search.date_type"
+                    style="width:100px"
                     clearable
                 >
                     <el-option
@@ -42,15 +36,19 @@
                 </el-select>
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getChartList()"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getChartList"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
         </el-form>
+
         <LineChart
             ref="lineChart"
+            v-loading="loading"
             :chart-data="chartData"
         />
     </el-card>
@@ -65,7 +63,8 @@
         },
         data() {
             return {
-                search: {
+                loading: false,
+                search:  {
                     member_id: '',
                     model_id:  '',
                     date_type: 'month',
@@ -111,12 +110,13 @@
 
             // 获取图表数据
             async getChartList() {
+                this.loading = true;
                 const { code, data } = await this.$http.get({
                     url:    this.getListApi,
                     params: this.search,
                 });
 
-                
+
                 this.chartData.legend = ['成功数', '失败数'];
                 const xAxis = [], series = [
                     {
@@ -131,6 +131,7 @@
                     },
                 ];
 
+                this.loading = false;
                 if (code === 0) {
                     if (data && data.length) {
                         data.forEach(item => {

@@ -14,7 +14,7 @@ worker_ui_port=$5
 # 定义函数：docker-compose配置初始化
 # *****************
 spark_cluster_config(){
-    echo "当前type:$identity_type"
+    # echo "type:$identity_type"
     case $identity_type in
       master)
         cp -f resources/template/docker-compose-master.yml.template resources/docker-compose.yml
@@ -44,8 +44,12 @@ spark_cluster_config(){
         echo 'GPU 加速模式'
         cp -f resources/template/docker-compose-gpu.yml.template resources/docker-compose.yml
         ;;
+      fc)
+        echo '函数计算模式'
+        cp -f resources/template/docker-compose-fc.yml.template resources/docker-compose.yml
+        ;;
       *)
-        echo '非集群模式'
+        # echo '非集群模式'
         ;;
       esac
 }
@@ -68,6 +72,7 @@ sed -i "/flow_port/s/-.*:/- $PYTHON_SERVICE_PORT:/g" ./resources/docker-compose.
 
 # 加载本地离线镜像包
 if [ ${ACCELERATION,,} == 'gpu' ];then
+  sed -i "/wefe_version/s/python_gpu_service:.*#/python_gpu_service:$WEFE_VERSION #/g" ./resources/docker-compose.yml
   echo "开始加载 gpu python 离线镜像"
   docker load < resources/wefe_python_gpu_service_$WEFE_VERSION\.tar
   echo "加载 gpu python 离线镜像完成"
@@ -77,5 +82,6 @@ else
   echo "加载 python 离线镜像完成"
 fi
 
-# 启动 flow 镜像
+source /data/environment/miniconda3/envs/wefe-python37/bin/activate
 docker-compose -p $WEFE_ENV -f resources/docker-compose.yml up -d
+

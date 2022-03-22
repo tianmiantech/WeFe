@@ -29,7 +29,7 @@
                 </el-menu-item>
             </template>
 
-            <template v-else-if="!item.meta.hidden">
+            <template v-else-if="!item.meta.hidden && (userInfo.admin_role || (!userInfo.admin_role && item.meta.normalUserCanSee !== false))">
                 <el-menu-item
                     :key="index"
                     :index="item.path"
@@ -48,6 +48,8 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
+
     export default {
         name:  'MenuTemp',
         props: {
@@ -56,6 +58,9 @@
                 default: () => [],
             },
         },
+        computed: {
+            ...mapGetters(['userInfo']),
+        },
     };
 </script>
 
@@ -63,12 +68,14 @@
 .numTip {
     display: inline-block;
     margin-left: 6px;
-    min-width: 20px;
-    height:20px;
-    line-height:20px;
+    min-width:16px;
+    height:16px;
+    line-height:16px;
     text-align: center;
     border-radius: 10px;
     background:#FF5757;
+    font-size:12px !important;
+    padding:0 4px;
     color:#fff;
 }
 </style>

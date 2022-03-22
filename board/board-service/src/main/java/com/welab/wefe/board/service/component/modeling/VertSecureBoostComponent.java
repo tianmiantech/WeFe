@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,11 +27,11 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractSecureBoostInput;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -59,9 +59,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
-        JObject vertSecureBoostParam = JObject.create();
+        JObject output = JObject.create();
         JObject treeParam = JObject.create().append("criterion_method", "xgboost")
                 .append("criterion_params", params.getTreeParam().getCriterionParams())
                 .append("max_depth", params.getTreeParam().getMaxDepth())
@@ -81,7 +79,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("shuffle", params.getCvParam().isShuffle())
                 .append("need_cv", params.getCvParam().isNeedCv());
 
-        vertSecureBoostParam.append("task_type", params.otherParam.taskType)
+        output.append("task_type", params.otherParam.taskType)
                 .append("learning_rate", params.otherParam.learningRate)
                 .append("num_trees", params.otherParam.numTrees)
                 .append("subsample_feature_rate", params.otherParam.subsampleFeatureRate)
@@ -93,11 +91,15 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("tree_param", treeParam)
                 .append("objective_param", objectiveParam)
                 .append("encrypt_param", encryptParam)
-                .append("cv_param", cvParam);
-
-        taskParam.put("params", vertSecureBoostParam);
-
-        return taskParam;
+				.append("cv_param", cvParam)
+				.append("work_mode", params.otherParam.workMode);
+		if ("layered".equalsIgnoreCase(params.otherParam.workMode)) {
+			output.append("promoter_depth", params.otherParam.promoterDepth).append("provider_depth",
+					params.otherParam.providerDepth);
+		} else if ("skip".equalsIgnoreCase(params.otherParam.workMode)) {
+			output.append("tree_num_per_member", params.otherParam.treeNumPerMember);
+		}
+        return output;
     }
 
     @Override
@@ -137,6 +139,8 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
 
         @Check(require = true)
         private EncryptParam encryptParam;
+        
+        
 
         public EncryptParam getEncryptParam() {
             return encryptParam;
@@ -181,7 +185,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             private float subsampleFeatureRate;
             @Check(name = "多次迭代无变化是允许停止", require = true)
             private boolean nIterNoChange;
-            @Check(name = "收敛阀值", require = true)
+            @Check(name = "收敛阈值", require = true)
             private float tol;
             @Check(name = "最大分箱数", require = true)
             private int binNum;
@@ -189,6 +193,19 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             private int validationFreqs;
             @Check(name = "允许提前结束的最小迭代次数", require = true)
             private int earlyStoppingRounds;
+            @Check(name = "工作模式")
+			private String workMode = "normal"; // normal、layered、skip
+            
+            // 当work_mode==layered时，需要下面两个参数
+            @Check(name = "promoter层数")
+            private int promoterDepth;
+            @Check(name = "provider层数")
+            private int providerDepth;
+            
+            // 当work_mode==skip时，需要下面这个参数
+            @Check(name = "单方每次构建树的数量")
+            private int treeNumPerMember;
+            
 
             public String getTaskType() {
                 return taskType;
@@ -261,6 +278,38 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             public void setEarlyStoppingRounds(int earlyStoppingRounds) {
                 this.earlyStoppingRounds = earlyStoppingRounds;
             }
+
+			public String getWorkMode() {
+				return workMode;
+			}
+
+			public void setWorkMode(String workMode) {
+				this.workMode = workMode;
+			}
+
+			public int getPromoterDepth() {
+				return promoterDepth;
+			}
+
+			public void setPromoterDepth(int promoterDepth) {
+				this.promoterDepth = promoterDepth;
+			}
+
+			public int getProviderDepth() {
+				return providerDepth;
+			}
+
+			public void setProviderDepth(int providerDepth) {
+				this.providerDepth = providerDepth;
+			}
+
+			public int getTreeNumPerMember() {
+				return treeNumPerMember;
+			}
+
+			public void setTreeNumPerMember(int treeNumPerMember) {
+				this.treeNumPerMember = treeNumPerMember;
+			}
         }
 
     }

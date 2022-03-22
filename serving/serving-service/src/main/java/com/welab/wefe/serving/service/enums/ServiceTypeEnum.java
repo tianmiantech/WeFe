@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,11 @@ package com.welab.wefe.serving.service.enums;
  */
 public enum ServiceTypeEnum {
 
-    PIR(1, "两方匿踪查询"),
-    PSI(2, "两方交集查询"),
+    PIR(1, "两方匿踪查询"), PSI(2, "两方交集查询"),
 
-    SA(3, "多方安全统计(被查询方)"),
-    MULTI_SA(4, "多方安全统计(查询方)"),
+    SA(3, "多方安全统计(被查询方)"), MULTI_SA(4, "多方安全统计(查询方)"),
 
-    MULTI_PSI(5, "多方交集查询"),
-    MULTI_PIR(6, "多方匿踪查询"),
-
+    MULTI_PSI(5, "多方交集查询"), MULTI_PIR(6, "多方匿踪查询"),
 
     ;
 
@@ -37,12 +33,10 @@ public enum ServiceTypeEnum {
 
     private String value;
 
-
     ServiceTypeEnum(int code, String value) {
         this.code = code;
         this.value = value;
     }
-
 
     public static String getValue(int code) {
 
@@ -52,21 +46,57 @@ public enum ServiceTypeEnum {
                 result = ServiceTypeEnum.PIR.value;
                 break;
             case 2:
-                result = ServiceTypeEnum.MULTI_PIR.value;
-                break;
-            case 3:
                 result = ServiceTypeEnum.PSI.value;
                 break;
+            case 3:
+                result = ServiceTypeEnum.SA.value;
+                break;
             case 4:
-                result = ServiceTypeEnum.MULTI_PSI.value;
+                result = ServiceTypeEnum.MULTI_SA.value;
                 break;
             case 5:
-                result = ServiceTypeEnum.MULTI_SA.value;
+                result = ServiceTypeEnum.MULTI_PSI.value;
+                break;
+            case 6:
+                result = ServiceTypeEnum.MULTI_PIR.value;
                 break;
             default:
                 break;
         }
         return result;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public static boolean checkServiceType(int serviceType) {
+        for (ServiceTypeEnum enu : ServiceTypeEnum.values()) {
+            if (enu.code == serviceType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean needDataSource(int serviceType) {
+        return serviceType == PIR.code || serviceType == PSI.code || serviceType == SA.code;
+    }
+
+    public static boolean needServiceConfig(int serviceType) {
+        return serviceType == MULTI_SA.code || serviceType == MULTI_PSI.code || serviceType == MULTI_PIR.code;
     }
 
 }

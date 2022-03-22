@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.AbstractPsiActuator;
 import com.welab.wefe.data.fusion.service.enums.PSIActuatorStatus;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
-import com.welab.wefe.data.fusion.service.manager.TaskManager;
+import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.service.TaskService;
 
 /**
@@ -57,17 +57,17 @@ public abstract class AbstractPsiTask<T extends AbstractPsiActuator> extends Abs
 
         switch (actuator.status) {
             case success:
-                taskService.updateByBusinessId(businessId, TaskStatus.Success, getFusionCount(), getSpend());
+                taskService.updateByBusinessId(businessId, TaskStatus.Success, getFusionCount(), getProcessedCount(), getSpend());
                 break;
             case falsify:
             case running:
-                taskService.updateByBusinessId(businessId, TaskStatus.Interrupt, getFusionCount(), getSpend());
+                taskService.updateByBusinessId(businessId, TaskStatus.Interrupt, getFusionCount(), getProcessedCount(), getSpend());
                 break;
             default:
-                taskService.updateByBusinessId(businessId, TaskStatus.Failure, getFusionCount(), getSpend());
+                taskService.updateByBusinessId(businessId, TaskStatus.Failure, getFusionCount(), getProcessedCount(), getSpend());
                 break;
         }
 
-        TaskManager.remove(businessId);
+        ActuatorManager.remove(businessId);
     }
 }

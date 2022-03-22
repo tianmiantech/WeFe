@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # Copyright 2021 Tianmian Tech. All Rights Reserved.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,13 @@
 # limitations under the License.
 
 # Copyright 2019 The FATE Authors. All Rights Reserved.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,22 +49,27 @@ LOGGER = log_utils.get_logger()
 
 
 class HistogramBag(object):
+
     """
     holds histograms
     """
 
-    def __init__(self, tensor: list, hid: int = -1, p_hid: int = -1):
+    def __init__(self, tensor: list, hid: int = -1, p_hid: int = -1, tensor_type='list'):
+
         """
         :param tensor: list returned by calculate_histogram
         :param hid: histogram id
         :param p_hid: parent node histogram id
+        :param tensor_type: 'list' or 'array'
         """
 
         self.hid = hid
         self.p_hid = p_hid
         self.bag = tensor
+        self.tensor_type = tensor_type
 
     def binary_op(self, other, func, inplace=False):
+
         assert isinstance(other, HistogramBag)
         assert len(self.bag) == len(other)
 
@@ -74,28 +79,31 @@ class HistogramBag(object):
             newbag = copy.deepcopy(other)
             bag = newbag.bag
 
-        # for bag_idx in range(len(self.bag)):
-        #     for hist_idx in range(len(self.bag[bag_idx])):
-        #         if len(self.bag[bag_idx]) > 0 and len(other[bag_idx]) > 0:
-        #             bag[bag_idx][hist_idx][0] = func(self.bag[bag_idx][hist_idx][0], other[bag_idx][hist_idx][0])
-        #             bag[bag_idx][hist_idx][1] = func(self.bag[bag_idx][hist_idx][1], other[bag_idx][hist_idx][1])
-        #             bag[bag_idx][hist_idx][2] = func(self.bag[bag_idx][hist_idx][2], other[bag_idx][hist_idx][2])
-        #         elif len(self.bag[bag_idx]) > 0:
-        #             bag[bag_idx][hist_idx][0] = self.bag[bag_idx][hist_idx][0]
-        #             bag[bag_idx][hist_idx][1] = self.bag[bag_idx][hist_idx][1]
-        #             bag[bag_idx][hist_idx][2] = self.bag[bag_idx][hist_idx][2]
-        #         else:
-        #             bag[bag_idx][hist_idx][0] = other.bag[bag_idx][hist_idx][0]
-        #             bag[bag_idx][hist_idx][1] = other.bag[bag_idx][hist_idx][1]
-        #             bag[bag_idx][hist_idx][2] = other.bag[bag_idx][hist_idx][2]
+        for bag_idx in range(len(self.bag)):
+            for hist_idx in range(len(self.bag[bag_idx])):
+                bag[bag_idx][hist_idx][0] = func(self.bag[bag_idx][hist_idx][0], other[bag_idx][hist_idx][0])
+                bag[bag_idx][hist_idx][1] = func(self.bag[bag_idx][hist_idx][1], other[bag_idx][hist_idx][1])
+                bag[bag_idx][hist_idx][2] = func(self.bag[bag_idx][hist_idx][2], other[bag_idx][hist_idx][2])
 
         return self if inplace else newbag
 
     def __add__(self, other):
-        return self.binary_op(other, add, inplace=False)
+        if self.tensor_type == 'list':
+            return self.binary_op(other, add, inplace=False)
+        elif self.tensor_type == 'array':
+            self.bag += other.bag
+            return self
+        else:
+            raise ValueError('unknown tensor type')
 
     def __sub__(self, other):
-        return self.binary_op(other, sub, inplace=False)
+        if self.tensor_type == 'list':
+            return self.binary_op(other, sub, inplace=False)
+        elif self.tensor_type == 'array':
+            self.bag -= other.bag
+            return self
+        else:
+            raise ValueError('unknown tensor type')
 
     def __len__(self):
         return len(self.bag)
@@ -300,7 +308,7 @@ class FeatureHistogram(object):
         zero_as_missing: enable zero as missing
         parent_node_id_map: map current node_id to its parent id, this para is for hist sub
         sibling_node_id_map: map current node_id to its sibling id, this para is for hist sub
-        ret: return type, if 'tb', return histograms stored in DTable
+        ret: return type, if 'tb', return histograms stored in Table
         """
 
         LOGGER.debug("bin_shape is {}, node num is {}".format(bin_split_points.shape, len(node_map)))
@@ -308,7 +316,7 @@ class FeatureHistogram(object):
         # reformat, now format is: key, ((data_instance, node position), (g, h))
         batch_histogram_intermediate_rs = data_bin.join(grad_and_hess, lambda data_inst, g_h: (data_inst, g_h))
 
-        if batch_histogram_intermediate_rs.count() == 0:  # if input sample number is 0, return empty histograms
+        if batch_histogram_intermediate_rs.count() == 0: # if input sample number is 0, return empty histograms
 
             node_histograms = FeatureHistogram._generate_histogram_template(node_map, bin_split_points, valid_features,
                                                                             1 if use_missing else 0)
@@ -337,9 +345,6 @@ class FeatureHistogram(object):
 
             agg_func = self._stable_hist_aggregate if self.stable_reduce else self._hist_aggregate
             histograms_table = batch_histogram_intermediate_rs.mapReducePartitions(batch_histogram_cal, agg_func)
-            # batch_histogram = batch_histogram_intermediate_rs.mapPartitions2(batch_histogram_cal)
-            # histograms_table = batch_histogram.reduce(agg_func, key_func=lambda key: (key[1], key[2]))
-
             if self.stable_reduce:
                 histograms_table = histograms_table.mapValues(self._stable_hist_reduce)
 
@@ -380,7 +385,7 @@ class FeatureHistogram(object):
             # ciphertext cumsum skipping
             if histograms[i][2] == 0:
                 new_hist[i] = new_hist[i - 1]
-                # LOGGER.debug('skipping')
+                LOGGER.debug('skipping')
                 continue
 
             for j in range(len(histograms[i])):
@@ -412,7 +417,7 @@ class FeatureHistogram(object):
 
         partition_id_list_1, hist_val_list_1 = fid_histogram1
         partition_id_list_2, hist_val_list_2 = fid_histogram2
-        value = [partition_id_list_1 + partition_id_list_2, hist_val_list_1 + hist_val_list_2]
+        value = [partition_id_list_1+partition_id_list_2, hist_val_list_1+hist_val_list_2]
         return value
 
     @staticmethod
@@ -460,7 +465,7 @@ class FeatureHistogram(object):
     def _generate_histogram_key_value_list(node_histograms, node_map, bin_split_points, parent_node_id_map,
                                            sibling_node_id_map, partition_key=None):
 
-        # generate key_value hist list for DTable parallelization
+        # generate key_value hist list for Table parallelization
         ret = []
         inverse_map = FeatureHistogram._inverse_node_map(node_map)
         for node_idx in range(len(node_map)):
@@ -502,7 +507,7 @@ class FeatureHistogram(object):
             unleaf_state, nodeid = nodeid_state
             if unleaf_state == 0 or nodeid not in node_map:
                 continue
-            g, h = value[1]  # encrypted text in provider, plaintext in promoter
+            g, h = value[1]  # encrypted text in provider, plaintext in guest
             data_bins.append(data_bin)  # features
             node_ids.append(nodeid)  # current node position
             grad.append(g)
@@ -548,10 +553,15 @@ class FeatureHistogram(object):
                 node_histograms[node_idx][fid][value][1] += hess[rid]
                 node_histograms[node_idx][fid][value][2] += 1
 
-                # node feature total sum value
-                zero_optim[node_idx][fid][0] += grad[rid]
-                zero_optim[node_idx][fid][1] += hess[rid]
-                zero_optim[node_idx][fid][2] += 1
+        for nid in range(node_num):
+            # cal feature level g_h incrementally
+            for fid in range(bin_split_points.shape[0]):
+                if valid_features is not None and valid_features[fid] is False:
+                    continue
+                for bin_index in range(len(node_histograms[nid][fid])):
+                    zero_optim[nid][fid][0] += node_histograms[nid][fid][bin_index][0]
+                    zero_optim[nid][fid][1] += node_histograms[nid][fid][bin_index][1]
+                    zero_optim[nid][fid][2] += node_histograms[nid][fid][bin_index][2]
 
         for node_idx in range(node_num):
             for fid in range(bin_split_points.shape[0]):
@@ -560,11 +570,14 @@ class FeatureHistogram(object):
                         # add 0 g/h sum to sparse point
                         sparse_point = bin_sparse_points[fid]
                         node_histograms[node_idx][fid][sparse_point][0] += zero_opt_node_sum[node_idx][0] - \
-                                                                           zero_optim[node_idx][fid][0]
+                                                                           zero_optim[node_idx][fid][
+                                                                               0]
                         node_histograms[node_idx][fid][sparse_point][1] += zero_opt_node_sum[node_idx][1] - \
-                                                                           zero_optim[node_idx][fid][1]
+                                                                           zero_optim[node_idx][fid][
+                                                                               1]
                         node_histograms[node_idx][fid][sparse_point][2] += zero_opt_node_sum[node_idx][2] - \
-                                                                           zero_optim[node_idx][fid][2]
+                                                                           zero_optim[node_idx][fid][
+                                                                               2]
                     else:
                         # if 0 is regarded as missing value, add to missing bin
                         node_histograms[node_idx][fid][-1][0] += zero_opt_node_sum[node_idx][0] - \
@@ -636,7 +649,7 @@ class FeatureHistogram(object):
                                            sibling_node_id_map=sibling_node_id_map,
                                            inverse_map=FeatureHistogram._inverse_node_map(node_map))
 
-        histogram_table = histogram_table.mapPartitions2(transform_func)
+        histogram_table = histogram_table.mapPartitions2(transform_func, use_previous_behavior=False)
 
         return histogram_table
 
@@ -1028,10 +1041,10 @@ class FeatureHistogram(object):
     def _table_subtraction(self, histograms):
 
         """
-        histogram subtraction for dtable format
+        histogram subtraction for table format
         """
 
         LOGGER.debug('joining parent and son histogram tables')
         parent_and_son_hist_table = self._prev_layer_dtable.join(histograms, lambda v1, v2: (v1, v2))
-        result = parent_and_son_hist_table.mapPartitions2(FeatureHistogram._table_hist_sub)
+        result = parent_and_son_hist_table.mapPartitions2(FeatureHistogram._table_hist_sub, use_previous_behavior=False)
         return result

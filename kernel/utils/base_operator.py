@@ -27,8 +27,7 @@
 # limitations under the License.
 
 #
-
-
+import time
 from collections import Iterable
 
 import numpy as np
@@ -39,7 +38,7 @@ from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_s
 from common.python.utils import log_utils
 from kernel.base.instance import Instance
 from kernel.base.sparse_vector import SparseVector
-from kernel.security.paillier import PaillierEncryptedNumber
+from kernel.security.paillier import PaillierEncryptedNumber, PaillierKeypair
 
 LOGGER = log_utils.get_logger()
 
@@ -93,12 +92,6 @@ def dot(value, w):
         return cpu_dot(value, w)
 
 
-if __name__ == '__main__':
-    value = [[1, 2, 3], [4, 5, 6]]
-    w = [1, 2, 3]
-    print(dot(value, w))
-
-
 def vec_dot(x, w):
     new_data = 0
     if isinstance(x, SparseVector):
@@ -150,3 +143,30 @@ def norm(vector, p=2):
         vector = np.array(vector)
 
     return np.linalg.norm(vector, p)
+
+
+def dot_test():
+    from kernel.security.paillier import PaillierKeypair
+    public_key, private_key = PaillierKeypair.generate_keypair(n_length=1024)
+    feature_count = 20
+    row_count = 50000
+    value = np.random.random_sample((feature_count, row_count))
+    w = np.random.uniform(-1, 1, row_count)
+    w = list(map(lambda x: public_key.encrypt(x), w))
+
+    start = time.time()
+    result = gpu_dot(value, w)
+    print(f'gpu dot:{time.time() - start}')
+
+    start = time.time()
+    # result = cpu_dot(value, w)
+    print(f'cpu dot:{time.time() - start}')
+
+    # print(result)
+
+
+if __name__ == '__main__':
+    dot_test()
+    # value = [[1, 2, 3], [4, 5, 6]]
+    # w = [1, 2, 3]
+    # print(dot(value, w))

@@ -24,11 +24,11 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsRequest;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackResultsService;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = PrivateInformationRetrievalApiName.RESULTS, name = "results", login = false)
 public class PrivateInformationRetrievalForResultsApi

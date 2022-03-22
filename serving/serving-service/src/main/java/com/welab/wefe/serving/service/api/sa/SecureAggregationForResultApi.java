@@ -25,12 +25,12 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.mpc.commom.Operator;
 import com.welab.wefe.mpc.sa.SecureAggregationApiName;
 import com.welab.wefe.mpc.sa.request.QuerySAResultRequest;
 import com.welab.wefe.mpc.sa.request.QuerySAResultResponse;
 import com.welab.wefe.mpc.sa.server.service.QueryResultService;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 
 @Api(path = SecureAggregationApiName.SA_RESULT, name = "sa_result", login = false)
 public class SecureAggregationForResultApi

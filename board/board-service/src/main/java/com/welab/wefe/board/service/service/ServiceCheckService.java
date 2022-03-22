@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,152 +16,88 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.api.member.ServiceStatusCheckApi;
-import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.api.member.MemberAvailableCheckApi;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
-import com.welab.wefe.board.service.dto.vo.MemberServiceStatusOutput;
-import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.sdk.FlowService;
-import com.welab.wefe.board.service.sdk.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
-import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.repo.Storage;
-import com.welab.wefe.common.data.storage.service.StorageService;
-import com.welab.wefe.common.enums.MemberService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
+import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
+import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.welab.wefe.board.service.service.DataSetStorageService.DATABASE_NAME;
 
 /**
  * @author lonnie
  */
 @Service
-public class ServiceCheckService {
-
-    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    private FlowService flowService;
-    @Autowired
-    private UnionService unionService;
-
-    @Autowired
-    private GatewayService gatewayService;
-
+public class ServiceCheckService extends AbstractService {
     @Autowired
     private ProjectMemberService projectMemberService;
-
     @Autowired
-    private StorageService storageService;
-
-    @Autowired
-    private JdbcParamConfig jdbcParamConfig;
-
-    @Autowired
-    private Config config;
-
+    private CheckpointManager checkpointManager;
     @Autowired
     private GlobalConfigService globalConfigService;
+    @Autowired
+    private FlowService flowService;
 
     /**
-     * check if each service is available
+     * 检查指定成员的服务是否可用
      */
-    public ServiceStatusCheckApi.Output checkMemberServiceStatus(ServiceStatusCheckApi.Input input) throws MemberGatewayException {
+    public MemberAvailableCheckOutput getMemberAvailableInfo(String memberId) throws StatusCodeWithException {
 
-        String memberId = input.getMemberId();
         // If you are not checking your own status, go to the gateway.
         if (!CacheObjects.getMemberId().equals(memberId)) {
-            ApiResult<?> result = gatewayService.callOtherMemberBoard(memberId, ServiceStatusCheckApi.class, JObject.create(input));
-            return JObject.create(result.data).toJavaObject(ServiceStatusCheckApi.Output.class);
-
+            return gatewayService.callOtherMemberBoard(
+                    memberId,
+                    MemberAvailableCheckApi.class,
+                    new MemberAvailableCheckApi.Input(memberId),
+                    MemberAvailableCheckOutput.class
+            );
         }
 
-        LinkedHashMap<MemberService, MemberServiceStatusOutput> result = new LinkedHashMap<>();
+        MemberAvailableCheckOutput result = new MemberAvailableCheckOutput();
+        List<ServiceType> serviceTypes = Arrays.asList(
+                ServiceType.BoardService,
+                ServiceType.UnionService,
+                ServiceType.GatewayService,
+                ServiceType.FlowService
+        );
 
-        if (input.getService() == null) {
-            result.put(MemberService.gateway, checkLocalGatewayStatus());
-            result.put(MemberService.flow, checkFlowServiceStatus(!input.fromGateway()));
-            result.put(MemberService.union, checkUnionServiceStatus());
-            result.put(MemberService.storage, checkStorageServiceStatus(!input.fromGateway()));
-            return new ServiceStatusCheckApi.Output(result);
+        for (ServiceType type : serviceTypes) {
+            result.put(type, getServiceAvailableInfo(type));
         }
 
-        switch (input.getService()) {
-            case union:
-                result.put(MemberService.union, checkUnionServiceStatus());
-                break;
-
-            case gateway:
-                result.put(MemberService.gateway, checkLocalGatewayStatus());
-                break;
-
-            case flow:
-                result.put(MemberService.flow, checkFlowServiceStatus(!input.fromGateway()));
-                break;
-
-            case storage:
-                result.put(MemberService.storage, checkStorageServiceStatus(!input.fromGateway()));
-                break;
-
-            default:
-                break;
-        }
-
-        return new ServiceStatusCheckApi.Output(result);
+        return result;
     }
 
-    /**
-     * check if the union service is available
-     */
-    public MemberServiceStatusOutput checkUnionServiceStatus() {
-        MemberServiceStatusOutput output = new MemberServiceStatusOutput(MemberService.union);
-        output.setValue(config.getUNION_BASE_URL());
+    public ServiceAvailableCheckOutput getServiceAvailableInfo(ServiceType serviceType) {
         try {
-            unionService.queryMember(0, 1);
-            output.setSuccess(true);
-        } catch (StatusCodeWithException e) {
-            output.setSuccess(true);
-            output.setMessage(e.getMessage());
-        }
-
-        return output;
-    }
-
-    /**
-     * check if the gateway service is available
-     */
-    public MemberServiceStatusOutput checkLocalGatewayStatus() {
-        MemberServiceStatusOutput output = new MemberServiceStatusOutput(MemberService.gateway);
-        output.setValue(globalConfigService.getGatewayConfig().intranetBaseUri);
-
-        try {
-            GatewayOnlineCheckResult result = checkGatewayConnect(globalConfigService.getGatewayConfig().intranetBaseUri);
-
-            output.setSuccess(result.online);
-            output.setMessage(result.error);
-
+            switch (serviceType) {
+                case BoardService:
+                    return checkpointManager.checkAll();
+                case GatewayService:
+                    return gatewayService.getLocalGatewayAvailable();
+                case UnionService:
+                    return unionService.getAvailable();
+                case FlowService:
+                    return flowService.getAvailable();
+                default:
+                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
+            }
         } catch (Exception e) {
-            output.setSuccess(false);
-            output.setMessage(e.getMessage());
+            return new ServiceAvailableCheckOutput("获取 " + serviceType + " 服务可用性状态失败：" + e.getMessage());
         }
-
-
-        return output;
+        return null;
     }
 
     /**
@@ -193,85 +129,6 @@ public class ServiceCheckService {
         }
 
         return checkResultList;
-    }
-
-    /**
-     * check if the storage service is available
-     */
-    public MemberServiceStatusOutput checkStorageServiceStatus(boolean checkerIsMyself) {
-        MemberServiceStatusOutput output = new MemberServiceStatusOutput(MemberService.storage);
-
-        // The connection string is non-exposed information and cannot be output to other members.
-        if (checkerIsMyself) {
-            output.setValue(jdbcParamConfig.getUrl());
-        }
-
-
-        Storage storage = storageService.getStorage();
-        String name = RandomStringUtils.randomAlphabetic(6);
-        try {
-            storage.put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
-            output.setSuccess(true);
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-            e.printStackTrace();
-            output.setSuccess(false);
-            output.setMessage(config.getDbType().name() + " put异常，请检查相关配置是否正确。");
-            return output;
-        }
-
-        try {
-            storage.dropTB(DATABASE_NAME, name);
-            output.setSuccess(true);
-        } catch (Exception e) {
-            output.setSuccess(false);
-            output.setMessage(config.getDbType().name() + " drop异常，请检查相关配置是否正确。");
-        }
-
-        return output;
-    }
-
-    /**
-     * check if the flow service is available
-     */
-    public MemberServiceStatusOutput checkFlowServiceStatus(boolean checkerIsMyself) {
-        MemberServiceStatusOutput output = new MemberServiceStatusOutput(MemberService.flow);
-
-        if (checkerIsMyself) {
-            output.setValue(globalConfigService.getFlowConfig().intranetBaseUri);
-        }
-
-        try {
-            JObject result = flowService.dashboard();
-
-            JObject board = result.getJObject(MemberService.board.name());
-            JObject gateway = result.getJObject(MemberService.gateway.name());
-
-            output = buildResult(MemberService.board.name(), board, output);
-            output = buildResult(MemberService.gateway.name(), gateway, output);
-
-        } catch (Exception e) {
-            output.setSuccess(false);
-            output.setMessage(e.getMessage());
-        }
-
-        return output;
-    }
-
-    private MemberServiceStatusOutput buildResult(String checkpoint, JObject obj, MemberServiceStatusOutput output) {
-
-        if (obj == null) {
-            output.setSuccess(false);
-            output.setMessage("flow 服务不可用，检查点 " + checkpoint + " 检查失败。");
-        } else if (obj.getInteger("code") != null && obj.getInteger("code") == 0) {
-            output.setSuccess(true);
-            output.setMessage(obj.getString("message"));
-        } else {
-            output.setSuccess(false);
-            output.setMessage(obj.getString("message"));
-        }
-
-        return output;
     }
 
 

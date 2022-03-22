@@ -46,7 +46,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 		private String name;
 		private int serviceType;
 		private int status;
+		private String createdBy;
 		private Date createdTime;
+		private String updatedBy;
 		private Date updatedTime;
 
 		public String getId() {
@@ -97,6 +99,22 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 			this.updatedTime = updatedTime;
 		}
 
+		public String getCreatedBy() {
+			return createdBy;
+		}
+
+		public void setCreatedBy(String createdBy) {
+			this.createdBy = createdBy;
+		}
+
+		public String getUpdatedBy() {
+			return updatedBy;
+		}
+
+		public void setUpdatedBy(String updatedBy) {
+			this.updatedBy = updatedBy;
+		}
+
 	}
 
 	public static class Input extends PagingInput {
@@ -110,6 +128,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
 		// 是否在线 1=在线 0=离线
 		private int status = -1;
+		
+		// 创建人
+		private String createdBy;
 
 		public String getName() {
 			return name;
@@ -143,5 +164,12 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 			this.id = id;
 		}
 
+		public String getCreatedBy() {
+			return createdBy;
+		}
+
+		public void setCreatedBy(String createdBy) {
+			this.createdBy = createdBy;
+		}
 	}
 }

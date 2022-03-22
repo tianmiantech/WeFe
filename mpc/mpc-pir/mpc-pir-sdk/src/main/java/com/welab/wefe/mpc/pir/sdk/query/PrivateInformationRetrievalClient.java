@@ -16,22 +16,18 @@
 
 package com.welab.wefe.mpc.pir.sdk.query;
 
-import com.welab.wefe.mpc.commom.Conversion;
 import com.welab.wefe.mpc.pir.flow.BasePrivateInformationRetrieval;
 import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransferKey;
-import com.welab.wefe.mpc.pir.protocol.se.SymmetricKey;
-import com.welab.wefe.mpc.pir.protocol.se.aes.AESDecryptKey;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
 import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsRequest;
 import com.welab.wefe.mpc.pir.request.QueryPIRResultsResponse;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
+import com.welab.wefe.mpc.pir.sdk.crypt.CryptUtil;
 import com.welab.wefe.mpc.pir.sdk.protocol.HauckObliviousTransferReceiver;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.Charset;
 
 /**
  * 使用隐私信息检索协议查询用户数据
@@ -64,7 +60,6 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         int targetIndex = mConfig.getTargetIndex();
         QueryKeysRequest request = new QueryKeysRequest();
         request.setIds(mConfig.getPrimaryKeys());
-        LOG.info("send query keys");
         QueryKeysResponse response = mTransferVariable.queryKeys(request);
         uuid = response.getUuid();
 
@@ -73,19 +68,14 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         LOG.info("uuid:{} start key derivation", uuid);
         ObliviousTransferKey targetKey = mObliviousTransfer.keyDerivation(targetIndex).get(0);
         LOG.info("uuid:{} query results", uuid);
+        if (!targetKey.getResult().isEmpty()) {
+            return targetKey.getResult();
+        }
         QueryPIRResultsRequest resultsRequest = new QueryPIRResultsRequest();
         resultsRequest.setUuid(uuid);
         QueryPIRResultsResponse resultsResponse = mTransferVariable.queryResults(resultsRequest);
         LOG.info("uuid:{} obtain results", uuid);
-        String enResults = resultsResponse.getResults().get(targetIndex);
-        String[] realResult = enResults.split(",");
-        byte[] enResult = Conversion.hexStringToBytes(realResult[0]);
-        byte[] iv = Conversion.hexStringToBytes(realResult[1]);
-        SymmetricKey aesKey = new AESDecryptKey(targetKey.key, iv);
-        byte[] result = aesKey.encrypt(enResult);
-        String resultValue = new String(result, Charset.defaultCharset());
-        LOG.info("uuid:{}, result:{} finish", uuid, resultValue);
-        return resultValue;
+        return CryptUtil.decrypt(resultsResponse.getResults().get(targetIndex), targetKey.key);
     }
 
 }

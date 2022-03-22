@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,10 +34,10 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 
 @Service
 public class VertFilterComponent extends AbstractComponent<VertFilterComponent.Params> {
@@ -50,7 +50,6 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                           Params params) throws FlowNodeException {
-        JSONObject taskParam = new JSONObject();
         JObject resultObj = JObject.create();
         params.getMembers().forEach(member -> {
             if (CacheObjects.getMemberId().equals(member.getMemberId())
@@ -59,8 +58,7 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
             }
         });
 
-        taskParam.put("params", resultObj);
-        return taskParam;
+        return resultObj;
     }
 
     @Override
@@ -102,7 +100,7 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
         }
 
         public static class MemberInfoModel extends MemberModel {
-            @Check(name = "过滤规则", desc = "支持 >,<,>=,<=,=,!=")
+            @Check(name = "过滤规则", desc = "支持 >,<,>=,<=,=,!=", blockXss=false)
             private String filterRules;
 
             public String getFilterRules() {

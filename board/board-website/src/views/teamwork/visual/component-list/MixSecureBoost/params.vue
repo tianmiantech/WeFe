@@ -3,6 +3,7 @@
         <h4 class="mb10">MixSecureBoost参数设置</h4>
         <el-form
             ref="form"
+            class="flex-form"
             :model="vData.form"
             :disabled="disabled"
             @submit.prevent
@@ -65,7 +66,7 @@
 
                     <el-form-item
                         prop="tol"
-                        label="收敛阀值"
+                        label="收敛阈值"
                     >
                         <el-input
                             v-model="vData.form.other_param.tol"
@@ -381,7 +382,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
                         vData.form = data.params;
                     }
                 },
@@ -408,10 +409,7 @@
 .el-form-item{
     margin-bottom: 10px;
     :deep(.el-form-item__label){
-        text-align: left;
-        font-size: 12px;
-        display: block;
-        float: none;
+        flex:1;
     }
 }
 .el-collapse-item {

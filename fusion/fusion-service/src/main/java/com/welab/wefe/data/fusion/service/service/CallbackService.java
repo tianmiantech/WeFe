@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,13 +18,15 @@ package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiClientActuator;
+import com.welab.wefe.data.fusion.service.actuator.test.ClientActuator;
 import com.welab.wefe.data.fusion.service.api.thirdparty.CallbackApi;
 import com.welab.wefe.data.fusion.service.database.entity.TaskMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.TaskRepository;
 import com.welab.wefe.data.fusion.service.enums.TaskStatus;
-import com.welab.wefe.data.fusion.service.manager.TaskManager;
+import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.task.AbstractTask;
 import com.welab.wefe.data.fusion.service.task.PsiClientTask;
+import com.welab.wefe.fusion.core.actuator.AbstractActuator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,17 +68,17 @@ public class CallbackService {
                 break;
             case falsify:
                 //Alignment data check invalid, shut down task
-                AbstractTask job = TaskManager.get(input.getBusinessId());
+                AbstractTask job = ActuatorManager.get(input.getBusinessId());
                 job.finish();
                 break;
             case success:
                 //Mission completed. Destroy task
-                AbstractTask successTask = TaskManager.get(input.getBusinessId());
+                AbstractTask successTask = ActuatorManager.get(input.getBusinessId());
                 successTask.finish();
 
                 break;
             default:
-                throw new RuntimeException("Unexpected enumeration：" + input.getType());
+                throw new RuntimeException("意料之外的枚举值：" + input.getType());
         }
     }
 
@@ -87,13 +89,13 @@ public class CallbackService {
      * @throws StatusCodeWithException
      */
     private void running(String businessId, String ip, int port) throws StatusCodeWithException {
-        if (TaskManager.get(businessId) != null) {
+        if (ActuatorManager.get(businessId) != null) {
             return;
         }
 
         TaskMySqlModel task = taskService.findByBusinessId(businessId);
         if (task == null) {
-            throw new StatusCodeWithException("businessId error:" + businessId, DATA_NOT_FOUND);
+            throw new StatusCodeWithException("该任务不存在，请检查入参:" + businessId, DATA_NOT_FOUND);
         }
         task.setStatus(TaskStatus.Running);
         taskRepository.save(task);
@@ -113,7 +115,8 @@ public class CallbackService {
                         task.getTraceColumn()
                 ));
 
-        TaskManager.set(client);
+
+        ActuatorManager.set(client);
 
         client.run();
     }

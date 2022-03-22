@@ -94,13 +94,55 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
         @Check(name = "IP 白名单")
         private String ipAdd;
 
-//        @Check(name = "公钥")
-//        private String pubKey;
+        @Check(name = "公钥")
+        private String pubKey;
+
         @Check(name = "客户 code")
         private String code;
 
         @Check(name = "创建时间")
         private Date createdTime;
+
+        @Check(name = "创建人")
+        private String createdBy;
+
+        private String updatedBy;
+
+        @Check(name = "客户状态")
+        private Integer status;
+
+
+        public Integer getStatus() {
+            return status;
+        }
+
+        public void setStatus(Integer status) {
+            this.status = status;
+        }
+
+        public String getPubKey() {
+            return pubKey;
+        }
+
+        public void setPubKey(String pubKey) {
+            this.pubKey = pubKey;
+        }
+
+        public String getUpdatedBy() {
+            return updatedBy;
+        }
+
+        public void setUpdatedBy(String updatedBy) {
+            this.updatedBy = updatedBy;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
 
         public String getCode() {
             return code;
@@ -150,13 +192,6 @@ public class QueryClientListApi extends AbstractApi<QueryClientListApi.Input, Pa
             this.ipAdd = ipAdd;
         }
 
-//        public String getPubKey() {
-//            return pubKey;
-//        }
-//
-//        public void setPubKey(String pubKey) {
-//            this.pubKey = pubKey;
-//        }
     }
 
 }

@@ -22,12 +22,15 @@ import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.request.QueryRandomRequest;
 import com.welab.wefe.mpc.pir.request.QueryRandomResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @Author eval
  * @Date 2021/12/14
  **/
 public class HauckRandomService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HauckRandomService.class);
 
     public QueryRandomResponse handle(QueryRandomRequest request) {
         CacheOperation<String> mCacheOperation = CacheOperationFactory.getCacheOperation();
@@ -40,7 +43,7 @@ public class HauckRandomService {
             try {
                 Thread.sleep(20);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage(), e);
             }
             result = mCacheOperation.get(uuid, name);
         }

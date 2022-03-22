@@ -1,0 +1,10 @@
+
+### 修改数据集
+POST http://localhost:8080/board-service/image_data_set_sample/query
+Content-Type: application/json
+token: {{token}}
+
+{
+  "label": "male",
+  "data_set_id": "d04839004d38421cbed66b6ef9791037"
+}

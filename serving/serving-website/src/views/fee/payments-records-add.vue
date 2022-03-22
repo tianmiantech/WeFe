@@ -38,24 +38,26 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="状态" prop="status">
-                <el-select v-model="paymentsRecords.status" filterable clearable placeholder="请选择类型">
-                    <el-option
-                        v-for="item in statusMap"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
+            <!--            <el-form-item label="状态" prop="status">-->
+            <!--                <el-select v-model="paymentsRecords.status" filterable clearable placeholder="请选择类型">-->
+            <!--                    <el-option-->
+            <!--                        v-for="item in statusMap"-->
+            <!--                        :key="item.value"-->
+            <!--                        :label="item.label"-->
+            <!--                        :value="item.value">-->
+            <!--                    </el-option>-->
+            <!--                </el-select>-->
+            <!--            </el-form-item>-->
 
-            <el-form-item label="金额" prop="amount">
+            <el-form-item label="金额(￥)" prop="amount" class="amount">
                 <el-input v-model="paymentsRecords.amount"></el-input>
             </el-form-item>
 
 
             <el-form-item label="备注">
-                <el-input v-model="paymentsRecords.remark" type="textarea"
+                <el-input v-model="paymentsRecords.remark"
+                          type="textarea"
+                          rows="6"
                           :maxlength="300"
                           :minlength="0"
                           show-word-limit
@@ -63,7 +65,7 @@
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
-                <router-link
+                <router-link class="ml10"
                     :to="{
                             name: 'payments-records',
                         }"
@@ -112,10 +114,10 @@ export default {
                 {value: '1', label: '充值'},
                 {value: '2', label: '支出'},
             ],
-            statusMap: [
-                {value: '1', label: '正常'},
-                {value: '2', label: '冲正'},
-            ],
+            // statusMap: [
+            //     {value: '1', label: '正常'},
+            //     {value: '2', label: '冲正'},
+            // ],
             rules: {
 
                 clientId: [
@@ -129,9 +131,6 @@ export default {
                 ],
                 payType: [
                     {required: true, message: '请选择收支类型', trigger: 'change'}
-                ],
-                status: [
-                    {required: true, message: '请选择状态', trigger: 'change'}
                 ],
             },
         }
@@ -161,15 +160,11 @@ export default {
                             serviceId: this.paymentsRecords.serviceId,
                             clientId: this.paymentsRecords.clientId,
                             amount: this.paymentsRecords.amount,
-                            status: this.paymentsRecords.status,
                             remark: this.paymentsRecords.remark,
                         },
                     });
 
                     if (code === 0) {
-                        // setTimeout(() => {
-                        //
-                        // }, 1000)
                         this.$router.push({
                             name: 'payments-records'
                         })
@@ -182,7 +177,6 @@ export default {
         handleServices(data) {
             for (let i = 0; i < data.length; i++) {
 
-                console.log(data[i].id, ' ', data[i].name, 11111)
                 this.services.push({
                     label: data[i].name,
                     value: data[i].id
@@ -239,5 +233,9 @@ export default {
 
 .el-form {
     width: 600px;
+}
+
+.amount {
+    width: 285px;
 }
 </style>

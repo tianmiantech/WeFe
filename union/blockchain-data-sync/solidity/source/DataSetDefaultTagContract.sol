@@ -15,6 +15,7 @@ contract DataSetDefaultTagContract{
     event insertEvent(int256 ret_code,string[] params,string ext_json);
     event updateEvent(int256 ret_code,string tag_id,string tag_name,string ext_json,string updated_time);
     event deleteByTagIdEvent(int256 ret_code,string tag_id);
+    event updateExtJsonEvent(int256 ret_code,string tag_id, string ext_json,string updated_time);
 
     constructor() public {
         tableFactory = TableFactory(0x1001);
@@ -29,7 +30,7 @@ contract DataSetDefaultTagContract{
         if (isExist(params[0])) {
             ret_code = -1;
             emit insertEvent(ret_code,params,ext_json);
-            return -1;
+            return ret_code;
         }
 
         Table table = tableFactory.openTable(TABLE_NAME);
@@ -52,7 +53,7 @@ contract DataSetDefaultTagContract{
 
         emit insertEvent(ret_code,params,ext_json);
 
-        return count;
+        return ret_code;
     }
 
 
@@ -60,7 +61,7 @@ contract DataSetDefaultTagContract{
     function update(string tag_id,string tag_name,string ext_json,string updated_time) public returns (int) {
         int256 ret_code = 0;
         if (!isExist(tag_id)) {
-            ret_code = -1;
+            ret_code = -3;
             emit updateEvent(ret_code,tag_id,tag_name,ext_json,updated_time);
             return ret_code;
         }
@@ -85,11 +86,17 @@ contract DataSetDefaultTagContract{
         }
 
         emit updateEvent(ret_code,tag_id,tag_name,ext_json,updated_time);
-        return count;
+        return ret_code;
     }
 
     function deleteByTagId(string tag_id) public returns (int) {
         int256 ret_code = 0;
+        if (!isExist(tag_id)) {
+            ret_code = -3;
+            emit deleteByTagIdEvent(ret_code,tag_id);
+            return ret_code;
+        }
+
         Table table = tableFactory.openTable(TABLE_NAME);
         Condition condition = table.newCondition();
         condition.EQ("tag_id", tag_id);
@@ -103,7 +110,7 @@ contract DataSetDefaultTagContract{
 
         emit deleteByTagIdEvent(ret_code,tag_id);
 
-        return count;
+        return ret_code;
 
     }
 
@@ -114,12 +121,39 @@ contract DataSetDefaultTagContract{
         Entries entries = table.select(FIX_ID, table.newCondition());
         if (0 == uint256(entries.size())) {
 
-            return (-1, new string[](0));
+            return (-3, new string[](0));
         }
         return (0, wrapReturnMemberInfo(entries));
     }
 
+    function updateExtJson(string tag_id,string ext_json,string updated_time) public returns (int256) {
+        int256 ret_code = 0;
+        if (!isExist(tag_id)) {
+            ret_code = -3;
+            emit updateExtJsonEvent(ret_code,tag_id,ext_json,updated_time);
+            return ret_code;
+        }
 
+        Table table = tableFactory.openTable(TABLE_NAME);
+
+        Condition condition = table.newCondition();
+        condition.EQ("tag_id", tag_id);
+
+        Entry entry = table.newEntry();
+        entry.set("ext_json", ext_json);
+        entry.set("updated_time", updated_time);
+
+        int count = table.update(FIX_ID, entry, condition);
+
+        if(count >= 1){
+            ret_code = 0;
+        } else {
+            ret_code = -2;
+        }
+
+        emit updateExtJsonEvent(ret_code,tag_id,ext_json,updated_time);
+        return ret_code;
+    }
 
     function isExist(string tag_id) public view returns(bool) {
         Table table = tableFactory.openTable(TABLE_NAME);

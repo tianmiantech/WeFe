@@ -21,7 +21,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-import com.welab.wefe.common.enums.DatabaseType;
+import com.welab.wefe.serving.service.enums.DatabaseType;
 
 /**
  * @author Johnny.lin
@@ -29,6 +29,9 @@ import com.welab.wefe.common.enums.DatabaseType;
  */
 @Entity(name = "data_source")
 public class DataSourceMySqlModel extends AbstractBaseMySqlModel {
+	
+	public static final String PASSWORD_MASK = "*************";
+	
 	private static final long serialVersionUID = 4348703828245457696L;
 
 	/**

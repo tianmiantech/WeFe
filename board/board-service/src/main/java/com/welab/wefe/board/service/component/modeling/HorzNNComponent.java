@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,12 +15,6 @@
  */
 
 package com.welab.wefe.board.service.component.modeling;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.io.IODataType;
@@ -32,10 +26,15 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.Params> {
@@ -48,7 +47,7 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                           Params params) throws FlowNodeException {
-        JSONObject taskParam = new JSONObject();
+//        JSONObject taskParam = new JSONObject();
         JObject horzNNParam = JObject.create();
         horzNNParam.append("encode_label", false).append("max_iter", params.maxIter).append("batch_size",
                 params.batchSize);
@@ -67,8 +66,8 @@ public class HorzNNComponent extends AbstractModelingComponent<HorzNNComponent.P
         JObject nnDefine = JObject.create().append("class_name", "Sequential").append("layers", params.nnDefine.layers);
         horzNNParam.append("nn_define", nnDefine).append("config_type", "keras");
 
-        taskParam.put("params", horzNNParam);
-        return taskParam;
+//        taskParam.put("params", horzNNParam);
+        return horzNNParam;
     }
 
     @Override

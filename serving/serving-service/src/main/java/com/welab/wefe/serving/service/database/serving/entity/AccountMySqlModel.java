@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,15 +16,24 @@
 
 package com.welab.wefe.serving.service.database.serving.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import com.alibaba.fastjson.JSONArray;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.serving.service.database.serving.listener.AccountMysqlModelListener;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 /**
  * @author hunter.zhao
  */
 @Entity(name = "account")
+@TypeDef(name = "json", typeClass = JsonStringType.class)
+@EntityListeners(AccountMysqlModelListener.class)
 public class AccountMySqlModel extends AbstractBaseMySqlModel {
 
+    private static final long serialVersionUID = -6835962000573567824L;
 
     @Column(name = "phone_number")
     private String phoneNumber;
@@ -47,6 +56,33 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
     @Column(name = "admin_role")
     private Boolean adminRole;
 
+    /**
+     * 审核状态
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "audit_status")
+    private AuditStatus auditStatus;
+    /**
+     * 审核意见
+     */
+    @Column(name = "audit_comment")
+    private String auditComment;
+
+    /**
+     * 是否可用
+     */
+    private Boolean enable;
+
+    /**
+     * 是否已注销
+     */
+    private boolean cancelled = false;
+    /**
+     * 历史曾用密码
+     */
+    @Type(type = "json")
+    @Column(columnDefinition = "json", name = "history_password_list")
+    private JSONArray historyPasswordList;
 
     //region getter/setter
 
@@ -106,6 +142,45 @@ public class AccountMySqlModel extends AbstractBaseMySqlModel {
         this.adminRole = adminRole;
     }
 
+    public AuditStatus getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(AuditStatus auditStatus) {
+        this.auditStatus = auditStatus;
+    }
+
+    public String getAuditComment() {
+        return auditComment;
+    }
+
+    public void setAuditComment(String auditComment) {
+        this.auditComment = auditComment;
+    }
+
+    public Boolean getEnable() {
+        return enable;
+    }
+
+    public void setEnable(Boolean enable) {
+        this.enable = enable;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public JSONArray getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setHistoryPasswordList(JSONArray historyPasswordList) {
+        this.historyPasswordList = historyPasswordList;
+    }
 
     //endregion
 }

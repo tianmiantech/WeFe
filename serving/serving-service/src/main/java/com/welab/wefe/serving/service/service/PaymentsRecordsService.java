@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.paymentsrecords.DownloadApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.QueryListApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.SaveApi;
@@ -29,14 +31,11 @@ import com.welab.wefe.serving.service.database.serving.repository.ClientReposito
 import com.welab.wefe.serving.service.database.serving.repository.PaymentsRecordsRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.enums.PaymentsRecordStatusEnum;
 import com.welab.wefe.serving.service.enums.PaymentsTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -44,6 +43,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,11 +98,12 @@ public class PaymentsRecordsService {
                 .lineDelimiter(LineDelimiter.LF)
                 .build(sw);
 
-        csvWriter.writeRow("服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
-                "收支类型", "时间", "金额", "余额", "状态", "备注");
+        csvWriter.writeRow("Id", "服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
+                "收支类型", "时间", "金额", "余额", "备注");
 
         for (PaymentsRecordsMysqlModel model : dataList) {
             csvWriter.writeRow(
+                    model.getId(),
                     model.getServiceId(),
                     model.getServiceName(),
                     ServiceTypeEnum.getValue(model.getServiceType()),
@@ -112,8 +113,7 @@ public class PaymentsRecordsService {
                     DateUtil.toString(model.getCreatedTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2),
                     model.getAmount().toString(),
                     model.getBalance().toString(),
-                    PaymentsRecordStatusEnum.getValueByCode(model.getStatus()),
-                    model.getRemark());
+                    StringUtil.isEmptyToBlank(model.getRemark()));
         }
 
         File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
@@ -124,6 +124,7 @@ public class PaymentsRecordsService {
             }
         }
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
+        bw.write('\ufeff');
         bw.write(sw.toString());
         bw.flush();
         bw.close();
@@ -132,7 +133,7 @@ public class PaymentsRecordsService {
     }
 
 
-    public PagingOutput<PaymentsRecordsMysqlModel> queryList(QueryListApi.Input input) {
+    public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
 
         Specification<PaymentsRecordsMysqlModel> where = Where.create()
                 .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
@@ -143,7 +144,17 @@ public class PaymentsRecordsService {
                 .orderBy("createdTime", OrderBy.desc)
                 .build(PaymentsRecordsMysqlModel.class);
 
-        return paymentsRecordsRepository.paging(where, input);
+        PagingOutput<PaymentsRecordsMysqlModel> models = paymentsRecordsRepository.paging(where, input);
+        List<QueryListApi.Output> list = new ArrayList<>();
+
+        models.getList().forEach(x -> {
+            QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
+            output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
+            output.setPayType(PaymentsTypeEnum.getValueByCode(x.getPayType()));
+            list.add(output);
+        });
+
+        return PagingOutput.of(list.size(), list);
     }
 
     public void save(SaveApi.Input input) {
@@ -152,7 +163,6 @@ public class PaymentsRecordsService {
         model.setRemark(input.getRemark());
         model.setAmount(input.getAmount());
         model.setPayType(input.getPayType());
-        model.setStatus(input.getStatus());
 
         // get service by id
         Optional<ServiceMySqlModel> serviceMySqlModel = serviceRepository.findById(input.getServiceId());
@@ -175,11 +185,11 @@ public class PaymentsRecordsService {
         Specification<PaymentsRecordsMysqlModel> where = Where.create()
                 .equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId())
+                .orderBy("createdTime", OrderBy.desc)
                 .build(PaymentsRecordsMysqlModel.class);
-        Optional<PaymentsRecordsMysqlModel> one = paymentsRecordsRepository.findOne(where);
-
-        if (one.isPresent()) {
-            PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = one.get();
+        List<PaymentsRecordsMysqlModel> paymentsRecordsRepositoryAll = paymentsRecordsRepository.findAll(where);
+        if (paymentsRecordsRepositoryAll.size() != 0) {
+            PaymentsRecordsMysqlModel paymentsRecordsMysqlModel = paymentsRecordsRepositoryAll.get(0);
             if (input.getPayType() == PaymentsTypeEnum.RECHARGE.getCode()) {
                 // 充值，余额增加
                 model.setBalance(paymentsRecordsMysqlModel.getBalance().add(input.getAmount()));

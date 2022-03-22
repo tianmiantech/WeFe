@@ -24,24 +24,27 @@
                 @submit.prevent
             >
                 <el-form-item
-                    prop="account"
-                    :rules="accountRules"
+                    prop="phone"
+                    :rules="phoneRules"
                 >
                     <el-input
-                        v-model.trim="form.account"
-                        placeholder="用户名"
-                        maxlength="50"
+                        v-model.trim="form.phone"
+                        placeholder="手机号"
+                        maxlength="11"
+                        id="username"
+                        type="tel"
                         clearable
                     />
                 </el-form-item>
                 <el-form-item
-                    prop="realname"
-                    :rules="realnameRules"
+                    prop="nickname"
+                    :rules="nicknameRules"
                 >
                     <el-input
-                        v-model.trim="form.realname"
-                        placeholder="姓名"
+                        v-model.trim="form.nickname"
+                        placeholder="用户名"
                         maxlength="40"
+                        type="text"
                         clearable
                     />
                 </el-form-item>
@@ -63,11 +66,17 @@
                 >
                     <el-input
                         v-model="form.password"
-                        placeholder="密码"
+                        placeholder="8-30 位数字字母特殊符号组合"
                         type="password"
-                        id="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
+                    />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.password"
                     />
                 </el-form-item>
                 <el-form-item
@@ -81,9 +90,12 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
-                <!-- <el-form-item
+                <el-form-item
                     prop="code"
                     :rules="codeRules"
                 >
@@ -107,21 +119,20 @@
                             </div>
                         </template>
                     </el-input>
-                </el-form-item> -->
-                <div class="terms">
+                </el-form-item>
+                <!-- <div class="terms">
                     <el-checkbox v-model="form.terms">注册即代表同意我们的</el-checkbox>
                     《<span
                         class="el-link el-link--primary"
                         @click="termsDialog=true"
                     >隐私权限</span>》
-                </div>
+                </div> -->
                 <el-divider />
                 <el-button
                     v-loading="submitting"
-                    size="medium"
-                    type="primary"
-                    native-type="submit"
                     class="btn-submit ml10"
+                    native-type="submit"
+                    type="primary"
                     round
                     @click="submit"
                 >
@@ -143,19 +154,30 @@
                 form:       {
                     terms:         false,
                     email:         '',
-                    account:       '',
-                    realname:      '',
+                    phone:         '',
+                    nickname:      '',
                     password:      '',
                     passwordAgain: '',
                     code:          '',
                     key:           '',
                 },
-                imgCode:      '',
-                termsDialog:  false,
-                accountRules: [
+                imgCode:     '',
+                termsDialog: false,
+                phoneRules:  [
                     {
                         required: true,
-                        message:  '请输入用户名',
+                        message:  '请输入你的手机号',
+                    },
+                    {
+                        validator: (rule, value, callback) => {
+                            if (/^1[3-9]\d{9}/.test(value)) {
+                                callback();
+                            } else {
+                                callback(false);
+                            }
+                        },
+                        message: '请输入正确的手机号',
+                        trigger: 'blur',
                     },
                 ],
                 emailRules: [
@@ -170,7 +192,7 @@
                         trigger:   'blur',
                     },
                 ],
-                realnameRules: [
+                nicknameRules: [
                     {
                         required: true,
                         message:  '请输入你的姓名',
@@ -214,11 +236,11 @@
             };
         },
         created() {
-            // this.getImgCode();
+            this.getImgCode();
         },
         methods: {
             async getImgCode() {
-                const { code, data } = await this.$http.get('/user/captcha');
+                const { code, data } = await this.$http.get('/account/captcha');
 
                 if (code === 0) {
                     this.imgCode = data.image;
@@ -247,22 +269,32 @@
                     callback(false);
                 }
             },
-            submit() {
-                if (this.submitting) return;
-
-                this.submitting = true;
+            submit(event) {
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
-                        if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
+                        const password = [
+                            this.form.phone,
+                            this.form.password,
+                            this.form.phone,
+                            this.form.phone.substr(0, 3),
+                            this.form.password.substr(this.form.password.length - 3),
+                        ].join('');
                         const { code } = await this.$http.post({
-                            url:  '/user/register',
+                            url:  '/account/register',
                             data: {
-                                email:    this.form.email,
-                                account:  this.form.account,
-                                realname: this.form.realname,
-                                password: md5(this.form.password),
-                                key:      this.form.key,
-                                code:     this.form.code,
+                                email:        this.form.email,
+                                phone_number: this.form.phone,
+                                nickname:     this.form.nickname,
+                                password:     md5(password),
+                                key:          this.form.key,
+                                code:         this.form.code,
+                            },
+                            btnState: {
+                                target: event,
                             },
                         });
 
@@ -278,7 +310,6 @@
                         this.getImgCode();
                     }
                 });
-                this.submitting = false;
             },
         },
     };
@@ -299,6 +330,18 @@
         background: #fff;
         border-radius: 3px;
         padding: 20px 50px;
+    }
+    .pw-strength{
+        .strength-level{
+            width: 30px;
+            height: 6px;
+            margin-right:4px;
+            display: inline-block;
+            vertical-align:middle;
+        }
+        .level-1{background:#D54724;}
+        .level-2{background:#E98737;}
+        .level-3{background:#76A030;}
     }
     .terms{
         color: #6C757D;

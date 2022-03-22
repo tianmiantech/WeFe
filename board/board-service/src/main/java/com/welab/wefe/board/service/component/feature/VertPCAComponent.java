@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,9 +34,9 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 
 @Service
 public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Params> {
@@ -57,9 +57,6 @@ public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Para
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
     		VertOneHotComponent.Params params) throws FlowNodeException {
-
-        JSONObject taskParam = new JSONObject();
-
         JObject resultObj = JObject.create();
         List<String> featureList = new ArrayList<>();
         params.getMembers().forEach(member -> {
@@ -70,10 +67,7 @@ public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Para
             }
         });
         resultObj.append("column_names", featureList);
-
-        taskParam.put("params", resultObj);
-
-        return taskParam;
+        return resultObj;
     }
 
     @Override
