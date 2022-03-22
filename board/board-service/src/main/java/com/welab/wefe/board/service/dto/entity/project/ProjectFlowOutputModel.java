@@ -57,6 +57,8 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
     private String message;
     @Check(name = "我方角色")
     private JobMemberRole myRole;
+    @Check(name = "是否置顶")
+    private boolean top;
 
     private ProjectModelingOutputModel projectModelingOutputModel;
 
@@ -181,6 +183,14 @@ public class ProjectFlowOutputModel extends AbstractOutputModel {
 
     public void setCreatorMemberId(String creatorMemberId) {
         this.creatorMemberId = creatorMemberId;
+    }
+
+    public boolean isTop() {
+        return top;
+    }
+
+    public void setTop(boolean top) {
+        this.top = top;
     }
     //endregion
 }

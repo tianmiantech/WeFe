@@ -86,6 +86,10 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
      */
     @Enumerated(EnumType.STRING)
     private JobMemberRole myRole;
+    /**
+     * 是否置顶
+     */
+    private boolean top;
 
 
     //region getter/setter
@@ -193,6 +197,14 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
 
     public void setCreatorMemberId(String creatorMemberId) {
         this.creatorMemberId = creatorMemberId;
+    }
+
+    public boolean isTop() {
+        return top;
+    }
+
+    public void setTop(boolean top) {
+        this.top = top;
     }
 
     //endregion

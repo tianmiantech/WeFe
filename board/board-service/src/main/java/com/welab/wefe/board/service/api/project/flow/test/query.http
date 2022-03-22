@@ -1,6 +1,7 @@
 POST http://localhost:8080/board-service/project/flow/query
 Content-Type: application/json
+token:{{token}}
 
 {
-  "projectId": "a71cb40266d84d8aa2c1dda6576b71b0"
+  "projectId": "ea323955eaac446badbe2a557fd832a5"
 }

@@ -18,14 +18,12 @@ package com.welab.wefe.common.data.mysql;
 
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.StringUtil;
-import org.hibernate.query.criteria.internal.CriteriaQueryImpl;
 import org.hibernate.query.criteria.internal.OrderImpl;
-import org.hibernate.query.criteria.internal.ParameterRegistry;
-import org.hibernate.query.criteria.internal.compile.RenderingContext;
-import org.hibernate.query.criteria.internal.expression.ExpressionImpl;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,6 +58,7 @@ public class Where {
 
     /**
      * group by
+     *
      * @param names
      * @return
      */
@@ -313,7 +312,7 @@ public class Where {
                         break;
                     case "groupBy":
                         List<Expression<?>> pathList = new ArrayList<>();
-                        for (String  var: (List<String>)item.value) {
+                        for (String var : (List<String>) item.value) {
                             pathList.add(root.get(var));
                         }
                         query.groupBy(pathList);
@@ -375,10 +374,10 @@ public class Where {
                     case "orderBy":
                         switch ((OrderBy) item.value) {
                             case asc:
-                                query.orderBy(new OrderImpl(root.get(item.name)));
+                                query.orderBy(new OrderImpl(root.get(item.name), true));
                                 break;
                             case desc:
-                                query.orderBy(new OrderImpl(root.get(item.name)).reverse());
+                                query.orderBy(new OrderImpl(root.get(item.name), false));
                                 break;
                             default:
                                 break;

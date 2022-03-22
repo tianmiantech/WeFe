@@ -364,6 +364,8 @@ public class ProjectFlowService extends AbstractService {
                 .equal("projectId", input.getProjectId())
                 .equal("deleted", input.isDeleted())
                 .in("flowId", input.getFlowIdList())
+                .orderBy("top", OrderBy.desc)
+                .orderBy("createdTime", OrderBy.desc)
                 .build(ProjectFlowMySqlModel.class);
 
         PagingOutput<ProjectFlowListOutputModel> page = projectFlowRepo.paging(where, input, ProjectFlowListOutputModel.class);
