@@ -319,7 +319,7 @@
             submit(event) {
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
-                        // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
                         if(this.$refs['password-strength'].pwStrength < 3) {
                             return this.$message.error('密码强度太弱');
                         }
