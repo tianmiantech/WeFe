@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.data.mysql.config;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -23,6 +24,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import javax.sql.DataSource;
+import java.util.Collections;
 
 /**
  * @author Jervis
@@ -46,6 +48,10 @@ public class AbstractJpaConfig {
     }
 
     protected DataSource createDatasource() {
-        return DruidDataSourceBuilder.create().build();
+        DruidDataSource dataSource = DruidDataSourceBuilder.create().build();
+        // 在 DruidDataSource 中添加自定义 Filter
+        dataSource.setProxyFilters(Collections.singletonList(new SqlMonitor()));
+
+        return dataSource;
     }
 }
