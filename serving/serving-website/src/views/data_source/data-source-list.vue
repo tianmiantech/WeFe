@@ -17,7 +17,7 @@
 
             <el-button
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true })"
             >
                 查询
             </el-button>
@@ -43,8 +43,8 @@
                 min-width="120px"
             >
                 <template slot-scope="scope">
-                    <p class="id">{{ scope.row.id }}</p>
                     {{ scope.row.name }}
+                    <p class="id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
 
@@ -125,6 +125,7 @@
         <DataSourceEditor
             :id="dataSourceEditorId"
             ref="DataSourceEditor"
+            @data-source-add="refresh"
         />
     </el-card>
 </template>
@@ -142,8 +143,8 @@
         data() {
             return {
                 search: {
-                    id:     '',
-                    name:'',
+                    id:   '',
+                    name: '',
                 },
                 getListApi:         '/data_source/query',
                 dataSourceEditorId: '',

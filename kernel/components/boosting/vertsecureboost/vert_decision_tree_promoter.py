@@ -37,8 +37,6 @@ from common.python import session
 from common.python.utils import log_utils
 from kernel.components.boosting import DecisionTree
 from kernel.components.boosting import Node
-from kernel.components.boosting.core.splitinfo_cipher_compressor import PromoterGradHessEncoder, \
-    PromoterSplitInfoDecompressor
 from kernel.components.boosting.core.subsample import goss_sampling
 from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import CriterionMeta
 from kernel.protobuf.generated.boosting_tree_model_meta_pb2 import DecisionTreeModelMeta
@@ -49,7 +47,8 @@ from kernel.transfer.variables.transfer_class.vert_decision_tree_transfer_variab
 from kernel.utils import consts
 from kernel.utils.data_util import NoneType
 from kernel.utils.io_check import assert_io_num_rows_equal
-
+from kernel.base.statics import MultivariateStatisticalSummary
+from kernel.components.boosting.core.g_h_optim import GHPacker
 LOGGER = log_utils.get_logger()
 
 
@@ -83,11 +82,10 @@ class VertDecisionTreePromoter(DecisionTree):
         self.top_rate, self.other_rate = 0.2, 0.1  # goss sampling rate
 
         # cipher compressing
-        self.cipher_encoder = None
-        self.cipher_decompressor = None
-        self.run_cipher_compressing = False
-        self.key_length = None
-        self.round_decimal = 7
+        self.task_type = None
+        self.run_cipher_compressing = True
+        self.packer = None
+
         self.max_sample_weight = 1
 
         # code version control
@@ -106,7 +104,6 @@ class VertDecisionTreePromoter(DecisionTree):
                                                                                  self.data_bin.count()))
         if self.run_cipher_compressing:
             LOGGER.info('running cipher compressing')
-            LOGGER.info('round decimal is {}'.format(self.round_decimal))
         LOGGER.info('updated max sample weight is {}'.format(self.max_sample_weight))
 
         if self.deterministic:
@@ -115,14 +112,13 @@ class VertDecisionTreePromoter(DecisionTree):
     def init(self, flowid, runtime_idx, data_bin, bin_split_points, bin_sparse_points, valid_features,
              grad_and_hess,
              encrypter, encrypted_mode_calculator,
+             task_type,
              provider_member_idlist,
              complete_secure=False,
              goss_subsample=False,
              top_rate=0.1,
              other_rate=0.2,
              cipher_compressing=False,
-             encrypt_key_length=None,
-             round_decimal=7,
              max_sample_weight=1,
              new_ver=True):
 
@@ -142,16 +138,17 @@ class VertDecisionTreePromoter(DecisionTree):
         self.other_rate = other_rate
 
         self.run_cipher_compressing = cipher_compressing
-        self.key_length = encrypt_key_length
-        self.round_decimal = round_decimal
         self.max_sample_weight = max_sample_weight
+        self.task_type = task_type
 
         if self.run_goss:
+            self.encrypted_mode_calculator.align_to_input_data = False
+            if self.encrypted_mode_calculator.mode != 'strict':
+                self.encrypted_mode_calculator.init_enc_zero(self.grad_and_hess,
+                                                             raw_en=self.run_cipher_compressing, exponent=0)
+                LOGGER.info('fast/balance encrypt mode, initialize enc zeros for goss sampling')
             self.goss_sampling()
             self.max_sample_weight = self.max_sample_weight * ((1 - top_rate) / other_rate)
-
-        if self.run_cipher_compressing:
-            self.init_compressor()
 
         self.new_ver = new_ver
 
@@ -167,21 +164,6 @@ class VertDecisionTreePromoter(DecisionTree):
             return consts.PAILLIER
         else:
             raise ValueError('unknown encrypter type: {}'.format(type(self.encrypter)))
-
-    def init_compressor(self):
-        self.cipher_encoder = PromoterGradHessEncoder(self.encrypter, self.encrypted_mode_calculator,
-                                                      task_type=consts.CLASSIFICATION,
-                                                      round_decimal=self.round_decimal,
-                                                      max_sample_weights=self.max_sample_weight)
-
-        self.cipher_decompressor = PromoterSplitInfoDecompressor(self.encrypter, task_type=consts.CLASSIFICATION,
-                                                                 max_sample_weight=self.max_sample_weight)
-
-        max_capacity_int = self.encrypter.public_key.max_int
-        para = {'max_capacity_int': max_capacity_int, 'en_type': self.get_encrypt_type(),
-                'max_sample_weight': self.max_sample_weight}
-
-        self.transfer_inst.cipher_compressor_para.remote(para, idx=-1)
 
     def set_flowid(self, flowid=0):
         LOGGER.info("set flowid, flowid is {}".format(flowid))
@@ -247,26 +229,32 @@ class VertDecisionTreePromoter(DecisionTree):
         LOGGER.info("set valid features")
         self.valid_features = valid_features
 
-    def process_and_sync_grad_and_hess(self, idx=-1):
+    def init_packer_and_sync_gh(self, idx=-1):
 
         if self.run_cipher_compressing:
-            LOGGER.info('sending encoded g/h to provider')
-            en_grad_hess = self.cipher_encoder.encode_g_h_and_encrypt(self.grad_and_hess)
+
+            g_min, g_max = None, None
+            if self.task_type == consts.REGRESSION:
+                self.grad_and_hess.schema = {'header': ['g', 'h']}
+                statistics = MultivariateStatisticalSummary(self.grad_and_hess, -1)
+                g_min = statistics.get_min()['g']
+                g_max = statistics.get_max()['g']
+
+            self.packer = GHPacker(sample_num=self.grad_and_hess.count(),
+                                   task_type=self.task_type,
+                                   max_sample_weight=self.max_sample_weight,
+                                   en_calculator=self.encrypted_mode_calculator,
+                                   g_min=g_min,
+                                   g_max=g_max)
+            en_grad_hess = self.packer.pack_and_encrypt(self.grad_and_hess)
+
         else:
-            LOGGER.info('sedding g/h to provider')
             en_grad_hess = self.encrypted_mode_calculator.encrypt(self.grad_and_hess)
 
+        LOGGER.info('sending g/h to provider')
         self.transfer_inst.encrypted_grad_and_hess.remote(en_grad_hess,
                                                           role=consts.PROVIDER,
                                                           idx=idx)
-
-        """
-        federation.remote(obj=encrypted_grad_and_hess,
-                          name=self.transfer_inst.encrypted_grad_and_hess.name,
-                          tag=self.transfer_inst.generate_transferid(self.transfer_inst.encrypted_grad_and_hess),
-                          role=consts.PROVIDER,
-                          idx=-1)
-        """
 
     def encrypt_grad_and_hess(self):
         LOGGER.info("start to encrypt grad and hess")
@@ -354,33 +342,6 @@ class VertDecisionTreePromoter(DecisionTree):
                           idx=idx)
         """
 
-    # def find_provider_split(self, value):
-    #     """
-    #     find_provider_split
-    #     :param value:
-    #     :return:
-    #     """
-    #     cur_split_node, encrypted_splitinfo_provider = value
-    #     sum_grad = cur_split_node.sum_grad
-    #     sum_hess = cur_split_node.sum_hess
-    #     best_gain = self.min_impurity_split - consts.FLOAT_ZERO
-    #     best_idx = -1
-    #
-    #     for i in range(len(encrypted_splitinfo_provider)):
-    #         sum_grad_l, sum_hess_l = encrypted_splitinfo_provider[i]
-    #         sum_grad_l = self.decrypt(sum_grad_l)
-    #         sum_hess_l = self.decrypt(sum_hess_l)
-    #         sum_grad_r = sum_grad - sum_grad_l
-    #         sum_hess_r = sum_hess - sum_hess_l
-    #         gain = self.splitter.split_gain(sum_grad, sum_hess, sum_grad_l,
-    #                                         sum_hess_l, sum_grad_r, sum_hess_r)
-    #
-    #         if gain > self.min_impurity_split and gain > best_gain:
-    #             best_gain = gain
-    #             best_idx = i
-    #
-    #     encrypted_best_gain = self.encrypt(best_gain)
-    #     return best_idx, encrypted_best_gain, best_gain
 
     def federated_find_split(self, dep=-1, batch=-1, idx=-1):
         LOGGER.info("federated find split of depth {}, batch {}".format(dep, batch))
@@ -431,25 +392,6 @@ class VertDecisionTreePromoter(DecisionTree):
                                               idx=-1)
         """
         return final_splitinfo_provider if idx == -1 else [final_splitinfo_provider]
-
-    # def find_best_split_promoter_and_provider(self, splitinfo_promoter_provider):
-    #     best_gain_provider = self.decrypt(splitinfo_promoter_provider[1].gain)
-    #     best_gain_provider_idx = 1
-    #     for i in range(1, len(splitinfo_promoter_provider)):
-    #         gain_provider_i = self.decrypt(splitinfo_promoter_provider[i].gain)
-    #         if best_gain_provider < gain_provider_i:
-    #             best_gain_provider = gain_provider_i
-    #             best_gain_provider_idx = i
-    #
-    #     if splitinfo_promoter_provider[0].gain >= best_gain_provider - consts.FLOAT_ZERO:
-    #         best_splitinfo = splitinfo_promoter_provider[0]
-    #     else:
-    #         best_splitinfo = splitinfo_promoter_provider[best_gain_provider_idx]
-    #         best_splitinfo.sum_grad = self.decrypt(best_splitinfo.sum_grad)
-    #         best_splitinfo.sum_hess = self.decrypt(best_splitinfo.sum_hess)
-    #         best_splitinfo.gain = best_gain_provider
-    #
-    #     return best_splitinfo
 
     def merge_splitinfo(self, splitinfo_promoter, splitinfo_provider, merge_provider_split_only=False,
                         need_decrypt=True):
@@ -516,6 +458,10 @@ class VertDecisionTreePromoter(DecisionTree):
                                   is_left_node=False,
                                   parent_nodeid=pid)
 
+                LOGGER.debug('cwj node {}'.format(left_node))
+                LOGGER.debug('cwj node {}'.format(right_node))
+                LOGGER.debug('cwj gain {}'.format(split_info[i].gain))
+
                 new_tree_node_queue.append(left_node)
                 new_tree_node_queue.append(right_node)
 
@@ -539,45 +485,22 @@ class VertDecisionTreePromoter(DecisionTree):
 
     @staticmethod
     def dispatch_node(value, tree_=None, decoder=None, sitename=consts.PROMOTER,
-                      split_maskdict=None, bin_sparse_points=None,
-                      use_missing=False, zero_as_missing=False,
-                      missing_dir_maskdict=None):
+                           split_maskdict=None, bin_sparse_points=None,
+                           use_missing=False, zero_as_missing=False,
+                           missing_dir_maskdict=None):
+
         unleaf_state, nodeid = value[1]
 
         if tree_[nodeid].is_leaf is True:
-            return tree_[nodeid].weight
+            return tree_[nodeid].id
         else:
             if tree_[nodeid].sitename == sitename:
-                fid = decoder("feature_idx", tree_[nodeid].fid, split_maskdict=split_maskdict)
-                bid = decoder("feature_val", tree_[nodeid].bid, nodeid, split_maskdict=split_maskdict)
-                if not use_missing:
-                    if value[0].features.get_data(fid, bin_sparse_points[fid]) <= bid:
-                        return 1, tree_[nodeid].left_nodeid
-                    else:
-                        return 1, tree_[nodeid].right_nodeid
-                else:
-                    missing_dir = decoder("missing_dir", tree_[nodeid].missing_dir, nodeid,
-                                          missing_dir_maskdict=missing_dir_maskdict)
 
-                    missing_val = False
-                    if zero_as_missing:
-                        if value[0].features.get_data(fid, None) is None or \
-                                value[0].features.get_data(fid) == NoneType():
-                            missing_val = True
-                    elif use_missing and value[0].features.get_data(fid) == NoneType():
-                        missing_val = True
+                next_layer_nid = VertDecisionTreePromoter.go_next_layer(tree_[nodeid], value[0], use_missing,
+                                                                       zero_as_missing, bin_sparse_points, split_maskdict,
+                                                                       missing_dir_maskdict, decoder)
+                return 1, next_layer_nid
 
-                    if missing_val:
-                        if missing_dir == 1:
-                            return 1, tree_[nodeid].right_nodeid
-                        else:
-                            return 1, tree_[nodeid].left_nodeid
-                    else:
-                        LOGGER.debug("fid is {}, bid is {}, sitename is {}".format(fid, bid, sitename))
-                        if value[0].features.get_data(fid, bin_sparse_points[fid]) <= bid:
-                            return 1, tree_[nodeid].left_nodeid
-                        else:
-                            return 1, tree_[nodeid].right_nodeid
             else:
                 return (1, tree_[nodeid].fid, tree_[nodeid].bid, tree_[nodeid].sitename,
                         nodeid, tree_[nodeid].left_nodeid, tree_[nodeid].right_nodeid)
@@ -615,10 +538,10 @@ class VertDecisionTreePromoter(DecisionTree):
         dispatch_promoter_result = dispatch_promoter_result.subtractByKey(dispatch_to_provider_result)
         leaf = dispatch_promoter_result.filter(lambda key, value: isinstance(value, tuple) is False)
 
-        if self.sample_weights is None:
-            self.sample_weights = leaf
+        if self.sample_leaf_pos is None:
+            self.sample_leaf_pos = leaf
         else:
-            self.sample_weights = self.sample_weights.union(leaf)
+            self.sample_leaf_pos = self.sample_leaf_pos.union(leaf)
 
         if reach_max_depth:  # if reach max_depth only update weight samples
             return
@@ -671,7 +594,7 @@ class VertDecisionTreePromoter(DecisionTree):
 
     def fit(self):
         LOGGER.info("begin to fit promoter decision tree")
-        self.process_and_sync_grad_and_hess()
+        self.init_packer_and_sync_gh()
 
         root_node = self.initialize_root_node()
 
@@ -710,6 +633,7 @@ class VertDecisionTreePromoter(DecisionTree):
         self.convert_bin_to_real()
         self.round_leaf_val()
         self.sync_tree()
+        self.sample_weights_post_process()
         LOGGER.info("tree node num is %d" % len(self.tree_))
         LOGGER.info("end to fit promoter decision tree")
 
@@ -745,15 +669,11 @@ class VertDecisionTreePromoter(DecisionTree):
 
         best_splits_of_all_providers = []
 
-        if self.run_cipher_compressing:
-            self.cipher_decompressor.renew_decompressor(node_map)
-        cipher_decompressor = self.cipher_decompressor if self.run_cipher_compressing else None
-
         for provider_idx, split_info_table in enumerate(provider_split_info_tables):
             provider_split_info = self.splitter.find_provider_best_split_info(split_info_table,
                                                                               self.get_provider_sitename(provider_idx),
                                                                               self.encrypter,
-                                                                              cipher_decompressor=cipher_decompressor)
+                                                                              gh_packer=self.packer)
             split_info_list = [None for i in range(len(provider_split_info))]
             for key in provider_split_info:
                 split_info_list[node_map[key]] = provider_split_info[key]
@@ -961,14 +881,14 @@ class VertDecisionTreePromoter(DecisionTree):
         model_param = DecisionTreeModelParam()
         for node in self.tree_:
             model_param.tree_.add(id=node.id,
-                                  sitename=node.sitename,
-                                  fid=node.fid,
-                                  bid=node.bid,
-                                  weight=node.weight,
-                                  is_leaf=node.is_leaf,
-                                  left_nodeid=node.left_nodeid,
-                                  right_nodeid=node.right_nodeid,
-                                  missing_dir=node.missing_dir)
+                                      sitename=node.sitename,
+                                      fid=node.fid,
+                                      bid=node.bid,
+                                      weight=node.weight,
+                                      is_leaf=node.is_leaf,
+                                      left_nodeid=node.left_nodeid,
+                                      right_nodeid=node.right_nodeid,
+                                      missing_dir=node.missing_dir)
             LOGGER.debug("missing_dir is {}, sitename is {}, is_leaf is {}".format(node.missing_dir, node.sitename,
                                                                                    node.is_leaf))
 

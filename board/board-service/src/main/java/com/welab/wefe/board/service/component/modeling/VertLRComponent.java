@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,12 +26,12 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
-import com.welab.wefe.common.enums.ComponentType;
-import com.welab.wefe.common.enums.TaskResultType;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractLRInput;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -61,10 +61,8 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
     @Override
     protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
-        JSONObject taskParam = new JSONObject();
-
-        JObject vertLRParam = JObject.create();
-        vertLRParam.append("penalty", params.otherParam.penalty)
+        JObject output = JObject.create();
+        output.append("penalty", params.otherParam.penalty)
                 .append("tol", params.otherParam.tol)
                 .append("alpha", params.otherParam.alpha)
                 .append("optimizer", params.otherParam.optimizer)
@@ -83,11 +81,10 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
                 .append("key_length", 1024)
                 .append("n_splits", params.getCvParam().getnSplits())
                 .append("shuffle", params.getCvParam().isShuffle())
-                .append("need_cv", params.getCvParam().isNeedCv());
+                .append("need_cv", params.getCvParam().isNeedCv())
+                .append("lr_method", params.getOtherParam().getLrMethod());
 
-        taskParam.put("params", vertLRParam);
-
-        return taskParam;
+        return output;
     }
 
     @Override
@@ -148,6 +145,8 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
         }
 
         public static class OtherParam extends AbstractCheckModel {
+        	@Check(name = "LR算法", require = true)
+        	private String lrMethod;
             @Check(name = "惩罚方式", require = true)
             private String penalty;
 
@@ -187,7 +186,15 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
             @Check(name = "提前结束的迭代次数", require = true)
             private int earlyStoppingRounds;
 
-            public String getPenalty() {
+            public String getLrMethod() {
+				return lrMethod;
+			}
+
+			public void setLrMethod(String lrMethod) {
+				this.lrMethod = lrMethod;
+			}
+
+			public String getPenalty() {
                 return penalty;
             }
 

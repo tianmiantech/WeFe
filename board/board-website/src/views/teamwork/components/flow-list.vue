@@ -1,17 +1,18 @@
 <template>
     <el-card
-        name="流程列表"
+        name="训练列表"
         class="nav-title mb30"
         shadow="never"
     >
         <h3 class="mb10 card-title">
-            流程列表
+            训练列表
             <template v-if="form.isPromoter">
                 <el-button
                     v-if="!form.closed && !form.is_exited"
                     class="ml10"
+                    size="small"
                     type="primary"
-                    @click="addFlow=true"
+                    @click="addFlowMethod"
                 >
                     新建训练流程
                 </el-button>
@@ -26,8 +27,8 @@
             stripe
         >
             <el-table-column
-                label="流程"
-                min-width="220px"
+                label="训练"
+                min-width="160px"
             >
                 <template v-slot="scope">
                     <FlowStatusTag
@@ -36,12 +37,17 @@
                         :disable-transitions="true"
                         class="mr5"
                     />
-                    <router-link :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }">
+                    <el-link
+                        type="primary"
+                        :underline="false"
+                        @click="linkTo(form.project_type === 'DeepLearning' ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: form.project_type === 'DeepLearning' ? scope.row.deep_learning_job_type : '' })"
+                    >
                         {{ scope.row.flow_name }}
-                    </router-link>
+                    </el-link>
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="form.project_type === 'MachineLearning'"
                 label="进度"
                 min-width="130px"
             >
@@ -62,13 +68,13 @@
             />
             <el-table-column
                 label="创建时间"
-                width="160px"
+                min-width="160px"
             >
                 <template v-slot="scope">
                     <p>{{ dateFormat(scope.row.created_time) }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="训练类型">
+            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
                 <template v-slot="scope">
                     <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
@@ -80,20 +86,36 @@
                 fixed="right"
             >
                 <template v-slot="scope">
-                    <router-link
-                        class="link mr10"
-                        :to="{ name: 'project-flow', query: { flow_id: scope.row.flow_id } }"
-                    >
-                        查看
-                    </router-link>
-                    <router-link
-                        class="link mr10"
-                        :to="{ name: 'project-job-history', query: { project_id, flow_id: scope.row.flow_id }}"
+                    <template v-if="form.project_type === 'DeepLearning'">
+                        <el-link
+                            type="primary"
+                            class="link mr10"
+                            :underline="false"
+                            @click="linkTo('teamwork/detail/deep-learning/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type })"
+                        >
+                            查看
+                        </el-link>
+                        <el-link
+                            v-if="scope.row.flow_status === 'success'"
+                            type="primary"
+                            class="mr10"
+                            :underline="false"
+                            @click="linkTo('teamwork/detail/deep-learning/check-flow', { flow_id: scope.row.flow_id, project_id: project_id })"
+                        >
+                            校验
+                        </el-link>
+                    </template>
+                    <el-link
+                        v-else
+                        class="mr10"
+                        type="primary"
+                        :underline="false"
+                        @click="linkTo('teamwork/detail/job/history', { project_id, flow_id: scope.row.flow_id })"
                     >
                         执行记录
-                    </router-link>
-                    <el-dropdown v-if="scope.row.is_creator">
-                        <el-button type="text">
+                    </el-link>
+                    <el-dropdown v-if="scope.row.is_creator" size="small">
+                        <el-button type="text" size="small">
                             更多
                             <el-icon>
                                 <elicon-arrow-down />
@@ -101,9 +123,10 @@
                         </el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item>
+                                <el-dropdown-item v-if="form.project_type !== 'DeepLearning'">
                                     <el-button
                                         type="text"
+                                        size="small"
                                         @click="copyFlow(scope.row)"
                                     >
                                         复制流程
@@ -112,7 +135,8 @@
                                 <el-dropdown-item divided>
                                     <el-button
                                         type="text"
-                                        class="btn-danger"
+                                        size="small"
+                                        class="color-danger"
                                         @click="deleteFlow(scope.row, scope.$index)"
                                     >
                                         删除流程
@@ -145,7 +169,7 @@
             destroy-on-close
             width="400px"
         >
-            <el-form>
+            <el-form @submit.prevent>
                 <el-form-item
                     label="选择目标项目："
                     label-width="100px"
@@ -217,8 +241,7 @@
                 v-loading="loading"
                 class="model-list"
             >
-                <el-button
-                    type="text"
+                <div
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'vertical' })"
                 >
@@ -226,9 +249,8 @@
                         纵向
                     </span>
                     空白流程
-                </el-button>
-                <el-button
-                    type="text"
+                </div>
+                <div
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'horizontal' })"
                 >
@@ -236,9 +258,8 @@
                         横向
                     </span>
                     空白流程
-                </el-button>
-                <el-button
-                    type="text"
+                </div>
+                <div
                     class="li empty-flow"
                     @click="createFlow($event, { federated_learning_type: 'mix' })"
                 >
@@ -246,7 +267,7 @@
                         混合
                     </span>
                     空白流程
-                </el-button>
+                </div>
 
                 <template
                     v-for="item in templateList"
@@ -257,9 +278,8 @@
                         :content="item.description"
                         effect="dark"
                     >
-                        <el-button
+                        <div
                             class="li"
-                            type="text"
                             @click="createFlow($event, item)"
                         >
                             <span class="model-img">
@@ -267,9 +287,41 @@
                             </span>
                             {{ item.name }}
                             {{ item.desc }}
-                        </el-button>
+                        </div>
                     </el-tooltip>
                 </template>
+            </div>
+        </el-dialog>
+        <!-- 深度学习流程 -->
+        <el-dialog
+            v-model="addDeeplearningFlow"
+            destroy-on-close
+        >
+            <template #title>
+                选择模版:
+                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
+            </template>
+
+            <div
+                v-loading="loading"
+                class="model-list"
+            >
+                <div
+                    class="li empty-flow"
+                    @click="createFlow($event, { federated_learning_type: 'detection' })"
+                >
+                    <span class="model-img f20">
+                        目标检测
+                    </span>
+                </div>
+                <div
+                    class="li empty-flow"
+                    @click="createFlow($event, { federated_learning_type: 'classify' })"
+                >
+                    <span class="model-img f20">
+                        图像分类
+                    </span>
+                </div>
             </div>
         </el-dialog>
     </el-card>
@@ -278,6 +330,8 @@
 <script>
     import table from '@src/mixins/table';
     import FlowStatusTag from '@src/components/views/flow-status-tag';
+
+    const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
     export default {
         components: {
@@ -290,14 +344,15 @@
         },
         data() {
             return {
-                timer:          null,
-                locker:         false,
-                loading:        false,
-                project_id:     '',
-                thisProject:    true,
-                disabled:       true,
-                addFlow:        false,
-                copyFlowDialog: {
+                timer:               null,
+                locker:              false,
+                loading:             false,
+                project_id:          '',
+                thisProject:         true,
+                disabled:            true,
+                addFlow:             false,
+                addDeeplearningFlow: false,
+                copyFlowDialog:      {
                     visible:         false,
                     sourceFlowId:    '',
                     targetProject:   '',
@@ -329,6 +384,7 @@
                     mix_xgb:  require('@assets/images/mix_xgb.png'),
                 },
                 flowTimer: null,
+                config:    {}, // deeplearning config
             };
         },
         computed: {
@@ -348,6 +404,7 @@
             this.project_id = this.$route.query.project_id;
             this.getFlowList();
             this.getTemplateList();
+            this.getConfigInfo();
         },
         beforeUnmount() {
             clearTimeout(this.timer);
@@ -357,11 +414,13 @@
             afterTableRender() {
                 clearTimeout(this.timer);
 
-                this.timer = setTimeout(() => {
-                    this.getFlowList({
-                        requestFromRefresh: true,
-                    });
-                }, 3000);
+                if(this.userInfo && this.userInfo.id) {
+                    this.timer = setTimeout(() => {
+                        this.getFlowList({
+                            requestFromRefresh: true,
+                        });
+                    }, 3000);
+                }
             },
 
             async getFlowList(opt = { resetPagination: false, requestFromRefresh: false }) {
@@ -392,6 +451,10 @@
                             this.getFlowList({ requestFromRefresh: true });
                         }, 5000);
                     }
+                    clearTimeout(this.flowTimer);
+                    this.flowTimer = setTimeout(() => {
+                        this.getFlowList({ requestFromRefresh: true });
+                    }, 5000);
                 }
             },
 
@@ -438,15 +501,19 @@
                 if(this.locker) return;
                 this.locker = true;
 
+                const deeplearning = this.form.project_type === 'DeepLearning';
                 const params = {
                     project_id:            this.project_id,
-                    federatedLearningType: opt.federated_learning_type,
+                    federatedLearningType: deeplearning ? 'horizontal' : opt.federated_learning_type,
                     name:                  `${opt.name || '新流程'}-${this.getDateTime()}`,
                     desc:                  '',
                 };
 
                 if(opt.id) {
                     params.templateId = opt.id;
+                }
+                if(deeplearning) {
+                    params.deepLearningJobType = opt.federated_learning_type;
                 }
 
                 // add loading after 1s
@@ -464,13 +531,26 @@
                 this.locker = false;
                 this.loading = false;
                 if(code === 0) {
-                    this.$router.push({
-                        name:  'project-flow',
-                        query: {
-                            flow_id: data.flow_id,
-                        },
-                    });
+                    const query = {
+                        flow_id:       data.flow_id,
+                        training_type: deeplearning ? opt.federated_learning_type : '',
+                        project_id:    this.project_id,
+                    };
+
+                    this.linkTo(deeplearning ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', query);
                 }
+            },
+
+            linkTo(path, query) {
+                let href = `${prefixPath}${path}?`;
+
+                for(const key in query) {
+                    const val = query[key];
+
+                    href += `${key}=${val}&`;
+                }
+
+                window.location.href = href;
             },
 
             changeProject(value) {
@@ -557,6 +637,26 @@
                         }
                     });
             },
+
+            addFlowMethod() {
+                if (this.form.project_type === 'MachineLearning') {
+                    this.addFlow = true;
+                } else {
+                    // 创建深度学习流程
+                    this.addDeeplearningFlow = true;
+                }
+            },
+
+            async getConfigInfo() {
+                const { code, data } = await this.$http.post({
+                    url:  '/global_config/get',
+                    data: { groups: ['deep_learning_config'] },
+                });
+
+                if (code === 0) {
+                    this.config = data;
+                }
+            },
         },
     };
 </script>
@@ -566,12 +666,14 @@
         color: $--color-danger;
     }
     h3{margin: 10px;}
+    .el-dropdown{top: -1px;}
     .model-list{
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
     }
     .li{
+        cursor: pointer;
         margin: 0 20px 10px;
         text-align: center;
         &:hover{
@@ -596,7 +698,6 @@
         border:1px solid #ebebeb;
     }
     .link{text-decoration: none;}
-    .btn-danger{color: #F85564;}
     .el-switch{
         :deep(.el-switch__label){
             color: #999;

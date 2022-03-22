@@ -106,7 +106,7 @@
         </div>
 
         <el-dialog
-            title="企业认证类型"
+            title="企业实名认证类型"
             v-model="authorize"
             width="300px"
         >

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ public interface ProjectDataSetRepository extends BaseRepository<ProjectDataSetM
      * @param projectId project id
      * @param memberId  Id of the leaving member
      */
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "update #{#entityName} set audit_status='disagree',audit_comment='成员已退出，数据集不可用。' where project_id=?1 and member_id=?2 and member_role=?3", nativeQuery = true)
     void disableDataSetWhenMemberExist(String projectId, String memberId, String memberRole);

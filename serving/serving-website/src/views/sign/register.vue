@@ -2,7 +2,7 @@
     <div class="page register-wrapper">
         <div class="sign-box">
             <div class="logo">
-                <img src="../../assets/images/x-logo.png">
+                <img src="../../assets/images/logo.png">
             </div>
             <h4 class="sign-title">注册新账号</h4>
             <h6 class="to-regist mt20">
@@ -73,6 +73,10 @@
                         @copy.native.prevent
                         @contextmenu.native.prevent
                     />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.password"
+                    />
                 </el-form-item>
                 <el-form-item
                     prop="passwordAgain"
@@ -115,13 +119,13 @@
                         </template>
                     </el-input>
                 </el-form-item>
-                <div class="terms">
+                <!-- <div class="terms">
                     <el-checkbox v-model="form.terms">注册即代表同意我们的</el-checkbox>
                     《<span
                         class="el-link el-link--primary"
                         @click="termsDialog=true"
                     >隐私权限</span>》
-                </div>
+                </div> -->
                 <el-divider />
                 <el-button
                     round
@@ -269,8 +273,10 @@ export default {
             this.submitting = true;
             this.$refs['sign-form'].validate(async valid => {
                 if (valid) {
-                    if (!this.form.terms)
-                        return this.$message.error('请先勾选隐私权限');
+                    // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                    if(this.$refs['password-strength'].pwStrength < 3) {
+                        return this.$message.error('密码强度太弱');
+                    }
                     const password = [
                         this.form.phone,
                         this.form.password,
@@ -295,6 +301,8 @@ export default {
                             name: 'login',
                         });
                         this.$message.success('恭喜, 注册成功! 请重新登录');
+                    } else {
+                        this.getImgCode();
                     }
                 } else {
                     this.getImgCode();

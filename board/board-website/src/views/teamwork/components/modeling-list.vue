@@ -3,9 +3,10 @@
         name="模型列表"
         shadow="never"
         class="nav-title mb30"
+        :show="project_type !== 'DeepLearning'"
     >
         <h3 class="mb10">模型列表</h3>
-        <el-form inline>
+        <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
                 <el-select v-model="search.component_type">
                     <el-option
@@ -160,7 +161,7 @@
                             <template v-if="scope.row.serving_model">
                                 <el-button
                                     type="primary"
-                                    size="mini"
+                                    size="small"
                                     class="mb5"
                                     @click="syncModel($event, scope.row)"
                                 >
@@ -169,7 +170,7 @@
                                 <el-button
                                     v-if="scope.row.component_type === 'HorzSecureBoost' || scope.row.component_type === 'HorzLR'"
                                     type="success"
-                                    size="mini"
+                                    size="small"
                                     class="mb5"
                                     @click="selectLanguage = true;selectedRow = scope.row;"
                                 >
@@ -178,7 +179,7 @@
                             </template>
                             <el-button
                                 v-if="scope.row.role === 'promoter' && scope.row.component_type !== 'HorzNN' && scope.row.component_type !== 'VertNN'"
-                                size="mini"
+                                size="small"
                                 @click="addOotFlew($event, scope.row)"
                             >打分验证</el-button>
                         </template>
@@ -215,7 +216,7 @@
                 <el-tag
                     v-for="item in languages"
                     :key="item"
-                    size="medium"
+                    size="small"
                     @click="modelExport($event, item)"
                 >
                     {{ item }}
@@ -311,6 +312,7 @@
         },
         created() {
             this.project_id = this.$route.query.project_id;
+            this.project_type = this.$route.query.project_type;
             this.search.project_id = this.project_id;
         },
         methods: {

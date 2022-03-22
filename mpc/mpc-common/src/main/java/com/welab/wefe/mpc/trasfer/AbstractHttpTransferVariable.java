@@ -53,22 +53,21 @@ public abstract class AbstractHttpTransferVariable {
             body.put("sign", sign);
             body.put("data", params);
             data = body.toJSONString();
-        }
-        else {
-        	JSONObject body = new JSONObject();
+        } else {
+            JSONObject body = new JSONObject();
             body.put("customer_id", mConfig.getCommercialId());
             body.put("sign", "");
             body.put("data", params);
             data = body.toJSONString();
         }
-        logger.debug("request:" + data);
+        logger.info("request:" + data + ",url=" + url);
         HttpResponse response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
-        logger.debug("response:" + response);
+        logger.info("response:" + response);
         while (response == null || response.getStatus() != HttpStatus.HTTP_OK) {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             }
             response = HttpRequest.post(url).timeout(HttpGlobalConfig.getTimeout()).body(data).execute();
             logger.debug("response:" + response);

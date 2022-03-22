@@ -101,10 +101,10 @@
             <el-upload
                 v-loading="pending"
                 :http-request="() => {}"
-                accept=".png,.jpg,.pdf,.doc,.docx"
                 :headers="{ token: userInfo.token }"
                 :before-upload="beforeUpload"
                 :on-success="uploadFinished"
+                accept=".pdf"
                 class="mt10"
                 action="#"
                 drag
@@ -115,7 +115,7 @@
                 </div>
                 <template #tip>
                     <div class="el-upload__tip">
-                        支持 png, jpg 最大5M, word文档最大5M, PDF 最大10M
+                        只支持 PDF, 最大10M
                     </div>
                 </template>
             </el-upload>
@@ -126,7 +126,7 @@
             v-model="preview.visible"
         >
             <div :class="['preview-box', { fullscreen: preview.fullscreen }]">
-                <i class="el-icon-full-screen" @click="preview.fullscreen = !preview.fullscreen"></i>
+                <!-- <i class="el-icon-full-screen" @click="preview.fullscreen = !preview.fullscreen"></i> -->
                 <embed
                     v-if="preview.visible"
                     :src="preview.fileData"
@@ -134,6 +134,10 @@
                     :style="`width: 100%;${preview.fileType.includes('image') ? 'height:auto;' : 'min-height:calc(100vh - 50px);' }display:block;`"
                 >
             </div>
+            <span class="color-danger">无法查看?</span> 下载附件:
+            <el-link type="primary" :underline="false" @click="downloadFile">
+                {{ preview.fileName }}
+            </el-link>
         </el-dialog>
     </el-card>
 </template>
@@ -163,6 +167,7 @@
                 editDialog:    false,
                 preview:       {
                     visible:    false,
+                    fileId:     '',
                     fileName:   '',
                     fileData:   '',
                     fileType:   '',
@@ -196,9 +201,28 @@
                     this.blobToDataURI(data, result => {
                         this.preview.visible = true;
                         this.preview.fullscreen = false;
+                        this.preview.fileName = row.file_name;
+                        this.preview.fileId = row.template_file_id;
                         this.preview.fileData = result;
                     });
                 }
+            },
+            downloadFile() {
+                if(this.loading) return;
+                this.loading = true;
+
+                const api = `${window.api.baseUrl}/download/file?fileId=${this.preview.fileId}&token=${this.userInfo.token}`;
+                const link = document.createElement('a');
+
+                link.href = api;
+                link.target = '_blank';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+
+                setTimeout(() => {
+                    this.loading = false;
+                }, 300);
             },
             enable(event, row) {
                 this.$confirm('确定要启用该文件吗? 其他文件将被禁用!', '警告', {

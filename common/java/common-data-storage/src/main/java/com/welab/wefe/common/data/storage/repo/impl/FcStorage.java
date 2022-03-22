@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.google.protobuf.ByteString;
 import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.common.IntermediateDataFlag;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.repo.MiddleStorage;
 import com.welab.wefe.common.proto.IntermediateDataOuterClass;
@@ -41,6 +42,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -112,6 +114,11 @@ public class FcStorage extends MiddleStorage {
             default:
                 break;
         }
+    }
+
+    @Override
+    public boolean isExists(String dbName, String tbName) throws SQLException {
+        return false;
     }
 
     <K, V> void ossPutAll(List<DataItemModel<K, V>> list, Map<String, Object> args) {
@@ -238,7 +245,7 @@ public class FcStorage extends MiddleStorage {
                 byte[] value = item.getV() instanceof byte[] ? (byte[]) item.getV() : pickler.dumps(item.getV());
                 int partition = hashKeyToPartition(key, partitions);
 
-                builderMap.putIfAbsent(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                builderMap.putIfAbsent(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(IntermediateDataFlag.ITEM_SERIALIZATION));
                 IntermediateDataOuterClass.IntermediateData.Builder dataItemList = builderMap.get(partition);
 
                 // add one row data
@@ -261,7 +268,7 @@ public class FcStorage extends MiddleStorage {
                     futures.add(future);
                     rowCountMap.put(partition, 0);
                     // reset byte_map
-                    builderMap.put(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                    builderMap.put(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(IntermediateDataFlag.ITEM_SERIALIZATION));
                     // reset byteSizeMap
                     byteSizeMap.put(partition, 0);
                 } else {
@@ -284,7 +291,7 @@ public class FcStorage extends MiddleStorage {
                 futures.add(future);
                 rowCountMap.put(partition, 0);
                 // reset byte_map
-                builderMap.put(partition, new IntermediateDataOuterClass.IntermediateData.Builder());
+                builderMap.put(partition, IntermediateDataOuterClass.IntermediateData.newBuilder().setDataFlag(IntermediateDataFlag.ITEM_SERIALIZATION));
                 // reset byte_size
                 byteSizeMap.put(partition, 0);
             }
@@ -306,6 +313,7 @@ public class FcStorage extends MiddleStorage {
         }
 
     }
+
 
     /**
      * generate OSS file name

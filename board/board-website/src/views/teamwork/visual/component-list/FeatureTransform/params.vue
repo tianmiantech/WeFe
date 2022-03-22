@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <el-tabs>
             <el-tab-pane
@@ -45,7 +46,7 @@
                                 </el-icon>
                             </div>
                             <el-button
-                                size="mini"
+                                size="small"
                                 type="primary"
                                 icon="eliconCirclePlus"
                                 @click="methods.addTransform($event, member, scope.$index)"
@@ -132,7 +133,7 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
                         const { params: { members } } = data;
 
                         members.forEach(item => {

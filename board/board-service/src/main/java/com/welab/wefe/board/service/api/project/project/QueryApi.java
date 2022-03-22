@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,13 +20,14 @@ import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
 import com.welab.wefe.board.service.service.ProjectService;
-import com.welab.wefe.common.enums.AuditStatus;
-import com.welab.wefe.common.enums.JobMemberRole;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -71,6 +72,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ProjectQu
 
         @Check(name = "是否已关闭")
         private Boolean closed;
+
+        @Check(name = "项目类型")
+        private ProjectType projectType;
 
         public String getName() {
             return name;
@@ -142,6 +146,14 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ProjectQu
 
         public void setClosed(Boolean closed) {
             this.closed = closed;
+        }
+
+        public ProjectType getProjectType() {
+            return projectType;
+        }
+
+        public void setProjectType(ProjectType projectType) {
+            this.projectType = projectType;
         }
     }
 }

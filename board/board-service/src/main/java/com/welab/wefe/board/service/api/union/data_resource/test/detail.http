@@ -1,0 +1,20 @@
+
+###
+POST http://localhost:8080/board-service/union/data_resource/detail
+Content-Type: application/json
+token:{{token}}
+
+{
+  "data_resource_type": "ImageDataSet",
+  "data_resource_id": "406bbcecbea64f22afe0407acc1cddf2"
+}
+
+###
+POST http://localhost:8080/board-service/union/data_resource/detail
+Content-Type: application/json
+token:{{token}}
+
+{
+  "dataResourceId": "ce9961ae677d4cc68d902003c9d68c97",
+  "dataResourceType": "ImageDataSet"
+}

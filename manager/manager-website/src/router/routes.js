@@ -39,7 +39,7 @@ const baseRoutes = [
                 name: 'data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '联邦数据集',
+                    title:           '联邦资源',
                 },
                 component: () => import('../views/data-center/data-list'),
             },
@@ -49,7 +49,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     hidden:          true,
-                    title:           '联邦数据集详情',
+                    title:           '联邦资源详情',
                     active:          `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-view'),
@@ -68,7 +68,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}authorize`,
         meta: {
-            title:          '企业认证管理',
+            title:          '企业实名认证管理',
             requiresLogout: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
@@ -78,7 +78,7 @@ const baseRoutes = [
                 name: 'authorize-types',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '实名认证类型管理',
+                    title:           '认证类型',
                 },
                 component: () => import('../views/authorize-list'),
             },
@@ -124,10 +124,21 @@ const baseRoutes = [
                 path: `${prefixPath}user-list`,
                 name: 'user-list',
                 meta: {
-                    loginAndRefresh: true,
-                    title:           '用户列表',
+                    loginAndRefresh:  true,
+                    title:            '用户列表',
+                    normalUserCanSee: false,
                 },
                 component: () => import('../views/system/user-list'),
+            },
+            {
+                path: `${prefixPath}log-list`,
+                name: 'log-list',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '用户日志',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/account/log-list'),
             },
             {
                 path: `${prefixPath}account-setting`,
@@ -159,6 +170,16 @@ const baseRoutes = [
             requiresLogout: true,
         },
         component: () => import('../views/sign/register.vue'),
+    },
+    {
+        path: `${prefixPath}change-password`,
+        name: 'change-password',
+        meta: {
+            title:        '修改登录密码',
+            hidden:       true,
+            requiresAuth: true,
+        },
+        component: () => import('../views/sign/change-password.vue'),
     },
     {
         path: `${prefixPath}find-password`,

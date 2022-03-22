@@ -1,10 +1,10 @@
 
-POST {{baseUrl}}/account/enable
+POST http://localhost:8080/board-service/account/enable
 Content-Type: application/json
 
 {
-  "id":"9514861dd5a24ad8bf2f6f77a412867b",
-  "enable":false
+  "id": "9514861dd5a24ad8bf2f6f77a412867b",
+  "enable": false
 }
 
 ###

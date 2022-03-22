@@ -1,8 +1,10 @@
 <template>
     <el-form
         ref="form"
+        class="flex-form"
         :model="vData.form"
         :disabled="disabled"
+        @submit.prevent
     >
         <el-collapse v-model="vData.activeNames">
             <el-collapse-item title="VertNN参数设置" name="1">
@@ -466,7 +468,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
                         vData.form = data.params;
                     }
                 },
@@ -499,9 +501,10 @@
 .el-form-item{
     margin-bottom: 10px;
     :deep(.el-form-item__label){
-        text-align: left;
-        font-size: 12px;
-        display: block;
+        flex:1;
+    }
+    :deep(.el-form-item__content){
+        flex:2;
     }
 }
 .el-collapse-item {
@@ -527,10 +530,9 @@
 .readonly-form:before {
     position: unset !important;
 }
+.el-input{max-width:190px;}
 .add-one-group {
-    text-align: right;
-    margin-top: -28px;
-    margin-bottom: 10px;
+    margin-right:10px;
     .el-icon-plus {
         font-size: 16px;
         color: #438bff;

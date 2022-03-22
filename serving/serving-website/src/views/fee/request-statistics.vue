@@ -53,14 +53,14 @@
                 </div>
             </el-form-item>
 
-            <el-button
+            <el-button class="ml10"
                 type="primary"
-                @click="getList('to')"
+                @click="getList({ to: true})"
             >
                 查询
             </el-button>
 
-            <el-button
+            <el-button class="ml10"
                 @click="downloadStatistics"
             >
                 下载
@@ -85,7 +85,7 @@
 
             <el-table-column
                 label="服务名称"
-                min-width="80"
+                min-width="100"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
@@ -95,7 +95,7 @@
             </el-table-column>
             <el-table-column
                 label="客户名称"
-                min-width="80"
+                min-width="100"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
@@ -139,18 +139,11 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
-                label="总耗时(s)"
-                min-width="50"
-            >
-                <template slot-scope="scope">
-                    <p>{{ scope.row.total_spend }}</p>
-                </template>
-            </el-table-column>
 
             <el-table-column
                 label="操作"
                 min-width="40"
+                fixed="right"
             >
                 <template slot-scope="scope">
                     <el-button
@@ -169,6 +162,13 @@
             width="70%"
         >
             <el-table :data="apiCallDetails">
+
+                <el-table-column
+                    label="序号"
+                    min-width="40"
+                    type="index"
+                ></el-table-column>
+
                 <el-table-column
                     label="服务名称"
                     min-width="30"
@@ -190,7 +190,7 @@
                     min-width="30"
                 >
                     <template slot-scope="scope">
-                        <p>{{ serviceType[scope.row.service_type] }}</p>
+                        <p>{{ scope.row.service_type }}</p>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -203,43 +203,36 @@
                 </el-table-column>
 
                 <el-table-column
-                    label="耗时(s)"
-                    min-width="30"
-                >
-                    <template slot-scope="scope">
-                        <p>{{ scope.row.spend }}</p>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    label="IP 白名单"
+                    label="调用 IP"
                     min-width="40"
                 >
                     <template slot-scope="scope">
                         <p>{{ scope.row.ip_add }}</p>
                     </template>
                 </el-table-column>
+
                 <el-table-column
                     label="请求结果"
                     min-width="30"
                 >
                     <template slot-scope="scope">
-                        <p>{{ requestResult[scope.row.request_result] }}</p>
+                        <p>{{ scope.row.request_result }}</p>
                     </template>
                 </el-table-column>
             </el-table>
 
             <div
-                v-if="pagination.total"
+                v-if="dialogPagination.total"
                 class="mt20 text-r"
             >
                 <el-pagination
-                    :total="pagination.total"
+                    :total="dialogPagination.total"
                     :page-sizes="[10, 20, 30, 40, 50]"
-                    :page-size="pagination.page_size"
-                    :current-page="pagination.page_index"
+                    :page-size="dialogPagination.page_size"
+                    :current-page="dialogPagination.page_index"
                     layout="total, sizes, prev, pager, next, jumper"
-                    @current-change="currentPageChange"
-                    @size-change="pageSizeChange"
+                    @current-change="dialogCurrentPageChange"
+                    @size-change="dialogCurrentPageSizeChange"
                 />
             </div>
         </el-dialog>
@@ -278,10 +271,15 @@ export default {
                 startTime: '',
                 endTime: '',
             },
-            defaultTime: [
-                '',
-                '',
-            ],
+            defaultTime: [],
+            dialogPagination: {
+                total: '',
+                page_size: 10,
+                page_index: 1,
+                serviceId: '',
+                clientId: '',
+                change_flag: false,
+            },
             getListApi: '/requeststatistics/query-list',
             serviceType: {
                 1: '两方匿踪查询',
@@ -293,22 +291,27 @@ export default {
             },
             requestResult: {
                 1: '成功',
-                0: '失败',
+                2: '成功(没有数据)',
+                3: '失败(服务不可用)',
+                4: '失败(服务未授权)',
+                5: '失败(IP被限制)',
+                6: '失败(服务异常)',
             },
             apiCallDetails: [],
+
             dialogTableVisible: false,
         };
     },
 
     created() {
 
-        this.defaultTime[0] = new Date(new Date().getFullYear() + '-'
-            + new Date().getMonth() + 1 + '-'
-            + new Date().getDate() + ' 00:00:00');
-
-        this.defaultTime[1] = new Date(new Date().getFullYear() + '-'
-            + new Date().getMonth() + 1 + '-'
-            + new Date().getDate() + ' 23:59:59');
+        // this.defaultTime[0] = new Date(new Date().getFullYear() + '-'
+        //     + new Date().getMonth() + 1 + '-'
+        //     + new Date().getDate() + ' 00:00:00');
+        //
+        // this.defaultTime[1] = new Date(new Date().getFullYear() + '-'
+        //     + new Date().getMonth() + 1 + '-'
+        //     + new Date().getDate() + ' 23:59:59');
 
         this.getServices();
         this.getClients();
@@ -319,6 +322,21 @@ export default {
     },
 
     methods: {
+
+        dialogCurrentPageChange(val) {
+            this.dialogPagination.change_flag = true
+            this.dialogPagination.page_index = val
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
+        },
+
+        dialogCurrentPageSizeChange(val) {
+            this.dialogPagination.change_flag = true
+            this.dialogPagination.page_size = val
+            this.dialogPagination.page_index = 1
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
+        },
+
+
         downloadStatistics() {
 
             const api = `${window.api.baseUrl}/apirequestrecord/download?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
@@ -334,8 +352,13 @@ export default {
 
 
         timeChange() {
-            this.search.startTime = this.defaultTime[0];
-            this.search.endTime = this.defaultTime[1];
+            if (!this.defaultTime) {
+                this.search.startTime = ''
+                this.search.endTime = ''
+            } else {
+                this.search.startTime = this.defaultTime[0]
+                this.search.endTime = this.defaultTime[1]
+            }
         },
 
         handleServices(data) {
@@ -380,19 +403,29 @@ export default {
         },
 
 
-        async getDetails(serviceId, clientId) {
-            this.apiCallDetails = '';
+        async getDetails(serviceId, clientId, change_flag) {
+
+            this.dialogPagination.serviceId = serviceId
+            this.dialogPagination.clientId = clientId
+
+            this.apiCallDetails = []
             const {code, data} = await this.$http.post({
                 url: '/apirequestrecord/query-list',
                 data: {
-                    serviceId,
-                    clientId,
+                    serviceId: this.dialogPagination.serviceId,
+                    clientId: this.dialogPagination.clientId,
+                    page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
+                    page_size: change_flag ? this.dialogPagination.page_size : 10,
+                    startTime: this.search.startTime,
+                    endTime: this.search.endTime
                 },
             });
 
             if (code === 0) {
-                this.apiCallDetails = data.list;
-                this.dialogTableVisible = true;
+                this.apiCallDetails = data.list
+                this.dialogTableVisible = true
+                this.dialogPagination.total = data.total
+
             }
         },
     },

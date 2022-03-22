@@ -22,6 +22,9 @@
                 <el-input
                     v-model="form.password"
                     type="password"
+                    @paste.prevent
+                    @copy.prevent
+                    @contextmenu.prevent
                 />
             </el-form-item>
             <el-form-item label="验证码">
@@ -182,12 +185,12 @@
     .form-code{
         :deep(.el-input-group__append){
             padding:0;
-            width: 85px;
+            width: 90px;
             overflow: hidden;
         }
     }
     .code-img{
-        width: 85px;
+        width: 90px;
         height: 30px;
         cursor: pointer;
     }

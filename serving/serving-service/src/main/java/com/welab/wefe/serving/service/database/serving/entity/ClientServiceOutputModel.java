@@ -17,6 +17,7 @@ package com.welab.wefe.serving.service.database.serving.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.UUID;
 
 /**
  * @author ivenn.zheng
@@ -25,7 +26,7 @@ import javax.persistence.Id;
 public class ClientServiceOutputModel {
 
     @Id
-    private String id;
+    private String id = UUID.randomUUID().toString().replaceAll("-", "");
 
     /**
      * 服务名称

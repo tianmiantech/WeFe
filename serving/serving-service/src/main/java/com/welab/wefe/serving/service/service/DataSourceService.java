@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,22 +36,21 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.datasource.AddApi;
 import com.welab.wefe.serving.service.api.datasource.DeleteApi;
 import com.welab.wefe.serving.service.api.datasource.QueryApi;
 import com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.FieldOutput;
-import com.welab.wefe.serving.service.api.datasource.QueryTablesApi.Input;
 import com.welab.wefe.serving.service.api.datasource.QueryTablesApi.Output;
 import com.welab.wefe.serving.service.api.datasource.TestDBConnectApi;
 import com.welab.wefe.serving.service.api.datasource.UpdateApi;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.DataSourceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.DatabaseType;
 import com.welab.wefe.serving.service.manager.JdbcManager;
-import com.welab.wefe.serving.service.utils.ModelMapper;
 
 /**
  * @author Johnny.lin
@@ -68,9 +68,7 @@ public class DataSourceService {
 	public AddApi.DataSourceAddOutput add(AddApi.DataSourceAddInput input) throws StatusCodeWithException {
 
 		if (dataSourceRepo.countByName(input.getName()) > 0) {
-			throw new StatusCodeWithException(
-					"This data source name already exists, please change the data source name",
-					StatusCode.PARAMETER_VALUE_INVALID);
+			throw new StatusCodeWithException("数据源名称已存在，请更改后再试", StatusCode.PARAMETER_VALUE_INVALID);
 		}
 
 		// 测试连接
@@ -91,9 +89,15 @@ public class DataSourceService {
 
 	public UpdateApi.DataSourceUpdateOutput update(UpdateApi.DataSourceUpdateInput input)
 			throws StatusCodeWithException {
+		DataSourceMySqlModel model = dataSourceRepo.findById(input.getId()).orElse(null);
+		if (model == null) {
+			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+		}
 		// Test the connection
 		testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(),
-				input.getPassword(), input.getDatabaseName());
+				input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? model.getPassword()
+						: input.getPassword(),
+				input.getDatabaseName());
 		Map<String, Object> params = new HashMap<>(16);
 		params.put("id", input.getId());
 		params.put("name", input.getName());
@@ -101,15 +105,16 @@ public class DataSourceService {
 		params.put("databaseName", input.getDatabaseName());
 		params.put("host", input.getHost());
 		params.put("port", input.getPort());
-		params.put("userName", input.getName());
-		params.put("password", input.getPassword());
+		params.put("userName", input.getUserName());
+		params.put("password",
+				input.getPassword().equalsIgnoreCase(DataSourceMySqlModel.PASSWORD_MASK) ? model.getPassword()
+						: input.getPassword());
 		params.put("updatedBy", CurrentAccount.id());
 		params.put("updatedTime", new Date());
 		dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
 
 		UpdateApi.DataSourceUpdateOutput output = new UpdateApi.DataSourceUpdateOutput();
-		DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
-		output.setId(model.getId());
+		output.setId(input.getId());
 		return output;
 	}
 
@@ -166,7 +171,7 @@ public class DataSourceService {
 		if (conn != null) {
 			boolean success = jdbcManager.testQuery(conn, "select 1", false);
 			if (!success) {
-				throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "Database connection failure");
+				throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
 			}
 		}
 
@@ -182,13 +187,13 @@ public class DataSourceService {
 		if (conn != null) {
 			boolean success = jdbcManager.execute(conn, sql);
 			if (!success) {
-				throw new StatusCodeWithException(StatusCode.SQL_ERROR, "execute sql error");
+				throw new StatusCodeWithException(StatusCode.SQL_ERROR, "SQL 执行报错");
 			}
 		}
 	}
 
 	public void batchInsert(String sql, DatabaseType databaseType, String host, int port, String userName,
-			String password, String databaseName, List<String> ids) throws StatusCodeWithException {
+			String password, String databaseName, Set<String> ids) throws StatusCodeWithException {
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(databaseType, host, port, userName, password, databaseName);
 		if (conn != null) {
@@ -199,7 +204,7 @@ public class DataSourceService {
 			}
 			return;
 		}
-		throw new StatusCodeWithException(StatusCode.SQL_ERROR, "execute sql error");
+		throw new StatusCodeWithException(StatusCode.SQL_ERROR, "SQL 执行报错");
 	}
 
 	/**
@@ -215,10 +220,9 @@ public class DataSourceService {
 	/**
 	 * Test whether SQL can be queried normally
 	 */
-	public boolean testSqlQuery(String dataSourceId, String sql) throws StatusCodeWithException {
-		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
+	public boolean testSqlQuery(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -228,11 +232,10 @@ public class DataSourceService {
 		return result;
 	}
 
-	public Map<String, String> queryOne(String dataSourceId, String sql, List<String> returnFields)
+	public Map<String, String> queryOne(DataSourceMySqlModel model, String sql, List<String> returnFields)
 			throws StatusCodeWithException {
-		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		LOG.info("dataSourceModel = " + JSONObject.toJSONString(model));
 		JdbcManager jdbcManager = new JdbcManager();
@@ -241,11 +244,20 @@ public class DataSourceService {
 		return jdbcManager.query(conn, sql, returnFields);
 	}
 
-	public List<Map<String, String>> queryList(String dataSourceId, String sql, List<String> returnFields)
-			throws StatusCodeWithException {
-		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
+	public long count(DataSourceMySqlModel model, String sql) throws StatusCodeWithException {
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
+		}
+		JdbcManager jdbcManager = new JdbcManager();
+		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
+				model.getUserName(), model.getPassword(), model.getDatabaseName());
+		return jdbcManager.count(conn, sql);
+	}
+	
+	public List<Map<String, String>> queryList(DataSourceMySqlModel model, String sql, List<String> returnFields)
+			throws StatusCodeWithException {
+		if (model == null) {
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -253,11 +265,11 @@ public class DataSourceService {
 		return jdbcManager.queryList(conn, sql, returnFields);
 	}
 
-	public Output queryTables(Input input) throws StatusCodeWithException {
+	public Output queryTables(String dataSourceId) throws StatusCodeWithException {
+		DataSourceMySqlModel model = getDataSourceById(dataSourceId);
 		Output out = new Output();
-		DataSourceMySqlModel model = getDataSourceById(input.getId());
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),
@@ -276,7 +288,7 @@ public class DataSourceService {
 		com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.Output out = new com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.Output();
 		DataSourceMySqlModel model = getDataSourceById(input.getId());
 		if (model == null) {
-			throw new StatusCodeWithException("Data does not exist", StatusCode.DATA_NOT_FOUND);
+			throw new StatusCodeWithException("数据源不存在", StatusCode.DATA_NOT_FOUND);
 		}
 		JdbcManager jdbcManager = new JdbcManager();
 		Connection conn = jdbcManager.getConnection(model.getDatabaseType(), model.getHost(), model.getPort(),

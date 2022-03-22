@@ -1,17 +1,17 @@
 <template>
     <el-card
         v-loading="loading"
-        class="page"
         shadow="never"
+        class="page"
     >
-        <el-form :model="form">
+        <el-form :model="form" @submit.prevent>
             <el-row :gutter="30">
                 <el-col :span="10">
                     <el-form-item
                         prop="name"
-                        label="数据集名称"
+                        label="数据资源名称"
                         :rules="[
-                            { required: true, message: '数据集名称必填!' }
+                            { required: true, message: '数据资源名称必填!' }
                         ]"
                     >
                         <el-input
@@ -19,7 +19,8 @@
                             size="large"
                         />
                     </el-form-item>
-                    <el-form-item prop="tag">
+                    <p class="tags-tips f12 mb10">为数据资源设置关键词，方便大家快速了解你 ：）</p>
+                    <el-form-item>
                         <el-tag
                             v-for="tag in form.tags"
                             :key="tag"
@@ -33,24 +34,21 @@
                             v-if="tagInputVisible"
                             ref="saveTagInput"
                             v-model="tagInputValue"
-                            :fetch-suggestions="getDataSetTags"
                             :trigger-on-focus="false"
                             :loading="loading"
-                            class="input-new-tag"
+                            class="input-new-tag ml10"
                             @select="handleTagInputConfirm"
                             @keyup.enter="handleTagInputConfirm"
                         />
                         <el-button
                             v-else
                             class="button-new-tag ml10"
-                            size="mini"
+                            size="small"
                             type="success"
                             @click="showInputTag"
                         >
                             + 关键词
                         </el-button>
-                        <br>
-                        <span class="tags-tips">为数据集设置关键词，方便大家快速了解你 ：）</span>
                     </el-form-item>
                     <el-form-item
                         label="简介："
@@ -67,75 +65,78 @@
                 </el-col>
                 <el-col
                     :span="14"
-                    style="position: relative;"
                 >
-                    <fieldset style="min-height:240px;">
-                        <legend>可见性</legend>
-                        <el-form-item>
-                            <el-radio
-                                v-model="form.public_level"
-                                label="Public"
-                            >
-                                对所有成员可见
-                            </el-radio>
-                            <el-radio
-                                v-model="form.public_level"
-                                label="OnlyMyself"
-                            >
-                                仅自己可见
-                            </el-radio>
-                            <el-radio
-                                v-model="form.public_level"
-                                label="PublicWithMemberList"
-                            >
-                                对指定成员可见
-                            </el-radio>
-                        </el-form-item>
-                        <el-form-item>
-                            <div v-if="form.public_level === 'PublicWithMemberList'">
-                                <el-button
-                                    size="mini"
-                                    class="mr10"
-                                    @click="showSelectMemberDialog"
+                    <div style="position: relative;">
+                        <fieldset style="min-height:240px;">
+                            <legend>可见性</legend>
+                            <el-form-item>
+                                <el-radio
+                                    v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
+                                    v-model="form.public_level"
+                                    label="Public"
                                 >
-                                    选择可见成员
-                                </el-button>
-                                已选（{{ public_member_info_list.length }}）
-                                <ul class="member_list_ul">
-                                    <li
-                                        v-for="(item, index) in public_member_info_list"
-                                        :key="item.id"
-                                        class="flex-center"
+                                    对所有成员可见
+                                </el-radio>
+                                <el-radio
+                                    v-model="form.public_level"
+                                    label="OnlyMyself"
+                                >
+                                    仅自己可见
+                                </el-radio>
+                                <el-radio
+                                    v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
+                                    v-model="form.public_level"
+                                    label="PublicWithMemberList"
+                                >
+                                    对指定成员可见
+                                </el-radio>
+                            </el-form-item>
+                            <el-form-item>
+                                <div v-if="form.public_level === 'PublicWithMemberList'">
+                                    <el-button
+                                        size="small"
+                                        class="mr10"
+                                        @click="showSelectMemberDialog"
                                     >
-                                        <p>
-                                            <span class="name">{{
-                                                item.name
-                                            }}</span>
-                                            <br>
-                                            <span class="p-id">
-                                                {{ item.id }}
-                                            </span>
-                                        </p>
+                                        选择可见成员
+                                    </el-button>
+                                    已选（{{ public_member_info_list.length }}）
+                                    <ul class="member_list_ul">
+                                        <li
+                                            v-for="(item, index) in public_member_info_list"
+                                            :key="item.id"
+                                            class="flex-center"
+                                        >
+                                            <p>
+                                                <span class="name">{{
+                                                    item.name
+                                                }}</span>
+                                                <br>
+                                                <span class="p-id">
+                                                    {{ item.id }}
+                                                </span>
+                                            </p>
 
-                                        <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
-                                            <elicon-close />
-                                        </el-icon>
-                                    </li>
-                                </ul>
-                            </div>
-                        </el-form-item>
-                        <DataSetPublicTips v-if="form.public_level != 'OnlyMyself'" />
-                    </fieldset>
+                                            <el-icon class="el-icon-close" @click="deleteSelectedMember(item, index)">
+                                                <elicon-close />
+                                            </el-icon>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </el-form-item>
+                            <DataSetPublicTips v-if="form.public_level != 'OnlyMyself'" />
+                        </fieldset>
+                    </div>
                 </el-col>
             </el-row>
-            <el-row :gutter="30">
+            <el-row :gutter="30" v-if="addType === 'csv'">
                 <el-col :span="10">
                     <h4 class="mt10 mb20">
                         字段信息：
                         <el-select
                             v-model="dataTypeFillVal"
                             class="float-right"
-                            size="mini"
+                            size="small"
                             clearable
                             style="width: 140px;"
                             placeholder="数据类型缺失填充"
@@ -211,9 +212,13 @@
                     </div>
                 </el-col>
                 <el-col :span="14">
-                    <h4 class="m5">数据集预览：</h4>
+                    <h4 class="m5">数据资源预览：</h4>
                     <DataSetPreview ref="DataSetPreview" />
                 </el-col>
+            </el-row>
+            <el-row v-if="addType === 'img'" :gutter="30" style="padding: 0 20px;">
+                <h4 style="margin-bottom: 6px;">数据资源预览</h4>
+                <preview-image-list ref="PreviewImageListRef" />
             </el-row>
             <el-button
                 class="save-btn mt20"
@@ -238,6 +243,7 @@
     import { mapGetters } from 'vuex';
     import DataSetPreview from '@comp/views/data_set-preview';
     import DataSetPublicTips from './components/data-set-public-tips';
+    import PreviewImageList from './components/preview-image-list';
     import SelectMember from './components/select-member';
 
     export default {
@@ -245,6 +251,7 @@
             DataSetPreview,
             DataSetPublicTips,
             SelectMember,
+            PreviewImageList,
         },
         data() {
             return {
@@ -278,17 +285,30 @@
                     page_size:  20,
                     page_index: 1,
                 },
+                addType: 'csv',
+                search:  {
+                    page_index: 1,
+                    page_size:  20,
+                    label:      '',
+                    labeled:    '',
+                    total:      1,
+                },
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.addType = this.$route.query.type || 'csv';
             this.getData();
         },
         mounted() {
-            this.loadDataSetColumnList();
-            this.$refs['DataSetPreview'].loadData(this.id);
+            if (this.addType === 'csv') {
+                this.loadDataSetColumnList();
+                this.$refs['DataSetPreview'].loadData(this.id);
+            } else if (this.addType === 'img') {
+                this.$refs['PreviewImageListRef'].methods.getSampleList(this.id);
+            }
         },
         methods: {
             metadataPageChange(val) {
@@ -326,7 +346,7 @@
             async loadDataSetColumnList(){
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url: '/data_set/column/list?data_set_id=' + this.id,
+                    url: '/table_data_set/column/list?data_set_id=' + this.id,
                 });
 
                 if (code === 0) {
@@ -373,8 +393,13 @@
 
             async getData() {
                 this.loading = true;
+                const map = {
+                    BloomFilter: '/bloom_filter/detail',
+                    img:         '/image_data_set/detail',
+                    csv:         '/table_data_set/detail',
+                };
                 const { code, data } = await this.$http.get({
-                    url: '/data_set/detail?id=' + this.id,
+                    url: `${map[this.addType]}?id=` + this.id,
                 });
 
                 if (code === 0) {
@@ -434,9 +459,13 @@
                 }
 
                 this.loading = true;
-
+                const map = {
+                    csv:         '/table_data_set/update',
+                    img:         '/image_data_set/update',
+                    BloomFilter: '/bloom_filter/update',
+                };
                 const { code } = await this.$http.post({
-                    url:     '/data_set/update',
+                    url:     map[this.addType],
                     timeout: 1000 * 60 * 2,
                     data:    {
                         ...this.form,
@@ -448,7 +477,7 @@
                     this.$message.success('保存成功!');
                     this.$router.push({
                         name:  'data-view',
-                        query: { id: this.id },
+                        query: { id: this.id, type: this.addType },
                     });
                 }
                 this.loading = false;
@@ -459,7 +488,7 @@
                 if (keyword) {
                     this.loading = true;
                     const { code, data } = await this.$http.post({
-                        url:  '/data_set/tags',
+                        url:  '/table_data_set/all_tags',
                         data: {
                             tag: keyword,
                         },

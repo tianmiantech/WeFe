@@ -47,19 +47,26 @@ def handler(event, context):
     """
 
     evt = json.loads(event)
+
     # get the source and destination fcStorage
     source_fcs, dest_fcs = dataUtil.get_fc_storages(evt)
+
     # get data
     source_k_v = source_fcs.collect()
     func = cloudpickle.loads(bytes.fromhex(evt['func']))
+
     # do reduce
-    result = []
     if 'key_func' in evt.keys():
         result, count = handle_dict(source_k_v, func)
     else:
         result, count = handle_value(source_k_v, func)
+
     # put result to destination fcStorage
-    dest_fcs.put_all(result)
+    unfold_result = evt.get('unfold_result')
+    if unfold_result:
+        dest_fcs.put_all(result.items())
+    else:
+        dest_fcs.put(0, result)
     return dataUtil.fc_result(count=count)
 
 
@@ -73,7 +80,7 @@ def handle_value(source_k_v, func):
             result = v
         else:
             result = func(result, v)
-    return [(0, result)], count
+    return result, count
 
 
 def handle_dict(reduce_k_v, func):
@@ -86,7 +93,7 @@ def handle_dict(reduce_k_v, func):
             result = v
         else:
             result = merge_reduce(result, v, func)
-    return [(0, result)], count
+    return result, count
 
 
 def merge_reduce(source_dict, other_dict, func):

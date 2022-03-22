@@ -16,26 +16,37 @@
 
 package com.welab.wefe.serving.service.api.client;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Api(path = "client/save", name = "save")
 public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
 
+    private static final Pattern r = Pattern.compile("((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})(\\.((2(5[0-5]|[0-4]\\d))|[0-1]?\\d{1,2})){3}");
+    private static final int pubKeyMinLength = 128;
+
     @Autowired
     private ClientService clientService;
 
+
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-
         clientService.save(input);
         return success();
     }
@@ -61,13 +72,31 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
         @Check(name = "备注")
         private String remark;
 
-        @Check(name = "状态")
-        private Integer status;
-
+        @Check(name = "创建人")
         private String createdBy;
 
         @Check(name = "客户 code")
         private String code;
+
+
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            List<String> ipArray = StringUtil.splitWithoutEmptyItem(ipAdd, ",");
+            for (String ip : ipArray) {
+                Matcher m = r.matcher(ip);
+                if (!m.matches()) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("错误的IP：" + ip);
+                }
+            }
+            ipAdd = StringUtil.join(ipArray, ",");
+
+            if (StringUtil.strTrim(pubKey).length() < pubKeyMinLength) {
+                throw new StatusCodeWithException(StatusCode.ERROR_PUBKEY_LENGTH);
+            }
+
+
+        }
 
         public String getCode() {
             return code;
@@ -123,14 +152,6 @@ public class SaveClientApi extends AbstractNoneOutputApi<SaveClientApi.Input> {
 
         public void setRemark(String remark) {
             this.remark = remark;
-        }
-
-        public Integer getStatus() {
-            return status;
-        }
-
-        public void setStatus(Integer status) {
-            this.status = status;
         }
 
         public String getCreatedBy() {

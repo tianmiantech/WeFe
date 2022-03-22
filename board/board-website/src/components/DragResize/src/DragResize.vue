@@ -329,6 +329,9 @@
         line-height: 16px;
         border-radius: 50%;
         margin-left: 5px;
+        text-align: center;
+        display: inline-block;
+        vertical-align: middle;
         cursor: pointer;
         font-size: 0;
         &:hover{

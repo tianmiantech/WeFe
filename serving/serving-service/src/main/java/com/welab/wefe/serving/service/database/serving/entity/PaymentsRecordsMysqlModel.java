@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,11 +57,6 @@ public class PaymentsRecordsMysqlModel extends AbstractBaseMySqlModel {
      * 余额
      */
     private BigDecimal balance;
-
-    /**
-     * 状态:
-     */
-    private Integer status;
 
     private String remark;
 
@@ -137,11 +132,4 @@ public class PaymentsRecordsMysqlModel extends AbstractBaseMySqlModel {
         this.balance = balance;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
 }

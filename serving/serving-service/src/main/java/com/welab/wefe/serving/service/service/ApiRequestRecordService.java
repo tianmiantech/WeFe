@@ -16,8 +16,25 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.api.member.QueryApi;
+import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.OrderBy;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.serving.service.api.apirequestrecord.DownloadApi;
 import com.welab.wefe.serving.service.api.apirequestrecord.QueryListApi;
@@ -25,17 +42,12 @@ import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ApiRequestRecordRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author ivenn.zheng
@@ -64,6 +76,10 @@ public class ApiRequestRecordService {
         model.setRequestResult(requestResult);
         model.setSpend(spend);
         model.setIpAdd(ipAdd);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        calendar.setTime(new Date());
+        model.setCreatedTime(calendar.getTime());
         apiRequestRecordRepository.save(model);
     }
 
@@ -77,15 +93,44 @@ public class ApiRequestRecordService {
         return apiRequestRecordRepository.findAll(where);
     }
 
-    public PagingOutput<ApiRequestRecordMysqlModel> getListById(QueryListApi.Input input) {
+    public List<ApiRequestRecordMysqlModel> getList(String serviceId, String clientId, Date startTime, Date endTime) {
 
+        Specification<ApiRequestRecordMysqlModel> where = Where
+                .create()
+                .equal("serviceId", serviceId)
+                .equal("clientId", clientId)
+                .betweenAndDate("createdTime", startTime.getTime(), endTime.getTime())
+                .build(ApiRequestRecordMysqlModel.class);
+
+        return apiRequestRecordRepository.findAll(where);
+    }
+
+    public PagingOutput<QueryListApi.Output> getListById(QueryListApi.Input input) {
         Specification<ApiRequestRecordMysqlModel> where = Where
                 .create()
                 .equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId())
+                .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(ApiRequestRecordMysqlModel.class);
-        return apiRequestRecordRepository.paging(where, input);
+
+        PagingOutput<ApiRequestRecordMysqlModel> page = apiRequestRecordRepository.paging(where, input);
+
+        List<QueryListApi.Output> list = new ArrayList<>();
+        page.getList()
+                .forEach(x -> {
+                    QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
+                    output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
+                    output.setRequestResult(ServiceResultEnum.getValueByCode(x.getRequestResult()));
+                    list.add(output);
+                });
+
+        return PagingOutput.of(
+                page.getTotal(),
+                list
+        );
+
+//        return apiRequestRecordRepository.paging(where, input);
 
     }
 
@@ -116,19 +161,21 @@ public class ApiRequestRecordService {
                 .lineDelimiter(LineDelimiter.LF)
                 .build(sw);
 
-        csvWriter.writeRow("服务Id", "服务名称","服务类型" ,"客户Id", "客户名称",
-                "IP", "耗时", "请求结果");
+        csvWriter.writeRow("Id", "服务Id", "服务名称", "服务类型", "客户Id", "客户名称",
+                "调用IP", "请求结果", "请求时间");
 
         for (ApiRequestRecordMysqlModel model : dataList) {
             csvWriter.writeRow(
+                    model.getId(),
                     model.getServiceId(),
                     model.getServiceName(),
                     ServiceTypeEnum.getValue(model.getServiceType()),
                     model.getClientId(),
                     model.getClientName(),
                     model.getIpAdd(),
-                    model.getSpend().toString(),
-                    String.valueOf(model.getRequestResult()));
+                    ServiceResultEnum.getValueByCode(model.getRequestResult()),
+                    DateUtil.toString(model.getCreatedTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2)
+            );
         }
 
         File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
@@ -139,12 +186,12 @@ public class ApiRequestRecordService {
             }
         }
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
+        bw.write('\ufeff');
         bw.write(sw.toString());
         bw.flush();
         bw.close();
 
         return csvFile;
     }
-
 
 }

@@ -70,6 +70,9 @@
                                 maxlength="30"
                                 placeholder="密码"
                                 clearable
+                                @paste.prevent
+                                @copy.prevent
+                                @contextmenu.prevent
                             />
                         </el-form-item>
                         <el-form-item
@@ -108,7 +111,6 @@
                                 type="primary"
                                 class="login-btn"
                                 native-type="submit"
-                                size="medium"
                                 @click="submit"
                             >
                                 立即登录
@@ -135,7 +137,6 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex';
     import md5 from 'js-md5';
 
     export default {
@@ -144,11 +145,10 @@
                 version:    process.env.VERSION,
                 submitting: false,
                 form:       {
-                    keepAlive: false,
-                    password:  '',
-                    phone:     '',
-                    code:      '',
-                    key:       '',
+                    password: '',
+                    phone:    '',
+                    code:     '',
+                    key:      '',
                 },
                 imgCode:    '',
                 phoneRules: [
@@ -168,17 +168,10 @@
                 codeRules:     [{ required: true, message: '请输入验证码' }],
             };
         },
-        computed: {
-            ...mapGetters(['keepAlive']),
-        },
         created() {
-            // this.form.keepAlive = this.keepAlive;
             this.getImgCode();
         },
         methods: {
-            /* changeKeepAlive(value) {
-                this.$store.commit('KEEP_ALIVE', value);
-            }, */
             async getImgCode() {
                 const { code, data } = await this.$http.get('/account/captcha');
 
@@ -283,12 +276,18 @@
         }
 
         .el-carousel__item {
-            color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             padding: 0 60px;
             text-align: center;
             background: #333;
             align-items: center;
             display: flex;
+            color: #fff;
             h3{margin-bottom: 20px;}
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,9 @@ public enum QueryDateTypeEnum {
 
     MONTH(2),
 
-    DAY(3);
+    DAY(3),
+
+    HOUR(4);
 
     private int value;
 

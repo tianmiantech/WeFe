@@ -1,0 +1,7 @@
+POST http://localhost:8080/board-service/model/deep_learning/download
+Content-Type: application/json
+token: {{token}}
+
+{
+  "task_id": "c825d03e1e424b51bf99fe61d94ec947_promoter_PaddleClassify_16452527021516948"
+}

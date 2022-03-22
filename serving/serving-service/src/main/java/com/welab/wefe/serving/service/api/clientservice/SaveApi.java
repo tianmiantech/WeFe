@@ -55,13 +55,24 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         private String clientId;
 
         @Check(name = "use status")
-        private Integer status = ServiceStatusEnum.USED.getValue();
+        private Integer status = ServiceStatusEnum.USED.getCode();
 
         @Check(name = "pay type")
         private int payType;
 
         @Check(name = "unit price")
         private Double unitPrice;
+
+        @Check(name = "created by")
+        private String createdBy;
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
 
         public Double getUnitPrice() {
             return unitPrice;

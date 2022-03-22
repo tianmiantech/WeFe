@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,8 @@ package com.welab.wefe.data.fusion.service.manager;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.enums.DatabaseType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ import java.util.function.Consumer;
  * @date 2020/9/17
  */
 public class JdbcManager {
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(JdbcManager.class);
 
     public JdbcManager() {
 
@@ -148,7 +148,7 @@ public class JdbcManager {
                 int columnCount = metaData.getColumnCount();
 
                 if (columnCount < 2) {
-                    throw new StatusCodeWithException("The number of column fields must be greater than 1", StatusCode.ILLEGAL_REQUEST);
+                    throw new StatusCodeWithException("列字段数必须大于1！", StatusCode.ILLEGAL_REQUEST);
                 }
             }
         } catch (SQLException e) {
@@ -318,6 +318,10 @@ public class JdbcManager {
         long readLineCount = 0;
 
         try {
+            sql = sql.replace(";","");
+            if (!sql.contains("limit")) {
+                sql = sql + " limit 10";
+            }
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();
@@ -350,20 +354,20 @@ public class JdbcManager {
     /**
      * 获取查询数据的总记录数
      */
-    public long count(Connection conn, String sql) {
+    public long count(Connection conn, String sql) throws Exception {
         PreparedStatement ps = null;
         ResultSet rs = null;
         long totalCount = 0;
 
         try {
-            String s = sql.replace("*", "count(*)");
-            ps = conn.prepareStatement(s);
+            ps = conn.prepareStatement("select count(*) from (" + sql + ") t");
             rs = ps.executeQuery();
             while (rs.next()) {
                 totalCount = rs.getLong(1);
             }
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
+            throw e;
         } finally {
             close(ps, rs);
         }
@@ -384,6 +388,10 @@ public class JdbcManager {
         ResultSet rs = null;
 
         try {
+            sql = sql.replace(";","");
+            if (!sql.contains("limit")) {
+                sql = sql + " limit 1";
+            }
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();

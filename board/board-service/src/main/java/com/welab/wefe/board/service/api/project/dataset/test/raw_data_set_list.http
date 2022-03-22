@@ -1,9 +1,19 @@
-POST {{baseUrl}}/project/raw_data_set/list
+POST http://localhost:8080/board-service/project/raw_data_set/list
 Content-Type: application/json
 
 {
-  "projectId": "a76c2b3024da49e4a79b3701495e9cd3",
-  "memberRole": "promoter",
-  "memberId": "d3c9199e15154d9eac22690a55abc0f4",
-  "containsY": true
+  "allList": "",
+  "contains_y": "",
+  "dataResourceType": [
+    "ImageDataSet"
+  ],
+  "data_resource_type": "ImageDataSet",
+  "data_set_id": "",
+  "list": "",
+  "member_id": "290007c2a71d470ba00f486b18875d31",
+  "member_role": "promoter",
+  "name": "",
+  "page_index": 0,
+  "page_size": 20,
+  "project_id": "35ef81d771e24bd09c77a432652061b3"
 }

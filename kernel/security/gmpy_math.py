@@ -72,3 +72,7 @@ def isqrt(n):
     """ return the integer square root of N """
 
     return int(gmpy2.isqrt(n))
+
+
+def mpz(n):
+    return gmpy2.mpz(n)

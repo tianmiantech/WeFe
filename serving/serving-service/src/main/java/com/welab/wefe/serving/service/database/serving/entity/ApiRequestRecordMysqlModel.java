@@ -17,7 +17,6 @@ package com.welab.wefe.serving.service.database.serving.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.math.BigDecimal;
 
 /**
  * @author ivenn.zheng
@@ -61,7 +60,7 @@ public class ApiRequestRecordMysqlModel extends AbstractBaseMySqlModel {
     private Long spend;
 
     /**
-     * 请求结果：1 成功、0 失败
+     * 请求结果
      */
     @Column(name = "request_result")
     private Integer requestResult;

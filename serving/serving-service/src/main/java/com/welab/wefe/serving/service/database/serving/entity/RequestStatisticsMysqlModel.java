@@ -27,7 +27,7 @@ import java.util.UUID;
 public class RequestStatisticsMysqlModel{
 
     @Id
-    private String id = UUID.randomUUID().toString().replaceAll("-", "");
+    private String id;
 
     private String serviceId;
 
@@ -62,11 +62,6 @@ public class RequestStatisticsMysqlModel{
      * 服务类型
      */
     private Integer serviceType;
-
-    /**
-     * 总耗时
-     */
-    private long totalSpend;
 
     public String getServiceId() {
         return serviceId;
@@ -140,11 +135,4 @@ public class RequestStatisticsMysqlModel{
         this.serviceType = serviceType;
     }
 
-    public long getTotalSpend() {
-        return totalSpend;
-    }
-
-    public void setTotalSpend(long totalSpend) {
-        this.totalSpend = totalSpend;
-    }
 }

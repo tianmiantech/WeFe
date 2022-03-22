@@ -15,3 +15,8 @@
 }
 
 @include layout();
+
+.inline-block{
+    display: inline-block;
+    vertical-align: top;
+}

@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 package com.welab.wefe.common.web.dto;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -24,9 +25,18 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * 这个类中的字段大多数情况下都需要加上 @JSONField(serialize = false)
+ * 避免在序列化输出时输出不应该传递的参数
+ *
  * @author Zane
  */
 public class AbstractApiInput extends AbstractCheckModel {
+    /**
+     * 原始的全部接口请求参数
+     */
+    @JSONField(serialize = false)
+    public JSONObject rawRequestParams;
+
     @Check(name = "Request way")
     @JSONField(serialize = false)
     public String method;

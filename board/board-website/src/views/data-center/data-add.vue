@@ -4,13 +4,13 @@
         class="page"
         shadow="never"
     >
-        <el-form :model="form">
+        <el-form :model="form" @submit.prevent>
             <el-row :gutter="40">
                 <el-col :span="10">
                     <el-form-item
                         prop="name"
-                        label="数据集名称："
-                        :rules="[{ required: true, message: '数据集名称必填!' }]"
+                        label="数据资源名称："
+                        :rules="[{ required: true, message: '数据资源名称必填!' }]"
                     >
                         <el-input
                             v-model="form.name"
@@ -20,8 +20,10 @@
                             show-word-limit
                         />
                     </el-form-item>
-                    <el-form-item prop="tag">
-                        <p class="tags-tips mb10 f12">为数据集设置关键词，方便大家快速了解你 ：）</p>
+                    <p class="tags-tips mb10 f12">
+                        <i class="color-danger">*</i> 为数据资源设置关键词，方便大家快速了解你 ：）
+                    </p>
+                    <el-form-item>
                         <el-tag
                             v-for="(tag, index) in tagList"
                             :key="index"
@@ -33,7 +35,7 @@
                         <el-input
                             ref="saveTagInput"
                             v-model="tagInputValue"
-                            class="input-new-tag"
+                            class="input-new-tag mb5"
                             show-word-limit
                             :maxlength="10"
                             placeholder="按回车或 Tab 添加建关键词"
@@ -55,6 +57,18 @@
                             rows="4"
                         />
                     </el-form-item>
+                    <el-form-item
+                        v-if="addDataType === 'img'"
+                        prop="for_job_type"
+                        label="数据资源类型："
+                        :rules="[{ required: true, message: '数据资源类型必填!' }]"
+                    >
+                        <el-radio-group v-model="form.for_job_type">
+                            <el-radio v-for="item in forJobTypeList" :key="item.value" :label="item.value">
+                                {{item.label}}
+                            </el-radio>
+                        </el-radio-group>
+                    </el-form-item>
                 </el-col>
             </el-row>
             <el-divider />
@@ -63,10 +77,11 @@
                     :span="10"
                     style="position: relative;"
                 >
-                    <fieldset style="min-height:230px;">
+                    <fieldset style="min-height:240px;">
                         <legend>可见性</legend>
                         <el-form-item>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.publicLevel"
                                 label="Public"
                             >
@@ -79,6 +94,7 @@
                                 仅自己可见
                             </el-radio>
                             <el-radio
+                                v-if="!userInfo.member_hidden && userInfo.member_allow_public_data_set"
                                 v-model="form.publicLevel"
                                 label="PublicWithMemberList"
                             >
@@ -88,7 +104,7 @@
                         <el-form-item>
                             <div v-if="form.publicLevel === 'PublicWithMemberList'">
                                 <el-button
-                                    size="mini"
+                                    size="small"
                                     @click="showSelectMemberDialog"
                                 >
                                     选择可见成员
@@ -119,7 +135,8 @@
                         <DataSetPublicTips v-if="form.public_level != 'OnlyMyself'" />
                     </fieldset>
                 </el-col>
-                <el-col :span="14">
+                <!-- 结构化数据 -->
+                <el-col v-if="addDataType !== 'img'" :span="14">
                     <fieldset style="min-height:230px">
                         <legend>选择文件</legend>
                         <el-form-item>
@@ -127,7 +144,7 @@
                                 v-model="form.data_set_add_method"
                                 label="HttpUpload"
                             >
-                                上传数据集文件
+                                上传数据资源文件
                             </el-radio>
                             <el-radio
                                 v-model="form.data_set_add_method"
@@ -213,11 +230,43 @@
                             </el-form-item>
                         </el-form>
 
-                        <ul class="data-set-upload-tip">
-                            <li>主键字段必须是第一列，并且会被自动 hash</li>
-                            <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
-                            <li>y 值列的列名必须为 y</li>
+                        <ul v-if="addDataType !== 'img'" class="data-set-upload-tip">
+                            <template v-if="addDataType === 'csv'">
+                                <li>主键字段必须是第一列，并且会被自动 hash</li>
+                                <li>主键重复的数据会被自动去重，仅保留第 1 条</li>
+                                <li>y 值列的列名必须为 y</li>
+                            </template>
                             <li>csv 文件请使用 utf-8 编码格式</li>
+                        </ul>
+                    </fieldset>
+                </el-col>
+                <!-- 图像数据 -->
+                <el-col v-else :span="14">
+                    <fieldset style="min-height:230px">
+                        <legend>选择文件</legend>
+                        <uploader
+                            ref="imgUploaderRef"
+                            :options="img_upload_options"
+                            :file-status-text="fileStatusText"
+                            :list="form.data_set_add_method.files"
+                            @file-complete="fileUploadCompleteImage"
+                            @file-removed="fileRemovedImage"
+                            @file-added="fileAddedImage"
+                        >
+                            <uploader-unsupport />
+                            <uploader-drop v-if="img_upload_options.files.length === 0">
+                                <p class="mb10">将文件 (.zip .tar .tgz .7z) 拖到此处</p>或
+                                <uploader-btn
+                                    :attrs="img_upload_attrs"
+                                    :single="true"
+                                >
+                                    点击上传
+                                </uploader-btn>
+                            </uploader-drop>
+                            <uploader-list :file-list="img_upload_options.files.length" />
+                        </uploader>
+                        <ul class="data-set-upload-tip">
+                            <li>仅限压缩文件 .zip .tar .tgz .7z等</li>
                         </ul>
                     </fieldset>
                 </el-col>
@@ -232,7 +281,7 @@
                         <el-select
                             v-model="dataTypeFillVal"
                             class="float-right"
-                            size="mini"
+                            size="small"
                             clearable
                             style="width: 140px;"
                             placeholder="数据类型缺失填充"
@@ -307,7 +356,7 @@
                     </div>
                 </el-col>
                 <el-col :span="14">
-                    <h4 class="m5">数据集预览：</h4>
+                    <h4 class="m5">数据资源预览：</h4>
                     <c-grid
                         v-if="!loading"
                         :theme="gridTheme"
@@ -329,30 +378,50 @@
                 </el-col>
             </el-row>
             <el-row
+                v-if="addDataType !== 'BloomFilter'"
                 :gutter="100"
                 class="m20"
             >
                 <el-col :span="12">
-                    <el-checkbox v-model="form.deduplication">
+                    <!-- tabledata -->
+                    <el-checkbox v-if="addDataType === 'csv'" v-model="form.deduplication">
                         自动剔除主键相同的数据
                     </el-checkbox>
                     <br>
-                    <div class="deduplication-tips">
-                        <p>注：数据集中不允许包含主键相同的数据。</p>
+                    <div class="deduplication-tips" v-if="addDataType === 'csv'">
+                        <p>注：数据资源中不允许包含主键相同的数据。</p>
                         <p>1. 如果 <strong>不确定</strong> 是否包含重复数据，请 <strong>启用</strong> 自动去重功能。</p>
-                        <p>2. 如果 <strong>确定</strong> 不包含重复数据，<strong>可以禁用</strong> 自动去重功能，以提高数据集上传速度。</p>
+                        <p>2. 如果 <strong>确定</strong> 不包含重复数据，<strong>可以禁用</strong> 自动去重功能，以提高数据资源上传速度。</p>
                     </div>
-                    <el-button
-                        class="save-btn mt20"
-                        type="primary"
-                        size="large"
-                        :disabled="!data_preview_finished"
-                        @click="add"
-                    >
-                        添加
-                    </el-button>
                 </el-col>
             </el-row>
+
+            <!-- bloom filter -->
+            <div v-if="addDataType === 'BloomFilter' && raw_data_list.length" class="mt40">
+                <p class="f14">设置主键 hash 方式 (上传后不可更改)：
+                    <el-tooltip placement="top" effect="light">
+                        <template #content>
+                            对融合字段的处理方式，如 md5(id)+md5(tel), <p>规则是 id 字段的 md5 加上 tel 字段的 md5 处理</p>
+                        </template>
+                        <el-icon class="key-tip color-danger f16">
+                            <elicon-warning />
+                        </el-icon>
+                    </el-tooltip>
+                </p>
+                <EncryptionGenerator
+                    ref="encryptionGeneratorRef"
+                    :columns="dataSetHeaderOptions"
+                />
+            </div>
+            <el-button
+                class="save-btn mt20"
+                type="primary"
+                size="large"
+                :disabled="!data_preview_finished"
+                @click="add"
+            >
+                添加
+            </el-button>
         </el-form>
 
         <SelectMember
@@ -366,23 +435,31 @@
             v-model="uploadTask.visible"
             :close-on-click-modal="false"
             :show-close="isCanClose"
-            title="正在存储数据集..."
+            title="正在存储数据资源..."
             destroy-on-close
             width="450px"
         >
             <div class="text-c">
                 <el-progress
+                    v-if="uploadTask.status === 'failed'"
+                    :percentage="uploadTask.progress || 0"
+                    status="exception"
+                    type="dashboard"
+                />
+                <el-progress
+                    v-else
                     :percentage="uploadTask.progress || 0"
                     :color="uploadTask.colors"
                     type="dashboard"
                 />
-                <p class="mb10">正在存储数据集...</p>
+                <p class="mb10">正在存储数据资源...</p>
                 <div class="upload-info">
                     <p class="mb5">样本总量：<span>{{uploadTask.total_row_count}}</span></p>
                     <p class="mb5">已处理样本量：<span>{{uploadTask.added_row_count}}</span></p>
-                    <p class="mb10">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
-                    <p v-if="uploadTask.error_message" class="mb10">错误信息：<span class="color-danger">{{uploadTask.error_message}}</span></p>
-                    <strong v-if="uploadTask.repeat_id_row_count" class="color-danger">!!! 包含重复主键的数据集上传效率会急剧下降，建议在本地去重后执行上传。</strong>
+                    <p class="mb10" v-if="uploadTask.repeat_id_row_count">主键重复条数：<span>{{uploadTask.repeat_id_row_count}}</span></p>
+                    <p class="mb10" v-if="uploadTask.invalid_data_count">错误条数：<span>{{uploadTask.invalid_data_count}}</span></p>
+                    <p v-if="uploadTask.error_message" class="mb10"><span class="color-danger">{{uploadTask.error_message}}</span></p>
+                    <strong v-if="uploadTask.repeat_id_row_count" class="color-danger">!!! 包含重复主键的数据资源上传效率会急剧下降，建议在本地去重后执行上传。</strong>
                 </div>
                 <p class="mt10 mb10">预计剩余时间: {{ timeFormat(uploadTask.estimate_time) }}</p>
             </div>
@@ -399,8 +476,9 @@
                 v-loading="dataSource.loading"
                 label-width="130px"
                 class="flex-form"
+                @submit.prevent
             >
-                <el-form-item label="数据源名称" required>
+                <el-form-item label="数据源名称" class="is-required">
                     <el-input v-model="dataSource.name" placeholder="dataset-sql"></el-input>
                 </el-form-item>
                 <el-form-item label="数据库类型">
@@ -412,21 +490,21 @@
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="IP" required>
+                <el-form-item label="IP" class="is-required">
                     <el-input
                         v-model="dataSource.host"
                         placeholder="192.168.10.1"
                         clearable
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="端口" required>
+                <el-form-item label="端口" class="is-required">
                     <el-input
                         v-model="dataSource.port"
                         placeholder="3306"
                         clearable
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="库名" required>
+                <el-form-item label="库名" class="is-required">
                     <el-input
                         v-model="dataSource.databaseName"
                         placeholder="test"
@@ -448,6 +526,9 @@
                         placeholder="password"
                         type="password"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     ></el-input>
                 </el-form-item>
                 <el-form-item>
@@ -470,6 +551,7 @@
 <script>
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
+    import EncryptionGenerator from '../teamwork/components/fusion-job/encryption-generator';
     import DataSetPublicTips from './components/data-set-public-tips';
     import SelectMember from './components/select-member';
 
@@ -478,6 +560,7 @@
     export default {
         components: {
             DataSetPublicTips,
+            EncryptionGenerator,
             SelectMember,
         },
         mixins: [table],
@@ -490,19 +573,19 @@
                 options_tags:            [],
                 public_member_info_list: [],
 
-                getListApi:    '/union/tag/query',
+                getListApi:    '/union/data_resource/default_tag/query',
                 fillUrlQuery:  false,
-                defaultSearch: true,
                 watchRoute:    false,
                 turnPageRoute: false,
                 tagList:       [],
 
                 // preview
-                raw_data_list:     [],
-                metadata_list:     [],
-                data_set_header:   [],
-                dataTypeFillVal:   '',
-                data_type_options: ['Integer', 'Long', 'Double', 'Enum', 'String'],
+                raw_data_list:        [],
+                metadata_list:        [],
+                data_set_header:      [],
+                dataSetHeaderOptions: [],
+                dataTypeFillVal:      '',
+                data_type_options:    ['Integer', 'Long', 'Double', 'Enum', 'String'],
 
                 // help：https://github.com/simple-uploader/Uploader/blob/develop/README_zh-CN.md#%E5%A4%84%E7%90%86-get-%E6%88%96%E8%80%85-test-%E8%AF%B7%E6%B1%82
                 file_upload_options: {
@@ -514,7 +597,7 @@
                     chunkSize:           8 * 1024 * 1024,
                     simultaneousUploads: 4,
                     headers:             {
-                        token: localStorage.getItem(window.api.baseUrl + '_userInfo') ? JSON.parse(localStorage.getItem(window.api.baseUrl + '_userInfo')).token : '',
+                        token: '',
                     },
                     parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                         return parsedTimeRemaining
@@ -533,7 +616,10 @@
                     waiting:   '等待中',
                 },
                 file_upload_attrs: {
-                    accept: '.csv,.xls,.xlsx',
+                    accept: 'text/csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // csv, xls, xlsx
+                },
+                img_upload_attrs: {
+                    accept: 'application/zip, application/x-rar-compressed, application/x-tar, application/x-7z-compressed', // zip, rar, tar, 7z
                 },
 
                 http_upload_filename: '',
@@ -550,11 +636,21 @@
                     filename:            '',
                     metadata_list:       [],
                     deduplication:       true,
+                    for_job_type:        'classify',
                     databaseType:        'Database',
                     dataSourceId:        '',
                     sql:                 '',
                 },
-
+                forJobTypeList: [
+                    {
+                        label: '图像分类',
+                        value: 'classify',
+                    },
+                    {
+                        label: '目标检测',
+                        value: 'detection',
+                    },
+                ],
                 dataSource: {
                     loading:        false,
                     show:           false,
@@ -597,8 +693,32 @@
                     total_row_count:     0,
                     added_row_count:     0,
                     repeat_id_row_count: 0,
+                    error_count:         0,
+                    status:              '',
                 },
-                isCanClose: false,
+                isCanClose:         false,
+                addDataType:        'csv',
+                // 图像数据上传options
+                img_upload_options: {
+                    files:               [],
+                    target:              window.api.baseUrl + '/file/upload',
+                    singleFile:          true,
+                    // chunks check
+                    testChunks:          true,
+                    chunkSize:           8 * 1024 * 1024,
+                    simultaneousUploads: 4,
+                    headers:             {
+                        token: '',
+                    },
+                    parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
+                        return parsedTimeRemaining
+                            .replace(/\syears?/, '年')
+                            .replace(/\days?/, '天')
+                            .replace(/\shours?/, '小时')
+                            .replace(/\sminutes?/, '分钟')
+                            .replace(/\sseconds?/, '秒');
+                    },
+                },
             };
         },
         watch: {
@@ -621,13 +741,29 @@
             ...mapGetters(['userInfo']),
         },
         created() {
+            this.addDataType = this.$route.query.type || 'csv';
+
+            const map = {
+                csv:         'TableDataSet',
+                img:         'ImageDataSet',
+                BloomFilter: 'BloomFilter',
+            };
+
+            this.search.dataResourceType = map[this.addDataType];
+            if(this.userInfo.member_hidden || !this.userInfo.member_allow_public_data_set) {
+                this.form.publicLevel = 'OnlyMyself';
+            }
+            this.getList();
             this.getDataSouceList();
-            this.checkStorage();
 
             this.$bus.$on('loginAndRefresh', () => {
                 this.getDataSouceList();
                 this.getList();
             });
+            this.file_upload_options.headers.token = this.userInfo.token;
+            this.img_upload_options.headers.token = this.userInfo.token;
+            this.file_upload_options.target = this.file_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
+            this.img_upload_options.target = this.img_upload_options.target + '?uploadFileUseType=Add' + this.search.dataResourceType;
         },
         beforeRouteLeave(to, from, next) {
             if(canLeave) {
@@ -643,25 +779,6 @@
             }
         },
         methods: {
-            async checkStorage() {
-                this.loading = true;
-                const { code, data } = await this.$http.post({
-                    url:  '/member/service_status_check',
-                    data: {
-                        member_id: this.userInfo.member_id,
-                    },
-                });
-
-                this.loading = false;
-                if(code === 0) {
-                    const { success } = data.status.storage;
-
-                    if(!success) {
-                        this.$alert('存储不可用! 请联系管理员', '警告!');
-                    }
-                }
-            },
-
             afterTableRender(list) {
                 this.tagList = list.map(item => {
                     return {
@@ -810,11 +927,16 @@
 
                 this.form.filename = this.form.data_set_add_method === 'HttpUpload' ? this.http_upload_filename : this.local_filename;
 
+                const { data_set_add_method } = this.form;
                 const params = {
-                    filename:            this.form.filename,
-                    data_set_add_method: this.form.data_set_add_method,
+                    filename: this.form.filename,
                 };
 
+                if(this.addDataType === 'BloomFilter') {
+                    params.bloomfilterAddMethod = data_set_add_method;
+                } else {
+                    params.data_set_add_method = data_set_add_method;
+                }
                 if(this.form.data_set_add_method === 'Database') {
                     params.sql = this.form.sql;
                     this.dataSource.dataSourceList.find(item => {
@@ -824,12 +946,21 @@
                     });
                 }
                 const { code, data } = await this.$http.get({
-                    url: '/data_set/preview',
+                    url: this.addDataType === 'BloomFilter' ? '/bloom_filter/preview': '/table_data_set/preview',
                     params,
                 });
 
                 if (code === 0) {
                     this.data_set_header = data.header;
+                    this.dataSetHeaderOptions = [];
+                    data.header.forEach((x, i) => {
+                        if(i) {
+                            this.dataSetHeaderOptions.push({
+                                label: x,
+                                value: x,
+                            });
+                        }
+                    });
                     this.metadata_pagination.list = [];
                     this.raw_data_list = data.raw_data_list.map(item => {
                         for(const key in item) {
@@ -868,17 +999,49 @@
             fileRemoved() {
                 this.file_upload_options.files = [];
             },
-            // upload completed
-            async fileUploadComplete() {
+            // Image
+            fileAddedImage(file) {
+                this.img_upload_options.files = [file];
+            },
+            fileRemovedImage() {
+                this.img_upload_options.files = [];
+            },
+            async fileUploadCompleteImage() {
                 this.loading = true;
-                this.data_preview_finished = false;
+                this.data_preview_finished = true;
+
                 const file = arguments[0].file;
                 const { code, data } = await this.$http.get({
                     url:     '/file/merge',
                     timeout: 1000 * 60 * 2,
                     params:  {
-                        filename:         file.name,
-                        uniqueIdentifier: arguments[0].uniqueIdentifier,
+                        filename:          file.name,
+                        uniqueIdentifier:  arguments[0].uniqueIdentifier,
+                        uploadFileUseType: 'Add' + this.search.dataResourceType,
+                    },
+                })
+                    .catch(err => {
+                        console.log(err);
+                    });
+
+                this.loading = false;
+                if (code === 0) {
+                    this.http_upload_filename = data.filename;
+                }
+            },
+            // upload completed
+            async fileUploadComplete() {
+                this.loading = true;
+                this.data_preview_finished = false;
+
+                const file = arguments[0].file;
+                const { code, data } = await this.$http.get({
+                    url:     '/file/merge',
+                    timeout: 1000 * 60 * 2,
+                    params:  {
+                        filename:          file.name,
+                        uniqueIdentifier:  arguments[0].uniqueIdentifier,
+                        uploadFileUseType: 'Add' + this.search.dataResourceType,
                     },
                 })
                     .catch(err => {
@@ -892,7 +1055,7 @@
                 }
             },
 
-            async showSelectMemberDialog() {
+            showSelectMemberDialog() {
                 const ref = this.$refs['SelectMemberDialog'];
 
                 ref.show = true;
@@ -901,6 +1064,11 @@
 
             tagInputConfirm() {
                 const val = this.tagInputValue;
+                const existsed = this.tagList.find(x => x.label === val);
+
+                if(existsed) {
+                    return this.$message.error('标签不能重复!');
+                }
 
                 if (val) {
                     this.tagList.push({
@@ -915,7 +1083,7 @@
                 this.options_tags = [];
                 if (keyword) {
                     const { code, data } = await this.$http.post({
-                        url:  '/data_set/tags',
+                        url:  '/table_data_set/all_tags',
                         data: {
                             tag: keyword,
                         },
@@ -944,7 +1112,7 @@
 
             async add() {
                 if (!this.form.name) {
-                    this.$message.error('请输入数据集名称！');
+                    this.$message.error('请输入数据资源名称！');
                     return;
                 }
                 this.form.tags = [];
@@ -954,39 +1122,71 @@
                     }
                 });
                 if (!this.form.tags || this.form.tags.length === 0) {
-                    this.$message.error('请为数据集设置关键词！');
+                    this.$message.error('请为数据资源设置关键词！');
                     return;
                 }
 
-                const ids = [];
-
-                for (const index in this.public_member_info_list) {
-                    ids.push(this.public_member_info_list[index].id);
-                }
-                this.form.public_member_list = ids.join(',');
+                const ids = this.public_member_info_list.map(x => x.id);
 
                 if(this.form.publicLevel === 'PublicWithMemberList' && ids.length === 0){
                     this.$message.error('请选择可见成员！');
                     return;
                 }
 
-                this.loading = true;
+                this.form.public_member_list = ids.join(',');
                 this.form.metadata_list = this.metadata_list;
 
+                let params = {}, url ='';
+
+                if(this.addDataType === 'BloomFilter') {
+                    const $ref = this.$refs.encryptionGeneratorRef;
+                    const { encryptionList } = $ref.vData;
+                    const field_info_list = [];
+
+                    if($ref.hash_func) {
+                        for(const i in encryptionList) {
+                            const x = encryptionList[i];
+
+                            if(!x.encryption || x.features.length === 0) {
+                                return this.$message.error('请选择特征列');
+                            }
+
+                            field_info_list.push({
+                                position: i,
+                                columns:  x.features.join(','),
+                                options:  x.encryption,
+                            });
+                        }
+                    }
+
+                    url = '/bloom_filter/add';
+                    params = {
+                        ...this.form,
+                        field_info_list,
+                        hash_function:        $ref.hash_func,
+                        BloomfilterAddMethod: this.form.data_set_add_method,
+                    };
+                    delete params.data_set_add_method;
+                } else {
+                    url = this.addDataType === 'csv' ? '/table_data_set/add': '/image_data_set/add';
+                    params = this.addDataType === 'img' ? Object.assign(this.form, { filename: this.http_upload_filename }) : this.form;
+                }
+
+                this.loading = true;
                 const { code, data } = await this.$http.post({
-                    url:     '/data_set/add',
+                    url,
                     timeout: 1000 * 60 * 24 * 30,
-                    data:    this.form,
+                    data:    params,
                 });
 
                 if (code === 0) {
                     if (data.repeat_data_count > 0) {
-                        this.$message.success(`保存成功，数据集包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
+                        this.$message.success(`保存成功，数据资源包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
                     } else {
                         this.$message.success('保存成功!');
                     }
                     setTimeout(() => {
-                        this.getAddTask(data.id);
+                        this.getAddTask(data.data_resource_id);
                     }, 500);
                 }
                 this.loading = false;
@@ -994,40 +1194,52 @@
 
             async getAddTask(id, opt = { requestFromRefresh: false }) {
                 const { code, data } = await this.$http.get({
-                    url:    '/data_set_task/detail',
+                    url:    '/data_resource/upload_task/detail',
                     params: {
-                        id,
+                        data_resource_id:       id,
                         'request-from-refresh': opt.requestFromRefresh,
                     },
                 });
 
                 if(code === 0) {
+                    this.isCanClose = false;
+                    this.uploadTask.error_count = 0;
                     if(data) {
-                        const { estimate_time, name, data_set_id, progress, total_row_count, added_row_count, repeat_id_row_count, error_message } = data;
+                        const { estimate_time, name, data_resource_id, progress, total_row_count, added_row_count, repeat_id_row_count, error_message, status, completed_data_count, total_data_count, estimate_remaining_time, invalid_data_count, progress_ratio } = data;
 
                         this.uploadTask.name = name;
-                        this.uploadTask.progress = progress;
-                        this.uploadTask.estimate_time = estimate_time / 1000;
-                        this.uploadTask.visible = true;
-                        this.uploadTask.total_row_count = total_row_count;
-                        this.uploadTask.added_row_count = added_row_count;
+                        this.uploadTask.status = status;
+                        this.uploadTask.progress = progress || progress_ratio;
+                        if(this.uploadTask.progress > 100) {
+                            this.uploadTask.progress = 100;
+                        }
+                        this.uploadTask.estimate_time = (estimate_time || estimate_remaining_time) / 1000;
+                        this.uploadTask.total_row_count = total_row_count || total_data_count;
+                        this.uploadTask.added_row_count = added_row_count || completed_data_count;
                         this.uploadTask.repeat_id_row_count = repeat_id_row_count;
-                        this.uploadTask.error_message = error_message;
+                        this.uploadTask.invalid_data_count = invalid_data_count;
+                        this.uploadTask.visible = true;
+
+                        if(status === 'failed' && !error_message) {
+                            this.uploadTask.error_message = '存储失败, 请重试';
+                        } else {
+                            this.uploadTask.error_message = error_message;
+                        }
 
                         // error in uploading, stop refreshing the interface
-                        if (data.error_message || repeat_id_row_count) {
+                        if (status === 'failed') {
                             this.isCanClose = true;
-                            if(data.error_message) return;
+                            return;
                         } else {
                             this.isCanClose = false;
                         }
 
                         if(this.uploadTask.visible) {
                             setTimeout(() => {
-                                if(progress < 100) {
+                                if(status === 'uploading') {
                                     // uploading
-                                    this.getAddTask(id, { requestFromRefresh: true });
-                                } else {
+                                    this.getAddTask(id);
+                                } else if(status === 'completed') {
                                     // upload completed
                                     this.uploadTask.visible = false;
 
@@ -1035,11 +1247,27 @@
 
                                     this.$router.push({
                                         name:  'data-view',
-                                        query: { id: data_set_id },
+                                        query: {
+                                            id:   data_resource_id,
+                                            type: this.addDataType,
+                                        },
                                     });
+                                } else {
+                                    this.$message.error(error_message);
                                 }
                             }, 1000);
                         }
+                    }
+                } else {
+                    this.uploadTask.error_count++;
+
+                    if(this.uploadTask.error_count <= 5) {
+                        setTimeout(() => {
+                            this.getAddTask(id);
+                        }, 1000);
+                    } else {
+                        this.isCanClose = true;
+                        this.$message.error('任务传输失败, 请重新上传!');
                     }
                 }
             },
@@ -1100,10 +1328,10 @@
     .data-set-upload-tip li {
         list-style: inside;
     }
-    .warning-tip {
-        color: $--color-danger;
-        line-height: 18px;
-        font-weight: bold;
+    .key-tip {
+        vertical-align: middle;
+        cursor: pointer;
+        top:-2px;
     }
     .save-btn {width: 100px;}
     .el-form-item .el-tag {

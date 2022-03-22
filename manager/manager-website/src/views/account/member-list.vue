@@ -6,16 +6,10 @@
             @submit.prevent
         >
             <el-form-item label="成员名称:">
-                <el-input v-model="search.name" />
+                <el-input v-model="search.name" clearable />
             </el-form-item>
             <el-form-item label="成员 ID:">
-                <el-input v-model="search.id" />
-            </el-form-item>
-            <el-form-item label="已失联">
-                <el-select v-model="search.lostContact" style="width:100px;" clearable>
-                    <el-option label="是" value="true" />
-                    <el-option label="否" value="false" />
-                </el-select>
+                <el-input v-model="search.id" clearable />
             </el-form-item>
             <el-form-item label="已隐身">
                 <el-select v-model="search.hidden" style="width:100px;" clearable>
@@ -27,12 +21,6 @@
                 <el-select v-model="search.freezed" style="width:100px;" clearable>
                     <el-option label="是" value="true" />
                     <el-option label="否" value="false" />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="已删除">
-                <el-select v-model="search.status" style="width:100px;" clearable>
-                    <el-option label="是" value="1" />
-                    <el-option label="否" value="0" />
                 </el-select>
             </el-form-item>
             <el-button
@@ -66,12 +54,10 @@
                     <p class="p-id">{{ scope.row.id }}</p>
                 </template>
             </el-table-column>
-            <el-table-column label="查看数据集" width="100">
+            <el-table-column label="查看资源" width="100">
                 <template v-slot="scope">
-                    <router-link
-                        :to="{ name: 'data-list', query: { member_id: scope.row.id }}"
-                    >
-                        数据集
+                    <router-link :to="{ name: 'data-list', query: { member_id: scope.row.id }}">
+                        资源
                     </router-link>
                 </template>
             </el-table-column>
@@ -80,7 +66,7 @@
                     {{ memberStatus(scope.row) }}
                 </template>
             </el-table-column>
-            <el-table-column label="企业认证" min-width="120">
+            <el-table-column label="企业实名认证" min-width="120">
                 <template v-slot="scope">
                     <span v-if="scope.row.ext_json.real_name_auth_status === 0">未认证</span>
                     <span v-if="scope.row.ext_json.real_name_auth_status === 1">待审核</span>
@@ -102,20 +88,6 @@
                 min-width="300"
             >
                 <template v-slot="scope">
-                    <!-- <el-button
-                        v-if="!scope.row.lost_contact"
-                        type="danger"
-                        @click="changeStatus($event, scope.row, 'lost')"
-                    >
-                        标记失联
-                    </el-button>
-                    <el-button
-                        v-if="scope.row.lost_contact"
-                        type="primary"
-                        @click="changeStatus($event, scope.row, 'find')"
-                    >
-                        取消标记失联
-                    </el-button> -->
                     <template v-if="!scope.row.status">
                         <el-button
                             v-if="!scope.row.freezed"
@@ -136,7 +108,14 @@
                             type="primary"
                             @click="authorized($event, scope.row)"
                         >
-                            企业认证
+                            企业实名认证
+                        </el-button>
+                        <el-button
+                            v-if="scope.row.ext_json.principal_name && scope.row.ext_json.real_name_auth_status === 2"
+                            type="primary"
+                            @click="authorized($event, scope.row, true)"
+                        >
+                            查看实名认证信息
                         </el-button>
                     </template>
                 </template>
@@ -159,7 +138,7 @@
         </div>
 
         <el-dialog
-            title="企业认证"
+            title="企业实名认证"
             v-model="authorize"
         >
             <div v-loading="pending">
@@ -187,13 +166,13 @@
                             </li>
                         </ul>
                         <span class="color-danger">无法查看?</span> 下载附件:
-                        <p>
-                            <el-link v-for="file in fileList" :key="file.fileId" type="primary" :underline="false" @click="downloadFile($event, file)">{{file.name}}</el-link>
+                        <p v-for="file in fileList" :key="file.fileId">
+                            <el-link type="primary" :underline="false" @click="downloadFile($event, file)">{{file.name}}</el-link>
                         </p>
                     </el-form-item>
                 </el-form>
 
-                <div class="text-r">
+                <div v-if="!authorizeReadOnly" class="text-r">
                     <el-button
                         type="danger"
                         @click="memberAuthorize($event, false)"
@@ -223,12 +202,11 @@
             return {
                 checkList: '',
                 search:    {
-                    id:          '',
-                    name:        '',
-                    lostContact: '',
-                    hidden:      '',
-                    freezed:     '',
-                    status:      '',
+                    id:      '',
+                    name:    '',
+                    hidden:  '',
+                    freezed: '',
+                    status:  '',
                 },
                 statusMap: {
                     find:     '取消失联',
@@ -236,12 +214,13 @@
                     freeze:   '冻结',
                     unfreeze: '解冻',
                 },
-                watchRoute:    true,
-                defaultSearch: true,
-                requestMethod: 'post',
-                getListApi:    '/member/query',
-                authorize:     false,
-                member:        {
+                watchRoute:        true,
+                defaultSearch:     true,
+                requestMethod:     'post',
+                getListApi:        '/member/query',
+                authorize:         false,
+                authorizeReadOnly: false,
+                member:            {
                     id:            '',
                     principalName: '',
                     authType:      '',
@@ -272,12 +251,6 @@
                 };
 
                 switch (status) {
-                case 'lost':
-                    params.lostContact = true;
-                    break;
-                case 'find':
-                    params.lostContact = false;
-                    break;
                 case 'freeze':
                     params.freezed = true;
                     break;
@@ -304,11 +277,12 @@
                     }
                 });
             },
-            authorized(event, row) {
+            authorized(event, row, readonly) {
                 const list = row.ext_json.realname_auth_file_info_list;
 
                 this.authorize = true;
                 this.member.id = row.id;
+                this.authorizeReadOnly = readonly;
                 this.member.authType = row.ext_json.auth_type;
                 this.member.description = row.ext_json.description;
                 this.member.principalName = row.ext_json.principal_name;
@@ -316,9 +290,11 @@
                 this.fileList = [];
                 this.pending = true;
 
-                list.forEach(file => {
-                    this.getFile(file.file_id, list.length);
-                });
+                if(list.length) {
+                    list.forEach(({ file_id, filename }) => {
+                        this.getFile(file_id, filename, list.length);
+                    });
+                }
             },
             blobToDataURI(blob, callback) {
                 const reader = new FileReader();
@@ -328,8 +304,8 @@
                     callback(e.target.result);
                 };
             },
-            async getFile(fileId, files) {
-                const { code, data, response: { headers: { filename } } } = await this.$http.post({
+            async getFile(fileId, fileName, files) {
+                const { code, data } = await this.$http.post({
                     url:          '/download/file',
                     responseType: 'blob',
                     data:         {
@@ -341,7 +317,7 @@
                     this.blobToDataURI(data, result => {
                         this.fileList.push({
                             data: result,
-                            name: window.decodeURIComponent(filename),
+                            name: window.decodeURIComponent(fileName),
                             type: data.type,
                             fileId,
                         });

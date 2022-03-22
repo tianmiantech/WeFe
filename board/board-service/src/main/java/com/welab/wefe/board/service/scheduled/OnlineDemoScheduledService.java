@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,8 @@ package com.welab.wefe.board.service.scheduled;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
-import com.welab.wefe.board.service.database.entity.data_set.DataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
@@ -52,11 +53,29 @@ public class OnlineDemoScheduledService {
     private GlobalConfigRepository globalConfigRepository;
 
     /**
+     * 临时清理数据
+     */
+    private void temporaryClean() {
+        String commonWhere = "where project_id not in ('0a509f5004c54534b81a1cb7a1b2a0d5','7b7666c87387414db32a572236e583ee')";
+        delete(
+                JobMySqlModel.class,
+                commonWhere
+        );
+        delete(
+                ProjectMySqlModel.class,
+                commonWhere
+        );
+    }
+
+    /**
      * 清理体验者产生的过多无效数据
      */
     @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
     //@Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
     public void clean() {
+        if (true) {
+            return;
+        }
         if (!config.isOnlineDemo()) {
             return;
         }
@@ -117,11 +136,21 @@ public class OnlineDemoScheduledService {
         );
 
         /**
-         * 清理 data_set
+         * 清理 table_data_set
          * 1. 无项目引用的删掉
          */
         delete(
-                DataSetMysqlModel.class,
+                TableDataSetMysqlModel.class,
+                commonWhere
+                        + "and id not in (select data_set_id from project_data_set)"
+        );
+
+        /**
+         * 清理 image_data_set
+         * 1. 无项目引用的删掉
+         */
+        delete(
+                ImageDataSetMysqlModel.class,
                 commonWhere
                         + "and id not in (select data_set_id from project_data_set)"
         );

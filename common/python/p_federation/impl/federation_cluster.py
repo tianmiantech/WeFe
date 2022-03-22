@@ -35,7 +35,7 @@ from typing import Union, Tuple
 
 import grpc
 
-from common.python import RuntimeInstance
+from common.python import RuntimeInstance, Backend
 from common.python import session, Federation
 from common.python.calculation.fc.fc_source import FCSource
 from common.python.calculation.fc.fc_storage import FCStorage
@@ -43,10 +43,11 @@ from common.python.common import consts
 from common.python.common.consts import NAMESPACE
 from common.python.common.consts import TransferAction
 from common.python.common.exception.custom_exception import GatewayWhiteListError, GatewayConnectError
+from common.python.p_session.base_impl.db_runtime import DBRuntime
 from common.python.protobuf.pyproto import gateway_meta_pb2, basic_meta_pb2, gateway_service_pb2_grpc, storage_basic_pb2
 from common.python.protobuf.pyproto.gateway_meta_pb2 import TransferMeta
 # noinspection PyProtectedMember
-from common.python.storage.impl.dsource import _DSource, DBRuntime
+from common.python.p_session.base_impl.data_source import _DSource
 from common.python.utils import conf_utils
 from common.python.utils.clean import Rubbish
 from common.python.utils.core_utils import serialize, deserialize
@@ -74,7 +75,7 @@ def _await_receive(receive_func, transfer_meta):
     return resp_meta
 
 
-def _thread_receive(receive_func, name, tag, session_id, src, dst):
+def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
     # full session
     session_id = f"{session_id}-{name}-{tag}-{src.role}-{src.member_id}-{dst.role}-{dst.member_id}"
     log_msg = f"src={src}, dst={dst}, name={name}, tag={tag}, session_id={session_id}"
@@ -82,13 +83,13 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst):
     transfer_meta = TransferMeta(sessionId=session_id, tag=tag)
 
     recv_meta = _await_receive(receive_func, transfer_meta)
-    backend = conf_utils.get_backend_from_string(
-        conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
-    )
+    # backend = conf_utils.get_backend_from_string(
+    #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
+    # )
     storage_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE)
     if recv_meta.action == TransferAction.DSOURCE:
 
-        if int(backend) == consts.BACKEND.FC:
+        if backend == Backend.FC:
             LOGGER.debug("remote is DSOURCE object, local is FCSource object")
             if storage_type == consts.STORAGETYPE.OTS:
                 LOGGER.debug("local storage type is OTS")
@@ -113,7 +114,7 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst):
         return deserialize(recv_meta.content.objectByteData), (None, None), None
 
     if recv_meta.action == TransferAction.FCSOURCE:
-        if int(backend) == consts.BACKEND.FC:
+        if backend == Backend.FC:
             if storage_type == consts.STORAGETYPE.OTS:
                 source = _get_fcsource(recv_meta)
                 LOGGER.debug("remote storage type is OTS")
@@ -351,7 +352,7 @@ class FederationRuntime(Federation):
         futures = {
             self.__pool.submit(_thread_receive, self.gateway_recv, name, tag,
                                self._session_id, party,
-                               self.local_party): party for party in parties}
+                               self.local_party, str(RuntimeInstance.BACKEND)): party for party in parties}
         return futures
 
     def async_get(self, name: str, tag: str, parties: list) -> typing.Generator:
@@ -396,11 +397,16 @@ class FederationRuntime(Federation):
             transfer_process = consts.GatewayTransferProcess.MEMORY_PROCESS
         elif transfer_type == TransferAction.DSOURCE:
             transfer_process = consts.GatewayTransferProcess.DSOURCE_PROCESS
-            objectdata = {
+
+            dst_backend = RuntimeInstance.get_member_backend(dst_party.get_member_id())
+            dst_storage_type = consts.STORAGETYPE.OSS if dst_backend == Backend.FC else consts.STORAGETYPE.CLICKHOUSE
+
+            object_data = {
                 "namespace": source.get_namespace(),
                 "name": source.get_name(),
                 "dst_namespace": source.get_namespace(),
                 "dst_name": f"{source.get_name()}-dst-{index}-",
+                "dst_storage_type": dst_storage_type,
 
                 # The members have agreed well, and the intermediate data is stored in `wefe_process`,
                 # When your own member is ck and the other member is ots,
@@ -414,8 +420,8 @@ class FederationRuntime(Federation):
                 "in_place_computing": source.get_in_place_computing()
             }
 
-            LOGGER.debug(f"[REMOTE] dsource info: {objectdata}")
-            content = gateway_meta_pb2.Content(objectData=json.dumps(objectdata))
+            LOGGER.debug(f"[REMOTE] dsource info: {object_data}")
+            content = gateway_meta_pb2.Content(objectData=json.dumps(object_data))
             rubbish.add_table(source)
         elif transfer_type == TransferAction.FCSOURCE:
             transfer_process = consts.GatewayTransferProcess.MEMORY_PROCESS
@@ -426,7 +432,7 @@ class FederationRuntime(Federation):
             if fcs._cloud_store_temp_auth is None:
                 fcs_cloud_store_temp_auth = fcs.create_cloud_store_temp_auth()
 
-            objectdata = {
+            object_data = {
                 "cloud_store_temp_auth": fcs_cloud_store_temp_auth,
                 "fc_namespace": fcs.get_namespace(),
                 "fc_name": fcs.get_name(),
@@ -434,8 +440,8 @@ class FederationRuntime(Federation):
                 "fc_partitions": fcs.get_partitions()
             }
 
-            LOGGER.debug(f"[REMOTE] fcsource info: {objectdata}")
-            content = gateway_meta_pb2.Content(objectData=json.dumps(objectdata))
+            LOGGER.debug(f"[REMOTE] fcsource info: {object_data}")
+            content = gateway_meta_pb2.Content(objectData=json.dumps(object_data))
 
         session_id = f"{self._session_id}-{name}-{tag}-{self.local_party.role}-{self.local_party.member_id}-" \
                      f"{dst_party.role}-{dst_party.member_id}"

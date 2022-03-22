@@ -26,6 +26,7 @@ import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.RequestStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author ivenn.zheng
@@ -46,12 +47,12 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<R
         /**
          * 开始时间
          */
-        private Long startTime;
+        private Date startTime;
 
         /**
          * 结束时间
          */
-        private Long endTime;
+        private Date endTime;
 
         /**
          * 服务名称
@@ -63,19 +64,20 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<R
          */
         private String clientId;
 
-        public Long getStartTime() {
+
+        public Date getStartTime() {
             return startTime;
         }
 
-        public void setStartTime(Long startTime) {
+        public void setStartTime(Date startTime) {
             this.startTime = startTime;
         }
 
-        public Long getEndTime() {
+        public Date getEndTime() {
             return endTime;
         }
 
-        public void setEndTime(Long endTime) {
+        public void setEndTime(Date endTime) {
             this.endTime = endTime;
         }
 

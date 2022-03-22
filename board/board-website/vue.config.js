@@ -14,45 +14,12 @@ const tailSplit = argv._[2] ? argv._[2].split('=')[1] : '';
 const isProd = process.env.NODE_ENV === 'production';
 const resolve = dir => path.resolve(__dirname, dir);
 const CONTEXT_ENV = argvs[1] || context || '';
-
-/* const dateFormat = (timestamp, format = 'yyyy-MM-dd hh:mm:ss') => {
-
-    if (!timestamp) {
-        return '';
-    }
-
-    const $date = new Date(timestamp);
-
-    const map = {
-        y: $date.getFullYear(),
-        M: $date.getMonth() + 1,
-        d: $date.getDate(),
-        h: $date.getHours(),
-        m: $date.getMinutes(),
-        s: $date.getSeconds(),
-    };
-
-    return format.replace(/(([yMdhmsT])(\2)*)/g, (all, t1, t2) => {
-        const value = map[t2];
-
-        if (t2 === 'y') {
-            return `${value}`.substr(4 - t1.length);
-        } else if (t2 === 'M' && t1.length > 2) {
-            if (t1.length === 3) {
-                return dateFormat.months[value - 1].substr(0, 3);
-            }
-            return dateFormat.months[value - 1];
-        }
-        return t1.length > 1 ? `0${value}`.substr(-2) : value;
-    });
-};
-const buildDate = dateFormat(+new Date()); */
-const buildDate = '2.2.0';
+const buildDate = '3.0.0';
 
 module.exports = {
     assetsDir:           isProd ? `${CONTEXT_ENV}` : '',
     indexPath:           isProd ? `${CONTEXT_ENV || '.'}/index.html` : 'index.html',
-    productionSourceMap: false,
+    productionSourceMap: process.env.NODE_ENV === 'development',
     pages:               {
         index: {
             entry:    'src/app/app.js',
@@ -66,6 +33,8 @@ module.exports = {
         extract: false, // close it for less tiny css files
     },
     configureWebpack: (config) => {
+        config.entry.app = ['@babel/polyfill', './src/app/app.js'];
+
         if (isProd) {
             // production...
             const DEPLOY_ENV = argvs[0] || 'prod';
@@ -206,7 +175,7 @@ module.exports = {
          */
         proxy:      {
             '/api': {
-                target:       'http://localhost:8080/board-service',
+                target:       'https://xxx.wolaidai.com/board-service',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

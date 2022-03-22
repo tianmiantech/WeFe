@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,21 +22,24 @@ import com.welab.wefe.board.service.constant.ChatConstant;
 import com.welab.wefe.board.service.database.entity.chat.ChatLastAccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.chat.MemberChatMySqlModel;
 import com.welab.wefe.board.service.database.entity.chat.MessageQueueMySqlModel;
-import com.welab.wefe.board.service.database.repository.*;
+import com.welab.wefe.board.service.database.repository.ChatUnreadMessageRepository;
+import com.welab.wefe.board.service.database.repository.MemberChatRepository;
+import com.welab.wefe.board.service.database.repository.MessageQueueRepository;
+import com.welab.wefe.board.service.database.repository.MessageRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.MemberChatOutputModel;
-import com.welab.wefe.board.service.util.ModelMapper;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.enums.GatewayActionType;
-import com.welab.wefe.common.enums.GatewayProcessorType;
-import com.welab.wefe.common.enums.OrderBy;
-import com.welab.wefe.common.enums.ProducerType;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.GatewayActionType;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -130,9 +133,6 @@ public class MemberChatService extends AbstractService {
                 .toString();
 
 
-        // Push the message to the destination member through the gateway
-        ApiResult<?> result = gatewayService.sendToOtherGateway(toMemberId, GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
-
         Date createdTime = new Date();
         // Message detail object
         MemberChatMySqlModel memberChatModel = new MemberChatMySqlModel();
@@ -151,12 +151,18 @@ public class MemberChatService extends AbstractService {
         memberChatModel.setUpdatedTime(createdTime);
         memberChatModel.setMessageId(messageId);
 
-        // Message sending failed
-        if (!result.success()) {
+
+        // Push the message to the destination member through the gateway
+        try {
+            gatewayService.sendToOtherGateway(toMemberId, GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
+        } catch (Exception e) {
+            // Message sending failed
             memberChatModel.setStatus(ChatConstant.MESSAGE_STATUS_SEND_FAIL);
             ret.append(ChatConstant.KEY_CODE, StatusCode.SYSTEM_ERROR.getCode())
-                    .append(ChatConstant.KEY_MESSAGE, result.getMessage());
+                    .append(ChatConstant.KEY_MESSAGE, e.getMessage());
         }
+
+
         ret.append(ChatConstant.KEY_MEMBER_CHAT_ID, memberChatModel.getId());
 
         // Save message details
@@ -173,7 +179,7 @@ public class MemberChatService extends AbstractService {
     public JObject sendMessage(String toMemberId, String toMemberName, String toAccountId, String toAccountName,
                                String content) throws StatusCodeWithException {
 
-        CurrentAccount.Info info = CurrentAccount.get();
+        AccountInfo info = CurrentAccount.get();
         if (null == info) {
             throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
         }
@@ -210,11 +216,8 @@ public class MemberChatService extends AbstractService {
                 .toString();
 
         // Push the message to the destination member through the gateway
-        ApiResult<?> result = gatewayService.sendToOtherGateway(model.getToMemberId(), GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
-        // Message sending failed
-        if (!result.success()) {
-            throw new StatusCodeWithException(result.getMessage(), StatusCode.RPC_ERROR);
-        }
+        gatewayService.sendToOtherGateway(model.getToMemberId(), GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
+
         // Update message status is successful
         memberChatRepository.updateById(model.getId(), "status", ChatConstant.MESSAGE_STATUS_SEND_SUCCESS, MemberChatMySqlModel.class, false);
     }
