@@ -18,12 +18,7 @@ package com.welab.wefe.common.data.mysql;
 
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.StringUtil;
-import org.hibernate.query.criteria.internal.OrderImpl;
-import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -298,103 +293,11 @@ public class Where {
         return this;
     }
 
-    public <T> Specification<T> build(Class<T> clazz) {
-
-        Specification<T> queryCondition = (root, query, cb) -> {
-
-            List<Predicate> list = new ArrayList<>();
-
-            for (Item item : where) {
-
-                switch (item.operator) {
-                    case "contains":
-                        list.add(cb.like(root.get(item.name), "%" + item.value + "%"));
-                        break;
-                    case "groupBy":
-                        List<Expression<?>> pathList = new ArrayList<>();
-                        for (String var : (List<String>) item.value) {
-                            pathList.add(root.get(var));
-                        }
-                        query.groupBy(pathList);
-                        break;
-                    case "equal":
-                        if (item.value == null) {
-                            list.add(cb.isNull(root.get(item.name)));
-                        } else {
-                            list.add(cb.equal(root.get(item.name), item.value));
-                        }
-
-                        break;
-                    case "notEqual":
-                        if (item.value == null) {
-                            list.add(cb.isNotNull(root.get(item.name)));
-                        } else {
-                            list.add(cb.notEqual(root.get(item.name), item.value));
-                        }
-
-                        break;
-                    case "in":
-                        CriteriaBuilder.In<Object> in = cb.in(root.get(item.name));
-                        for (Object o : ((List) item.value)) {
-                            in.value(o);
-                        }
-                        list.add(in);
-                        break;
-                    case "lessThan":
-                        if (item.value instanceof Date) {
-                            list.add(cb.lessThan(root.get(item.name), (Date) item.value));
-                        } else {
-                            list.add(cb.lessThan(root.get(item.name), item.value.toString()));
-                        }
-
-                        break;
-                    case "lessThanOrEqualTo":
-                        if (item.value instanceof Date) {
-                            list.add(cb.lessThanOrEqualTo(root.get(item.name), (Date) item.value));
-                        } else {
-                            list.add(cb.lessThanOrEqualTo(root.get(item.name), item.value.toString()));
-                        }
-                        break;
-                    case "greaterThan":
-                        if (item.value instanceof Date) {
-                            list.add(cb.greaterThan(root.get(item.name), (Date) item.value));
-                        } else {
-                            list.add(cb.greaterThan(root.get(item.name), item.value.toString()));
-                        }
-
-                        break;
-                    case "greaterThanOrEqualTo":
-                        if (item.value instanceof Date) {
-                            list.add(cb.greaterThanOrEqualTo(root.get(item.name), (Date) item.value));
-                        } else {
-                            list.add(cb.greaterThanOrEqualTo(root.get(item.name), item.value.toString()));
-                        }
-
-                        break;
-                    case "orderBy":
-                        switch ((OrderBy) item.value) {
-                            case asc:
-                                query.orderBy(new OrderImpl(root.get(item.name), true));
-                                break;
-                            case desc:
-                                query.orderBy(new OrderImpl(root.get(item.name), false));
-                                break;
-                            default:
-                                break;
-                        }
-                    default:
-                }
-            }
-
-
-            return cb.and(list.toArray(new Predicate[list.size()]));
-        };
-
-        return queryCondition;
-
+    public <T> MySpecification<T> build(Class<T> clazz) {
+        return new MySpecification<>(where);
     }
 
-    private static class Item {
+    static class Item {
         String operator;
         String name;
         Object value;

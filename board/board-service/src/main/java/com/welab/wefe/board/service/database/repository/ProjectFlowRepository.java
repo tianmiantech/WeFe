@@ -18,8 +18,10 @@ package com.welab.wefe.board.service.database.repository;
 
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,4 +36,20 @@ public interface ProjectFlowRepository extends BaseRepository<ProjectFlowMySqlMo
      */
     @Query(value = "select flow_status,count(flow_status) from project_flow where project_id=?1 and deleted = 0 group by flow_status", nativeQuery = true)
     List<Object[]> countProjectFlowStatus(String projectId);
+
+    /**
+     * 置顶
+     */
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} set top=true,sort_num=((SELECT num FROM (SELECT MAX(sort_num) AS num FROM project_flow) AS sub_selected) + 1) where flow_id=?1", nativeQuery = true)
+    void top(String flowId);
+
+    /**
+     * 取消置顶
+     */
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} set top=false and sort_num=0 where flow_id=?1", nativeQuery = true)
+    void cancelTop(String flowId);
 }

@@ -154,7 +154,7 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
     @Override
     public PagingOutput<T> paging(@Nullable Specification<T> queryCondition, PagingInput pagingInput) {
 
-        Page<T> page = findAll(queryCondition, getDefaultPageable(pagingInput));
+        Page<T> page = findAll(queryCondition, getDefaultPageable(pagingInput, queryCondition));
         List<T> content = page.getContent();
         return PagingOutput.of(
                 page.getTotalElements(),
@@ -165,7 +165,7 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
     @Override
     public <OUT> PagingOutput<OUT> paging(@Nullable Specification<T> queryCondition, PagingInput pagingInput, Class<OUT> outputClass) {
 
-        Page<T> page = findAll(queryCondition, getDefaultPageable(pagingInput));
+        Page<T> page = findAll(queryCondition, getDefaultPageable(pagingInput, queryCondition));
         List<T> content = page.getContent();
         return PagingOutput.of(
                 page.getTotalElements(),

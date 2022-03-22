@@ -1,0 +1,8 @@
+POST http://localhost:8080/board-service/project/flow/top
+Content-Type: application/json
+token:{{token}}
+
+{
+  "flow_id": "6a1ff89d97bc4bacb6b6f2a8b78a58a3",
+  "top": true
+}

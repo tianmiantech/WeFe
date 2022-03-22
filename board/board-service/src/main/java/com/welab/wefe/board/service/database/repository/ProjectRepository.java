@@ -18,8 +18,10 @@ package com.welab.wefe.board.service.database.repository;
 
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,4 +37,19 @@ public interface ProjectRepository extends BaseRepository<ProjectMySqlModel, Str
     @Query(value = "select * from #{#entityName} where project_id=?1 limit 1;", nativeQuery = true)
     ProjectMySqlModel findOneById(String projectId);
 
+    /**
+     * 置顶
+     */
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} set top=true,sort_num=((SELECT num FROM (SELECT MAX(sort_num) AS num FROM project_flow) AS sub_selected) + 1) where project_id=?1", nativeQuery = true)
+    void top(String projectId);
+
+    /**
+     * 取消置顶
+     */
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} set top=false and sort_num=0 where project_id=?1", nativeQuery = true)
+    void cancelTop(String projectId);
 }
