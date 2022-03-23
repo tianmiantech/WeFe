@@ -625,7 +625,7 @@ public class ProjectService extends AbstractService {
     public PagingOutput<ProjectQueryOutputModel> query(QueryApi.Input input) {
 
         StringBuffer sql = new StringBuffer(
-                "select distinct(p.id),p.top,p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
+                "select distinct(p.id),p.top,p.sort_num,p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
                         + ",p.audit_status_from_myself,p.audit_status_from_others,p.audit_comment,p.exited,p.closed"
                         + ",p.closed_by,p.closed_time,p.exited_by,p.exited_time"
                         + ",p.project_id,p.member_id,p.my_role"
@@ -634,7 +634,7 @@ public class ProjectService extends AbstractService {
 
         int total = projectRepo.queryByClass(sql.append(buildQueryWhere(input)).toString(), ProjectMySqlModel.class).size();
 
-        sql.append(" order by p.top desc,p.created_time desc");
+        sql.append(" order by p.sort_num desc,p.created_time desc");
         sql.append(" limit " + input.getPageIndex() * input.getPageSize() + "," + input.getPageSize());
 
         List<ProjectMySqlModel> projectList = projectRepo.queryByClass(sql.toString(), ProjectMySqlModel.class);
@@ -1320,4 +1320,14 @@ public class ProjectService extends AbstractService {
         return projectService.findByProjectId(jobs.get(0).getProjectId());
     }
 
+    /**
+     * 设置项目的置顶状态
+     */
+    public void top(String projectId, boolean top) {
+        if (top) {
+            projectRepo.top(projectId);
+        } else {
+            projectRepo.cancelTop(projectId);
+        }
+    }
 }

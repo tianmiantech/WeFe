@@ -90,7 +90,10 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
      * 是否置顶
      */
     private boolean top;
-
+    /**
+     * 排序序号
+     */
+    private int sortNum;
 
     //region getter/setter
 
@@ -205,6 +208,14 @@ public class ProjectFlowMySqlModel extends AbstractBaseMySqlModel {
 
     public void setTop(boolean top) {
         this.top = top;
+    }
+
+    public int getSortNum() {
+        return sortNum;
+    }
+
+    public void setSortNum(int sortNum) {
+        this.sortNum = sortNum;
     }
 
     //endregion

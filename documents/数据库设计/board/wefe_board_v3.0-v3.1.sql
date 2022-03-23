@@ -7,7 +7,11 @@
 -- author: zane.luo
 -- -------------------------------------
 ALTER TABLE `project`
-    ADD COLUMN `top` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否置顶';
+    ADD COLUMN `top` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否置顶';
+ALTER TABLE `project`
+    ADD COLUMN `sort_num` int NOT NULL DEFAULT 0 COMMENT '排序序号';
 
 ALTER TABLE `project_flow`
-    ADD COLUMN `top` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否置顶';
+    ADD COLUMN `top` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否置顶';
+ALTER TABLE `project_flow`
+    ADD COLUMN `sort_num` int NOT NULL DEFAULT 0 COMMENT '排序序号';
