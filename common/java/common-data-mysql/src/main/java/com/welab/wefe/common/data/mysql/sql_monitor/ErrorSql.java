@@ -15,6 +15,9 @@
  */
 package com.welab.wefe.common.data.mysql.sql_monitor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 
 /**
@@ -22,6 +25,7 @@ import java.util.Date;
  * @date 2022/3/23
  */
 public class ErrorSql {
+    private static final Logger LOG = LoggerFactory.getLogger(ErrorSql.class);
 
     public String sql;
     /**
@@ -48,6 +52,8 @@ public class ErrorSql {
      * 捕获一次
      */
     public void catchOnce(Throwable error) {
+        LOG.error("catch sql error: {}", sql, error);
+
         if (catchCount >= Integer.MAX_VALUE) {
             return;
         }

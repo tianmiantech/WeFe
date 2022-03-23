@@ -1,0 +1,5 @@
+POST http://localhost:8080/board-service/error_sql/list
+Content-Type: application/json
+token:{{token}}
+
+{}
