@@ -349,11 +349,6 @@
                                     vData.pageLoading = false;
                                 }, 1000);
                             }
-                            // setTimeout(_=>{
-                            //     vData.isCheckFinished = false;
-                            //     vData.img_upload_options.files = [];
-                            //     vData.http_upload_filename = '';
-                            // }, 3000);
                         }
                     });
                 },

@@ -82,14 +82,10 @@
                 width="70"
             >
                 <template v-slot="scope">
-                    <span
-                        v-if="scope.row.cancelled"
-                    >
+                    <span v-if="scope.row.cancelled">
                         <i class="el-icon-check"></i>
                     </span>
-                    <span
-                        v-else
-                    >
+                    <span v-else>
                         <i class="el-icon-close"></i>
                     </span>
                 </template>
