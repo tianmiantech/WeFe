@@ -44,7 +44,7 @@
                         <uploader-list :file-list="vData.img_upload_options.files.length" />
                     </div>
 
-                    <div v-if="vData.isUploadedOk" class="predict_box" style="width:800px; height: 400px;">
+                    <div v-if="vData.isUploadedOk" class="predict_box" style="height: 400px;">
                         <p class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
                     </div>
 
@@ -67,14 +67,15 @@
                     </div>
                 </uploader>
             </div>
-            <div class="show_box ml10" style="min-width: 430px;">
+            <div class="show_box ml10" style="width: 430px;">
                 <div class="result_table">
                     <el-table
                         :data="vData.currentImage.item.bbox_results"
                         border
                         style="width: 100%;"
                         :max-height="488"
-                        :header-cell-style="{background:'#f7f7f7',color:'#606266'}">
+                        :header-cell-style="{background:'#f7f7f7',color:'#606266'}"
+                    >
                         <template #empty>
                             <div class="empty f14">没有满足条件的识别结果</div>
                         </template>
@@ -114,7 +115,7 @@
         components: { LabelSystem, ImageThumbnailList },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http, $bus } = appContext.config.globalProperties;
+            const { $http, $bus, $message } = appContext.config.globalProperties;
             const route = useRoute();
             const router = useRouter();
             const labelSystemRef = ref();
@@ -166,7 +167,7 @@
                 sampleList:           [],
                 forJobType:           'detection',
                 timer:                null,
-                timer2:               null,
+                resetWidthTimer:      null,
                 width:                700,
                 pageLoading:          false,
                 totalResultCount:     0,
@@ -179,7 +180,9 @@
                 isUploading:     false, // 文件上传中
                 isUploadedOk:    false, // 文件上传完成
                 isCheckFinished: false, // 模型校验完成
-                timer3:          null,
+                runningTimer:    null,
+                resquestCount:   0, // 获取预测详情时result为null后继续获取的次数
+                resultNullTimer: null,
             });
             const methods = {
                 async getModelList() {
@@ -207,9 +210,9 @@
                     // split考虑文件名中有.，随机数文件名以清除文件缓存
                     vData.img_upload_options.files = [file];
                     vData.isCanUpload = false;
-                    vData.isUploading = true;
                     vData.isCheckFinished = false;
                     vData.isUploadedOk = false;
+                    vData.isUploading = true;
                     vData.currentImage = {
                         item: {
                             bbox_results: [],
@@ -218,9 +221,9 @@
                 },
                 fileRemovedImage() {
                     vData.img_upload_options.files = [];
-                    vData.isCanUpload = true;
                     vData.isCheckFinished = false;
                     vData.isUploadedOk = false;
+                    vData.isCanUpload = true;
                 },
                 fileProgress(file) {
                     // vData.progress = Number((file._prevProgress * 100).toFixed(1));
@@ -252,9 +255,6 @@
                         vData.isCheckFinished = false;
                         vData.isCanUpload = false;
                         methods.startPredict();
-                        // setTimeout(() => {
-                        //     methods.getPredictDetail();
-                        // }, 500);
                     }
                 },
                 async startPredict() {
@@ -268,12 +268,11 @@
 
                     nextTick(_=> {
                         if(code === 0) {
-                        
                             if (data.file_count) {
                                 vData.isStartPredict = true;
+                                vData.resquestCount = 0;
                                 methods.getPredictDetail();
                             }
-                        
                         } else {
                             vData.isUploadedOk = false;
                             vData.isCanUpload = true;
@@ -294,9 +293,28 @@
 
                     if(code === 0) {
                         nextTick(_=> {
-                            if (data.task_view.results[0].result.status === 'finish' && data.task_view.results[0].result.result.length) {
+                            if (data.task_view.results[0] === null) {
+                                vData.isCanUpload = false;
+                                vData.isUploading = false;
+                                vData.isCheckFinished = false;
+                                vData.isUploadedOk = true;
+                                vData.http_upload_filename = 'http_upload_filename';
+                                if (vData.resquestCount < 9) {
+                                    clearTimeout(vData.resultNullTimer);
+                                    vData.resultNullTimer = setTimeout(() => {
+                                        methods.getPredictDetail();
+                                        vData.resquestCount++;
+                                    }, 3000);
+                                } else {
+                                    $message.error('预测服务异常：无预测记录，请联系管理员检查预测服务是否正常。');
+                                    vData.isCanUpload = true;
+                                    vData.isUploading = false;
+                                    vData.isCheckFinished = false;
+                                    vData.isUploadedOk = false;
+                                }
+                            }
+                            if (data.task_view.results[0] !== null && data.task_view.results[0].result.status === 'finish' && data.task_view.results[0].result.result.length) {
                                 vData.totalResultCount = data.task_view.results[0].result.result.length;
-                                // vData.predictResultList = data.task_view.results[0].result.result;
                                 const list = data.task_view.results[0].result.result;
 
                                 for (let i=0; i<list.length; i++) {
@@ -313,11 +331,11 @@
                                     methods.downSingleImage(item.image, idx, item);
                                 });
                             }
-                            vData.timer3 = setTimeout(() => {
-                                if (data.task_view.results[0].result.status === 'running') {
+                            if (data.task_view.results[0] !== null && data.task_view.results[0].result.status === 'running') {
+                                vData.runningTimer = setTimeout(() => {
                                     methods.getPredictDetail();
-                                }
-                            }, 3000);
+                                }, 3000);
+                            }
                         });
                     }
                 },
@@ -348,6 +366,7 @@
                                     labelSystemRef.value.methods.createStage();
                                     vData.pageLoading = false;
                                 }, 1000);
+                                methods.resetWidth();
                             }
                             // setTimeout(_=>{
                             //     vData.isCheckFinished = false;
@@ -369,7 +388,7 @@
                 },
                 resetWidth() {
                     if (vData.sampleList.length) {
-                        const maxWidth = document.getElementsByClassName('opearate_box')[0].offsetWidth > 800 ? 800 :document.getElementsByClassName('upload_box')[0].offsetWidth;
+                        const maxWidth = document.getElementsByClassName('opearate_box')[0].offsetWidth - 500;
 
                         console.log(document.getElementsByClassName('upload_box')[0].offsetWidth);
                         console.log(maxWidth);
@@ -409,8 +428,8 @@
 
             onBeforeMount(()=> {
                 methods.getModelList();
-                if (vData.timer2) clearTimeout(vData.timer2);
-                vData.timer2 = setTimeout(_=> {
+                if (vData.resetWidthTimer) clearTimeout(vData.resetWidthTimer);
+                vData.resetWidthTimer = setTimeout(_=> {
                     methods.resetWidth();
                 }, 200);
                 window.onresize = () => {
@@ -429,8 +448,9 @@
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
                 clearTimeout(vData.timer);
-                clearTimeout(vData.timer2);
-                clearTimeout(vData.timer3);
+                clearTimeout(vData.resetWidthTimer);
+                clearTimeout(vData.runningTimer);
+                clearTimeout(vData.resultNullTimer);
             });
 
             return {
