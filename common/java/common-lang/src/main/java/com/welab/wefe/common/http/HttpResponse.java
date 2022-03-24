@@ -117,7 +117,7 @@ public class HttpResponse {
     HttpResponse error(Exception error) {
         this.code = CODE_ERROR;
         this.error = error;
-        this.message = error.getLocalizedMessage();
+        this.message = error.getMessage();
         return this;
     }
 
