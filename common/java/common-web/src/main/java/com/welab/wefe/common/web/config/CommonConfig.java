@@ -29,6 +29,12 @@ import org.springframework.stereotype.Component;
 @Component("commonConfig")
 public class CommonConfig {
 
+    /**
+     * 日志文件储存路径
+     */
+    @Value("${logging.file:}")
+    private String loggingFilePath;
+
     @Value("${wefe.union.base-url:}")
     private String unionBaseUrl;
 
@@ -52,6 +58,15 @@ public class CommonConfig {
     }
 
     // region getter/setter
+
+
+    public String getLoggingFilePath() {
+        return loggingFilePath;
+    }
+
+    public void setLoggingFilePath(String loggingFilePath) {
+        this.loggingFilePath = loggingFilePath;
+    }
 
     public String getUnionBaseUrl() {
         return unionBaseUrl;

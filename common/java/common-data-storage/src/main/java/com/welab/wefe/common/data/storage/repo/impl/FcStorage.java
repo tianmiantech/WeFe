@@ -309,7 +309,7 @@ public class FcStorage extends MiddleStorage {
             executor.shutdown();
             ossClient.shutdown();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
 
     }
@@ -369,9 +369,9 @@ public class FcStorage extends MiddleStorage {
                     tablestoreWriter.addRowChange(rowChange);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
         tablestoreWriter.flush();

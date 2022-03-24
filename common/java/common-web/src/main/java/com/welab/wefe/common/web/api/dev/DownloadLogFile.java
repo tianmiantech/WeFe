@@ -16,40 +16,38 @@
 package com.welab.wefe.common.web.api.dev;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mysql.sql_monitor.SlowSql;
-import com.welab.wefe.common.data.mysql.sql_monitor.SqlMonitor;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.config.CommonConfig;
 import com.welab.wefe.common.web.dto.ApiResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
-import java.util.List;
+import java.io.File;
 
 /**
  * @author zane
  * @date 2022/3/23
  */
-@Api(path = "slow_sql/list", name = "慢查询列表")
-public class SlowSqlList extends AbstractNoneInputApi<SlowSqlList.Output> {
+@Api(path = "log_file/download", name = "下载日志文件")
+public class DownloadLogFile extends AbstractNoneInputApi<ResponseEntity<?>> {
+
+    @Autowired
+    private CommonConfig commonConfig;
 
     @Override
-    protected ApiResult<Output> handle() throws StatusCodeWithException {
+    protected ApiResult<ResponseEntity<?>> handle() throws StatusCodeWithException {
         if (!CurrentAccount.isAdmin()) {
             StatusCode.PERMISSION_DENIED.throwException("普通用户无法进行此操作。");
         }
-        
-        return success(new Output(SqlMonitor.getSlowSqlList()));
+
+        File file = new File(commonConfig.getLoggingFilePath());
+        if (!file.exists()) {
+            StatusCode.FILE_DOES_NOT_EXIST.throwException("日志文件不存在：" + file.getAbsolutePath());
+        }
+        return file(new File(commonConfig.getLoggingFilePath()));
     }
 
-    public static class Output {
-        public List<SlowSql> list;
-
-        public Output() {
-        }
-
-        public Output(List<SlowSql> list) {
-            this.list = list;
-        }
-    }
 }

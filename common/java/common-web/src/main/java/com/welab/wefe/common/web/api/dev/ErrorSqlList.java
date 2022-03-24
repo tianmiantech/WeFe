@@ -15,9 +15,11 @@
  */
 package com.welab.wefe.common.web.api.dev;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.sql_monitor.ErrorSql;
 import com.welab.wefe.common.data.mysql.sql_monitor.SqlMonitor;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -33,6 +35,10 @@ public class ErrorSqlList extends AbstractNoneInputApi<ErrorSqlList.Output> {
 
     @Override
     protected ApiResult<Output> handle() throws StatusCodeWithException {
+        if (!CurrentAccount.isAdmin()) {
+            StatusCode.PERMISSION_DENIED.throwException("普通用户无法进行此操作。");
+        }
+
         return success(new Output(SqlMonitor.getErrorSqlList()));
     }
 
