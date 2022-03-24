@@ -45,7 +45,7 @@
                     </div>
 
                     <div v-if="vData.isUploadedOk" class="predict_box" style="height: 400px;">
-                        <p class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
+                        <p class="predict_tips">{{vData.isChecking ? '检测中...' : vData.isPredicting ? '预测中...' : '上传中...'}}</p>
                     </div>
 
                     <div v-if="vData.isCheckFinished" class="predict_box" :style="{width: vData.width+'px', height: vData.sampleList.length ? 490 : 400}+'px'">
@@ -58,11 +58,11 @@
                             v-if="vData.isCheckFinished"
                             :attrs="vData.img_upload_attrs"
                             :single="true"
-                            class="upload_btn"
+                            class="upload_btn mr10"
                         >
                             点击上传文件
                         </uploader-btn>
-                        <el-button type="primary" class="ml10" @click="methods.downloadModel">模型下载</el-button>
+                        <el-button type="primary" @click="methods.downloadModel">模型下载</el-button>
                         <el-button type="primary" class="ml10" @click="methods.downloadModelFile">模型文件下载</el-button>
                     </div>
                 </uploader>
@@ -183,6 +183,8 @@
                 runningTimer:    null,
                 resquestCount:   0, // 获取预测详情时result为null后继续获取的次数
                 resultNullTimer: null,
+                isPredicting:    false, // 是否处于预测中
+                isChecking:      false, // 是否处于检测是否有正在预测的任务中
             });
             const methods = {
                 async getModelList() {
@@ -298,19 +300,20 @@
                                 vData.isUploading = false;
                                 vData.isCheckFinished = false;
                                 vData.isUploadedOk = true;
-                                vData.http_upload_filename = 'http_upload_filename';
+                                vData.isChecking = true;
                                 if (vData.resquestCount < 9) {
                                     clearTimeout(vData.resultNullTimer);
                                     vData.resultNullTimer = setTimeout(() => {
                                         methods.getPredictDetail();
                                         vData.resquestCount++;
-                                    }, 3000);
+                                    }, 1000);
                                 } else {
                                     $message.error('预测服务异常：无预测记录，请联系管理员检查预测服务是否正常。');
                                     vData.isCanUpload = true;
                                     vData.isUploading = false;
                                     vData.isCheckFinished = false;
                                     vData.isUploadedOk = false;
+                                    vData.isChecking = false;
                                 }
                             }
                             if (data.task_view.results[0] !== null && data.task_view.results[0].result.status === 'finish' && data.task_view.results[0].result.result.length) {
@@ -330,8 +333,14 @@
                                 list.forEach((item, idx) => {
                                     methods.downSingleImage(item.image, idx, item);
                                 });
+                                vData.isPredicting = false;
                             }
                             if (data.task_view.results[0] !== null && data.task_view.results[0].result.status === 'running') {
+                                vData.isCanUpload = false;
+                                vData.isUploading = false;
+                                vData.isCheckFinished = false;
+                                vData.isUploadedOk = true;
+                                vData.isPredicting = true;
                                 vData.runningTimer = setTimeout(() => {
                                     methods.getPredictDetail();
                                 }, 3000);

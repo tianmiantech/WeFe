@@ -740,6 +740,7 @@
                         }
                     });
                     vData.formImageDataIO.params.data_set_list = $dataset_list;
+                    methods.submitFormData();
                 },
                 async submitFormData($event) {
                     const btnState = {};
