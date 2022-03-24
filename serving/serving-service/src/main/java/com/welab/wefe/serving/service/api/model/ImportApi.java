@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author hunter.zhao
  * @date 2022/3/8
  */
-@Api(path = "model/import", name = "导入模型文件", desc = "导入模型文件")
+@Api(path = "model/import", name = "导入模型文件", desc = "导入模型文件",login = false)
 public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
     @Autowired
     private ModelImportService modelImportService;

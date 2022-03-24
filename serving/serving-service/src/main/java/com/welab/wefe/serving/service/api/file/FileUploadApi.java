@@ -24,7 +24,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractWithFilesApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.api.file.security.FileSecurityChecker;
-import com.welab.wefe.serving.service.enums.file.FileTypeEnum;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -137,8 +136,8 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
         private Integer totalChunks;
         @Check(name = "文件类型")
         private String type;
-        @Check(name = "模型文件类型", require = true)
-        private FileTypeEnum fileType;
+        @Check(name = "文件用途", require = true)
+        private ServingFileUtil.FileType fileType;
 
 
         //region getter/setter
@@ -223,11 +222,11 @@ public class FileUploadApi extends AbstractApi<FileUploadApi.Input, FileUploadAp
             this.type = type;
         }
 
-        public FileTypeEnum getFileType() {
+        public ServingFileUtil.FileType getFileType() {
             return fileType;
         }
 
-        public void setFileType(FileTypeEnum fileType) {
+        public void setFileType(ServingFileUtil.FileType fileType) {
             this.fileType = fileType;
         }
 

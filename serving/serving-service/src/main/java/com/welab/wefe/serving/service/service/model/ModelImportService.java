@@ -33,7 +33,6 @@ import com.welab.wefe.serving.service.database.serving.repository.MemberReposito
 import com.welab.wefe.serving.service.database.serving.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
-import com.welab.wefe.serving.service.enums.file.FileTypeEnum;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -70,7 +69,7 @@ public class ModelImportService {
     public void saveMachineLearningModel(String filename) throws StatusCodeWithException {
         try {
             File jsonFile = ServingFileUtil
-                    .getBaseDir(FileTypeEnum.MachineLearningModelFile)
+                    .getBaseDir(ServingFileUtil.FileType.MachineLearningModelFile)
                     .resolve(filename).toFile();
             String jsonStr = FileUtil.readAllText(jsonFile);
             JObject jObject = JObject.create(jsonStr);
@@ -170,11 +169,13 @@ public class ModelImportService {
             throw new StatusCodeWithException("该模型名称已存在，请更改后再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
         String path = ServingFileUtil
-                .getBaseDir(FileTypeEnum.DeepLearningModelFile).toString();
+                .getBaseDir(ServingFileUtil.FileType.DeepLearningModelFile).toString();
 
         model = new DeepLearningModelMySqlModel();
+        ServingFileUtil.DeepLearningModelFile.renameZipFile(filename, model.getId());
+
         model.setSourcePath(path);
-        model.setFilename(filename);
+        model.setFilename("test");
         model.setUseCount(0);
         model.setName(name);
 

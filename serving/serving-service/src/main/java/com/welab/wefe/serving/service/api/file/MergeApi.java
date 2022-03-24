@@ -24,7 +24,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.api.file.security.FileSecurityChecker;
-import com.welab.wefe.serving.service.enums.file.FileTypeEnum;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
 import org.apache.commons.io.FileUtils;
 
@@ -104,7 +103,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
         private String filename;
         private String uniqueIdentifier;
         @Check(name = "模型文件类型", require = true)
-        private FileTypeEnum fileType;
+        private ServingFileUtil.FileType fileType;
 
         public String getFilename() {
             return filename;
@@ -122,11 +121,11 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
             this.uniqueIdentifier = uniqueIdentifier;
         }
 
-        public FileTypeEnum getFileType() {
+        public ServingFileUtil.FileType getFileType() {
             return fileType;
         }
 
-        public void setFileType(FileTypeEnum fileType) {
+        public void setFileType(ServingFileUtil.FileType fileType) {
             this.fileType = fileType;
         }
     }
