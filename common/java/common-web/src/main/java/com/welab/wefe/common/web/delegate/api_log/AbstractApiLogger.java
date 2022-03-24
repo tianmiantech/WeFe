@@ -85,10 +85,10 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
     }
 
     /**
-     * 默认忽略未登录状态的请求日志
+     * 是否忽略未登录状态的请求日志
      */
     protected boolean ignoreWithoutLogin() {
-        return true;
+        return false;
     }
 
     @Override
