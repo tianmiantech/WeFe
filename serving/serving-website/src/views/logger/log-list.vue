@@ -190,25 +190,22 @@
             :title="title"
             :visible.sync="logDialog"
         >
-            <json-view
+            <JsonViewer
                 :value="jsonData"
                 :expand-depth="5"
+                copyable
             />
         </el-dialog>
     </el-card>
 </template>
 
 <script>
-
-    import 'vue-json-viewer/style.css';
     import table from '@src/mixins/table.js';
     import RoleTag from '../components/role-tag';
-    import jsonView from 'vue-json-viewer';
 
     export default {
         components: {
             RoleTag,
-            jsonView,
         },
         mixins: [table],
         data() {

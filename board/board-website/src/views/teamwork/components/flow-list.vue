@@ -28,7 +28,7 @@
         >
             <el-table-column
                 label="训练"
-                min-width="160px"
+                min-width="200"
             >
                 <template v-slot="scope">
                     <FlowStatusTag
