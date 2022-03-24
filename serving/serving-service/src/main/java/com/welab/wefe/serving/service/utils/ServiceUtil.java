@@ -138,8 +138,11 @@ public class ServiceUtil {
             for (int i = 0; i < conditionFields.size(); i++) {
                 JSONObject tmp = conditionFields.getJSONObject(i);
                 where += (" " + tmp.getString("field_on_table")
-                        + (StringUtils.isNotBlank(tmp.getString("condition")) ? tmp.getString("condition") : "=") + "\""
-                        + params.getString(tmp.getString("field_on_param")) + "\" " + " "
+                        + (StringUtils.isNotBlank(tmp.getString("condition"))
+                                ? (tmp.getString("condition").equalsIgnoreCase("gt") ? ">"
+                                        : (tmp.getString("condition").equalsIgnoreCase("lt") ? "<" : "="))
+                                : "=")
+                        + "\"" + params.getString(tmp.getString("field_on_param")) + "\" " + " "
                         + (size - 1 == i ? "" : tmp.getString("operator")));
             }
             return where;
