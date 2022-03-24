@@ -471,7 +471,7 @@ CREATE TABLE `project_data_set`
     `source_type`         varchar(32) COMMENT '来源类型，枚举（原始、对齐、分箱）',
     `source_job_id`       varchar(64) COMMENT '来源任务id',
     `source_task_id`      varchar(100) COMMENT '来源子任务id',
-    `data_set_type`       varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型',
+    `data_resource_type`  varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`, `member_role`, `data_set_id`)
 ) ENGINE = InnoDB
