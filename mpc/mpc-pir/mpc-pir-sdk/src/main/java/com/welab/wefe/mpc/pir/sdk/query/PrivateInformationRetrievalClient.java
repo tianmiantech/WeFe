@@ -16,6 +16,7 @@
 
 package com.welab.wefe.mpc.pir.sdk.query;
 
+import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.flow.BasePrivateInformationRetrieval;
 import com.welab.wefe.mpc.pir.protocol.ot.ObliviousTransferKey;
 import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
@@ -60,6 +61,7 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         int targetIndex = mConfig.getTargetIndex();
         QueryKeysRequest request = new QueryKeysRequest();
         request.setIds(mConfig.getPrimaryKeys());
+        request.setOtMethod(Constants.PIR.HUACK_OT);
         QueryKeysResponse response = mTransferVariable.queryKeys(request);
         uuid = response.getUuid();
 

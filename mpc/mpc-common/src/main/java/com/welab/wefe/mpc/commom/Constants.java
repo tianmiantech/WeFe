@@ -33,6 +33,15 @@ public class Constants {
         public static final String R = "pir_r";
 
         public static final String AES_IV = "pir_iv";
+
+        public static final String NAORPINKAS_P = "naorpinkas_p";
+        public static final String NAORPINKAS_G = "naorpinkas_g";
+        public static final String NAORPINKAS_A = "naorpinkas_a";
+        public static final String NAORPINKAS_RANDOM = "naorpinkas_random";
+        public static final String NAORPINKAS_CONDITION = "naorpinkas_condition";
+
+        public static final String NAORPINKAS_OT = "naorpinkas_ot";
+        public static final String HUACK_OT = "huack_ot";
     }
 
     public static class SA {
