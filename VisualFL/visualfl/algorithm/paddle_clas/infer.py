@@ -32,7 +32,7 @@ import json
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(__dir__)
 sys.path.append(os.path.abspath(os.path.join(__dir__, '../../')))
-
+from ppdet.utils import checkpoint
 import argparse
 import numpy as np
 import paddle
@@ -95,8 +95,10 @@ def create_predictor(args):
             exe.run(startup_prog)
 
     infer_prog = infer_prog.clone(for_test=True)
-    fluid.load(
-        program=infer_prog, model_path=args.weights, executor=exe)
+    exe.run(startup_prog)
+    # fluid.load(
+    #     program=infer_prog, model_path=args.weights, executor=exe)
+    checkpoint.load_params(exe, infer_prog, args.weights)
 
     return exe, infer_prog, [image.name], [out.name]
 

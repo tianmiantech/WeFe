@@ -64,6 +64,7 @@ class FLAggregator(Task):
         cmd = " ".join(
             [
                 f"{python_executable} -m visualfl.paddle_fl.scheduler.fl_scheduler",
+                f"--job-id={self.job_id}",
                 f"--scheduler-ep={self._scheduler_ep}",
                 f"--startup-program=startup_program",
                 f"--main-program=main_program",
