@@ -29,7 +29,7 @@ from flow.service.board.board_service import BoardService
 from flow.service.job_scheduler.job_service import JobService
 from flow.settings import MemberInfo
 from flow.service.visualfl.visualfl_service import VisualFLService
-from common.python.db.db_models import GlobalSetting
+
 
 class JobStopAction:
     job: Job
