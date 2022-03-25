@@ -122,13 +122,17 @@
                 label="request"
                 width="280"
             >
-                <template slot-scope="scope">
-                    <div
-                        class="cursor-pointer"
-                        @click="showResquest(JSON.parse(scope.row.request))"
-                    >
-                        {{ scope.row.request.length > 100 ? scope.row.request.substring(0, 101) + '...' : scope.row.request }}
-                    </div>
+                <template v-slot="scope">
+                    <template v-if="scope.row.request">
+                        <p>{{ scope.row.request.length > 100 ? scope.row.request.substring(0, 101) + '...' : scope.row.request }}</p>
+                        <el-button
+                            v-if="scope.row.request.length > 100"
+                            type="text"
+                            @click="showResquest(scope.row.request)"
+                        >
+                            查看更多
+                        </el-button>
+                    </template>
                 </template>
             </el-table-column>
 
@@ -136,13 +140,20 @@
                 label="response"
                 width="280"
             >
-                <template slot-scope="scope">
-                    <div
-                        class="cursor-pointer"
-                        @click="showResponse(JSON.parse(scope.row.response))"
-                    >
-                        {{ scope.row.response.length > 100 ? scope.row.response.substring(0, 101) + '...' : scope.row.response }}
-                    </div>
+                <template v-slot="scope">
+                    <template v-if="scope.row.response">
+                        <p>{{ scope.row.response.length > 100 ? scope.row.response.substring(0, 101) + '...' : scope.row.response }}</p>
+                        <el-button
+                            v-if="scope.row.response.length > 100"
+                            type="text"
+                            @click="showResponse(scope.row.response)"
+                        >
+                            查看更多
+                        </el-button>
+                    </template>
+                    <template v-else>
+                        success
+                    </template>
                 </template>
             </el-table-column>
 
@@ -179,21 +190,22 @@
             :title="title"
             :visible.sync="logDialog"
         >
-            <json-view :data="jsonData" />
+            <JsonViewer
+                :value="jsonData"
+                :expand-depth="5"
+                copyable
+            />
         </el-dialog>
     </el-card>
 </template>
 
 <script>
-
     import table from '@src/mixins/table.js';
     import RoleTag from '../components/role-tag';
-    import jsonView from 'vue-json-views';
 
     export default {
         components: {
             RoleTag,
-            jsonView,
         },
         mixins: [table],
         data() {
@@ -227,7 +239,6 @@
         methods: {
             // 删除
             deleteData(row) {
-
                 this.$confirm('此操作将永久删除该条目, 是否继续?', '警告', {
                     type: 'warning',
                 }).then(async () => {
@@ -244,27 +255,18 @@
                     }
                 });
             },
-
-            showResquest (string) {
+            showResquest (data) {
                 this.logDialog = true;
                 this.title = '请求体';
                 setTimeout(() => {
-                    if(string){
-                        this.jsonData = string;
-                    }else{
-                        this.jsonData = '';
-                    }
+                    this.jsonData = JSON.parse(data);
                 });
             },
-            showResponse (string) {
+            showResponse (data) {
                 this.logDialog = true;
                 this.title = '响应体';
                 setTimeout(() => {
-                       if(string){
-                            this.jsonData = string;
-                        }else{
-                            this.jsonData = '';
-                        }
+                    this.jsonData = JSON.parse(data);
                 });
             },
         },

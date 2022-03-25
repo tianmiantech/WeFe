@@ -337,6 +337,7 @@
                             </el-tab-pane>
                             <el-tab-pane v-if="vData.jobInfo.status" label="执行结果" name="result">
                                 <deeplearning-result
+                                    ref="deeplearningResultRef"
                                     v-if="vData.showDLResult"
                                     :job-id="vData.jobInfo.job_id"
                                     :flow-node-id="vData.deepLearnNodeId"
@@ -420,6 +421,7 @@
             const route = useRoute();
             const router = useRouter();
             const rawDataSetListRef = ref();
+            const deeplearningResultRef = ref();
             const { training_type } = route.query;
             const vData = reactive({
                 loading:    false,
@@ -536,6 +538,10 @@
                 isInResult:          false,
                 stopNext:            false,
                 memberJobDetailList: [],
+                jobDetailTimer:      null,
+                jobProgressTimer:    null,
+                pauseJobTimer:       null,
+                resumeJobTimer:      null,
             });
 
             if(vData.flowType === 'detection') {
@@ -595,6 +601,12 @@
                             vData.taskInfo = data.task_views;
                             vData.isInResult = data.job.status;
                             methods.getJobMemberDetail();
+                            if(data.job.status === 'wait_run' || data.job.status === 'wait_stop') {
+                                if (vData.jobDetailTimer) clearTimeout(vData.jobDetailTimer);
+                                vData.jobDetailTimer = setTimeout(() => {
+                                    methods.getJobDetail();
+                                }, 3000);
+                            }
                         }
                     });
                 },
@@ -614,7 +626,8 @@
                             const isRunning = data.filter(x => x.job_status === 'running');
 
                             if(isRunning) {
-                                setTimeout(() => {
+                                if (vData.jobProgressTimer) clearTimeout(vData.jobProgressTimer);
+                                vData.jobProgressTimer = setTimeout(() => {
                                     methods.getJobMemberDetail();
                                 }, 3000);
                             }
@@ -727,6 +740,7 @@
                         }
                     });
                     vData.formImageDataIO.params.data_set_list = $dataset_list;
+                    methods.submitFormData();
                 },
                 async submitFormData($event) {
                     const btnState = {};
@@ -1119,7 +1133,6 @@
                             if(data.job_id) {
                                 $message.success('启动成功! ');
                                 methods.getJobDetail();
-
                             }
                         }
                         vData.startLoading = false;
@@ -1141,8 +1154,10 @@
                             nextTick(_ => {
                                 vData.startLoading = false;
                                 if(code === 0) {
-                                    setTimeout(() => {
+                                    if (vData.pauseJobTimer) clearTimeout(vData.pauseJobTimer);
+                                    vData.pauseJobTimer = setTimeout(() => {
                                         methods.getJobDetail();
+                                        deeplearningResultRef.value.methods.tabChange();
                                     }, 500);
                                     $message.success('操作成功! 请稍后');
                                 } else {
@@ -1168,8 +1183,10 @@
                             nextTick(_ => {
                                 vData.startLoading = false;
                                 if(code === 0) {
-                                    setTimeout(() => {
+                                    if (vData.resumeJobTimer) clearTimeout(vData.resumeJobTimer);
+                                    vData.resumeJobTimer = setTimeout(() => {
                                         methods.getJobDetail();
+                                        deeplearningResultRef.value.methods.tabChange();
                                     }, 500);
                                     $message.success('操作成功! 请稍后');
                                 } else {
@@ -1196,6 +1213,10 @@
 
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
+                clearTimeout(vData.jobDetailTimer);
+                clearTimeout(vData.jobProgressTimer);
+                clearTimeout(vData.pauseJobTimer);
+                clearTimeout(vData.resumeJobTimer);
             });
 
             watch(
@@ -1214,6 +1235,7 @@
                 vData,
                 methods,
                 rawDataSetListRef,
+                deeplearningResultRef,
             };
         },
     };

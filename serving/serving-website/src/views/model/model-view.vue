@@ -14,7 +14,7 @@
 
         <el-form
             :model="form"
-            label-width="100px"
+            inline
         >
             <el-row
                 v-if="form.algorithm === 'LogisticRegression'"
@@ -82,9 +82,7 @@
                         </el-form-item>
 
                         <div>
-                            <el-form-item
-                                label="算法类型："
-                            >
+                            <el-form-item label="算法类型：">
                                 <div v-if="form.algorithm === 'LogisticRegression'">
                                     逻辑回归
                                 </div>
@@ -92,9 +90,7 @@
                                     安全决策树
                                 </div>
                             </el-form-item>
-                            <el-form-item
-                                label="联邦类型："
-                            >
+                            <el-form-item label="联邦类型：">
                                 <div v-if="form.fl_type === 'horizontal'">
                                     横向
                                 </div>
@@ -103,9 +99,7 @@
                                 </div>
                             </el-form-item>
 
-                            <el-form-item
-                                label="特征来源："
-                            >
+                            <el-form-item label="特征来源：">
                                 <el-radio
                                     v-model="form.feature_source"
                                     label="api"
@@ -138,7 +132,7 @@
                                     v-model="api.feature_data"
                                     type="textarea"
                                     rows="5"
-                                    style="color: #333333;"
+                                    style="color: #333333;width:400px;"
                                     placeholder="如:{&quot;x0&quot;:0.2323,&quot;x1&quot;:0.1}"
                                     clearable
                                 />
@@ -157,7 +151,6 @@
                                 <el-col :span="6">
                                     <el-form-item>
                                         <el-button
-                                            style="float:right;"
                                             :disabled="!api.feature_data || !api.user_id"
                                             type="primary"
                                             plain
@@ -165,7 +158,7 @@
                                         >
                                             预测
                                         </el-button>
-                                        <el-tooltip style="float:right;">
+                                        <el-tooltip>
                                             <div slot="content">输入用户标识后才可进行预测</div>
                                             <i class="el-icon-info" />
                                         </el-tooltip>
@@ -182,9 +175,9 @@
                                     class="mt20"
                                 >
                                     <el-form-item label="预测结果：">
-                                        <json-view
-                                            :data="apiPredictResult"
-                                            style="color:#D8BFD8;"
+                                        <JsonViewer
+                                            :value="apiPredictResult"
+                                            copyable
                                         />
                                     </el-form-item>
                                 </el-col>
@@ -217,7 +210,6 @@
                                 <el-col :span="6">
                                     <el-form-item>
                                         <el-button
-                                            style="float:right;"
                                             :disabled="!code.user_id"
                                             type="primary"
                                             plain
@@ -225,7 +217,7 @@
                                         >
                                             预测
                                         </el-button>
-                                        <el-tooltip style="float:right;">
+                                        <el-tooltip>
                                             <div slot="content">输入用户标识后才可进行预测</div>
                                             <i class="el-icon-info" />
                                         </el-tooltip>
@@ -242,9 +234,9 @@
                                     class="mt20"
                                 >
                                     <el-form-item label="预测结果：">
-                                        <json-view
-                                            :data="codePredictResult"
-                                            style="color:#D8BFD8;"
+                                        <JsonViewer
+                                            :value="codePredictResult"
+                                            copyable
                                         />
                                     </el-form-item>
                                 </el-col>
@@ -252,7 +244,6 @@
                         </fieldset>
                     </form>
                 </el-col>
-
 
                 <el-col :span="12">
                     <form v-if="form.feature_source=='sql'">
@@ -319,7 +310,6 @@
                                 <el-col :span="6">
                                     <el-form-item>
                                         <el-button
-                                            style="float:right;"
                                             :disabled="!model_sql_config.user_id"
                                             type="primary"
                                             plain
@@ -327,7 +317,7 @@
                                         >
                                             预测
                                         </el-button>
-                                        <el-tooltip style="float:right;">
+                                        <el-tooltip>
                                             <div slot="content">输入用户标识后才可进行预测</div>
                                             <i class="el-icon-info" />
                                         </el-tooltip>
@@ -344,9 +334,9 @@
                                     class="mt20"
                                 >
                                     <el-form-item label="预测结果：">
-                                        <json-view
-                                            :data="sqlPredictResult"
-                                            style="color:#D8BFD8;"
+                                        <JsonViewer
+                                            :value="sqlPredictResult"
+                                            copyable
                                         />
                                     </el-form-item>
                                 </el-col>
@@ -356,7 +346,6 @@
                 </el-col>
             </el-row>
         </el-form>
-
 
         <el-button
             style="margin: 0 20px;"
@@ -374,17 +363,10 @@
 
 <script>
     import { TreeGraph, Grid, Tooltip, Minimap } from '@antv/g6';
-    import jsonView from 'vue-json-views';
-
-    /* console.log(G6);
-    const { TreeGraph, Grid, Tooltip, Minimap } = G6; */
 
     export default {
-        components: {
-            jsonView,
-        },
         inject: ['refresh'],
-        data() {
+        data () {
             return {
                 modelingResult: [],
 
@@ -392,78 +374,78 @@
 
                 // model
                 form: {
-                    model_id:       '',
-                    algorithm:      '',
-                    fl_type:        '',
-                    model_param:    '',
+                    model_id: '',
+                    algorithm: '',
+                    fl_type: '',
+                    model_param: '',
                     feature_source: 'api',
-                    processor:      '',
-                    my_role:        [],
+                    processor: '',
+                    my_role: [],
                 },
 
                 api: {
-                   feature_data: '',
-                   user_id:      '',
+                    feature_data: '',
+                    user_id: '',
                 },
 
                 code: {
-                   user_id: '',
+                    user_id: '',
                 },
 
                 model_sql_config: {
-                    type:        '',
-                    url:         '',
-                    username:    '',
-                    password:    '',
+                    type: '',
+                    url: '',
+                    username: '',
+                    password: '',
                     sql_context: '',
-                    user_id:     '',
+                    user_id: '',
                 },
 
                 featureNameFidMapping: {},
 
                 databaseOptions: [
-                    { value: 'MySql',label: 'MySql' },
-                    { value: 'PgSql',label: 'PgSql' },
-                    { value: 'Impala',label: 'Impala' },
-                    { value: 'Hive',label: 'Hive' },
-                    { value: 'Cassandra',label: 'Cassandra' },
+                    { value: 'MySql', label: 'MySql' },
+                    { value: 'PgSql', label: 'PgSql' },
+                    { value: 'Impala', label: 'Impala' },
+                    { value: 'Hive', label: 'Hive' },
+                    { value: 'Cassandra', label: 'Cassandra' },
                 ],
 
                 apiPredictResult: {
-                    data:      '',
+                    data: '',
                     algorithm: '',
-                    my_role:   '',
-                    type:      '',
+                    my_role: '',
+                    type: '',
                 },
 
                 codePredictResult: {
-                    data:      '',
+                    data: '',
                     algorithm: '',
-                    my_role:   '',
-                    type:      '',
+                    my_role: '',
+                    type: '',
                 },
 
                 sqlPredictResult: {
-                    data:      '',
+                    data: '',
                     algorithm: '',
-                    my_role:   '',
-                    type:      '',
+                    my_role: '',
+                    type: '',
                 },
                 loading: false,
             };
         },
-        created() {
+        created () {
             this.getData();
 
-            const my_role =  localStorage.getItem('my_role');
+            const my_role = localStorage.getItem('my_role');
 
             this.my_role = my_role;
         },
         methods: {
-            async getData() {
+            async getData () {
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url:    '/model/detail',
+                    url: '/model/detail',
                     params: {
                         id: this.$route.query.id,
                     },
@@ -472,13 +454,13 @@
                 if (code === 0) {
                     this.form = data;
 
-                    if(data.model_sql_config){
+                    if (data.model_sql_config) {
                         this.model_sql_config = data.model_sql_config;
                     }
 
-                    if(data.model_param && data.model_param.iters) {
+                    if (data.model_param && data.model_param.iters) {
                         this.modelingResult = [];
-                        for(let i = 0; i < data.model_param.header.length; i++) {
+                        for (let i = 0; i < data.model_param.header.length; i++) {
                             const name = data.model_param.header[i];
 
                             this.modelingResult.push({
@@ -487,23 +469,23 @@
                             });
                         }
                         this.modelingResult.push({
-                            name:   'intercept',
+                            name: 'intercept',
                             weight: data.model_param.intercept,
                         });
-                    } else if(data.model_param && data.model_param.featureNameFidMapping) {
+                    } else if (data.model_param && data.model_param.featureNameFidMapping) {
                         this.iters = data.model_param.iters;
 
                         this.featureNameFidMapping = data.model_param.featureNameFidMapping;
                     }
 
-                    if(data.algorithm === 'XGBoost') {
+                    if (data.algorithm === 'XGBoost') {
 
-                        if(data.xgboost_tree && data.xgboost_tree.length) {
+                        if (data.xgboost_tree && data.xgboost_tree.length) {
                             this.$nextTick(() => {
 
                                 this.createGraph({
-                                    id:       'root',
-                                    label:    'XGBoost',
+                                    id: 'root',
+                                    label: 'XGBoost',
                                     children: data.xgboost_tree,
                                 });
                             });
@@ -512,21 +494,21 @@
                 }
                 this.loading = false;
             },
-            createGraph(data) {
+            createGraph (data) {
                 const canvas = this.$refs['canvas'];
                 const grid = new Grid();
                 const minimap = new Minimap();
                 const tooltip = new Tooltip({
-                    getContent(e) {
+                    getContent (e) {
                         const { data } = e.item.getModel();
 
-                        if(data) {
-                            if(data.leaf === true){
-                                 return `                                <div>weight: ${data.weight}</div>`;
-                            }else if(data.feature){
+                        if (data) {
+                            if (data.leaf === true) {
+                                return `                                <div>weight: ${data.weight}</div>`;
+                            } else if (data.feature) {
                                 return `<div>${data.feature} <= ${data.threshold}</div>`;
-                            }else{
-                                   return `<div>${data.sitename}</div>`;
+                            } else {
+                                return `<div>${data.sitename}</div>`;
                             }
                         } else {
                             return '';
@@ -534,31 +516,31 @@
                     },
                     itemTypes: ['node'],
                 });
-               const treeGraph = new TreeGraph({
+                const treeGraph = new TreeGraph({
                     container: 'canvas',
-                    width:     canvas.offsetWidth,
-                    height:    500,
-                    modes:     {
+                    width: canvas.offsetWidth,
+                    height: 500,
+                    modes: {
                         default: [{
                             type: 'collapse-expand',
-                            onChange(item, collapsed) {
+                            onChange (item, collapsed) {
                                 const data = item.get('model');
 
                                 data.collapsed = collapsed;
                                 return true;
                             },
                         },
-                        'drag-canvas',
-                        'zoom-canvas'],
+                            'drag-canvas',
+                            'zoom-canvas'],
                     },
                     defaultEdge: {
                         type: 'cubic-vertical',
                     },
                     layout: {
-                        type:      'dendrogram',
+                        type: 'dendrogram',
                         direction: 'TB', // H / V / LR / RL / TB / BT
-                        nodeSep:   40,
-                        rankSep:   100,
+                        nodeSep: 40,
+                        rankSep: 100,
                     },
                     plugins: [grid, tooltip, minimap],
                 });
@@ -574,11 +556,11 @@
                     }
 
                     return {
-                        label:    node.id,
+                        label: node.id,
                         labelCfg: {
                             position,
                             offset: 5,
-                            style:  {
+                            style: {
                                 rotate,
                                 textAlign: 'start',
                             },
@@ -590,73 +572,73 @@
                 treeGraph.fitView();
             },
             async saveConfig () {
-               const { code } = await this.$http.post({
-                   url:  '/model/update_sql_config',
-                   data: {
-                       model_id:       this.form.model_id,
-                       feature_source: this.form.feature_source,
-                       type:           this.model_sql_config.type,
-                       url:            this.model_sql_config.url,
-                       username:       this.model_sql_config.username,
-                       password:       this.model_sql_config.password,
-                       sql_context:    this.model_sql_config.sql_context,
-                   },
-               });
+                const { code } = await this.$http.post({
+                    url: '/model/update_sql_config',
+                    data: {
+                        model_id: this.form.model_id,
+                        feature_source: this.form.feature_source,
+                        type: this.model_sql_config.type,
+                        url: this.model_sql_config.url,
+                        username: this.model_sql_config.username,
+                        password: this.model_sql_config.password,
+                        sql_context: this.model_sql_config.sql_context,
+                    },
+                });
 
-               if (code === 0) {
-                   this.$message('配置成功!');
-                   this.refresh();
-               }
+                if (code === 0) {
+                    this.$message('配置成功!');
+                    this.refresh();
+                }
             },
             async testSql () {
-              const { code,data } = await this.$http.post({
-                  url:  'predict/debug',
-                  data: {
-                      model_id:       this.form.model_id,
-                      user_id:        this.model_sql_config.user_id,
-                      feature_source: 'sql',
-                      params:         this.model_sql_config,
-                      my_role:        this.my_role,
-                  },
-              });
+                const { code, data } = await this.$http.post({
+                    url: 'predict/debug',
+                    data: {
+                        model_id: this.form.model_id,
+                        user_id: this.model_sql_config.user_id,
+                        feature_source: 'sql',
+                        params: this.model_sql_config,
+                        my_role: this.my_role,
+                    },
+                });
 
-              if (code === 0) {
-                this.sqlPredictResult = data;
-              }
+                if (code === 0) {
+                    this.sqlPredictResult = data;
+                }
             },
             async testApi () {
 
-              const lines =JSON.parse(this.api.feature_data);
+                const lines = JSON.parse(this.api.feature_data);
 
-              const { code,data } = await this.$http.post({
-                  url:  'predict/debug',
-                  data: {
-                      model_id:       this.form.model_id,
-                      user_id:        this.api.user_id,
-                      feature_source: 'api',
-                      feature_data:   lines,
-                      my_role:        this.my_role,
-                  },
-              });
+                const { code, data } = await this.$http.post({
+                    url: 'predict/debug',
+                    data: {
+                        model_id: this.form.model_id,
+                        user_id: this.api.user_id,
+                        feature_source: 'api',
+                        feature_data: lines,
+                        my_role: this.my_role,
+                    },
+                });
 
-              if (code === 0) {
-                this.apiPredictResult = data;
-              }
+                if (code === 0) {
+                    this.apiPredictResult = data;
+                }
             },
             async testCode () {
-              const { code,data } = await this.$http.post({
-                  url:  'predict/debug',
-                  data: {
-                       model_id:       this.form.model_id,
-                       user_id:        this.code.user_id,
-                       feature_source: 'code',
-                        my_role:        this.my_role,
-                  },
-              });
+                const { code, data } = await this.$http.post({
+                    url: 'predict/debug',
+                    data: {
+                        model_id: this.form.model_id,
+                        user_id: this.code.user_id,
+                        feature_source: 'code',
+                        my_role: this.my_role,
+                    },
+                });
 
-              if (code === 0) {
-                this.codePredictResult = data;
-              }
+                if (code === 0) {
+                    this.codePredictResult = data;
+                }
             },
         },
     };
@@ -668,6 +650,10 @@
             border: 1px solid #eee;
             margin-left: auto;
         }
+    }
+    .el-icon-info{
+        vertical-align: middle;
+        margin-left: 10px;
     }
     .save-btn {
         width: 100px;

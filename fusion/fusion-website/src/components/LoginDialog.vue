@@ -22,6 +22,9 @@
                 <el-input
                     v-model="form.password"
                     type="password"
+                    @paste.native.prevent
+                    @copy.native.prevent
+                    @contextmenu.native.prevent
                 />
             </el-form-item>
             <el-form-item label="验证码">

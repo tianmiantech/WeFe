@@ -133,6 +133,9 @@
                                     type="password"
                                     placeholder="请输入密码"
                                     autocomplete="new-password"
+                                    @paste.native.prevent
+                                    @copy.native.prevent
+                                    @contextmenu.native.prevent
                                 />
                             </el-form-item>
                         </fieldset>

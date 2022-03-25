@@ -51,15 +51,6 @@ public class TransferMetaDataAsyncSaveService {
     private MessageService messageService;
 
     /**
-     * BaseStorage method used for function calculation
-     */
-    @Value(value = "${fc.storage.type}")
-    private String storageType;
-
-    @Value(value = "${wefe.job.backend}")
-    private JobBackendType flowBackend;
-
-    /**
      * Save entity data to database
      */
     @Async("transferMetaDataAsyncExecutor")
@@ -87,8 +78,8 @@ public class TransferMetaDataAsyncSaveService {
 
 
         List<GatewayMetaProto.ConfigData> dataList = transferMeta.getContent().getConfigDatasList();
-        LOG.info("Data sink finish, session id: {}, dstDbName: {}, dstTableName: {}, data size: {}", sessionId, dstDbName, dstTableName, CollectionUtils.isEmpty(dataList) ? 0 : dataList.size());
         if (CollectionUtils.isEmpty(dataList)) {
+            LOG.info("data is none, session id: {}, dstDbName: {}, dstTableName: {}, data size: {}", sessionId, dstDbName, dstTableName, CollectionUtils.isEmpty(dataList) ? 0 : dataList.size());
             return;
         }
 
@@ -118,16 +109,15 @@ public class TransferMetaDataAsyncSaveService {
                 args.put("fc_namespace", fcDbName);
                 args.put("fc_name", fcTableName);
                 LOG.info("The amount of data is：" + dateItemModelList.size());
-                LOG.info("flowBackend is：" + flowBackend.toString());
                 LOG.info("storageType: " + storageType);
 
                 if ("ots".equalsIgnoreCase(storageType)) {
-                    LOG.info("The data from CK has been received and is now uploaded to OTS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
+                    LOG.info("The data has been received and is now uploaded to OTS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
                     args.put("storage_type", "ots");
                     storageService.saveList(dateItemModelList, args);
 
                 } else if ("oss".equalsIgnoreCase(storageType)) {
-                    LOG.info("The data from CK has been received and is now uploaded to OSS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
+                    LOG.info("The data has been received and is now uploaded to OSS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
                     args.put("storage_type", "oss");
                     storageService.saveList(dateItemModelList, args);
                 } else if ("clickhouse".equalsIgnoreCase(storageType)) {

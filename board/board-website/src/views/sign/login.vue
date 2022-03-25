@@ -70,6 +70,9 @@
                                 maxlength="30"
                                 placeholder="密码"
                                 clearable
+                                @paste.prevent
+                                @copy.prevent
+                                @contextmenu.prevent
                             />
                         </el-form-item>
                         <el-form-item
@@ -134,7 +137,6 @@
 </template>
 
 <script>
-    import { mapGetters } from 'vuex';
     import md5 from 'js-md5';
 
     export default {
@@ -143,11 +145,10 @@
                 version:    process.env.VERSION,
                 submitting: false,
                 form:       {
-                    keepAlive: false,
-                    password:  '',
-                    phone:     '',
-                    code:      '',
-                    key:       '',
+                    password: '',
+                    phone:    '',
+                    code:     '',
+                    key:      '',
                 },
                 imgCode:    '',
                 phoneRules: [
@@ -167,17 +168,10 @@
                 codeRules:     [{ required: true, message: '请输入验证码' }],
             };
         },
-        computed: {
-            ...mapGetters(['keepAlive']),
-        },
         created() {
-            // this.form.keepAlive = this.keepAlive;
             this.getImgCode();
         },
         methods: {
-            /* changeKeepAlive(value) {
-                this.$store.commit('KEEP_ALIVE', value);
-            }, */
             async getImgCode() {
                 const { code, data } = await this.$http.get('/account/captcha');
 

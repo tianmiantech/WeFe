@@ -40,6 +40,9 @@
                         <el-input
                             v-model="form.old_password"
                             type="password"
+                            @paste.prevent
+                            @copy.prevent
+                            @contextmenu.prevent
                         />
                     </el-form-item>
                     <el-form-item
@@ -50,6 +53,13 @@
                         <el-input
                             v-model="form.new_password"
                             type="password"
+                            @paste.prevent
+                            @copy.prevent
+                            @contextmenu.prevent
+                        />
+                        <PasswordStrength
+                            ref="password-strength"
+                            :password="form.new_password"
                         />
                     </el-form-item>
                     <el-form-item
@@ -60,6 +70,9 @@
                         <el-input
                             v-model="form.repeat_password"
                             type="password"
+                            @paste.prevent
+                            @copy.prevent
+                            @contextmenu.prevent
                         />
                     </el-form-item>
                     <el-button
@@ -173,6 +186,9 @@
             submit() {
                 this.$refs['form'].validate(async valid => {
                     if(valid) {
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
                         const oldPassword = [
                             this.userInfo.phone_number,
                             this.form.old_password,

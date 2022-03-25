@@ -20,13 +20,18 @@ package com.welab.wefe.mpc.pir.sdk.trasfer.impl;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
 import com.welab.wefe.mpc.pir.request.*;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
+import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultResponse;
+import com.welab.wefe.mpc.pir.sdk.trasfer.NaorPinkasTransferVariable;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
 import com.welab.wefe.mpc.trasfer.AbstractHttpTransferVariable;
 
 /**
  * @author eval
  */
-public class HttpTransferVariable extends AbstractHttpTransferVariable implements PrivateInformationRetrievalTransferVariable {
+public class HttpTransferVariable extends AbstractHttpTransferVariable
+        implements PrivateInformationRetrievalTransferVariable, NaorPinkasTransferVariable {
 
     private CommunicationConfig mConfig;
 
@@ -52,6 +57,16 @@ public class HttpTransferVariable extends AbstractHttpTransferVariable implement
     @Override
     public QueryPIRResultsResponse queryResults(QueryPIRResultsRequest request) {
         return query(request, PrivateInformationRetrievalApiName.RESULTS, QueryPIRResultsResponse.class);
+    }
+
+    @Override
+    public QueryNaorPinkasRandomResponse queryNaorPinkasRandom(QueryKeysRequest request) {
+        return query(request, mConfig.getApiName(), QueryNaorPinkasRandomResponse.class);
+    }
+
+    @Override
+    public QueryNaorPinkasResultResponse queryNaorPinkasResult(QueryNaorPinkasResultRequest request) {
+        return query(request, PrivateInformationRetrievalApiName.NAORPINKAS_RESULTS, QueryNaorPinkasResultResponse.class);
     }
 
     private <T> T query(Object request, String apiName, Class<T> clz) {

@@ -57,7 +57,7 @@
             >
                 查询
             </el-button>
-            <div>
+            <div class="mb20">
                 <el-button
                     v-if="userInfo.super_admin_role"
                     type="danger"
@@ -112,6 +112,28 @@
                     <span
                         v-else
                         class="not_super_admin_role"
+                    >
+                        <el-icon>
+                            <elicon-close />
+                        </el-icon>
+                    </span>
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="已注销"
+                align="center"
+                width="70"
+            >
+                <template v-slot="scope">
+                    <span
+                        v-if="scope.row.cancelled"
+                    >
+                        <el-icon>
+                            <elicon-check />
+                        </el-icon>
+                    </span>
+                    <span
+                        v-else
                     >
                         <el-icon>
                             <elicon-close />
@@ -270,32 +292,27 @@
             将重置 <strong class="primary-color">
                 {{ resetPwDialog.nickname }}
             </strong> 的登录密码!
-            <p class="mt10 mb10">原密码将失效, <strong class="color-danger">新密码仅可查看一次!</strong></p>
-            <p>是否继续操作?</p>
+            <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
+            <span class="color-danger">*</span> 操作人登录密码:
+            <el-input
+                v-model="resetPwDialog.operatorPassword"
+                style="width: 200px;"
+                type="password"
+                @paste.prevent
+                @copy.prevent
+                @contextmenu.prevent
+            />
             <template #footer>
                 <el-button
                     type="danger"
                     @click="confirmReset"
                 >
-                    是
+                    确定
                 </el-button>
                 <el-button @click="resetPwDialog.visible = false">
-                    否
+                    取消
                 </el-button>
             </template>
-        </el-dialog>
-
-        <el-dialog
-            width="340px"
-            title="新用户密码"
-            v-model="resetPwDialog.result"
-            destroy-on-close
-        >
-            <div style="margin-top:-15px">
-                密码已重置为：
-                <p class="new_password">{{ resetPwDialog.new_password }}</p>
-                <p class="color-danger f12">请勿随意传播!</p>
-            </div>
         </el-dialog>
 
         <el-dialog
@@ -391,6 +408,7 @@
 </template>
 
 <script>
+    import md5 from 'js-md5';
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table.js';
     import { baseLogout } from '@src/router/auth';
@@ -420,11 +438,10 @@
                     audit_comment: '',
                 },
                 resetPwDialog: {
-                    visible:      false,
-                    id:           '',
-                    nickname:     '',
-                    result:       false,
-                    new_password: '',
+                    visible:          false,
+                    id:               '',
+                    nickname:         '',
+                    operatorPassword: '',
                 },
                 userRoleDialog: {
                     id:         '',
@@ -481,10 +498,24 @@
                 this.resetPwDialog.visible = true;
             },
             async confirmReset($event) {
+                const { operatorPassword } = this.resetPwDialog;
+                const { phone_number } = this.userInfo;
+
+                if(!operatorPassword) {
+                    return this.$message.error('请输入你的帐号密码');
+                }
+
                 const { code, data } = await this.$http.post({
                     url:  '/account/reset/password',
                     data: {
-                        id: this.resetPwDialog.id,
+                        id:               this.resetPwDialog.id,
+                        operatorPassword: md5([
+                            phone_number,
+                            operatorPassword,
+                            phone_number,
+                            phone_number.substr(0, 3),
+                            operatorPassword.substr(operatorPassword.length - 3),
+                        ].join('')),
                     },
                     btnState: {
                         target: $event,
@@ -492,9 +523,16 @@
                 });
 
                 if(code === 0) {
+                    this.resetPwDialog.operatorPassword = '';
                     this.resetPwDialog.visible = false;
-                    this.resetPwDialog.result = true;
-                    this.resetPwDialog.new_password = data;
+                    this.$alert(`该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`, '操作成功', {
+                        type:                     'warning',
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText:        '确定',
+                    });
+                    setTimeout(() => {
+                        this.refresh();
+                    }, 300);
                 }
             },
             changeUserRole(row) {

@@ -78,10 +78,10 @@ public class ReturnStatusBuilder {
                 .build();
     }
 
-    public static BasicMetaProto.ReturnStatus paramError(String attachMsg) {
+    public static BasicMetaProto.ReturnStatus paramError(String errorMsg) {
         return BasicMetaProto.ReturnStatus.newBuilder()
                 .setCode(ReturnStatusEnum.PARAM_ERROR.getCode())
-                .setMessage(ReturnStatusEnum.PARAM_ERROR.getMessage() + ":" + attachMsg)
+                .setMessage(errorMsg)
                 .build();
     }
 

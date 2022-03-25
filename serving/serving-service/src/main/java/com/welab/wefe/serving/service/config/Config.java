@@ -31,6 +31,12 @@ public class Config {
     @Value("${wefe.service.cache.type}")
     private String serviceCacheType;
 
+    @Value("${sm4.secret.key}")
+    private String sm4SecretKey;
+
+    @Value("${encrypt.phone.number.open:true}")
+    private boolean encryptPhoneNumberOpen;
+
     public String getFileBasePath() {
         return fileBasePath;
     }
@@ -86,5 +92,20 @@ public class Config {
 	public void setServiceCacheType(String serviceCacheType) {
 		this.serviceCacheType = serviceCacheType;
 	}
-    
+
+    public String getSm4SecretKey() {
+        return sm4SecretKey;
+    }
+
+    public void setSm4SecretKey(String sm4SecretKey) {
+        this.sm4SecretKey = sm4SecretKey;
+    }
+
+    public boolean isEncryptPhoneNumberOpen() {
+        return encryptPhoneNumberOpen;
+    }
+
+    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
+        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
+    }
 }

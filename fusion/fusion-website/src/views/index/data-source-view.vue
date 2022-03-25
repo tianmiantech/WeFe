@@ -90,6 +90,9 @@
                         v-model="form.password"
                         type="password"
                         size="medium"
+                        @paste.native.prevent
+                        @copy.native.prevent
+                        @contextmenu.native.prevent
                     />
                 </el-form-item>
                 <el-button

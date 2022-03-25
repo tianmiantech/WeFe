@@ -16,17 +16,24 @@
 
 package com.welab.wefe.board.service.database.entity;
 
+import com.alibaba.fastjson.JSONArray;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.board.service.database.listener.AccountMysqlModelListener;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  * @author Zane
  */
 @Entity(name = "account")
+@TypeDef(name = "json", typeClass = JsonStringType.class)
+@EntityListeners(AccountMysqlModelListener.class)
 public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     /**
@@ -71,15 +78,29 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
      * 是否可用
      */
     private Boolean enable;
+    /**
+     * 是否已注销
+     */
+    private boolean cancelled;
+    /**
+     * 最后活动时间
+     */
+    private Date lastActionTime;
+    /**
+     * 历史曾用密码
+     */
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private JSONArray historyPasswordList;
 
 
     //region getter/setter
 
-    public String getPhoneNumber() {
+    public String getPhoneNumber() throws StatusCodeWithException {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) throws StatusCodeWithException {
         this.phoneNumber = phoneNumber;
     }
 
@@ -153,6 +174,30 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     public void setEnable(Boolean enable) {
         this.enable = enable;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public Date getLastActionTime() {
+        return lastActionTime;
+    }
+
+    public void setLastActionTime(Date lastActionTime) {
+        this.lastActionTime = lastActionTime;
+    }
+
+    public JSONArray getHistoryPasswordList() {
+        return historyPasswordList;
+    }
+
+    public void setHistoryPasswordList(JSONArray historyPasswordList) {
+        this.historyPasswordList = historyPasswordList;
     }
 
     //endregion
