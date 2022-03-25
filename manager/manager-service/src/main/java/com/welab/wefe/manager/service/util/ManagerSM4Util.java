@@ -63,11 +63,17 @@ public class ManagerSM4Util {
 
     private static String encrypt(String plaintext) throws Exception {
         Config config = ManagerService.CONTEXT.getBean(Config.class);
+        if (!config.isEncryptPhoneNumberOpen()) {
+            return plaintext;
+        }
         return SM4Util.encrypt(config.getSm4SecretKey(), plaintext);
     }
 
-    private static String decrypt(String plaintext) throws Exception {
+    private static String decrypt(String ciphertext) throws Exception {
         Config config = ManagerService.CONTEXT.getBean(Config.class);
-        return SM4Util.decrypt(config.getSm4SecretKey(), plaintext);
+        if (!config.isEncryptPhoneNumberOpen()) {
+            return ciphertext;
+        }
+        return SM4Util.decrypt(config.getSm4SecretKey(), ciphertext);
     }
 }
