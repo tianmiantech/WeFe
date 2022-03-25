@@ -45,11 +45,6 @@ class JobStopAction:
             return
 
         self.log_job_info("start stop job")
-        if 'visualfl' == job_type:
-            params = {
-                'job_id': self.job.job_id
-            }
-            VisualFLService.request('stop', params)
         tasks = TaskDao.list_by_job(self.job)
         for task in tasks:
             kill_success = False
@@ -79,6 +74,14 @@ class JobStopAction:
         BoardService.on_job_finished(self.job.job_id)
         # Email when task failed
         JobErrorMailWarnScheduler(self.job).start()
+
+        if 'visualfl' == job_type:
+            params = {
+                'job_id': self.job.job_id
+            }
+            schedule_logger(self.job.job_id + '_' + self.job.my_role).info('begin stop visualfl job: {}'.format(self.job.job_id))
+            response = VisualFLService.request('stop', params)
+            schedule_logger(self.job.job_id + '_' + self.job.my_role).info('stop visualfl job response: {}'.format(response))
 
     def kill_task(self, task: Task):
         """"
