@@ -28,7 +28,8 @@ from flow.alert_service.job_error_mail_warn_scheduler import JobErrorMailWarnSch
 from flow.service.board.board_service import BoardService
 from flow.service.job_scheduler.job_service import JobService
 from flow.settings import MemberInfo
-
+from flow.service.visualfl.visualfl_service import VisualFLService
+from common.python.db.db_models import GlobalSetting
 
 class JobStopAction:
     job: Job
@@ -37,14 +38,18 @@ class JobStopAction:
         super().__init__()
         self.job = JobDao.find_one_by_job_id(job_id, my_role)
 
-    def do(self, job_status, message):
+    def do(self, job_status, job_type, message):
 
         # If the task has stopped, jump out.
         if JobStatus.is_finished(self.job.status):
             return
 
         self.log_job_info("start stop job")
-
+        if 'visualfl' == job_type:
+            params = {
+                'job_id': self.job.job_id
+            }
+            VisualFLService.request('stop', params)
         tasks = TaskDao.list_by_job(self.job)
         for task in tasks:
             kill_success = False
