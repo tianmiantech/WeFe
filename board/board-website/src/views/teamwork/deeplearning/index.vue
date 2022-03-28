@@ -368,6 +368,7 @@
                             <el-button
                                 type="warning"
                                 @click="methods.pause"
+                                :disabled="vData.flowInfo.my_role !=='promoter'"
                             >
                                 暂停运行
                             </el-button>
@@ -376,6 +377,7 @@
                             <el-button
                                 type="primary"
                                 @click="methods.resume"
+                                :disabled="vData.flowInfo.my_role !=='promoter'"
                             >
                                 继续运行
                             </el-button>

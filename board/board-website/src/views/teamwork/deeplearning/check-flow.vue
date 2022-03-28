@@ -252,10 +252,10 @@
                     vData.loading = false;
                     if (code === 0) {
                         vData.http_upload_filename = data.filename;
-                        vData.isUploadedOk = true;
                         vData.isUploading = false;
                         vData.isCheckFinished = false;
                         vData.isCanUpload = false;
+                        vData.isUploadedOk = true;
                         methods.startPredict();
                     }
                 },
