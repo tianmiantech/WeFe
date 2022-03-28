@@ -17,11 +17,16 @@
 
 package com.welab.wefe.mpc.pir.sdk;
 
+import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
+import com.welab.wefe.mpc.pir.sdk.naor.NaorPinkasQuery;
 import com.welab.wefe.mpc.pir.sdk.query.PrivateInformationRetrievalClient;
-import com.welab.wefe.mpc.pir.sdk.trasfer.impl.HttpTransferVariable;
+import com.welab.wefe.mpc.pir.sdk.trasfer.NaorPinkasTransferVariable;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
+import com.welab.wefe.mpc.pir.sdk.trasfer.impl.HttpTransferVariable;
+
+import java.util.Locale;
 
 /**
  * @Author eval
@@ -29,19 +34,34 @@ import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVar
  **/
 public class PrivateInformationRetrievalQuery {
 
+    public String query(PrivateInformationRetrievalConfig config, CommunicationConfig communicationConfig) throws Exception {
+        return query(config, communicationConfig, Constants.PIR.HUACK_OT);
+    }
+
     /**
      * 匿踪查询
-     * @param config 匿踪查询算法参数
+     *
+     * @param config              匿踪查询算法参数
      * @param communicationConfig 匿踪查询与服务器通信配置
+     * @param method              匿踪查询的不经意传输实现方法，naorpinkas_ot 和 huack_ot
      * @return 匿踪查询结果
      * @throws Exception
      */
-    public String query(PrivateInformationRetrievalConfig config, CommunicationConfig communicationConfig) throws Exception {
-        PrivateInformationRetrievalTransferVariable transferVariable = new HttpTransferVariable(communicationConfig);
-        return query(config, transferVariable);
+    public String query(PrivateInformationRetrievalConfig config, CommunicationConfig communicationConfig, String method) throws Exception {
+        if (method.toLowerCase(Locale.ROOT).equals(Constants.PIR.NAORPINKAS_OT)) {
+            NaorPinkasTransferVariable transferVariable = new HttpTransferVariable(communicationConfig);
+            return queryWithNaorPinkas(config, transferVariable);
+        } else {
+            PrivateInformationRetrievalTransferVariable transferVariable = new HttpTransferVariable(communicationConfig);
+            return queryWithHauck(config, transferVariable);
+        }
     }
 
-    public String query(PrivateInformationRetrievalConfig config, PrivateInformationRetrievalTransferVariable transferVariable) throws Exception {
+    public String queryWithHauck(PrivateInformationRetrievalConfig config, PrivateInformationRetrievalTransferVariable transferVariable) throws Exception {
         return new PrivateInformationRetrievalClient(transferVariable, config).query();
+    }
+
+    public String queryWithNaorPinkas(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable) {
+        return new NaorPinkasQuery().query(config, transferVariable);
     }
 }

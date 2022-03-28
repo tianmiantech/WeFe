@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.listener;
 
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.service.EncryptPhoneNumberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +39,12 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
     @Autowired
     private EncryptPhoneNumberService encryptPhoneNumberService;
 
+    @Autowired
+    private Config config;
+
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
-        if (configurableEnvironment.containsProperty("has.auto.encrypt.phone.number")) {
+        if (configurableEnvironment.containsProperty("has.auto.encrypt.phone.number") || !config.isEncryptPhoneNumberOpen()) {
             return;
         }
         try {

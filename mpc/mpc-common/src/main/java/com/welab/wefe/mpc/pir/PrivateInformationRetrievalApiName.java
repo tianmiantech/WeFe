@@ -25,4 +25,6 @@ public class PrivateInformationRetrievalApiName {
     public static final String RESULTS = "PrivateInformationRetrievalForResults";
     public static final String RANDOM = "PrivateInformationRetrievalForRandom";
     public static final String RANDOM_LEGAL = "PrivateInformationRetrievalForRandomLegal";
+
+    public static final String NAORPINKAS_RESULTS = "PrivateInformationRetrievalForNaorPinkasResults";
 }
