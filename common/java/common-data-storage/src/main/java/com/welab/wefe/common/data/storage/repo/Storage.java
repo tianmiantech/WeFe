@@ -19,6 +19,8 @@ package com.welab.wefe.common.data.storage.repo;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.Map;
  * @author ivenn.zheng
  */
 public abstract class Storage {
+    protected static Logger log = LoggerFactory.getLogger(Storage.class);
 
     // =================================  AbstractStorage  start ================================
 

@@ -100,7 +100,7 @@
                     <template v-if="scope.row.result_message">
                         <p>{{ scope.row.result_message.length > 100 ? scope.row.result_message.substring(0, 101) + '...' : scope.row.result_message }}</p>
                         <el-button
-                            v-if="scope.row.response_message.length > 100"
+                            v-if="scope.row.response_message && scope.row.response_message.length > 100"
                             type="primary"
                             size="mini"
                             @click="checkLog($event, scope.row)"

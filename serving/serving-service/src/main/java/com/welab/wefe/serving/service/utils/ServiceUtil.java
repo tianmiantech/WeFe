@@ -127,23 +127,27 @@ public class ServiceUtil {
 		}
 	}
 
-	private static String parseWhere(JSONObject dataSource, JObject params) {
-		JSONArray conditionFields = dataSource.getJSONArray("condition_fields");
-		String where = "";
-		if (conditionFields.isEmpty()) {
-			where = "1=1";
-			return where;
-		} else {
-			int size = conditionFields.size();
-			for (int i = 0; i < conditionFields.size(); i++) {
-				JSONObject tmp = conditionFields.getJSONObject(i);
-				where += (" " + tmp.getString("field_on_table") + "=\""
-						+ params.getString(tmp.getString("field_on_param")) + "\" " + " "
-						+ (size - 1 == i ? "" : tmp.getString("operator")));
-			}
-			return where;
-		}
-	}
+    private static String parseWhere(JSONObject dataSource, JObject params) {
+        JSONArray conditionFields = dataSource.getJSONArray("condition_fields");
+        String where = "";
+        if (conditionFields.isEmpty()) {
+            where = "1=1";
+            return where;
+        } else {
+            int size = conditionFields.size();
+            for (int i = 0; i < conditionFields.size(); i++) {
+                JSONObject tmp = conditionFields.getJSONObject(i);
+                where += (" " + tmp.getString("field_on_table")
+                        + (StringUtils.isNotBlank(tmp.getString("condition"))
+                                ? (tmp.getString("condition").equalsIgnoreCase("gt") ? ">"
+                                        : (tmp.getString("condition").equalsIgnoreCase("lt") ? "<" : "="))
+                                : "=")
+                        + "\"" + params.getString(tmp.getString("field_on_param")) + "\" " + " "
+                        + (size - 1 == i ? "" : tmp.getString("operator")));
+            }
+            return where;
+        }
+    }
 	
 	/**
 	 * 前面保留 index 位明文，后面保留 end 位明文,如：[身份证号] 110****58，前面保留3位明文，后面保留2位明文

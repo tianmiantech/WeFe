@@ -40,8 +40,10 @@ public class QueryRealnameAuthAgreementTemplateApi extends AbstractApi<BaseInput
     protected ApiResult<RealnameAuthAgreementTemplateOutput> handle(BaseInput input) throws StatusCodeWithException, IOException {
         RealnameAuthAgreementTemplate realnameAuthAgreementTemplate = realnameAuthAgreementTemplateMongoRepo.findByEnable(true);
         RealnameAuthAgreementTemplateOutput realnameAuthAgreementTemplateOutput = new RealnameAuthAgreementTemplateOutput();
-        realnameAuthAgreementTemplateOutput.setTemplateFileId(realnameAuthAgreementTemplate.getTemplateFileId());
-        realnameAuthAgreementTemplateOutput.setFileName(realnameAuthAgreementTemplate.getFileName());
+        if(realnameAuthAgreementTemplate != null) {
+            realnameAuthAgreementTemplateOutput.setTemplateFileId(realnameAuthAgreementTemplate.getTemplateFileId());
+            realnameAuthAgreementTemplateOutput.setFileName(realnameAuthAgreementTemplate.getFileName());
+        }
         return success(realnameAuthAgreementTemplateOutput);
     }
 

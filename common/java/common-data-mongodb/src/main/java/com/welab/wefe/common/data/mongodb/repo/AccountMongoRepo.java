@@ -186,7 +186,7 @@ public class AccountMongoRepo extends AbstractMongoRepo {
 
 
     public long disableAccountWithoutAction90Days() {
-        Query query = new QueryBuilder().gte("lastActionTime", DateUtil.minusDays(new Date(),90)).build();
+        Query query = new QueryBuilder().lte("lastActionTime", DateUtil.minusDays(new Date(),90)).build();
         Update update = new UpdateBuilder()
                 .append("enable", false)
                 .build();
@@ -195,7 +195,7 @@ public class AccountMongoRepo extends AbstractMongoRepo {
     }
 
     public long cancelAccountWithoutAction180Days() {
-        Query query = new QueryBuilder().gte("lastActionTime", DateUtil.minusDays(new Date(),180)).build();
+        Query query = new QueryBuilder().lte("lastActionTime", DateUtil.minusDays(new Date(),180)).build();
         Update update = new UpdateBuilder()
                 .append("cancelled", true)
                 .build();

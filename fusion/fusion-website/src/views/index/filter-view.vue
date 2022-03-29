@@ -111,14 +111,7 @@
 
                     <div class="el-upload__tip">
                         <ul class="data-set-upload-tip">
-                            <li>主键字段必须是第一列，并且会被自动 hash</li>
-                            <li>
-                                主键重复的数据会被自动去重，仅保留第一条
-                            </li>
-                            <li>y 值列的列名必须为 y</li>
-                            <li>
-                                csv 文件请使用 utf-8 编码格式
-                            </li>
+                            <li>csv 文件请使用 utf-8 编码格式</li>
                         </ul>
                     </div>
                 </div>
@@ -143,13 +136,7 @@
                     <div class="el-upload__tip">
                         <ul class="data-set-upload-tip">
                             <li>注意</li>
-                            <li>
-                                主键重复的数据会被自动去重，仅保留第一条
-                            </li>
-                            <li>y 值列的列名必须为 y</li>
-                            <li>
-                                csv 文件请使用 utf-8 编码格式
-                            </li>
+                            <li>csv 文件请使用 utf-8 编码格式</li>
                         </ul>
                     </div>
                     <uploader-list />
@@ -773,7 +760,7 @@ export default {
             this.saveLoading = false;
             if (code === 0) {
                 if (data.repeat_data_count > 0) {
-                    this.$message.success(`保存成功，过滤器包含重复数据 ${data.repeat_data_count} 条，已自动去重。`);
+                    this.$message.success('保存成功');
                 } else {
                     this.getDataSetStatus(data.data_source_id);
                 }
