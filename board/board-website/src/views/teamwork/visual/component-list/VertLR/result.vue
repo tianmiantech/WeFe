@@ -123,10 +123,12 @@
                             weight:  intercept,
                         });
 
-                        train_loss.data.forEach((item, index) => {
-                            vData.train_loss.xAxis.push(index);
-                            vData.train_loss.series[0].push(item);
-                        });
+                        if(train_loss) {
+                            train_loss.data.forEach((item, index) => {
+                                vData.train_loss.xAxis.push(index);
+                                vData.train_loss.series[0].push(item);
+                            });
+                        }
                     } else {
                         vData.result = false;
                     }
