@@ -38,7 +38,7 @@ class JobStopAction:
         super().__init__()
         self.job = JobDao.find_one_by_job_id(job_id, my_role)
 
-    def do(self, job_status, job_type, message):
+    def do(self, job_status, message, job_type=''):
 
         # If the task has stopped, jump out.
         if JobStatus.is_finished(self.job.status):

@@ -103,6 +103,7 @@ class RunVisualFLTaskAction:
             # self.error_on_task('submit task error')
             raise RuntimeError('submit task error')
         schedule_logger(self.running_job).info("task {}（{}）done".format(self.task.task_type, self.task.task_id))
+        JobService.update_progress(self.job)
         # self.finish_task()
 
     def error_on_task(self, message):
