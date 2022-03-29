@@ -18,7 +18,6 @@
                 >
                     <el-input
                         v-model.trim="form.member_name"
-                        placeholder="仅支持中文"
                         maxlength="12"
                         clearable
                     />
@@ -117,6 +116,7 @@
                         });
 
                         if (code === 0) {
+                            this.$store.commit('SYSTEM_INITED', true);
                             this.$router.replace({
                                 name: 'index',
                             });
