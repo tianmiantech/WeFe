@@ -77,7 +77,7 @@ class RunVisualFLTaskAction:
             result = None
             schedule_logger(self.running_job).info("wait aggregator_info")
             while result is None or len(result) <= 10:
-                result = job_utils.receive_fl(session_id = session_id)
+                result = job_utils.receive_fl(session_id=session_id)
                 time.sleep(3)
             schedule_logger(self.running_job).info("receive aggregator_info , content is : {}".format(result))
             if result is not None:
