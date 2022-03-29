@@ -28,6 +28,7 @@ from flow.alert_service.job_error_mail_warn_scheduler import JobErrorMailWarnSch
 from flow.service.board.board_service import BoardService
 from flow.service.job_scheduler.job_service import JobService
 from flow.settings import MemberInfo
+from flow.service.visualfl.visualfl_service import VisualFLService
 
 
 class JobStopAction:
@@ -37,14 +38,13 @@ class JobStopAction:
         super().__init__()
         self.job = JobDao.find_one_by_job_id(job_id, my_role)
 
-    def do(self, job_status, message):
+    def do(self, job_status, job_type, message):
 
         # If the task has stopped, jump out.
         if JobStatus.is_finished(self.job.status):
             return
 
         self.log_job_info("start stop job")
-
         tasks = TaskDao.list_by_job(self.job)
         for task in tasks:
             kill_success = False
@@ -74,6 +74,14 @@ class JobStopAction:
         BoardService.on_job_finished(self.job.job_id)
         # Email when task failed
         JobErrorMailWarnScheduler(self.job).start()
+
+        if 'visualfl' == job_type:
+            params = {
+                'job_id': self.job.job_id
+            }
+            schedule_logger(self.job.job_id + '_' + self.job.my_role).info('begin stop visualfl job: {}'.format(self.job.job_id))
+            response = VisualFLService.request('stop', params)
+            schedule_logger(self.job.job_id + '_' + self.job.my_role).info('stop visualfl job response: {}'.format(response))
 
     def kill_task(self, task: Task):
         """"
