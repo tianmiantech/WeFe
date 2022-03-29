@@ -98,7 +98,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("nodeId", nodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).notRemoved().build();
         Update udpate = new UpdateBuilder().append("status", 1).build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, UnionNode.class);
         return updateResult.wasAcknowledged();
@@ -115,7 +115,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("nodeId", nodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).notRemoved().build();
         Update udpate = new UpdateBuilder()
                 .append("baseUrl", baseUrl)
                 .append("organizationName", organizationName)
@@ -130,7 +130,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("nodeId", nodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).notRemoved().build();
         Update udpate = new UpdateBuilder()
                 .append("enable", enable)
                 .append("updatedTime", updatedTime)
@@ -143,7 +143,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("nodeId", nodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).notRemoved().build();
         Update udpate = new UpdateBuilder()
                 .append("publicKey", publicKey)
                 .append("updatedTime", updatedTime)
@@ -157,7 +157,7 @@ public class UnionNodeMongoRepo extends AbstractMongoRepo {
         if (StringUtils.isEmpty(nodeId)) {
             return false;
         }
-        Query query = new QueryBuilder().append("nodeId", nodeId).build();
+        Query query = new QueryBuilder().append("nodeId", nodeId).notRemoved().build();
         Update update = new UpdateBuilder().append("extJson", extJSON).build();
         UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, UnionNode.class);
         return updateResult.wasAcknowledged();
