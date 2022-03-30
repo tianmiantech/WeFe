@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import os,sys
 import asyncio
+import random
 import subprocess
 
 import aiofiles
@@ -449,7 +450,7 @@ class RESTService(Logger):
             algorithm_config = data.get("algorithm_config")
             cur_step = TaskDao(task_id).get_task_progress()
             input_dir = os.path.join(__logs_dir__,f"jobs/{job_id}/infer/input")
-            infer_dir = data_loader.job_download(download_url, job_id, input_dir)
+            infer_dir = data_loader.job_download(download_url, job_id+str(random.randint(0,99999)), input_dir)
             data_loader.extractImages(infer_dir)
             output_dir = os.path.join(__logs_dir__, f"jobs/{job_id}/infer/output/{os.path.basename(infer_dir)}")
             config["cur_step"] = cur_step
