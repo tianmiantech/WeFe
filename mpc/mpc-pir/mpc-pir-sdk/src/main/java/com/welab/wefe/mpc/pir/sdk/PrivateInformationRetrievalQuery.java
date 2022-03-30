@@ -61,7 +61,7 @@ public class PrivateInformationRetrievalQuery {
         return new PrivateInformationRetrievalClient(transferVariable, config).query();
     }
 
-    public String queryWithNaorPinkas(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable) {
+    public String queryWithNaorPinkas(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable) throws Exception {
         return new NaorPinkasQuery().query(config, transferVariable);
     }
 }

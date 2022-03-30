@@ -468,7 +468,16 @@ public class ServiceService {
                 if (StringUtils.isBlank(otMethod)) {
                     otMethod = data.getString("ot_method", Constants.PIR.NAORPINKAS_OT);
                 }
-                List<JObject> results = multi_pir(ids, idx, service, currentClient, otMethod);
+                List<JObject> results;
+                try {
+                    results = multi_pir(ids, idx, service, currentClient, otMethod);
+                } catch (Exception e) {
+                    res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
+                    res.append("message", "invalid request: url = " + serviceUrl + ", message= " + e.getMessage());
+                    long duration = System.currentTimeMillis() - start;
+                    log(service, client, duration, clientIp, res.getIntValue("code"));
+                    return res;
+                }
                 res = JObject.create("result", results);
             }
 			res.append("code", ServiceResultEnum.SUCCESS.getCode());
@@ -617,7 +626,7 @@ public class ServiceService {
 	}
 
     private List<JObject> multi_pir(List<String> ids, int index, ServiceMySqlModel model,
-            ClientMysqlModel currentClient, String otMethod) {
+            ClientMysqlModel currentClient, String otMethod) throws Exception {
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
 		List<JObject> results = new ArrayList<>();
@@ -646,7 +655,7 @@ public class ServiceService {
                 LOG.info("multi_pir result\t" + tmp);
                 results.add(tmp);
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw e;
 			}
 		}
 		return results;
