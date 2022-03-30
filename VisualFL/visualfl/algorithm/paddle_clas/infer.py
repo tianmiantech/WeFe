@@ -42,9 +42,6 @@ import cv_utils as utils
 from visualfl.db.task_dao import TaskDao
 from visualfl.utils.consts import ComponentName,TaskResultType
 import logging
-# FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
-# logging.basicConfig(level=logging.DEBUG, format=FORMAT)
-# logger = logging.getLogger(__name__)
 
 logging.basicConfig(
     filename="infer.log",
