@@ -56,7 +56,6 @@ class JobGuard(threading.Thread):
                 try:
                     self.logger.info("observe job {}".format(job.job_id))
                     self.observe(job)
-                    self.logger.info("observe job {} over".format(job.job_id))
                 except Exception as e:
                     # When an exception is encountered, close the job.
                     message = "observe job error:" + repr(e)
