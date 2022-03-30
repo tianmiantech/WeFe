@@ -43,7 +43,7 @@ public class NaorPinkasQuery {
         randomRequest.setIds(config.getPrimaryKeys());
         randomRequest.setOtMethod(Constants.PIR.NAORPINKAS_OT);
         QueryNaorPinkasRandomResponse randomResponse = transferVariable.queryNaorPinkasRandom(randomRequest);
-        if(randomResponse.getCode() == 1) {
+        if(randomResponse.getCode() != 0) {
             throw new Exception(randomResponse.getMessage());
         }
         String uuid = randomResponse.getUuid();
