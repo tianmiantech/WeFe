@@ -58,7 +58,6 @@ from visualfl.utils.consts import TaskResultType,ComponentName
 import logging
 FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
 logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger(__name__)
 
 
 def get_save_image_name(output_dir, image_path):
@@ -98,7 +97,7 @@ def get_test_images(infer_dir, infer_img):
     images = list(images)
 
     assert len(images) > 0, "no image found in {}".format(infer_dir)
-    logger.info("Found {} inference images in total.".format(len(images)))
+    logging.info("Found {} inference images in total.".format(len(images)))
 
     return images
 
@@ -200,7 +199,7 @@ def main():
             k: (np.array(v), v.recursive_sequence_lengths())
             for k, v in zip(keys, outs)
         }
-        logger.info('Infer iter {}'.format(iter_id))
+        logging.info('Infer iter {}'.format(iter_id))
         if 'TTFNet' in cfg.architecture:
             res['bbox'][1].append([len(res['bbox'][0])])
         if 'CornerNet' in cfg.architecture:
@@ -252,7 +251,7 @@ def main():
                     vdl_image_frame += 1
 
             save_name = get_save_image_name(FLAGS.output_dir, image_path)
-            logger.info("Detection bbox results save in {}".format(save_name))
+            logging.info("Detection bbox results save in {}".format(save_name))
             image.save(save_name, quality=95)
             # xmin, ymin, w, h
             for bbox in bbox_results:

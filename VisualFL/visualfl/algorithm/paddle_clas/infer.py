@@ -42,9 +42,17 @@ import cv_utils as utils
 from visualfl.db.task_dao import TaskDao
 from visualfl.utils.consts import ComponentName,TaskResultType
 import logging
-FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
-logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger(__name__)
+# FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
+# logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+# logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    filename="infer.log",
+    filemode="w",
+    format="%(asctime)s %(name)s:%(levelname)s:%(message)s",
+    datefmt="%d-%M-%Y %H:%M:%S",
+    level=logging.DEBUG,
+)
 
 
 def parse_args():
@@ -176,15 +184,16 @@ def main():
                           fetch_list=fetch_names,
                           return_numpy=False)
         probs = postprocess(outputs)
-        logger.debug("current image: {}".format(filename))
+        logging.debug("current image: {}".format(filename))
         infer_probs = []
         for idx, prob in probs:
-            logger.debug("\tclass id: {:d}, probability: {:.4f}".format(idx, prob))
-            infer_probs.append({"class_id":idx,"class_name":cats[idx],"prob":prob})
+            logging.debug("\tclass id: {:d}, probability: {:.4f}".format(idx, prob))
+            infer_probs.append({"class_id":idx,"class_name":str(cats[idx]),"prob":prob})
         infer_dict = {"image": os.path.basename(filename), "infer_probs": infer_probs}
         img_probs.append(infer_dict)
     infer_result["result"] = img_probs
     infer_result["status"] = "finish"
+    logging.debug(f"infer result: {infer_result}")
     TaskDao(task_id=args.task_id).save_task_result(infer_result, ComponentName.CLASSIFY, type=TaskResultType.INFER)
 
 if __name__ == "__main__":
