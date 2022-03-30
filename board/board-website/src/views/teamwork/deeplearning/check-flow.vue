@@ -301,14 +301,14 @@
                                 vData.isCheckFinished = false;
                                 vData.isUploadedOk = true;
                                 vData.isChecking = true;
-                                if (vData.resquestCount < 9) {
+                                if (vData.resquestCount < 2) {
                                     clearTimeout(vData.resultNullTimer);
                                     vData.resultNullTimer = setTimeout(() => {
                                         methods.getPredictDetail();
                                         vData.resquestCount++;
                                     }, 1000);
                                 } else {
-                                    $message.error('预测服务异常：无预测记录，请联系管理员检查预测服务是否正常。');
+                                    $message.error('当前没有预测中的推理任务，请上传文件开始推理。');
                                     vData.isCanUpload = true;
                                     vData.isUploading = false;
                                     vData.isCheckFinished = false;
