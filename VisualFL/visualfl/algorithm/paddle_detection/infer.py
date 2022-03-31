@@ -114,7 +114,12 @@ def main():
 
     main_arch = cfg.architecture
 
-    TaskDao(task_id=FLAGS.task_id).save_task_result({"status": "running"}, ComponentName.DETECTION, type=TaskResultType.INFER)
+    model = TaskDao(FLAGS.task_id).get_task_result(TaskResultType.INFER)
+    infer_result = {}
+    if model:
+        infer_result = json.loads(model.result)
+    infer_result.update({"status": "running"})
+    TaskDao(task_id=FLAGS.task_id).save_task_result(infer_result, ComponentName.DETECTION, type=TaskResultType.INFER)
 
     dataset = cfg.TestReader['dataset']
     test_images = get_test_images(FLAGS.infer_dir, FLAGS.infer_img)
@@ -187,7 +192,6 @@ def main():
         vdl_image_frame = 0  # each frame can display ten pictures at most.
 
 
-    infer_result = {}
     image_infers = []
     imid2path = dataset.get_imid2path()
     for iter_id, data in enumerate(loader()):
