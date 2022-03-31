@@ -48,7 +48,7 @@ public abstract class AbstractStorage extends Storage {
         try {
             conn = dataSource.getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
         return conn;
     }
@@ -68,21 +68,21 @@ public abstract class AbstractStorage extends Storage {
             try {
                 rs.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
         if (stat != null) {
             try {
                 stat.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
         if (conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(),e);
             }
         }
     }

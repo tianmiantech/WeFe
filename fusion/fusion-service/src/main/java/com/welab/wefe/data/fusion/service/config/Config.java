@@ -74,6 +74,9 @@ public class Config {
     @Value("${sm4.secret.key}")
     private String sm4SecretKey;
 
+    @Value("${encrypt.phone.number.open:true}")
+    private boolean encryptPhoneNumberOpen;
+
     public boolean isOnlineDemo() {
         return envBranch == EnvBranch.online_demo;
     }
@@ -158,6 +161,14 @@ public class Config {
 
     public void setSm4SecretKey(String sm4SecretKey) {
         this.sm4SecretKey = sm4SecretKey;
+    }
+
+    public boolean isEncryptPhoneNumberOpen() {
+        return encryptPhoneNumberOpen;
+    }
+
+    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
+        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
     }
 
     // endregion

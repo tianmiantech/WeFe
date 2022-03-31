@@ -51,7 +51,7 @@ CREATE TABLE `member`
     `name`         varchar(64)  NOT NULL COMMENT '成员名称',
     `api`          varchar(256) DEFAULT NULL COMMENT '调用路警',
     `public_key`   text         NOT NULL COMMENT '公钥',
-    `created_time` datetime     NOT NULL COMMENT '创建日期',,
+    `created_time` datetime     NOT NULL COMMENT '创建日期',
     `updated_time` datetime     DEFAULT NULL COMMENT '最后操作日期',
     `created_by`   varchar(32)  DEFAULT NULL COMMENT '创建人',
     `updated_by`   varchar(32)  DEFAULT NULL COMMENT '更新人',

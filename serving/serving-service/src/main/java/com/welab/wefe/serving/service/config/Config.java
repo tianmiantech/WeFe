@@ -34,6 +34,9 @@ public class Config {
     @Value("${sm4.secret.key}")
     private String sm4SecretKey;
 
+    @Value("${encrypt.phone.number.open:true}")
+    private boolean encryptPhoneNumberOpen;
+
     @Value("${wefe.serving.file.upload.dir:}")
     private String fileUploadDir;
 
@@ -100,13 +103,5 @@ public class Config {
 
     public void setSm4SecretKey(String sm4SecretKey) {
         this.sm4SecretKey = sm4SecretKey;
-    }
-
-    public String getFileUploadDir() {
-        return fileUploadDir;
-    }
-
-    public void setFileUploadDir(String fileUploadDir) {
-        this.fileUploadDir = fileUploadDir;
     }
 }

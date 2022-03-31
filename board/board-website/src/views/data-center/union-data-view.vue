@@ -25,14 +25,6 @@
                 </span>
             </el-descriptions-item>
             <template v-if="addDataType === 'csv'">
-                <template v-if="dataInfo.contains_y">
-                    <el-descriptions-item label="正例样本数量：">
-                        {{ dataInfo.y_positive_sample_count }}
-                    </el-descriptions-item>
-                    <el-descriptions-item label="正例样本比例：">
-                        {{ (dataInfo.y_positive_sample_ratio * 100).toFixed(1) }}%
-                    </el-descriptions-item>
-                </template>
                 <el-descriptions-item label="样本量/特征量：">
                     {{ dataInfo.total_data_count }} / {{ dataInfo.feature_count }}
                 </el-descriptions-item>

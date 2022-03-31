@@ -124,8 +124,9 @@ const baseRoutes = [
                 path: `${prefixPath}user-list`,
                 name: 'user-list',
                 meta: {
-                    loginAndRefresh: true,
-                    title:           '用户列表',
+                    loginAndRefresh:  true,
+                    title:            '用户列表',
+                    normalUserCanSee: false,
                 },
                 component: () => import('../views/system/user-list'),
             },

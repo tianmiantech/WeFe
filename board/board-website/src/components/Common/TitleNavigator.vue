@@ -6,6 +6,7 @@
         >
             <el-link
                 :type="item.highlight ? 'primary' : 'default'"
+                :underline="false"
                 @click="jumpto(item)"
             >{{ item.title }}</el-link>
         </li>
@@ -216,6 +217,7 @@
     .el-link{
         font-size: 12px;
         margin-top:5px;
+        width: 100%;
         &:first-child{margin-top: 0;}
     }
     .backToTop{

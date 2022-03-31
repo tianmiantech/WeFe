@@ -85,10 +85,10 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
     }
 
     /**
-     * 默认忽略未登录状态的请求日志
+     * 是否忽略未登录状态的请求日志
      */
     protected boolean ignoreWithoutLogin() {
-        return true;
+        return false;
     }
 
     @Override
@@ -108,7 +108,9 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
                         saveLog(httpServletRequest, start, api, requestParams, result, accountInfo);
 
                         // 更新用户的最后活动时间
-                        logAccountLastActionTime(accountInfo.id);
+                        if (accountInfo != null) {
+                            logAccountLastActionTime(accountInfo.id);
+                        }
                     } catch (Exception e) {
                         LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                     }
@@ -152,7 +154,7 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
         log.setResponseTime(new Date(start + result.spend));
         log.setCallerIp(ip);
         //union api accountInfo is null
-        if(accountInfo != null) {
+        if (accountInfo != null) {
             log.setCallerId(accountInfo.getId());
             log.setCallerName(accountInfo.getNickname());
         } else {

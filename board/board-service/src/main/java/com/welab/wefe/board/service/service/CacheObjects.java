@@ -54,6 +54,7 @@ public class CacheObjects {
 
 
     private static long LAST_REFRESH_MEMBER_MAP_TIME = 0;
+    private static long LAST_REFRESH_ACCOUNT_MAP_TIME = 0;
 
     private static String MEMBER_ID;
     private static String RSA_PRIVATE_KEY;
@@ -248,7 +249,7 @@ public class CacheObjects {
         SECRET_KEY_TYPE = model.getSecretKeyType();
     }
 
-    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType) {
+    public static void refreshDataResourceTags(DataResourceType dataResourceType) {
         TreeMap<String, Integer> map = getDataResourceTags(dataResourceType);
         refreshDataResourceTags(dataResourceType, map);
     }
@@ -281,8 +282,15 @@ public class CacheObjects {
 
     /**
      * Reload account list
+     * <p>
+     * 注意：经过测试，这个方法不能加 synchronized 关键字，否则会出现线程死锁。
      */
-    public static synchronized void refreshAccountMap() {
+    public static void refreshAccountMap() {
+        if (System.currentTimeMillis() - LAST_REFRESH_ACCOUNT_MAP_TIME < 10_000) {
+            return;
+        }
+        LAST_REFRESH_ACCOUNT_MAP_TIME = System.currentTimeMillis();
+
         AccountRepository repo = Launcher.getBean(AccountRepository.class);
         List<AccountMysqlModel> list = repo.findAll(Sort.by("nickname"));
 
@@ -297,7 +305,7 @@ public class CacheObjects {
     /**
      * Reload the list of union members
      */
-    public static synchronized void refreshMemberMap() throws StatusCodeWithException {
+    public static void refreshMemberMap() throws StatusCodeWithException {
         // Prohibit high frequency refresh
         if (System.currentTimeMillis() - LAST_REFRESH_MEMBER_MAP_TIME < 60_000) {
             return;

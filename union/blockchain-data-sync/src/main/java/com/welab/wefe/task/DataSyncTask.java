@@ -175,6 +175,7 @@ public class DataSyncTask {
                 blockSyncContractHeightService.save(filterBlockInfoBO);
 
                 blockSyncDetailInfoService.saveBlockDetailInfo(blockInfoBO);
+                break;
             }
             transactionResponseService.save(blockInfoBO);
         }
