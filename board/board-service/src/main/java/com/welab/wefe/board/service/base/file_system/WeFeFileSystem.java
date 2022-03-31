@@ -23,6 +23,8 @@ import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +38,7 @@ import java.nio.file.Paths;
  * @date 2022/2/15
  */
 public class WeFeFileSystem {
+    private static final Logger LOG = LoggerFactory.getLogger(WeFeFileSystem.class);
     private static final Path ROOT_DIR = Paths.get(Launcher.getBean(Config.class).getFileUploadDir());
 
     static {
@@ -181,7 +184,8 @@ public class WeFeFileSystem {
                         getBaseDir(UseType.CallDeepLearningModel).resolve(taskId).toString()
                 );
             } catch (IOException e) {
-                return null;
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+                StatusCode.FILE_IO_ERROR.throwException(e);
             }
             return zipFile;
         }

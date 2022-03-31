@@ -31,7 +31,7 @@ public class LocalIntermediateCache implements CacheOperation {
 
     @Override
     public synchronized void save(String key, String name, Object value) {
-        Cache<String, Object> cache = caches.getIfPresent(key);
+        Cache cache = caches.getIfPresent(key);
         if (cache == null) {
             cache = CacheBuilder.newBuilder().build();
         }
@@ -41,7 +41,7 @@ public class LocalIntermediateCache implements CacheOperation {
 
     @Override
     public synchronized Object get(String key, String name) {
-        Cache<String, Object> cache = caches.getIfPresent(key);
+        Cache cache = caches.getIfPresent(key);
         if (cache != null) {
             return cache.getIfPresent(name);
         }
