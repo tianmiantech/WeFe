@@ -19,6 +19,8 @@ package com.welab.wefe.common.fieldvalidate;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -29,6 +31,7 @@ import java.util.List;
  * @author Zane
  */
 public abstract class AbstractCheckModel {
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     public void checkAndStandardize() throws StatusCodeWithException {
         try {
@@ -62,7 +65,7 @@ public abstract class AbstractCheckModel {
                 }
             }
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
         }
     }
 
@@ -70,7 +73,7 @@ public abstract class AbstractCheckModel {
         try {
             FieldValidateUtil.standardize(this);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
         }
     }
 }
