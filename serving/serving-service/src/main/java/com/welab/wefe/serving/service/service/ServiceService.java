@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -395,7 +396,6 @@ public class ServiceService {
 				log(service, client, duration, clientIp, res.getIntValue("code"));
 				return res;
 			}
-			
 			ClientServiceMysqlModel clientServiceMysqlModel = clientService.queryByServiceIdAndClientId(service.getId(),
 					client.getId());
 			if (clientServiceMysqlModel == null || clientServiceMysqlModel.getStatus() != 1) {
@@ -427,7 +427,6 @@ public class ServiceService {
 					return res;
 				}
 			}
-			
 			if (serviceType == ServiceTypeEnum.PIR.getCode()) {
 				List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
                 String otMethod = data.getString("otMethod");
@@ -468,7 +467,16 @@ public class ServiceService {
                 if (StringUtils.isBlank(otMethod)) {
                     otMethod = data.getString("ot_method", Constants.PIR.NAORPINKAS_OT);
                 }
-                List<JObject> results = multi_pir(ids, idx, service, currentClient, otMethod);
+                List<JObject> results;
+                try {
+                    results = multi_pir(ids, idx, service, currentClient, otMethod);
+                } catch (Exception e) {
+                    res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
+                    res.append("message", "invalid request: url = " + serviceUrl + ", message= " + e.getMessage());
+                    long duration = System.currentTimeMillis() - start;
+                    log(service, client, duration, clientIp, res.getIntValue("code"));
+                    return res;
+                }
                 res = JObject.create("result", results);
             }
 			res.append("code", ServiceResultEnum.SUCCESS.getCode());
@@ -617,7 +625,7 @@ public class ServiceService {
 	}
 
     private List<JObject> multi_pir(List<String> ids, int index, ServiceMySqlModel model,
-            ClientMysqlModel currentClient, String otMethod) {
+            ClientMysqlModel currentClient, String otMethod) throws Exception {
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
 		List<JObject> results = new ArrayList<>();
@@ -643,88 +651,80 @@ public class ServiceService {
 				result = privateInformationRetrievalQuery.query(config, communicationConfig, otMethod);
                 JObject tmp = JObject.create("memberId", memberId).append("memberName", memberName)
                         .append("index", index).append("result", result);
-                LOG.info("multi_pir result\t" + tmp);
                 results.add(tmp);
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw e;
 			}
 		}
 		return results;
 	}
 
-	private JObject pir(List<String> ids, ServiceMySqlModel model, String otMethod) throws StatusCodeWithException {
-		Map<String, String> result = new HashMap<>();
-		// 0 根据ID查询对应的数据
-		for (String id : ids) {// params
-			JSONObject dataSource = JObject.parseObject(model.getDataSource());
-			String dataSourceId = dataSource.getString("id");
-			DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-			String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
-			String resultfields = ServiceUtil.parseReturnFields(dataSource);
-			try {
-				Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
-						Arrays.asList(resultfields.split(",")));
-				if (resultMap == null || resultMap.isEmpty()) {
-					resultMap = new HashMap<>();
-					resultMap.put("rand", "thisisemptyresult");
-				}
-				String resultStr = JObject.toJSONString(resultMap);
-                LOG.info("pir datasource result : " + id + "\t " + resultStr);
-				result.put(id, resultStr);
-			} catch (StatusCodeWithException e) {
-				throw e;
-			}
-		}
-		LOG.info("begin handle");
-		String uuid = "";
-		JObject response = JObject.create();
-		if(Constants.PIR.NAORPINKAS_OT.equalsIgnoreCase(otMethod)) {
-		    NaorPinkasRandomService service = new NaorPinkasRandomService();
-		    QueryKeysRequest request = new QueryKeysRequest();
+    private JObject pir(List<String> ids, ServiceMySqlModel model, String otMethod) throws StatusCodeWithException {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        JObject response = JObject.create();
+        if (Constants.PIR.HUACK_OT.equalsIgnoreCase(otMethod)) {
+            QueryKeysRequest request = new QueryKeysRequest();
+            request.setIds((List) ids);
+            request.setMethod("plain");
+            request.setOtMethod(Constants.PIR.HUACK_OT);
+            HuackKeyService service = new HuackKeyService();
+            QueryKeysResponse resp = null;
+            try {
+                resp = service.handle(request);
+                // 3 取出 QueryKeysResponse 的uuid 将uuid传入QueryResult
+                response = JObject.create(resp);
+            } catch (Exception e) {
+                LOG.error("HUACK_OT handle error", e);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员, " + e.getMessage());
+            }
+        } else {
+            NaorPinkasRandomService service = new NaorPinkasRandomService();
+            QueryKeysRequest request = new QueryKeysRequest();
             request.setIds((List) ids);
             request.setMethod("plain");
             request.setOtMethod(Constants.PIR.NAORPINKAS_OT);
             QueryNaorPinkasRandomResponse resp = null;
             try {
                 LOG.info("begin NAORPINKAS_OT service handle");
-                resp = service.handle(request);
-                LOG.info("end NAORPINKAS_OT service handle");
+                resp = service.handle(request, uuid);
                 // 3 取出 QueryKeysResponse 的uuid
                 // 将uuid传入QueryResult
-                uuid = resp.getUuid();
                 response = JObject.create(resp);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("NAORPINKAS_OT service handle error", e);
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
             }
-		}
-		else {
-		    QueryKeysRequest request = new QueryKeysRequest();
-	        request.setIds((List) ids);
-	        request.setMethod("plain");
-	        request.setOtMethod(Constants.PIR.HUACK_OT);
-	        HuackKeyService service = new HuackKeyService();
-	        QueryKeysResponse resp = null;
-	        try {
-	            LOG.info("begin HUACK_OT service handle");
-	            resp = service.handle(request);
-	            LOG.info("end HUACK_OT service handle");
-	            // 3 取出 QueryKeysResponse 的uuid
-	            // 将uuid传入QueryResult
-	            uuid = resp.getUuid();
-	            response = JObject.create(resp);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
-	        }
-		}
-		
-		// 将 0 步骤查询的数据 保存到 CacheOperation
-		CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
-        LOG.info("save service handle result");
-		queryResult.save(uuid, Constants.RESULT, result);
-		return response;
-	}
+        }
+        CommonThreadPool.run(() -> {
+            Map<String, String> result = new HashMap<>();
+            // 0 根据ID查询对应的数据
+            for (String id : ids) {// params
+                JSONObject dataSource = JObject.parseObject(model.getDataSource());
+                String dataSourceId = dataSource.getString("id");
+                DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
+                String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
+                String resultfields = ServiceUtil.parseReturnFields(dataSource);
+                try {
+                    Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
+                            Arrays.asList(resultfields.split(",")));
+                    if (resultMap == null || resultMap.isEmpty()) {
+                        resultMap = new HashMap<>();
+                        resultMap.put("rand", "thisisemptyresult");
+                    }
+                    String resultStr = JObject.toJSONString(resultMap);
+                    LOG.info("pir datasource result : " + id + "\t " + resultStr);
+                    result.put(id, resultStr);
+                } catch (StatusCodeWithException e) {
+                    LOG.error("pir query data error", e);
+                }
+            }
+            // 将 0 步骤查询的数据 保存到 CacheOperation
+            CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
+            LOG.info("save service handle result");
+            queryResult.save(uuid, Constants.RESULT, result);
+        });
+        return response;
+    }
 
 	public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);

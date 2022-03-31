@@ -32,17 +32,20 @@ import java.math.BigInteger;
 
 public class NaorPinkasQuery {
 
-    public String query(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable) {
+    public String query(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable) throws Exception {
         return query(config, transferVariable, 1024);
     }
 
-    public String query(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable, int keySize) {
+    public String query(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable, int keySize) throws Exception {
         int targetIndex = config.getTargetIndex();
         BigInteger k = DiffieHellmanUtil.generateRandomKey(keySize);
         QueryKeysRequest randomRequest = new QueryKeysRequest();
         randomRequest.setIds(config.getPrimaryKeys());
         randomRequest.setOtMethod(Constants.PIR.NAORPINKAS_OT);
         QueryNaorPinkasRandomResponse randomResponse = transferVariable.queryNaorPinkasRandom(randomRequest);
+        if(randomResponse.getCode() != 0) {
+            throw new Exception(randomResponse.getMessage());
+        }
         String uuid = randomResponse.getUuid();
         BigInteger g = DiffieHellmanUtil.hexStringToBigInteger(randomResponse.getG());
         BigInteger p = DiffieHellmanUtil.hexStringToBigInteger(randomResponse.getP());
