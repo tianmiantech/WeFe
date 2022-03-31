@@ -458,10 +458,12 @@ class RESTService(Logger):
             config["infer_dir"] = infer_dir
             config["output_dir"] = output_dir
 
-            infer_session_id = data.get("infer_session_id",'')
+            infer_session_id = data_set.get("infer_session_id",'')
 
             task_result = {"infer_session_id": infer_session_id,"status": "wait_run"}
-            TaskDao(task_id).save_task_result(task_result, ComponentName.CLASSIFY,type=TaskResultType.INFER)
+            program = algorithm_config["program"]
+            componentName = ComponentName.DETECTION if program == "paddle_detection" else ComponentName.CLASSIFY
+            TaskDao(task_id).save_task_result(task_result, componentName,type=TaskResultType.INFER)
 
         except Exception as e:
             self.exception(f"infer request download and process images error as {e} ")
