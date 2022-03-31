@@ -30,6 +30,9 @@ from __future__ import annotations
 
 import os,sys
 import asyncio
+import random
+import subprocess
+
 import aiofiles
 import enum
 import json
@@ -167,6 +170,7 @@ class RESTService(Logger):
         route_table.post("/submit")(self._restful_submit)
         route_table.post("/query")(self._restful_query)
         route_table.post("/infer")(self._restful_infer)
+        route_table.post("/stop")(self._restful_stop)
         route_table.get("/serving_model/download")(self._restful_download)
         return route_table
 
@@ -305,6 +309,34 @@ class RESTService(Logger):
 
         return self.web_response(200, "success", job_id)
 
+    async def _restful_stop(self, request: web.Request) -> web.Response:
+        """
+        handle query request
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        try:
+            data = await request.json()
+        except json.JSONDecodeError as e:
+            return self.web_response(400, str(e))
+
+        job_id = data.get("job_id", None)
+        if job_id is None:
+            return self.web_response(400, "required `job_id`")
+
+        try:
+            for line in os.popen(f'ps -ef | grep fl_ | grep {job_id} | grep -v grep').readlines():
+                pid = line.split()[1]
+                subprocess.Popen(f"kill -9 {pid}", shell=True)
+        except Exception:
+            Logger.error(f"failed: can't stop job {job_id}")
+            return self.web_response(400, f"failed: can't stop job {job_id}")
+
+        return self.web_response(200, "stop job success", job_id)
 
     async def _restful_query(self, request: web.Request) -> web.Response:
         """
@@ -418,7 +450,7 @@ class RESTService(Logger):
             algorithm_config = data.get("algorithm_config")
             cur_step = TaskDao(task_id).get_task_progress()
             input_dir = os.path.join(__logs_dir__,f"jobs/{job_id}/infer/input")
-            infer_dir = data_loader.job_download(download_url, job_id, input_dir)
+            infer_dir = data_loader.job_download(download_url, job_id+str(random.randint(0,99999)), input_dir)
             data_loader.extractImages(infer_dir)
             output_dir = os.path.join(__logs_dir__, f"jobs/{job_id}/infer/output/{os.path.basename(infer_dir)}")
             config["cur_step"] = cur_step
