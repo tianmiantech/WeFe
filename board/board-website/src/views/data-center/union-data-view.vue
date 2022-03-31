@@ -12,7 +12,7 @@
             <el-descriptions-item v-if="dataInfo.description" label="描述：">
                 {{ dataInfo.description }}
             </el-descriptions-item>
-            <el-descriptions-item label="标签">
+            <el-descriptions-item label="关键字：">
                 <span v-if="dataInfo.tags">
                     <template v-for="(tag, index) in dataInfo.tags.split(',')">
                         <el-tag
@@ -36,10 +36,27 @@
                 <el-descriptions-item label="标注状态：">
                     {{ dataInfo.label_completed ? '已完成' : '标注中' }}
                 </el-descriptions-item>
-                <el-descriptions-item label="样本量/已标注：">
-                    {{ dataInfo.total_data_count }} / {{ dataInfo.labeled_count }}
+                <el-descriptions-item label="已标注/样本量：">
+                    {{ dataInfo.labeled_count }} / {{ dataInfo.total_data_count }}
+                </el-descriptions-item>
+                <el-descriptions-item v-if="dataInfo.label_list && dataInfo.label_list.length" label="标签个数：">
+                    {{ dataInfo.label_list.split(',').length }}
                 </el-descriptions-item>
             </template>
+        </el-descriptions>
+        <el-descriptions class="dataset-desc" :column="2">
+            <el-descriptions-item v-if="dataInfo.label_list && dataInfo.label_list.length" label="标签列表：">
+                <template v-for="item in dataInfo.label_list.split(',')" :key="item">
+                    <el-tag
+                        v-show="item"
+                        class="mr5 mb10"
+                        type="info"
+                        effect="plain"
+                    >
+                        {{ item }}
+                    </el-tag>
+                </template>
+            </el-descriptions-item>
         </el-descriptions>
 
         <p class="mt10" v-if="addDataType === 'BloomFilter'">
