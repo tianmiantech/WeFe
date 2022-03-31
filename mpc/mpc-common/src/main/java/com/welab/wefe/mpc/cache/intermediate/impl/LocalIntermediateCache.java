@@ -30,7 +30,7 @@ public class LocalIntermediateCache implements CacheOperation {
     private static final Cache<String, Cache<String, Object>> caches = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
 
     @Override
-    public void save(String key, String name, Object value) {
+    public synchronized void save(String key, String name, Object value) {
         Cache cache = caches.getIfPresent(key);
         if (cache == null) {
             cache = CacheBuilder.newBuilder().build();
@@ -40,7 +40,7 @@ public class LocalIntermediateCache implements CacheOperation {
     }
 
     @Override
-    public Object get(String key, String name) {
+    public synchronized Object get(String key, String name) {
         Cache cache = caches.getIfPresent(key);
         if (cache != null) {
             return cache.getIfPresent(name);
