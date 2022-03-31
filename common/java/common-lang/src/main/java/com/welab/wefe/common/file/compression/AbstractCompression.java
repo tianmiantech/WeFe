@@ -66,6 +66,13 @@ public abstract class AbstractCompression {
             ).toString();
         }
 
+        // 如果压缩文件已存在，删除。
+        File destFile = new File(destFileName);
+        if (destFile.exists()) {
+            destFile.delete();
+        }
+
+
         // 执行压缩
         doCompression(srcPath, destFileName);
 
