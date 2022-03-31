@@ -80,10 +80,9 @@
             const methods = {};
 
             const renderTopnTable = (result) => {
-                vData.validate_topn = result.validate_topn;
-
                 const topnList = result.train_topn || result.validate_topn;
 
+                vData.validate_topn = result.validate_topn;
                 if(topnList && topnList.length) {
                     vData.tableData = topnList.map((item, i) => {
                         return {

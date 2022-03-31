@@ -39,19 +39,26 @@ public class DataResourceLazyUpdateTask {
     private DataResourceLazyUpdateModelMongoReop dataResourceLazyUpdateModelMongoReop;
 
 
-    @Scheduled(fixedDelayString = "${data.resource.lazy.update.update.fixed.delay.string}")
+    @Scheduled(initialDelay = 10000, fixedDelayString = "${data.resource.lazy.update.update.fixed.delay.string}")
     private void startTask() {
-        List<DataResourceLazyUpdateModel> list = dataResourceLazyUpdateModelMongoReop.findAll();
+        LOG.info("DataResourceLazyUpdate start");
+        List<DataResourceLazyUpdateModel> list = null;
+        try {
+            list = dataResourceLazyUpdateModelMongoReop.findAll();
+        } catch (Exception e) {
+            LOG.info("DataResourceLazyUpdate error:" + e);
+        }
+
         for (DataResourceLazyUpdateModel dataResourceLazyUpdateModel :
                 list) {
             try {
                 LOG.info("DataResourceLazyUpdate start dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
                 DataResource dataResource = dataResourceMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
-                if(dataResource != null) {
+                if (dataResource != null) {
                     dataResource.setTotalDataCount(String.valueOf(dataResourceLazyUpdateModel.getTotalDataCount()));
                     dataResourceContractService.update(dataResource);
                     ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
-                    if(imageDataSet != null) {
+                    if (imageDataSet != null) {
                         imageDataSet.setDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
                         imageDataSet.setLabeledCount(String.valueOf(dataResourceLazyUpdateModel.getLabeledCount()));
                         imageDataSet.setLabelList(dataResourceLazyUpdateModel.getLabelList());
@@ -60,9 +67,10 @@ public class DataResourceLazyUpdateTask {
                     }
                 }
                 LOG.info("DataResourceLazyUpdate end dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
-            } catch (StatusCodeWithException e) {
+            } catch (Exception e) {
                 LOG.error("DataResourceLazyUpdate error dataResourceId: " + dataResourceLazyUpdateModel.getDataResourceId(), e);
             }
         }
+        LOG.info("DataResourceLazyUpdate end");
     }
 }

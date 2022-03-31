@@ -34,6 +34,7 @@ from visualfl.protobuf import scheduler_pb2_grpc, scheduler_pb2
 class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
     def __init__(
         self,
+        job_id:str,
         scheduler_ep: str,
         worker_num: int,
         sample_num: int,
@@ -64,7 +65,7 @@ class Scheduler(scheduler_pb2_grpc.SchedulerServicer):
         self._max_delay = 300
 
         self._fl_server_watcher = FLServerWatched(
-            main_program=main_program, startup_program=startup_program
+            job_id=job_id,main_program=main_program, startup_program=startup_program
         )
 
     async def start(self):
@@ -182,7 +183,8 @@ class FLServerWatched(object):
     use scheduler to start and kill fl_server
     """
 
-    def __init__(self, main_program, startup_program):
+    def __init__(self, job_id,main_program, startup_program):
+        self.job_id = job_id
         self._main_program = main_program
         self._startup_program = startup_program
         self.sub_pid = None
@@ -193,6 +195,7 @@ class FLServerWatched(object):
         cmd = " ".join(
             [
                 f"{python_executable} -m visualfl.paddle_fl.scheduler.fl_server",
+                f"--job-id={self.job_id}",
                 f"--startup-program={self._startup_program}",
                 f"--main-program={self._main_program}",
                 f">{executor.stdout} 2>{executor.stderr} &",
@@ -214,6 +217,7 @@ class FLServerWatched(object):
 
 
 @click.command()
+@click.option("--job-id", type=str, required=True)
 @click.option("--scheduler-ep", type=str, required=True)
 @click.option(
     "--main-program",
@@ -231,6 +235,7 @@ class FLServerWatched(object):
     required=True,
 )
 def fl_scheduler(
+    job_id,
     scheduler_ep,
     startup_program,
     main_program,
@@ -250,6 +255,7 @@ def fl_scheduler(
 
     loop = asyncio.get_event_loop()
     scheduler = Scheduler(
+        job_id=job_id,
         scheduler_ep=scheduler_ep,
         worker_num=worker_num,
         sample_num=worker_num,
