@@ -203,6 +203,11 @@ public class FileUtil {
     }
 
     public static void moveFile(File file, Path distDir) {
+        // 文件已经在目标目录，不用移动。
+        if (file.getParentFile().toPath().equals(distDir)) {
+            return;
+        }
+
         String fileName = file.getName();
 
         distDir.toFile().mkdirs();
