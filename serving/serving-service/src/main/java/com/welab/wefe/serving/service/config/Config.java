@@ -1,14 +1,15 @@
 package com.welab.wefe.serving.service.config;
 
+import com.welab.wefe.common.web.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource(value = {"application.properties"}, encoding = "utf-8")
+@PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
 @ConfigurationProperties
-public class Config {
+public class Config extends CommonConfig {
 
     @Value("${wefe.union.base-url}")
     private String UNION_BASE_URL;
