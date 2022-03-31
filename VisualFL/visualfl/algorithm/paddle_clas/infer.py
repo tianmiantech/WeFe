@@ -161,7 +161,12 @@ def main():
     operators = create_operators()
     exe, program, feed_names, fetch_names = create_predictor(args)
     image_list = get_image_list(args.infer_dir)
-    TaskDao(args.task_id).save_task_result({"status": "running"}, ComponentName.CLASSIFY,type=TaskResultType.INFER)
+    model = TaskDao(args.task_id).get_task_result(TaskResultType.INFER)
+    infer_result={}
+    if model:
+        infer_result = json.loads(model.result)
+    infer_result.update({"status": "running"})
+    TaskDao(args.task_id).save_task_result(infer_result, ComponentName.CLASSIFY,type=TaskResultType.INFER)
     task_result = TaskDao(args.task_id).get_task_result(TaskResultType.LABEL)
     if not task_result:
         raise Exception(f"task result is None as task id: {args.task_id}")
@@ -171,7 +176,6 @@ def main():
         for line in f.readlines():
             lines = line.replace('\n','').split(' ')
             cats.append(' '.join(lines[1:]))
-    infer_result = {}
     img_probs = []
     for idx, filename in enumerate(image_list):
         data = preprocess(filename, operators)
