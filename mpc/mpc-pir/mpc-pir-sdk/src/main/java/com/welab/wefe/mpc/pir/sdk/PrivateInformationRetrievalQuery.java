@@ -35,7 +35,7 @@ import java.util.Locale;
 public class PrivateInformationRetrievalQuery {
 
     public String query(PrivateInformationRetrievalConfig config, CommunicationConfig communicationConfig) throws Exception {
-        return query(config, communicationConfig, Constants.PIR.HUACK_OT);
+        return query(config, communicationConfig, Constants.PIR.NAORPINKAS_OT);
     }
 
     /**
