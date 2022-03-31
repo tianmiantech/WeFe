@@ -213,7 +213,7 @@ public class WeFeFileSystem {
         /**
          * 将上传的文件解压后移动到预定目录
          */
-        public static void moveZipFileToSessionDir(File zipFile, String taskId, String sessionId) throws StatusCodeWithException {
+        public static int moveZipFileToSessionDir(File zipFile, String taskId, String sessionId) throws StatusCodeWithException {
             if (!zipFile.exists()) {
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("未找到文件：" + zipFile.getAbsolutePath());
             }
@@ -234,10 +234,12 @@ public class WeFeFileSystem {
             }
 
             // 安全起见，把非图片文件删除掉。
+            int imageCount = 0;
             for (File file : result.files) {
                 if (FileUtil.isImage(file)) {
                     // 将文件移动到解压目录的根目录，避免zip包内有子文件导致路径不好管理。
                     FileUtil.moveFile(file, distDir);
+                    imageCount++;
                 } else {
                     file.delete();
                 }
@@ -250,6 +252,12 @@ public class WeFeFileSystem {
 
             // 移除原始文件
             zipFile.delete();
+
+            if (imageCount == 0) {
+                FileUtil.deleteFileOrDir(distDir.toFile());
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("压缩包中没有图片文件！");
+            }
+            return imageCount;
         }
     }
 }
