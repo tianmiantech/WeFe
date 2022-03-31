@@ -467,7 +467,16 @@ public class ServiceService {
                 if (StringUtils.isBlank(otMethod)) {
                     otMethod = data.getString("ot_method", Constants.PIR.NAORPINKAS_OT);
                 }
-                List<JObject> results = multi_pir(ids, idx, service, currentClient, otMethod);
+                List<JObject> results;
+                try {
+                    results = multi_pir(ids, idx, service, currentClient, otMethod);
+                } catch (Exception e) {
+                    res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
+                    res.append("message", "invalid request: url = " + serviceUrl + ", message= " + e.getMessage());
+                    long duration = System.currentTimeMillis() - start;
+                    log(service, client, duration, clientIp, res.getIntValue("code"));
+                    return res;
+                }
                 res = JObject.create("result", results);
             }
 			res.append("code", ServiceResultEnum.SUCCESS.getCode());
@@ -616,7 +625,7 @@ public class ServiceService {
 	}
 
     private List<JObject> multi_pir(List<String> ids, int index, ServiceMySqlModel model,
-            ClientMysqlModel currentClient, String otMethod) {
+            ClientMysqlModel currentClient, String otMethod) throws Exception {
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
 		List<JObject> results = new ArrayList<>();
@@ -642,10 +651,9 @@ public class ServiceService {
 				result = privateInformationRetrievalQuery.query(config, communicationConfig, otMethod);
                 JObject tmp = JObject.create("memberId", memberId).append("memberName", memberName)
                         .append("index", index).append("result", result);
-                LOG.info("multi_pir result\t" + tmp);
                 results.add(tmp);
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw e;
 			}
 		}
 		return results;
@@ -662,14 +670,12 @@ public class ServiceService {
             HuackKeyService service = new HuackKeyService();
             QueryKeysResponse resp = null;
             try {
-                LOG.info("begin HUACK_OT service handle");
-                resp = service.handle(request, uuid);
-                // 3 取出 QueryKeysResponse 的uuid
-                // 将uuid传入QueryResult
+                resp = service.handle(request);
+                // 3 取出 QueryKeysResponse 的uuid 将uuid传入QueryResult
                 response = JObject.create(resp);
             } catch (Exception e) {
-                LOG.error("HUACK_OT service handle error", e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+                LOG.error("HUACK_OT handle error", e);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员, " + e.getMessage());
             }
         } else {
             NaorPinkasRandomService service = new NaorPinkasRandomService();

@@ -48,12 +48,12 @@ public class PrivateInformationRetrievalQuery {
      * @throws Exception
      */
     public String query(PrivateInformationRetrievalConfig config, CommunicationConfig communicationConfig, String method) throws Exception {
-        if (method.toLowerCase(Locale.ROOT).equals(Constants.PIR.NAORPINKAS_OT)) {
-            NaorPinkasTransferVariable transferVariable = new HttpTransferVariable(communicationConfig);
-            return queryWithNaorPinkas(config, transferVariable);
-        } else {
+        if (method.toLowerCase(Locale.ROOT).equals(Constants.PIR.HUACK_OT)) {
             PrivateInformationRetrievalTransferVariable transferVariable = new HttpTransferVariable(communicationConfig);
             return queryWithHauck(config, transferVariable);
+        } else {
+            NaorPinkasTransferVariable transferVariable = new HttpTransferVariable(communicationConfig);
+            return queryWithNaorPinkas(config, transferVariable);
         }
     }
 
@@ -61,7 +61,7 @@ public class PrivateInformationRetrievalQuery {
         return new PrivateInformationRetrievalClient(transferVariable, config).query();
     }
 
-    public String queryWithNaorPinkas(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable) {
+    public String queryWithNaorPinkas(PrivateInformationRetrievalConfig config, NaorPinkasTransferVariable transferVariable) throws Exception {
         return new NaorPinkasQuery().query(config, transferVariable);
     }
 }

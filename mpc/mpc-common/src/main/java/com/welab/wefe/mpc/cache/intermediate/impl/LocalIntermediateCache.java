@@ -16,18 +16,18 @@
 
 package com.welab.wefe.mpc.cache.intermediate.impl;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author eval
  */
 public class LocalIntermediateCache implements CacheOperation {
 
-    private static final Cache<String, Cache<String, Object>> caches = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
+    private final static Cache<String, Cache<String, Object>> caches = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
 
     @Override
     public synchronized void save(String key, String name, Object value) {
