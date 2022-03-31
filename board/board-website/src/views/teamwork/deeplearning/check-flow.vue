@@ -166,15 +166,16 @@
                         bbox_results: [],
                     },
                 },
-                isCanUpload:     true, // 是否可上传文件
-                isUploading:     false, // 文件上传中
-                isUploadedOk:    false, // 文件上传完成
-                isCheckFinished: false, // 模型校验完成
-                runningTimer:    null,
-                resquestCount:   0, // 获取预测详情时result为null后继续获取的次数
-                resultNullTimer: null,
-                isPredicting:    false, // 是否处于预测中
-                isChecking:      false, // 是否处于检测是否有正在预测的任务中
+                isCanUpload:      true, // 是否可上传文件
+                isUploading:      false, // 文件上传中
+                isUploadedOk:     false, // 文件上传完成
+                isCheckFinished:  false, // 模型校验完成
+                runningTimer:     null,
+                resquestCount:    0, // 获取预测详情时result为null后继续获取的次数
+                resultNullTimer:  null,
+                isPredicting:     false, // 是否处于预测中
+                isChecking:       false, // 是否处于检测是否有正在预测的任务中
+                infer_session_id: '',
             });
             const methods = {
                 async getModelList() {
@@ -250,7 +251,7 @@
                     }
                 },
                 async startPredict() {
-                    const { code, data } = await $http.post({
+                    const { code } = await $http.post({
                         url:  '/model/deep_learning/call/start',
                         data: {
                             taskId:   vData.form.model,
@@ -260,11 +261,8 @@
 
                     nextTick(_=> {
                         if(code === 0) {
-                            console.log(data.file_count);
-                            // if (data.file_count) {
                             vData.resquestCount = 0;
                             methods.getPredictDetail();
-                            // }
                         } else {
                             vData.isUploadedOk = false;
                             vData.isCanUpload = true;
@@ -283,6 +281,7 @@
 
                     if(code === 0) {
                         nextTick(_=> {
+                            vData.infer_session_id = data.task_view.results[0].result.infer_session_id;
                             if (data.task_view.results[0] === null) {
                                 vData.isCanUpload = false;
                                 vData.isUploading = false;
@@ -334,7 +333,7 @@
                                 });
                                 vData.isPredicting = false;
                             }
-                            if (data.task_view.results[0] !== null && data.task_view.results[0].result.status === 'running') {
+                            if (data.task_view.results[0] !== null && (data.task_view.results[0].result.status === 'running' || data.task_view.results[0].result.status === 'wait_run')) {
                                 vData.isCanUpload = false;
                                 vData.isUploading = false;
                                 vData.isCheckFinished = false;
@@ -351,7 +350,7 @@
                     vData.pageLoading = true;
                     const { code, data } = await $http.get({
                         url:          '/model/deep_learning/call/download/image',
-                        params:       { filename: img,  task_id: vData.form.model },
+                        params:       { filename: img,  task_id: vData.form.model, infer_session_id: vData.infer_session_id },
                         responseType: 'blob',
                     });
 

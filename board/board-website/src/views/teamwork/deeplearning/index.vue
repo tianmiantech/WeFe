@@ -345,6 +345,7 @@
                                     type="loss"
                                     :autoReadResult="true"
                                     :member-job-detail-list="vData.memberJobDetailList"
+                                    :flow-type="vData.flowType"
                                 />
                             </el-tab-pane>
                         </el-tabs>
