@@ -652,7 +652,6 @@ public class ServiceService {
 				result = privateInformationRetrievalQuery.query(config, communicationConfig, otMethod);
                 JObject tmp = JObject.create("memberId", memberId).append("memberName", memberName)
                         .append("index", index).append("result", result);
-                LOG.info("multi_pir result\t" + tmp);
                 results.add(tmp);
 			} catch (Exception e) {
 				throw e;
@@ -681,56 +680,49 @@ public class ServiceService {
                 LOG.info("pir datasource result : " + id + "\t " + resultStr);
 				result.put(id, resultStr);
 			} catch (StatusCodeWithException e) {
+			    LOG.error("query db error",e);
 				throw e;
 			}
 		}
-		LOG.info("begin handle");
 		String uuid = "";
 		JObject response = JObject.create();
-		if(Constants.PIR.NAORPINKAS_OT.equalsIgnoreCase(otMethod)) {
-		    NaorPinkasRandomService service = new NaorPinkasRandomService();
+		if(Constants.PIR.HUACK_OT.equalsIgnoreCase(otMethod)) {
 		    QueryKeysRequest request = new QueryKeysRequest();
+            request.setIds((List) ids);
+            request.setMethod("plain");
+            request.setOtMethod(Constants.PIR.HUACK_OT);
+            HuackKeyService service = new HuackKeyService();
+            QueryKeysResponse resp = null;
+            try {
+                resp = service.handle(request);
+                // 3 取出 QueryKeysResponse 的uuid 将uuid传入QueryResult
+                uuid = resp.getUuid();
+                response = JObject.create(resp);
+            } catch (Exception e) {
+                LOG.error("HUACK_OT handle error",e);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员, " + e.getMessage());
+            }
+		}
+		else {
+	        NaorPinkasRandomService service = new NaorPinkasRandomService();
+            QueryKeysRequest request = new QueryKeysRequest();
             request.setIds((List) ids);
             request.setMethod("plain");
             request.setOtMethod(Constants.PIR.NAORPINKAS_OT);
             QueryNaorPinkasRandomResponse resp = null;
             try {
-                LOG.info("begin NAORPINKAS_OT service handle");
                 resp = service.handle(request);
-                LOG.info("end NAORPINKAS_OT service handle");
-                // 3 取出 QueryKeysResponse 的uuid
-                // 将uuid传入QueryResult
+                // 3 取出 QueryKeysResponse 的uuid 将uuid传入QueryResult
                 uuid = resp.getUuid();
                 response = JObject.create(resp);
             } catch (Exception e) {
-                e.printStackTrace();
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
+                LOG.error("NAORPINKAS_OT handle error",e);
+                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员, " + e.getMessage());
             }
-		}
-		else {
-		    QueryKeysRequest request = new QueryKeysRequest();
-	        request.setIds((List) ids);
-	        request.setMethod("plain");
-	        request.setOtMethod(Constants.PIR.HUACK_OT);
-	        HuackKeyService service = new HuackKeyService();
-	        QueryKeysResponse resp = null;
-	        try {
-	            LOG.info("begin HUACK_OT service handle");
-	            resp = service.handle(request);
-	            LOG.info("end HUACK_OT service handle");
-	            // 3 取出 QueryKeysResponse 的uuid
-	            // 将uuid传入QueryResult
-	            uuid = resp.getUuid();
-	            response = JObject.create(resp);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
-	        }
 		}
 		
 		// 将 0 步骤查询的数据 保存到 CacheOperation
 		CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
-        LOG.info("save service handle result");
 		queryResult.save(uuid, Constants.RESULT, result);
 		return response;
 	}
