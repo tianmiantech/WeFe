@@ -381,7 +381,8 @@ public class ServiceService {
 		ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		JObject data = JObject.create(input.getData());
 		if (service == null) {
-			return JObject.create("message", "service not found: url = " + serviceUrl);
+            return JObject.create("message", "service not found: url = " + serviceUrl).append("code",
+                    ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode());
 		} else if (service.getStatus() != 1) {
 			res.append("code", ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode());
 			res.append("message", "invalid request: url = " + serviceUrl);
