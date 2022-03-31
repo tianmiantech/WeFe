@@ -236,18 +236,23 @@ public class WeFeFileSystem {
             // 安全起见，把非图片文件删除掉。
             int imageCount = 0;
             for (File file : result.files) {
-                if (FileUtil.isImage(file)) {
+                // 删除隐藏文件
+                if (file.isHidden()) {
+                    FileUtil.deleteFileOrDir(file);
+                }
+                // 删除不是图片的文件
+                else if (!FileUtil.isImage(file)) {
+                    FileUtil.deleteFileOrDir(file);
+                } else {
                     // 将文件移动到解压目录的根目录，避免zip包内有子文件导致路径不好管理。
                     FileUtil.moveFile(file, distDir);
                     imageCount++;
-                } else {
-                    file.delete();
                 }
             }
 
             // 移除解压后的子目录
             for (File file : result.dirs) {
-                file.delete();
+                FileUtil.deleteFileOrDir(file);
             }
 
             // 移除原始文件
