@@ -74,9 +74,6 @@ public class DataSetService extends AbstractService {
     @Autowired
     private Config config;
 
-    @Value("${file.upload.dir}")
-    private String fileUploadDir;
-
     @Value("${db.mysql.url}")
     private String mySqlUrl;
 
