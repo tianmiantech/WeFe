@@ -27,6 +27,8 @@ public class QueryPrivateSetIntersectionResponse {
     private String uuid;
     private List<String> serverEncryptIds;
     private List<String> clientIdByServerKeys;
+    private String message;
+    private int code;
 
     public String getUuid() {
         return uuid;
@@ -50,5 +52,21 @@ public class QueryPrivateSetIntersectionResponse {
 
     public void setClientIdByServerKeys(List<String> clientIdByServerKeys) {
         this.clientIdByServerKeys = clientIdByServerKeys;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 }

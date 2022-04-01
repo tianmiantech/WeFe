@@ -44,8 +44,9 @@ public class PrivateSetIntersection {
      * @param configs 服务器的通信配置信息列表
      * @param ids 本方id集
      * @return
+     * @throws Exception 
      */
-    public List<String> query(List<CommunicationConfig> configs, List<String> ids) {
+    public List<String> query(List<CommunicationConfig> configs, List<String> ids) throws Exception {
         List<String> result = new ArrayList<>(ids);
         for (CommunicationConfig config : configs) {
             List<String> psi = query(config, ids);
@@ -57,11 +58,11 @@ public class PrivateSetIntersection {
         return result;
     }
 
-    public List<String> query(CommunicationConfig config, List<String> ids) {
+    public List<String> query(CommunicationConfig config, List<String> ids) throws Exception {
         return query(config, ids, 1024);
     }
 
-    public List<String> query(CommunicationConfig config, List<String> ids, int keySize) {
+    public List<String> query(CommunicationConfig config, List<String> ids, int keySize) throws Exception {
         return query(config, ids, keySize, new IntersectionOperator());
     }
 
@@ -73,8 +74,9 @@ public class PrivateSetIntersection {
      * @param keySize  密钥安全长度
      * @param operator 自定义列表运算结果,默认求两个列表交集
      * @return
+     * @throws Exception 
      */
-    public List<String> query(CommunicationConfig config, List<String> ids, int keySize, ListOperator operator) {
+    public List<String> query(CommunicationConfig config, List<String> ids, int keySize, ListOperator operator) throws Exception {
         if (CollectionUtil.isEmpty(ids)) {
             throw new IllegalArgumentException("local id is empty");
         }
@@ -99,6 +101,9 @@ public class PrivateSetIntersection {
         request.setClientIds(encryptIds);
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         List<String> encryptServerIds = response.getServerEncryptIds();
         List<String> encryptIdWithServerKeys = response.getClientIdByServerKeys();
         List<String> serverIdWithClientKeys = new ArrayList<>(encryptServerIds.size());
