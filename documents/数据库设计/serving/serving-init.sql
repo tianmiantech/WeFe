@@ -348,7 +348,6 @@ CREATE TABLE `operator_log` (
   KEY `query_index` (`created_time`,`log_action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 CREATE TABLE `verification_code` (
   `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
   `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',

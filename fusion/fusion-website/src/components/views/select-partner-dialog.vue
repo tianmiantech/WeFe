@@ -3,6 +3,7 @@
         :visible.sync="show"
         class="dataset-dialog"
         title="请选择合作方"
+        width="1000px"
     >
         <el-form
             inline

@@ -40,6 +40,8 @@ class VisualFLService:
             return VisualFLService._request("/apply", params)
         elif name == 'submit':
             return VisualFLService._request("/submit", params)
+        elif name == 'stop':
+            return VisualFLService._request("/stop", params)
 
     @staticmethod
     def _request(api, data):

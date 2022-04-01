@@ -32,24 +32,16 @@
                         </uploader-btn>
                         <p class="mb10">或将文件 (.zip .tar .tgz .7z .png .jpg .jpeg) 拖到此处</p>
                     </uploader-drop>
-                    <!-- <div v-if="vData.isUploading || vData.isCheckFinished || vData.isUploadedOk" class="predict_box" :style="{width: vData.width+'px', height: vData.sampleList.length ? 490 : 400}+'px'">
-                        <p v-if="vData.isUploadedOk" class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
-                        <div v-if="vData.isCheckFinished">
-                            <label-system ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" :for-job-type="vData.forJobType" @save-label="methods.saveCurrentLabel" />
-                            <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" :width="700" @select-image="methods.selectImage" />
-                        </div>
-                        <uploader-list v-if="vData.isUploading" :file-list="vData.img_upload_options.files.length" />
-                    </div> -->
                     <div v-if="vData.isUploading" class="predict_box" :style="{width: vData.width+'px', height: vData.sampleList.length ? 490 : 400}+'px'">
                         <uploader-list :file-list="vData.img_upload_options.files.length" />
                     </div>
 
-                    <div v-if="vData.isUploadedOk" class="predict_box" style="width:800px; height: 400px;">
-                        <p class="predict_tips">{{vData.http_upload_filename ? '预测中...' : '上传中...'}}</p>
+                    <div v-if="vData.isUploadedOk" class="predict_box" style="height: 400px;">
+                        <p class="predict_tips">{{vData.isChecking ? '检测中...' : vData.isPredicting ? '预测中...' : '上传中...'}}</p>
                     </div>
 
                     <div v-if="vData.isCheckFinished" class="predict_box" :style="{width: vData.width+'px', height: vData.sampleList.length ? 490 : 400}+'px'">
-                        <label-system ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" :for-job-type="vData.forJobType" @save-label="methods.saveCurrentLabel" />
+                        <label-system ref="labelSystemRef" :currentImage="vData.currentImage" :labelList="vData.count_by_sample" :for-job-type="vData.forJobType === 'PaddleDetection' ? 'detection' : 'classify'" @save-label="methods.saveCurrentLabel" />
                         <image-thumbnail-list ref="imgThumbnailListRef" :sampleList="vData.sampleList" :width="700" @select-image="methods.selectImage" />
                     </div>
                     <!-- 预测结果出来后可显示上传文件按钮 -->
@@ -58,33 +50,33 @@
                             v-if="vData.isCheckFinished"
                             :attrs="vData.img_upload_attrs"
                             :single="true"
-                            class="upload_btn"
+                            class="upload_btn mr10"
                         >
                             点击上传文件
                         </uploader-btn>
-                        <el-button type="primary" class="ml10" @click="methods.downloadModel">模型下载</el-button>
-                        <el-button type="primary" class="ml10" @click="methods.downloadModelFile">模型文件下载</el-button>
+                        <el-button type="primary" @click="methods.downloadModel">模型下载</el-button>
                     </div>
                 </uploader>
             </div>
-            <div class="show_box ml10" style="min-width: 430px;">
+            <div class="show_box ml10" style="width: 430px;">
                 <div class="result_table">
                     <el-table
                         :data="vData.currentImage.item.bbox_results"
                         border
                         style="width: 100%;"
                         :max-height="488"
-                        :header-cell-style="{background:'#f7f7f7',color:'#606266'}">
+                        :header-cell-style="{background:'#f7f7f7',color:'#606266'}"
+                    >
                         <template #empty>
                             <div class="empty f14">没有满足条件的识别结果</div>
                         </template>
-                        <el-table-column prop="category_name" label="预测标签" width="90" />
-                        <el-table-column prop="score" label="得分" width="90">
+                        <el-table-column prop="category_name" label="预测标签" />
+                        <el-table-column prop="score" label="得分">
                             <template v-slot="scope">
                                 {{scope.row.score.toFixed(5)}}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="bbox" label="标注位置">
+                        <el-table-column v-if="vData.forJobType==='PaddleDetection'" prop="bbox" label="标注位置" width="240">
                             <template v-slot="scope">
                                 <template
                                     v-for="(item, index) in scope.row.bbox"
@@ -114,7 +106,7 @@
         components: { LabelSystem, ImageThumbnailList },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http, $bus } = appContext.config.globalProperties;
+            const { $http, $bus, $message } = appContext.config.globalProperties;
             const route = useRoute();
             const router = useRouter();
             const labelSystemRef = ref();
@@ -162,11 +154,10 @@
                 loading:              false,
                 files:                [],
                 http_upload_filename: '',
-                isStartPredict:       false,
                 sampleList:           [],
-                forJobType:           'detection',
+                forJobType:           'PaddleDetection',
                 timer:                null,
-                timer2:               null,
+                resetWidthTimer:      null,
                 width:                700,
                 pageLoading:          false,
                 totalResultCount:     0,
@@ -175,11 +166,16 @@
                         bbox_results: [],
                     },
                 },
-                isCanUpload:     true, // 是否可上传文件
-                isUploading:     false, // 文件上传中
-                isUploadedOk:    false, // 文件上传完成
-                isCheckFinished: false, // 模型校验完成
-                timer3:          null,
+                isCanUpload:      true, // 是否可上传文件
+                isUploading:      false, // 文件上传中
+                isUploadedOk:     false, // 文件上传完成
+                isCheckFinished:  false, // 模型校验完成
+                runningTimer:     null,
+                resquestCount:    0, // 获取预测详情时result为null后继续获取的次数
+                resultNullTimer:  null,
+                isPredicting:     false, // 是否处于预测中
+                isChecking:       false, // 是否处于检测是否有正在预测的任务中
+                infer_session_id: '',
             });
             const methods = {
                 async getModelList() {
@@ -207,9 +203,9 @@
                     // split考虑文件名中有.，随机数文件名以清除文件缓存
                     vData.img_upload_options.files = [file];
                     vData.isCanUpload = false;
-                    vData.isUploading = true;
                     vData.isCheckFinished = false;
                     vData.isUploadedOk = false;
+                    vData.isUploading = true;
                     vData.currentImage = {
                         item: {
                             bbox_results: [],
@@ -218,9 +214,9 @@
                 },
                 fileRemovedImage() {
                     vData.img_upload_options.files = [];
-                    vData.isCanUpload = true;
                     vData.isCheckFinished = false;
                     vData.isUploadedOk = false;
+                    vData.isCanUpload = true;
                 },
                 fileProgress(file) {
                     // vData.progress = Number((file._prevProgress * 100).toFixed(1));
@@ -247,18 +243,15 @@
                     vData.loading = false;
                     if (code === 0) {
                         vData.http_upload_filename = data.filename;
-                        vData.isUploadedOk = true;
                         vData.isUploading = false;
                         vData.isCheckFinished = false;
                         vData.isCanUpload = false;
+                        vData.isUploadedOk = true;
                         methods.startPredict();
-                        // setTimeout(() => {
-                        //     methods.getPredictDetail();
-                        // }, 500);
                     }
                 },
                 async startPredict() {
-                    const { code, data } = await $http.post({
+                    const { code } = await $http.post({
                         url:  '/model/deep_learning/call/start',
                         data: {
                             taskId:   vData.form.model,
@@ -268,12 +261,8 @@
 
                     nextTick(_=> {
                         if(code === 0) {
-                        
-                            if (data.file_count) {
-                                vData.isStartPredict = true;
-                                methods.getPredictDetail();
-                            }
-                        
+                            vData.resquestCount = 0;
+                            methods.getPredictDetail();
                         } else {
                             vData.isUploadedOk = false;
                             vData.isCanUpload = true;
@@ -281,12 +270,10 @@
                     });
                 },
                 async getPredictDetail() {
-                    // 获取预测结果 flow/job/task/detail
                     const { code, data } = await $http.post({
                         url:  '/flow/job/task/detail',
                         data: {
                             taskId:      vData.form.model,
-                            // taskId:      '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439',
                             result_type: 'infer',
                             need_result: true,
                         },
@@ -294,17 +281,49 @@
 
                     if(code === 0) {
                         nextTick(_=> {
-                            if (data.task_view.results[0].result.status === 'finish' && data.task_view.results[0].result.result.length) {
+                            vData.infer_session_id = data.task_view.results[0].result.infer_session_id;
+                            if (data.task_view.results[0] === null) {
+                                vData.isCanUpload = false;
+                                vData.isUploading = false;
+                                vData.isCheckFinished = false;
+                                vData.isUploadedOk = true;
+                                vData.isChecking = true;
+                                if (vData.resquestCount < 2) {
+                                    clearTimeout(vData.resultNullTimer);
+                                    vData.resultNullTimer = setTimeout(() => {
+                                        methods.getPredictDetail();
+                                        vData.resquestCount++;
+                                    }, 1000);
+                                } else {
+                                    $message.error('当前没有预测中的推理任务，请上传文件开始推理。');
+                                    vData.isCanUpload = true;
+                                    vData.isUploading = false;
+                                    vData.isCheckFinished = false;
+                                    vData.isUploadedOk = false;
+                                    vData.isChecking = false;
+                                }
+                            }
+                            if (data.task_view.results[0] !== null && data.task_view.results[0].result.status === 'finish' && data.task_view.results[0].result.result.length) {
+                                vData.forJobType = data.task_view.results[0].component_type;
                                 vData.totalResultCount = data.task_view.results[0].result.result.length;
-                                // vData.predictResultList = data.task_view.results[0].result.result;
                                 const list = data.task_view.results[0].result.result;
 
-                                for (let i=0; i<list.length; i++) {
-                                    list[i].bbox_results = list[i].bbox_results.filter(item => {
-                                        if (item.score > 0.5) {
-                                            return item;
-                                        }
-                                    });
+                                if (vData.forJobType === 'PaddleDetection') { // 目标检测
+                                    for (let i=0; i<list.length; i++) {
+                                        list[i].bbox_results = list[i].bbox_results.filter(item=>item.score > 0.5);
+                                    }
+                                } else if (vData.forJobType === 'PaddleClassify') { // 图像分类
+                                    for (let i=0; i<list.length; i++) {
+                                        // list[i].bbox_results = list[i].infer_probs.filter(item=>item.prob > 0.5);
+                                        list[i].bbox_results = list[i].infer_probs;
+                                        list[i].bbox_results = list[i].bbox_results.map(item => {
+                                            return {
+                                                category_id:   item.class_id,
+                                                category_name: item.class_name,
+                                                score:         item.prob,
+                                            };
+                                        });
+                                    }
                                 }
                                 vData.sampleList = [];
                                 vData.isCheckFinished = false;
@@ -312,12 +331,18 @@
                                 list.forEach((item, idx) => {
                                     methods.downSingleImage(item.image, idx, item);
                                 });
+                                vData.isPredicting = false;
                             }
-                            vData.timer3 = setTimeout(() => {
-                                if (data.task_view.results[0].result.status === 'running') {
+                            if (data.task_view.results[0] !== null && (data.task_view.results[0].result.status === 'running' || data.task_view.results[0].result.status === 'wait_run')) {
+                                vData.isCanUpload = false;
+                                vData.isUploading = false;
+                                vData.isCheckFinished = false;
+                                vData.isUploadedOk = true;
+                                vData.isPredicting = true;
+                                vData.runningTimer = setTimeout(() => {
                                     methods.getPredictDetail();
-                                }
-                            }, 3000);
+                                }, 3000);
+                            }
                         });
                     }
                 },
@@ -325,7 +350,7 @@
                     vData.pageLoading = true;
                     const { code, data } = await $http.get({
                         url:          '/model/deep_learning/call/download/image',
-                        params:       { filename: img,  task_id: '822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439' },
+                        params:       { filename: img,  task_id: vData.form.model, infer_session_id: vData.infer_session_id },
                         responseType: 'blob',
                     });
 
@@ -344,14 +369,12 @@
                             vData.isUploadedOk = false;
                             vData.isUploading = false;
                             if (vData.sampleList.length === vData.totalResultCount) {
-                                labelSystemRef.value.methods.createStage();
-                                vData.pageLoading = false;
+                                setTimeout(_=> {
+                                    labelSystemRef.value.methods.createStage();
+                                }, 1000);
+                                methods.resetWidth();
                             }
-                            // setTimeout(_=>{
-                            //     vData.isCheckFinished = false;
-                            //     vData.img_upload_options.files = [];
-                            //     vData.http_upload_filename = '';
-                            // }, 3000);
+                            vData.pageLoading = false;
                         }
                     });
                 },
@@ -367,14 +390,14 @@
                 },
                 resetWidth() {
                     if (vData.sampleList.length) {
-                        const maxWidth = document.getElementsByClassName('opearate_box')[0].offsetWidth > 800 ? 800 :document.getElementsByClassName('upload_box')[0].offsetWidth;
+                        const maxWidth = document.getElementsByClassName('opearate_box')[0].offsetWidth - 500;
 
-                        console.log(document.getElementsByClassName('upload_box')[0].offsetWidth);
-                        console.log(maxWidth);
-                        labelSystemRef.value.vData.width = maxWidth;
                         vData.width = maxWidth;
-                        imgThumbnailListRef.value.vData.width = document.getElementsByClassName('upload_box')[0].offsetWidth;
-                        labelSystemRef.value.methods.createStage();
+                        setTimeout(_=> {
+                            labelSystemRef.value.vData.width = maxWidth;
+                            imgThumbnailListRef.value.vData.width = document.getElementsByClassName('upload_box')[0].offsetWidth;
+                            labelSystemRef.value.methods.createStage();
+                        }, 1000);
                     }
                 },
                 debounce(){
@@ -393,22 +416,12 @@
                     document.body.appendChild(link);
                     link.click();
                 },
-                async downloadModelFile(){
-                    const api = `${window.api.baseUrl}/model/deep_learning/call/download/zip?task_id=${vData.form.model}&token=${userInfo.value.token}`;
-                    const link = document.createElement('a');
-
-                    link.href = api;
-                    link.target = '_blank';
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                },
             };
 
             onBeforeMount(()=> {
                 methods.getModelList();
-                if (vData.timer2) clearTimeout(vData.timer2);
-                vData.timer2 = setTimeout(_=> {
+                if (vData.resetWidthTimer) clearTimeout(vData.resetWidthTimer);
+                vData.resetWidthTimer = setTimeout(_=> {
                     methods.resetWidth();
                 }, 200);
                 window.onresize = () => {
@@ -427,8 +440,9 @@
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
                 clearTimeout(vData.timer);
-                clearTimeout(vData.timer2);
-                clearTimeout(vData.timer3);
+                clearTimeout(vData.resetWidthTimer);
+                clearTimeout(vData.runningTimer);
+                clearTimeout(vData.resultNullTimer);
             });
 
             return {

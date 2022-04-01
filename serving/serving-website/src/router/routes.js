@@ -281,8 +281,8 @@ const baseRoutes = [
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
-                path: `${prefixPath}log-list`,
-                name: 'log-list',
+                path: `${prefixPath}record-list`,
+                name: 'record-list',
                 meta: {
                     title: '调用记录',
                 },

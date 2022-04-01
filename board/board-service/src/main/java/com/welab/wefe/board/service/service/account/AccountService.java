@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.service.account;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.board.service.api.account.*;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
@@ -41,6 +42,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -476,13 +478,25 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
         }
 
+        AccountInfo accountInfo = toAccountInfo(model);
+        int historyCount = 4;
+        if (inHistoryPassword(input.getPassword(), historyCount, accountInfo)) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("您输入的新密码必须与前四次设置的密码不一致");
+        }
+
         // Check verification code is valid?
         verificationCodeService.checkVerificationCode(input.getPhoneNumber(), input.getSmsVerificationCode(), VerificationCodeBusinessType.accountForgetPassword);
+
+        // 当前密码成为历史
+        accountInfo.getHistoryPasswordList().add(new HistoryPasswordItem(accountInfo.getPassword(), accountInfo.getSalt()));
+        // 历史密码
+        String historyPasswordListString = JSON.toJSONString(accountInfo.getPasswordHistoryList(historyCount - 1));
 
         // Regenerate salt
         String salt = createRandomSalt();
         model.setSalt(salt);
         model.setPassword(Sha1.of(input.getPassword() + salt));
+        model.setHistoryPasswordList(JSON.parseArray(historyPasswordListString));
         accountRepository.save(model);
     }
 }

@@ -71,6 +71,9 @@ public class Config {
     private String mailUsername;
     
     
+    @Value("${encrypt.phone.number.open:true}")
+    private boolean encryptPhoneNumberOpen;
+
     public String getFileBasePath() {
         return fileBasePath;
     }
@@ -231,5 +234,13 @@ public class Config {
 
     public void setMailUsername(String mailUsername) {
         this.mailUsername = mailUsername;
+    }
+    
+    public boolean isEncryptPhoneNumberOpen() {
+        return encryptPhoneNumberOpen;
+    }
+
+    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
+        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
     }
 }

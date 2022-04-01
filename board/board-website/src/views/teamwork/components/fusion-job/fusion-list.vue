@@ -157,7 +157,7 @@
                         this.getTaskList({
                             requestFromRefresh: true,
                         });
-                    }, 3000);
+                    }, 5000);
                 }
             },
 
@@ -186,10 +186,6 @@
                         this.afterTableRender();
                     }
                 }
-                clearTimeout(this.flowTimer);
-                this.flowTimer = setTimeout(() => {
-                    this.getTaskList({ requestFromRefresh: true });
-                }, 5000);
             },
 
             timeSpend(milliseconds) {
