@@ -23,6 +23,7 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.datasource.*;
+import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
 import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
@@ -32,7 +33,6 @@ import com.welab.wefe.data.fusion.service.dto.entity.DataSourceOverviewOutput;
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.manager.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -52,8 +52,8 @@ public class DataSourceService extends AbstractService {
     @Autowired
     DataSourceRepository dataSourceRepo;
 
-    @Value("${file.upload.dir}")
-    private String fileUploadDir;
+    @Autowired
+    Config config;
 
     @Autowired
     DataSetRepository dataSetRepository;
@@ -134,6 +134,7 @@ public class DataSourceService extends AbstractService {
 
     /**
      * Testing the database connection
+     *
      * @param databaseType
      * @param host
      * @param port
@@ -192,7 +193,7 @@ public class DataSourceService extends AbstractService {
         File file = null;
         switch (method) {
             case UploadFile:
-                file = new File(fileUploadDir, filename);
+                file = new File(config.getFileUploadDir(), filename);
                 break;
             case LocalFile:
                 file = new File(filename);

@@ -22,9 +22,10 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.utils.FileSecurityChecker;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,19 +38,19 @@ import java.util.UUID;
 @Api(path = "file/merge", name = "文件上传完毕后合并分片")
 public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
-    @Value("${file.upload.dir}")
-    String fileUploadDir;
+    @Autowired
+    Config config;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
         String mergedFileName = UUID.randomUUID().toString() + "-" + input.filename;
 
-        File dir = new File(fileUploadDir + File.separator + input.uniqueIdentifier);
+        File dir = new File(config.getFileUploadDir() + File.separator + input.uniqueIdentifier);
 
         File[] parts = dir.listFiles();
 
-        File mergedFile = new File(fileUploadDir + File.separator + mergedFileName);
+        File mergedFile = new File(config.getFileUploadDir() + File.separator + mergedFileName);
 
         Boolean CanUploaded = FileSecurityChecker.isValid(input.filename);
         if (!CanUploaded) {
@@ -58,12 +59,12 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
                 mergedFile.delete();
                 System.out.println("删除成功");
             }
-            throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！",StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("该文件不为.csv,.xls,xlsx之一，禁止上传！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         try {
             for (int i = 1; i <= parts.length; i++) {
-                File part = new File(fileUploadDir + File.separator + input.uniqueIdentifier, i + ".part");
+                File part = new File(config.getFileUploadDir() + File.separator + input.uniqueIdentifier, i + ".part");
 
                 // Appends shards to the target file
                 FileOutputStream stream = new FileOutputStream(mergedFile, true);

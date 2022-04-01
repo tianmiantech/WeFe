@@ -16,6 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.config;
 
+import com.welab.wefe.common.web.config.CommonConfig;
 import com.welab.wefe.common.wefe.enums.env.EnvBranch;
 import com.welab.wefe.common.wefe.enums.env.EnvName;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,23 +30,12 @@ import org.springframework.stereotype.Component;
  * @author lonnie
  */
 @Component
-@PropertySource(value = {"application.properties"}, encoding = "utf-8")
+@PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
 @ConfigurationProperties
-public class Config {
+public class Config extends CommonConfig {
 
     @Value("${wefe.job.work_mode}")
     private Integer workMode;
-
-    @Value("${env.name}")
-    private EnvName envName;
-
-    /**
-     * The branch of the environment, different branches will have different functions.
-     * <p>
-     * online_demo: You can only delete data created by yourself（eg:flow、member、data_set）
-     */
-    @Value("${env.branch:master}")
-    private EnvBranch envBranch;
 
     @Value("${fc.access_key_id:xxx}")
     private String fcAccessKeyId;
@@ -77,35 +67,8 @@ public class Config {
     @Value("${encrypt.phone.number.open:true}")
     private boolean encryptPhoneNumberOpen;
 
-    public boolean isOnlineDemo() {
-        return envBranch == EnvBranch.online_demo;
-    }
 
     // region getter/setter
-
-    public Integer getWorkMode() {
-        return workMode;
-    }
-
-    public void setWorkMode(Integer workMode) {
-        this.workMode = workMode;
-    }
-
-    public EnvName getEnvName() {
-        return envName;
-    }
-
-    public void setEnvName(EnvName envName) {
-        this.envName = envName;
-    }
-
-    public EnvBranch getEnvBranch() {
-        return envBranch;
-    }
-
-    public void setEnvBranch(EnvBranch envBranch) {
-        this.envBranch = envBranch;
-    }
 
     public String getVerificationCodeSendChannel() {
         return verificationCodeSendChannel;

@@ -24,8 +24,8 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.AddApi;
+import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
@@ -53,6 +53,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.math.BigInteger;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -73,14 +75,13 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     protected DataSetService dataSetService;
 
-    @Value("${file.upload.dir}")
-    private String fileUploadDir;
-
-    @Value("${file.filter.dir}")
-    private String filterDir;
+    @Autowired
+    private Config config;
 
     @Autowired
     FieldInfoService fieldInfoService;
+
+    private final String FILTER_DIR = "bloom_filter";
 
     @Transactional(rollbackFor = Exception.class)
     public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
@@ -160,9 +161,14 @@ public class BloomFilterAddService extends AbstractService {
 
         List<String> headers = dataSetReader.getHeader();
 
-        String src = filterDir + model.getName();
-        model.setSrc(src);
-        File outFile = new File(filterDir);
+
+        Path path = Paths
+                .get(config.getFileUploadDir())
+                .resolve(FILTER_DIR)
+                .resolve(model.getName());
+        model.setSrc(path.toString());
+
+        File outFile = path.toFile();
 
         if (!outFile.exists() && !outFile.isDirectory()) {
             outFile.mkdir();
@@ -218,14 +224,11 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
         model.setRowCount(rowCount);
 
-        File outFile = new File(filterDir);
-        //Create a folder if it does not exist
-        if (!outFile.exists() && !outFile.isDirectory()) {
-            outFile.mkdir();
-        }
-
-        String src = filterDir + model.getName();
-        model.setSrc(src);
+        Path path = Paths
+                .get(config.getFileUploadDir())
+                .resolve(FILTER_DIR)
+                .resolve(model.getName());
+        model.setSrc(path.toString());
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, null);
 
