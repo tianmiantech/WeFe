@@ -149,7 +149,7 @@ public class UnionServiceService {
 			body.put("data", data);
 			data = body.toJSONString();
 		}
-		HttpResponse response = HttpRequest.create(config.getUNION_BASE_URL() + api).setBody(data).postJson();
+		HttpResponse response = HttpRequest.create(config.getUnionBaseUrl() + api).setBody(data).postJson();
 		if (!response.success()) {
 			throw new StatusCodeWithException(response.getMessage(), StatusCode.REMOTE_SERVICE_ERROR);
 		}
