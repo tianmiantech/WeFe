@@ -20,7 +20,9 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.dataset.DeleteApi;
 import com.welab.wefe.data.fusion.service.api.dataset.PreviewApi;
 import com.welab.wefe.data.fusion.service.api.dataset.QueryApi;
@@ -39,13 +41,17 @@ import com.welab.wefe.data.fusion.service.service.AbstractService;
 import com.welab.wefe.data.fusion.service.service.DataStorageService;
 import com.welab.wefe.data.fusion.service.utils.dataresouce.DataResouceHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -68,6 +74,19 @@ public class DataSetService extends AbstractService {
     @Autowired
     private Config config;
 
+    @Value("${file.upload.dir}")
+    private String fileUploadDir;
+
+    @Value("${db.mysql.url}")
+    private String mySqlUrl;
+
+    @Value("${db.mysql.username}")
+    private String mySqlUsername;
+
+    @Value("${db.mysql.password}")
+    private String mySqlPassword;
+
+    private final String TABLE_HEADER = "data_fusion_";
 
     /**
      * @param id
@@ -157,6 +176,82 @@ public class DataSetService extends AbstractService {
         return dataSetRepository.paging(where, input, DataSetOutputModel.class);
 
     }
+
+    /**
+     * Paging query data sets
+     */
+    public List<JObject> paging(List<String> columnList, String dataSetId, int pageIndex, int pageSize) throws StatusCodeWithException {
+
+        StringBuilder columns = new StringBuilder();
+        columnList.forEach(x -> columns.append(x + ","));
+
+        String sql = "select " + columns.substring(0, columns.length() - 1) + " from " + TABLE_HEADER + dataSetId + " limit " + pageIndex * pageSize + "," + pageSize;
+
+
+        List<JObject> result = new ArrayList<>();
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+
+            conn = jdbcManager.getConnection(DatabaseType.MySql, mySqlUrl, mySqlUsername, mySqlPassword);
+
+            statement = conn.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                JObject data = JObject.create();
+                result.add(data);
+                for (int i = 0; i < columnList.size(); i++) {
+                    data.append(columnList.get(i), resultSet.getString(i + 1));
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        } finally {
+            jdbcManager.close(conn, statement, resultSet);
+        }
+
+        return result;
+    }
+
+
+    /**
+     * Paging query data sets
+     */
+    public int count(String dataSetId) throws StatusCodeWithException {
+
+        String sql = "select count(1)  from " + TABLE_HEADER + dataSetId;
+
+
+        List<JObject> result = new ArrayList<>();
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+
+            conn = jdbcManager.getConnection(DatabaseType.MySql, mySqlUrl, mySqlUsername, mySqlPassword);
+
+            statement = conn.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        } finally {
+            jdbcManager.close(conn, statement, resultSet);
+        }
+
+        return 0;
+    }
+
 
     /**
      * Delete filter
