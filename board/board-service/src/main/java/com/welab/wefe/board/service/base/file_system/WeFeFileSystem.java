@@ -175,7 +175,7 @@ public class WeFeFileSystem {
         }
 
         /**
-         * 将图片所在的文件夹压缩为 zip，供飞桨下载。
+         * 将图片所在的文件夹压缩为 zip，供VisualFL下载。
          */
         public static File zipImageSimpleDir(String taskId, String sessionId) throws StatusCodeWithException {
             File zipFile = getZipFile(taskId, sessionId);

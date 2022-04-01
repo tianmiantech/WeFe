@@ -70,7 +70,7 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
 
         File zipFile = WeFeFileSystem.CallDeepLearningModel.zipImageSimpleDir(input.taskId, inferSessionId);
 
-        // 调用飞桨开始推理
+        // 调用VisualFL开始推理
         JObject dataSetInfo = JObject.create();
         dataSetInfo.put("download_url", buildZipDownloadUrl(input.taskId, inferSessionId));
         dataSetInfo.put("name", zipFile.getName());
