@@ -381,7 +381,8 @@ public class ServiceService {
 		ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
 		JObject data = JObject.create(input.getData());
 		if (service == null) {
-			return JObject.create("message", "invalid request: url = " + serviceUrl);
+            return JObject.create("message", "service not found: url = " + serviceUrl).append("code",
+                    ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode());
 		} else if (service.getStatus() != 1) {
 			res.append("code", ServiceResultEnum.SERVICE_NOT_AVALIABLE.getCode());
 			res.append("message", "invalid request: url = " + serviceUrl);
@@ -451,14 +452,32 @@ public class ServiceService {
 				QueryDiffieHellmanKeyResponse result = sa(request, service);
 				res = JObject.create(result);
 			} else if (serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
-				Double result = sa_query(data, service, currentClient);
+				Double result = -999.0;
+                try {
+                    result = sa_query(data, service, currentClient);
+                } catch (Exception e) {
+                    res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
+                    res.append("message", "service error: url = " + serviceUrl + ", message= " + e.getMessage());
+                    long duration = System.currentTimeMillis() - start;
+                    log(service, client, duration, clientIp, res.getIntValue("code"));
+                    return res;
+                }
 				res = JObject.create("result", result);
 			} else if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 				List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
 				if(CollectionUtils.isEmpty(clientIds)) {
 					clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
 				}
-				List<String> result = multi_psi(clientIds, service, currentClient);
+				List<String> result = null;
+                try {
+                    result = multi_psi(clientIds, service, currentClient);
+                } catch (Exception e) {
+                    res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
+                    res.append("message", "service error: url = " + serviceUrl + ", message= " + e.getMessage());
+                    long duration = System.currentTimeMillis() - start;
+                    log(service, client, duration, clientIp, res.getIntValue("code"));
+                    return res;
+                }
 				res = JObject.create("result", result);
             } else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
                 List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
@@ -467,12 +486,12 @@ public class ServiceService {
                 if (StringUtils.isBlank(otMethod)) {
                     otMethod = data.getString("ot_method", Constants.PIR.NAORPINKAS_OT);
                 }
-                List<JObject> results;
+                List<JObject> results = null;
                 try {
                     results = multi_pir(ids, idx, service, currentClient, otMethod);
                 } catch (Exception e) {
                     res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
-                    res.append("message", "invalid request: url = " + serviceUrl + ", message= " + e.getMessage());
+                    res.append("message", "service error: url = " + serviceUrl + ", message= " + e.getMessage());
                     long duration = System.currentTimeMillis() - start;
                     log(service, client, duration, clientIp, res.getIntValue("code"));
                     return res;
@@ -493,8 +512,9 @@ public class ServiceService {
 
 	/**
 	 * 0.参考 SecureAggregation.query 返回结果
+	 * @throws Exception 
 	 */
-	private Double sa_query(JObject data, ServiceMySqlModel model, ClientMysqlModel currentClient) {
+	private Double sa_query(JObject data, ServiceMySqlModel model, ClientMysqlModel currentClient) throws Exception {
 		JObject userParams = data.getJObject("query_params");
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
@@ -601,7 +621,7 @@ public class ServiceService {
 		return response;
 	}
 	
-	private List<String> multi_psi(List<String> clientIds, ServiceMySqlModel model, ClientMysqlModel currentClient) {
+	private List<String> multi_psi(List<String> clientIds, ServiceMySqlModel model, ClientMysqlModel currentClient) throws Exception {
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
 		List<CommunicationConfig> communicationConfigs = new LinkedList<>();
