@@ -66,7 +66,7 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
             long start = System.currentTimeMillis();
             download(url, file);
 
-            LOG.info("从飞桨下载模型耗时：" + TimeSpan.fromMs(System.currentTimeMillis() - start) + " taskId:" + input.taskId);
+            LOG.info("从VisualFL下载模型耗时：" + TimeSpan.fromMs(System.currentTimeMillis() - start) + " taskId:" + input.taskId);
         } catch (Exception e) {
             LOG.error("下载模型失败：" + e.getMessage(), e);
             StatusCode.RPC_ERROR.throwException("下载模型失败：" + e.getMessage());
