@@ -70,7 +70,7 @@ public class DataSourceConfig extends AbstractJpaConfig {
 
     @Bean
     @Primary
-    PlatformTransactionManager transactionManagerRefServing(
+    PlatformTransactionManager transactionManagerRefFusion(
             @Qualifier("entityManagerFactoryRefFusion") LocalContainerEntityManagerFactoryBean factoryBean) {
 
         return new JpaTransactionManager(factoryBean.getObject());
