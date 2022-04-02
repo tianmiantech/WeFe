@@ -32,6 +32,7 @@
 
 import copy
 import functools
+import time
 import uuid
 from operator import add, sub
 from typing import List
@@ -41,15 +42,18 @@ import scipy.sparse as sp
 
 from common.python import session
 from common.python.utils import log_utils
+from common.python.calculation.acceleration.operator import cal
 from kernel.security.iterative_affine import DeterministicIterativeAffineCiphertext
+from kernel.security.paillier import PaillierEncryptedNumber
 from kernel.transfer.framework.weights import Weights
 from kernel.utils.data_util import NoneType
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
+from collections import Counter
 
 LOGGER = log_utils.get_logger()
 
 
 class HistogramBag(object):
-
     """
     holds histograms
     """
@@ -316,7 +320,7 @@ class FeatureHistogram(object):
         # reformat, now format is: key, ((data_instance, node position), (g, h))
         batch_histogram_intermediate_rs = data_bin.join(grad_and_hess, lambda data_inst, g_h: (data_inst, g_h))
 
-        if batch_histogram_intermediate_rs.count() == 0: # if input sample number is 0, return empty histograms
+        if batch_histogram_intermediate_rs.count() == 0:  # if input sample number is 0, return empty histograms
 
             node_histograms = FeatureHistogram._generate_histogram_template(node_map, bin_split_points, valid_features,
                                                                             1 if use_missing else 0)
@@ -332,6 +336,8 @@ class FeatureHistogram(object):
                 return FeatureHistogram._construct_table(histograms_table)
 
         else:  # compute histograms
+
+            LOGGER.debug("FeatureHistogram._batch_calculate_histogram ====================> called")
 
             batch_histogram_cal = functools.partial(
                 FeatureHistogram._batch_calculate_histogram,
@@ -417,7 +423,7 @@ class FeatureHistogram(object):
 
         partition_id_list_1, hist_val_list_1 = fid_histogram1
         partition_id_list_2, hist_val_list_2 = fid_histogram2
-        value = [partition_id_list_1+partition_id_list_2, hist_val_list_1+hist_val_list_2]
+        value = [partition_id_list_1 + partition_id_list_2, hist_val_list_1 + hist_val_list_2]
         return value
 
     @staticmethod
@@ -488,6 +494,8 @@ class FeatureHistogram(object):
                                    bin_sparse_points=None, valid_features=None,
                                    node_map=None, use_missing=False, zero_as_missing=False,
                                    parent_nid_map=None, sibling_node_id_map=None, stable_reduce=False):
+        start_batch = time.time()
+
         data_bins = []
         node_ids = []
         grad = []
@@ -532,13 +540,40 @@ class FeatureHistogram(object):
         node_histograms = FeatureHistogram._generate_histogram_template(node_map, bin_split_points, valid_features,
                                                                         missing_bin)
 
+        # max_record_node_map = Counter(node_ids)
+        # max_record_node_idx = max(max_record_node_map, key=lambda x: max_record_node_map[x])
+        # max_record_node_size = max(max_record_node_map.values())
+        zero_opt_node_grad_matrix = [[] for j in range(node_num)]
+        zero_opt_node_hess_matrix = [[] for j in range(node_num)]
+
+        # 每个特征会分成不同的箱数,所以此处以最大箱数处理
+        features_num = len(bin_split_points)
+        bins_num = max(len(x) for x in bin_split_points)
+        # rows = node_num * features_num * bins_num
+        node_histograms_grad_matrix = [[] for j in range(node_num * features_num * bins_num)]
+        node_histograms_hess_matrix = [[] for j in range(node_num * features_num * bins_num)]
+
+        # 判断是否为加密
+        grad_encrypt_flag = True if type(grad[0]) == PaillierEncryptedNumber else False
+        hess_encrypt_flag = True if type(hess[0]) == PaillierEncryptedNumber else False
+
+        p_k = ''
+        start_data_record = time.time()
         for rid in range(data_record):
 
             # node index is the position in the histogram list of a certain node
             node_idx = node_map.get(node_ids[rid])
             # node total sum value
-            zero_opt_node_sum[node_idx][0] += grad[rid]
-            zero_opt_node_sum[node_idx][1] += hess[rid]
+
+            if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
+                p_k = grad[rid].public_key
+                zero_opt_node_grad_matrix[node_idx].append(grad[rid])
+                if hess_encrypt_flag:
+                    zero_opt_node_hess_matrix[node_idx].append(hess[rid])
+            else:
+                zero_opt_node_sum[node_idx][0] += grad[rid]
+                zero_opt_node_sum[node_idx][1] += hess[rid]
+
             zero_opt_node_sum[node_idx][2] += 1
 
             for fid, value in data_bins[rid].features.get_all_data():
@@ -549,47 +584,191 @@ class FeatureHistogram(object):
                     # missing value is set as -1
                     value = -1
 
-                node_histograms[node_idx][fid][value][0] += grad[rid]
-                node_histograms[node_idx][fid][value][1] += hess[rid]
-                node_histograms[node_idx][fid][value][2] += 1
+                if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
 
+                    node_histograms_grad_matrix[node_idx * features_num * bins_num + fid * bins_num + value] \
+                        .append(grad[rid])
+                    if hess_encrypt_flag:
+                        node_histograms_hess_matrix[node_idx * features_num * bins_num + fid * bins_num + value] \
+                            .append(hess[rid])
+                else:
+                    node_histograms[node_idx][fid][value][0] += grad[rid]
+                    node_histograms[node_idx][fid][value][1] += hess[rid]
+
+                node_histograms[node_idx][fid][value][2] += 1
+        print(f'start_data_record cpu 耗时：{time.time() - start_data_record}')
+
+        node_histograms_hess_sum = []
+        node_histograms_grad_sum = []
+        # 处理 zero_opt_node_sum
+        if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
+            # g/h 长度 >= 2
+            # 统一数组大小
+            zero_opt_node_grad_max_len = max((len(grad) for grad in zero_opt_node_grad_matrix))
+            zero_opt_node_grad_matrix = list(
+                map(lambda l: l + [None] * (zero_opt_node_grad_max_len - len(l)), zero_opt_node_grad_matrix))
+
+            zero_opt_node_hess_max_len = max((len(hess) for hess in zero_opt_node_hess_matrix))
+            zero_opt_node_hess_matrix = list(
+                map(lambda l: l + [None] * (zero_opt_node_hess_max_len - len(l)), zero_opt_node_hess_matrix))
+
+            # 计算密态 g/h 求和
+            start_grad_sum = time.time()
+            # print(f'row: {node_num}, col: {zero_opt_node_grad_max_len}')
+            zero_opt_node_grad_sum = cal.gpu_paillier_matrix_row_sum_up(zero_opt_node_grad_matrix, p_k, node_num,
+                                                                        zero_opt_node_grad_max_len)
+            # print(f'start_grad_sum gpu 耗时：{time.time() - start_grad_sum}')
+            zero_opt_node_hess_sum = []
+            if hess_encrypt_flag:
+                zero_opt_node_hess_sum = cal.gpu_paillier_matrix_row_sum_up(zero_opt_node_hess_matrix, p_k, node_num,
+                                                                            zero_opt_node_hess_max_len)
+
+            for node_idx in range(node_num):
+                zero_opt_node_sum[node_idx][0] = zero_opt_node_grad_sum[node_idx]
+                if hess_encrypt_flag:
+                    zero_opt_node_sum[node_idx][1] = zero_opt_node_hess_sum[node_idx]
+                else:
+                    zero_opt_node_sum[node_idx][1] = 0
+
+            # 计算 node_histograms =================================================================
+
+            node_histograms_grad_max_len = max((len(grad) for grad in node_histograms_grad_matrix))
+            if node_histograms_grad_max_len >= 2:
+
+                node_histograms_grad_matrix = list(
+                    map(lambda l: l + [None] * (node_histograms_grad_max_len - len(l)), node_histograms_grad_matrix))
+
+                node_histograms_grad_sum = cal.gpu_paillier_matrix_row_sum_up(node_histograms_grad_matrix, p_k,
+                                                                              node_num * features_num * bins_num,
+                                                                              node_histograms_grad_max_len)
+            else:
+                node_histograms_grad_sum = [grad[0] if len(grad) == 1 else 0 for grad in node_histograms_grad_matrix]
+            if hess_encrypt_flag:
+                node_histograms_hess_max_len = max((len(hess) for hess in node_histograms_hess_matrix))
+                if node_histograms_hess_max_len >= 2:
+                    node_histograms_hess_matrix = list(
+                        map(lambda l: l + [None] * (node_histograms_hess_max_len - len(l)),
+                            node_histograms_hess_matrix))
+                    node_histograms_hess_sum = cal.gpu_paillier_matrix_row_sum_up(node_histograms_hess_matrix, p_k,
+                                                                                  node_num * features_num * bins_num,
+                                                                                  node_histograms_hess_max_len)
+                else:
+                    node_histograms_hess_sum = [hess[0] if len(hess) == 1 else 0 for hess in
+                                                node_histograms_hess_matrix]
+            # 计算结果回填 node_histograms
+            for node_idx in range(node_num):
+                for fid in range(features_num):
+                    for bid in range(len(node_histograms[node_idx][fid])):
+                        # print(f'node_histograms_grad_sum : {list(node_histograms_grad_sum)}')
+                        # print(f'node_histograms_grad_sum len:{len(node_histograms_grad_sum)}')
+                        # print(
+                        #     f'node_histograms_grad_sum index：{node_idx * features_num * bins_num + fid * bins_num + bid}')
+                        # print(
+                        #     f'node_idx：{node_idx}, fid: {fid}, bid: {bid}')
+                        node_histograms[node_idx][fid][bid][0] = node_histograms_grad_sum[
+                            node_idx * features_num * bins_num + fid * bins_num + bid]
+                        if hess_encrypt_flag:
+                            node_histograms[node_idx][fid][bid][1] = node_histograms_hess_sum[
+                                node_idx * features_num * bins_num + fid * bins_num + bid]
+                        else:
+                            node_histograms[node_idx][fid][bid][1] = 0
+
+        node_histograms_node_fea_grad = []
+        node_histograms_node_fea_hess = []
+        if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
+            node_histograms_node_fea_grad_matrix = [node_histograms_grad_sum[i:i + bins_num] for i in
+                                                    range(0, len(node_histograms_grad_sum), bins_num)]
+            node_histograms_node_fea_grad = cal.gpu_paillier_matrix_row_sum_up(node_histograms_node_fea_grad_matrix,
+                                                                               p_k,
+                                                                               node_num * features_num,
+                                                                               bins_num)
+            if hess_encrypt_flag:
+                node_histograms_node_fea_hess_matrix = [node_histograms_hess_sum[i:i + bins_num] for i in
+                                                        range(0, len(node_histograms_hess_sum), bins_num)]
+                node_histograms_node_fea_hess = cal.gpu_paillier_matrix_row_sum_up(node_histograms_node_fea_hess_matrix,
+                                                                                   p_k, node_num * features_num,
+                                                                                   bins_num)
+        print(f'data record 耗时：{time.time() - start_data_record}')
         for nid in range(node_num):
             # cal feature level g_h incrementally
             for fid in range(bin_split_points.shape[0]):
                 if valid_features is not None and valid_features[fid] is False:
                     continue
-                for bin_index in range(len(node_histograms[nid][fid])):
-                    zero_optim[nid][fid][0] += node_histograms[nid][fid][bin_index][0]
-                    zero_optim[nid][fid][1] += node_histograms[nid][fid][bin_index][1]
-                    zero_optim[nid][fid][2] += node_histograms[nid][fid][bin_index][2]
+                if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
+                    zero_optim[nid][fid][0] = node_histograms_node_fea_grad[nid * features_num + fid]
+                    if hess_encrypt_flag:
+                        zero_optim[nid][fid][1] = node_histograms_node_fea_hess[nid * features_num + fid]
+                    else:
+                        zero_optim[nid][fid][1] = 0
+                    for bin_index in range(len(node_histograms[nid][fid])):
+                        zero_optim[nid][fid][2] += node_histograms[nid][fid][bin_index][2]
+                else:
+                    for bin_index in range(len(node_histograms[nid][fid])):
+                        zero_optim[nid][fid][0] += node_histograms[nid][fid][bin_index][0]
+                        zero_optim[nid][fid][1] += node_histograms[nid][fid][bin_index][1]
+                        zero_optim[nid][fid][2] += node_histograms[nid][fid][bin_index][2]
 
+        sub_grad_result = []
+        if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
+            zero_opt_node_sum_grad_list = np.array([[zero_opt_node_sum[j][0] for i in range(features_num)] for j in
+                                                    range(node_num)]).flatten('A')
+            zero_optim_fea_grad_list = np.array(
+                [[zero_optim[j][i][0] for i in range(features_num)] for j in range(node_num)]).flatten('A')
+            sub_grad_result = cal.gpu_paillier_array_pen_sub_pen(zero_opt_node_sum_grad_list, zero_optim_fea_grad_list)
+
+        sub_hess_result = []
+        if check_aclr_support() and len(grad) >= 2 and hess_encrypt_flag:
+            zero_opt_node_sum_hess_list = np.array([[zero_opt_node_sum[j][1] for i in range(features_num)] for j in
+                                                    range(node_num)]).flatten('A')
+            zero_optim_fea_hess_list = np.array(
+                [[zero_optim[j][i][1] for i in range(features_num)] for j in range(node_num)]).flatten('A')
+            sub_hess_result = cal.gpu_paillier_array_pen_sub_pen(zero_opt_node_sum_hess_list, zero_optim_fea_hess_list)
+
+        # node_histograms 基础上加一次 zero_opt_node_sum 减去 zero_optim 的结果，与上面的不同
         for node_idx in range(node_num):
             for fid in range(bin_split_points.shape[0]):
                 if valid_features is not None and valid_features[fid] is True:
                     if not use_missing or (use_missing and not zero_as_missing):
                         # add 0 g/h sum to sparse point
                         sparse_point = bin_sparse_points[fid]
-                        node_histograms[node_idx][fid][sparse_point][0] += zero_opt_node_sum[node_idx][0] - \
-                                                                           zero_optim[node_idx][fid][
-                                                                               0]
-                        node_histograms[node_idx][fid][sparse_point][1] += zero_opt_node_sum[node_idx][1] - \
-                                                                           zero_optim[node_idx][fid][
-                                                                               1]
+                        if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
+                            node_histograms[node_idx][fid][sparse_point][0] += sub_grad_result[
+                                node_idx * features_num + fid]
+                            if hess_encrypt_flag:
+                                node_histograms[node_idx][fid][sparse_point][1] += sub_hess_result[
+                                    node_idx * features_num + fid]
+                            else:
+                                node_histograms[node_idx][fid][sparse_point][1] += 0
+                        else:
+                            node_histograms[node_idx][fid][sparse_point][0] += zero_opt_node_sum[node_idx][0] - \
+                                                                               zero_optim[node_idx][fid][
+                                                                                   0]
+                            node_histograms[node_idx][fid][sparse_point][1] += zero_opt_node_sum[node_idx][1] - \
+                                                                               zero_optim[node_idx][fid][
+                                                                                   1]
                         node_histograms[node_idx][fid][sparse_point][2] += zero_opt_node_sum[node_idx][2] - \
                                                                            zero_optim[node_idx][fid][
                                                                                2]
                     else:
                         # if 0 is regarded as missing value, add to missing bin
-                        node_histograms[node_idx][fid][-1][0] += zero_opt_node_sum[node_idx][0] - \
-                                                                 zero_optim[node_idx][fid][0]
-                        node_histograms[node_idx][fid][-1][1] += zero_opt_node_sum[node_idx][1] - \
-                                                                 zero_optim[node_idx][fid][1]
+                        if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
+                            node_histograms[node_idx][fid][-1][0] += sub_grad_result[node_idx * features_num + fid]
+                            if hess_encrypt_flag:
+                                node_histograms[node_idx][fid][-1][1] += sub_hess_result[node_idx * features_num + fid]
+                            else:
+                                node_histograms[node_idx][fid][-1][1] += 0
+                        else:
+                            node_histograms[node_idx][fid][-1][0] += zero_opt_node_sum[node_idx][0] - \
+                                                                     zero_optim[node_idx][fid][0]
+                            node_histograms[node_idx][fid][-1][1] += zero_opt_node_sum[node_idx][1] - \
+                                                                     zero_optim[node_idx][fid][1]
                         node_histograms[node_idx][fid][-1][2] += zero_opt_node_sum[node_idx][2] - \
                                                                  zero_optim[node_idx][fid][2]
 
         ret = FeatureHistogram._generate_histogram_key_value_list(node_histograms, node_map, bin_split_points,
                                                                   parent_nid_map, sibling_node_id_map,
                                                                   partition_key=partition_key)
+        print(f'batch histograms 耗时：{time.time() - start_batch}')
         return ret
 
     @staticmethod
