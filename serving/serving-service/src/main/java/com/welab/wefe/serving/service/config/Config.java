@@ -35,9 +35,6 @@ public class Config extends CommonConfig {
     @Value("${encrypt.phone.number.open:true}")
     private boolean encryptPhoneNumberOpen;
 
-    @Value("${wefe.serving.file.upload.dir:}")
-    private String fileUploadDir;
-
 
     public String getFileBasePath() {
         return fileBasePath;
@@ -93,5 +90,13 @@ public class Config extends CommonConfig {
 
     public void setSm4SecretKey(String sm4SecretKey) {
         this.sm4SecretKey = sm4SecretKey;
+    }
+
+    public boolean isEncryptPhoneNumberOpen() {
+        return encryptPhoneNumberOpen;
+    }
+
+    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
+        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
     }
 }
