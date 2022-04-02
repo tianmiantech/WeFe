@@ -52,7 +52,7 @@ public class DataSourceConfig extends AbstractJpaConfig {
     @Bean("fusion")
     @ConfigurationProperties(prefix = "db.mysql")
     @Primary
-    DataSource wefeBoard() {
+    DataSource wefeFusion() {
         return createDatasource();
     }
 

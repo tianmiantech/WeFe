@@ -74,7 +74,7 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
             chunkNumber = 0;
         }
 
-        File outFile = new File(config.getFileUploadDir() + File.separator + input.getIdentifier(), chunkNumber + ".part");
+        File outFile = new File(config.getSourceFilterDir() + File.separator + input.getIdentifier(), chunkNumber + ".part");
         if (outFile.exists()) {
             return success()
                     .setMessage("The shard already exists");
@@ -96,7 +96,7 @@ public class UploadApi extends AbstractApi<UploadApi.Input, UploadApi.Output> {
             chunkNumber = 0;
         }
 
-        File outFile = new File(config.getFileUploadDir() + File.separator + input.getIdentifier(), chunkNumber + ".part");
+        File outFile = new File(config.getSourceFilterDir() + File.separator + input.getIdentifier(), chunkNumber + ".part");
 
 
         try {

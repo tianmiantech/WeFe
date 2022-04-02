@@ -46,11 +46,11 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
         String mergedFileName = UUID.randomUUID().toString() + "-" + input.filename;
 
-        File dir = new File(config.getFileUploadDir() + File.separator + input.uniqueIdentifier);
+        File dir = new File(config.getSourceFilterDir() + File.separator + input.uniqueIdentifier);
 
         File[] parts = dir.listFiles();
 
-        File mergedFile = new File(config.getFileUploadDir() + File.separator + mergedFileName);
+        File mergedFile = new File(config.getSourceFilterDir() + File.separator + mergedFileName);
 
         Boolean CanUploaded = FileSecurityChecker.isValid(input.filename);
         if (!CanUploaded) {
@@ -64,7 +64,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
         try {
             for (int i = 1; i <= parts.length; i++) {
-                File part = new File(config.getFileUploadDir() + File.separator + input.uniqueIdentifier, i + ".part");
+                File part = new File(config.getSourceFilterDir() + File.separator + input.uniqueIdentifier, i + ".part");
 
                 // Appends shards to the target file
                 FileOutputStream stream = new FileOutputStream(mergedFile, true);

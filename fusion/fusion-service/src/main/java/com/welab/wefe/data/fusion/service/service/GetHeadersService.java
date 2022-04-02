@@ -132,7 +132,7 @@ public class GetHeadersService {
         File file = null;
         switch (source) {
             case UploadFile:
-                file = new File(config.getFileUploadDir(), filename);
+                file = new File(config.getSourceFilterDir(), filename);
                 break;
             case LocalFile:
                 file = new File(filename);

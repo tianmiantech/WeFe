@@ -134,7 +134,7 @@ public class DataSetService extends AbstractService {
         File file = null;
         switch (method) {
             case UploadFile:
-                file = new File(config.getFileUploadDir(), filename);
+                file = new File(config.getSourceFilterDir(), filename);
                 break;
             case LocalFile:
                 file = new File(filename);

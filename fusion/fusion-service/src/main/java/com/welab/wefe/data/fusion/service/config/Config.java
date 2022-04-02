@@ -17,8 +17,6 @@
 package com.welab.wefe.data.fusion.service.config;
 
 import com.welab.wefe.common.web.config.CommonConfig;
-import com.welab.wefe.common.wefe.enums.env.EnvBranch;
-import com.welab.wefe.common.wefe.enums.env.EnvName;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
@@ -33,15 +31,6 @@ import org.springframework.stereotype.Component;
 @PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
 @ConfigurationProperties
 public class Config extends CommonConfig {
-
-    @Value("${wefe.job.work_mode}")
-    private Integer workMode;
-
-    @Value("${fc.access_key_id:xxx}")
-    private String fcAccessKeyId;
-
-    @Value("${fc.access_key_secret:xxx}")
-    private String fcAccessKeySecret;
 
     @Value("${verification.code.send.channel:sms}")
     private String verificationCodeSendChannel;
@@ -102,22 +91,6 @@ public class Config extends CommonConfig {
         this.smsAliyunSignName = smsAliyunSignName;
     }
 
-    public String getFcAccessKeyId() {
-        return fcAccessKeyId;
-    }
-
-    public void setFcAccessKeyId(String fcAccessKeyId) {
-        this.fcAccessKeyId = fcAccessKeyId;
-    }
-
-    public String getFcAccessKeySecret() {
-        return fcAccessKeySecret;
-    }
-
-    public void setFcAccessKeySecret(String fcAccessKeySecret) {
-        this.fcAccessKeySecret = fcAccessKeySecret;
-    }
-
     public String getSm4SecretKey() {
         return sm4SecretKey;
     }
@@ -132,6 +105,14 @@ public class Config extends CommonConfig {
 
     public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
         this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
+    }
+
+    public String getBloomFilterDir() {
+        return getFileUploadDir() + "bloom_filter";
+    }
+
+    public String getSourceFilterDir() {
+        return getFileUploadDir() + "file";
     }
 
     // endregion

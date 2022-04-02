@@ -81,7 +81,6 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     FieldInfoService fieldInfoService;
 
-    private final String FILTER_DIR = "bloom_filter";
 
     @Transactional(rollbackFor = Exception.class)
     public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
@@ -163,8 +162,7 @@ public class BloomFilterAddService extends AbstractService {
 
 
         Path path = Paths
-                .get(config.getFileUploadDir())
-                .resolve(FILTER_DIR)
+                .get(config.getBloomFilterDir())
                 .resolve(model.getName());
         model.setSrc(path.toString());
 
@@ -225,8 +223,7 @@ public class BloomFilterAddService extends AbstractService {
         model.setRowCount(rowCount);
 
         Path path = Paths
-                .get(config.getFileUploadDir())
-                .resolve(FILTER_DIR)
+                .get(config.getBloomFilterDir())
                 .resolve(model.getName());
         model.setSrc(path.toString());
 
