@@ -3,45 +3,41 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
-            <el-form-item
-                label="成员ID："
-                label-width="80px"
-            >
+        <el-form inline>
+            <el-form-item label="成员ID：">
                 <el-input
                     v-model="search.member_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item
-                label="成员名称："
-                label-width="100px"
-            >
+            <el-form-item label="成员名称：">
                 <el-input
                     v-model="search.name"
                     clearable
                 />
             </el-form-item>
 
-            <el-button
-                type="primary"
-                @click="getList({ to: true })"
-            >
-                查询
-            </el-button>
-            <el-button
-                @click="member.editor=true,
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList({ to: true })"
+                >
+                    查询
+                </el-button>
+                <el-button
+                    class="ml10"
+                    @click="
+                        member.editor=true,
                         member.name='',
                         member.api='',
                         member.public_key='',
                         member.member_id='',
-                        member.id=''"
-            >
-                新增
-            </el-button>
+                        member.id=''
+                    "
+                >
+                    新增
+                </el-button>
+            </el-form-item>
         </el-form>
 
         <el-table

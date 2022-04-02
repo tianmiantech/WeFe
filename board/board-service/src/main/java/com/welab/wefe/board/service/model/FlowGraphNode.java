@@ -20,7 +20,7 @@ import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
-import com.welab.wefe.board.service.exception.FlowNodeException;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -155,8 +155,8 @@ public class FlowGraphNode extends ProjectFlowNodeMySqlModel {
         try {
             paramsModel = Components
                     .get(super.getComponentType())
-                    .deserializationParam(this, super.getParams());
-        } catch (FlowNodeException e) {
+                    .deserializationParam(super.getParams());
+        } catch (StatusCodeWithException e) {
             return null;
         }
         return paramsModel;

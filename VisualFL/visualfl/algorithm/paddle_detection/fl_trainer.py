@@ -34,10 +34,9 @@ from visualfl.paddle_fl.trainer._trainer import FedAvgTrainer
 from visualfl import get_data_dir
 from visualfl.db.task_dao import TaskDao
 from visualdl import LogWriter,LogReader
-from visualfl.utils.consts import TaskStatus
+from visualfl.utils.consts import TaskStatus,ComponentName,TaskResultType
 from visualfl.utils.tools import *
 from visualfl.algorithm.paddle_detection._merge_config import merger_algorithm_config
-
 
 @click.command()
 @click.option("--job-id", type=str, required=True)
@@ -114,6 +113,7 @@ def fl_trainer(
 ):
     import numpy as np
     import paddle.fluid as fluid
+    from visualfl.utils import data_loader
 
     from ppdet.data import create_reader
     from ppdet.utils import checkpoint
@@ -133,10 +133,9 @@ def fl_trainer(
         max_iter = config_json["max_iter"]
         device = config_json.get("device", "cpu")
         use_vdl = config_json.get("use_vdl", False)
-        resume_checkpoint = config_json.get("resume", True)
+        resume_checkpoint = config_json.get("resume", False)
         save_model_dir = "model"
         save_checkpoint_dir = "checkpoint"
-        log_dir = os.path.join(__logs_dir__,"jobs",job_id,trainer_ep,"vdl_log")
 
 
         logging.debug(f"training program begin")
@@ -161,7 +160,13 @@ def fl_trainer(
         with open(algorithm_config) as f:
             algorithm_config_json = json.load(f)
 
-        cfg = merger_algorithm_config(algorithm_config_json)
+        download_url = algorithm_config_json.get("download_url")
+        data_name = algorithm_config_json.get("data_name")
+
+        data_dir = data_loader.job_download(download_url, job_id, get_data_dir())
+        labelpath = os.path.join(data_dir, "label_list.txt")
+        TaskDao(task_id).save_task_result({"label_path":labelpath}, ComponentName.DETECTION, TaskResultType.LABEL)
+        cfg = merger_algorithm_config(algorithm_config_json,os.path.basename(data_dir))
         check_config(cfg)
         check_version()
 
@@ -174,20 +179,16 @@ def fl_trainer(
         vdl_loss_step = 0
         # vdl_mAP_step = 0
         TaskDao(task_id).init_task_progress(max_iter)
+        TaskDao(task_id).start_task()
         if resume_checkpoint:
             try:
-                vdl_loss_step = checkpoint.global_step()
-                epoch_id = round(vdl_loss_step / max_iter)
+                epoch_id = TaskDao(task_id).get_task_progress()
+                # vdl_loss_step = checkpoint.global_step()
+                # epoch_id = round(vdl_loss_step / max_iter)
                 checkpoint.load_checkpoint(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
                 logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
-                TaskDao(task_id).set_task_progress(epoch_id)
             except Exception as e:
                 logging.error(f"task id {task_id} train error {e}")
-        # elif cfg.pretrain_weights and not ignore_params:
-        #     checkpoint.load_and_fusebn(trainer.exe, trainer._main_program, cfg.pretrain_weights)
-        # elif cfg.pretrain_weights:
-        #     checkpoint.load_params(
-        #         trainer.exe, trainer._main_program, cfg.pretrain_weights, ignore_params=ignore_params)
 
         # redirect dataset path to VisualFL/data
         cfg.TrainReader["dataset"].dataset_dir = os.path.join(
@@ -218,7 +219,7 @@ def fl_trainer(
                     }
                     for loss_name, loss_value in stats.items():
                         vdl_writer.add_scalar(loss_name, loss_value, vdl_loss_step)
-                        save_data_to_db(task_id, loss_name, loss_value,vdl_loss_step,"PaddleDetection")
+                        save_data_to_db(task_id, loss_name, loss_value,vdl_loss_step,ComponentName.DETECTION)
                 vdl_loss_step += 1
                 logging.debug(f"step: {vdl_loss_step}, outs: {outs}")
 
@@ -233,12 +234,12 @@ def fl_trainer(
 
         TaskDao(task_id).update_task_status(TaskStatus.SUCCESS)
         TaskDao(task_id).finish_task_progress()
+        TaskDao(task_id).update_serving_model(type=TaskResultType.LOSS)
         logging.debug(f"reach max iter, finish training")
-
     except Exception as e:
-        logging.error(f"task id {task_id} train error {e}")
-        logging.error(traceback.format_exc())
+        logging.error(f"task id {task_id} train error: {e}")
         TaskDao(task_id).update_task_status(TaskStatus.ERROR,str(e))
+        raise Exception(f"train error as task id {task_id} ")
 
 
 if __name__ == "__main__":

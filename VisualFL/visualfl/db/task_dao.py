@@ -13,11 +13,12 @@
 # limitations under the License.
 
 
-from visualfl.db.db_models import DB, Task, TaskResult,TaskProgress
+from visualfl.db.db_models import DB, Task, TaskResult,TaskProgress,is_local
 from visualfl.utils.core_utils import current_datetime,get_commit_id
 import datetime
 import json
 from visualfl.utils.logger import Logger
+from visualfl.utils.consts import TaskStatus
 import logging
 
 class TaskDao(Logger):
@@ -25,11 +26,33 @@ class TaskDao(Logger):
     def __init__(self,task_id):
         self._task_id = task_id
 
+    def start_task(self):
+        """
+        start task
+        """
+        try:
+            if is_local:
+                return
+            with DB.connection_context():
+                task = Task.select().where(
+                    Task.task_id == self._task_id
+                ).get()
+
+                task.start_time = current_datetime()
+                task.updated_time = current_datetime()
+                task.status = TaskStatus.RUNNING
+                task.save()
+        except Exception as e:
+            self.exception(e)
+            self.error(f"save start task {self._task_id}  error as {e} ")
+
     def update_task_status(self, status,message=None):
         """
         Update task status
         """
         try:
+            if is_local:
+                return
             with DB.connection_context():
                 task = Task.select().where(
                     Task.task_id == self._task_id
@@ -51,12 +74,13 @@ class TaskDao(Logger):
         Parameters
         ----------
         result_type
-        task_id
-
         Returns
         -------
 
         """
+        if is_local:
+            return
+
         with DB.connection_context():
 
             where_condition = [TaskResult.task_id == self._task_id,TaskResult.type == result_type]
@@ -84,9 +108,13 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             with DB.connection_context():
                 models = TaskResult.select().where(
-                    TaskResult.task_id == self._task_id
+                    TaskResult.task_id == self._task_id,
+                    TaskResult.type == type
                 )
 
                 tasks = Task.select().where(
@@ -117,6 +145,7 @@ class TaskDao(Logger):
                 model.component_type = component_name
                 model.flow_id = task.flow_id
                 model.flow_node_id = task.flow_node_id
+                model.project_id = task.project_id
 
                 if is_insert:
                     model.id = get_commit_id()
@@ -127,7 +156,30 @@ class TaskDao(Logger):
         except Exception as e:
             logging.error(f"save task {self._task_id} result error as {e} ")
 
+    def update_serving_model(self,type: str):
+        """
+        Update serving model
+        """
+        try:
+            if is_local:
+                return
 
+            with DB.connection_context():
+                models = TaskResult.select().where(
+                    TaskResult.task_id == self._task_id,
+                    TaskResult.type == type
+                )
+
+                if models:
+                    model = models[0]
+                else:
+                    return
+
+                model.serving_model = 1
+                model.save()
+                return model
+        except Exception as e:
+            logging.error(f"udate serving model error as {e},with task id : {self._task_id} ")
 
     def calc_progress(self,model: TaskProgress) -> TaskProgress:
         """
@@ -146,6 +198,9 @@ class TaskDao(Logger):
         -------
 
         """
+        if is_local:
+            return
+
         if model.progress is None:
             model.progress = 0
         if model.progress > model.expect_work_amount:
@@ -182,6 +237,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             with DB.connection_context():
                 model = TaskProgress.get_or_none(
                     TaskProgress.task_id == self._task_id,
@@ -241,6 +299,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             if work_amount >= 0:
                 with DB.connection_context():
                     model = TaskProgress.select().where(
@@ -269,6 +330,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             work_amount = 0
             with DB.connection_context():
                 model = TaskProgress.select().where(
@@ -288,6 +352,31 @@ class TaskDao(Logger):
             self.exception(e)
             logging.error(f"add task {self._task_id} progress error as {e} ")
 
+    def get_task_progress(self):
+        """
+
+        get task progress
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
+        if is_local:
+            return
+
+        with DB.connection_context():
+            model = TaskProgress.select().where(
+                TaskProgress.task_id == self._task_id,
+            ).get()
+            if model.progress is not None:
+                return model.progress
+            else:
+                return None
+
+
     def finish_task_progress(self):
         """
         Finish task progress
@@ -297,6 +386,9 @@ class TaskDao(Logger):
 
         """
         try:
+            if is_local:
+                return
+
             with DB.connection_context():
                 model = TaskProgress.get_or_none(
                     TaskProgress.task_id == self._task_id,

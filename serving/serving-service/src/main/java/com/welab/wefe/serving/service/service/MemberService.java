@@ -22,6 +22,8 @@ import com.welab.wefe.serving.service.api.member.QueryApi;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.MemberRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -50,8 +52,9 @@ public class MemberService {
         model.setMemberId(memberId);
         model.setName(name);
         model.setApi(baseUrl);
-        model.setPublicKey(publicKey);
-
+        if(StringUtils.isNotBlank(publicKey) && !publicKey.contains("*****")) {
+        	model.setPublicKey(publicKey);	
+        }
         memberRepository.save(model);
     }
 

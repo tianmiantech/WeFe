@@ -16,19 +16,13 @@
 
 package com.welab.wefe.manager.service.api.user;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.manager.User;
-import com.welab.wefe.common.data.mongodb.repo.UserMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.Md5;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.user.LoginInput;
 import com.welab.wefe.manager.service.dto.user.LoginOutput;
-import com.welab.wefe.manager.service.mapper.UserMapper;
-import org.mapstruct.factory.Mappers;
+import com.welab.wefe.manager.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -40,31 +34,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
 
     @Autowired
-    private UserMongoRepo userMongoRepo;
-    private UserMapper mUserMapper = Mappers.getMapper(UserMapper.class);
+    private UserService userService;
 
     @Override
     protected ApiResult<LoginOutput> handle(LoginInput input) throws StatusCodeWithException {
-
-
-        User user = userMongoRepo.findByAccount(input.getAccount());
-        if (user == null) {
-            return fail("账号不存在, 请注册");
-        }
-
-        if (!user.getPassword().equals(Md5.of(input.getPassword() + user.getSalt()))) {
-            return fail("密码错误, 请重新输入");
-        }
-
-        if (!user.isEnable()) {
-            throw new StatusCodeWithException("账号尚未启用，请联系管理员对您的账号启用后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-
-        LoginOutput output = mUserMapper.transfer(user);
-        String token = CurrentAccount.generateToken();
-        output.setToken(token);
-        CurrentAccount.logined(token, user.getUserId(), user.getAccount(), user.isAdminRole(), user.isSuperAdminRole(), user.isEnable());
+        LoginOutput output = userService.login(input);
         return success(output);
     }
 }

@@ -105,7 +105,7 @@
             >
                 <template v-slot="scope">
                     <template v-if="scope.row.data_resource && scope.row.data_resource.tags || scope.row.tags">
-                        <template v-for="(item, index) in isFlow ? scope.row.data_resource.tags.split(',') : scope.row.tags.split(',')" :key="index">
+                        <template v-for="(item, index) in (isFlow ? scope.row.data_resource.tags.split(',') : (scope.row.tags ? scope.row.tags.split(',') : []))" :key="index">
                             <el-tag
                                 v-show="item"
                                 class="mr10"
@@ -125,7 +125,7 @@
                     <p v-if="projectType === 'DeepLearning'">
                         样本量/已标注：{{ isFlow ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}/{{isFlow ? scope.row.data_resource.labeled_count : scope.row.labeled_count }}
                         <br>
-                        标注进度：{{ ((scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count) / (scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count)).toFixed(2) * 100 }}%
+                        标注进度：{{ ((scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count) / (scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count) * 100).toFixed(2) }}%
                         <br>
                         样本分类：
                         <template v-if="scope.row.data_resource">
@@ -165,11 +165,11 @@
                 min-width="110"
             />
             <el-table-column
-                label="上传时间"
+                :label="userInfo.member_id === memberId ? '上传者' : '上传时间'"
                 min-width="160"
             >
                 <template v-slot="scope">
-                    <!-- {{ scope.row.creator_nickname }}<br> -->
+                    <span v-if="userInfo.member_id === memberId">{{ scope.row.creator_nickname }}<br></span>
                     {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
@@ -249,6 +249,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
     import DataSetPreview from '@comp/views/data_set-preview';
     import PreviewImageList from '@views/data-center/components/preview-image-list.vue';
@@ -276,6 +277,7 @@
             dataSets:      Array,
             isShow:        Boolean,
             projectType:   String,
+            memberId:      String,
         },
         emits: ['list-loaded', 'close-dialog', 'selectDataSet', 'batchDataSet'],
         data() {
@@ -296,7 +298,7 @@
                 requestMethod:   'post',
                 sourceTypeMap:   {
                     BloomFilter:  '布隆过滤器',
-                    ImageDataSet: 'ImageDataSet',
+                    ImageDataSet: '图像数据集',
                     TableDataSet: '数据集',
                 },
             };
@@ -312,6 +314,7 @@
                 });
                 return total;
             },
+            ...mapGetters(['userInfo']),
         },
         watch: {
             isShow: {

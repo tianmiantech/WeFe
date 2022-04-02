@@ -353,7 +353,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
                         vData.form = data.params;
                     }
                 },

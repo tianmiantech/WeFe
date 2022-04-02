@@ -30,7 +30,7 @@
                     <el-input
                         v-model.trim="form.account"
                         placeholder="用户名"
-                        maxlength="50"
+                        maxlength="32"
                         clearable
                     />
                 </el-form-item>
@@ -41,7 +41,7 @@
                     <el-input
                         v-model.trim="form.realname"
                         placeholder="姓名"
-                        maxlength="40"
+                        maxlength="32"
                         clearable
                     />
                 </el-form-item>
@@ -52,7 +52,7 @@
                     <el-input
                         v-model.trim="form.email"
                         placeholder="邮箱"
-                        maxlength="60"
+                        maxlength="32"
                         type="text"
                         clearable
                     />
@@ -65,7 +65,6 @@
                         v-model="form.password"
                         placeholder="密码"
                         type="password"
-                        id="password"
                         maxlength="30"
                         clearable
                     />
@@ -83,7 +82,7 @@
                         clearable
                     />
                 </el-form-item>
-                <!-- <el-form-item
+                <el-form-item
                     prop="code"
                     :rules="codeRules"
                 >
@@ -107,14 +106,14 @@
                             </div>
                         </template>
                     </el-input>
-                </el-form-item> -->
-                <div class="terms">
+                </el-form-item>
+                <!-- <div class="terms">
                     <el-checkbox v-model="form.terms">注册即代表同意我们的</el-checkbox>
                     《<span
                         class="el-link el-link--primary"
                         @click="termsDialog=true"
                     >隐私权限</span>》
-                </div>
+                </div> -->
                 <el-divider />
                 <el-button
                     v-loading="submitting"
@@ -214,7 +213,7 @@
             };
         },
         created() {
-            // this.getImgCode();
+            this.getImgCode();
         },
         methods: {
             async getImgCode() {
@@ -253,7 +252,7 @@
                 this.submitting = true;
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
-                        if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
                         const { code } = await this.$http.post({
                             url:  '/user/register',
                             data: {

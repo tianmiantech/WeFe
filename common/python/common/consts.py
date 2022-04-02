@@ -119,8 +119,8 @@ class STORAGETYPE(object):
     """
     Storage Type： ck, lmdb, ots
     """
-    CLICKHOUSE = 'clickhouse',
-    LMDB = 'lmdb',
+    CLICKHOUSE = 'clickhouse'
+    LMDB = 'lmdb'
     OTS = 'ots'
     OSS = 'oss'
 

@@ -86,7 +86,7 @@ class FCCaller(object):
         check = True
         for item_result_list in fc_result:
             for item_result in item_result_list:
-                LOGGER.debug(f'fc_result:{item_result}, execution_name:{execution_name}')
+                # LOGGER.debug(f'fc_result:{item_result}, execution_name:{execution_name}')
                 item_result_dict = json.loads(item_result)
                 if 'code' in item_result_dict:
                     if item_result_dict['code'] != 100:

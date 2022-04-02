@@ -8,7 +8,7 @@
             shadow="never"
             class="nav-title mb30"
         >
-            <el-form>
+            <el-form @submit.prevent>
                 <el-alert
                     v-if="project.closed"
                     :title="`该项目已由 ${ project.close_operator_nickname } (${ project.closed_by }) 于 ${ dateFormat(project.closed_time) } 关闭`"

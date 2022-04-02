@@ -159,6 +159,12 @@ public class ProjectFlowNodeService {
         projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
 
         ProjectFlowNodeMySqlModel node = findOne(input.getFlowId(), input.getNodeId());
+
+        // 对表单有效性进行检查
+        Components
+                .get(node.getComponentType())
+                .deserializationParam(input.getParams());
+
         List<ProjectFlowNodeOutputModel> list = new ArrayList<>();
 
         // If the node does not exist, it will be created automatically.
@@ -177,7 +183,7 @@ public class ProjectFlowNodeService {
         }
         // If the node already exists, update it.
         else {
-            // If the parameters have not changed, jump out.
+            // 如果 params 没有变化，则无需更新数据库。
             if (input.getParams().equals(node.getParams())) {
 
                 // Repeat the update, the DataIO data has not changed,
@@ -186,7 +192,9 @@ public class ProjectFlowNodeService {
                 if (node.getComponentType() == ComponentType.DataIO) {
                     List<ProjectFlowNodeMySqlModel> nodes = findNodesByFlowId(node.getFlowId());
 
-                    list = nodes.stream().filter(x -> Objects.requireNonNull(Components.get(x.getComponentType())).canSelectFeatures() && x.getParams() == null)
+                    list = nodes
+                            .stream()
+                            .filter(x -> Components.get(x.getComponentType()).canSelectFeatures() && x.getParams() == null)
                             .map(x -> ModelMapper.map(x, ProjectFlowNodeOutputModel.class))
                             .collect(Collectors.toList());
                 }

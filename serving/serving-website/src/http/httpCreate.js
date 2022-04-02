@@ -9,7 +9,7 @@ import axios from 'axios';
 // 要使用 0.18 版本  高版本会过滤掉自定义入参导致很多逻辑没法处理
 // import env from '@/env.js';
 // import store from '@js/store/store';
-import { baseLogout } from '@src/router/auth';
+import { baseLogout, clearUserInfo } from '@src/router/auth';
 import { deepMerge } from '@src/utils/types';
 
 function setStorage () {
@@ -73,6 +73,7 @@ httpInstance.interceptors.response.use(
 
                 // 弹出登陆面板
                 if (data.code === 10006) {
+                    clearUserInfo();
                     window.$app.$bus.$emit('show-login-dialog');
                 }
             }

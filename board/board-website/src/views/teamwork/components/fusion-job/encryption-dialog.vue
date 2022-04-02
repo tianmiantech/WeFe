@@ -29,7 +29,12 @@
 </template>
 
 <script>
-    import { ref, nextTick, reactive } from 'vue';
+    import {
+        ref,
+        getCurrentInstance,
+        nextTick,
+        reactive,
+    } from 'vue';
     import EncryptionGenerator from './encryption-generator';
 
     export default {
@@ -38,6 +43,8 @@
             EncryptionGenerator,
         },
         setup(props, context) {
+            const { appContext } = getCurrentInstance();
+            const { $message } = appContext.config.globalProperties;
             const encryptionGeneratorRef = ref(null);
             const vData = reactive({
                 role:       '',
@@ -63,13 +70,7 @@
                         const $ref = encryptionGeneratorRef.value;
 
                         if(fields && fields.length) {
-                            $ref.vData.encryptionList = fields.map(x => {
-                                return {
-                                    ...x,
-                                    features:   x.column_list,
-                                    encryption: x.options,
-                                };
-                            });
+                            $ref.vData.encryptionList = fields;
                         } else {
                             $ref.vData.encryptionList = [{
                                 features:   '',
@@ -90,8 +91,8 @@
                         }
                     }
 
-                    if($ref.vData.isTrace && !vData.trace_column) {
-                        return false;
+                    if($ref.vData.is_trace && !$ref.vData.trace_column) {
+                        return $message.error('请选择回溯字段');
                     }
 
                     vData.showDialog = false;

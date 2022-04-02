@@ -63,7 +63,7 @@ public class Config {
     @Value("${fc.access_key_secret:xxx}")
     private String fcAccessKeySecret;
 
-    @Value("${verification.code.send.channel:sms}")
+    @Value("${verification.code.send.channel:email}")
     private String verificationCodeSendChannel;
 
     @Value("${sms.aliyun.sign.name:xxx}")

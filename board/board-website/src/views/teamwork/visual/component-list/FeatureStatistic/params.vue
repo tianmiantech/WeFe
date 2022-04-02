@@ -3,6 +3,7 @@
         v-loading="vData.loading"
         :disabled="disabled"
         label-position="top"
+        @submit.prevent
     >
         <template
             v-for="(member, $index) in vData.data_set_list"
@@ -279,10 +280,10 @@
                     });
 
                     vData.loading = false;
-                    if (code === 0) {
+                    if (code === 0 && data && data.params) {
                         const { params } = data;
 
-                        if(params && params.members) {
+                        if(params.members) {
                             const { featureMethods, members, workMode, form } = params;
 
                             vData.form = form;

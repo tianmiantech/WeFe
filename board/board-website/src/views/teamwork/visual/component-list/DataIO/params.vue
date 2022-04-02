@@ -53,6 +53,7 @@
                     v-for="row in member.$data_set_list"
                     :key="row.id"
                     label-width="110px"
+                    @submit.prevent
                 >
                     <el-form-item label="数据资源名称：">
                         <div class="pr30">
@@ -60,6 +61,7 @@
                             <el-tag
                                 v-if="row.contains_y"
                                 type="success"
+                                size="small"
                             >
                                 y
                             </el-tag>
@@ -541,6 +543,7 @@
                         ref.searchField.member_role = vData.memberRole;
                         ref.searchField.contains_y = vData.rawSearch.contains_y;
                         ref.searchField.data_resource_type = 'TableDataSet';
+                        ref.isFlow = true;
 
                         ref.getDataList({
                             $data_set:       member.$data_set_list,
@@ -548,7 +551,6 @@
                             to:              false,
                             resetPagination: true,
                         });
-                        ref.isFlow = true;
                     });
                 },
 
@@ -568,6 +570,7 @@
                     refInstance.searchField.member_role = vData.memberRole;
                     refInstance.searchField.contains_y = vData.rawSearch.contains_y;
                     refInstance.searchField.data_resource_type = 'TableDataSet';
+                    refInstance.isFlow = true;
 
                     switch(ref.paneName) {
                     case 'raw':
@@ -582,7 +585,6 @@
                     nextTick(_ => {
                         refInstance.getDataList(params);
                     });
-                    refInstance.isFlow = true;
                 },
 
                 /* add dataset to list */

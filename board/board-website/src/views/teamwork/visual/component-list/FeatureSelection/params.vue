@@ -291,11 +291,11 @@
 
                     nextTick(_ => {
                         vData.loading = false;
-                        if (code === 0) {
-                            const { params } = data || {};
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const { params } = data;
 
                             vData.hasError = '';
-                            if (params && params.members) {
+                            if (params.members) {
                                 const {
                                     strategies,
                                     members,

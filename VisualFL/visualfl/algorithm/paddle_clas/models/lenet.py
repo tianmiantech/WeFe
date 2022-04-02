@@ -21,7 +21,7 @@ class LeNet():
             filter_size=5,
             pool_size=2,
             pool_stride=2,
-            act="sigmoid",
+            act="relu",
         )
         conv_pool_2 = fluid.nets.simple_img_conv_pool(
             input=conv_pool_1,
@@ -29,7 +29,7 @@ class LeNet():
             filter_size=5,
             pool_size=2,
             pool_stride=2,
-            act="sigmoid",
+            act="relu",
         )
         conv_pool_3 = fluid.nets.simple_img_conv_pool(
             input=conv_pool_2,
@@ -37,10 +37,10 @@ class LeNet():
             filter_size=4,
             pool_size=1,
             pool_stride=1,
-            act="sigmoid",
+            act="relu",
         )
         fc1 = fluid.layers.fc(
-            input=conv_pool_3, size=64, act="sigmoid"
+            input=conv_pool_3, size=64, act="relu"
         )
         out = fluid.layers.fc(
             input=fc1, size=class_dim

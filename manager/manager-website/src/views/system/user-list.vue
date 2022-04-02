@@ -6,7 +6,7 @@
             @submit.prevent
         >
             <el-form-item label="姓名">
-                <el-input v-model="search.realname" />
+                <el-input v-model="search.realname" clearable />
             </el-form-item>
             <el-form-item label="是否为管理员">
                 <el-select
@@ -41,7 +41,7 @@
             <el-table-column label="序号" type="index"></el-table-column>
             <el-table-column label="用户名" prop="account" width="140" />
             <el-table-column label="姓名" prop="realname" width="130" />
-            <el-table-column label="邮箱" prop="email" />
+            <el-table-column label="邮箱" prop="email" width="180" />
             <el-table-column label="用户角色" width="140">
                 <template v-slot="scope">
                     {{ scope.row.super_admin_role ? '超级管理员' : (scope.row.admin_role ? '普通管理员' : '普通用户') }}
@@ -52,21 +52,44 @@
                     {{ scope.row.enable ? '可用' : '已禁用' }}
                 </template>
             </el-table-column>
+            <el-table-column label="审核状态" width="220">
+                <template v-slot="scope">
+                    <el-tag v-if="scope.row.audit_status === 'agree'" type="success">
+                        通过
+                    </el-tag>
+                    <p v-if="scope.row.audit_status === 'disagree'">
+                        <el-tag type="danger">
+                            不通过
+                        </el-tag> <span>({{scope.row.audit_comment}})</span>
+                    </p>
+                    <el-tag v-if="scope.row.audit_status === 'auditing'">
+                        待审核
+                    </el-tag>
+                </template>
+            </el-table-column>
             <el-table-column
                 v-if="userInfo.admin_role"
-                label="操作"
+                min-width="370"
                 fixed="right"
-                min-width="300"
+                label="操作"
             >
                 <template v-slot="scope">
-                    <template v-if="userInfo.admin_role">
-                        <el-button
-                            v-if="userInfo.super_admin_role && scope.row.user_id !== userInfo.user_id"
-                            type="danger"
-                            @click="changeRole($event, scope.row)"
-                        >
-                            设为{{ scope.row.admin_role ? '普通用户' : '管理员' }}
-                        </el-button>
+                    <template v-if="scope.row.audit_status === 'agree' && userInfo.admin_role">
+                        <template v-if="userInfo.super_admin_role && scope.row.user_id !== userInfo.user_id">
+                            <el-button
+                                v-if="scope.row.admin_role"
+                                @click="changeRole($event, scope.row)"
+                            >
+                                设为普通用户
+                            </el-button>
+                            <el-button
+                                v-else
+                                type="danger"
+                                @click="changeRole($event, scope.row)"
+                            >
+                                设为管理员
+                            </el-button>
+                        </template>
                         <el-button
                             v-if="userInfo.admin_role"
                             type="primary"
@@ -77,10 +100,28 @@
                         <el-button
                             v-if="!scope.row.super_admin_role"
                             :type="scope.row.enable ? 'danger' : 'success'"
+                            plain
                             @click="changeStatus($event, scope.row)"
                         >
                             {{scope.row.enable ? '禁用' : '启用'}}
                         </el-button>
+                    </template>
+                    <template v-else>
+                        <el-popconfirm
+                            confirm-button-text="同意"
+                            cancel-button-text="拒绝"
+                            cancelButtonType="danger"
+                            :hide-icon="true"
+                            trigger="hover"
+                            @confirm="memberAduit($event, scope.row, 'agree')"
+                            @cancel="memberAduit($event, scope.row, 'disagree')"
+                        >
+                            <template #reference>
+                                <el-button plain>
+                                    {{ scope.row.audit_status === 'auditing' ? '审核' : scope.row.audit_status === 'disagree' ? '重新审核' : '' }}
+                                </el-button>
+                            </template>
+                        </el-popconfirm>
                     </template>
                 </template>
             </el-table-column>
@@ -197,6 +238,41 @@
                         },
                     });
                     this.refresh();
+                });
+            },
+            async memberAduit($event, row, flag) {
+                const result = flag === 'agree' ? this.$confirm('确定同意当前成员审核吗？', '提示', {
+                    type:              'warning',
+                    confirmButtonText: '确定',
+                    cancelButtonText:  '取消',
+                }) : this.$prompt('拒绝当前成员审核？\n 原因:', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText:  '取消',
+                    inputValidator(value) {
+                        return value != null && value !== '';
+                    },
+                    inputErrorMessage: '原因不能为空',
+                });
+
+                result.then(async ({ action, value }) => {
+                    if(flag || action === 'confirm') {
+                        const { code } = await this.$http.post({
+                            url:  '/user/audit',
+                            data: {
+                                userId:       row.user_id,
+                                auditStatus:  flag,
+                                auditComment: value,
+                            },
+                            btnState: {
+                                target: $event,
+                            },
+                        });
+
+                        if(code === 0) {
+                            this.$message.success('操作成功!');
+                            this.refresh();
+                        }
+                    }
                 });
             },
         },

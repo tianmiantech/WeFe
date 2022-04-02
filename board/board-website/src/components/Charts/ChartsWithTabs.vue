@@ -341,7 +341,7 @@
                     }
                 }
 
-                ref.chartResize();
+                ref && ref.chartResize && ref.chartResize();
 
                 setTimeout(_ => {
                     ref.loading = false;
@@ -387,7 +387,7 @@
 
                 const ref = this.$refs[this.tabName];
 
-                ref && ref.chartResize();
+                ref && ref.chartResize && ref.chartResize();
             },
 
             renderChart(tabName, lineNames, { result }) {

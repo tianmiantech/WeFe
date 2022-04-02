@@ -3,10 +3,7 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
+        <el-form inline>
             <el-form-item label="服务名称:">
                 <el-input v-model="search.serviceName" />
             </el-form-item>

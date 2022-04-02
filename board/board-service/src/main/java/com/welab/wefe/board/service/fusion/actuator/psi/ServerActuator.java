@@ -79,23 +79,25 @@ public class ServerActuator extends AbstractPsiServerActuator {
                 break;
             case falsify:
             case running:
-                fusionTaskService.updateByBusinessId(
+                fusionTaskService.updateErrorByBusinessId(
                         businessId,
                         FusionTaskStatus.Interrupt,
                         dataCount,
                         fusionCount.longValue(),
                         processedCount.longValue(),
-                        getSpend()
+                        getSpend(),
+                        error
                 );
                 break;
             default:
-                fusionTaskService.updateByBusinessId(
+                fusionTaskService.updateErrorByBusinessId(
                         businessId,
                         FusionTaskStatus.Failure,
                         dataCount,
                         fusionCount.longValue(),
                         processedCount.longValue(),
-                        getSpend()
+                        getSpend(),
+                        error
                 );
                 break;
         }

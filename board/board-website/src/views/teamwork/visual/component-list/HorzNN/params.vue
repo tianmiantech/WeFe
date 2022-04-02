@@ -3,6 +3,7 @@
         ref="form"
         :model="vData.form"
         :disabled="disabled"
+        @submit.prevent
     >
         <el-collapse v-model="vData.activeNames">
             <el-collapse-item title="HorzNN参数设置" name="1">
@@ -266,7 +267,7 @@
                         },
                     });
 
-                    if (code === 0 && data && data.params) {
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
                         vData.form = data.params;
                     }
                 },
