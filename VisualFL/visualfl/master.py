@@ -191,23 +191,17 @@ class RESTService(Logger):
             else:
                 return None
 
-        async def export_serving_mode(job_id,task_id,serving_model_path):
+        async def export_serving_mode(job_id,task_id,config_json,algorithm_config_json):
             step = TaskDao(task_id).get_task_progress()
-            algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/algorithm_config.json")
-            config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/config.json")
-            with open(config_path) as f:
-                config_json = json.load(f)
-            with open(algorithm_config_path) as f:
-                algorithm_config_json = json.load(f)
+            serving_model_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/serving_model")
             local_trainer_indexs = config_json.get("local_trainer_indexs")
             weights = Path(__logs_dir__).joinpath(f"jobs/{job_id}/trainer_{local_trainer_indexs[0]}/checkpoint/{step}")
             program = algorithm_config_json.get("program")
             architecture = algorithm_config_json.get("architecture")
             if program == "paddle_detection":
                 program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
-                default_config_name = 'default_algorithm_config.yml'
-                algorithm_config_path = os.path.join(program_full_path, "configs", architecture.lower(),
-                                                     default_config_name)
+                config_name = f'{architecture}.yml'
+                algorithm_config_path = os.path.join(program_full_path, "configs", architecture.split('_')[0],config_name)
 
             executor = ProcessExecutor(serving_model_path)
             executable = sys.executable
@@ -227,13 +221,20 @@ class RESTService(Logger):
 
         query = query_parse(request)
         self.debug(f"export serving model request data: {query}")
+
         job_id = query.get("job_id")
         task_id = query.get("task_id")
         serving_model_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/serving_model")
+        algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/algorithm_config.json")
+        config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/config.json")
+        with open(config_path) as f:
+            config_json = json.load(f)
+        with open(algorithm_config_path) as f:
+            algorithm_config_json = json.load(f)
 
-        await export_serving_mode(job_id,task_id,serving_model_path)
+        await export_serving_mode(job_id,task_id,config_json,algorithm_config_json)
 
-        cfg_name = "default_algorithm_config"
+        cfg_name = algorithm_config_json.get("architecture")
         zip_file = os.path.join(serving_model_path, f"{cfg_name}.zip")
         data_loader.make_zip(os.path.join(serving_model_path, cfg_name),zip_file)
 
