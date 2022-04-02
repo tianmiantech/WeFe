@@ -22,6 +22,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Paths;
+
 /**
  * config.properties
  *
@@ -108,11 +110,11 @@ public class Config extends CommonConfig {
     }
 
     public String getBloomFilterDir() {
-        return getFileUploadDir() + "bloom_filter";
+        return Paths.get(getFileUploadDir()).resolve("bloom_filter").toString();
     }
 
     public String getSourceFilterDir() {
-        return getFileUploadDir() + "file";
+        return Paths.get(getFileUploadDir()).resolve("file").toString();
     }
 
     // endregion
