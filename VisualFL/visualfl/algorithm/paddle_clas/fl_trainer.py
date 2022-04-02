@@ -194,13 +194,14 @@ def fl_trainer(
         step = 0
         TaskDao(task_id).init_task_progress(max_iter)
         TaskDao(task_id).start_task()
-        if resume_checkpoint:
-            try:
-                epoch_id = TaskDao(task_id).get_task_progress()
-                checkpoint.load_checkpoint(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
-                logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
-            except Exception as e:
-                logging.error(f"task id {task_id} train error {e}")
+        # if resume_checkpoint:
+        #     try:
+        #         epoch_id = TaskDao(task_id).get_task_progress()
+        #         checkpoint.load_checkpoint(trainer.exe, trainer._main_program, f"checkpoint/{epoch_id}")
+        #         logging.debug(f"use_checkpoint epoch_id: {epoch_id}")
+        #     except Exception as e:
+        #         logging.error(f"task id {task_id} train error {e}")
+        #         raise Exception(f"train error as task id {task_id} ")
 
         if use_vdl:
             from visualdl import LogWriter

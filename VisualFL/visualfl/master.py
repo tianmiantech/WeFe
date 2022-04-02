@@ -57,6 +57,7 @@ from visualfl.utils.consts import TaskStatus
 from visualfl.utils import data_loader
 from visualfl.paddle_fl.executor import ProcessExecutor
 from visualfl import __basedir__,__logs_dir__
+from visualfl.utils.consts import ComponentName,TaskResultType
 
 class _JobStatus(enum.Enum):
     """
@@ -190,23 +191,17 @@ class RESTService(Logger):
             else:
                 return None
 
-        async def export_serving_mode(job_id,task_id,serving_model_path):
+        async def export_serving_mode(job_id,task_id,config_json,algorithm_config_json):
             step = TaskDao(task_id).get_task_progress()
-            algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/algorithm_config.json")
-            config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/config.json")
-            with open(config_path) as f:
-                config_json = json.load(f)
-            with open(algorithm_config_path) as f:
-                algorithm_config_json = json.load(f)
+            serving_model_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/serving_model")
             local_trainer_indexs = config_json.get("local_trainer_indexs")
             weights = Path(__logs_dir__).joinpath(f"jobs/{job_id}/trainer_{local_trainer_indexs[0]}/checkpoint/{step}")
             program = algorithm_config_json.get("program")
             architecture = algorithm_config_json.get("architecture")
             if program == "paddle_detection":
                 program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
-                default_config_name = 'default_algorithm_config.yml'
-                algorithm_config_path = os.path.join(program_full_path, "configs", architecture.lower(),
-                                                     default_config_name)
+                config_name = f'{architecture}.yml'
+                algorithm_config_path = os.path.join(program_full_path, "configs", architecture.split('_')[0],config_name)
 
             executor = ProcessExecutor(serving_model_path)
             executable = sys.executable
@@ -226,13 +221,20 @@ class RESTService(Logger):
 
         query = query_parse(request)
         self.debug(f"export serving model request data: {query}")
+
         job_id = query.get("job_id")
         task_id = query.get("task_id")
         serving_model_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/serving_model")
+        algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/algorithm_config.json")
+        config_path = Path(__logs_dir__).joinpath(f"jobs/{job_id}/master/config.json")
+        with open(config_path) as f:
+            config_json = json.load(f)
+        with open(algorithm_config_path) as f:
+            algorithm_config_json = json.load(f)
 
-        await export_serving_mode(job_id,task_id,serving_model_path)
+        await export_serving_mode(job_id,task_id,config_json,algorithm_config_json)
 
-        cfg_name = "default_algorithm_config"
+        cfg_name = algorithm_config_json.get("architecture")
         zip_file = os.path.join(serving_model_path, f"{cfg_name}.zip")
         data_loader.make_zip(os.path.join(serving_model_path, cfg_name),zip_file)
 
@@ -450,12 +452,18 @@ class RESTService(Logger):
             algorithm_config = data.get("algorithm_config")
             cur_step = TaskDao(task_id).get_task_progress()
             input_dir = os.path.join(__logs_dir__,f"jobs/{job_id}/infer/input")
-            infer_dir = data_loader.job_download(download_url, job_id+str(random.randint(0,99999)), input_dir)
+            infer_session_id = data_set.get("infer_session_id", '')
+            infer_dir = data_loader.job_download(download_url, infer_session_id, input_dir)
             data_loader.extractImages(infer_dir)
             output_dir = os.path.join(__logs_dir__, f"jobs/{job_id}/infer/output/{os.path.basename(infer_dir)}")
             config["cur_step"] = cur_step
             config["infer_dir"] = infer_dir
             config["output_dir"] = output_dir
+
+            task_result = {"infer_session_id": infer_session_id,"status": "wait_run"}
+            program = algorithm_config["program"]
+            componentName = ComponentName.DETECTION if program == "paddle_detection" else ComponentName.CLASSIFY
+            TaskDao(task_id).save_task_result(task_result, componentName,type=TaskResultType.INFER)
 
         except Exception as e:
             self.exception(f"infer request download and process images error as {e} ")

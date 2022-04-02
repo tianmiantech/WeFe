@@ -19,6 +19,8 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.file.compression.impl.Zip;
+import com.welab.wefe.common.file.decompression.SuperDecompressor;
+import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -141,8 +143,16 @@ public class WeFeFileSystem {
     }
 
     public static class CallDeepLearningModel {
+
         /**
-         * 包含图片的zip文件
+         * 获取上传的原始文件
+         */
+        public static File getRawFile(String filename) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve(filename).toFile();
+        }
+
+        /**
+         * 包含模型的zip文件
          */
         public static File getModelFile(String taskId) {
             return getBaseDir(UseType.CallDeepLearningModel).resolve("model").resolve(taskId + ".zip").toFile();
@@ -151,38 +161,31 @@ public class WeFeFileSystem {
         /**
          * 包含图片的zip文件
          */
-        public static File getZipFile(String taskId) {
-            return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
+        public static File getZipFile(String taskId, String sessionId) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId).resolve(sessionId + ".zip").toFile();
+        }
+
+
+        /**
+         * 图片样本所在的目录： /CallDeepLearningModel/{taskId}/{sessionId}
+         */
+        public static Path getImageSimpleDir(String taskId, String sessionId) {
+            return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId).resolve(sessionId);
+
         }
 
         /**
-         * zip 文件解压目录
+         * 将图片所在的文件夹压缩为 zip，供VisualFL下载。
          */
-        public static Path getZipFileUnzipDir(String taskId) {
-            return getBaseDir(UseType.CallDeepLearningModel).resolve(taskId);
-        }
-
-        public static File singleImageToZip(String filename, String taskId) throws StatusCodeWithException {
-            File rawFile = getBaseDir(UseType.CallDeepLearningModel).resolve(filename).toFile();
-            // 检查文件是否是图片
-            if (!FileUtil.isImage(rawFile)) {
-                if (rawFile.exists()) {
-                    rawFile.delete();
-                }
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("文件不是图片");
+        public static File zipImageSimpleDir(String taskId, String sessionId) throws StatusCodeWithException {
+            File zipFile = getZipFile(taskId, sessionId);
+            if (zipFile.exists()) {
+                zipFile.delete();
             }
 
-            // 创建文件夹
-            Path dir = getBaseDir(UseType.CallDeepLearningModel).resolve(taskId);
-            // 将图片移动到文件夹
-            FileUtil.moveFile(rawFile, dir.toString());
             // 压缩文件夹
-            Zip zip = new Zip();
-            File zipFile = null;
             try {
-                zipFile = zip.compression(
-                        getBaseDir(UseType.CallDeepLearningModel).resolve(taskId).toString()
-                );
+                new Zip().compression(getImageSimpleDir(taskId, sessionId), zipFile);
             } catch (IOException e) {
                 LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                 StatusCode.FILE_IO_ERROR.throwException(e);
@@ -191,37 +194,75 @@ public class WeFeFileSystem {
         }
 
         /**
-         * 将上传的文件重命名为以 taskId 命名的文件
-         *
-         * @param filename 原始文件名
+         * 将单张图片移到预定目录
          */
-        public static File renameZipFile(String filename, String taskId) throws StatusCodeWithException {
-            File rawFile = getBaseDir(UseType.CallDeepLearningModel).resolve(filename).toFile();
-            File renamedFile = getBaseDir(UseType.CallDeepLearningModel).resolve(taskId + ".zip").toFile();
-
-            // 在重命名之前先检查是否需要重命名
-            if (rawFile.getAbsolutePath().equals(renamedFile.getAbsolutePath())) {
-                return renamedFile;
+        public static void moveSingleImageToSessionDir(File rawFile, String taskId, String sessionId) throws StatusCodeWithException {
+            // 检查文件是否是图片
+            if (!FileUtil.isImage(rawFile)) {
+                if (rawFile.exists()) {
+                    rawFile.delete();
+                }
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("文件不是图片");
             }
 
-            if (!rawFile.exists()) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("未找到文件：" + filename);
+            Path distDir = getImageSimpleDir(taskId, sessionId);
+            FileUtil.moveFile(rawFile, distDir.toString());
+
+        }
+
+        /**
+         * 将上传的文件解压后移动到预定目录
+         */
+        public static int moveZipFileToSessionDir(File zipFile, String taskId, String sessionId) throws StatusCodeWithException {
+            if (!zipFile.exists()) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("未找到文件：" + zipFile.getAbsolutePath());
             }
 
-            String suffix = FileUtil.getFileSuffix(filename);
+            String suffix = FileUtil.getFileSuffix(zipFile);
             if (!"zip".equalsIgnoreCase(suffix)) {
-                FileUtil.deleteFileOrDir(rawFile);
+                FileUtil.deleteFileOrDir(zipFile);
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);
             }
 
-            // 重命名之前新文件先删除之前重命名的文件
-            if (renamedFile.exists()) {
-                renamedFile.delete();
+            Path distDir = getImageSimpleDir(taskId, sessionId);
+            DecompressionResult result = null;
+            try {
+                result = SuperDecompressor.decompression(zipFile, distDir.toString(), true);
+            } catch (Exception e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+                StatusCode.FILE_IO_ERROR.throwException(e);
             }
 
-            rawFile.renameTo(renamedFile);
+            // 安全起见，把非图片文件删除掉。
+            int imageCount = 0;
+            for (File file : result.files) {
+                // 删除隐藏文件
+                if (file.isHidden()) {
+                    FileUtil.deleteFileOrDir(file);
+                }
+                // 删除不是图片的文件
+                else if (!FileUtil.isImage(file)) {
+                    FileUtil.deleteFileOrDir(file);
+                } else {
+                    // 将文件移动到解压目录的根目录，避免zip包内有子文件导致路径不好管理。
+                    FileUtil.moveFile(file, distDir);
+                    imageCount++;
+                }
+            }
 
-            return renamedFile;
+            // 移除解压后的子目录
+            for (File file : result.dirs) {
+                FileUtil.deleteFileOrDir(file);
+            }
+
+            // 移除原始文件
+            zipFile.delete();
+
+            if (imageCount == 0) {
+                FileUtil.deleteFileOrDir(distDir.toFile());
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("压缩包中没有图片文件！");
+            }
+            return imageCount;
         }
     }
 }
