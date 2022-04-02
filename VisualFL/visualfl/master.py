@@ -451,14 +451,13 @@ class RESTService(Logger):
             algorithm_config = data.get("algorithm_config")
             cur_step = TaskDao(task_id).get_task_progress()
             input_dir = os.path.join(__logs_dir__,f"jobs/{job_id}/infer/input")
-            infer_dir = data_loader.job_download(download_url, job_id+str(random.randint(0,99999)), input_dir)
+            infer_session_id = data_set.get("infer_session_id", '')
+            infer_dir = data_loader.job_download(download_url, infer_session_id, input_dir)
             data_loader.extractImages(infer_dir)
             output_dir = os.path.join(__logs_dir__, f"jobs/{job_id}/infer/output/{os.path.basename(infer_dir)}")
             config["cur_step"] = cur_step
             config["infer_dir"] = infer_dir
             config["output_dir"] = output_dir
-
-            infer_session_id = data_set.get("infer_session_id",'')
 
             task_result = {"infer_session_id": infer_session_id,"status": "wait_run"}
             program = algorithm_config["program"]
