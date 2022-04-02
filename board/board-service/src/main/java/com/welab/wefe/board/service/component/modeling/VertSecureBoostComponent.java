@@ -91,14 +91,15 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("tree_param", treeParam)
                 .append("objective_param", objectiveParam)
                 .append("encrypt_param", encryptParam)
-				.append("cv_param", cvParam)
-				.append("work_mode", params.otherParam.workMode);
-		if ("layered".equalsIgnoreCase(params.otherParam.workMode)) {
-			output.append("promoter_depth", params.otherParam.promoterDepth).append("provider_depth",
-					params.otherParam.providerDepth);
-		} else if ("skip".equalsIgnoreCase(params.otherParam.workMode)) {
-			output.append("tree_num_per_member", params.otherParam.treeNumPerMember);
-		}
+                .append("cv_param", cvParam).append("work_mode", params.otherParam.workMode);
+        if ("layered".equalsIgnoreCase(params.otherParam.workMode)) {
+            output.append("promoter_depth", params.otherParam.promoterDepth).append("provider_depth",
+                    params.otherParam.providerDepth);
+        } else if ("skip".equalsIgnoreCase(params.otherParam.workMode)) {
+            output.append("tree_num_per_member", params.otherParam.treeNumPerMember);
+        } else if ("dp".equalsIgnoreCase(params.otherParam.workMode)) {
+            output.append("epsilon", params.otherParam.epsilon);
+        }
         return output;
     }
 
@@ -206,6 +207,9 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             @Check(name = "单方每次构建树的数量")
             private int treeNumPerMember;
             
+            // 当work_mode==dp时 隐私预算
+            @Check(name = "隐私预算") // 1.22
+            private float epsilon;
 
             public String getTaskType() {
                 return taskType;
@@ -310,6 +314,14 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
 			public void setTreeNumPerMember(int treeNumPerMember) {
 				this.treeNumPerMember = treeNumPerMember;
 			}
+
+            public float getEpsilon() {
+                return epsilon;
+            }
+
+            public void setEpsilon(float epsilon) {
+                this.epsilon = epsilon;
+            }
         }
 
     }
