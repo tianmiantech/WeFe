@@ -43,13 +43,17 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
         String mergedFileName = UUID.randomUUID() + "-" + input.filename;
 
-        File dir = ServingFileUtil.getBaseDir(input.getFileType()).resolve(input.getFileType().name())
+        File dir = ServingFileUtil.getBaseDir(input.fileType)
                 .resolve(input.uniqueIdentifier)
                 .toFile();
 
+        LOG.info("file path {}", dir.getPath());
+
         File[] parts = dir.listFiles();
 
-        File mergedFile = ServingFileUtil.getBaseDir(input.getFileType()).resolve(input.getFileType().name())
+        LOG.info("parts size {}", parts.length);
+
+        File mergedFile = ServingFileUtil.getBaseDir(input.fileType)
                 .resolve(mergedFileName)
                 .toFile();
 
@@ -59,7 +63,7 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
 
         try {
             for (int i = 1; i <= parts.length; i++) {
-                File part = ServingFileUtil.getBaseDir(input.getFileType()).resolve(input.getFileType().name())
+                File part = ServingFileUtil.getBaseDir(input.fileType)
                         .resolve(input.uniqueIdentifier)
                         .resolve(i + ".part")
                         .toFile();
@@ -80,7 +84,6 @@ public class MergeApi extends AbstractApi<MergeApi.Input, MergeApi.Output> {
         FileSecurityChecker.check(mergedFile);
 
         return success(new Output(mergedFileName));
-
     }
 
     public static class Output {
