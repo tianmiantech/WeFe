@@ -34,6 +34,13 @@ import java.nio.file.Paths;
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
+
+    @Value("${fc.access_key_id:xxx}")
+    private String fcAccessKeyId;
+
+    @Value("${fc.access_key_secret:xxx}")
+    private String fcAccessKeySecret;
+
     @Value("${verification.code.send.channel:sms}")
     private String verificationCodeSendChannel;
 
@@ -107,6 +114,38 @@ public class Config extends CommonConfig {
 
     public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
         this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
+    }
+
+    public String getFcAccessKeyId() {
+        return fcAccessKeyId;
+    }
+
+    public void setFcAccessKeyId(String fcAccessKeyId) {
+        this.fcAccessKeyId = fcAccessKeyId;
+    }
+
+    public String getFcAccessKeySecret() {
+        return fcAccessKeySecret;
+    }
+
+    public void setFcAccessKeySecret(String fcAccessKeySecret) {
+        this.fcAccessKeySecret = fcAccessKeySecret;
+    }
+
+    public String getEmailAccountForgetPasswordSubject() {
+        return emailAccountForgetPasswordSubject;
+    }
+
+    public void setEmailAccountForgetPasswordSubject(String emailAccountForgetPasswordSubject) {
+        this.emailAccountForgetPasswordSubject = emailAccountForgetPasswordSubject;
+    }
+
+    public String getEmailAccountForgetPasswordContent() {
+        return emailAccountForgetPasswordContent;
+    }
+
+    public void setEmailAccountForgetPasswordContent(String emailAccountForgetPasswordContent) {
+        this.emailAccountForgetPasswordContent = emailAccountForgetPasswordContent;
     }
 
     public String getBloomFilterDir() {
