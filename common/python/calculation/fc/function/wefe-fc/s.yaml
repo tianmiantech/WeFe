@@ -27,11 +27,11 @@ services:
         runtime: custom
         instanceType: e1
         prodironmentVariables:
-          PYTHONUSERBASE: /mnt/auto/prod/python
+          PYTHONUSERBASE: /mnt/auto/env/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/prod/root/usr/bin:/mnt/auto/prod/root/usr/local/lib:/mnt/auto/prod/root/usr/lib:/mnt/auto/prod/root/usr/lib/x86_64-linux-gnu:/mnt/auto/prod/root/usr/lib64:/mnt/auto/prod/root/lib:/mnt/auto/prod/root/lib/x86_64-linux-gnu:/mnt/auto/prod/root/python/lib/python2.7/site-packages:/mnt/auto/prod/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/prod/pythonCode
-          PATH: /mnt/auto/prod/python/bin
+            /mnt/auto/env/root/usr/bin:/mnt/auto/env/root/usr/local/lib:/mnt/auto/env/root/usr/lib:/mnt/auto/env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/env/root/usr/lib64:/mnt/auto/env/root/lib:/mnt/auto/env/root/lib/x86_64-linux-gnu:/mnt/auto/env/root/python/lib/python2.7/site-packages:/mnt/auto/env/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/env/pythonCode
+          PATH: /mnt/auto/env/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
@@ -49,11 +49,11 @@ services:
         runtime: custom
         instanceType: c1
         prodironmentVariables:
-          PYTHONUSERBASE: /mnt/auto/prod/python
+          PYTHONUSERBASE: /mnt/auto/env/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/prod/root/usr/bin:/mnt/auto/prod/root/usr/local/lib:/mnt/auto/prod/root/usr/lib:/mnt/auto/prod/root/usr/lib/x86_64-linux-gnu:/mnt/auto/prod/root/usr/lib64:/mnt/auto/prod/root/lib:/mnt/auto/prod/root/lib/x86_64-linux-gnu:/mnt/auto/prod/root/python/lib/python2.7/site-packages:/mnt/auto/prod/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/prod/pythonCode
-          PATH: /mnt/auto/prod/python/bin
+            /mnt/auto/env/root/usr/bin:/mnt/auto/env/root/usr/local/lib:/mnt/auto/env/root/usr/lib:/mnt/auto/env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/env/root/usr/lib64:/mnt/auto/env/root/lib:/mnt/auto/env/root/lib/x86_64-linux-gnu:/mnt/auto/env/root/python/lib/python2.7/site-packages:/mnt/auto/env/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/env/pythonCode
+          PATH: /mnt/auto/env/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
@@ -71,11 +71,11 @@ services:
         runtime: custom
         instanceType: c1
         prodironmentVariables:
-          PYTHONUSERBASE: /mnt/auto/prod/python
+          PYTHONUSERBASE: /mnt/auto/env/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/prod/root/usr/bin:/mnt/auto/prod/root/usr/local/lib:/mnt/auto/prod/root/usr/lib:/mnt/auto/prod/root/usr/lib/x86_64-linux-gnu:/mnt/auto/prod/root/usr/lib64:/mnt/auto/prod/root/lib:/mnt/auto/prod/root/lib/x86_64-linux-gnu:/mnt/auto/prod/root/python/lib/python2.7/site-packages:/mnt/auto/prod/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/prod/pythonCode
-          PATH: /mnt/auto/prod/python/bin
+            /mnt/auto/env/root/usr/bin:/mnt/auto/env/root/usr/local/lib:/mnt/auto/env/root/usr/lib:/mnt/auto/env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/env/root/usr/lib64:/mnt/auto/env/root/lib:/mnt/auto/env/root/lib/x86_64-linux-gnu:/mnt/auto/env/root/python/lib/python2.7/site-packages:/mnt/auto/env/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/env/pythonCode
+          PATH: /mnt/auto/env/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
