@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.database.serving.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.UUID;
@@ -31,7 +32,22 @@ public class RequestStatisticsMysqlModel{
 
     private String serviceId;
 
+    /**
+     * 服务名称
+     */
+    private String serviceName;
+
     private String clientId;
+
+    /**
+     * 客户名称
+     */
+    private String clientName;
+
+    /**
+     * 总成功次数
+     */
+    private Long totalSuccessTimes;
 
     /**
      * 总调用次数
@@ -42,21 +58,6 @@ public class RequestStatisticsMysqlModel{
      * 总失败次数
      */
     private Long totalFailTimes;
-
-    /**
-     * 总成功次数
-     */
-    private Long totalSuccessTimes;
-
-    /**
-     * 服务名称
-     */
-    private String serviceName;
-
-    /**
-     * 客户名称
-     */
-    private String clientName;
 
     /**
      * 服务类型
