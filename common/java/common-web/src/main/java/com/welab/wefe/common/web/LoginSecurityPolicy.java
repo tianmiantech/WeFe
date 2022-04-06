@@ -51,32 +51,32 @@ public class LoginSecurityPolicy {
     /**
      * In the dark room
      */
-    public static boolean inDarkRoom(String username) {
-        return A_DARK_ROOM.containsKey(username);
+    public static boolean inDarkRoom(String userKey) {
+        return A_DARK_ROOM.containsKey(userKey);
     }
 
     /**
      * Record the event of a login failure
      */
-    public synchronized static void onLoginFail(String username) {
-        if (!LOGIN_FAIL_COUNT_MAP.containsKey(username)) {
-            LOGIN_FAIL_COUNT_MAP.put(username, 0);
+    public synchronized static void onLoginFail(String userKey) {
+        if (!LOGIN_FAIL_COUNT_MAP.containsKey(userKey)) {
+            LOGIN_FAIL_COUNT_MAP.put(userKey, 0);
         }
-        Integer count = LOGIN_FAIL_COUNT_MAP.get(username);
+        Integer count = LOGIN_FAIL_COUNT_MAP.get(userKey);
         count++;
 
         // Too many mistakes and you're in the dark room
         if (count > 5) {
-            A_DARK_ROOM.put(username, 0);
+            A_DARK_ROOM.put(userKey, 0);
         }
 
-        LOGIN_FAIL_COUNT_MAP.put(username, count);
+        LOGIN_FAIL_COUNT_MAP.put(userKey, count);
     }
 
     /**
      * Record a successful login event
      */
-    public synchronized static void onLoginSuccess(String username) {
-        LOGIN_FAIL_COUNT_MAP.put(username, 0);
+    public synchronized static void onLoginSuccess(String userKey) {
+        LOGIN_FAIL_COUNT_MAP.put(userKey, 0);
     }
 }

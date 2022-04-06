@@ -70,6 +70,9 @@
                                 maxlength="30"
                                 placeholder="密码"
                                 clearable
+                                @paste.native.prevent
+                                @copy.native.prevent
+                                @contextmenu.native.prevent
                             />
                         </el-form-item>
                         <el-form-item

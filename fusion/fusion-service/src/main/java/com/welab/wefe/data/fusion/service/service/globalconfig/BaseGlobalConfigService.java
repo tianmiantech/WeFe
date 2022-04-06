@@ -40,7 +40,7 @@ import java.util.Objects;
  */
 public class BaseGlobalConfigService extends AbstractService {
 
-    protected static class Group {
+    public static class Group {
         public static String MEMBER_INFO = "member_info";
         public static String MAIL_SERVER = "mail_server";
         public static String ALERT_CONFIG = "alert_config";

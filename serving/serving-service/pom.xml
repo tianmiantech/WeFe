@@ -147,16 +147,21 @@
             <artifactId>fastcsv</artifactId>
             <version>2.1.0</version>
         </dependency>
-        
-       	<dependency>
-        	<groupId>redis.clients</groupId>
-        	<artifactId>jedis</artifactId>
-       	</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-text</artifactId>
-			<version>1.8</version>
-		</dependency>
+
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vladmihalcea</groupId>
+            <artifactId>hibernate-types-52</artifactId>
+            <version>2.4.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -166,7 +171,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.welab.wefe.serving.service.Serving</mainClass>
+                    <mainClass>com.welab.wefe.serving.service.ServingService</mainClass>
                     <includeSystemScope>true</includeSystemScope>
                 </configuration>
             </plugin>

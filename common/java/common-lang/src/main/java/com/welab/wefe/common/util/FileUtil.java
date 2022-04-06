@@ -19,10 +19,9 @@ package com.welab.wefe.common.util;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author zane.luo
@@ -200,11 +199,50 @@ public class FileUtil {
     }
 
     public static void moveFile(File file, String distDir) {
+        moveFile(file, Paths.get(distDir));
+    }
+
+    public static void moveFile(File file, Path distDir) {
+        // 文件已经在目标目录，不用移动。
+        if (file.getParentFile().toPath().equals(distDir)) {
+            return;
+        }
+
         String fileName = file.getName();
-        File distFile = new File(distDir, fileName);
+
+        distDir.toFile().mkdirs();
+
+        File distFile = distDir.resolve(fileName).toFile();
         if (distFile.exists()) {
             distFile.delete();
         }
         file.renameTo(distFile);
+    }
+
+    /**
+     * Reading file contents
+     *
+     * @return String
+     */
+    public static List<String> readAllForLine(String path, String encoding) throws IOException {
+        List<String> lineList = new ArrayList<>();
+        BufferedReader in = null;
+        try {
+            FileInputStream fis = new FileInputStream(path);
+            InputStreamReader isr = new InputStreamReader(fis, encoding);
+            in = new BufferedReader(isr);
+            String line;
+            while ((line = in.readLine()) != null) {
+                lineList.add(line);
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            if (null != in) {
+                in.close();
+            }
+
+        }
+        return lineList;
     }
 }

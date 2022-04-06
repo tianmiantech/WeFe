@@ -54,6 +54,7 @@ public class CacheObjects {
 
 
     private static long LAST_REFRESH_MEMBER_MAP_TIME = 0;
+    private static long LAST_REFRESH_ACCOUNT_MAP_TIME = 0;
 
     private static String MEMBER_ID;
     private static String RSA_PRIVATE_KEY;
@@ -90,6 +91,10 @@ public class CacheObjects {
      */
     private static final Set<String> MEMBER_BLACKLIST = new HashSet<>();
 
+    static {
+        refreshMemberInfo();
+    }
+
     public static Set<String> getMemberBlackList() {
         if (MEMBER_BLACKLIST.isEmpty()) {
             refreshMemberBlacklist();
@@ -104,9 +109,6 @@ public class CacheObjects {
     }
 
     public static String getMemberId() {
-        if (MEMBER_ID == null) {
-            refreshMemberInfo();
-        }
         return MEMBER_ID;
     }
 
@@ -118,23 +120,14 @@ public class CacheObjects {
     }
 
     public static String getRsaPrivateKey() {
-        if (RSA_PRIVATE_KEY == null) {
-            refreshMemberInfo();
-        }
         return RSA_PRIVATE_KEY;
     }
 
     public static String getRsaPublicKey() {
-        if (RSA_PUBLIC_KEY == null) {
-            refreshMemberInfo();
-        }
         return RSA_PUBLIC_KEY;
     }
 
     public static String getMemberName() {
-        if (MEMBER_NAME == null) {
-            refreshMemberInfo();
-        }
         return MEMBER_NAME;
     }
 
@@ -183,7 +176,7 @@ public class CacheObjects {
     /**
      * Get the account's nickname
      */
-    public static synchronized String getNickname(String accountId) {
+    public static String getNickname(String accountId) {
         if (accountId == null) {
             return null;
         }
@@ -193,7 +186,7 @@ public class CacheObjects {
     /**
      * Determine whether accountId belongs to the current member
      */
-    public static synchronized boolean isCurrentMemberAccount(String accountId) {
+    public static boolean isCurrentMemberAccount(String accountId) {
         return getAccountIdList().contains(accountId);
     }
 
@@ -215,7 +208,7 @@ public class CacheObjects {
         }
     }
 
-    public static synchronized String getMemberName(String memberId) {
+    public static String getMemberName(String memberId) {
         if (StringUtil.isEmpty(memberId)) {
             return null;
         }
@@ -241,7 +234,7 @@ public class CacheObjects {
     /**
      * Reload member information
      */
-    public static synchronized void refreshMemberInfo() {
+    public static void refreshMemberInfo() {
         GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
         MemberInfoModel model = service.getMemberInfo();
 
@@ -256,7 +249,7 @@ public class CacheObjects {
         SECRET_KEY_TYPE = model.getSecretKeyType();
     }
 
-    public static synchronized void refreshDataResourceTags(DataResourceType dataResourceType) {
+    public static void refreshDataResourceTags(DataResourceType dataResourceType) {
         TreeMap<String, Integer> map = getDataResourceTags(dataResourceType);
         refreshDataResourceTags(dataResourceType, map);
     }
@@ -289,8 +282,15 @@ public class CacheObjects {
 
     /**
      * Reload account list
+     * <p>
+     * 注意：经过测试，这个方法不能加 synchronized 关键字，否则会出现线程死锁。
      */
-    public static synchronized void refreshAccountMap() {
+    public static void refreshAccountMap() {
+        if (System.currentTimeMillis() - LAST_REFRESH_ACCOUNT_MAP_TIME < 10_000) {
+            return;
+        }
+        LAST_REFRESH_ACCOUNT_MAP_TIME = System.currentTimeMillis();
+
         AccountRepository repo = Launcher.getBean(AccountRepository.class);
         List<AccountMysqlModel> list = repo.findAll(Sort.by("nickname"));
 
@@ -302,11 +302,10 @@ public class CacheObjects {
         }
     }
 
-
     /**
      * Reload the list of union members
      */
-    public static synchronized void refreshMemberMap() throws StatusCodeWithException {
+    public static void refreshMemberMap() throws StatusCodeWithException {
         // Prohibit high frequency refresh
         if (System.currentTimeMillis() - LAST_REFRESH_MEMBER_MAP_TIME < 60_000) {
             return;
@@ -319,10 +318,7 @@ public class CacheObjects {
 
     }
 
-    public static synchronized SecretKeyType getSecretKeyType() {
-        if (null == SECRET_KEY_TYPE) {
-            refreshMemberInfo();
-        }
+    public static SecretKeyType getSecretKeyType() {
         return null == SECRET_KEY_TYPE ? SecretKeyType.rsa : SECRET_KEY_TYPE;
     }
 

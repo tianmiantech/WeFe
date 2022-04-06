@@ -216,8 +216,9 @@ const baseRoutes = [
     {
         path: `${prefixPath}account`,
         meta: {
-            title: '用户中心',
-            icon:  'el-icon-user-solid',
+            title:            '用户中心',
+            icon:             'el-icon-user-solid',
+            normalUserCanSee: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -230,6 +231,16 @@ const baseRoutes = [
                     normalUserCanSee: false,
                 },
                 component: () => import('../views/account/account-list'),
+            },
+            {
+                path: `${prefixPath}log-list`,
+                name: 'log-list',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '用户日志',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/account/log-list'),
             },
         ],
     },
@@ -270,8 +281,8 @@ const baseRoutes = [
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
-                path: `${prefixPath}log-list`,
-                name: 'log-list',
+                path: `${prefixPath}record-list`,
+                name: 'record-list',
                 meta: {
                     title: '调用记录',
                 },

@@ -23,6 +23,8 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.data.fusion.service.dto.entity.AbstractOutputModel;
 
+import java.util.Date;
+
 /**
  * @author Zane
  */
@@ -46,6 +48,15 @@ public class AccountOutputModel extends AbstractOutputModel {
 
     @Check(name = "是否可用")
     private Boolean enable;
+
+    /**
+     * 是否已注销
+     */
+    private boolean cancelled;
+    /**
+     * 最后活动时间
+     */
+    private Date lastActionTime;
 
     public String getEmail() {
         if (!CurrentAccount.isAdmin()) {
@@ -120,6 +131,22 @@ public class AccountOutputModel extends AbstractOutputModel {
 
     public void setEnable(Boolean enable) {
         this.enable = enable;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public Date getLastActionTime() {
+        return lastActionTime;
+    }
+
+    public void setLastActionTime(Date lastActionTime) {
+        this.lastActionTime = lastActionTime;
     }
 
     //endregion

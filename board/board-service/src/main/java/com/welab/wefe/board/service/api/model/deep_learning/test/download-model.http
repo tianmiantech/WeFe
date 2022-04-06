@@ -3,5 +3,5 @@ Content-Type: application/json
 token: {{token}}
 
 {
-  "task_id": "822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439"
+  "task_id": "c825d03e1e424b51bf99fe61d94ec947_promoter_PaddleClassify_16452527021516948"
 }

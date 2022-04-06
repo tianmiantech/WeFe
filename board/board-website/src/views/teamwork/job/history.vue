@@ -166,12 +166,12 @@
                             }
                         }"
                     >
-                        <el-button type="primary">
+                        <el-button type="primary" size="small">
                             查看详情
                         </el-button>
                     </router-link>
                     <p class="mt10">
-                        <DownloadJobLog :job-id="scope.row.job_id" />
+                        <DownloadJobLog :job-id="scope.row.job_id" size="small" />
                     </p>
                 </template>
             </el-table-column>

@@ -22,6 +22,9 @@
                 <el-input
                     v-model="form.password"
                     type="password"
+                    @paste.native.prevent
+                    @copy.native.prevent
+                    @contextmenu.native.prevent
                 />
             </el-form-item>
             <el-form-item label="验证码">
@@ -123,7 +126,14 @@ export default {
                 },
             });
 
-           if (code === 0) {
+            if (code === 10000) {
+                this.$store.commit('SYSTEM_INITED', false);
+                this.$store.commit('UPDATE_USERINFO', data);
+
+                this.$router.replace({
+                    name: 'init',
+                });
+            } else if (code === 0) {
                 this.$store.commit('UPDATE_USERINFO', data);
                 window.$app.$message.success('登录成功');
                 this.show = false;

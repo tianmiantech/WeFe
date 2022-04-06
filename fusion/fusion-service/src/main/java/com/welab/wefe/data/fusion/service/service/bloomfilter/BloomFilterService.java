@@ -33,10 +33,8 @@ import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetPreviewOutpu
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.service.AbstractService;
 import com.welab.wefe.data.fusion.service.service.DataSourceService;
-import com.welab.wefe.data.fusion.service.service.FieldInfoService;
 import com.welab.wefe.data.fusion.service.utils.dataresouce.DataResouceHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -54,12 +52,6 @@ public class BloomFilterService extends AbstractService {
 
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
-
-    @Value("${file.upload.dir}")
-    private String fileUploadDir;
-
-    @Autowired
-    private FieldInfoService fieldInfoService;
 
     @Autowired
     DataSourceService dataSourceService;

@@ -25,24 +25,27 @@ FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `account`;
 CREATE TABLE `account`
 (
-    `id`               varchar(32)  NOT NULL COMMENT '全局唯一标识',
-    `created_by`       varchar(32) COMMENT '创建人',
-    `created_time`     datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`       varchar(32) COMMENT '更新人',
-    `updated_time`     datetime(6) COMMENT '更新时间',
-    `phone_number`     varchar(32)  NOT NULL COMMENT '手机号',
-    `password`         varchar(128) NOT NULL COMMENT '密码',
-    `salt`             varchar(128) NOT NULL COMMENT '盐',
-    `nickname`         varchar(32)  NOT NULL COMMENT '昵称',
-    `email`            varchar(128) NOT NULL COMMENT '邮箱',
-    `super_admin_role` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员 超级管理员通常是第一个创建并初始化系统的那个人',
-    `admin_role`       tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是管理员 管理员有更多权限，比如设置 member 是否对外可见。',
-    `audit_status`     varchar(32)  NOT NULL COMMENT '审核状态',
-    `audit_comment`    varchar(512) COMMENT '审核意见',
-    `enable`           tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可用',
+    `id`                    varchar(32)  NOT NULL COMMENT '全局唯一标识',
+    `created_by`            varchar(32) COMMENT '创建人',
+    `created_time`          datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`            varchar(32) COMMENT '更新人',
+    `updated_time`          datetime(6) COMMENT '更新时间',
+    `phone_number`          varchar(200) NOT NULL COMMENT '手机号',
+    `password`              varchar(128) NOT NULL COMMENT '密码',
+    `salt`                  varchar(128) NOT NULL COMMENT '盐',
+    `nickname`              varchar(32)  NOT NULL COMMENT '昵称',
+    `email`                 varchar(128) NOT NULL COMMENT '邮箱',
+    `super_admin_role`      tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是超级管理员 超级管理员通常是第一个创建并初始化系统的那个人',
+    `admin_role`            tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是管理员 管理员有更多权限，比如设置 member 是否对外可见。',
+    `audit_status`          varchar(32)  NOT NULL COMMENT '审核状态',
+    `audit_comment`         varchar(512) COMMENT '审核意见',
+    `enable`                tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可用',
+    `cancelled`             tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
+    `last_action_time`      datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '最后活动时间',
+    `history_password_list` text NULL COMMENT '历史曾用密码',
     PRIMARY KEY (`id`),
     UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
-    KEY                `idx_create_time` (`created_time`)
+    KEY                     `idx_create_time` (`created_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='账号';
 
@@ -335,7 +338,9 @@ CREATE TABLE `operator_log`
     `spend`          int(11) COMMENT '处理时长',
     `created_time`   datetime(6) COMMENT '创建时间',
     `updated_time`   datetime(6) COMMENT '更新时间',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY              `idx_query_by_interface` (`log_interface`, `operator_id`, `created_time`) USING BTREE,
+    KEY              `idx_query_by_operator` (`operator_id`, `log_interface`, `created_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户操作日志';
 
@@ -372,11 +377,10 @@ CREATE TABLE `task`
     `position`            int(11) COMMENT 'task执行顺序',
     `pid`                 int(11) COMMENT '进程号',
     PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE KEY `index_unique_task` (`task_id`, `role`)
+    UNIQUE KEY `index_unique_task` (`task_id`, `role`),
+    KEY                   `index_job_id__role` (`job_id`,`role`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='子任务 task 是 job 的基本构成单元，也是发送到 wefe-flow 被执行的标准对象。';
-ALTER TABLE `task`
-    ADD INDEX `index_job_id__role`(`job_id`, `role`) USING BTREE;
 
 -- ----------------------------
 -- Table structure for task_result
@@ -402,10 +406,9 @@ CREATE TABLE `task_result`
     `serving_model`  tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是可以导出到 serving 的模型',
     PRIMARY KEY (`id`),
     UNIQUE KEY `index_unique` (`task_id`, `type`, `role`),
-    KEY              `idx_create_time` (`created_time`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='task 执行结果';
-
+    KEY              `idx_create_time` (`created_time`),
+    KEY              `index_project_serving_model`(`project_id`, `serving_model`, `flow_id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='task 执行结果';
 
 --
 -- 项目表 project
@@ -468,7 +471,7 @@ CREATE TABLE `project_data_set`
     `source_type`         varchar(32) COMMENT '来源类型，枚举（原始、对齐、分箱）',
     `source_job_id`       varchar(64) COMMENT '来源任务id',
     `source_task_id`      varchar(100) COMMENT '来源子任务id',
-    `data_set_type`       varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型',
+    `data_resource_type`  varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`, `member_role`, `data_set_id`)
 ) ENGINE = InnoDB
@@ -582,20 +585,19 @@ CREATE TABLE `project_member_audit`
 DROP TABLE IF EXISTS `project_flow_template`;
 CREATE TABLE `project_flow_template`
 (
-    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `graph`        text COMMENT '流程图',
-    `name`         varchar(32) DEFAULT NULL COMMENT '模板名称',
-    `description`  varchar(32) DEFAULT NULL COMMENT '模板描述',
-    `created_by`   varchar(32) DEFAULT NULL COMMENT '创建人',
-    `created_time` datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`   varchar(32) DEFAULT NULL COMMENT '更新人',
-    `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+    `id`                      varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `graph`                   text COMMENT '流程图',
+    `name`                    varchar(32) DEFAULT NULL COMMENT '模板名称',
+    `enname`                  VARCHAR(45) NULL '模板英文名称',
+    `description`             varchar(32) DEFAULT NULL COMMENT '模板描述',
+    `federated_learning_type` VARCHAR(32) NULL COMMENT '联邦任务类型（横向/纵向）',
+    `created_by`              varchar(32) DEFAULT NULL COMMENT '创建人',
+    `created_time`            datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`              varchar(32) DEFAULT NULL COMMENT '更新人',
+    `updated_time`            datetime(6) DEFAULT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='流程模板';
-
-ALTER TABLE `project_flow_template`
-    ADD COLUMN `enname` VARCHAR(45) NULL AFTER `name`;
 
 INSERT INTO `project_flow_template` (`id`, `graph`, `name`, `enname`, `description`, `created_by`, `created_time`,
                                      `updated_by`, `updated_time`)
@@ -612,8 +614,6 @@ VALUES ('cc2f6f2a733b48548a317a820fe12131',
         '{\"nodes\":[{\"layoutOrder\":0,\"data\":{\"nodeType\":\"system\"},\"labelCfg\":{\"style\":{\"fill\":\"#8BC34A\",\"fontSize\":14}},\"x\":185,\"y\":154,\"anchorPoints\":[[0.5,1]],\"style\":{\"highlight\":{\"lineWidth\":1,\"fill\":\"#f85564\",\"stroke\":\"#f85564\",\"labelCfg\":{\"style\":{\"fill\":\"#fff\",\"fontWeight\":\"bold\"}}},\"fill\":\"#f2f9ec\",\"width\":100,\"stroke\":\"#8BC34A\"},\"id\":\"start\",\"label\":\"开始\",\"singleEdge\":true,\"nodeStateStyles\":{\"nodeState:default\":{\"lineWidth\":1},\"nodeState:selected\":{\"lineWidth\":2}},\"type\":\"flow-node\"},{\"layoutOrder\":0,\"data\":{\"componentType\":\"DataIO\",\"jsonParams\":false,\"autoSave\":false},\"labelCfg\":{\"style\":{\"fill\":\"#4483FF\"}},\"x\":184,\"y\":246,\"anchorPoints\":[[0.5,0],[0.5,1]],\"style\":{\"highlight\":{\"lineWidth\":1,\"fill\":\"#f85564\",\"stroke\":\"#f85564\",\"labelCfg\":{\"style\":{\"fill\":\"#fff\",\"fontWeight\":\"bold\"}}},\"fill\":\"#ecf3ff\",\"width\":100,\"stroke\":\"#4483FF\",\"lineWidth\":1},\"id\":\"16195987735668056\",\"singleEdge\":true,\"label\":\"选择数据集\",\"type\":\"flow-node\"},{\"layoutOrder\":0,\"data\":{\"componentType\":\"Intersection\",\"jsonParams\":false,\"autoSave\":true},\"labelCfg\":{\"style\":{\"fill\":\"#4483FF\"}},\"x\":185,\"y\":334,\"anchorPoints\":[[0.5,0],[0.5,1]],\"style\":{\"highlight\":{\"lineWidth\":1,\"fill\":\"#f85564\",\"stroke\":\"#f85564\",\"labelCfg\":{\"style\":{\"fill\":\"#fff\",\"fontWeight\":\"bold\"}}},\"fill\":\"#ecf3ff\",\"width\":100,\"stroke\":\"#4483FF\",\"lineWidth\":1},\"id\":\"16195987757288191\",\"singleEdge\":true,\"label\":\"样本对齐\",\"type\":\"flow-node\"},{\"layoutOrder\":0,\"data\":{\"componentType\":\"Segment\",\"jsonParams\":false,\"autoSave\":true},\"labelCfg\":{\"style\":{\"fill\":\"#4483FF\"}},\"x\":184,\"y\":433.5,\"anchorPoints\":[[0.5,0],[0.5,1]],\"style\":{\"highlight\":{\"lineWidth\":1,\"fill\":\"#f85564\",\"stroke\":\"#f85564\",\"labelCfg\":{\"style\":{\"fill\":\"#fff\",\"fontWeight\":\"bold\"}}},\"fill\":\"#ecf3ff\",\"width\":100,\"stroke\":\"#4483FF\",\"lineWidth\":1},\"id\":\"16196030570887798\",\"singleEdge\":true,\"label\":\"数据切割\",\"type\":\"flow-node\"},{\"layoutOrder\":0,\"data\":{\"componentType\":\"VertLR\",\"jsonParams\":false,\"autoSave\":true},\"labelCfg\":{\"style\":{\"fill\":\"#4483FF\"}},\"x\":186,\"y\":509,\"anchorPoints\":[[0.5,0],[0.5,1]],\"style\":{\"highlight\":{\"lineWidth\":1,\"fill\":\"#f85564\",\"stroke\":\"#f85564\",\"labelCfg\":{\"style\":{\"fill\":\"#fff\",\"fontWeight\":\"bold\"}}},\"fill\":\"#ecf3ff\",\"width\":100,\"stroke\":\"#4483FF\",\"lineWidth\":1},\"id\":\"16196034768611638\",\"singleEdge\":true,\"label\":\"纵向逻辑回归\",\"type\":\"flow-node\"},{\"data\":{\"componentType\":\"Evaluation\",\"jsonParams\":false,\"autoSave\":true},\"labelCfg\":{\"style\":{\"fill\":\"#4483FF\"}},\"x\":186,\"y\":589,\"anchorPoints\":[[0.5,0],[0.5,1]],\"style\":{\"highlight\":{\"lineWidth\":1,\"fill\":\"#f85564\",\"stroke\":\"#f85564\",\"labelCfg\":{\"style\":{\"fill\":\"#fff\",\"fontWeight\":\"bold\"}}},\"fill\":\"#ecf3ff\",\"width\":100,\"stroke\":\"#4483FF\",\"lineWidth\":1},\"id\":\"16225420809312593\",\"singleEdge\":true,\"label\":\"评估模型\",\"type\":\"flow-node\"}],\"edges\":[{\"endPoint\":{\"x\":184,\"y\":225.5,\"anchorIndex\":0},\"sourceAnchor\":0,\"targetAnchor\":0,\"curvePosition\":[0.5,0.5],\"curveOffset\":[-20,20],\"startPoint\":{\"x\":185,\"y\":174.5,\"anchorIndex\":0},\"style\":{\"edgeState:default\":{\"endArrow\":{\"path\":\"M 0,0 L 8,4 L 7,0 L 8,-4 Z\",\"fill\":\"#aab7c3\",\"stroke\":\"#aab7c3\"},\"stroke\":\"#aab7c3\",\"lineWidth\":1},\"edgeState:selected\":{\"stroke\":\"#1890FF\"},\"edgeState:hover\":{\"stroke\":\"#1890FF\"},\"stroke\":\"#aab7c3\",\"lineAppendWidth\":10,\"endArrow\":true},\"id\":\"1619598777907116\",\"source\":\"start\",\"label\":\"\",\"type\":\"cubic-edge\",\"target\":\"16195987735668056\"},{\"endPoint\":{\"x\":185,\"y\":313.5,\"anchorIndex\":0},\"sourceAnchor\":1,\"targetAnchor\":0,\"curvePosition\":[0.5,0.5],\"curveOffset\":[-20,20],\"startPoint\":{\"x\":184,\"y\":266.5,\"anchorIndex\":1},\"style\":{\"edgeState:default\":{\"endArrow\":{\"path\":\"M 0,0 L 8,4 L 7,0 L 8,-4 Z\",\"fill\":\"#aab7c3\",\"stroke\":\"#aab7c3\"},\"stroke\":\"#aab7c3\",\"lineWidth\":1},\"edgeState:selected\":{\"stroke\":\"#1890FF\"},\"edgeState:hover\":{\"stroke\":\"#1890FF\"},\"stroke\":\"#aab7c3\",\"lineAppendWidth\":10,\"endArrow\":true,\"highlight\":{\"text-shape\":{\"fontWeight\":500},\"stroke\":\"rgb(95, 149, 255)\",\"lineWidth\":2},\"inactive\":{\"stroke\":\"rgb(234, 234, 234)\",\"lineWidth\":1},\"disable\":{\"stroke\":\"rgb(245, 245, 245)\",\"lineWidth\":1},\"active\":{\"stroke\":\"rgb(95, 149, 255)\",\"lineWidth\":1},\"selected\":{\"shadowBlur\":10,\"text-shape\":{\"fontWeight\":500},\"stroke\":\"rgb(95, 149, 255)\",\"shadowColor\":\"rgb(95, 149, 255)\",\"lineWidth\":2}},\"id\":\"16195987793774742\",\"source\":\"16195987735668056\",\"label\":\"\",\"type\":\"cubic-edge\",\"target\":\"16195987757288191\"},{\"endPoint\":{\"x\":184,\"y\":413,\"anchorIndex\":0},\"sourceAnchor\":1,\"targetAnchor\":0,\"curvePosition\":[0.5,0.5],\"curveOffset\":[-20,20],\"startPoint\":{\"x\":185,\"y\":354.5,\"anchorIndex\":1},\"style\":{\"edgeState:default\":{\"endArrow\":{\"path\":\"M 0,0 L 8,4 L 7,0 L 8,-4 Z\",\"fill\":\"#aab7c3\",\"stroke\":\"#aab7c3\"},\"stroke\":\"#aab7c3\",\"lineWidth\":1},\"edgeState:selected\":{\"stroke\":\"#1890FF\"},\"edgeState:hover\":{\"stroke\":\"#1890FF\"},\"stroke\":\"#aab7c3\",\"lineAppendWidth\":10,\"endArrow\":true,\"highlight\":{\"text-shape\":{\"fontWeight\":500},\"stroke\":\"rgb(95, 149, 255)\",\"lineWidth\":2},\"inactive\":{\"stroke\":\"rgb(234, 234, 234)\",\"lineWidth\":1},\"disable\":{\"stroke\":\"rgb(245, 245, 245)\",\"lineWidth\":1},\"active\":{\"stroke\":\"rgb(95, 149, 255)\",\"lineWidth\":1},\"selected\":{\"shadowBlur\":10,\"text-shape\":{\"fontWeight\":500},\"stroke\":\"rgb(95, 149, 255)\",\"shadowColor\":\"rgb(95, 149, 255)\",\"lineWidth\":2}},\"id\":\"16196030589406312\",\"source\":\"16195987757288191\",\"label\":\"\",\"type\":\"cubic-edge\",\"target\":\"16196030570887798\"},{\"endPoint\":{\"x\":186,\"y\":488.5,\"anchorIndex\":0},\"sourceAnchor\":1,\"targetAnchor\":0,\"curvePosition\":[0.5,0.5],\"curveOffset\":[-20,20],\"startPoint\":{\"x\":184,\"y\":454,\"anchorIndex\":1},\"style\":{\"edgeState:default\":{\"endArrow\":{\"path\":\"M 0,0 L 8,4 L 7,0 L 8,-4 Z\",\"fill\":\"#aab7c3\",\"stroke\":\"#aab7c3\"},\"stroke\":\"#aab7c3\",\"lineWidth\":1},\"edgeState:selected\":{\"stroke\":\"#1890FF\"},\"edgeState:hover\":{\"stroke\":\"#1890FF\"},\"stroke\":\"#aab7c3\",\"lineAppendWidth\":10,\"endArrow\":true},\"id\":\"16196034786442552\",\"source\":\"16196030570887798\",\"label\":\"\",\"type\":\"cubic-edge\",\"target\":\"16196034768611638\"},{\"endPoint\":{\"x\":186,\"y\":568.5,\"anchorIndex\":0},\"sourceAnchor\":1,\"targetAnchor\":0,\"curvePosition\":[0.5,0.5],\"curveOffset\":[-20,20],\"startPoint\":{\"x\":186,\"y\":529.5,\"anchorIndex\":1},\"style\":{\"edgeState:default\":{\"endArrow\":{\"path\":\"M 0,0 L 8,4 L 7,0 L 8,-4 Z\",\"fill\":\"#aab7c3\",\"stroke\":\"#aab7c3\"},\"stroke\":\"#aab7c3\",\"lineWidth\":1},\"edgeState:selected\":{\"stroke\":\"#1890FF\"},\"edgeState:hover\":{\"stroke\":\"#1890FF\"},\"stroke\":\"#aab7c3\",\"lineAppendWidth\":20,\"endArrow\":true},\"id\":\"16225420841924398\",\"source\":\"16196034768611638\",\"label\":\"\",\"type\":\"cubic-edge\",\"target\":\"16225420809312593\"}],\"combos\":[]}',
         '纵向LR', 'vert_lr', '纵向LR', '35537bb55a1348218d010f07d875ab24', '2021-06-01 16:47:45.605000', NULL, NULL);
 
-ALTER TABLE `project_flow_template`
-    ADD COLUMN `federated_learning_type` VARCHAR(32) NULL COMMENT '联邦任务类型（横向/纵向）' AFTER `description`;
 UPDATE `project_flow_template`
 SET `federated_learning_type` = 'horizontal'
 WHERE (`id` = 'cc2f6f2a733b48548a317a820fe12131');
@@ -674,13 +674,11 @@ CREATE TABLE `task_progress`
     `progress_rate`      decimal(6, 2) COMMENT '进度百分比',
     `spend`              int(8) COMMENT 'updated_time - created_time，毫秒。',
     `expect_end_time`    datetime(6) COMMENT '预计结束时间',
+    `pid_success`        INT(8) NULL DEFAULT 0 COMMENT 'spark任务是否成功，1=成功',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique_task_progress` (`task_id`, `role`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='任务执行进度，与 task 一对一。';
-
-ALTER TABLE `task_progress`
-    ADD COLUMN `pid_success` INT(8) NULL DEFAULT 0 COMMENT 'spark任务是否成功，1=成功' AFTER `expect_end_time`;
 
 
 -- ----------------------------
@@ -1092,18 +1090,19 @@ CREATE TABLE `fusion_result_export_progress`
 -- verification_code definition
 
 DROP TABLE IF EXISTS `verification_code`;
-CREATE TABLE `verification_code` (
-  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
-  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
-  `created_time` datetime(6) NOT NULL COMMENT '创建时间',
-  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
-  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
-  `mobile` varchar(30) NOT NULL COMMENT '手机号',
-  `code` varchar(30) NOT NULL COMMENT '验证码',
-  `success` varchar(10) DEFAULT NULL COMMENT 'true：成功，false：失败',
-  `send_channel` varchar(10) DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
-  `business_type` varchar(30) DEFAULT NULL COMMENT '业务类型，memberRegister：成员注册、accountForgetPassword：账号忘记密码',
-  `resp_content` varchar(500) DEFAULT NULL COMMENT '响应内容',
-  `biz_id` varchar(64) DEFAULT NULL COMMENT '业务ID',
-  PRIMARY KEY (`id`) USING BTREE
+CREATE TABLE `verification_code`
+(
+    `id`            varchar(32)  NOT NULL COMMENT '全局唯一标识',
+    `created_by`    varchar(32)  DEFAULT NULL COMMENT '创建人',
+    `created_time`  datetime(6) NOT NULL COMMENT '创建时间',
+    `updated_by`    varchar(32)  DEFAULT NULL COMMENT '更新人',
+    `updated_time`  datetime(6) DEFAULT NULL COMMENT '更新时间',
+    `mobile`        varchar(200) NOT NULL COMMENT '手机号',
+    `code`          varchar(30)  NOT NULL COMMENT '验证码',
+    `success`       varchar(10)  DEFAULT NULL COMMENT 'true：成功，false：失败',
+    `send_channel`  varchar(10)  DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
+    `business_type` varchar(30)  DEFAULT NULL COMMENT '业务类型，memberRegister：成员注册、accountForgetPassword：账号忘记密码',
+    `resp_content`  varchar(500) DEFAULT NULL COMMENT '响应内容',
+    `biz_id`        varchar(64)  DEFAULT NULL COMMENT '业务ID',
+    PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';

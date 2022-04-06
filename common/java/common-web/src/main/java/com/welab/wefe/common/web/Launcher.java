@@ -17,12 +17,14 @@
 package com.welab.wefe.common.web;
 
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.delegate.api_log.AbstractApiLogger;
 import com.welab.wefe.common.web.function.*;
 import com.welab.wefe.common.web.service.CaptchaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +63,10 @@ public class Launcher {
      * The API performs event delegation after the exception
      */
     public static OnApiExceptionFunction ON_API_EXCEPTION_FUNCTION;
-
+    /**
+     * API Logger
+     */
+    public static AbstractApiLogger API_LOGGER;
 
     /**
      * Disable external instantiation
@@ -92,17 +97,20 @@ public class Launcher {
 
     public static <T> T getBean(Class<T> requiredType) {
         Service service = requiredType.getAnnotation(Service.class);
+        Component component = requiredType.getAnnotation(Component.class);
+        Repository repository = requiredType.getAnnotation(Repository.class);
         String name = null;
         if (service != null) {
             if (StringUtil.isNotEmpty(service.value())) {
                 name = service.value();
             }
-        } else {
-            Repository repository = requiredType.getAnnotation(Repository.class);
-            if (repository != null) {
-                if (StringUtil.isNotEmpty(repository.value())) {
-                    name = repository.value();
-                }
+        } else if (component != null) {
+            if (StringUtil.isNotEmpty(component.value())) {
+                name = component.value();
+            }
+        } else if (repository != null) {
+            if (StringUtil.isNotEmpty(repository.value())) {
+                name = repository.value();
             }
         }
 
@@ -134,6 +142,11 @@ public class Launcher {
      */
     public Launcher afterApiExecuteFunction(AfterApiExecuteFunction func) {
         AFTER_API_EXECUTE_FUNCTION = func;
+        return this;
+    }
+
+    public Launcher apiLogger(AbstractApiLogger logger) {
+        API_LOGGER = logger;
         return this;
     }
 

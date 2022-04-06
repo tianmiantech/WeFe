@@ -17,8 +17,15 @@
 package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.project.flow.AddFlowApi;
+import com.welab.wefe.board.service.api.project.flow.CopyFlowApi;
+import com.welab.wefe.board.service.api.project.flow.DeleteApi;
+import com.welab.wefe.board.service.api.project.flow.UpdateFlowBaseInfoApi;
+import com.welab.wefe.board.service.api.project.flow.UpdateFlowGraphApi;
+import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.api.project.project.AddApi;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
@@ -32,12 +39,13 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.clickhouse.util.apache.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,6 +68,8 @@ public class GatewayService extends BaseGatewayService {
     private JobMemberService jobMemberService;
     @Autowired
     private GlobalConfigService globalConfigService;
+    @Autowired
+    private ProjectFlowService projectFlowService;
 
     /**
      * Synchronize messages to all job participants
@@ -138,6 +148,30 @@ public class GatewayService extends BaseGatewayService {
             return;
         }
 
+		boolean needSkipOtherPromoters = false;
+		String flowId = "";
+		// 对流程相关操作特殊处理
+		if (input instanceof UpdateApi.Input) {
+			flowId = ((UpdateApi.Input) input).getFlowId();
+		} else if (input instanceof UpdateFlowGraphApi.Input) {
+			flowId = ((UpdateFlowGraphApi.Input) input).getFlowId();
+		} else if (input instanceof UpdateFlowBaseInfoApi.Input) {
+			flowId = ((UpdateFlowBaseInfoApi.Input) input).getFlowId();
+		} else if (input instanceof AddFlowApi.Input) {
+			flowId = ((AddFlowApi.Input) input).getFlowId();
+		} else if (input instanceof CopyFlowApi.Input) {
+			flowId = ((CopyFlowApi.Input) input).getSourceFlowId();
+		} else if (input instanceof DeleteApi.Input) {
+			flowId = ((DeleteApi.Input) input).getFlowId();
+		}
+		if (StringUtils.isNotBlank(flowId)) {
+			ProjectFlowMySqlModel flow = projectFlowService.findOne(flowId);
+			if (flow.getFederatedLearningType() == FederatedLearningType.horizontal
+					|| flow.getFederatedLearningType() == FederatedLearningType.vertical) {
+				needSkipOtherPromoters = true;
+			}
+		}
+        
         checkProjectMemberList(members);
         for (ProjectMemberMySqlModel member : members) {
             // Skip self
@@ -159,8 +193,11 @@ public class GatewayService extends BaseGatewayService {
             if (input instanceof AddApi.Input) {
                 ((AddApi.Input) input).setRole(member.getMemberRole());
             }
-            callOtherMemberBoard(member.getMemberId(), me.getMemberRole(), api, input);
 
+			if (needSkipOtherPromoters && member.getMemberRole() == JobMemberRole.promoter) {
+				continue;
+			}
+            callOtherMemberBoard(member.getMemberId(), me.getMemberRole(), api, input);
         }
     }
 
@@ -198,7 +235,7 @@ public class GatewayService extends BaseGatewayService {
         List<ProjectMemberMySqlModel> members = projectMemberService.findListByProjectId(projectId);
 
         ProjectMemberMySqlModel promoter = members.stream()
-                .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtils.isBlank(x.getInviterId()))
+                .filter(x -> x.getMemberRole() == JobMemberRole.promoter && StringUtil.isBlank(x.getInviterId()))
                 .findFirst().orElse(null);
 
         // Since the initiator models with itself, the records of the initiator as a provider should be eliminated to

@@ -30,7 +30,7 @@ import java.util.List;
  */
 @Repository
 public interface ImageDataSetSampleRepository extends BaseRepository<ImageDataSetSampleMysqlModel, String> {
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     void deleteByDataSetId(String dataSetId);
 

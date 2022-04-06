@@ -18,8 +18,8 @@
                         <li v-for="item in memberJobDetailList" :key="item.member_id">
                             {{item.member_name}}:
                             <div style="margin-left: 20px;">
-                                <p :style="{'color': item.job_status === 'success' ? 'green' : '#f00'}">job: {{item.job_status}}</p>
-                                <p :style="{'color': item.task_status === 'success' ? 'green' : '#f00'}">task: {{item.task_status}}</p>
+                                <p :style="{'color': item.job_status === 'success' ? 'green' : '#f85564'}">job: {{item.job_status}}</p>
+                                <p :style="{'color': item.task_status === 'success' ? 'green' : '#f85564'}">task: {{item.task_status}}</p>
                                 <p>message:  {{item.message}}</p>
                             </div>
                         </li>
@@ -28,7 +28,7 @@
                 <el-collapse-item title="任务跟踪指标" name="2">
                     <el-tabs v-model="vData.expandparams.type" @tab-click="methods.tabChange">
                         <el-tab-pane label="Loss" name="loss"></el-tab-pane>
-                        <!-- <el-tab-pane label="Accuracy" name="accuracy"></el-tab-pane> -->
+                        <el-tab-pane v-if="flowType === 'classify'" label="Accuracy" name="accuracy"></el-tab-pane>
                     </el-tabs>
                     <LineChart
                         v-if="vData.isshow"
@@ -61,6 +61,7 @@
         props: {
             ...mixin.props,
             memberJobDetailList: Array,
+            flowType:            String,
         },
         setup(props, context) {
             const activeName = ref('1');
@@ -115,7 +116,7 @@
 
             onMounted(_=> {
                 window.onresize = () => {
-                    LineChart.value.chartResize();
+                    LineChart.value && LineChart.value.chartResize();
                 };
             });
 

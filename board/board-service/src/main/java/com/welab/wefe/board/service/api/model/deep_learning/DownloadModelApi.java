@@ -22,7 +22,9 @@ import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -59,6 +61,10 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
         TaskMySqlModel task = taskService.findOne(input.taskId);
         DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
+        if (deepLearningConfig == null || StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
+            StatusCode.RPC_ERROR.throwException("尚未设置VisualFL服务地址，请在[全局设置][计算引擎设置]中设置VisualFL服务地址。");
+        }
+
         String url = deepLearningConfig.paddleVisualDlBaseUrl + "/serving_model/download?task_id=" + task.getTaskId() + "&job_id=" + task.getJobId();
 
         File file = WeFeFileSystem.CallDeepLearningModel.getModelFile(input.taskId);
@@ -66,7 +72,10 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
             long start = System.currentTimeMillis();
             download(url, file);
 
-            LOG.info("从飞桨下载模型耗时：" + TimeSpan.fromMs(System.currentTimeMillis() - start) + " taskId:" + input.taskId);
+            LOG.info("从VisualFL下载模型耗时：" + TimeSpan.fromMs(System.currentTimeMillis() - start) + " taskId:" + input.taskId);
+        } catch (StatusCodeWithException e) {
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOG.error("下载模型失败：" + e.getMessage(), e);
             StatusCode.RPC_ERROR.throwException("下载模型失败：" + e.getMessage());
@@ -75,7 +84,7 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
         return file(file);
     }
 
-    private void download(String url, File file) throws IOException {
+    private void download(String url, File file) throws IOException, StatusCodeWithException {
         // 创建Http请求配置参数
         RequestConfig requestConfig = RequestConfig.custom()
                 // 获取连接超时时间
@@ -83,11 +92,15 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
                 // 请求超时时间
                 .setConnectTimeout(10 * 1000)
                 // 响应超时时间
-                .setSocketTimeout(1000 * 60 * 60)
+                .setSocketTimeout(10_000)
                 .build();
         CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
         HttpGet httpGet = new HttpGet(url);
         try (CloseableHttpResponse response = client.execute(httpGet)) {
+            int code = response.getStatusLine().getStatusCode();
+            if (code != 200) {
+                StatusCode.RPC_ERROR.throwException("下载模型失败(" + code + ")：" + response.getStatusLine().getReasonPhrase());
+            }
             InputStream is = response.getEntity().getContent();
             if (file.exists()) {
                 file.delete();

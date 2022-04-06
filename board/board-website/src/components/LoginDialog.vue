@@ -22,6 +22,9 @@
                 <el-input
                     v-model="form.password"
                     type="password"
+                    @paste.prevent
+                    @copy.prevent
+                    @contextmenu.prevent
                 />
             </el-form-item>
             <el-form-item label="验证码">
@@ -94,6 +97,7 @@
                     // hide the chat room
                     window.localStorage.setItem(`${window.api.baseUrl}_chat`, 'disconnect');
                     this.$store.commit('SYSTEM_INITED', false);
+                    this.$store.commit('UPDATE_USERINFO', {});
                     this.form.code = '';
                     this.show = true;
                     this.getImgCode();

@@ -45,7 +45,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected String desc() {
-        return "检查 board 对 storage 服务的访问是否正常";
+        return "检查 gateway 对 storage 服务的访问是否正常";
     }
 
     @Override

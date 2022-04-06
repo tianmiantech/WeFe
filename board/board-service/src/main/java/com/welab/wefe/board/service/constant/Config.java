@@ -17,8 +17,7 @@
 package com.welab.wefe.board.service.constant;
 
 import com.welab.wefe.common.data.storage.common.DBType;
-import com.welab.wefe.common.wefe.enums.env.EnvBranch;
-import com.welab.wefe.common.wefe.enums.env.EnvName;
+import com.welab.wefe.common.web.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
@@ -32,30 +31,13 @@ import org.springframework.stereotype.Component;
 @Component
 @PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
 @ConfigurationProperties
-public class Config {
-
-    @Value("${wefe.union.base-url}")
-    private String unionBaseUrl;
-
-    @Value("${wefe.file.upload.dir}")
-    private String fileUploadDir;
+public class Config extends CommonConfig {
 
     @Value("${wefe.job.work_mode}")
     private Integer workMode;
 
     @Value("${db.storage.type}")
     private DBType dbType;
-
-    @Value("${env.name}")
-    private EnvName envName;
-
-    /**
-     * The branch of the environment, different branches will have different functions.
-     * <p>
-     * online_demo: You can only delete data created by yourself（eg:flow、member、data_set）
-     */
-    @Value("${env.branch:master}")
-    private EnvBranch envBranch;
 
     @Value("${fc.access_key_id:xxx}")
     private String fcAccessKeyId;
@@ -81,30 +63,13 @@ public class Config {
     @Value("${email.account.forget.password.content:您正在执行忘记密码操作。您的验证码是#code#，2分钟内有效，请勿泄漏于他人!}")
     private String emailAccountForgetPasswordContent;
 
+    @Value("${sm4.secret.key}")
+    private String sm4SecretKey;
 
-    public boolean isOnlineDemo() {
-        return envBranch == EnvBranch.online_demo;
-    }
+    @Value("${encrypt.phone.number.open:true}")
+    private boolean encryptPhoneNumberOpen;
 
     // region getter/setter
-
-
-    public String getUnionBaseUrl() {
-        return unionBaseUrl;
-    }
-
-    public void setUnionBaseUrl(String unionBaseUrl) {
-        this.unionBaseUrl = unionBaseUrl;
-    }
-
-
-    public String getFileUploadDir() {
-        return fileUploadDir;
-    }
-
-    public void setFileUploadDir(String fileUploadDir) {
-        this.fileUploadDir = fileUploadDir;
-    }
 
     public Integer getWorkMode() {
         return workMode;
@@ -120,22 +85,6 @@ public class Config {
 
     public void setDbType(DBType dbType) {
         this.dbType = dbType;
-    }
-
-    public EnvName getEnvName() {
-        return envName;
-    }
-
-    public void setEnvName(EnvName envName) {
-        this.envName = envName;
-    }
-
-    public EnvBranch getEnvBranch() {
-        return envBranch;
-    }
-
-    public void setEnvBranch(EnvBranch envBranch) {
-        this.envBranch = envBranch;
     }
 
     public String getVerificationCodeSendChannel() {
@@ -201,6 +150,23 @@ public class Config {
     public void setFcAccessKeySecret(String fcAccessKeySecret) {
         this.fcAccessKeySecret = fcAccessKeySecret;
     }
-// endregion
+
+    public String getSm4SecretKey() {
+        return sm4SecretKey;
+    }
+
+    public void setSm4SecretKey(String sm4SecretKey) {
+        this.sm4SecretKey = sm4SecretKey;
+    }
+
+    public boolean isEncryptPhoneNumberOpen() {
+        return encryptPhoneNumberOpen;
+    }
+
+    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
+        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
+    }
+
+    // endregion
 
 }

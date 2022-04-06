@@ -37,7 +37,7 @@ public interface ProjectFlowNodeRepository extends BaseRepository<ProjectFlowNod
     /**
      * 删除不在此列表中的节点
      */
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "delete from #{#entityName} where flow_id=?1 and node_id not in (?2)", nativeQuery = true)
     void deleteNotInNodeIds(String flowId, List<String> nodeIds);

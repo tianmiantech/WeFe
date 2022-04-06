@@ -1,3 +1,17 @@
+# Copyright 2021 Tianmian Tech. All Rights Reserved.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 
 
 import json
@@ -59,12 +73,12 @@ class PaddleFLJob(Job):
         self._weights = Path(__logs_dir__).joinpath(
                 f"jobs/{self.job_id}/trainer_{self._local_trainer_indexs[0]}/checkpoint/{cur_step}")
         self._algorithm_config_path = Path(__logs_dir__).joinpath(f"jobs/{self.job_id}/master/algorithm_config.json")
+
+        architecture = algorithm_config["architecture"]
         if self._program == "paddle_detection":
-            architecture = algorithm_config["architecture"]
             program_full_path = os.path.join(__basedir__, 'algorithm', 'paddle_detection')
-            default_config_name = 'default_algorithm_config.yml'
-            self._algorithm_config_path = os.path.join(program_full_path, "configs", architecture.lower(),
-                                                    default_config_name)
+            config_name = f'{architecture}.yml'
+            self._algorithm_config_path = os.path.join(program_full_path, "configs", architecture.split('_')[0],config_name)
 
     @property
     def resource_required(self):

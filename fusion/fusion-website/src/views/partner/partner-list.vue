@@ -51,23 +51,20 @@
             <el-table-column
                 type="index"
                 label="编号"
-                width="45px"
+                width="45"
             />
             <el-table-column
                 label="id"
                 prop="member_id"
-                min-width="200px"
             />
             <el-table-column
                 label="合作方"
                 prop="member_name"
-                min-width="140px"
             />
 
             <el-table-column
                 label="调用域名"
                 prop="base_url"
-                min-width="260px"
             />
             <el-table-column
                 label="操作"
