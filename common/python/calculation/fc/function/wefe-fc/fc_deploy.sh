@@ -106,11 +106,12 @@ fc_deploy(){
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
   fi
 
-  if [ ! ${nas_env} ]; then
-    echo "nas env is null"
-  else
-    sed -i "s|fc-env:.*|fc-env: ${nas_env}|" s.yaml
-  fi
+#  if [ ! ${nas_env} ]; then
+#    echo "nas env is null"
+#  else
+#    sed -i "s|fc-env:.*|fc-env: ${nas_env}|" s.yaml
+#  fi
+  sed -i "s/env/${nas_env}/g" s.yaml
 
   if [[ ${account_type,,} == "admin" ]]; then
     echo "account_type is admin, auto to create fc role"
@@ -145,3 +146,4 @@ fc_deploy(){
 }
 
 fc_deploy
+

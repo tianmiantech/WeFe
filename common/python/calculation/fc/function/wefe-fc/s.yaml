@@ -13,7 +13,6 @@ vars:
       vswitchIds: ["vsw-wz9a***qencd9juh0"]
       securityGroupId: sg-wz***rmmzeoua4s
     nasConfig: Auto
-  fc-env: prod
 services:
   fc-wefe-fc-index:
     component: devsapp/fc
@@ -27,12 +26,12 @@ services:
         memorySize: 3072
         runtime: custom
         instanceType: e1
-        environmentVariables:
-          PYTHONUSERBASE: /mnt/auto/${vars.fc-env}/python
+        prodironmentVariables:
+          PYTHONUSERBASE: /mnt/auto/prod/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/${vars.fc-env}/root/usr/bin:/mnt/auto/${vars.fc-env}/root/usr/local/lib:/mnt/auto/${vars.fc-env}/root/usr/lib:/mnt/auto/${vars.fc-env}/root/usr/lib/x86_64-linux-gnu:/mnt/auto/${vars.fc-env}/root/usr/lib64:/mnt/auto/${vars.fc-env}/root/lib:/mnt/auto/${vars.fc-env}/root/lib/x86_64-linux-gnu:/mnt/auto/${vars.fc-env}/root/python/lib/python2.7/site-packages:/mnt/auto/${vars.fc-env}/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/${vars.fc-env}/pythonCode
-          PATH: /mnt/auto/${vars.fc-env}/python/bin
+            /mnt/auto/prod/root/usr/bin:/mnt/auto/prod/root/usr/local/lib:/mnt/auto/prod/root/usr/lib:/mnt/auto/prod/root/usr/lib/x86_64-linux-gnu:/mnt/auto/prod/root/usr/lib64:/mnt/auto/prod/root/lib:/mnt/auto/prod/root/lib/x86_64-linux-gnu:/mnt/auto/prod/root/python/lib/python2.7/site-packages:/mnt/auto/prod/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/prod/pythonCode
+          PATH: /mnt/auto/prod/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
@@ -49,12 +48,12 @@ services:
         memorySize: 16384
         runtime: custom
         instanceType: c1
-        environmentVariables:
-          PYTHONUSERBASE: /mnt/auto/${vars.fc-env}/python
+        prodironmentVariables:
+          PYTHONUSERBASE: /mnt/auto/prod/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/${vars.fc-env}/root/usr/bin:/mnt/auto/${vars.fc-env}/root/usr/local/lib:/mnt/auto/${vars.fc-env}/root/usr/lib:/mnt/auto/${vars.fc-env}/root/usr/lib/x86_64-linux-gnu:/mnt/auto/${vars.fc-env}/root/usr/lib64:/mnt/auto/${vars.fc-env}/root/lib:/mnt/auto/${vars.fc-env}/root/lib/x86_64-linux-gnu:/mnt/auto/${vars.fc-env}/root/python/lib/python2.7/site-packages:/mnt/auto/${vars.fc-env}/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/${vars.fc-env}/pythonCode
-          PATH: /mnt/auto/${vars.fc-env}/python/bin
+            /mnt/auto/prod/root/usr/bin:/mnt/auto/prod/root/usr/local/lib:/mnt/auto/prod/root/usr/lib:/mnt/auto/prod/root/usr/lib/x86_64-linux-gnu:/mnt/auto/prod/root/usr/lib64:/mnt/auto/prod/root/lib:/mnt/auto/prod/root/lib/x86_64-linux-gnu:/mnt/auto/prod/root/python/lib/python2.7/site-packages:/mnt/auto/prod/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/prod/pythonCode
+          PATH: /mnt/auto/prod/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
@@ -71,12 +70,12 @@ services:
         memorySize: 32768
         runtime: custom
         instanceType: c1
-        environmentVariables:
-          PYTHONUSERBASE: /mnt/auto/${vars.fc-env}/python
+        prodironmentVariables:
+          PYTHONUSERBASE: /mnt/auto/prod/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/${vars.fc-env}/root/usr/bin:/mnt/auto/${vars.fc-env}/root/usr/local/lib:/mnt/auto/${vars.fc-env}/root/usr/lib:/mnt/auto/${vars.fc-env}/root/usr/lib/x86_64-linux-gnu:/mnt/auto/${vars.fc-env}/root/usr/lib64:/mnt/auto/${vars.fc-env}/root/lib:/mnt/auto/${vars.fc-env}/root/lib/x86_64-linux-gnu:/mnt/auto/${vars.fc-env}/root/python/lib/python2.7/site-packages:/mnt/auto/${vars.fc-env}/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/${vars.fc-env}/pythonCode
-          PATH: /mnt/auto/${vars.fc-env}/python/bin
+            /mnt/auto/prod/root/usr/bin:/mnt/auto/prod/root/usr/local/lib:/mnt/auto/prod/root/usr/lib:/mnt/auto/prod/root/usr/lib/x86_64-linux-gnu:/mnt/auto/prod/root/usr/lib64:/mnt/auto/prod/root/lib:/mnt/auto/prod/root/lib/x86_64-linux-gnu:/mnt/auto/prod/root/python/lib/python2.7/site-packages:/mnt/auto/prod/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/prod/pythonCode
+          PATH: /mnt/auto/prod/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
