@@ -40,6 +40,7 @@ public class HttpResponse {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpResponse.class);
     public static final int CODE_ERROR = -1;
+    public String sessionId;
     /**
      * Elapsed time (in milliseconds) from the beginning of sending the request to the end of the response
      */
@@ -76,6 +77,7 @@ public class HttpResponse {
         HttpResponse httpResponse = new HttpResponse();
         httpResponse.setRequest(httpRequest);
         httpResponse.setSpend(spendTime);
+        httpResponse.sessionId = httpRequest.sessionId;
         return httpResponse;
     }
 
@@ -209,9 +211,9 @@ public class HttpResponse {
         }
 
         if (success()) {
-            LOG.info("http success({} ms) for {} ({} : {}), Body : {}", spend, request.getUrl(), code, message, content);
+            LOG.info("({})http success({} ms) for {} ({} : {}), Body : {}", sessionId, spend, request.getUrl(), code, message, content);
         } else {
-            LOG.error("http fail({} ms) for {} ({} : {}), Body : {}", spend, request.getUrl(), code, message, content, error);
+            LOG.error("({})http fail({} ms) for {} ({} : {}), Body : {}", sessionId, spend, request.getUrl(), code, message, content, error);
         }
     }
 
