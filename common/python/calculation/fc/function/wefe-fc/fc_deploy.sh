@@ -111,7 +111,7 @@ fc_deploy(){
 #  else
 #    sed -i "s|fc-env:.*|fc-env: ${nas_env}|" s.yaml
 #  fi
-  sed -i "s/env/${nas_env}/g" s.yaml
+  sed -i "s/fc-env/${nas_env}/g" s.yaml
 
   if [[ ${account_type,,} == "admin" ]]; then
     echo "account_type is admin, auto to create fc role"

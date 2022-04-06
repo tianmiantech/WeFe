@@ -26,12 +26,12 @@ services:
         memorySize: 3072
         runtime: custom
         instanceType: e1
-        prodironmentVariables:
-          PYTHONUSERBASE: /mnt/auto/env/python
+        environmentVariables:
+          PYTHONUSERBASE: /mnt/auto/fc-env/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/env/root/usr/bin:/mnt/auto/env/root/usr/local/lib:/mnt/auto/env/root/usr/lib:/mnt/auto/env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/env/root/usr/lib64:/mnt/auto/env/root/lib:/mnt/auto/env/root/lib/x86_64-linux-gnu:/mnt/auto/env/root/python/lib/python2.7/site-packages:/mnt/auto/env/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/env/pythonCode
-          PATH: /mnt/auto/env/python/bin
+            /mnt/auto/fc-env/root/usr/bin:/mnt/auto/fc-env/root/usr/local/lib:/mnt/auto/fc-env/root/usr/lib:/mnt/auto/fc-env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/fc-env/root/usr/lib64:/mnt/auto/fc-env/root/lib:/mnt/auto/fc-env/root/lib/x86_64-linux-gnu:/mnt/auto/fc-env/root/python/lib/python2.7/site-packages:/mnt/auto/fc-env/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/fc-env/pythonCode
+          PATH: /mnt/auto/fc-env/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
@@ -48,12 +48,12 @@ services:
         memorySize: 16384
         runtime: custom
         instanceType: c1
-        prodironmentVariables:
-          PYTHONUSERBASE: /mnt/auto/env/python
+        environmentVariables:
+          PYTHONUSERBASE: /mnt/auto/fc-env/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/env/root/usr/bin:/mnt/auto/env/root/usr/local/lib:/mnt/auto/env/root/usr/lib:/mnt/auto/env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/env/root/usr/lib64:/mnt/auto/env/root/lib:/mnt/auto/env/root/lib/x86_64-linux-gnu:/mnt/auto/env/root/python/lib/python2.7/site-packages:/mnt/auto/env/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/env/pythonCode
-          PATH: /mnt/auto/env/python/bin
+            /mnt/auto/fc-env/root/usr/bin:/mnt/auto/fc-env/root/usr/local/lib:/mnt/auto/fc-env/root/usr/lib:/mnt/auto/fc-env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/fc-env/root/usr/lib64:/mnt/auto/fc-env/root/lib:/mnt/auto/fc-env/root/lib/x86_64-linux-gnu:/mnt/auto/fc-env/root/python/lib/python2.7/site-packages:/mnt/auto/fc-env/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/fc-env/pythonCode
+          PATH: /mnt/auto/fc-env/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
@@ -70,12 +70,12 @@ services:
         memorySize: 32768
         runtime: custom
         instanceType: c1
-        prodironmentVariables:
-          PYTHONUSERBASE: /mnt/auto/env/python
+        environmentVariables:
+          PYTHONUSERBASE: /mnt/auto/fc-env/python
           LD_LIBRARY_PATH: >-
-            /mnt/auto/env/root/usr/bin:/mnt/auto/env/root/usr/local/lib:/mnt/auto/env/root/usr/lib:/mnt/auto/env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/env/root/usr/lib64:/mnt/auto/env/root/lib:/mnt/auto/env/root/lib/x86_64-linux-gnu:/mnt/auto/env/root/python/lib/python2.7/site-packages:/mnt/auto/env/python/lib/python3.7/site-packages
-          PYTHONPATH: /mnt/auto/env/pythonCode
-          PATH: /mnt/auto/env/python/bin
+            /mnt/auto/fc-env/root/usr/bin:/mnt/auto/fc-env/root/usr/local/lib:/mnt/auto/fc-env/root/usr/lib:/mnt/auto/fc-env/root/usr/lib/x86_64-linux-gnu:/mnt/auto/fc-env/root/usr/lib64:/mnt/auto/fc-env/root/lib:/mnt/auto/fc-env/root/lib/x86_64-linux-gnu:/mnt/auto/fc-env/root/python/lib/python2.7/site-packages:/mnt/auto/fc-env/python/lib/python3.7/site-packages
+          PYTHONPATH: /mnt/auto/fc-env/pythonCode
+          PATH: /mnt/auto/fc-env/python/bin
           OTS_ENV: 1
           IN_FC_ENV: 1
         instanceConcurrency: 2
