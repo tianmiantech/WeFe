@@ -108,6 +108,7 @@
                 :projectType="form.project_type"
                 @deleteDataSetEmit="deleteDataSetEmit"
                 :sort-index="index"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
@@ -117,6 +118,7 @@
                 v-if="item.name === 'FusionList'"
                 :form="form"
                 :sort-index="index"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
@@ -126,6 +128,7 @@
                 v-if="item.name === 'FlowList'"
                 :form="form"
                 :sort-index="index"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
@@ -136,6 +139,7 @@
                 ref="ModelingList"
                 :form="form"
                 :sort-index="index"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
@@ -145,6 +149,7 @@
                 v-if="item.name === 'DerivedList' && form.project_type === 'MachineLearning'"
                 :project-type="form.project_type"
                 :sort-index="index"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
@@ -624,19 +629,16 @@
 
             // 自定义排序操作
             moveUp(idx) {
-                console.log(idx);
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
 
                 this.swapArray(list, idx, idx - 1);
             },
             moveDown(idx) {
-                console.log(idx);
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
 
                 this.swapArray(list, idx, idx + 1);
             },
             toTop(idx) {
-                console.log(idx);
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
 
                 this.swapArray(list, idx, 0);

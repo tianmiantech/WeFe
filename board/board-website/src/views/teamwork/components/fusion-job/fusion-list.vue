@@ -9,7 +9,7 @@
         <template #header>
             <div class="clearfix mb10 flex-row">
                 <div style="display: flex; align-items: center;">
-                    <h3 class="card-title f19" :index="sortIndex">数据融合</h3>
+                    <h3 class="card-title f19">数据融合</h3>
                     <template v-if="form.isPromoter">
                         <router-link class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id } }">
                             <el-button
@@ -25,24 +25,9 @@
                     <span v-else class="ml10 f12">(协作方无法创建任务)</span>
                 </div>
                 <div class="right-sort-area">
-                    <!-- <el-tooltip
-                        v-if="sortIndex !== 0"
-                        class="item"
-                        effect="light"
-                        content="上移"
-                        placement="bottom"
-                    > -->
                     <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
-                    <!-- </el-tooltip>
-                    <el-tooltip
-                        class="item"
-                        effect="light"
-                        content="下移"
-                        placement="bottom"
-                    > -->
-                    <el-icon :class="['el-icon-bottom', 'ml10', {'mr10': sortIndex !== 0 && sortIndex !== 1}]" @click="moveDown"><elicon-bottom /></el-icon>
-                    <!-- </el-tooltip> -->
-                    <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span>
+                    <el-icon :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <!-- <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span> -->
                 </div>
             </div>
         </template>
@@ -136,6 +121,7 @@
         props:  {
             form:      Object,
             sortIndex: Number,
+            maxIndex:  Number,
         },
         emits: ['move-up', 'move-down', 'to-top'],
         data() {
