@@ -24,6 +24,8 @@ package com.welab.wefe.mpc.sa.request;
 public class QuerySAResultResponse {
     private String uuid;
     private Double result;
+    private int code;
+    private String message;
 
     public String getUuid() {
         return uuid;
@@ -40,4 +42,22 @@ public class QuerySAResultResponse {
     public void setResult(Double result) {
         this.result = result;
     }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
+    
 }

@@ -47,11 +47,19 @@ public abstract class AbstractCompression {
         return compression(srcDir, null);
     }
 
+    public File compression(String srcDir, String destFileName) throws IOException {
+        Path srcPath = Paths.get(srcDir);
+        return compression(srcPath, destFileName);
+    }
+
+    public File compression(Path srcDir, File destFile) throws IOException {
+        return compression(srcDir, destFile.getAbsolutePath());
+    }
+
     /**
      * 压缩文件夹至指定目录
      */
-    public File compression(String srcDir, String destFileName) throws IOException {
-        Path srcPath = Paths.get(srcDir);
+    public File compression(Path srcPath, String destFileName) throws IOException {
         File srcFile = srcPath.toFile();
 
         // 判断源文件夹是否存在
@@ -65,6 +73,13 @@ public abstract class AbstractCompression {
                     srcFile.getName() + getCompressionType().getSuffix()
             ).toString();
         }
+
+        // 如果压缩文件已存在，删除。
+        File destFile = new File(destFileName);
+        if (destFile.exists()) {
+            destFile.delete();
+        }
+
 
         // 执行压缩
         doCompression(srcPath, destFileName);

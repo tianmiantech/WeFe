@@ -34,12 +34,14 @@ public class DownloadDataSetZipApi extends AbstractApi<DownloadDataSetZipApi.Inp
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
-        File zipFile = WeFeFileSystem.CallDeepLearningModel.getZipFile(input.taskId);
+        File zipFile = WeFeFileSystem.CallDeepLearningModel.getZipFile(input.taskId, input.inferSessionId);
         return file(zipFile);
     }
 
     public static class Input extends AbstractApiInput {
         @Check(require = true)
         public String taskId;
+        @Check(require = true)
+        public String inferSessionId;
     }
 }

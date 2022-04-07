@@ -20,6 +20,7 @@ from paddle import fluid
 
 
 @click.command()
+@click.option("--job-id", type=str, required=True)
 @click.option(
     "--main-program",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
@@ -31,6 +32,7 @@ from paddle import fluid
     required=True,
 )
 def fl_server(
+    job_id,
     startup_program,
     main_program,
 ):

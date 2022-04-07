@@ -32,7 +32,7 @@ public abstract class AbstractStorage extends Storage {
 
     private final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
-    @Qualifier("storageDataSource")
+    @Qualifier("fusion")
     @Autowired
     protected DataSource dataSource;
 

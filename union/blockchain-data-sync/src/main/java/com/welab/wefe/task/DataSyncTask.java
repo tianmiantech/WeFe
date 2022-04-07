@@ -156,13 +156,13 @@ public class DataSyncTask {
          */
         private void startSync(long blockNumber) throws Exception {
             BlockInfoBO blockInfoBO = null;
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 10; i++) {
                 // get block by block number
                 BcosBlock.Block block = BlockUtil.getBlock(this.client, new BigInteger(String.valueOf(blockNumber)));
                 blockInfoBO = BlockInfoParser.create(block).parse();
                 if (CollectionUtils.isEmpty(blockInfoBO.getEventBOList())) {
                     // retry
-                    Thread.sleep(500);
+                    Thread.sleep(500 * (i + 1));
                     continue;
                 }
 
@@ -175,6 +175,7 @@ public class DataSyncTask {
                 blockSyncContractHeightService.save(filterBlockInfoBO);
 
                 blockSyncDetailInfoService.saveBlockDetailInfo(blockInfoBO);
+                break;
             }
             transactionResponseService.save(blockInfoBO);
         }
