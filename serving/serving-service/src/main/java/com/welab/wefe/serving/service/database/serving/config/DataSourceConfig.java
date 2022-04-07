@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.database;
+package com.welab.wefe.serving.service.database.serving.config;
 
 import com.welab.wefe.common.data.mysql.config.AbstractJpaConfig;
-import com.welab.wefe.data.fusion.service.FusionService;
-import com.welab.wefe.data.fusion.service.database.repository.base.BaseRepositoryFactoryBean;
+import com.welab.wefe.serving.service.ServingService;
+import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -42,36 +42,36 @@ import java.util.Map;
  * @author hunter.zhao
  */
 @Configuration
-@EntityScan("com.welab.wefe.data.fusion.service")
-@EnableJpaRepositories(basePackageClasses = FusionService.class,
+@EntityScan("com.welab.wefe.serving.service")
+@EnableJpaRepositories(basePackageClasses = ServingService.class,
         repositoryFactoryBeanClass = BaseRepositoryFactoryBean.class,
-        entityManagerFactoryRef = "entityManagerFactoryRefFusion",
-        transactionManagerRef = "transactionManagerRefFusion")
+        entityManagerFactoryRef = "entityManagerFactoryRefServing",
+        transactionManagerRef = "transactionManagerRefServing")
 public class DataSourceConfig extends AbstractJpaConfig {
 
-    @Bean("fusion")
+    @Bean("serving")
     @ConfigurationProperties(prefix = "db.mysql")
     @Primary
-    DataSource wefeFusion() {
+    DataSource wefeBoard() {
         return createDatasource();
     }
 
-    @Bean("entityManagerFactoryRefFusion")
+    @Bean("entityManagerFactoryRefServing")
     @Primary
-    LocalContainerEntityManagerFactoryBean entityManagerFactoryRefFusion(
-            EntityManagerFactoryBuilder builder, @Qualifier("fusion") DataSource dataSource) {
+    LocalContainerEntityManagerFactoryBean entityManagerFactoryRefServing(
+            EntityManagerFactoryBuilder builder, @Qualifier("serving") DataSource dataSource) {
         // Set the naming rules for entities and tables (because custom data sources will override the original rules of jpa)
         Map<String, String> pros = mProperties.getProperties();
         pros.put("hibernate.physical_naming_strategy", SpringPhysicalNamingStrategy.class.getName());
         pros.put("hibernate.implicit_naming_strategy", SpringImplicitNamingStrategy.class.getName());
 
-        return entityManagerFactoryRef(builder, dataSource, mProperties, FusionService.class);
+        return entityManagerFactoryRef(builder, dataSource, mProperties, ServingService.class);
     }
 
     @Bean
     @Primary
-    PlatformTransactionManager transactionManagerRefFusion(
-            @Qualifier("entityManagerFactoryRefFusion") LocalContainerEntityManagerFactoryBean factoryBean) {
+    PlatformTransactionManager transactionManagerRefServing(
+            @Qualifier("entityManagerFactoryRefServing") LocalContainerEntityManagerFactoryBean factoryBean) {
 
         return new JpaTransactionManager(factoryBean.getObject());
     }
