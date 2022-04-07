@@ -4,21 +4,46 @@
         class="nav-title mb30"
         shadow="never"
     >
-        <h3 class="mb10 card-title">
-            训练列表
-            <template v-if="form.isPromoter">
-                <el-button
-                    v-if="!form.closed && !form.is_exited"
-                    class="ml10"
-                    size="small"
-                    type="primary"
-                    @click="addFlowMethod"
-                >
-                    新建训练流程
-                </el-button>
-            </template>
-            <span v-else class="ml10 f12">(协作方无法添加流程)</span>
-        </h3>
+        <template #header>
+            <div class="clearfix mb10" style="display: flex; justify-content: space-between;">
+                <div style="display: flex; align-items: center;">
+                    <h3 class="mb10 card-title">
+                        训练列表
+                        <template v-if="form.isPromoter">
+                            <el-button
+                                v-if="!form.closed && !form.is_exited"
+                                class="ml10"
+                                size="small"
+                                type="primary"
+                                @click="addFlowMethod"
+                            >
+                                新建训练流程
+                            </el-button>
+                        </template>
+                        <span v-else class="ml10 f12">(协作方无法添加流程)</span>
+                    </h3>
+                </div>
+                <div class="right-sort-area">
+                    <!-- <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="上移"
+                        placement="bottom"
+                    > -->
+                    <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
+                    <!-- </el-tooltip>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="下移"
+                        placement="bottom"
+                    > -->
+                    <el-icon :class="['el-icon-bottom', 'ml10', {'mr10': sortIndex !== 0 || sortIndex !== 1}]" @click="moveDown"><elicon-bottom /></el-icon>
+                    <!-- </el-tooltip> -->
+                    <span v-if="sortIndex !== 0" @click="toTop" class="f12">置顶</span>
+                </div>
+            </div>
+        </template>
 
         <el-table
             ref="multipleTable"
@@ -340,8 +365,10 @@
         mixins: [table],
         inject: ['refresh'],
         props:  {
-            form: Object,
+            form:      Object,
+            sortIndex: Number,
         },
+        emits: ['move-up', 'move-down', 'to-top'],
         data() {
             return {
                 timer:               null,
@@ -656,6 +683,15 @@
                 if (code === 0) {
                     this.config = data;
                 }
+            },
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
             },
         },
     };

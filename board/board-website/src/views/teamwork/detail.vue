@@ -99,34 +99,57 @@
             </el-form>
         </el-card>
 
-        <MembersList
-            ref="membersListRef"
-            :form="form"
-            :promoter="promoter"
-            :projectType="form.project_type"
-            @deleteDataSetEmit="deleteDataSetEmit"
-        />
+        <template v-for="(item, index) in form.project_type === 'MachineLearning' ? moduleList : dModuleList" :key="item.name">
+            <MembersList
+                v-if="item.name === 'MembersList'"
+                ref="membersListRef"
+                :form="form"
+                :promoter="promoter"
+                :projectType="form.project_type"
+                @deleteDataSetEmit="deleteDataSetEmit"
+                :sort-index="index"
+                @move-up="moveUp"
+                @move-down="moveDown"
+                @to-top="toTop"
+            />
 
-        <FusionList :form="form" />
+            <FusionList
+                v-if="item.name === 'FusionList'"
+                :form="form"
+                :sort-index="index"
+                @move-up="moveUp"
+                @move-down="moveDown"
+                @to-top="toTop"
+            />
 
-        <FlowList :form="form" />
+            <FlowList
+                v-if="item.name === 'FlowList'"
+                :form="form"
+                :sort-index="index"
+                @move-up="moveUp"
+                @move-down="moveDown"
+                @to-top="toTop"
+            />
 
-        <el-card
-            name="TopN 展示"
-            shadow="never"
-            style="display:none;"
-        >
-            <h3 class="mb10">TopN 展示</h3>
-            <TopN ref="topnRef"></TopN>
-        </el-card>
+            <ModelingList
+                v-if="item.name === 'ModelingList' && form.project_type === 'MachineLearning'"
+                ref="ModelingList"
+                :form="form"
+                :sort-index="index"
+                @move-up="moveUp"
+                @move-down="moveDown"
+                @to-top="toTop"
+            />
 
-        <ModelingList
-            v-if="form.project_type === 'MachineLearning'"
-            ref="ModelingList"
-            :form="form"
-        />
-
-        <DerivedList v-if="form.project_type === 'MachineLearning'" :project-type="form.project_type" />
+            <DerivedList
+                v-if="item.name === 'DerivedList' && form.project_type === 'MachineLearning'"
+                :project-type="form.project_type"
+                :sort-index="index"
+                @move-up="moveUp"
+                @move-down="moveDown"
+                @to-top="toTop"
+            />
+        </template>
 
         <el-dialog
             title="提示"
@@ -165,7 +188,6 @@
     import ModelingList from './components/modeling-list';
     import PromoterProjectSetting from './components/promoter-project-setting';
     import ProviderProjectSetting from './components/provider-project-setting';
-    import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN';
 
     let timer = null;
 
@@ -178,7 +200,6 @@
             ModelingList,
             PromoterProjectSetting,
             ProviderProjectSetting,
-            TopN,
         },
         inject: ['refresh'],
         data() {
@@ -236,6 +257,31 @@
                     creator_nickname:        '',
                 },
                 getModelingList: false,
+                moduleList:      [
+                    {
+                        name: 'MembersList',
+                    },
+                    {
+                        name: 'FusionList',
+                    },
+                    {
+                        name: 'FlowList',
+                    },
+                    {
+                        name: 'ModelingList',
+                    },
+                    {
+                        name: 'DerivedList',
+                    },
+                ],
+                dModuleList: [
+                    {
+                        name: 'MembersList',
+                    },
+                    {
+                        name: 'FlowList',
+                    },
+                ],
             };
         },
         computed: {
@@ -404,7 +450,7 @@
                     callback && callback();
                     // get project/detail first
                     if(!this.getModelingList && this.form.project_type === 'MachineLearning') {
-                        this.$refs['ModelingList'].getList();
+                        this.$refs['ModelingList'][0].getList();
                         this.getModelingList = true;
                     }
 
@@ -430,8 +476,7 @@
                                 role = 'provider';
                             }
                         }
-
-                        this.$refs['membersListRef'].memberTabName = `${this.userInfo.member_id}-${role}`;
+                        this.$refs['membersListRef'][0].memberTabName = `${this.userInfo.member_id}-${role}`;
                     }
 
                     // refresh audit state every 30s
@@ -576,13 +621,51 @@
                     this.promoterService[member_id] = null;
                 }
             },
+
+            // 自定义排序操作
+            moveUp(idx) {
+                console.log(idx);
+                const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
+
+                this.swapArray(list, idx, idx - 1);
+            },
+            moveDown(idx) {
+                console.log(idx);
+                const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
+
+                this.swapArray(list, idx, idx + 1);
+            },
+            toTop(idx) {
+                console.log(idx);
+                const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
+
+                this.swapArray(list, idx, 0);
+            },
+            swapArray(arr, idx1, idx2) {
+                arr[idx1] = arr.splice(idx2, 1, arr[idx1])[0];
+                return arr;
+            },
         },
     };
 </script>
 
-<style lang="css">
+<style lang="scss">
     .audit_dialog{width: 360px;}
     .el-table-maxwidth{max-width: 1000px;}
+    .flex-row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .right-sort-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        justify-content: space-between;
+        color: #c0c0c0;
+        .el-icon, span {
+            cursor: pointer;
+        }
+    }
 </style>
 
 <style lang="scss" scoped>

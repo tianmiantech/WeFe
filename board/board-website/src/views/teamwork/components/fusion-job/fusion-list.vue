@@ -6,22 +6,46 @@
         shadow="never"
         :show="project_type !== 'DeepLearning'"
     >
-        <h3 class="mb10 card-title">
-            数据融合
-            <template v-if="form.isPromoter">
-                <router-link class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id } }">
-                    <el-button
-                        v-if="!form.closed && !form.is_exited"
-                        type="primary"
-                        class="ml10"
-                        size="small"
-                    >
-                        新建数据融合任务
-                    </el-button>
-                </router-link>
-            </template>
-            <span v-else class="ml10 f12">(协作方无法创建任务)</span>
-        </h3>
+        <template #header>
+            <div class="clearfix mb10 flex-row">
+                <div style="display: flex; align-items: center;">
+                    <h3 class="card-title f19" :index="sortIndex">数据融合</h3>
+                    <template v-if="form.isPromoter">
+                        <router-link class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id } }">
+                            <el-button
+                                v-if="!form.closed && !form.is_exited"
+                                type="primary"
+                                class="ml10"
+                                size="small"
+                            >
+                                新建数据融合任务
+                            </el-button>
+                        </router-link>
+                    </template>
+                    <span v-else class="ml10 f12">(协作方无法创建任务)</span>
+                </div>
+                <div class="right-sort-area">
+                    <!-- <el-tooltip
+                        v-if="sortIndex !== 0"
+                        class="item"
+                        effect="light"
+                        content="上移"
+                        placement="bottom"
+                    > -->
+                    <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
+                    <!-- </el-tooltip>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="下移"
+                        placement="bottom"
+                    > -->
+                    <el-icon :class="['el-icon-bottom', 'ml10', {'mr10': sortIndex !== 0 && sortIndex !== 1}]" @click="moveDown"><elicon-bottom /></el-icon>
+                    <!-- </el-tooltip> -->
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span>
+                </div>
+            </div>
+        </template>
 
         <el-table
             max-height="500px"
@@ -110,8 +134,10 @@
         mixins: [table],
         inject: ['refresh'],
         props:  {
-            form: Object,
+            form:      Object,
+            sortIndex: Number,
         },
+        emits: ['move-up', 'move-down', 'to-top'],
         data() {
             return {
                 timer:      null,
@@ -260,6 +286,15 @@
                         project_id: this.project_id,
                     },
                 });
+            },
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
             },
         },
     };

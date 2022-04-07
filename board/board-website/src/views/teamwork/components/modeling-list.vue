@@ -5,7 +5,30 @@
         class="nav-title mb30"
         :show="project_type !== 'DeepLearning'"
     >
-        <h3 class="mb10">模型列表</h3>
+        <template #header>
+            <div class="clearfix mb10 flex-row">
+                <h3 class="mb10" :index="sortIndex">模型列表</h3>
+                <div class="right-sort-area">
+                    <!-- <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="上移"
+                        placement="bottom"
+                    > -->
+                    <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
+                    <!-- </el-tooltip> -->
+                    <!-- <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="下移"
+                        placement="bottom"
+                    > -->
+                    <el-icon :class="['el-icon-bottom', 'ml10', {'mr10': sortIndex !== 0 || sortIndex !== 1}]" @click="moveDown"><elicon-bottom /></el-icon>
+                    <!-- </el-tooltip> -->
+                    <span @click="toTop" class="f12">置顶</span>
+                </div>
+            </div>
+        </template>
         <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
                 <el-select v-model="search.component_type">
@@ -237,8 +260,10 @@
         },
         mixins: [table],
         props:  {
-            form: Object,
+            form:      Object,
+            sortIndex: Number,
         },
+        emits:    ['move-up', 'move-down', 'to-top'],
         computed: {
             ...mapGetters(['userInfo']),
         },
@@ -404,6 +429,15 @@
                 });
 
                 window.open(href, '_blank');
+            },
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
             },
         },
     };

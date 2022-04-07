@@ -446,6 +446,7 @@
                 clearTimeout(vData.resetWidthTimer);
                 clearTimeout(vData.runningTimer);
                 clearTimeout(vData.resultNullTimer);
+                window.onresize = null;
             });
 
             return {

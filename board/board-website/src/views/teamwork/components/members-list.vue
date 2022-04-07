@@ -4,7 +4,30 @@
         class="nav-title mb30"
         shadow="never"
     >
-        <h3 class="mb10 card-title">参与成员</h3>
+        <template #header>
+            <div class="clearfix mb10 flex-row">
+                <h3 class="card-title f19" :index="sortIndex">参与成员</h3>
+                <div class="right-sort-area">
+                    <!-- <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="上移"
+                        placement="bottom"
+                    > -->
+                    <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
+                    <!-- </el-tooltip>
+                    <el-tooltip
+                        class="item"
+                        effect="light"
+                        content="下移"
+                        placement="bottom"
+                    > -->
+                    <el-icon :class="['el-icon-bottom', 'ml10', {'mr10': sortIndex !== 0 && sortIndex !== 1}]" @click="moveDown"><elicon-bottom /></el-icon>
+                    <!-- </el-tooltip> -->
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span>
+                </div>
+            </div>
+        </template>
         <el-tabs
             v-if="promoter.member_id"
             v-model="memberTabName"
@@ -369,7 +392,9 @@
             form:        Object,
             promoter:    Object,
             projectType: String,
+            sortIndex:   Number,
         },
+        emits: ['move-up', 'move-down', 'to-top'],
         data() {
             return {
                 dataSetPreviewDialog: false,
@@ -598,7 +623,15 @@
                         }
                     });
             },
-
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
+            },
         },
     };
 </script>
