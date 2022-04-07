@@ -29,6 +29,12 @@ public class QueryKeysRequest implements Serializable {
      */
     private String method;
 
+    /**
+     * 不经意传输实现
+     * naorpinkas_ot or huack_ot
+     */
+    private String otMethod;
+
     public List<Object> getIds() {
         return ids;
     }
@@ -43,5 +49,13 @@ public class QueryKeysRequest implements Serializable {
 
     public void setMethod(String method) {
         this.method = method;
+    }
+
+    public String getOtMethod() {
+        return otMethod;
+    }
+
+    public void setOtMethod(String otMethod) {
+        this.otMethod = otMethod;
     }
 }

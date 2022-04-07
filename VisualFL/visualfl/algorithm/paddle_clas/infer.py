@@ -32,7 +32,7 @@ import json
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(__dir__)
 sys.path.append(os.path.abspath(os.path.join(__dir__, '../../')))
-
+from ppdet.utils import checkpoint
 import argparse
 import numpy as np
 import paddle
@@ -42,9 +42,14 @@ import cv_utils as utils
 from visualfl.db.task_dao import TaskDao
 from visualfl.utils.consts import ComponentName,TaskResultType
 import logging
-FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
-logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    filename="infer.log",
+    filemode="w",
+    format="%(asctime)s %(name)s:%(levelname)s:%(message)s",
+    datefmt="%d-%M-%Y %H:%M:%S",
+    level=logging.DEBUG,
+)
 
 
 def parse_args():
@@ -95,8 +100,10 @@ def create_predictor(args):
             exe.run(startup_prog)
 
     infer_prog = infer_prog.clone(for_test=True)
-    fluid.load(
-        program=infer_prog, model_path=args.weights, executor=exe)
+    exe.run(startup_prog)
+    # fluid.load(
+    #     program=infer_prog, model_path=args.weights, executor=exe)
+    checkpoint.load_params(exe, infer_prog, args.weights)
 
     return exe, infer_prog, [image.name], [out.name]
 
@@ -154,7 +161,12 @@ def main():
     operators = create_operators()
     exe, program, feed_names, fetch_names = create_predictor(args)
     image_list = get_image_list(args.infer_dir)
-    TaskDao(args.task_id).save_task_result({"status": "running"}, ComponentName.CLASSIFY,type=TaskResultType.INFER)
+    model = TaskDao(args.task_id).get_task_result(TaskResultType.INFER)
+    infer_result={}
+    if model:
+        infer_result = json.loads(model.result)
+    infer_result.update({"status": "running"})
+    TaskDao(args.task_id).save_task_result(infer_result, ComponentName.CLASSIFY,type=TaskResultType.INFER)
     task_result = TaskDao(args.task_id).get_task_result(TaskResultType.LABEL)
     if not task_result:
         raise Exception(f"task result is None as task id: {args.task_id}")
@@ -164,7 +176,6 @@ def main():
         for line in f.readlines():
             lines = line.replace('\n','').split(' ')
             cats.append(' '.join(lines[1:]))
-    infer_result = {}
     img_probs = []
     for idx, filename in enumerate(image_list):
         data = preprocess(filename, operators)
@@ -174,15 +185,16 @@ def main():
                           fetch_list=fetch_names,
                           return_numpy=False)
         probs = postprocess(outputs)
-        logger.debug("current image: {}".format(filename))
+        logging.debug("current image: {}".format(filename))
         infer_probs = []
         for idx, prob in probs:
-            logger.debug("\tclass id: {:d}, probability: {:.4f}".format(idx, prob))
-            infer_probs.append({"class_id":idx,"class_name":cats[idx],"prob":prob})
+            logging.debug("\tclass id: {:d}, probability: {:.4f}".format(idx, prob))
+            infer_probs.append({"class_id":idx,"class_name":str(cats[idx]),"prob":prob})
         infer_dict = {"image": os.path.basename(filename), "infer_probs": infer_probs}
         img_probs.append(infer_dict)
     infer_result["result"] = img_probs
     infer_result["status"] = "finish"
+    logging.debug(f"infer result: {infer_result}")
     TaskDao(task_id=args.task_id).save_task_result(infer_result, ComponentName.CLASSIFY, type=TaskResultType.INFER)
 
 if __name__ == "__main__":

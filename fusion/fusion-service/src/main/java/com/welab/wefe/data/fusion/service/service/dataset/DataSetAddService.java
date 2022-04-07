@@ -36,7 +36,6 @@ import com.welab.wefe.data.fusion.service.utils.AbstractDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.CsvDataSetReader;
 import com.welab.wefe.data.fusion.service.utils.ExcelDataSetReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -61,14 +60,8 @@ public class DataSetAddService extends AbstractService {
     @Autowired
     protected DataSourceService dataSourceService;
 
-    @Value("${file.upload.dir}")
-    private String fileUploadDir;
-
-    @Value("${file.filter.dir}")
-    private String filterDir;
-
     public AddApi.DataSetAddOutput addDataSet(AddApi.Input input) throws Exception {
-        if (input.getRows().size() > 5 ) {
+        if (input.getRows().size() > 5) {
             throw new StatusCodeWithException("选择字段数量不宜超过5个", StatusCode.PARAMETER_VALUE_INVALID);
         }
 

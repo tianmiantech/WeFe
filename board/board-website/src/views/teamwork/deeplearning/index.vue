@@ -126,8 +126,8 @@
                                                         </el-tag>
                                                     </template>
                                                 </el-form-item>
-                                                <el-form-item label="数据总量/已标注：">
-                                                    {{ row.data_resource.total_data_count }} / {{ row.data_resource.labeled_count }}
+                                                <el-form-item label="已标注/数据总量：">
+                                                    {{ row.data_resource.labeled_count }} / {{ row.data_resource.total_data_count }}
                                                 </el-form-item>
                                                 <el-form-item label="样本分类：">
                                                     {{row.data_resource.for_job_type === 'classify' ? '图像分类' : row.data_resource.for_job_type === 'detection' ? '目标检测' : '-'}}
@@ -345,6 +345,7 @@
                                     type="loss"
                                     :autoReadResult="true"
                                     :member-job-detail-list="vData.memberJobDetailList"
+                                    :flow-type="vData.flowType"
                                 />
                             </el-tab-pane>
                         </el-tabs>
@@ -368,6 +369,7 @@
                             <el-button
                                 type="warning"
                                 @click="methods.pause"
+                                :disabled="vData.flowInfo.my_role !=='promoter'"
                             >
                                 暂停运行
                             </el-button>
@@ -376,6 +378,7 @@
                             <el-button
                                 type="primary"
                                 @click="methods.resume"
+                                :disabled="vData.flowInfo.my_role !=='promoter'"
                             >
                                 继续运行
                             </el-button>
@@ -740,6 +743,7 @@
                         }
                     });
                     vData.formImageDataIO.params.data_set_list = $dataset_list;
+                    methods.submitFormData();
                 },
                 async submitFormData($event) {
                     const btnState = {};

@@ -48,8 +48,9 @@ class RunVisualFLTaskAction:
             response = self.apply_resource()
             if response is not None:
                 # wait apply resource
+                schedule_logger(self.running_job).info(
+                    "Wait apply resource {}（{}）".format(self.task.task_type, self.task.task_id))
                 while apply_result is None or apply_result.server_endpoint is None:
-                    schedule_logger(self.running_job).info("Wait apply resource {}（{}）".format(self.task.task_type, self.task.task_id))
                     time.sleep(3)
                     apply_result = self.query_apply_progress_result()
                 schedule_logger(self.running_job).info("Wait apply resource finished, apply_result={}".format(str(apply_result)))
@@ -74,9 +75,9 @@ class RunVisualFLTaskAction:
         # receive
         else:
             result = None
+            schedule_logger(self.running_job).info("wait aggregator_info")
             while result is None or len(result) <= 10:
-                schedule_logger(self.running_job).info("wait aggregator_info")
-                result = job_utils.receive_fl(session_id = session_id)
+                result = job_utils.receive_fl(session_id=session_id)
                 time.sleep(3)
             schedule_logger(self.running_job).info("receive aggregator_info , content is : {}".format(result))
             if result is not None:
@@ -92,14 +93,17 @@ class RunVisualFLTaskAction:
             # update job progress
             JobService.update_progress(self.job)
             # wait task finished
+            schedule_logger(self.running_job).info(
+                "Wait task {}（{}）done".format(self.task.task_type, self.task.task_id))
             while not self.is_task_progress_done():
-                schedule_logger(self.running_job).info("Wait task {}（{}）done".format(self.task.task_type, self.task.task_id))
                 time.sleep(3)
         else:
             schedule_logger(self.running_job).info(
                 "Task {}（{}）failed， submit task request error, time：{}".format(self.task.task_type, self.task.task_id, current_datetime()))
             # self.error_on_task('submit task error')
             raise RuntimeError('submit task error')
+        schedule_logger(self.running_job).info("task {}（{}）done".format(self.task.task_type, self.task.task_id))
+        JobService.update_progress(self.job)
         # self.finish_task()
 
     def error_on_task(self, message):

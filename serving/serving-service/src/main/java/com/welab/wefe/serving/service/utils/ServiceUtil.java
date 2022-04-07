@@ -28,13 +28,17 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
 
 public class ServiceUtil {
-
+    
+    protected static final Logger LOG = LoggerFactory.getLogger(ServiceUtil.class);
+    
 	public static String getIpAddr(HttpServletRequest request) {
 		String ipAddress = request.getHeader("x-forwarded-for");
 		if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
@@ -127,23 +131,27 @@ public class ServiceUtil {
 		}
 	}
 
-	private static String parseWhere(JSONObject dataSource, JObject params) {
-		JSONArray conditionFields = dataSource.getJSONArray("condition_fields");
-		String where = "";
-		if (conditionFields.isEmpty()) {
-			where = "1=1";
-			return where;
-		} else {
-			int size = conditionFields.size();
-			for (int i = 0; i < conditionFields.size(); i++) {
-				JSONObject tmp = conditionFields.getJSONObject(i);
-				where += (" " + tmp.getString("field_on_table") + "=\""
-						+ params.getString(tmp.getString("field_on_param")) + "\" " + " "
-						+ (size - 1 == i ? "" : tmp.getString("operator")));
-			}
-			return where;
-		}
-	}
+    private static String parseWhere(JSONObject dataSource, JObject params) {
+        JSONArray conditionFields = dataSource.getJSONArray("condition_fields");
+        String where = "";
+        if (conditionFields.isEmpty()) {
+            where = "1=1";
+            return where;
+        } else {
+            int size = conditionFields.size();
+            for (int i = 0; i < conditionFields.size(); i++) {
+                JSONObject tmp = conditionFields.getJSONObject(i);
+                where += (" " + tmp.getString("field_on_table")
+                        + (StringUtils.isNotBlank(tmp.getString("condition"))
+                                ? (tmp.getString("condition").equalsIgnoreCase("gt") ? ">"
+                                        : (tmp.getString("condition").equalsIgnoreCase("lt") ? "<" : "="))
+                                : "=")
+                        + "\"" + params.getString(tmp.getString("field_on_param")) + "\" " + " "
+                        + (size - 1 == i ? "" : tmp.getString("operator")));
+            }
+            return where;
+        }
+    }
 	
 	/**
 	 * 前面保留 index 位明文，后面保留 end 位明文,如：[身份证号] 110****58，前面保留3位明文，后面保留2位明文

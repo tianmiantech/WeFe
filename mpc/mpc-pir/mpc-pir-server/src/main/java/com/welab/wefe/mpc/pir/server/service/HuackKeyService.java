@@ -38,12 +38,17 @@ public class HuackKeyService {
     private static final Logger LOG = LoggerFactory.getLogger(HuackKeyService.class);
 
     public QueryKeysResponse handle(QueryKeysRequest request) throws Exception {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return handle(request, uuid);
+    }
+
+    public QueryKeysResponse handle(QueryKeysRequest request, String uuid) throws Exception {
         long start = System.currentTimeMillis();
         if (request.getIds() == null || request.getIds().isEmpty()) {
             throw new IllegalArgumentException("ids is empty");
         }
         QueryKeysResponse response = new QueryKeysResponse();
-        String uuid = UUID.randomUUID().toString().replace("-", "");
+
         response.setUuid(uuid);
         response.setAttemptCount(0);
         PrivateInformationRetrievalFlowServer privateInformationRetrievalServer = new PrivateInformationRetrievalFlowServer();

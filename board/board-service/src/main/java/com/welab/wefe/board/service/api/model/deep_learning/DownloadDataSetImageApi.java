@@ -36,7 +36,7 @@ public class DownloadDataSetImageApi extends AbstractApi<DownloadDataSetImageApi
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
         File file = WeFeFileSystem.CallDeepLearningModel
-                .getZipFileUnzipDir(input.taskId)
+                .getImageSimpleDir(input.taskId, input.inferSessionId)
                 .resolve(input.filename)
                 .toFile();
 
@@ -50,6 +50,8 @@ public class DownloadDataSetImageApi extends AbstractApi<DownloadDataSetImageApi
     public static class Input extends AbstractApiInput {
         @Check(require = true)
         public String taskId;
+        @Check(require = true)
+        public String inferSessionId;
         @Check(require = true)
         public String filename;
     }
