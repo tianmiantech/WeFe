@@ -33,8 +33,8 @@ nas_upload(){
   rm -rf $nas_env
 
   # copy root, python, config.properties
-  has_python=`s nas command ls  -l nas:///mnt/auto/$nas_env`
-  if [[ $has_python == 'python' ]]
+  has_python=`s nas command ls  -l nas:///mnt/auto/dev | grep "python$"`
+  if [[ $has_python =~ 'python' ]]
   then
     echo "has python, root environment."
   else
@@ -146,4 +146,3 @@ fc_deploy(){
 }
 
 fc_deploy
-
