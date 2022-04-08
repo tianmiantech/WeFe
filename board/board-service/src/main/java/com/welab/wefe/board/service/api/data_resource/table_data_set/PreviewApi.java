@@ -84,8 +84,6 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
      * Parse the dataset file
      */
     private Output readFile(File file) throws IOException, StatusCodeWithException {
-
-
         ColumnDataTypeInferrer columnDataTypeInferrer;
 
         try (

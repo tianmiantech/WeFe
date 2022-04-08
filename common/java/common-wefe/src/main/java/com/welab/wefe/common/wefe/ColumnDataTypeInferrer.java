@@ -69,7 +69,10 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
             return;
         }
 
-        for (String name : columnDataTypes.keySet()) {
+        Iterator<String> iterator = columnDataTypes.keySet().iterator();
+        while (iterator.hasNext()) {
+            String name = iterator.next();
+
             Object value = row.get(name);
             // 根据字段的值，推理出字段的类型
             ColumnDataType dataType = inferDataType(String.valueOf(value));
@@ -87,7 +90,7 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
 
             // 将已推理出结论的字段移除
             if (result.get(name) != null) {
-                columnDataTypes.remove(name);
+                iterator.remove();
             }
         }
 
@@ -97,9 +100,11 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
      * 结束推理，根据当前线索推理出所有字段的数据类型。
      */
     public Map<String, ColumnDataType> getResult() {
-        for (String name : columnDataTypes.keySet()) {
-
+        Iterator<String> iterator = columnDataTypes.keySet().iterator();
+        while (iterator.hasNext()) {
+            String name = iterator.next();
             Set<ColumnDataType> types = this.columnDataTypes.get(name);
+
             if (types.isEmpty()) {
                 continue;
             } else if (types.contains(ColumnDataType.String)) {
@@ -116,7 +121,7 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
                 throw new RuntimeException("执行到这里说明在未来的有一天，新增了数据类型，这里的代码要做相应的修改。");
             }
 
-            columnDataTypes.remove(name);
+            iterator.remove();
         }
         return result;
     }
