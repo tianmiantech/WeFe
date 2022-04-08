@@ -149,7 +149,7 @@
                                     query: { job_id: scope.row.job_id, project_id, member_role: scope.row.role }
                                 }"
                             >
-                                查看任务
+                                查看结果
                             </router-link>
                         </template>
                     </el-table-column>
