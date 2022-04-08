@@ -73,6 +73,11 @@
                     </template>
                 </template>
             </el-table-column>
+            <el-table-column label="训练类型">
+                <template v-slot="scope">
+                    <p>{{ form.project_type === 'MachineLearning' ? learningType(scope.row.federated_learning_type) : learningType(scope.row.deep_learning_job_type) }}</p>
+                </template>
+            </el-table-column>
             <el-table-column
                 label="创建者"
                 prop="creator_nickname"
@@ -83,11 +88,6 @@
             >
                 <template v-slot="scope">
                     <p>{{ dateFormat(scope.row.created_time) }}</p>
-                </template>
-            </el-table-column>
-            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
-                <template v-slot="scope">
-                    <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -408,6 +408,8 @@
                         vertical:   '纵向',
                         horizontal: '横向',
                         mix:        '混合',
+                        classify:   '图像分类',
+                        detection:  '目标检测',
                     };
 
                     return types[val] || '-';
