@@ -61,19 +61,19 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Check(name = "数据资源id")
         private String dataResourceId;
 
-        @Check(name = "数据资源类型", require = true)
+        @Check(name = "数据资源类型")
         private DataResourceType dataResourceType;
 
         @Check(name = "算法")
         private AlgorithmType algorithm = AlgorithmType.RSA_PSI;
 
-        @Check(name = "样本量", require = true)
+        @Check(name = "样本量")
         private Integer rowCount;
 
         @Check(name = "主键处理")
         private List<FieldInfo> fieldInfoList;
 
-        @Check(name = "是否追溯", require = true)
+        @Check(name = "是否追溯")
         private Boolean isTrace;
 
         @Check(name = "追溯字段")
