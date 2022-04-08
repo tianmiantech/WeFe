@@ -66,7 +66,6 @@
 
             let methods = {
                 showResult(list) {
-                    console.log(list);
                     piechartRefs = [];
                     vData.resultConfigs = [];
                     vData.textList = [];
