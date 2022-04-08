@@ -671,9 +671,6 @@
                                             },
                                         ],
                                     },
-                                    layout: {
-                                        type: '',
-                                    },
                                     fitCenter: true,
                                 });
 

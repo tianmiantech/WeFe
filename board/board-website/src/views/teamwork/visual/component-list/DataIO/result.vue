@@ -20,7 +20,11 @@
                         </el-form-item>
                     </el-form>
                 </el-collapse-item>
-                <el-collapse-item title="我方数据资源预览" name="2">
+                <el-collapse-item
+                    v-loading="vData.gridLoading"
+                    title="我方数据资源预览"
+                    name="2"
+                >
                     <c-grid
                         v-if="!vData.gridLoading"
                         :theme="vData.gridTheme"

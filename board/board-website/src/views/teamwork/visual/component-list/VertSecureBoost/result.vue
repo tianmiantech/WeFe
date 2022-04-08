@@ -85,14 +85,13 @@
                 showResult(data) {
                     if(data[0].result && data[0].result.model_param) {
                         vData.result = true;
-                        const { losses, isConverged, lossHistory } = data[0].result.model_param;
+                        const { losses, isConverged } = data[0].result.model_param;
 
                         losses.forEach((item, index) => {
                             vData.loss.xAxis.push(index);
                             vData.loss.series[0].push(item);
                         });
                         vData.loss.isConverged = isConverged;
-                        vData.loss.lossHistory = lossHistory;
                         vData.loss.iters = losses.length;
                         vData.loss.loading = false;
                     } else {
