@@ -55,25 +55,25 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Check(name = "描述", regex = "^[\\s\\S]{0,1024}$", messageOnInvalid = "你写的描述太多了~")
         private String description;
 
-        @Check(name = "合作方成员id", require = true)
+        @Check(name = "合作方成员id")
         private String partnerMemberId;
 
-        @Check(name = "数据资源id", require = true)
+        @Check(name = "数据资源id")
         private String dataResourceId;
 
-        @Check(name = "数据资源类型", require = true)
+        @Check(name = "数据资源类型")
         private DataResourceType dataResourceType;
 
         @Check(name = "算法")
         private AlgorithmType algorithm = AlgorithmType.RSA_PSI;
 
-        @Check(name = "样本量", require = true)
+        @Check(name = "样本量")
         private Integer rowCount;
 
         @Check(name = "主键处理")
         private List<FieldInfo> fieldInfoList;
 
-        @Check(name = "是否追溯", require = true)
+        @Check(name = "是否追溯")
         private Boolean isTrace;
 
         @Check(name = "追溯字段")
@@ -82,6 +82,14 @@ public class AddApi extends AbstractNoneOutputApi<AddApi.Input> {
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
+
+            if (StringUtil.isEmpty(dataResourceId)) {
+                throw new StatusCodeWithException("请选择数据样本", StatusCode.PARAMETER_VALUE_INVALID);
+            }
+
+            if (StringUtil.isEmpty(partnerMemberId)) {
+                throw new StatusCodeWithException("请选择合作方", StatusCode.PARAMETER_VALUE_INVALID);
+            }
 
             if (DataResourceType.DataSet.equals(dataResourceType) && fieldInfoList.isEmpty()) {
                 throw new StatusCodeWithException("请设置主键", StatusCode.PARAMETER_VALUE_INVALID);

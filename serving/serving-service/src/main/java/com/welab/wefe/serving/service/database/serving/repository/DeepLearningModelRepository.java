@@ -1,12 +1,12 @@
-/*
+/**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.utils;
+package com.welab.wefe.serving.service.database.serving.repository;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
+import com.welab.wefe.serving.service.database.serving.entity.DeepLearningModelMySqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
-public class MD5Util {
-
-    public static String getMD5String(String str) {
-        try {
-            // 生成一个MD5加密计算摘要
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            // 计算md5函数
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+/**
+ * @author ivenn.zheng
+ */
+@Repository
+public interface DeepLearningModelRepository extends BaseRepository<DeepLearningModelMySqlModel, String> {
 }

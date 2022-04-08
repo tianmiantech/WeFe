@@ -35,6 +35,7 @@ public class Config extends CommonConfig {
     @Value("${encrypt.phone.number.open:true}")
     private boolean encryptPhoneNumberOpen;
 
+
     public String getFileBasePath() {
         return fileBasePath;
     }

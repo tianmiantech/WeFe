@@ -37,6 +37,7 @@ import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,12 +165,19 @@ public class ServingService extends AbstractService {
      * Modeling synchronization to serving
      */
     public void syncModelToServing(SyncModelToServingApi.Input input) throws StatusCodeWithException {
+        TreeMap<String, Object> jobj = setBody(input.getTaskId(), input.getRole());
 
-        TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndTypeAndRole(input.getTaskId(), TaskResultType.model_train.name(), input.getRole());
+        request("model_save", jobj, true);
+    }
+
+
+    public TreeMap<String, Object> setBody(String taskId, JobMemberRole role) throws StatusCodeWithException {
+
+        TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndTypeAndRole(taskId, TaskResultType.model_train.name(), role);
 
         if (taskResult == null) {
             LOG.error("查询task任务异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("task 不存在！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 
@@ -177,32 +185,27 @@ public class ServingService extends AbstractService {
 
         if (CollectionUtils.isEmpty(memberList)) {
             LOG.error("查询job_member异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("查询job_member异常！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        JobMySqlModel job = jobRepository.findByJobId(taskResult.getJobId(), input.getRole().name());
+        JobMySqlModel job = jobRepository.findByJobId(taskResult.getJobId(), role.name());
 
         if (job == null) {
             LOG.error("查询job异常");
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("查询job异常！", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         // Feature engineering
-        List<TaskResultMySqlModel> featureEngineerResults = taskResultService.findByTaskIdAndRoleNotEqualType(input.getTaskId(), TaskResultType.model_train.name(), input.getRole());
-        Map<Integer, Object> featrueEngineerMap = new TreeMap<>();
+        List<TaskResultMySqlModel> featureEngineerResults = taskResultService.findByTaskIdAndRoleNotEqualType(taskId, TaskResultType.model_train.name(), role);
+        Map<Integer, Object> featureEngineerMap = new TreeMap<>();
         for (TaskResultMySqlModel fe : featureEngineerResults) {
             TaskMySqlModel taskMySqlModel = taskService.findOne(fe.getTaskId());
             if (taskMySqlModel == null) {
                 LOG.error("查询task任务异常");
                 throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID);
             }
-            featrueEngineerMap.put(taskMySqlModel.getPosition(), getModelParam(fe.getResult()));
+            featureEngineerMap.put(taskMySqlModel.getPosition(), getModelParam(fe.getResult()));
         }
-
-        request(memberList, taskResult, featrueEngineerMap, job);
-    }
-
-    private void request(List<JobMemberOutputModel> memberList, TaskResultMySqlModel taskResult, Map<Integer, Object> featrueEngineerMap, JobMySqlModel job) throws StatusCodeWithException {
 
         List<JSONObject> members = new ArrayList<>();
 
@@ -238,9 +241,9 @@ public class ServingService extends AbstractService {
         params.put("flType", job.getFederatedLearningType().name());
         params.put("modelParam", taskResult.getResult());
         params.put("memberParams", members);
-        params.put("featrueEngineerMap", featrueEngineerMap);
+        params.put("featureEngineerMap", featureEngineerMap);
 
-        request("model_save", params, true);
+        return params;
     }
 
     private Algorithm getAlgorithm(ComponentType componentType) {
