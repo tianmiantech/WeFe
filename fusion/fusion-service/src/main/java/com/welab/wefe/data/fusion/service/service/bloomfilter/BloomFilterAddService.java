@@ -20,6 +20,7 @@ package com.welab.wefe.data.fusion.service.service.bloomfilter;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -166,11 +167,7 @@ public class BloomFilterAddService extends AbstractService {
                 .resolve(model.getName());
         model.setSrc(path.toString());
 
-        File outFile = path.toFile();
-
-        if (!outFile.exists() && !outFile.isDirectory()) {
-            outFile.mkdir();
-        }
+        FileUtil.createDir(path.toString());
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, file);
         // Read all rows of data
@@ -193,6 +190,12 @@ public class BloomFilterAddService extends AbstractService {
     }
 
 
+    public static void main(String[] args) {
+        File outFile = Paths
+                .get("/Users/hunter.zhao/Documents/temp/")
+                .resolve("test").toFile();
+        System.out.println(outFile.toString());
+    }
     /**
      * Read data from the specified database according to SQL and save to mysql
      *
