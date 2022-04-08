@@ -20,7 +20,6 @@ package com.welab.wefe.data.fusion.service.service.bloomfilter;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -45,7 +44,6 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -162,12 +160,13 @@ public class BloomFilterAddService extends AbstractService {
         List<String> headers = dataSetReader.getHeader();
 
 
-        Path path = Paths
-                .get(config.getBloomFilterDir())
-                .resolve(model.getName());
-        model.setSrc(path.toString());
+        String src = config.getBloomFilterDir() + model.getName();
+        model.setSrc(src);
 
-        FileUtil.createDir(path.toString());
+        File outFile = new File(src);
+        if (!outFile.exists() && !outFile.isDirectory()) {
+            outFile.mkdir();
+        }
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, file);
         // Read all rows of data
@@ -196,6 +195,7 @@ public class BloomFilterAddService extends AbstractService {
                 .resolve("test").toFile();
         System.out.println(outFile.toString());
     }
+
     /**
      * Read data from the specified database according to SQL and save to mysql
      *
@@ -225,10 +225,13 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
         model.setRowCount(rowCount);
 
-        Path path = Paths
-                .get(config.getBloomFilterDir())
-                .resolve(model.getName());
-        model.setSrc(path.toString());
+        String src = config.getBloomFilterDir() + model.getName();
+        model.setSrc(src);
+
+        File outFile = new File(src);
+        if (!outFile.exists() && !outFile.isDirectory()) {
+            outFile.mkdir();
+        }
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, null);
 
