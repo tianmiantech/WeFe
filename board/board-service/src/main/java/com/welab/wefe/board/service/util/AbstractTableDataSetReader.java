@@ -21,11 +21,11 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.Validator;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.ColumnDataTypeInferrer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTableDataSetReader implements Closeable {
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
-    private final static List<String> NULL_VALUE_LIST = Arrays.asList("", "null", "NA", "nan", "None");
 
     protected List<String> header;
     protected boolean containsY;
@@ -148,10 +147,6 @@ public abstract class AbstractTableDataSetReader implements Closeable {
         }
     }
 
-    public static boolean isEmptyValue(String value) {
-        return NULL_VALUE_LIST.stream().anyMatch(x -> x.equalsIgnoreCase(value));
-    }
-
     /**
      * Check whether the value of the feature matches the declared data type
      */
@@ -165,7 +160,7 @@ public abstract class AbstractTableDataSetReader implements Closeable {
 
             // skip null value
             String value = String.valueOf(entry.getValue());
-            if (isEmptyValue(value)) {
+            if (ColumnDataTypeInferrer.isEmptyValue(value)) {
                 continue;
             }
 
