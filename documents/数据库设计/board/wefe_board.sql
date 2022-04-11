@@ -588,7 +588,7 @@ CREATE TABLE `project_flow_template`
     `id`                      varchar(32) NOT NULL COMMENT '全局唯一标识',
     `graph`                   text COMMENT '流程图',
     `name`                    varchar(32) DEFAULT NULL COMMENT '模板名称',
-    `enname`                  VARCHAR(45) NULL '模板英文名称',
+    `enname`                  VARCHAR(45) NULL COMMENT '模板英文名称',
     `description`             varchar(32) DEFAULT NULL COMMENT '模板描述',
     `federated_learning_type` VARCHAR(32) NULL COMMENT '联邦任务类型（横向/纵向）',
     `created_by`              varchar(32) DEFAULT NULL COMMENT '创建人',
