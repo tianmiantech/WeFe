@@ -1,362 +1,331 @@
 <template>
     <el-card class="page_layer" v-loading="vData.startLoading">
-        <el-alert
-            v-if="vData.isInResult"
-            :title="vData.jobInfo.status"
-            :type="vData.jobInfo.status === 'running' || vData.jobInfo.status === 'wait_run' ? 'info' : vData.jobInfo.status === 'success' ? 'success' : 'error'"
-            class="fixed_alert"
-        >
-            <elicon-bell-filled :width="14" :height="14" style="margin-left:-20px; position:relative; top:-7px;" />
-            <span style="text-decoration: underline;" class="ml5" @click.stop="methods.jumpToTaskDetail">
-                点击查看任务详情
-            </span>
-        </el-alert>
         <div class="deep_flow">
             <div class="left_content">
-                <h3 class="flow_title">
-                    <span v-show="vData.active === 0"><i class="el-icon-edit-outline"/> 基本设置</span>
-                    <span v-show="vData.active === 1"><i class="el-icon-download"/> 数据输入与处理</span>
-                    <span v-show="vData.active === 2"><i class="el-icon-s-operation"/> 调整流程参数</span>
-                </h3>
                 <div class="step_content">
-                    <div v-show="vData.active === 0" class="item base_setting">
-                        <el-form
-                            @submit.prevent
-                            :disabled="vData.flowInfo.my_role !=='promoter'"
-                        >
-                            <el-form-item
-                                label="流程名称："
-                                class="is-required"
-                            >
-                                <el-input
-                                    v-model="vData.form.flow_name"
-                                    @blur="methods.saveFlowInfo($event)"
-                                />
-                            </el-form-item>
-                            <el-form-item label="流程描述：">
-                                <el-input
-                                    v-model="vData.form.flow_desc"
-                                    type="textarea"
-                                    rows="6"
-                                    placeholder="请输入流程描述"
-                                    @blur="methods.saveFlowInfo($event)"
-                                />
-                            </el-form-item>
-                            <el-form-item label="训练类型：">
-                                <p>{{ vData.flowType === 'detection' ? '目标检测' : vData.flowType === 'classify' ? '图像分类' : '' }}</p>
-                            </el-form-item>
-                        </el-form>
-                    </div>
-                    <div v-show="vData.active === 1" class="item enter_data">
-                        <el-tabs type="border-card" @tab-click="methods.dataIOTabchange">
-                            <el-tab-pane label="参数">
-                                <div class="data_select">
-                                    <h4>选择数据资源</h4>
-                                    <div
-                                        v-for="(member, index) in vData.member_list"
-                                        v-show="vData.disabled ? member.$data_set_list.length : true"
-                                        :key="member.id"
-                                        class="li"
-                                    >
-                                        <h3
-                                            v-if="index === 0"
-                                            class="role-title pb5"
-                                        >
-                                            发起方:
-                                        </h3>
-                                        <h3
-                                            v-if="index === vData.promoterList.length"
-                                            class="role-title pb5"
-                                        >
-                                            协作方:
-                                        </h3>
-                                        <p class="member-info">
-                                            <span class="name f16">
-                                                <i
-                                                    v-if="member.audit_status !== 'agree'"
-                                                    class="el-icon-warning-outline color-danger"
-                                                />
-                                                {{ member.member_name }}
-                                            </span>
-                                            <span
-                                                v-if="member.audit_status !== 'agree'"
-                                                class="f12"
-                                            >({{ member.audit_comment || '审核通过的成员才能参与流程' }})</span>
-                                            <el-button
-                                                v-if="member.audit_status === 'agree' && !vData.disabled"
-                                                type="text"
-                                                class="ml10"
-                                                @click="methods.checkDataSet(member, index)"
-                                                :disabled="vData.flowInfo.my_role !=='promoter'"
-                                            >
-                                                选择数据资源
-                                            </el-button>
-                                        </p>
-
-                                        <div
-                                            v-if="member.audit_status === 'agree'"
-                                            class="data-set f14"
-                                        >
-                                            <el-form
-                                                v-for="row in member.$data_set_list"
-                                                :key="row.id"
-                                                label-width="130px"
-                                            >
-                                                <el-form-item label="数据资源名称：">
-                                                    {{ row.data_resource.name }}
-                                                    <el-icon
-                                                        v-if="!vData.disabled"
-                                                        class="el-icon-circle-close f16 ml10"
-                                                        @click="methods.removeDataSet(index)"
-                                                    >
-                                                        <elicon-circle-close />
-                                                    </el-icon>
-                                                </el-form-item>
-                                                <el-form-item label="数据资源id："> {{ row.data_set_id }} </el-form-item>
-                                                <el-form-item v-if="row.data_resource.description" label="数据资源简介：">
-                                                    {{ row.data_resource.description }}
-                                                </el-form-item>
-                                                <el-form-item label="关键词：">
-                                                    <template v-for="item in row.data_resource.tags.split(',')" :key="item">
-                                                        <el-tag
-                                                            v-show="item"
-                                                            class="mr10"
-                                                        >
-                                                            {{ item }}
-                                                        </el-tag>
-                                                    </template>
-                                                </el-form-item>
-                                                <el-form-item label="数据总量/已标注：">
-                                                    {{ row.data_resource.total_data_count }} / {{ row.data_resource.labeled_count }}
-                                                </el-form-item>
-                                                <el-form-item label="样本分类：">
-                                                    {{row.data_resource.for_job_type === 'classify' ? '图像分类' : row.data_resource.for_job_type === 'detection' ? '目标检测' : '-'}}
-                                                </el-form-item>
-                                                <el-form-item v-if="row.data_resource.label_list" label="标注标签：">
-                                                    <template v-if="!vData.isAllLabel && row.data_resource.label_list.split(',').length>9">
-                                                        <template v-for="item in row.data_resource.label_list_part" :key="item">
-                                                            <el-tag
-                                                                v-show="item"
-                                                                class="mr10"
-                                                            >
-                                                                {{ item }}
-                                                            </el-tag>
-                                                        </template>
-                                                    </template>
-                                                    <template v-else>
-                                                        <template v-for="item in row.data_resource.label_list.split(',')" :key="item">
-                                                            <el-tag
-                                                                v-show="item"
-                                                                class="mr10"
-                                                            >
-                                                                {{ item }}
-                                                            </el-tag>
-                                                        </template>
-                                                    </template>
-                                                    <span v-if="row.data_resource.label_list.split(',').length>9" @click="vData.isAllLabel = !vData.isAllLabel" class="check_tips">
-                                                        {{ vData.isAllLabel ? '收起' : '查看全部' }}
-                                                        <el-icon v-if="!vData.isAllLabel">
-                                                            <elicon-arrow-down />
-                                                        </el-icon>
-                                                        <el-icon v-else>
-                                                            <elicon-arrow-up />
-                                                        </el-icon>
-                                                    </span>
-                                                </el-form-item>
-                                            </el-form>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="data_cut">
-                                    <h4>数据切割</h4>
-                                    <el-form
-                                        ref="form"
-                                        :model="vData.dataCutForm"
-                                        @submit.prevent
-                                        :disabled="vData.flowInfo.my_role !=='promoter'"
-                                    >
-                                        <el-form-item label="训练与验证数据比例（%）：" style="width: 300px">
-                                            <div style="height: 50px;">
-                                                <div class="float-left">
-                                                    <p style="font-weight:bold;color:#4D84F7;" class="mb5">训练:</p>
-                                                    <el-input-number
-                                                        v-model="vData.dataCutForm.training_ratio"
-                                                        style="width:100px"
-                                                        size="small"
-                                                    />
-                                                </div>
-
-                                                <div class="float-right">
-                                                    <p style="font-weight:bold;" class="text-r color-danger mb5">验证:</p>
-                                                    <el-input-number
-                                                        v-model="vData.dataCutForm.verification_ratio"
-                                                        style="width:100px"
-                                                        size="small"
-                                                        @change="methods.onDataSetVerificationRatioChange"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <el-slider
-                                                v-model="vData.dataCutForm.training_ratio"
-                                                :show-tooltip="false"
-                                                @input="methods.onDataSetTrainingVerificationRatioChange"
-                                            />
-                                        </el-form-item>
-                                    </el-form>
-                                </div>
-                            </el-tab-pane>
-                            <!-- <el-tab-pane v-if="vData.jobInfo.status" label="执行结果">
-                                <image-dataIO-result
-                                    v-if="vData.showDataIOResult"
-                                    :job-id="vData.jobInfo.job_id"
-                                    :flow-node-id="vData.imageDataIONodeId"
-                                    :my-role="vData.flowInfo.project.my_role"
-                                    :autoReadResult="true"
-                                />
-                            </el-tab-pane> -->
-                        </el-tabs>
-                        <el-dialog
-                            title="选择数据资源"
-                            v-model="vData.showSelectDataSet"
-                            custom-class="dialog-min-width"
-                            :close-on-click-modal="false"
-                            destroy-on-close
-                            width="70%"
-                        >
-                            <el-form
-                                inline
-                                @submit.prevent
-                            >
-                                <el-form-item label="名称">
-                                    <el-input
-                                        v-model="vData.rawSearch.name"
-                                        clearable
-                                    />
-                                </el-form-item>
-                                <el-form-item label="id">
-                                    <el-input
-                                        v-model="vData.rawSearch.data_set_id"
-                                        clearable
-                                    />
-                                </el-form-item>
-                                <el-button
-                                    type="primary"
-                                    native-type="submit"
-                                    @click="methods.dataSetSearch"
-                                >
-                                    搜索
-                                </el-button>
-                            </el-form>
-                            <DataSetList
-                                ref="rawDataSetListRef"
-                                :audit-status="true"
-                                :search-field="vData.rawSearch"
-                                :paramsExclude="['allList', 'list']"
-                                :project-type="vData.flowInfo.project.project_type"
-                                :member-id="vData.memberId"
-                                @list-loaded="methods.listLoaded"
-                                @selectDataSet="methods.selectDataSet"
-                                @close-dialog="vData.showSelectDataSet=false;"
-                            >
-                                <template #data-add>
-                                    <i />
-                                </template>
-                            </DataSetList>
-                        </el-dialog>
-                    </div>
-                    <div v-show="vData.active === 2" class="item params_setting">
-                        <el-tabs type="border-card" v-model="vData.activeName" @tab-click="methods.deeplearningOTabchange">
-                            <el-tab-pane label="参数" name="param">
+                    <el-collapse v-model="vData.activeNames">
+                        <el-collapse-item title="基本设置" name="base">
+                            <div class="item base_setting">
                                 <el-form
                                     @submit.prevent
                                     :disabled="vData.flowInfo.my_role !=='promoter'"
                                 >
-                                    <el-form-item label="算法类型：" class="is-required">
-                                        <el-select v-model="vData.deepLearnParams.program" disabled placeholder="请选择算法类型">
-                                            <el-option
-                                                v-for="item in vData.classifyList"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
-                                            </el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                    <el-form-item label="模型名称：" class="is-required">
-                                        <el-select v-model="vData.deepLearnParams.architecture" placeholder="请选择模型名称">
-                                            <el-option
-                                                v-for="item in vData.deepLearnParams.program === 'paddle_detection' ? vData.targetAlgorithmList : vData.imageAlgorithmList"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
-                                            </el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                    <el-form-item label="迭代次数：" class="is-required">
+                                    <el-form-item
+                                        label="流程名称："
+                                        class="is-required"
+                                    >
                                         <el-input
-                                            v-model="vData.deepLearnParams.max_iter"
+                                            v-model="vData.form.flow_name"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="聚合步长：" class="is-required">
+                                    <el-form-item label="流程描述：">
                                         <el-input
-                                            v-model="vData.deepLearnParams.inner_step"
+                                            v-model="vData.form.flow_desc"
+                                            type="textarea"
+                                            rows="6"
+                                            placeholder="请输入流程描述"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="学习率：" class="is-required">
-                                        <el-input
-                                            v-model="vData.deepLearnParams.base_lr"
-                                            @blur="methods.saveFlowInfo($event)"
-                                        />
-                                    </el-form-item>
-                                    <el-form-item label="图片通道数：" class="is-required">
-                                        <el-radio-group v-model="vData.image_shape.aisle">
-                                            <el-radio :label="3">彩色（3）</el-radio>
-                                            <el-radio :label="1">黑白（1）</el-radio>
-                                        </el-radio-group>
-                                    </el-form-item>
-                                    <el-form-item label="图片宽度( px )：" class="is-required">
-                                        <el-input
-                                            type="number"
-                                            v-model="vData.image_shape.width"
-                                        />
-                                    </el-form-item>
-                                    <el-form-item label="图片高度( px )：" class="is-required">
-                                        <el-input
-                                            type="number"
-                                            v-model="vData.image_shape.height"
-                                        />
-                                    </el-form-item>
-                                    <el-form-item label="批量大小：" class="is-required">
-                                        <el-input
-                                            v-model="vData.deepLearnParams.batch_size"
-                                            @blur="methods.saveFlowInfo($event)"
-                                        />
+                                    <el-form-item label="训练类型：">
+                                        <p>{{ vData.flowType === 'detection' ? '目标检测' : vData.flowType === 'classify' ? '图像分类' : '' }}</p>
                                     </el-form-item>
                                 </el-form>
-                            </el-tab-pane>
-                            <el-tab-pane v-if="vData.jobInfo.status" label="执行结果" name="result">
-                                <deeplearning-result
-                                    ref="deeplearningResultRef"
-                                    v-if="vData.showDLResult"
-                                    :job-id="vData.jobInfo.job_id"
-                                    :flow-node-id="vData.deepLearnNodeId"
-                                    :my-role="vData.flowInfo.project.my_role"
-                                    type="loss"
-                                    :autoReadResult="true"
-                                    :member-job-detail-list="vData.memberJobDetailList"
-                                />
-                            </el-tab-pane>
-                        </el-tabs>
+                            </div>
+                        </el-collapse-item>
+                        <el-collapse-item title="参数设置" name="params">
+                            <div class="params_box">
+                                <div class="item enter_data mr40">
+                                    <div class="data_select">
+                                        <h4 class="mb5">选择数据资源</h4>
+                                        <div
+                                            v-for="(member, index) in vData.member_list"
+                                            v-show="vData.disabled ? member.$data_set_list.length : true"
+                                            :key="member.id"
+                                            class="li"
+                                        >
+                                            <h3
+                                                v-if="index === 0"
+                                                class="role-title pb5"
+                                            >
+                                                发起方:
+                                            </h3>
+                                            <h3
+                                                v-if="index === vData.promoterList.length"
+                                                class="role-title pb5"
+                                            >
+                                                协作方:
+                                            </h3>
+                                            <p class="member-info">
+                                                <span class="name f16">
+                                                    <i
+                                                        v-if="member.audit_status !== 'agree'"
+                                                        class="el-icon-warning-outline color-danger"
+                                                    />
+                                                    {{ member.member_name }}
+                                                </span>
+                                                <span
+                                                    v-if="member.audit_status !== 'agree'"
+                                                    class="f12"
+                                                >({{ member.audit_comment || '审核通过的成员才能参与流程' }})</span>
+                                                <el-button
+                                                    v-if="member.audit_status === 'agree' && !vData.disabled"
+                                                    type="text"
+                                                    class="ml10"
+                                                    @click="methods.checkDataSet(member, index)"
+                                                    :disabled="vData.flowInfo.my_role !=='promoter'"
+                                                >
+                                                    选择数据资源
+                                                </el-button>
+                                            </p>
 
-                    </div>
+                                            <div
+                                                v-if="member.audit_status === 'agree'"
+                                                class="data-set f14"
+                                            >
+                                                <el-form
+                                                    v-for="row in member.$data_set_list"
+                                                    :key="row.id"
+                                                    label-width="130px"
+                                                >
+                                                    <el-form-item label="数据资源名称：">
+                                                        {{ row.data_resource.name }}
+                                                        <el-icon
+                                                            v-if="!vData.disabled"
+                                                            class="el-icon-circle-close f16 ml10"
+                                                            @click="methods.removeDataSet(index)"
+                                                        >
+                                                            <elicon-circle-close />
+                                                        </el-icon>
+                                                    </el-form-item>
+                                                    <el-form-item label="数据资源id："> {{ row.data_set_id }} </el-form-item>
+                                                    <el-form-item v-if="row.data_resource.description" label="数据资源简介：">
+                                                        {{ row.data_resource.description }}
+                                                    </el-form-item>
+                                                    <el-form-item label="关键词：">
+                                                        <template v-for="item in row.data_resource.tags.split(',')" :key="item">
+                                                            <el-tag
+                                                                v-show="item"
+                                                                class="mr10"
+                                                            >
+                                                                {{ item }}
+                                                            </el-tag>
+                                                        </template>
+                                                    </el-form-item>
+                                                    <el-form-item label="数据总量/已标注：">
+                                                        {{ row.data_resource.total_data_count }} / {{ row.data_resource.labeled_count }}
+                                                    </el-form-item>
+                                                    <el-form-item label="样本分类：">
+                                                        {{row.data_resource.for_job_type === 'classify' ? '图像分类' : row.data_resource.for_job_type === 'detection' ? '目标检测' : '-'}}
+                                                    </el-form-item>
+                                                    <el-form-item v-if="row.data_resource.label_list" label="标注标签：">
+                                                        <template v-if="!vData.isAllLabel && row.data_resource.label_list.split(',').length>9">
+                                                            <template v-for="item in row.data_resource.label_list_part" :key="item">
+                                                                <el-tag
+                                                                    v-show="item"
+                                                                    class="mr10"
+                                                                >
+                                                                    {{ item }}
+                                                                </el-tag>
+                                                            </template>
+                                                        </template>
+                                                        <template v-else>
+                                                            <template v-for="item in row.data_resource.label_list.split(',')" :key="item">
+                                                                <el-tag
+                                                                    v-show="item"
+                                                                    class="mr10"
+                                                                >
+                                                                    {{ item }}
+                                                                </el-tag>
+                                                            </template>
+                                                        </template>
+                                                        <span v-if="row.data_resource.label_list.split(',').length>9" @click="vData.isAllLabel = !vData.isAllLabel" class="check_tips">
+                                                            {{ vData.isAllLabel ? '收起' : '查看全部' }}
+                                                            <el-icon v-if="!vData.isAllLabel">
+                                                                <elicon-arrow-down />
+                                                            </el-icon>
+                                                            <el-icon v-else>
+                                                                <elicon-arrow-up />
+                                                            </el-icon>
+                                                        </span>
+                                                    </el-form-item>
+                                                </el-form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="data_cut">
+                                        <h4>数据切割</h4>
+                                        <el-form
+                                            ref="form"
+                                            :model="vData.dataCutForm"
+                                            @submit.prevent
+                                            :disabled="vData.flowInfo.my_role !=='promoter'"
+                                        >
+                                            <el-form-item label="训练与验证数据比例（%）：" style="width: 300px">
+                                                <div style="height: 50px;">
+                                                    <div class="float-left">
+                                                        <p style="font-weight:bold;color:#4D84F7;" class="mb5">训练:</p>
+                                                        <el-input-number
+                                                            v-model="vData.dataCutForm.training_ratio"
+                                                            style="width:100px"
+                                                            size="small"
+                                                        />
+                                                    </div>
+
+                                                    <div class="float-right">
+                                                        <p style="font-weight:bold;" class="text-r color-danger mb5">验证:</p>
+                                                        <el-input-number
+                                                            v-model="vData.dataCutForm.verification_ratio"
+                                                            style="width:100px"
+                                                            size="small"
+                                                            @change="methods.onDataSetVerificationRatioChange"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <el-slider
+                                                    v-model="vData.dataCutForm.training_ratio"
+                                                    :show-tooltip="false"
+                                                    @input="methods.onDataSetTrainingVerificationRatioChange"
+                                                />
+                                            </el-form-item>
+                                        </el-form>
+                                    </div>
+                                </div>
+                                <div class="item params_setting">
+                                    <h4 class="mb5">设置模型参数</h4>
+                                    <el-form
+                                        @submit.prevent
+                                        :disabled="vData.flowInfo.my_role !=='promoter'"
+                                    >
+                                        <el-form-item label="算法类型：" class="is-required">
+                                            <el-select v-model="vData.deepLearnParams.program" disabled placeholder="请选择算法类型">
+                                                <el-option
+                                                    v-for="item in vData.classifyList"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                                </el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="模型名称：" class="is-required">
+                                            <el-select v-model="vData.deepLearnParams.architecture" placeholder="请选择模型名称">
+                                                <el-option
+                                                    v-for="item in vData.deepLearnParams.program === 'paddle_detection' ? vData.targetAlgorithmList : vData.imageAlgorithmList"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                                </el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="迭代次数：" class="is-required">
+                                            <el-input
+                                                v-model="vData.deepLearnParams.max_iter"
+                                            />
+                                        </el-form-item>
+                                        <el-form-item label="聚合步长：" class="is-required">
+                                            <el-input
+                                                v-model="vData.deepLearnParams.inner_step"
+                                            />
+                                        </el-form-item>
+                                        <el-form-item label="学习率：" class="is-required">
+                                            <el-input
+                                                v-model="vData.deepLearnParams.base_lr"
+                                            />
+                                        </el-form-item>
+                                        <el-form-item label="图片通道数：" class="is-required">
+                                            <el-radio-group v-model="vData.image_shape.aisle">
+                                                <el-radio :label="3">彩色（3）</el-radio>
+                                                <el-radio :label="1">黑白（1）</el-radio>
+                                            </el-radio-group>
+                                        </el-form-item>
+                                        <el-form-item label="图片宽度( px )：" class="is-required">
+                                            <el-input
+                                                type="number"
+                                                v-model="vData.image_shape.width"
+                                            />
+                                        </el-form-item>
+                                        <el-form-item label="图片高度( px )：" class="is-required">
+                                            <el-input
+                                                type="number"
+                                                v-model="vData.image_shape.height"
+                                            />
+                                        </el-form-item>
+                                        <el-form-item label="批量大小：" class="is-required">
+                                            <el-input
+                                                v-model="vData.deepLearnParams.batch_size"
+                                            />
+                                        </el-form-item>
+                                    </el-form>
+                                </div>
+                                <el-dialog
+                                    title="选择数据资源"
+                                    v-model="vData.showSelectDataSet"
+                                    custom-class="dialog-min-width"
+                                    :close-on-click-modal="false"
+                                    destroy-on-close
+                                    width="70%"
+                                >
+                                    <el-form
+                                        inline
+                                        @submit.prevent
+                                    >
+                                        <el-form-item label="名称">
+                                            <el-input
+                                                v-model="vData.rawSearch.name"
+                                                clearable
+                                            />
+                                        </el-form-item>
+                                        <el-form-item label="id">
+                                            <el-input
+                                                v-model="vData.rawSearch.data_set_id"
+                                                clearable
+                                            />
+                                        </el-form-item>
+                                        <el-button
+                                            type="primary"
+                                            native-type="submit"
+                                            @click="methods.dataSetSearch"
+                                        >
+                                            搜索
+                                        </el-button>
+                                    </el-form>
+                                    <DataSetList
+                                        ref="rawDataSetListRef"
+                                        :audit-status="true"
+                                        :search-field="vData.rawSearch"
+                                        :paramsExclude="['allList', 'list']"
+                                        :project-type="vData.flowInfo.project.project_type"
+                                        :member-id="vData.memberId"
+                                        @list-loaded="methods.listLoaded"
+                                        @selectDataSet="methods.selectDataSet"
+                                        @close-dialog="vData.showSelectDataSet=false;"
+                                    >
+                                        <template #data-add>
+                                            <i />
+                                        </template>
+                                    </DataSetList>
+                                </el-dialog>
+                            </div>
+                        </el-collapse-item>
+                        <el-collapse-item v-if="vData.jobInfo.status" title="模型结果" name="result">
+                            <deeplearning-result
+                                ref="deeplearningResultRef"
+                                v-if="vData.showDLResult"
+                                :job-id="vData.jobInfo.job_id"
+                                :flow-node-id="vData.deepLearnNodeId"
+                                :my-role="vData.flowInfo.project.my_role"
+                                type="loss"
+                                :autoReadResult="true"
+                                :member-job-detail-list="vData.memberJobDetailList"
+                                :flow-type="vData.flowType"
+                            />
+                        </el-collapse-item>
+                    </el-collapse>
                 </div>
-                <div class="operations_btn">
-                    <el-button v-if="vData.active !== 0" @click="methods.prev">上一步</el-button>
-                    <el-button v-show="vData.active !== 2" type="primary" @click="methods.next" :disabled="vData.stopNext">下一步</el-button>
+                <div class="operations_btn mt20">
                     <span v-if="vData.stopNext" class="stop_next_tips">请确保成员数据资源标注标签统一！</span>
-                    <div v-show="vData.active === 2" class="mt20">
-                        <p class="f14 mb10">任务操作:</p>
+                    <div class="mt20">
                         <el-button
                             type="primary"
                             @click="methods.saveDeeplearningNode"
@@ -382,13 +351,6 @@
                         </template>
                     </div>
                 </div>
-            </div>
-            <div class="step_header">
-                <el-steps direction="vertical" :active="vData.active" align-center>
-                    <el-step title="基本设置" @click="methods.changeSteps(0)" />
-                    <el-step title="数据输入与处理" @click="methods.changeSteps(1)" />
-                    <el-step title="调整流程参数" @click="methods.changeSteps(2)" />
-                </el-steps>
             </div>
         </div>
     </el-card>
@@ -534,14 +496,14 @@
                 showDLResult:        false,
                 flowType:            training_type || 'detection',
                 isAllLabel:          false,
-                activeName:          'param',
-                isInResult:          false,
                 stopNext:            false,
                 memberJobDetailList: [],
                 jobDetailTimer:      null,
                 jobProgressTimer:    null,
                 pauseJobTimer:       null,
                 resumeJobTimer:      null,
+                activeNames:         ['base', 'params'],
+                datacutTimer:        null,
             });
 
             if(vData.flowType === 'detection') {
@@ -573,6 +535,7 @@
                             vData.form.flow_desc = data.flow_desc;
                             vData.flowType = data.deep_learning_job_type;
                             methods.getJobDetail();
+                            methods.changeHeaderTitle();
                             if(!data.graph) {
                                 methods.createNode();
                             } else {
@@ -599,13 +562,15 @@
                         if (code === 0 && data) {
                             vData.jobInfo = data.job;
                             vData.taskInfo = data.task_views;
-                            vData.isInResult = data.job.status;
                             methods.getJobMemberDetail();
                             if(data.job.status === 'wait_run' || data.job.status === 'wait_stop') {
                                 if (vData.jobDetailTimer) clearTimeout(vData.jobDetailTimer);
                                 vData.jobDetailTimer = setTimeout(() => {
                                     methods.getJobDetail();
                                 }, 3000);
+                            } else {
+                                vData.activeNames = ['result'];
+                                vData.showDLResult = true;
                             }
                         }
                     });
@@ -633,12 +598,6 @@
                             }
                         }
                     });
-                },
-                jumpToTaskDetail() {
-                    vData.isInResult = false;
-                    vData.active = 2;
-                    vData.activeName = 'result';
-                    vData.showDLResult = true;
                 },
                 async createNode() {
                     vData.graphNodes = {
@@ -740,6 +699,7 @@
                         }
                     });
                     vData.formImageDataIO.params.data_set_list = $dataset_list;
+                    methods.submitFormData();
                 },
                 async submitFormData($event) {
                     const btnState = {};
@@ -791,14 +751,6 @@
                             console.log(data);
                         }
                     });
-                },
-                deeplearningOTabchange(val) {
-                    if (val.paneName === 'result') {
-                        // methods.getDeeplearningOResult();
-                        vData.showDLResult = true;
-                    } else {
-                        vData.showDLResult = false;
-                    }
                 },
                 async getDeeplearningOResult() {
                     const params = {
@@ -904,17 +856,18 @@
                     }
                     currentMember.$data_set_list = [];
                     currentMember.$data_set_list.push(dataset);
-                    if (vData.member_list[0].$data_set_list.length && vData.member_list[1].$data_set_list.length) {
-                        const isEqual = vData.member_list[0].$data_set_list[0] && vData.member_list[1].$data_set_list[0] && methods.scalarArrayEquals(vData.member_list[0].$data_set_list[0].data_resource.label_list.split(','), vData.member_list[1].$data_set_list[0].data_resource.label_list.split(','));
+                    // if (vData.member_list[0].$data_set_list.length && vData.member_list[1].$data_set_list.length) {
+                    //     const isEqual = vData.member_list[0].$data_set_list[0] && vData.member_list[1].$data_set_list[0] && methods.scalarArrayEquals(vData.member_list[0].$data_set_list[0].data_resource.label_list.split(','), vData.member_list[1].$data_set_list[0].data_resource.label_list.split(','));
 
-                        if (isEqual) {
-                            methods.saveImageDataIOInfo();
-                            methods.submitFormData();
-                        } else {
-                            $message.error('请确保成员数据资源标注标签统一！');
-                            vData.stopNext = true;
-                        }
-                    }
+                    //     if (isEqual) {
+                    //         methods.saveImageDataIOInfo();
+                    //         methods.submitFormData();
+                    //     } else {
+                    //         $message.error('请确保成员数据资源标注标签统一！');
+                    //         vData.stopNext = true;
+                    //     }
+                    // }
+                    methods.saveImageDataIOInfo();
                 },
                 scalarArrayEquals(array1,array2) {
                     return array1.length === array2.length && array1.every(function(v,i) { return v === array2[i];});
@@ -935,6 +888,7 @@
                 },
                 removeDataSet(index) {
                     vData.member_list[index].$data_set_list.pop();
+                    methods.saveImageDataIOInfo();
                 },
                 async saveFlowInfo($event, callback) {
                     if(vData.form.flow_name.trim() === '') {
@@ -1069,12 +1023,19 @@
                 // Event: modify validation data scale
                 onDataSetVerificationRatioChange(newVaule) {
                     vData.dataCutForm.training_ratio = 100 - newVaule;
-                    vData.formImageDataIO.params.train_test_split_ratio = vData.dataCutForm.training_ratio;
+                    methods.radioSet();
                 },
                 // Event: drag the training and validation data scale slider
                 onDataSetTrainingVerificationRatioChange(newVaule) {
                     vData.dataCutForm.verification_ratio = 100 - newVaule;
+                    methods.radioSet();
+                },
+                radioSet() {
                     vData.formImageDataIO.params.train_test_split_ratio = vData.dataCutForm.training_ratio;
+                    if(vData.datacutTimer) clearTimeout(vData.datacutTimer);
+                    vData.datacutTimer = setTimeout(() => {
+                        methods.saveImageDataIOInfo();
+                    }, 1000);
                 },
                 async saveDeeplearningNode($event) {
                     // 1. 保存deeplearning node 数据
@@ -1195,6 +1156,13 @@
                         }
                     });
                 },
+                changeHeaderTitle() {
+                    if(route.meta.titleParams) {
+                        const htmlTitle = `<strong>${vData.flowInfo.project.name}</strong> - ${vData.flowInfo.flow_name} (${vData.flowType === 'detection' ? '目标检测' : vData.flowType === 'classify' ? '图像分类' : ''})`;
+
+                        $bus.$emit('change-layout-header-title', { meta: htmlTitle });
+                    }
+                },
             };
 
             onBeforeMount(() => {
@@ -1216,6 +1184,7 @@
                 clearTimeout(vData.jobProgressTimer);
                 clearTimeout(vData.pauseJobTimer);
                 clearTimeout(vData.resumeJobTimer);
+                clearTimeout(vData.datacutTimer);
             });
 
             watch(
@@ -1255,23 +1224,27 @@
     }
 }
 .deep_flow {
-    width: 100%;
+    // width: 100%;
     min-height: calc(100vh - 180px);
     display: flex;
-    min-height: calc(100vh - 180px);
     justify-content: space-between;
+    :deep(.el-collapse-item__header) {
+        font-size: 16px;
+    }
     .left_content {
         // flex: 1;
-        width: 790px;
-        .item {
-            margin: 20px 0 30px;
-            // padding: 10px;
+        // width: 790px;
+        width: 100%;
+        .params_box {
+            width: 100%;
+            display: flex;
+            // .item {
+            //     flex: 1;
+            // }
         }
         .enter_data {
-            h4 {
-                color: #222;
-                padding-bottom: 10px;
-            }
+            width: 400px;
+            margin-right: 100px;
             .data_cut {
                 border-top: 1px solid #eee;
                 h4 {
@@ -1300,8 +1273,14 @@
                 }
             }
         }
+        .params_setting {
+            width: 400px;
+        }
     }
     .step_content {
+        .base_setting {
+            width: 900px;
+        }
         .check_tips {
             font-size: 12px;
             color: #999;
