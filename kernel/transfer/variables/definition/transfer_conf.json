@@ -1594,6 +1594,47 @@
    ]
   }
  },
+ "SSHEModelTransferVariable": {
+  "q_field": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_prob": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "begin_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "loss": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "is_converged": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+
  "VertPCATransferVariable": {
   "provider_cov_infos": {
    "src": "provider",
@@ -1692,6 +1733,21 @@
    ]
   }
  },
+ "BatchGeneratorTransferVariable": {
+  "batch_data_index": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "batch_info": {
+   "src": "promoter",
+   "dst": [
+    "provider",
+    "arbiter"
+   ]
+  }
+ },
  "CommonTransferVariable": {
   "promoter2provider_complete_status": {
    "src": "promoter",
@@ -1727,6 +1783,20 @@
    "src": "promoter",
    "dst": [
     "promoter"
+   ]
+  }
+ },
+ "ConvergeCheckerTransferVariable": {
+  "square_sum": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "converge_info": {
+   "src": "promoter",
+   "dst": [
+    "provider"
    ]
   }
  },
@@ -2109,7 +2179,7 @@
     "provider"
    ]
   },
-  "rescontruct": {
+  "reconstruct": {
    "src": [
     "promoter",
     "provider"
@@ -2120,6 +2190,26 @@
    ]
   },
   "share": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "encrypted_share_matrix": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "q_field": {
    "src": [
     "promoter",
     "provider"

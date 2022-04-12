@@ -24,6 +24,7 @@ from kernel.examples.handler.component.vert_onehot import VertOneHot
 from kernel.examples.handler.component.vert_pca import VertPCA
 from kernel.examples.handler.component.vert_pearson import VertPerson
 from kernel.examples.handler.component.vert_secureboost import VertSecureBoost
+from kernel.examples.handler.component.vert_sshe_lr import VertSSHELR
 
 __all__ = ["DataIO", "Evaluation", "VertLR", "VertSecureBoost", "VertFastSecureBoost", "HorzLR", "HorzNN",
            "HorzSecureBoost", "Intersection", "LocalBaseline", "VertPerson", "VertOneHot", "VertNN",
@@ -35,5 +36,6 @@ __all__ = ["DataIO", "Evaluation", "VertLR", "VertSecureBoost", "VertFastSecureB
            "HorzBinning",
            "MultiVertPerson",
            "HorzPearson",
-           "MixStatistic"
+           "MixStatistic",
+            "VertSSHELR"
            ]

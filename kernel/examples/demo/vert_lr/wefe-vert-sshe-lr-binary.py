@@ -13,19 +13,17 @@
 # limitations under the License.
 
 
-
 import argparse
 import os
 import time
 
-from kernel.examples.handler.component import DataIO
+from kernel.examples.handler.component import DataIO, VertSSHELR
 from kernel.examples.handler.component import Evaluation
 from kernel.examples.handler.component import Intersection
-from kernel.examples.handler.component import VertLR
 from kernel.examples.handler.handler import Handler
 from kernel.examples.handler.interface import Data
 from kernel.examples.handler.utils.tools import load_job_config, JobConfig
-from kernel.utils import consts
+
 
 def main(config="../../config.yaml", param="./binary_config.yaml", namespace="wefe_data"):
     # obtain config
@@ -48,8 +46,8 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     promoter_data_table = param.get("promoter_data_table")
     provider_data_table = param.get("provider_data_table")
 
-    promoter_train_data = {"name": promoter_data_table, "namespace": namespace, "data_set_id": ""}
-    provider_train_data = {"name": provider_data_table, "namespace": namespace, "data_set_id": ""}
+    promoter_train_data = {"name": promoter_data_table, "namespace": namespace}
+    provider_train_data = {"name": provider_data_table, "namespace": namespace}
 
     handler_upload = Handler().set_roles(promoter=promoter, provider=provider)
     handler_upload.add_upload_data(file=os.path.join(data_base, data_promoter),
@@ -60,10 +58,11 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
                                    table_name=provider_data_table,
                                    namespace=namespace,
                                    head=1, partition=1)
-    handler_upload.upload(work_mode=work_mode, backend=backend, db_type=db_type)
+    handler_upload.upload(work_mode=work_mode, backend=backend)
 
     # initialize handler
     job_id = "job_" + time.strftime("%Y%m%d%H%M%S")
+    # job_id = 'job_20211201085309'
     handler = Handler(job_id=job_id, backend=backend, work_mode=work_mode,
                       db_type=db_type, fl_type='vertical')
     handler.set_initiator(role='promoter', member_id=promoter)
@@ -93,21 +92,20 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
         "batch_size": param["batch_size"],
         "early_stop": "diff",
         "tol": 1e-5,
-        "lr_method": consts.SSHE_LR,
         "init_param": {
             "init_method": param.get("init_method", 'random_uniform')
         }
     }
     lr_param.update(config_param)
-    vert_lr_0 = VertLR(name='vert_lr_0', **lr_param)
+    vert_sshe_lr_0 = VertSSHELR(name='vert_sshe_lr_0', **lr_param)
 
     evaluation_0 = Evaluation(name='evaluation_0', eval_type="binary")
 
     # add components to handler, in order of task execution
-    handler.add_component(dataio_0)
-    handler.add_component(intersection_0, data=Data(data=dataio_0.name), output_data_type=["train"])
-    handler.add_component(vert_lr_0, data=Data(train_data=intersection_0.name))
-    handler.add_component(evaluation_0, data=Data(data=vert_lr_0.name))
+    handler.add_component(dataio_0, output_data_type=["train"])
+    # handler.add_component(intersection_0, data=Data(data=dataio_0.name), output_data_type=["train"])
+    handler.add_component(vert_sshe_lr_0, data=Data(train_data=dataio_0.name))
+    handler.add_component(evaluation_0, data=Data(data=vert_sshe_lr_0.name))
 
     # compile handler once finished adding modules, this step will form conf and dsl files for running job
     handler.compile()
@@ -115,11 +113,11 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     # fit model
     handler.fit()
     # query component summary
-    print(handler.get_metric_summary(name='evaluation_0', component_name="vert_lr_0"))
+    print(handler.get_metric_summary(name='evaluation_0', component_name="vert_sshe_lr_0"))
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("BINALY VERT LR JOB")
+    parser = argparse.ArgumentParser("BINALY VERT SSHE LR JOB")
     parser.add_argument("-c", "--config", type=str,
                         help="config file", default="../../config.yaml")
     parser.add_argument("-p", "--param", type=str,
