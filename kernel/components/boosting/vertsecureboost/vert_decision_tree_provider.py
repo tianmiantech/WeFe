@@ -31,6 +31,7 @@
 
 
 import functools
+import time
 
 import numpy as np
 
@@ -545,7 +546,8 @@ class VertDecisionTreeProvider(DecisionTree):
                                                                            use_missing=self.use_missing,
                                                                            valid_features=self.valid_features,
                                                                            sitename=self.sitename,
-                                                                           left_missing_dir=self.missing_dir_mask_left[dep],
+                                                                           left_missing_dir=self.missing_dir_mask_left[
+                                                                               dep],
                                                                            right_missing_dir=
                                                                            self.missing_dir_mask_right[dep],
                                                                            mask_id_mapping=self.fid_bid_random_mapping,
@@ -647,6 +649,8 @@ class VertDecisionTreeProvider(DecisionTree):
         return split_info_list
 
     def fit(self):
+        start = time.time()
+
         LOGGER.info("begin to fit provider decision tree")
         self.init_compressor_and_sync_gh()
 
@@ -678,6 +682,7 @@ class VertDecisionTreeProvider(DecisionTree):
         self.convert_bin_to_real()
 
         LOGGER.info("end to fit provider decision tree")
+        print(f'fit 耗时：{time.time() - start}')
 
     def predict(self, data_inst):
         LOGGER.info("start to predict!")
@@ -729,14 +734,14 @@ class VertDecisionTreeProvider(DecisionTree):
         model_param = DecisionTreeModelParam()
         for node in self.tree_:
             model_param.tree_.add(id=node.id,
-                                      sitename=node.sitename,
-                                      fid=node.fid,
-                                      bid=node.bid,
-                                      weight=node.weight,
-                                      is_leaf=node.is_leaf,
-                                      left_nodeid=node.left_nodeid,
-                                      right_nodeid=node.right_nodeid,
-                                      missing_dir=node.missing_dir)
+                                  sitename=node.sitename,
+                                  fid=node.fid,
+                                  bid=node.bid,
+                                  weight=node.weight,
+                                  is_leaf=node.is_leaf,
+                                  left_nodeid=node.left_nodeid,
+                                  right_nodeid=node.right_nodeid,
+                                  missing_dir=node.missing_dir)
 
         model_param.split_maskdict.update(self.split_maskdict)
         model_param.missing_dir_maskdict.update(self.missing_dir_maskdict)

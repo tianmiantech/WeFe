@@ -118,14 +118,13 @@ class GHPacker(object):
         return en_g_h
 
     def decompress_and_unpack(self, split_info_package_list):
-
-#         if check_aclr_support() and type(self.packer.calculator.encrypter) == PaillierEncrypt:
-# #(fid None bid None, sum_grad 15978142689201835723230832154261184514, sum_hess 0, gain None, sitename provider:10002, missing dir 3, mask_id 924, sample_count 59)
-#             rs = self.packer.gpu_decrypt_cipher_packages(split_info_package_list)
-#         else:
         start_time = time.time()
-        rs = self.packer.decrypt_cipher_packages(split_info_package_list)
-        print(f'decrypt_cipher_packages 耗时：{time.time() - start_time}')
+        if check_aclr_support() and type(self.packer.calculator.encrypter) == PaillierEncrypt:
+            rs = self.packer.gpu_decrypt_cipher_packages(split_info_package_list)
+            print(f'gpu_decrypt_cipher_packages 耗时：{time.time() - start_time}')
+        else:
+            rs = self.packer.decrypt_cipher_packages(split_info_package_list)
+            print(f'decrypt_cipher_packages 耗时：{time.time() - start_time}')
 
         for split_info in rs:
             g, h = g_h_recover_post_func(
