@@ -48,6 +48,7 @@ from kernel.security.paillier import PaillierEncryptedNumber
 from kernel.transfer.framework.weights import Weights
 from kernel.utils.data_util import NoneType
 from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
+from functools import reduce
 from collections import Counter
 
 LOGGER = log_utils.get_logger()
@@ -349,13 +350,32 @@ class FeatureHistogram(object):
                 stable_reduce=self.stable_reduce
             )
 
-            agg_func = self._stable_hist_aggregate if self.stable_reduce else self._hist_aggregate
-            histograms_table = batch_histogram_intermediate_rs.mapReducePartitions(batch_histogram_cal, agg_func)
+            partitions = batch_histogram_intermediate_rs.get_partitions()
+            histograms_table = self._batch_calculate_histogram(batch_histogram_intermediate_rs.collect(),
+                                                               bin_split_points=bin_split_points,
+                                                               bin_sparse_points=bin_sparse_points,
+                                                               valid_features=valid_features,
+                                                               node_map=node_map, use_missing=use_missing,
+                                                               zero_as_missing=zero_as_missing,
+                                                               parent_nid_map=parent_node_id_map,
+                                                               sibling_node_id_map=sibling_node_id_map,
+                                                               stable_reduce=self.stable_reduce)
+
+            if not session.is_table(histograms_table):
+                histograms_table = session.parallelize(histograms_table, partition=partitions, include_key=True)
+            # agg_func = self._stable_hist_aggregate if self.stable_reduce else self._hist_aggregate
+            # [((0, 0), (0, [[-14.0, 7.0, 7], [-1.0, 0.5, 2], [-10.0, 5.0, 6], [-8.5, 4.25, 3], [-5.5, 2.75, 4], [-9.0, 4.5, 4], [-5.0, 2.5, 3], [-5.5, 2.75, 4], [-1.0, 0.5, 2], [-8.0, 4.0, 2], [-5.5, 2.75, 4], [-4.5, 2.25, 2], [-9.0, 4.5, 4], [-1.0, 0.5, 2], [-5.0, 2.5, 3], [-2.0, 1.0, 4], [-1.0, 0.5, 2], [-6.0, 3.0, 5], [-1.0, 0.5, 2], [-2.0, 1.0, 4], [-10.0, 5.0, 6], [-4.0, 2.0, 1], [-1.5, 0.75, 3], [-4.5, 2.25, 2], [-1.0, 0.5, 2], [0.0, 0.5, 2], [-4.0, 2.0, 1], [-1.0, 0.5, 2], [-8.5, 4.25, 3], [-1.5, 5.25, 7], [-3.5, 2.25, 2], [7.0, 4.5, 4], [-2.0, 1.0, 4], [-4.0, 3.0, 5], [-3.5, 2.25, 2], [13.0, 6.5, 5], [-6.5, 4.75, 5], [9.5, 4.75, 5], [5.0, 2.5, 3], [5.0, 2.5, 3], [5.0, 2.5, 3], [8.5, 4.25, 3], [1.5, 0.75, 3], [0.5, 0.25, 1], [10.5, 5.25, 7], [1.0, 0.5, 2], [9.0, 4.5, 4], [17.0, 8.5, 6], [5.0, 2.5, 3], [4.0, 2.0, 1]])), ((0, 1), (1, [[-6.0, 3.0, 5], [-4.0, 2.0, 1], [-2.5, 1.25, 5], [-1.0, 1.0, 4], [-13.5, 6.75, 6], [-8.5, 4.25, 3], [-1.5, 4.75, 5], [-5.0, 2.5, 3], [-1.0, 0.5, 2], [-12.0, 6.0, 3], [-1.5, 0.75, 3], [-2.0, 1.0, 4], [-1.5, 0.75, 3], [-4.5, 2.75, 4], [-8.0, 5.0, 6], [3.5, 2.25, 2], [-1.5, 1.25, 5], [-8.5, 4.25, 3], [4.0, 2.5, 3], [-1.0, 0.5, 2], [-4.5, 2.25, 2], [-4.0, 3.0, 5], [-4.5, 6.25, 4], [3.5, 2.75, 4], [7.0, 4.5, 4], [-4.5, 6.25, 4], [-3.5, 2.75, 4], [-0.5, 0.25, 1], [1.0, 0.5, 2], [8.5, 4.25, 3], [-11.0, 6.5, 5], [4.0, 2.5, 3], [4.0, 2.0, 1], [-4.5, 2.25, 2], [-0.5, 8.25, 5], [2.0, 3.5, 7], [-0.5, 0.75, 3], [-2.0, 3.5, 7], [0.0, 1.0, 4], [4.0, 2.0, 1], [4.0, 2.0, 1], [4.5, 2.25, 2], [-3.5, 2.75, 4], [8.5, 4.25, 3], [-3.0, 2.5, 3], [0.5, 0.25, 1], [0.5, 0.75, 3], [-0.5, 0.75, 3], [4.0, 2.0, 1], [8.5, 4.75, 5]])), ((0, 2), (2, [[-14.0, 7.0, 7], [-5.0, 2.5, 3], [-2.0, 1.0, 4], [-8.5, 4.25, 3], [-1.0, 0.5, 2], [-9.5, 4.75, 5], [-9.0, 4.5, 4], [-4.5, 2.25, 2], [-5.5, 2.75, 4], [-9.0, 4.5, 4], [-5.0, 2.5, 3], [-8.5, 4.25, 3], [-5.5, 2.75, 4], [-0.5, 0.25, 1], [-5.5, 2.75, 4], [-1.0, 0.5, 2], [-6.0, 3.0, 5], [-2.5, 1.25, 5], [-2.0, 1.0, 4], [-5.0, 2.5, 3], [-0.5, 0.25, 1], [-0.5, 0.25, 1], [-5.0, 2.5, 3], [-4.5, 2.25, 2], [0.5, 0.25, 1], [-5.0, 2.5, 3], [-1.5, 0.75, 3], [-9.0, 4.5, 4], [-1.0, 4.5, 4], [-4.5, 3.25, 6], [-0.5, 0.25, 1], [0.0, 4.5, 4], [-4.5, 2.75, 4], [-0.5, 4.75, 5], [-0.5, 0.25, 1], [-3.0, 2.5, 3], [1.0, 4.5, 4], [10.0, 5.0, 6], [12.5, 6.25, 4], [9.5, 4.75, 5], [4.5, 2.25, 2], [5.0, 2.5, 3], [0.5, 0.25, 1], [2.0, 1.0, 4], [9.0, 4.5, 4], [2.0, 1.0, 4], [17.0, 8.5, 6], [9.5, 4.75, 5], [4.5, 2.25, 2], [4.0, 2.0, 1]])), ((0, 3), (3, [[-14.0, 7.0, 7], [-1.0, 0.5, 2], [-13.5, 6.75, 6], [-5.0, 2.5, 3], [-5.5, 2.75, 4], [-9.0, 4.5, 4], [-1.5, 0.75, 3], [-9.0, 4.5, 4], [-1.0, 0.5, 2], [-8.5, 4.25, 3], [-0.5, 0.25, 1], [-9.5, 4.75, 5], [-4.5, 2.25, 2], [-4.5, 2.25, 2], [-5.5, 2.75, 4], [-1.5, 0.75, 3], [-2.0, 1.0, 4], [-4.5, 2.25, 2], [-2.0, 1.0, 4], [-6.0, 3.0, 5], [-1.5, 0.75, 3], [-9.0, 4.5, 4], [-1.0, 0.5, 2], [-1.0, 0.5, 2], [-0.5, 0.25, 1], [-4.5, 2.25, 2], [0.0, 0.5, 2], [-4.5, 2.25, 2], [-3.5, 6.75, 6], [-5.5, 2.75, 4], [-5.0, 2.5, 3], [3.5, 2.25, 2], [3.0, 3.0, 5], [-5.0, 3.0, 5], [0.5, 4.25, 3], [5.0, 2.5, 3], [-3.5, 6.25, 4], [7.0, 3.5, 7], [8.5, 4.25, 3], [4.0, 2.0, 1], [5.5, 2.75, 4], [9.0, 4.5, 4], [1.5, 0.75, 3], [0.5, 0.25, 1], [6.5, 3.25, 6], [5.5, 2.75, 4], [9.0, 4.5, 4], [12.5, 6.25, 4], [9.0, 4.5, 4], [4.0, 2.0, 1]])), ((0, 4), (4, [[-6.0, 3.0, 5], [-9.0, 4.5, 4], [-8.5, 4.25, 3], [-0.5, 0.75, 3], [-0.5, 0.25, 1], [-5.0, 3.5, 7], [-4.5, 2.25, 2], [-9.0, 4.5, 4], [-1.0, 1.0, 4], [-1.0, 0.5, 2], [-0.5, 0.25, 1], [-1.0, 4.5, 4], [-0.5, 0.25, 1], [0.0, 0.5, 2], [3.5, 2.25, 2], [-9.0, 5.0, 6], [-0.5, 0.25, 1], [-2.0, 1.0, 4], [-0.5, 0.75, 3], [3.5, 2.25, 2], [-5.0, 3.0, 5], [-5.0, 3.0, 5], [-1.5, 1.25, 5], [-6.0, 3.0, 5], [-1.0, 4.5, 4], [-3.0, 6.5, 5], [-12.5, 6.25, 4], [-8.0, 4.5, 4], [0.0, 8.0, 4], [4.0, 2.0, 1], [-0.5, 0.25, 1], [1.0, 0.5, 2], [-4.0, 2.0, 1], [3.0, 2.5, 3], [7.5, 8.25, 5], [4.0, 2.5, 3], [8.5, 4.75, 5], [0.0, 0.5, 2], [0.5, 0.25, 1], [3.0, 3.0, 5], [-3.5, 2.75, 4], [8.5, 4.75, 5], [-4.0, 2.5, 3], [2.0, 5.0, 6], [0.0, 0.5, 2], [-3.5, 6.25, 4], [-0.5, 0.25, 1], [4.0, 3.0, 5], [0.5, 0.75, 3], [5.0, 6.5, 5]])), ((0, 5), (5, [[-0.5, 0.25, 1], [-2.0, 1.0, 4], [-1.0, 0.5, 2], [-5.0, 2.5, 3], [-6.0, 3.0, 5], [-13.0, 6.5, 5], [-5.5, 2.75, 4], [-10.0, 5.0, 6], [-5.5, 2.75, 4], [-3.0, 1.5, 6], [-8.0, 4.0, 2], [-5.0, 2.5, 3], [-1.0, 0.5, 2], [3.5, 2.75, 4], [4.0, 2.0, 1], [-0.5, 4.25, 3], [-12.5, 6.25, 4], [-0.5, 0.25, 1], [-9.0, 4.5, 4], [0.0, 4.0, 2], [-2.0, 1.0, 4], [0.5, 0.25, 1], [-4.5, 2.25, 2], [3.0, 2.5, 3], [3.5, 2.25, 2], [-2.0, 1.0, 4], [-1.0, 4.5, 4], [-3.5, 6.75, 6], [-0.5, 0.75, 3], [-1.0, 0.5, 2], [0.0, 1.0, 4], [0.0, 4.0, 2], [-8.5, 4.25, 3], [1.0, 1.5, 6], [0.0, 8.0, 4], [3.5, 2.75, 4], [7.5, 4.75, 5], [-4.5, 2.75, 4], [0.0, 4.0, 2], [-8.0, 4.5, 4], [4.5, 2.25, 2], [6.0, 3.5, 7], [1.5, 0.75, 3], [0.5, 0.25, 1], [6.0, 7.0, 7], [5.0, 2.5, 3], [4.5, 2.25, 2], [0.5, 0.75, 3], [1.0, 0.5, 2], [9.0, 4.5, 4]])), ((0, 6), (6, [[-1.5, 0.75, 3], [-1.0, 0.5, 2], [-4.5, 2.25, 2], [-5.5, 2.75, 4], [-6.0, 3.0, 5], [-15.0, 7.5, 9], [-5.5, 2.75, 4], [-12.5, 6.25, 4], [-1.5, 0.75, 3], [-5.0, 2.5, 3], [-1.0, 0.5, 2], [-0.5, 0.25, 1], [-2.0, 1.0, 4], [-0.5, 0.25, 1], [-1.5, 0.75, 3], [-4.5, 2.25, 2], [-1.5, 0.75, 3], [-9.0, 4.5, 4], [-8.5, 4.25, 3], [-2.0, 1.0, 4], [-0.5, 0.25, 1], [-8.5, 4.25, 3], [-9.0, 4.5, 4], [-1.5, 0.75, 3], [-0.5, 0.25, 1], [-4.5, 2.25, 2], [0.5, 0.75, 3], [-9.0, 4.5, 4], [1.5, 8.75, 7], [4.0, 6.0, 3], [-4.5, 2.75, 4], [-5.0, 3.0, 5], [3.5, 6.75, 6], [4.0, 2.5, 3], [-1.0, 0.5, 2], [4.5, 2.25, 2], [4.0, 2.5, 3], [6.0, 3.0, 5], [4.5, 6.25, 4], [5.0, 2.5, 3], [9.0, 8.5, 6], [8.5, 4.25, 3], [10.0, 5.0, 6], [1.0, 0.5, 2], [-3.0, 2.5, 3], [0.5, 4.25, 3], [0.5, 0.25, 1], [1.5, 0.75, 3], [0.5, 0.75, 3], [8.5, 4.75, 5]])), ((0, 7), (7, [[-1.5, 0.75, 3], [-0.5, 0.25, 1], [-10.0, 5.0, 6], [-5.0, 2.5, 3], [-8.5, 4.25, 3], [-1.5, 0.75, 3], [-5.5, 2.75, 4], [-1.5, 0.75, 3], [-5.0, 2.5, 3], [-1.5, 0.75, 3], [-9.5, 4.75, 5], [-5.5, 2.75, 4], [-6.0, 3.0, 5], [-5.5, 2.75, 4], [-2.0, 1.0, 4], [-4.5, 2.25, 2], [-4.5, 2.25, 2], [-1.5, 0.75, 3], [-1.5, 0.75, 3], [-5.5, 2.75, 4], [-9.0, 4.5, 4], [-7.5, 4.25, 3], [-4.0, 2.0, 1], [-1.0, 0.5, 2], [-5.5, 2.75, 4], [-1.5, 0.75, 3], [-8.0, 8.0, 4], [-5.5, 2.75, 4], [-5.0, 2.5, 3], [0.5, 4.25, 3], [-8.5, 4.25, 3], [-3.0, 3.0, 5], [3.0, 2.5, 3], [-4.0, 2.5, 3], [0.5, 4.25, 3], [4.0, 2.0, 1], [3.0, 6.5, 5], [1.5, 0.75, 3], [9.5, 4.75, 5], [1.5, 0.75, 3], [17.0, 8.5, 6], [1.5, 0.75, 3], [1.0, 0.5, 2], [9.5, 4.75, 5], [12.5, 6.25, 4], [5.0, 2.5, 3], [2.0, 1.0, 4], [8.5, 4.25, 3], [9.5, 4.75, 5], [0.5, 0.25, 1]])), ((0, 8), (8, [[3.0, 2.5, 3], [-0.5, 0.25, 1], [-1.5, 4.75, 5], [-5.5, 2.75, 4], [-1.0, 0.5, 2], [1.0, 3.5, 7], [-12.0, 6.5, 5], [-1.0, 0.5, 2], [-6.5, 3.25, 6], [-13.5, 6.75, 6], [-0.5, 0.25, 1], [4.0, 2.0, 1], [4.0, 2.5, 3], [-5.5, 2.75, 4], [-5.0, 6.5, 5], [-5.0, 2.5, 3], [-11.5, 6.25, 4], [-0.5, 4.75, 5], [-0.5, 0.25, 1], [-4.5, 6.25, 4], [4.0, 2.0, 1], [4.5, 2.75, 4], [-4.0, 2.5, 3], [2.0, 3.0, 5], [-0.5, 0.25, 1], [-1.5, 1.25, 5], [0.5, 4.25, 3], [-1.0, 4.5, 4], [-3.5, 2.25, 2], [-0.5, 0.25, 1], [-5.0, 2.5, 3], [0.5, 0.25, 1], [0.0, 0.5, 2], [3.5, 2.75, 4], [4.0, 2.0, 1], [-5.5, 6.75, 6], [3.0, 3.0, 5], [-3.5, 2.75, 4], [-7.5, 4.75, 5], [0.5, 0.75, 3], [1.0, 0.5, 2], [-9.0, 4.5, 4], [0.0, 4.5, 4], [1.5, 1.25, 5], [3.5, 6.75, 6], [5.5, 2.75, 4], [0, 0, 0], [5.0, 2.5, 3], [5.5, 2.75, 4], [1.0, 0.5, 2]])), ((0, 9), (9, [[0.0, 4.5, 4], [-2.0, 5.0, 6], [-5.0, 2.5, 3], [-8.0, 4.5, 4], [-0.5, 4.25, 3], [-1.0, 4.5, 4], [0.0, 0.5, 2], [-1.0, 0.5, 2], [1.5, 3.25, 6], [-0.5, 0.25, 1], [-0.5, 0.25, 1], [-4.5, 6.25, 4], [-0.5, 0.25, 1], [-9.0, 4.5, 4], [-1.5, 0.75, 3], [-5.0, 3.0, 5], [-1.0, 0.5, 2], [4.5, 2.25, 2], [0.5, 0.75, 3], [-4.0, 2.0, 1], [-9.0, 4.5, 4], [-1.0, 1.0, 4], [-4.0, 2.5, 3], [-4.5, 2.75, 4], [8.5, 4.75, 5], [-12.5, 6.25, 4], [-1.0, 0.5, 2], [-9.5, 8.75, 7], [8.0, 4.5, 4], [-4.5, 6.25, 4], [-3.5, 2.25, 2], [-4.5, 2.25, 2], [0.0, 1.0, 4], [2.5, 2.75, 4], [-1.0, 0.5, 2], [2.5, 2.75, 4], [-1.0, 5.0, 6], [1.0, 1.0, 4], [7.0, 4.5, 4], [4.5, 2.25, 2], [1.0, 0.5, 2], [-8.0, 4.0, 2], [1.5, 0.75, 3], [1.0, 1.0, 4], [1.0, 1.0, 4], [7.0, 4.5, 4], [4.0, 2.5, 3], [-3.5, 2.75, 4], [0.5, 0.75, 3], [-3.5, 6.25, 4]]))]
+            # histograms_table = reduce(agg_func, batch_histogram_result)
+
+            # histograms_table = batch_histogram_intermediate_rs.mapReducePartitions(batch_histogram_cal, agg_func)
             if self.stable_reduce:
                 histograms_table = histograms_table.mapValues(self._stable_hist_reduce)
 
             if ret == "tensor":
                 feature_num = bin_split_points.shape[0]
+                # if isinstance(histograms_table, list):
+                #     histogram_list = histograms_table
+                # else:
                 histogram_list = list(histograms_table.collect())
                 rs = FeatureHistogram._recombine_histograms(histogram_list, node_map, feature_num)
                 return rs
@@ -554,8 +574,8 @@ class FeatureHistogram(object):
         node_histograms_hess_matrix = [[] for j in range(node_num * features_num * bins_num)]
 
         # 判断是否为加密
-        grad_encrypt_flag = True if type(grad[0]) == PaillierEncryptedNumber else False
-        hess_encrypt_flag = True if type(hess[0]) == PaillierEncryptedNumber else False
+        grad_encrypt_flag = True if len(grad) == 0 or type(grad[0]) == PaillierEncryptedNumber else False
+        hess_encrypt_flag = True if len(hess) == 0 or type(hess[0]) == PaillierEncryptedNumber else False
 
         p_k = ''
         start_data_record = time.time()
@@ -613,13 +633,17 @@ class FeatureHistogram(object):
                 map(lambda l: l + [None] * (zero_opt_node_hess_max_len - len(l)), zero_opt_node_hess_matrix))
 
             # 计算密态 g/h 求和
+            print(f'row: {node_num}, col: {zero_opt_node_grad_max_len}')
+
             start_grad_sum = time.time()
-            # print(f'row: {node_num}, col: {zero_opt_node_grad_max_len}')
             zero_opt_node_grad_sum = cal.gpu_paillier_matrix_row_sum_up(zero_opt_node_grad_matrix, p_k, node_num,
                                                                         zero_opt_node_grad_max_len)
-            # print(f'start_grad_sum gpu 耗时：{time.time() - start_grad_sum}')
+            print(f'start_grad_sum gpu 耗时________________：{time.time() - start_grad_sum}')
+            print(f' ')
+
             zero_opt_node_hess_sum = []
             if hess_encrypt_flag:
+                zero_opt_node_hess_matrix = np.array(zero_opt_node_hess_matrix)
                 zero_opt_node_hess_sum = cal.gpu_paillier_matrix_row_sum_up(zero_opt_node_hess_matrix, p_k, node_num,
                                                                             zero_opt_node_hess_max_len)
 
@@ -638,6 +662,7 @@ class FeatureHistogram(object):
                 node_histograms_grad_matrix = list(
                     map(lambda l: l + [None] * (node_histograms_grad_max_len - len(l)), node_histograms_grad_matrix))
 
+                node_histograms_grad_matrix = np.array(node_histograms_grad_matrix)
                 node_histograms_grad_sum = cal.gpu_paillier_matrix_row_sum_up(node_histograms_grad_matrix, p_k,
                                                                               node_num * features_num * bins_num,
                                                                               node_histograms_grad_max_len)
@@ -649,6 +674,7 @@ class FeatureHistogram(object):
                     node_histograms_hess_matrix = list(
                         map(lambda l: l + [None] * (node_histograms_hess_max_len - len(l)),
                             node_histograms_hess_matrix))
+                    node_histograms_hess_matrix = np.array(node_histograms_hess_matrix)
                     node_histograms_hess_sum = cal.gpu_paillier_matrix_row_sum_up(node_histograms_hess_matrix, p_k,
                                                                                   node_num * features_num * bins_num,
                                                                                   node_histograms_hess_max_len)
@@ -678,6 +704,7 @@ class FeatureHistogram(object):
         if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
             node_histograms_node_fea_grad_matrix = [node_histograms_grad_sum[i:i + bins_num] for i in
                                                     range(0, len(node_histograms_grad_sum), bins_num)]
+            node_histograms_node_fea_grad_matrix = np.array(node_histograms_node_fea_grad_matrix)
             node_histograms_node_fea_grad = cal.gpu_paillier_matrix_row_sum_up(node_histograms_node_fea_grad_matrix,
                                                                                p_k,
                                                                                node_num * features_num,
@@ -685,6 +712,7 @@ class FeatureHistogram(object):
             if hess_encrypt_flag:
                 node_histograms_node_fea_hess_matrix = [node_histograms_hess_sum[i:i + bins_num] for i in
                                                         range(0, len(node_histograms_hess_sum), bins_num)]
+                node_histograms_node_fea_hess_matrix = np.array(node_histograms_node_fea_hess_matrix)
                 node_histograms_node_fea_hess = cal.gpu_paillier_matrix_row_sum_up(node_histograms_node_fea_hess_matrix,
                                                                                    p_k, node_num * features_num,
                                                                                    bins_num)

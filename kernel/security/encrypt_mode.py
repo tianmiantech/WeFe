@@ -154,8 +154,10 @@ class EncryptModeCalculator(object):
     def encrypt_list(self, input_data):
         return self.encrypter.encrypt_list(input_data)
 
-    def raw_encrypt(self, input_data, exponent=0):
+    def gpu_raw_encrypt(self, input_data, exponent=0):
+        return self.encrypter.gpu_raw_encrypt(input_data, exponent=exponent)
 
+    def raw_encrypt(self, input_data, exponent=0):
         raw_en_func = self.get_enc_func(self.encrypter, raw_enc=True, exponent=exponent)
         new_data = self.encrypt_data(input_data, raw_en_func)
         return new_data

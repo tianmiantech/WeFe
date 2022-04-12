@@ -42,8 +42,11 @@ from kernel.security.iterative_affine import IterativeAffineCipher
 from kernel.security.paillier import PaillierKeypair
 from kernel.security.random import RandomPads
 from kernel.security.paillier import PaillierEncryptedNumber
-from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
 from common.python import session
+from ctypes import cdll, sizeof, c_buffer, cast, c_int32
+from ctypes import c_char, c_char_p, c_void_p, c_uint32, c_double, c_int64, c_int, c_size_t, c_longlong
+import ctypes
+import datetime as dt
 
 _TORCH_VALID = False
 try:
@@ -218,11 +221,11 @@ class PaillierEncrypt(Encrypt):
             partitions = values.get_partitions()
             datas = list(values.collect())
             if len(datas) > 0:
-                datas = [x[1] for x in datas]
-                values = np.array(datas, dtype=type(datas[0]))
-            # start_time = time.time()
+                _datas = [x[1][0] if isinstance(x[1], list) else x[1] for x in datas]
+                values = np.array(_datas, dtype=type(_datas[0]))
+            start_time = time.time()
             result = self.public_key.encrypt_gpu(values)
-            # print(f'gpu encrypt... 耗时：{time.time() - start_time}')
+            print(f'gpu encrypt... 耗时：{time.time() - start_time}')
 
             return session.parallelize(result.tolist(), partition=partitions)
         else:
@@ -231,6 +234,27 @@ class PaillierEncrypt(Encrypt):
     def decrypt(self, value):
         if self.privacy_key is not None:
             return self.privacy_key.decrypt(value)
+        else:
+            return None
+
+    def gpu_raw_encrypt(self, values, exponent=0):
+
+        if self.public_key is not None:
+            partitions = values.get_partitions()
+            datas = list(values.collect())
+            key_list = [x[0] for x in datas]
+            if len(datas) > 0:
+                datas = [x[1][0] if isinstance(x[1], list) else x[1] for x in datas]
+                # values = np.array(_datas, dtype=type(_datas[0]))
+            start_time = time.time()
+            encrypt_list = self.public_key.gpu_paillier_raw_encrypt(datas)
+
+            result = []
+            for i in range(len(key_list)):
+                result.append((key_list[i], [encrypt_list[i]]))
+            print(f'gpu raw encrypt... 耗时：{time.time() - start_time}')
+
+            return session.parallelize(result, include_key=True, partition=partitions)
         else:
             return None
 

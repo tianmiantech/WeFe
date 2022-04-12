@@ -1,4 +1,6 @@
 import functools
+import time
+
 from kernel.security.fixedpoint import FixedPointNumber
 from kernel.security.encrypt_mode import EncryptModeCalculator
 from kernel.security.cipher_compressor.packer import PromoterIntegerPacker, cipher_list_to_cipher_tensor
@@ -6,10 +8,13 @@ from kernel.components.boosting.core.splitter import SplitInfo
 from kernel.utils import consts
 from kernel.security.cipher_compressor.compressor import CipherCompressorProvider, NormalCipherPackage
 from common.python.utils import log_utils
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
+from kernel.security import PaillierEncrypt
+
 LOGGER = log_utils.get_logger()
 
-fix_point_precision = 2**52
-REGRESSION_MAX_GRADIENT = 10**9
+fix_point_precision = 2 ** 52
+REGRESSION_MAX_GRADIENT = 10 ** 9
 
 
 def post_func(x):
@@ -34,7 +39,6 @@ class SplitInfoPackage(NormalCipherPackage):
         self._cur_splitinfo_contains = 0
 
     def add(self, split_info):
-
         split_info_cp = SplitInfo(sitename=split_info.sitename, best_bid=split_info.best_bid,
                                   best_fid=split_info.best_fid, missing_dir=split_info.missing_dir,
                                   mask_id=split_info.mask_id, sample_count=split_info.sample_count)
@@ -55,8 +59,8 @@ class SplitInfoPackage(NormalCipherPackage):
 class GHPacker(object):
 
     def __init__(self, sample_num: int, en_calculator: EncryptModeCalculator,
-                       precision=fix_point_precision, max_sample_weight=1.0, task_type=consts.CLASSIFICATION,
-                       g_min=None, g_max=None, sync_para=True):
+                 precision=fix_point_precision, max_sample_weight=1.0, task_type=consts.CLASSIFICATION,
+                 g_min=None, g_max=None, sync_para=True):
 
         if task_type == consts.CLASSIFICATION:
             g_max = 1.0
@@ -80,7 +84,7 @@ class GHPacker(object):
         self.exponent = FixedPointNumber.encode(0, precision=precision).exponent
         self.precision = precision
         self.packer = PromoterIntegerPacker(2, [self.g_max_int, self.h_max_int], encrypt_mode_calculator=en_calculator,
-                                         sync_para=sync_para)
+                                            sync_para=sync_para)
 
     def _compute_packing_parameter(self, sample_num: int, precision=2 ** 53):
 
@@ -115,10 +119,18 @@ class GHPacker(object):
 
     def decompress_and_unpack(self, split_info_package_list):
 
+#         if check_aclr_support() and type(self.packer.calculator.encrypter) == PaillierEncrypt:
+# #(fid None bid None, sum_grad 15978142689201835723230832154261184514, sum_hess 0, gain None, sitename provider:10002, missing dir 3, mask_id 924, sample_count 59)
+#             rs = self.packer.gpu_decrypt_cipher_packages(split_info_package_list)
+#         else:
+        start_time = time.time()
         rs = self.packer.decrypt_cipher_packages(split_info_package_list)
+        print(f'decrypt_cipher_packages 耗时：{time.time() - start_time}')
+
         for split_info in rs:
-            g, h = g_h_recover_post_func(self.packer._unpack_an_int(split_info.sum_grad, self.packer._bit_assignment[0]),
-                                         precision=self.precision)
+            g, h = g_h_recover_post_func(
+                self.packer._unpack_an_int(split_info.sum_grad, self.packer._bit_assignment[0]),
+                precision=self.precision)
             split_info.sum_grad = g - self.g_offset * split_info.sample_count
             split_info.sum_hess = h
 
@@ -131,8 +143,6 @@ class PackedGHCompressor(object):
         self.compressor = CipherCompressorProvider(package_class=SplitInfoPackage, sync_para=sync_para)
 
     def compress_split_info(self, split_info_list, g_h_sum_info):
-
         split_info_list.append(g_h_sum_info)  # append to end
         rs = self.compressor.compress(split_info_list)
         return rs
-

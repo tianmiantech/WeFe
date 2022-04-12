@@ -241,6 +241,156 @@ class PaillierPublicKey(object):
 
         return out_PaillierEncryptedNumber_array
 
+    def gpu_paillier_raw_encrypt(self, encoding_array, precision=None, random_value=None):
+        MAX_COUNT = 20000000
+        INT64_TYPE = 1
+        FLOAT_TYPE = 2
+        PEN_BASE = 16
+
+        CHAR_BYTE = sizeof(c_char)
+        U_INT32_BYTE = sizeof(c_uint32)
+        DOUBLE_BYTE = sizeof(c_double)
+        INT64_BYTE = sizeof(c_int64)
+
+        CIPHER_BITS = 2048
+        PLAIN_BITS = 2048
+        BYTE_LEN = 8
+        CIPHER_BYTE = 256
+        PLAIN_BYTE = 256
+        device_type = 1
+
+        if isinstance(encoding_array, list):
+            array_element_count = len(encoding_array)
+        else:
+            array_element_count = encoding_array.shape[0]
+
+        if array_element_count > MAX_COUNT:
+            raise ValueError("Total input element count = %i , too large ！[ > %i ]" % (array_element_count, MAX_COUNT))
+
+        g_bytes = self.g.to_bytes(CIPHER_BYTE, 'little')
+        n_bytes = self.n.to_bytes(CIPHER_BYTE, 'little')
+        nsquare_bytes = self.nsquare.to_bytes(CIPHER_BYTE, 'little')
+        max_int_bytes = self.max_int.to_bytes(CIPHER_BYTE, 'little')
+        zero = 0
+        zero_bytes = zero.to_bytes(INT64_BYTE, 'little')
+
+        if random_value is None:
+            obfuscator = random.SystemRandom().randrange(1, self.n)
+        else:
+            obfuscator = random_value
+
+        obfuscator_bytes = obfuscator.to_bytes(CIPHER_BYTE, 'little')
+
+        # GPU computing...
+        gpu_lib = cdll.LoadLibrary("/usr/lib/libgpuhomomorphism.so")
+        gpu_lib.GPU_H_C_Malloc.restype = c_void_p
+        gpu_lib.GPU_H_C_GetError.restype = c_char_p
+
+        gpu_time_begin = dt.datetime.now()
+
+        value_array_encoded = gpu_lib.GPU_H_C_Malloc(
+            c_size_t(array_element_count * (6 * CIPHER_BYTE + 2 * INT64_BYTE)))
+        if value_array_encoded is None:
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        ii = 0
+        for i in range(array_element_count):
+            # skip x_sign
+            ii = ii + INT64_BYTE
+
+            # x
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   encoding_array[i].to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   c_size_t(CIPHER_BYTE))
+            ii = ii + CIPHER_BYTE
+
+            # x_exponent
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   zero_bytes,
+                                   c_size_t(INT64_BYTE))
+            ii = ii + INT64_BYTE
+
+            # g
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   g_bytes,
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # n
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   n_bytes,
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # nsquare
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   nsquare_bytes,
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # max_int
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   max_int_bytes,
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # random
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   obfuscator_bytes,
+                                   c_size_t(CIPHER_BYTE))
+            ii = ii + CIPHER_BYTE
+
+        timebegin = dt.datetime.now()
+        ret = gpu_lib.GPU_H_Paillier_Encrypt(
+            1,
+            c_void_p(value_array_encoded),
+            c_size_t(array_element_count),
+            c_char_p(obfuscator_bytes)
+        )
+        if 0 != ret:
+            gpu_lib.GPU_H_C_Free(c_void_p(value_array_encoded))
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        timeover = dt.datetime.now()
+        costtime = (timeover - timebegin).total_seconds()
+        print(
+            " gpu_lib.GPU_H_Paillier_Encrypt Column, cost time:  %f " %
+            (costtime))
+        print(f' ')
+
+        # parse GPU encrypt result
+        res = []
+        element_len = CIPHER_BYTE * 6 + INT64_BYTE * 2
+        for i in range(array_element_count):
+            iii = i * element_len
+
+            # skip x_sign
+            iii = iii + INT64_BYTE
+
+            x_string = ctypes.string_at(value_array_encoded + iii, CIPHER_BYTE)
+            x = int.from_bytes(x_string, 'little')
+
+            pen = PaillierEncryptedNumber(self, x, 0)
+
+            res.append(pen)
+
+        res = np.array(res)
+
+        # free memory
+        gpu_lib.GPU_H_C_Free(c_void_p(value_array_encoded))
+
+        gpu_time_over = dt.datetime.now()
+        gpu_cost_time = (gpu_time_over - gpu_time_begin).total_seconds()
+        print(" GPU raw encrypt, total cost time:  %f " % (gpu_cost_time))
+        print(f' ')
+
+        return res
+
     def encrypt(self, value, precision=None, random_value=None):
         """Encode and Paillier encrypt a real number value.
         """
@@ -374,6 +524,12 @@ class PaillierEncryptedNumber(object):
             self.apply_obfuscator()
 
         return self.__ciphertext
+
+    def get_obfuscator(self):
+        return self.__is_obfuscator
+
+    def set_obfuscator(self, ob):
+        self.__is_obfuscator = ob
 
     def apply_obfuscator(self):
         """ciphertext by multiplying by r ** n with random r
