@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.utils;
+package com.welab.wefe.serving.service.database.serving.repository;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
+import org.springframework.stereotype.Repository;
 
-public class MD5Util {
+import com.welab.wefe.serving.service.database.serving.entity.MessageMysqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.base.BaseRepository;
 
-    public static String getMD5String(String str) {
-        try {
-            // 生成一个MD5加密计算摘要
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            // 计算md5函数
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+/**
+ * @author Zane
+ */
+@Repository
+public interface MessageRepository extends BaseRepository<MessageMysqlModel, String> {
 }

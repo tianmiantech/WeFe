@@ -25,7 +25,9 @@ import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
@@ -73,10 +75,17 @@ public class TransactionResponseService extends BaseService {
                 detailInfo.setData(JObject.create(JObject.toJSONString(transactionResponseBO.getTransactionResponse())));
 
                 String collectionName = buildCollectionName(contractName, eventName);
+                Index index = new Index();
+                index.on("transaction_hash", Sort.Direction.ASC);
+                index.background();
+                mongoTemplate.indexOps(collectionName).ensureIndex(index);
+
                 TransactionResponseDetailInfo historyDetailInfo = getByTransactionHash(collectionName, transactionResponseBO.getTransactionHash());
                 if (null != historyDetailInfo) {
                     detailInfo.setId(historyDetailInfo.getId());
                 }
+
+
                 mongoTemplate.save(detailInfo, collectionName);
             }
         } catch (Exception e) {

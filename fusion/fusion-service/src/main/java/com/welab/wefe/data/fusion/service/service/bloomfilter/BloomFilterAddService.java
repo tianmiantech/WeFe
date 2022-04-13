@@ -20,6 +20,7 @@ package com.welab.wefe.data.fusion.service.service.bloomfilter;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -44,7 +45,6 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +53,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.math.BigInteger;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -161,16 +160,10 @@ public class BloomFilterAddService extends AbstractService {
         List<String> headers = dataSetReader.getHeader();
 
 
-        Path path = Paths
-                .get(config.getBloomFilterDir())
-                .resolve(model.getName());
-        model.setSrc(path.toString());
+        File src = Paths.get(config.getBloomFilterDir())
+                .resolve(model.getName()).toFile();
 
-        File outFile = path.toFile();
-
-        if (!outFile.exists() && !outFile.isDirectory()) {
-            outFile.mkdir();
-        }
+        model.setSrc(src.toString());
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, file);
         // Read all rows of data
@@ -192,6 +185,14 @@ public class BloomFilterAddService extends AbstractService {
         return rowCount;
     }
 
+
+    public static void main(String[] args) {
+        File outFile = Paths
+                .get("/Users/hunter.zhao/Documents/temp/")
+                .resolve("test").toFile();
+        outFile.mkdir();
+        System.out.println(outFile.toString());
+    }
 
     /**
      * Read data from the specified database according to SQL and save to mysql
@@ -222,10 +223,11 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
         model.setRowCount(rowCount);
 
-        Path path = Paths
-                .get(config.getBloomFilterDir())
-                .resolve(model.getName());
-        model.setSrc(path.toString());
+
+        File src = Paths.get(config.getBloomFilterDir())
+                .resolve(model.getName()).toFile();
+
+        model.setSrc(src.toString());
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, null);
 
