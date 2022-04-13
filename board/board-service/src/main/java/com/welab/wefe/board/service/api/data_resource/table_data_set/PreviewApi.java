@@ -32,7 +32,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.ColumnDataType;
+import com.welab.wefe.common.wefe.ColumnDataTypeInferrer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,11 +40,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -52,10 +49,6 @@ import java.util.stream.Collectors;
  */
 @Api(path = "table_data_set/preview", name = "preview data set rows")
 public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output> {
-
-    private static final Pattern MATCH_INTEGER_PATTERN = Pattern.compile("^-?\\d{1,9}$");
-    private static final Pattern MATCH_LONG_PATTERN = Pattern.compile("^-?\\d{10,}$");
-    private static final Pattern MATCH_DOUBLE_PATTERN = Pattern.compile("^-?\\d+\\.\\d+$");
 
     @Autowired
     TableDataSetService tableDataSetService;
@@ -91,119 +84,23 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
      * Parse the dataset file
      */
     private Output readFile(File file) throws IOException, StatusCodeWithException {
-
-
-        Output output = new Output();
-        LinkedHashMap<String, DataSetColumnOutputModel> metadata = new LinkedHashMap<>();
-
-
-        // How to consume the first row of a column
-        Consumer<List<String>> headRowConsumer = row -> {
-
-            output.header.addAll(row);
-
-            for (String name : output.header) {
-                DataSetColumnOutputModel column = new DataSetColumnOutputModel();
-                column.setName(name);
-                metadata.put(name, column);
-            }
-
-        };
-
-        // Data line consumer
-        DataRowConsumer dataRowConsumer = new DataRowConsumer(metadata, output);
-
+        ColumnDataTypeInferrer columnDataTypeInferrer;
 
         try (
                 AbstractTableDataSetReader reader = file.getName().endsWith("csv")
                         ? new CsvTableDataSetReader(file)
                         : new ExcelTableDataSetReader(file)
         ) {
+
             // Get column header
-            headRowConsumer.accept(reader.getHeader());
-            // Read data row
-            reader.read(dataRowConsumer, 10000, 10_000);
+            List<String> header = reader.getHeader();
+
+            // 读取数据并推理每个字段的数据类型
+            columnDataTypeInferrer = new ColumnDataTypeInferrer(header);
+            reader.read(columnDataTypeInferrer, 10000, 10_000);
         }
 
-        output.setMetadataList(new ArrayList<>(metadata.values()));
-
-
-        return output;
-    }
-
-    /**
-     * Data line consumer
-     */
-    private static class DataRowConsumer implements Consumer<LinkedHashMap<String, Object>> {
-
-        private final LinkedHashMap<String, DataSetColumnOutputModel> metadata;
-        private final Output output;
-
-        private boolean allColumnKnowDataType = false;
-
-
-        public DataRowConsumer(LinkedHashMap<String, DataSetColumnOutputModel> metadata, Output output) {
-            this.metadata = metadata;
-            this.output = output;
-        }
-
-        @Override
-        public void accept(LinkedHashMap<String, Object> x) {
-            // The front end only previews 10 rows of data, too many interfaces will freeze.
-            if (output.rawDataList.size() < 10) {
-                output.rawDataList.add(x);
-            }
-
-            if (allColumnKnowDataType) {
-                return;
-            }
-
-            // Infer data type
-            boolean hasUnkonow = true;
-            for (String name : output.header) {
-
-                DataSetColumnOutputModel column = metadata.get(name);
-                if (column.getDataType() == null) {
-
-                    Object value = x.get(name);
-                    ColumnDataType dataType = inferDataType(String.valueOf(value));
-
-                    if (dataType != null) {
-                        column.setDataType(dataType);
-                    } else {
-                        hasUnkonow = true;
-                    }
-                }
-            }
-
-            if (!hasUnkonow) {
-                allColumnKnowDataType = true;
-            }
-
-        }
-
-        /**
-         * Infer data type
-         */
-        private ColumnDataType inferDataType(String value) {
-            if (AbstractTableDataSetReader.isEmptyValue(value)) {
-                return null;
-            }
-
-            if (MATCH_DOUBLE_PATTERN.matcher(value).find()) {
-                return ColumnDataType.Double;
-            }
-
-            if (MATCH_LONG_PATTERN.matcher(value).find()) {
-                return ColumnDataType.Long;
-            }
-
-            if (MATCH_INTEGER_PATTERN.matcher(value).find()) {
-                return ColumnDataType.Integer;
-            }
-
-            return ColumnDataType.String;
-        }
+        return new Output(columnDataTypeInferrer);
     }
 
     private Output readFromDatabase(String dataSourceId, String sql) throws StatusCodeWithException {
@@ -238,25 +135,12 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
             ListUtil.moveElement(header, yIndex, 1);
         }
 
-        Output output = new Output();
-        LinkedHashMap<String, DataSetColumnOutputModel> metadata = new LinkedHashMap<>();
-        output.setHeader(header);
+        ColumnDataTypeInferrer columnDataTypeInferrer = new ColumnDataTypeInferrer(header);
 
-        for (String name : output.header) {
-            DataSetColumnOutputModel column = new DataSetColumnOutputModel();
-            column.setName(name);
-            metadata.put(name, column);
-        }
-
-        // Data line consumer
-        DataRowConsumer dataRowConsumer = new DataRowConsumer(metadata, output);
-
-        JdbcManager.readWithFieldRow(conn, sql, dataRowConsumer, 10);
+        JdbcManager.readWithFieldRow(conn, sql, columnDataTypeInferrer, 10);
 
 
-        output.setMetadataList(new ArrayList<>(metadata.values()));
-
-        return output;
+        return new Output(columnDataTypeInferrer);
     }
 
 
@@ -331,6 +215,20 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
         @Check(name = "元数据信息")
         private List<DataSetColumnOutputModel> metadataList = new ArrayList<>();
 
+        public Output() {
+        }
+
+        public Output(ColumnDataTypeInferrer inferrer) {
+            header = inferrer.getColumnNames();
+            rawDataList = inferrer.getSamples();
+            metadataList = inferrer.getResult().entrySet().stream().map(x -> {
+                        DataSetColumnOutputModel model = new DataSetColumnOutputModel();
+                        model.setName(x.getKey());
+                        model.setDataType(x.getValue());
+                        return model;
+                    })
+                    .collect(Collectors.toList());
+        }
 
         public List<String> getHeader() {
             return header;

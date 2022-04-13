@@ -16,10 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.repo.impl;
 
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.data.fusion.service.repo.AbstractStorage;
-import com.welab.wefe.data.fusion.service.repo.config.MysqlConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
@@ -35,10 +32,6 @@ import java.util.Map;
 @Component
 public class MysqlStorage extends AbstractStorage {
 
-
-    @Autowired
-    private MysqlConfig mysqlConfig;
-
     @Override
     public void createTable(String dbName, String tbName, List<String> rows) throws Exception {
         Connection conn = null;
@@ -49,7 +42,7 @@ public class MysqlStorage extends AbstractStorage {
             StringBuilder s = new StringBuilder();
             for (String row : rows) {
                 s.append("`").append(row).append("`");
-                s.append(" VARCHAR(160) NOT NULL,");
+                s.append(" VARCHAR(320) NOT NULL,");
             }
             if (s.length() > 0) {
                 s = new StringBuilder(s.substring(0, s.length() - 1));

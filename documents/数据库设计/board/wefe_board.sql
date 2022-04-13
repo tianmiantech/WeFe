@@ -473,7 +473,7 @@ CREATE TABLE `project_data_set`
     `source_type`         varchar(32) COMMENT '来源类型，枚举（原始、对齐、分箱）',
     `source_job_id`       varchar(64) COMMENT '来源任务id',
     `source_task_id`      varchar(100) COMMENT '来源子任务id',
-    `data_set_type`       varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型',
+    `data_resource_type`  varchar(36) NOT NULL DEFAULT 'TableDataSet' COMMENT '数据集类型',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`, `member_role`, `data_set_id`)
 ) ENGINE = InnoDB
@@ -592,7 +592,7 @@ CREATE TABLE `project_flow_template`
     `id`                      varchar(32) NOT NULL COMMENT '全局唯一标识',
     `graph`                   text COMMENT '流程图',
     `name`                    varchar(32) DEFAULT NULL COMMENT '模板名称',
-    `enname`                  VARCHAR(45) NULL '模板英文名称',
+    `enname`                  VARCHAR(45) NULL COMMENT '模板英文名称',
     `description`             varchar(32) DEFAULT NULL COMMENT '模板描述',
     `federated_learning_type` VARCHAR(32) NULL COMMENT '联邦任务类型（横向/纵向）',
     `created_by`              varchar(32) DEFAULT NULL COMMENT '创建人',

@@ -33,8 +33,8 @@ nas_upload(){
   rm -rf $nas_env
 
   # copy root, python, config.properties
-  has_python=`s nas command ls  -l nas:///mnt/auto/$nas_env`
-  if [[ $has_python == 'python' ]]
+  has_python=`s nas command ls  -l nas:///mnt/auto/dev | grep "python$"`
+  if [[ $has_python =~ 'python' ]]
   then
     echo "has python, root environment."
   else
@@ -106,11 +106,12 @@ fc_deploy(){
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
   fi
 
-  if [ ! ${nas_env} ]; then
-    echo "nas env is null"
-  else
-    sed -i "s|fc-env:.*|fc-env: ${nas_env}|" s.yaml
-  fi
+#  if [ ! ${nas_env} ]; then
+#    echo "nas env is null"
+#  else
+#    sed -i "s|fc-env:.*|fc-env: ${nas_env}|" s.yaml
+#  fi
+  sed -i "s/fc-env/${nas_env}/g" s.yaml
 
   if [[ ${account_type,,} == "admin" ]]; then
     echo "account_type is admin, auto to create fc role"

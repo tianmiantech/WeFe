@@ -71,12 +71,8 @@
     } from 'vue';
     import { useRoute } from 'vue-router';
     import table from '@src/mixins/table';
-    // import RoleTag from '@src/components/views/role-tag';
 
     export default {
-        components: {
-            // RoleTag,
-        },
         mixins: [table],
         setup(props, context) {
             const route = useRoute();

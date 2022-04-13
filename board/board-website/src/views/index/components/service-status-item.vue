@@ -3,14 +3,9 @@
         <div :class="status.available ? 'tip tip-success' : 'tip tip-error'">
             <el-row class="item-name">
                 <el-col :span="20">
-                    <i
-                        v-if="status.available"
-                        class="el-icon-success"
-                        style="color:green"
-                    />
-                    {{ service }}
                     <el-icon v-if="!status.available"><elicon-info-filled /></el-icon>
                     <el-icon v-else style="color: #67c23a"><elicon-select /></el-icon>
+                    {{ service }} {{ desc }}
                 </el-col>
                 <el-col
                     :span="4"
@@ -25,18 +20,21 @@
                 </el-col>
             </el-row>
 
-            <el-collapse class="mt10 pl5">
-                <el-collapse-item :title="desc">
+            <el-collapse class="mt0 pl5">
+                <el-collapse-item title="明细情况">
                     <div
                         v-for="item in status.list"
                         :key="item.message"
                         class="f12"
                     >
-                        <p v-if="!item.success">
-                            <span style="color: #f56c6c;">{{status.error_service_type}}：</span>
-                            <span>{{item.message}}</span>
+                        <p>
+                            <el-icon v-if="item.success" ><elicon-select /></el-icon>
+                            <el-icon v-else><elicon-close /></el-icon>
+                            {{item.desc}} <span v-if="item.value">({{item.value}})</span>
+
                         </p>
-                        <p v-else>{{item.desc}}</p>
+                        <p v-if="!item.success" style="color:red">ERROR: {{item.message}}</p>
+
                     </div>
                 </el-collapse-item>
             </el-collapse>

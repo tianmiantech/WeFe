@@ -20,12 +20,13 @@ package com.welab.wefe.data.fusion.service.service.bloomfilter;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.data.fusion.service.api.bloomfilter.AddApi;
+import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.database.entity.BloomFilterMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.BloomFilterRepository;
@@ -44,7 +45,6 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +53,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.math.BigInteger;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -73,14 +74,12 @@ public class BloomFilterAddService extends AbstractService {
     @Autowired
     protected DataSetService dataSetService;
 
-    @Value("${file.upload.dir}")
-    private String fileUploadDir;
-
-    @Value("${file.filter.dir}")
-    private String filterDir;
+    @Autowired
+    private Config config;
 
     @Autowired
     FieldInfoService fieldInfoService;
+
 
     @Transactional(rollbackFor = Exception.class)
     public AddApi.BloomfilterAddOutput addFilter(AddApi.Input input) throws Exception {
@@ -160,13 +159,11 @@ public class BloomFilterAddService extends AbstractService {
 
         List<String> headers = dataSetReader.getHeader();
 
-        String src = filterDir + model.getName();
-        model.setSrc(src);
-        File outFile = new File(filterDir);
 
-        if (!outFile.exists() && !outFile.isDirectory()) {
-            outFile.mkdir();
-        }
+        File src = Paths.get(config.getBloomFilterDir())
+                .resolve(model.getName()).toFile();
+
+        model.setSrc(src.toString());
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, file);
         // Read all rows of data
@@ -188,6 +185,14 @@ public class BloomFilterAddService extends AbstractService {
         return rowCount;
     }
 
+
+    public static void main(String[] args) {
+        File outFile = Paths
+                .get("/Users/hunter.zhao/Documents/temp/")
+                .resolve("test").toFile();
+        outFile.mkdir();
+        System.out.println(outFile.toString());
+    }
 
     /**
      * Read data from the specified database according to SQL and save to mysql
@@ -218,14 +223,11 @@ public class BloomFilterAddService extends AbstractService {
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
         model.setRowCount(rowCount);
 
-        File outFile = new File(filterDir);
-        //Create a folder if it does not exist
-        if (!outFile.exists() && !outFile.isDirectory()) {
-            outFile.mkdir();
-        }
 
-        String src = filterDir + model.getName();
-        model.setSrc(src);
+        File src = Paths.get(config.getBloomFilterDir())
+                .resolve(model.getName()).toFile();
+
+        model.setSrc(src.toString());
 
         BloomFilterAddServiceDataRowConsumer bloomFilterAddServiceDataRowConsumer = new BloomFilterAddServiceDataRowConsumer(model, null);
 

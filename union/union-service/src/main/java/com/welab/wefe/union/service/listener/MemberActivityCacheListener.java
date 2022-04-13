@@ -49,21 +49,19 @@ public class MemberActivityCacheListener implements ApplicationListener<Applicat
             while (true) {
                 try {
                     List<Member> list = cache.getTotalList();
-                    //Sleep for 3 minutes if the data is empty
                     if (CollectionUtils.isEmpty(list)) {
-                        ThreadUtil.sleep(3, TimeUnit.MINUTES);
                         continue;
                     }
-
                     for (Member member : list) {
                         updateMember(member);
                         cache.remove(member.getMemberId());
-                        //Sleep for 3 seconds to prevent too frequent operation of the blockchain
-                        ThreadUtil.sleep(3, TimeUnit.SECONDS);
+                        //Sleep for 5 seconds to prevent too frequent operation of the blockchain
+                        ThreadUtil.sleep(5, TimeUnit.SECONDS);
                     }
                 } catch (Exception e) {
                     LOG.error("MemberActivityCacheListener error", e);
-                    ThreadUtil.sleep(10, TimeUnit.SECONDS);
+                } finally {
+                    ThreadUtil.sleep(5, TimeUnit.MINUTES);
                 }
             }
         });

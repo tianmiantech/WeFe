@@ -247,7 +247,10 @@ public abstract class AbstractUnionService extends AbstractService {
                 .postJson();
 
         if (!response.success()) {
-            throw new StatusCodeWithException(response.getMessage(), StatusCode.RPC_ERROR);
+            log(response.getError());
+            String message = "访问 Union API 失败(" + response.getCode() + ")：" +
+                    response.getMessage() + " ，请检查网络连接。url：" + response.getUrl();
+            throw new StatusCodeWithException(message, StatusCode.RPC_ERROR);
         }
 
         JSONObject json;

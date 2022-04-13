@@ -21,12 +21,12 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.dataset.DeleteApi;
 import com.welab.wefe.data.fusion.service.api.dataset.PreviewApi;
 import com.welab.wefe.data.fusion.service.api.dataset.QueryApi;
+import com.welab.wefe.data.fusion.service.config.Config;
 import com.welab.wefe.data.fusion.service.database.entity.DataSetMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.DataSetRepository;
@@ -71,8 +71,8 @@ public class DataSetService extends AbstractService {
     @Autowired
     DataSetRepository dataSetRepository;
 
-    @Value("${file.upload.dir}")
-    private String fileUploadDir;
+    @Autowired
+    private Config config;
 
     @Value("${db.mysql.url}")
     private String mySqlUrl;
@@ -84,7 +84,6 @@ public class DataSetService extends AbstractService {
     private String mySqlPassword;
 
     private final String TABLE_HEADER = "data_fusion_";
-
 
     /**
      * @param id
@@ -135,7 +134,7 @@ public class DataSetService extends AbstractService {
         File file = null;
         switch (method) {
             case UploadFile:
-                file = new File(fileUploadDir, filename);
+                file = new File(config.getSourceFilterDir(), filename);
                 break;
             case LocalFile:
                 file = new File(filename);
@@ -160,36 +159,6 @@ public class DataSetService extends AbstractService {
         return dataSetRepository.findAll();
     }
 
-    /**
-     * Look up the table by ID and iterate
-     */
-    public List<String> list(String dataSetId) throws StatusCodeWithException {
-        String sql = "select " + "id" + " from " + TABLE_HEADER + dataSetId;
-
-        List<String> result = new ArrayList<>();
-        JdbcManager jdbcManager = new JdbcManager();
-        Connection conn = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-
-            conn = jdbcManager.getConnection(DatabaseType.MySql, mySqlUrl, mySqlUsername, mySqlPassword);
-
-            statement = conn.prepareStatement(sql);
-            resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                result.add(resultSet.getString(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
-        } finally {
-            jdbcManager.close(conn, statement, resultSet);
-        }
-
-        return result;
-    }
 
     /**
      * Paging query data sets
@@ -204,61 +173,6 @@ public class DataSetService extends AbstractService {
         return dataSetRepository.paging(where, input, DataSetOutputModel.class);
 
     }
-
-    /**
-     * Delete filter
-     *
-     * @param input
-     */
-    public void delete(DeleteApi.Input input) {
-        DataSetMySqlModel model = dataSetRepository.findById(input.getId()).orElse(null);
-        if (model == null) {
-            return;
-        }
-
-        int ThreadCount = CommonThreadPool.actionThreadCount();
-        System.out.println("ThreadCount:" + ThreadCount);
-        CommonThreadPool.stop();
-
-        dataSetRepository.deleteById(input.getId());
-        dataStorageService.dropTable("data_fusion_" + model.getId());
-
-    }
-
-
-    /**
-     * Paging query data sets
-     */
-    public int count(String dataSetId) throws StatusCodeWithException {
-
-        String sql = "select count(1)  from " + TABLE_HEADER + dataSetId;
-
-
-        List<JObject> result = new ArrayList<>();
-        JdbcManager jdbcManager = new JdbcManager();
-        Connection conn = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-
-            conn = jdbcManager.getConnection(DatabaseType.MySql, mySqlUrl, mySqlUsername, mySqlPassword);
-
-            statement = conn.prepareStatement(sql);
-            resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                return resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
-        } finally {
-            jdbcManager.close(conn, statement, resultSet);
-        }
-
-        return 0;
-    }
-
 
     /**
      * Paging query data sets
@@ -299,6 +213,61 @@ public class DataSetService extends AbstractService {
         }
 
         return result;
+    }
+
+
+    /**
+     * Paging query data sets
+     */
+    public int count(String dataSetId) throws StatusCodeWithException {
+
+        String sql = "select count(1)  from " + TABLE_HEADER + dataSetId;
+
+
+        List<JObject> result = new ArrayList<>();
+        JdbcManager jdbcManager = new JdbcManager();
+        Connection conn = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+
+            conn = jdbcManager.getConnection(DatabaseType.MySql, mySqlUrl, mySqlUsername, mySqlPassword);
+
+            statement = conn.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        } finally {
+            jdbcManager.close(conn, statement, resultSet);
+        }
+
+        return 0;
+    }
+
+
+    /**
+     * Delete filter
+     *
+     * @param input
+     */
+    public void delete(DeleteApi.Input input) {
+        DataSetMySqlModel model = dataSetRepository.findById(input.getId()).orElse(null);
+        if (model == null) {
+            return;
+        }
+
+        int ThreadCount = CommonThreadPool.actionThreadCount();
+        System.out.println("ThreadCount:" + ThreadCount);
+        CommonThreadPool.stop();
+
+        dataSetRepository.deleteById(input.getId());
+        dataStorageService.dropTable("data_fusion_" + model.getId());
+
     }
 
     /**

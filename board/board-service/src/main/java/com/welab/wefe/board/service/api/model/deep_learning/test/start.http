@@ -3,6 +3,6 @@ Content-Type: application/json
 token: {{token}}
 
 {
-  "taskId": "822d4e06ea0346e5a3582e0a5f87ddb7_provider_PaddleDetection_16452526379674439",
-  "filename": "38471646284474_.pic_hd.jpg"
+  "taskId": "ed94d6b25f344ad3849bf42b5d86ff89_promoter_PaddleClassify_16487121262871114",
+  "filename": "fruit.zip"
 }

@@ -131,13 +131,17 @@ public class ClassifyImageDataSetParser extends AbstractImageDataSetParser {
     private List<String> emitLabelListFile(ImageDataSetMysqlModel dataSet, Path outputDir) throws IOException {
         List<String> labelList = new ArrayList<>(dataSet.getLabelSet());
 
-        String labelListStr = "";
+        StringBuilder labelListStr = new StringBuilder();
         for (int i = 0; i < labelList.size(); i++) {
             String label = labelList.get(i);
-            labelListStr += label + " " + i + System.lineSeparator();
+            labelListStr
+                    .append(i)
+                    .append(" ")
+                    .append(label)
+                    .append(System.lineSeparator());
         }
         FileUtil.writeTextToFile(
-                labelListStr.trim(),
+                labelListStr.toString().trim(),
                 Paths.get(
                         outputDir.toString(),
                         LABEL_LIST_FILE_NAME

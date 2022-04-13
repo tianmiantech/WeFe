@@ -57,10 +57,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -90,6 +87,10 @@ public class HttpRequest {
         return new HttpRequest(url);
     }
 
+    /**
+     * 该请求的唯一标识号
+     */
+    public String sessionId = UUID.randomUUID().toString().replace("-", "");
     private String url;
     private String contentType;
     private String encoding = StandardCharsets.UTF_8.name();
@@ -357,7 +358,7 @@ public class HttpRequest {
             sb.append("]");
 
             // LOG.info("Request : URL = {}, headers = {}, encoding = {}, Content-Type = {}, paramMap = {}, body = {}", url, headers, encoding, contentType, sb, body);
-            LOG.info("Request : URL = {}, paramMap = {}, body = {}", url, sb, body);
+            LOG.info("Request({}): URL={}, paramMap={}, body={}", sessionId, url, sb, body);
             try (CloseableHttpResponse httpResponse = httpClient.execute(httpUriRequest)) {
                 response = HttpResponse.create(this, System.currentTimeMillis() - startTime)
                         .message(httpResponse.getStatusLine().getReasonPhrase())
