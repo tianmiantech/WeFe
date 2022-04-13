@@ -155,11 +155,13 @@ class VertDPSecureBoostingPromoter(BoostingTree):
         LOGGER.info("convert feature to bins over")
 
         privider_data_bins = self.sync_provider_data_bin_with_dp()
+        privider_split_points = self.sync_provider_bin_split_points()
         promoter_sitename = ":".join([consts.PROMOTER, str(self.component_properties.local_member_id,)])
         feature_num = self.bin_split_points.shape[0]
         self.feature_sitenames = [(feature_num,promoter_sitename)]
-        for data_bin, bin_split_points, bin_sparse_points, sitename in privider_data_bins:
-            self.data_bin = binning_obj.merge_data_bins(self.data_bin,data_bin)
+        for data_bin in privider_data_bins:
+            self.data_bin = binning_obj.merge_data_bins(self.data_bin, data_bin)
+        for bin_split_points, bin_sparse_points, sitename in privider_split_points:
             self.bin_split_points = np.vstack((self.bin_split_points,bin_split_points))
             for k,v in bin_sparse_points.items():
                 self.bin_sparse_points[k+feature_num] = v
@@ -344,8 +346,11 @@ class VertDPSecureBoostingPromoter(BoostingTree):
 
     def sync_provider_data_bin_with_dp(self):
         LOGGER.info("get provider bin data with dp")
-
         return self.transfer_variable.data_bin_with_dp.get(idx=-1)
+
+    def sync_provider_bin_split_points(self):
+        LOGGER.info("get provider bin data with dp")
+        return self.transfer_variable.bin_split_points.get(idx=-1)
 
     def load_booster(self, model_meta, model_param, epoch_idx, booster_idx):
         tree = VertDPDecisionTreePromoter(self.tree_param)
