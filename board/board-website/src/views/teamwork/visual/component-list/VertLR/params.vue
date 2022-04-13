@@ -363,6 +363,11 @@
                         params: vData.form,
                     };
                 },
+                formatter(params) {
+                    vData.form = {
+                        ...params,
+                    };
+                },
                 async getNodeData() {
                     const { code, data } = await $http.get({
                         url:    '/flow/dataset/info',
