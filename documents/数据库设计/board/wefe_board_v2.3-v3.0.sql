@@ -254,9 +254,9 @@ CREATE TABLE `job_apply_result`
     `updated_time`        datetime(6) COMMENT '更新时间',
     `job_id`              varchar(255) DEFAULT NULL COMMENT 'jobid',
     `task_id`             varchar(255) DEFAULT NULL COMMENT 'taskid',
-    `server_endpoint`     varchar(255) DEFAULT NULL COMMENT '',
-    `aggregator_endpoint` varchar(32)  DEFAULT NULL COMMENT '',
-    `aggregator_assignee` varchar(255) DEFAULT NULL COMMENT '',
+    `server_endpoint`     varchar(255) DEFAULT NULL COMMENT 'fl_server地址',
+    `aggregator_endpoint` varchar(32)  DEFAULT NULL COMMENT 'fl_scheduler地址',
+    `aggregator_assignee` varchar(255) DEFAULT NULL COMMENT 'fl_scheduler 代理worker',
     `status`              varchar(255) DEFAULT NULL COMMENT '状态',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
