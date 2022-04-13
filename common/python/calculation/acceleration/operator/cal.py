@@ -603,6 +603,8 @@ def gpu_paillier_array_pen_sub_pen(a_array, b_array):
     for i in range(array_element_count):
         # skip x_sign
         ii = ii + INT64_BYTE
+        print(f'a_array index: {i}, type: {type(a_array[i])}')
+        print(f'b_array index: {i}, type: {type(b_array[i])}')
 
         # x
         gpu_lib.GPU_H_C_Memcpy(c_void_p(a_data + ii),

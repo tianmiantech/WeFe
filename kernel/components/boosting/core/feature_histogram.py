@@ -738,6 +738,8 @@ class FeatureHistogram(object):
 
         sub_grad_result = []
         if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
+            print(f'len(grad): {len(grad)}， grad_encrypt_flag：{grad_encrypt_flag}')
+            print(f'zero_opt_node_sum[j][0] type: {type(zero_opt_node_sum[0][0])}')
             zero_opt_node_sum_grad_list = np.array([[zero_opt_node_sum[j][0] for i in range(features_num)] for j in
                                                     range(node_num)]).flatten('A')
             zero_optim_fea_grad_list = np.array(
@@ -746,6 +748,7 @@ class FeatureHistogram(object):
 
         sub_hess_result = []
         if check_aclr_support() and len(grad) >= 2 and hess_encrypt_flag:
+            print(f'len(grad): {len(grad)}， hess_encrypt_flag：{hess_encrypt_flag}')
             zero_opt_node_sum_hess_list = np.array([[zero_opt_node_sum[j][1] for i in range(features_num)] for j in
                                                     range(node_num)]).flatten('A')
             zero_optim_fea_hess_list = np.array(
