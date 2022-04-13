@@ -1014,57 +1014,57 @@ CREATE TABLE `bloom_filter_task`
 DROP TABLE IF EXISTS `fusion_field_info`;
 CREATE TABLE `fusion_field_info`
 (
-    `id`           varchar(64)  NOT NULL,
-    `business_id`  varchar(64)  NOT NULL,
+    `id`           varchar(64)  NOT NULL COMMENT '唯一标识',
+    `business_id`  varchar(64)  NOT NULL COMMENT '任务交易号',
     `columns`      varchar(255) NOT NULL COMMENT '字段集合',
     `options`      varchar(32)  NOT NULL COMMENT '处理方式',
     `frist_index`  int(11) DEFAULT NULL COMMENT '处理起始位',
     `end_index`    int(11) DEFAULT NULL COMMENT '处理终止位',
-    `created_by`   varchar(32) DEFAULT NULL,
-    `updated_by`   varchar(32) DEFAULT NULL,
-    `created_time` datetime     NOT NULL,
-    `updated_time` datetime    DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    `position`     tinyint(1) NOT NULL,
+    `created_by`   varchar(32) DEFAULT NULL COMMENT '创建者',
+    `updated_by`   varchar(32) DEFAULT NULL COMMENT '更新者',
+    `created_time` datetime     NOT NULL COMMENT '创建时间',
+    `updated_time` datetime    DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `position`     tinyint(1) NOT NULL COMMENT '排序号',
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC  COMMENT '主键hash方法表';
 
 -- fusion_task definition
 
 DROP TABLE IF EXISTS `fusion_task`;
 CREATE TABLE `fusion_task`
 (
-    `id`                         varchar(64)  NOT NULL,
+    `id`                         varchar(64)  NOT NULL COMMENT '唯一标识',
     `business_id`                varchar(64)  NOT NULL COMMENT '业务ID',
     `name`                       varchar(255) NOT NULL COMMENT '任务名称',
     `status`                     varchar(32)  NOT NULL COMMENT '任务状态',
     `error`                      text COMMENT '任务错误信息',
     `dst_member_id`              varchar(32)  NOT NULL COMMENT '合作伙伴id',
     `data_resource_id`           varchar(32)   DEFAULT NULL COMMENT '数据集id',
-    `data_resource_type`         varchar(21)   DEFAULT NULL,
+    `data_resource_type`         varchar(21)   DEFAULT NULL COMMENT '资源类型',
     `partner_data_resource_id`   varchar(32)   DEFAULT NULL COMMENT '数据集id',
-    `partner_data_resource_type` varchar(21)   DEFAULT NULL,
+    `partner_data_resource_type` varchar(21)   DEFAULT NULL COMMENT '合作方资源类型',
     `row_count`                  int(11) DEFAULT NULL COMMENT '对齐数据行数',
-    `psi_actuator_role`          varchar(32)   DEFAULT NULL,
-    `algorithm`                  varchar(32)   DEFAULT NULL,
+    `psi_actuator_role`          varchar(32)   DEFAULT NULL COMMENT 'psi算法处理器角色',
+    `algorithm`                  varchar(32)   DEFAULT NULL COMMENT '对齐算法',
     `partner_row_count`          int(11) DEFAULT NULL COMMENT '处理总数',
     `fusion_count`               int(11) DEFAULT NULL COMMENT '已融合数',
-    `spend`                      bigint(20) DEFAULT NULL,
-    `created_by`                 varchar(32)   DEFAULT NULL,
-    `updated_by`                 varchar(32)   DEFAULT NULL,
-    `created_time`               datetime     NOT NULL,
-    `updated_time`               datetime      DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    `spend`                      bigint(20) DEFAULT NULL COMMENT '耗时',
+    `created_by`                 varchar(32)   DEFAULT NULL COMMENT '创建人',
+    `updated_by`                 varchar(32)   DEFAULT NULL COMMENT '更新者',
+    `created_time`               datetime     NOT NULL COMMENT '创建时间',
+    `updated_time`               datetime      DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `description`                varchar(1024) DEFAULT NULL COMMENT '描述',
-    `is_trace`                   tinyint(1) NOT NULL DEFAULT '0',
-    `trace_column`               varchar(255)  DEFAULT NULL,
-    `comment`                    text,
-    `project_id`                 varchar(64)   DEFAULT NULL,
-    `my_role`                    varchar(100)  DEFAULT NULL,
-    `data_count`                 int(11) DEFAULT NULL,
-    `processed_count`            int(11) DEFAULT NULL,
-    `hash_function`              varchar(100)  DEFAULT NULL,
-    `partner_hash_function`      varchar(100)  DEFAULT NULL,
+    `is_trace`                   tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否回溯',
+    `trace_column`               varchar(255)  DEFAULT NULL COMMENT '回溯字段',
+    `comment`                    text COMMENT '审核评论',
+    `project_id`                 varchar(64)   DEFAULT NULL COMMENT '项目ID',
+    `my_role`                    varchar(100)  DEFAULT NULL COMMENT '我的角色',
+    `data_count`                 int(11) DEFAULT NULL COMMENT '数据量',
+    `processed_count`            int(11) DEFAULT NULL COMMENT '已处理数据量',
+    `hash_function`              varchar(100)  DEFAULT NULL COMMENT '主键hash方式',
+    `partner_hash_function`      varchar(100)  DEFAULT NULL COMMENT '合作方主键hash方式',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='融合任务表';
 
 
 -- fusion_result_export_progress definition
@@ -1072,20 +1072,20 @@ CREATE TABLE `fusion_task`
 DROP TABLE IF EXISTS `fusion_result_export_progress`;
 CREATE TABLE `fusion_result_export_progress`
 (
-    `id`               varchar(64)  NOT NULL,
+    `id`               varchar(64)  NOT NULL COMMENT '唯一标识',
     `business_id`      varchar(64)  NOT NULL COMMENT '融合任务businessId',
     `table_name`       varchar(255) NOT NULL COMMENT '导出表名',
     `progress`         int(11) NOT NULL COMMENT '进度',
     `total_data_count` int(11) DEFAULT NULL COMMENT '导出总数',
     `processed_count`  int(11) DEFAULT NULL COMMENT '已导出数量',
     `status`           varchar(32) DEFAULT NULL COMMENT '状态',
-    `created_by`       varchar(32) DEFAULT NULL,
-    `updated_by`       varchar(32) DEFAULT NULL,
-    `created_time`     datetime     NOT NULL,
-    `updated_time`     datetime    DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    `finish_time`      bigint(20) DEFAULT NULL,
+    `created_by`       varchar(32) DEFAULT NULL COMMENT '创建者',
+    `updated_by`       varchar(32) DEFAULT NULL COMMENT '更新者',
+    `created_time`     datetime     NOT NULL COMMENT '创建时间',
+    `updated_time`     datetime    DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `finish_time`      bigint(20) DEFAULT NULL COMMENT '完成时间',
     PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC  COMMENT '下载进度表';
 
 -- verification_code definition
 
