@@ -20,6 +20,7 @@ ARG MINICONDA_DIR=$ENV_BASE/miniconda3
 ARG PYTHON_DIR=$ENV_BASE/miniconda3/envs/wefe-python37
 ARG SPARK_DIR=$ENV_BASE/spark-3.0.1-bin-hadoop2.7
 ARG JDK_DIR=$ENV_BASE/jdk1.8.0_241
+ARG GPU_LIB=/usr/lib
 
 # 在镜像创建目录
 RUN mkdir -p $MINICONDA_DIR \
@@ -34,6 +35,9 @@ COPY $LOCAL_ENV_BASE/spark-3.0.1-bin-hadoop2.7 $SPARK_DIR/
 
 # 复制 jdk 环境
 COPY $LOCAL_ENV_BASE/jdk1.8.0_241 $JDK_DIR/
+
+# 复制 gpu so文件
+COPY $LOCAL_ENV_BASE/libgpuhomomorphism.so $GPU_LIB/
 
 # 配置环境变量
 ENV JAVA_HOME $JDK_DIR
