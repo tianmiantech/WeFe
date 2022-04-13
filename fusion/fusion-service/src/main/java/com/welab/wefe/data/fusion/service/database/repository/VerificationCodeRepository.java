@@ -18,10 +18,12 @@ package com.welab.wefe.data.fusion.service.database.repository;
 
 import com.welab.wefe.data.fusion.service.database.entity.VerificationCodeMysqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.base.BaseRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author aaron.li
  * @date 2022/1/19 17:48
  **/
+@Repository
 public interface VerificationCodeRepository extends BaseRepository<VerificationCodeMysqlModel, String> {
 }

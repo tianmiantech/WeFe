@@ -74,6 +74,7 @@ public class FileType {
         switch (fileType.toLowerCase()) {
             case "png":
             case "jpg":
+            case "jpeg":
             case "gif":
             case "tif":
             case "bmp":

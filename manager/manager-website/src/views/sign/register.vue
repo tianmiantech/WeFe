@@ -24,24 +24,27 @@
                 @submit.prevent
             >
                 <el-form-item
-                    prop="account"
-                    :rules="accountRules"
+                    prop="phone"
+                    :rules="phoneRules"
                 >
                     <el-input
-                        v-model.trim="form.account"
-                        placeholder="用户名"
-                        maxlength="32"
+                        v-model.trim="form.phone"
+                        placeholder="手机号"
+                        maxlength="11"
+                        id="username"
+                        type="tel"
                         clearable
                     />
                 </el-form-item>
                 <el-form-item
-                    prop="realname"
-                    :rules="realnameRules"
+                    prop="nickname"
+                    :rules="nicknameRules"
                 >
                     <el-input
-                        v-model.trim="form.realname"
-                        placeholder="姓名"
-                        maxlength="32"
+                        v-model.trim="form.nickname"
+                        placeholder="用户名"
+                        maxlength="40"
+                        type="text"
                         clearable
                     />
                 </el-form-item>
@@ -52,7 +55,7 @@
                     <el-input
                         v-model.trim="form.email"
                         placeholder="邮箱"
-                        maxlength="32"
+                        maxlength="60"
                         type="text"
                         clearable
                     />
@@ -63,10 +66,17 @@
                 >
                     <el-input
                         v-model="form.password"
-                        placeholder="密码"
+                        placeholder="8-30 位数字字母特殊符号组合"
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
+                    />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.password"
                     />
                 </el-form-item>
                 <el-form-item
@@ -80,6 +90,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
                 <el-form-item
@@ -107,20 +120,19 @@
                         </template>
                     </el-input>
                 </el-form-item>
-                <!-- <div class="terms">
-                    <el-checkbox v-model="form.terms">注册即代表同意我们的</el-checkbox>
+                <div class="terms">
+                    <el-checkbox v-model="form.terms">注册即代表已阅读并同意我们的</el-checkbox>
                     《<span
                         class="el-link el-link--primary"
                         @click="termsDialog=true"
-                    >隐私权限</span>》
-                </div> -->
+                    >隐私协议</span>》
+                </div>
                 <el-divider />
                 <el-button
                     v-loading="submitting"
-                    size="medium"
-                    type="primary"
-                    native-type="submit"
                     class="btn-submit ml10"
+                    native-type="submit"
+                    type="primary"
                     round
                     @click="submit"
                 >
@@ -128,6 +140,53 @@
                 </el-button>
             </el-form>
         </div>
+        <el-dialog
+            v-model="termsDialog"
+            title="隐私政策"
+            append-to-body
+            destroy-on-close
+            width="60%"
+            top="7vh"
+            :show-close="false"
+            :close-on-click-modal="false"
+        >
+            <div class="terms_text">
+                <p><span>我们致力于</span>保护您在使用我们网站时所提供的私隐、私人资料以及个人的资料(统称“个人资料”)，使我们在收集、使用、储存和传送个人资料方面符合 (与个人资料私隐有关的法律法规)及消费者保护方面的最高标准。 为确保您对我们在处理个人资料上有充分信心，您切要详细阅读及理解隐私政策的条文。</p>
+                <p><span>特别是您一旦使用我们的网站，将被视为接受、同意、承诺和确认；您在自愿下连同所需的同意向我们披露个人资料；您会遵守本隐私政策的全部条款和限制；您在我们的网站上作登记、资料会被收集；您同意日后我们对隐私政策的任何修改；您同意我们的分公司、附属公司、雇员、就您可能会感兴趣的产品和服务与您联络(除非您已经表示不想收到该等讯息)。被收集的个人资料的种类经您的同意，我们会收集、管理和监控个人资料。</span></p>
+                <p><span>为了向您提供我们的各项服务，您需要提供个人资料信息，</span>其中包括个人资料和不具名的资料，包括但不限于：<span>个人资料（您的电话号码、电子邮箱地址）。</span></p>
+                <p><span>收集个人资料及不具名的资料的目的及用途如下:</span></p>
+                <ol>
+                    <li>通过我们的网站向您提供我们的各项服务；</li>
+                    <li>当您使用我们的网站时，能辨认以及确认您的身份；</li>
+                    <li>让您使用我们的网站时得到为您而设的服务；</li>
+                    <li>我们的顾客服务人员有需要时可以与您联系；</li>
+                    <li>统计我们网站使用量的数据；</li>
+                    <li>让您在使用我们网站时更方便；</li>
+                    <li>为改进我们的产品、服务及网站内容而进行市场研究调查；</li>
+                    <li>为我们搞的活动、市场销售和推广计划收集资料；</li>
+                    <li>遵守法律、政府和监管机关的规定，包括但不限于对个人资料披露及通知的规定；</li>
+                    <li>就我们提供的各项服务、分析、核对或审查您的信用、付款或地位；</li>
+                    <li>处理在您要求下的任何付款指示，直接扣帐或信用安排；</li>
+                    <li>使您能运作您的账户以及使我们能从账户支取尚欠的服务费；</li>
+                </ol>
+                <p>您提供给我们的个人资料及不具名资料，只保留到搜集的目的已达到的时候，除非应适用的法律法规之规定而继续保留。 <span>个人资料的拥有权及披露在我们网站上所搜集的一切资料都由我们所拥有，不会出租或出售给任何无关的第三方。</span></p>
+                <p>您有权： 查询我们是否持有您的任何个人资料；接达我们所持有的您的个人资料；要求我们更正任何不正确的个人资料；不时地征询有关我们所持有的<span>个人资料的性质，政策和执行方法</span>；然而在法律允许的极端有限的情况下，<span>我们可以不允许您接达您的个人资料</span>，例如：如您接达及得到您个人资料可能会对您有危险；当您的个人资料可能会影响一项正在进行的调查；当您的个人资料涉及到法庭程序，并且可能受到发现的限制；当您的个人资料涉及一项商业上敏感的决策过程；当另外一個人的个人资料也包含在同一份记录中；若您欲接达或更正个人资料，或索取有关个人资料的政策、执行方法和被持有的个人资料的种类，应致函到我们的下列的地址；要求接达或更正资料可能要付合理的处理费用；安全保管您的密码，除了我们致力确保您的个人资料存放和处理的安全外，<span>您不应向任何人披露您的登录密码或帐户资料，以保护您的个人资料</span>。</p>
+                <p>每当您登录我们网站时，尤其是当您使用他人的电脑或者是公共的互联网终端机时，请记着操作完毕后一定要点击<span>退出</span>。</p>
+                <p>您的努力和协助对于我们保护您的个人资料绝对有帮助。</p>
+                <p>隐私政策的修改：本隐私政策可以不时(无需事先向您通知)被修改。任何对隐私政策的修改都会刊登在我们网站上。</p>
+            </div>
+            <template
+                #footer
+                class="dialog-footer"
+            >
+                <el-button
+                    type="primary"
+                    @click="termsDialog = false"
+                >
+                    我知道了
+                </el-button>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -142,19 +201,30 @@
                 form:       {
                     terms:         false,
                     email:         '',
-                    account:       '',
-                    realname:      '',
+                    phone:         '',
+                    nickname:      '',
                     password:      '',
                     passwordAgain: '',
                     code:          '',
                     key:           '',
                 },
-                imgCode:      '',
-                termsDialog:  false,
-                accountRules: [
+                imgCode:     '',
+                termsDialog: false,
+                phoneRules:  [
                     {
                         required: true,
-                        message:  '请输入用户名',
+                        message:  '请输入你的手机号',
+                    },
+                    {
+                        validator: (rule, value, callback) => {
+                            if (/^1[3-9]\d{9}/.test(value)) {
+                                callback();
+                            } else {
+                                callback(false);
+                            }
+                        },
+                        message: '请输入正确的手机号',
+                        trigger: 'blur',
                     },
                 ],
                 emailRules: [
@@ -169,7 +239,7 @@
                         trigger:   'blur',
                     },
                 ],
-                realnameRules: [
+                nicknameRules: [
                     {
                         required: true,
                         message:  '请输入你的姓名',
@@ -217,7 +287,7 @@
         },
         methods: {
             async getImgCode() {
-                const { code, data } = await this.$http.get('/user/captcha');
+                const { code, data } = await this.$http.get('/account/captcha');
 
                 if (code === 0) {
                     this.imgCode = data.image;
@@ -246,22 +316,32 @@
                     callback(false);
                 }
             },
-            submit() {
-                if (this.submitting) return;
-
-                this.submitting = true;
+            submit(event) {
                 this.$refs['sign-form'].validate(async valid => {
                     if (valid) {
-                        // if (!this.form.terms) return this.$message.error('请先勾选隐私权限');
+                        if (!this.form.terms) return this.$message.error('请先阅读并勾选隐私协议');
+                        if(this.$refs['password-strength'].pwStrength < 3) {
+                            return this.$message.error('密码强度太弱');
+                        }
+                        const password = [
+                            this.form.phone,
+                            this.form.password,
+                            this.form.phone,
+                            this.form.phone.substr(0, 3),
+                            this.form.password.substr(this.form.password.length - 3),
+                        ].join('');
                         const { code } = await this.$http.post({
-                            url:  '/user/register',
+                            url:  '/account/register',
                             data: {
-                                email:    this.form.email,
-                                account:  this.form.account,
-                                realname: this.form.realname,
-                                password: md5(this.form.password),
-                                key:      this.form.key,
-                                code:     this.form.code,
+                                email:        this.form.email,
+                                phone_number: this.form.phone,
+                                nickname:     this.form.nickname,
+                                password:     md5(password),
+                                key:          this.form.key,
+                                code:         this.form.code,
+                            },
+                            btnState: {
+                                target: event,
                             },
                         });
 
@@ -277,7 +357,6 @@
                         this.getImgCode();
                     }
                 });
-                this.submitting = false;
             },
         },
     };
@@ -299,6 +378,18 @@
         border-radius: 3px;
         padding: 20px 50px;
     }
+    .pw-strength{
+        .strength-level{
+            width: 30px;
+            height: 6px;
+            margin-right:4px;
+            display: inline-block;
+            vertical-align:middle;
+        }
+        .level-1{background:#D54724;}
+        .level-2{background:#E98737;}
+        .level-3{background:#76A030;}
+    }
     .terms{
         color: #6C757D;
         padding-top: 10px;
@@ -306,5 +397,29 @@
     .btn-submit{
         display: block;
         margin: 0 auto;
+    }
+    .terms_text {
+        color: #333;
+        p {
+            font-family: Microsoft YaHei,SimHei,SimSun;
+            font-size: 12px;
+            text-indent: 20px;
+            line-height: 24px;
+            text-align: justify;
+            span {
+                font-weight: bold;
+                color: #000;
+            }
+        }
+        ol {
+            margin-left: 33px;
+            li {
+                font-family: Microsoft YaHei,SimHei,SimSun;
+                font-size: 12px;
+                font-weight: bold;
+                color: #000;
+                line-height: 24px;
+            }
+        }
     }
 </style>

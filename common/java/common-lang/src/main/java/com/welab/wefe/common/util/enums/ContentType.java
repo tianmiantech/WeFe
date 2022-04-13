@@ -53,7 +53,7 @@ public enum ContentType {
     JPEG("jpeg", "JPEG图像", "image/jpeg"),
     JPG("jpg", "JPEG图像", "image/jpeg"),
     JS("js", "JavaScript", "text/javascript"),
-    JSON("json", "JSON格式", "application/json"),
+    JSON("json", "JSON格式", "text/plain"),
     JSONLD("jsonld", "JSON-LD格式", "application/ld+json"),
     MID("mid", "乐器数字接口（MIDI）", "audio/midi"),
     MIDI("midi", "乐器数字接口（MIDI）", "audio/midi"),

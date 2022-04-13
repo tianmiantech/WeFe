@@ -185,7 +185,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             private float subsampleFeatureRate;
             @Check(name = "多次迭代无变化是允许停止", require = true)
             private boolean nIterNoChange;
-            @Check(name = "收敛阀值", require = true)
+            @Check(name = "收敛阈值", require = true)
             private float tol;
             @Check(name = "最大分箱数", require = true)
             private int binNum;
@@ -193,8 +193,8 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             private int validationFreqs;
             @Check(name = "允许提前结束的最小迭代次数", require = true)
             private int earlyStoppingRounds;
-            @Check(name = "工作模式", require = true)
-            private String workMode; // normal、layered、skip
+            @Check(name = "工作模式")
+			private String workMode = "normal"; // normal、layered、skip
             
             // 当work_mode==layered时，需要下面两个参数
             @Check(name = "promoter层数")

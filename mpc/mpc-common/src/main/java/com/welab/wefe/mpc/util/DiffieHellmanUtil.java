@@ -47,6 +47,28 @@ public class DiffieHellmanUtil {
         }
     }
 
+    public static BigInteger modDivide(BigInteger divisor, BigInteger dividend, BigInteger mode) {
+        BigInteger inv = dividend.modInverse(mode);
+        BigInteger multi = divisor.multiply(inv);
+        return multi.mod(mode);
+    }
+
+    public static String bigIntegerToHexString(BigInteger value) {
+        return value.toString(16);
+    }
+
+    public static BigInteger hexStringToBigInteger(String hexValue) {
+        return new BigInteger(hexValue, 16);
+    }
+
+    public static BigInteger encrypt(BigInteger value, DiffieHellmanKey key) {
+        return encrypt(key.getG(), value, key.getP());
+    }
+
+    public static BigInteger encrypt(String value, DiffieHellmanKey key) {
+        return encrypt(key.getG(), hexStringToBigInteger(value), key.getP());
+    }
+
     public static BigInteger encrypt(String value, BigInteger key, BigInteger p) {
         return encrypt(value, key, p, true);
     }
@@ -64,8 +86,11 @@ public class DiffieHellmanUtil {
         if (hash) {
             value = EncryptUtil.encrypt(value, AccountEncryptionType.md5.name());
         }
-        BigInteger integer = new BigInteger(value, 16);
-        return integer.modPow(key, p);
+        return encrypt(hexStringToBigInteger(value), key, p);
+    }
+
+    public static BigInteger encrypt(BigInteger value, BigInteger key, BigInteger p) {
+        return value.modPow(key, p);
     }
 
     public static BigInteger generateRandomKey(int keySize) {

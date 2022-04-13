@@ -226,6 +226,7 @@
                             <el-tag>{{ sqlOperator === 'and' ? 'And' : 'Or' }}</el-tag>
                             <el-select
                                 v-model="item.field_on_table"
+                                class="ml10"
                                 clearable
                             >
                                 <el-option
@@ -235,9 +236,30 @@
                                     :value="each.name"
                                 />
                             </el-select>
+
+                            <el-select
+                                v-model="item.condition"
+                                class="ml10 no-arrow"
+                                style="width:40px;"
+                            >
+                                <el-option
+                                    label="="
+                                    value="="
+                                />
+                                <el-option
+                                    label=">"
+                                    value="gt"
+                                />
+                                <el-option
+                                    label="<"
+                                    value="lt"
+                                />
+                            </el-select>
+
                             <el-select
                                 v-model="item.field_on_param"
                                 placeholder="从查询参数配置中选择"
+                                class="ml10"
                                 clearable
                             >
                                 <el-option
@@ -259,7 +281,7 @@
                             icon="icons el-icon-circle-plus-outline"
                             @click="addConditionFields"
                         >
-                            添加字段
+                            添加查询字段
                         </el-button>
                         <el-form-item label="参数逻辑符:">
                             <el-radio
@@ -468,6 +490,7 @@ export default {
                     return_fields:    [],
                     condition_fields: [
                         {
+                            condition:      '=',
                             field_on_param: '',
                             field_on_table: '',
                         },
@@ -605,7 +628,13 @@ export default {
                             } else {
                                 this.form.data_source.return_fields = data_source.return_fields[0].name;
                             }
-                            this.form.data_source.condition_fields = data_source.condition_fields;
+                            this.form.data_source.condition_fields = data_source.condition_fields.map(x => {
+                                this.sqlOperator = x.operator;
+                                return {
+                                    ...x,
+                                    condition: x.condition || '=',
+                                };
+                            });
                         }
                     }
 
@@ -708,6 +737,7 @@ export default {
             this.form.data_source.condition_fields.push({
                 field_on_param: '',
                 field_on_table: '',
+                condition:      '=',
             });
         },
         addService() {
@@ -1019,6 +1049,13 @@ export default {
     ::v-deep .el-tag__close {
         background: #fff;
     }
+}
+.no-arrow{
+    ::v-deep .el-input__inner{
+        padding: 0;
+        text-align: center;
+    }
+    ::v-deep .el-input__suffix{display: none;}
 }
 
 .flex-form {

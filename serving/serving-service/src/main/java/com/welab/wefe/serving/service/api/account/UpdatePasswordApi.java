@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.api.account;
 
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -34,8 +35,8 @@ public class UpdatePasswordApi extends AbstractApi<UpdatePasswordApi.Input, None
     private AccountService accountService;
 
     @Override
-    protected ApiResult<NoneApiOutput> handle(Input input) {
-
+    protected ApiResult<NoneApiOutput> handle(Input input) throws StatusCodeWithException {
+    	accountService.updatePassword(input.oldPassword, input.newPassword);
         return success();
     }
 

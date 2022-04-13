@@ -16,6 +16,8 @@
 
 package com.welab.wefe.board.service.service.account;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.board.service.api.account.*;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
@@ -23,40 +25,45 @@ import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
-import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.WebSocketServer;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.board.service.service.verificationcode.VerificationCodeService;
+import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.*;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.Md5;
+import com.welab.wefe.common.util.Sha1;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.LoginSecurityPolicy;
-import com.welab.wefe.common.web.service.CaptchaService;
+import com.welab.wefe.common.web.service.account.AbstractAccountService;
+import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author Zane
  */
 @Service
-public class AccountService extends AbstractService {
+public class AccountService extends AbstractAccountService {
 
     @Autowired
     private AccountRepository accountRepository;
@@ -76,7 +83,7 @@ public class AccountService extends AbstractService {
 
         Specification<AccountMysqlModel> where = Where
                 .create()
-                .contains("phoneNumber", input.getPhoneNumber())
+                .contains("phoneNumber", BoardSM4Util.encryptPhoneNumber(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus())
                 .contains("nickname", input.getNickname())
                 .orderBy("createdTime", OrderBy.desc)
@@ -91,7 +98,7 @@ public class AccountService extends AbstractService {
     public void register(AccountInputModel input, BoardUserSource userSource) throws StatusCodeWithException {
 
         // Determine whether the account is registered
-        AccountMysqlModel one = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMysqlModel.class);
+        AccountMysqlModel one = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(input.getPhoneNumber()), AccountMysqlModel.class);
         if (one != null) {
             throw new StatusCodeWithException("该手机号已被注册！", StatusCode.DATA_EXISTED);
         }
@@ -112,6 +119,7 @@ public class AccountService extends AbstractService {
         model.setSuperAdminRole(accountRepository.count() < 1);
         model.setAdminRole(model.getSuperAdminRole());
         model.setEnable(true);
+        model.setLastActionTime(new Date());
 
         // Super administrator does not need to review
         if (model.getSuperAdminRole() || userSource == BoardUserSource.online_demo) {
@@ -136,116 +144,20 @@ public class AccountService extends AbstractService {
         CacheObjects.refreshAccountMap();
     }
 
-    /**
-     * login
-     */
-    public LoginApi.Output login(String phoneNumber, String password, String key, String code) throws StatusCodeWithException {
-
-        if (!config.getEnvName().isTestEnv()) {
-            // Verification code verification
-            if (!CaptchaService.verify(key, code)) {
-                throw new StatusCodeWithException("验证码错误！", StatusCode.PARAMETER_VALUE_INVALID);
-            }
-        }
-
-        // Check if it's in the small black room
-        if (LoginSecurityPolicy.inDarkRoom(phoneNumber)) {
-            throw new StatusCodeWithException("【小黑屋】账号已被禁止登陆，请一个小时后再试。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
-        // phone number error
-        if (model == null) {
-            StatusCode
-                    .PARAMETER_VALUE_INVALID
-                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
-        }
-
-        if (!model.getEnable()) {
-            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
-        }
-
-        // wrong password
-        if (!model.getPassword().equals(Sha1.of(password + model.getSalt()))) {
-
-            // Log a login failure event
-            LoginSecurityPolicy.onLoginFail(phoneNumber);
-            StatusCode
-                    .PARAMETER_VALUE_INVALID
-                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
-        }
-
-        // Check audit status
-        if (model.getAuditStatus() != null) {
-            switch (model.getAuditStatus()) {
-                case auditing:
-                    AccountMysqlModel superAdmin = findSuperAdmin();
-
-                    throw new StatusCodeWithException("账号尚未审核，请联系管理员 " + superAdmin.getNickname() + " （或其他任意管理员）对您的账号进行审核后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
-                case disagree:
-                    throw new StatusCodeWithException("账号审核不通过：" + model.getAuditComment(), StatusCode.PARAMETER_VALUE_INVALID);
-                default:
-            }
-        }
-
-        String token = UUID.randomUUID().toString();
-        CurrentAccount.logined(token, model.getId(), model.getPhoneNumber(), model.getAdminRole(), model.getSuperAdminRole());
-
-        LoginApi.Output output = new ModelMapper().map(model, LoginApi.Output.class);
-        output.setToken(token);
-
-        // Record a successful login event
-        LoginSecurityPolicy.onLoginSuccess(phoneNumber);
-
-        return output;
-    }
-
-    /**
-     * update password
-     */
-    public void updatePassword(String oldPassword, String newPassword) throws StatusCodeWithException {
-
-        String phoneNumber = CurrentAccount.phoneNumber();
-        if (phoneNumber == null) {
-            throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
-        }
-
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(phoneNumber);
-
-        // Check old password
-        if (!StringUtil.equals(model.getPassword(), Sha1.of(oldPassword + model.getSalt()))) {
-            CurrentAccount.logout();
-            throw new StatusCodeWithException("您输入的旧密码不正确，为确保安全，请重新登录后重试。", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        // Regenerate salt
-        String salt = createRandomSalt();
-
-        // sha hash
-        newPassword = Sha1.of(newPassword + salt);
-
+    @Override
+    public void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException {
+        AccountMysqlModel model = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        model.setPassword(password);
         model.setSalt(salt);
-        model.setPassword(newPassword);
-
+        model.setHistoryPasswordList(historyPasswords);
         accountRepository.save(model);
-
-        CurrentAccount.logout(model.getId());
     }
-
 
     /**
      * query all of account
      */
     public List<AccountMysqlModel> queryAll() {
         return accountRepository.findAll();
-    }
-
-    private String createRandomSalt() {
-        final Random r = new SecureRandom();
-        byte[] salt = new byte[16];
-        r.nextBytes(salt);
-
-        return Base64Util.encode(salt);
     }
 
     /**
@@ -269,10 +181,36 @@ public class AccountService extends AbstractService {
 
     }
 
-    /**
-     * Query super administrator
-     */
-    public AccountMysqlModel findSuperAdmin() {
+    @Override
+    public AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException {
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(phoneNumber));
+        return toAccountInfo(model);
+    }
+
+    private AccountInfo toAccountInfo(AccountMysqlModel model) throws StatusCodeWithException {
+        if (model == null) {
+            return null;
+        }
+
+        AccountInfo info = new AccountInfo();
+        info.setId(model.getId());
+        info.setPhoneNumber(model.getPhoneNumber());
+        info.setNickname(model.getNickname());
+        info.setPassword(model.getPassword());
+        info.setSalt(model.getSalt());
+        info.setAuditStatus(model.getAuditStatus());
+        info.setAuditComment(model.getAuditComment());
+        info.setAdminRole(model.getAdminRole());
+        info.setSuperAdminRole(model.getSuperAdminRole());
+        info.setEnable(model.getEnable());
+        info.setCancelled(model.isCancelled());
+        info.setHistoryPasswordList(model.getHistoryPasswordList());
+        return info;
+    }
+
+
+    @Override
+    public AccountInfo getSuperAdmin() throws StatusCodeWithException {
         List<AccountMysqlModel> list = accountRepository.findAll(Where
                 .create()
                 .equal("superAdminRole", true)
@@ -283,7 +221,7 @@ public class AccountService extends AbstractService {
             return null;
         }
 
-        return list.get(0);
+        return toAccountInfo(list.get(0));
     }
 
     /**
@@ -379,6 +317,13 @@ public class AccountService extends AbstractService {
      * Reset user password (administrator rights)
      */
     public String resetPassword(ResetPasswordApi.Input input) throws StatusCodeWithException {
+        // 操作者
+        AccountMysqlModel operator = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        if (!super.verifyPassword(operator.getPassword(), input.getOperatorPassword(), operator.getSalt())) {
+            throw new StatusCodeWithException("密码错误，身份核实失败，已退出登录。", StatusCode.PERMISSION_DENIED);
+        }
+
+        // 被重置密码的账号
         AccountMysqlModel model = accountRepository.findById(input.getId()).orElse(null);
 
         if (model == null) {
@@ -391,6 +336,10 @@ public class AccountService extends AbstractService {
 
         if (model.getSuperAdminRole()) {
             throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (model.getAdminRole() && !CurrentAccount.isSuperAdmin()) {
+            throw new StatusCodeWithException("只有超级管理员才能重置管理员的密码", StatusCode.PERMISSION_DENIED);
         }
 
         String salt = createRandomSalt();
@@ -483,8 +432,8 @@ public class AccountService extends AbstractService {
     /**
      * Check whether the user with the specified mobile phone number exists
      */
-    public boolean exist(String phoneNumber) {
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
+    public boolean exist(String phoneNumber) throws StatusCodeWithException {
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(phoneNumber), AccountMysqlModel.class);
         return model != null;
     }
 
@@ -503,6 +452,10 @@ public class AccountService extends AbstractService {
         accountRepository.save(account);
         // Cancel the super administrator privileges of the current account
         accountRepository.cancelSuperAdmin(CurrentAccount.id());
+
+        CurrentAccount.logout(account.getId());
+        CurrentAccount.logout(CurrentAccount.id());
+
     }
 
     public void forgetPassword(ForgetPasswordApi.Input input) throws StatusCodeWithException {
@@ -516,7 +469,7 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException("验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", input.getPhoneNumber(), AccountMysqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(input.getPhoneNumber()), AccountMysqlModel.class);
         // phone number error
         if (model == null) {
             throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);
@@ -525,13 +478,25 @@ public class AccountService extends AbstractService {
             throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
         }
 
+        AccountInfo accountInfo = toAccountInfo(model);
+        int historyCount = 4;
+        if (inHistoryPassword(input.getPassword(), historyCount, accountInfo)) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("您输入的新密码必须与前四次设置的密码不一致");
+        }
+
         // Check verification code is valid?
         verificationCodeService.checkVerificationCode(input.getPhoneNumber(), input.getSmsVerificationCode(), VerificationCodeBusinessType.accountForgetPassword);
+
+        // 当前密码成为历史
+        accountInfo.getHistoryPasswordList().add(new HistoryPasswordItem(accountInfo.getPassword(), accountInfo.getSalt()));
+        // 历史密码
+        String historyPasswordListString = JSON.toJSONString(accountInfo.getPasswordHistoryList(historyCount - 1));
 
         // Regenerate salt
         String salt = createRandomSalt();
         model.setSalt(salt);
         model.setPassword(Sha1.of(input.getPassword() + salt));
+        model.setHistoryPasswordList(JSON.parseArray(historyPasswordListString));
         accountRepository.save(model);
     }
 }

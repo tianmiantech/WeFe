@@ -1,0 +1,8 @@
+POST http://localhost:8080/board-service/model/deep_learning/call/start
+Content-Type: application/json
+token: {{token}}
+
+{
+  "taskId": "ed94d6b25f344ad3849bf42b5d86ff89_promoter_PaddleClassify_16487121262871114",
+  "filename": "fruit.zip"
+}

@@ -39,7 +39,8 @@ class FcBudgetScheduler(threading.Thread):
     def get_running_task(self):
         with DB.connection_context():
             task_list = Task.select().where(
-                Task.status == TaskStatus.RUNNING
+                (Task.status == TaskStatus.RUNNING) &
+                (Task.task_conf % '%FC%')
             ).execute()
             return task_list
 
@@ -56,6 +57,8 @@ class FcBudgetScheduler(threading.Thread):
             self.logger.warn(f"函数计算当日已使用: {cost}, 已超最大日限额: {budget}, 随即停止所有任务！")
         with DB.connection_context():
             for task in task_list:
+                if task.task_type == 'PaddleClassify' or task.task_type == 'PaddleDetection' or task.task_type == 'ImageDataIO':
+                    continue
                 if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
                     killed = self.kill_task(task)
                     if killed:
@@ -65,7 +68,7 @@ class FcBudgetScheduler(threading.Thread):
                             task.message = '函数计算当月已使用(￥): ' + ("%.2f" % cost) + ',已超最大月限额(￥): ' + \
                                            ("%.2f" % budget) + ',随即停止所有任务！'
                         else:
-                            task.message = '函数计算当日已使用(￥): ' + ("%.2f" % cost) + ',已超最大日限额(￥): ' +\
+                            task.message = '函数计算当日已使用(￥): ' + ("%.2f" % cost) + ',已超最大日限额(￥): ' + \
                                            ("%.2f" % budget) + ',随即停止所有任务！'
                         task.save()
                     else:
@@ -131,30 +134,34 @@ class FcBudgetScheduler(threading.Thread):
         budget_util = BudgetUtils()
 
         while True:
-            try:
-                month_cost = budget_util.get_month_cost()
-                day_cost = budget_util.get_day_cost()
+            # get fc task list
+            fc_task_list = self.get_running_task()
+            if len(fc_task_list) > 0:
+                try:
+                    month_cost = budget_util.get_month_cost()
+                    day_cost = budget_util.get_day_cost()
+                    # get current budget
+                    month_budget = self.get_month_budget()
+                    day_budget = self.get_day_budget()
+                    self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
+                    self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
 
-                # get current budget
-                month_budget = self.get_month_budget()
-                day_budget = self.get_day_budget()
-                self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
-                self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
-
-                # Overspend daily or monthly
-                if float(month_budget) <= month_cost:
-                    task_list = self.get_running_task()
-                    self.logger.info("进行函数计算每月限额检测...")
-                    self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
-                elif float(day_budget) <= day_cost:
-                    task_list = self.get_running_task()
-                    self.logger.info("进行函数计算每日限额检测...")
-                    self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
-                else:
-                    # judge once every 1 min
-                    time.sleep(10)
-            except Exception as e:
-                traceback.print_exc()
-                schedule_logger().exception("函数计算预算检测出现异常：%s", e)
-                time.sleep(5)
-                continue
+                    # Overspend daily or monthly
+                    if float(month_budget) <= month_cost:
+                        task_list = self.get_running_task()
+                        self.logger.info("进行函数计算每月限额检测...")
+                        self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
+                    elif float(day_budget) <= day_cost:
+                        task_list = self.get_running_task()
+                        self.logger.info("进行函数计算每日限额检测...")
+                        self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
+                    else:
+                        time.sleep(10)
+                except Exception as e:
+                    traceback.print_exc()
+                    schedule_logger().exception("函数计算预算检测出现异常：%s", e)
+                    time.sleep(5)
+                    continue
+            else:
+                self.logger.info("当前无函数任务在执行...")
+                time.sleep(10)

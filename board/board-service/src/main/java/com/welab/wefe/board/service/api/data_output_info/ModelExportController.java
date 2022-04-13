@@ -21,6 +21,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.wefe.enums.ModelExportLanguage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,7 @@ public class ModelExportController {
             token = httpServletRequest.getParameter("token");
             httpServletResponse.setCharacterEncoding("UTF-8");
             out = httpServletResponse.getWriter();
-            CurrentAccount.Info info = CurrentAccount.get(token);
+            AccountInfo info = CurrentAccount.get(token);
             if (null == info) {
                 out.write(JObject.create().append("code", StatusCode.PARAMETER_VALUE_INVALID.getCode())
                         .append("message", "未登录").toString());

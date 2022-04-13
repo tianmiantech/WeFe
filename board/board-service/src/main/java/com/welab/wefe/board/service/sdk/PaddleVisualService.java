@@ -46,7 +46,7 @@ public class PaddleVisualService extends AbstractService {
         DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
 
         if (deepLearningConfig == null || StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
-            StatusCode.RPC_ERROR.throwException("尚未设置飞桨服务地址，请在[全局设置][计算引擎设置]中设置飞桨服务地址。");
+            StatusCode.RPC_ERROR.throwException("尚未设置VisualFL服务地址，请在[全局设置][计算引擎设置]中设置VisualFL服务地址。");
         }
 
         if (params == null) {

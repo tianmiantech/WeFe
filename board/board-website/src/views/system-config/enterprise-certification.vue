@@ -9,6 +9,7 @@
             >
                 <!-- :disabled="!userInfo.super_admin_role" -->
                 <el-form-item
+                    prop="principalName"
                     :rules="[{required: true, message: '名称必填!'}]"
                     label="企业名称及类型："
                 >
@@ -67,7 +68,6 @@
                         :before-upload="beforeUpload"
                         :headers="{ token: userInfo.token }"
                         accept=".png,.jpg,.pdf"
-                        list-type="picture"
                         action="#"
                         drag
                     >
@@ -170,18 +170,18 @@
                 this.loading = false;
                 this.pending = false;
                 if(code === 0) {
-                    const { file_id_list } = data;
+                    const { file_info_list } = data;
 
                     this.form.realNameAuth = data.real_name_auth_status;
                     this.form.principalName = data.principal_name;
                     this.form.auditComment = data.audit_comment;
                     this.form.description = data.description;
-                    this.form.fileIdList = file_id_list;
+                    this.form.fileIdList = file_info_list;
                     this.form.authType = data.auth_type;
 
-                    if(file_id_list.length) {
-                        file_id_list.forEach(id => {
-                            this.getFile(id, data.file_id_list.length);
+                    if(file_info_list.length) {
+                        file_info_list.forEach(({ file_id, filename }) => {
+                            this.getFile(file_id, filename, data.file_info_list.length);
                         });
                     }
                     this.getAuthType();
@@ -242,20 +242,19 @@
                 reader.readAsDataURL(blob);
             },
 
-            async getFile(fileId, files) {
-                const { code, data, response: { headers } } = await this.$http.post({
+            async getFile(fileId, fileName, files) {
+                const { code, data } = await this.$http.post({
                     url:          '/union/download/file',
                     responseType: 'blob',
                     data:         {
                         fileId,
                     },
                 });
-                const filename = headers.filename || headers.FileName;
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {
                         this.fileList.push({
-                            name: window.decodeURIComponent(filename),
+                            name: window.decodeURIComponent(fileName),
                             url:  result,
                             fileId,
                         });
@@ -269,10 +268,11 @@
                 }
             },
 
-            onRemove(file) {
-                const index = this.form.fileIdList.findIndex(id => id === file.fileId);
+            onRemove(file, list) {
+                const index = this.form.fileIdList.findIndex(({ file_id }) => file_id === file.fileId);
                 const i = this.fileList.findIndex(item => item.fileId === file.fileId);
 
+                console.log(file, this.form.fileIdList);
                 if(~index) {
                     this.form.fileIdList.splice(index, 1);
                 }
@@ -323,7 +323,7 @@
                 const formData = new FormData();
 
                 formData.append('file', file);
-                formData.append('filename', file.name);
+                formData.append('filename', file.name.toLowerCase());
                 formData.append('purpose', 'RealnameAuth');
 
                 const { code, data } = await this.$http.post({
@@ -332,12 +332,14 @@
                 });
 
                 if(code === 0) {
-                    const index = this.form.fileIdList.findIndex(id => id === data.file_id);
+                    const index = this.form.fileIdList.findIndex(({ file_id }) => file_id === data.file_id);
 
                     if(~index) {
                         this.$message.error('文件已在列表中!');
                     } else {
-                        this.form.fileIdList.push(data.file_id);
+                        this.form.fileIdList.push({
+                            file_id: data.file_id,
+                        });
                         this.blobToDataURI(file, result => {
                             this.fileList.push({
                                 name:   window.decodeURIComponent(file.name),
@@ -358,7 +360,7 @@
                     url:  '/union/member/realname/auth',
                     data: {
                         memberId:      this.userInfo.member_id,
-                        fileIdList:    this.form.fileIdList,
+                        fileIdList:    this.form.fileIdList.map(x => x.file_id),
                         principalName: this.form.principalName,
                         description:   this.form.description,
                         authType:      this.form.authType,

@@ -6,7 +6,6 @@ import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceLazyUpdateModelMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.union.service.service.DataResourceContractService;
 import com.welab.wefe.union.service.service.ImageDataSetContractService;
 import org.slf4j.Logger;
@@ -39,27 +38,41 @@ public class DataResourceLazyUpdateTask {
     private DataResourceLazyUpdateModelMongoReop dataResourceLazyUpdateModelMongoReop;
 
 
-    @Scheduled(fixedDelayString = "${data.resource.lazy.update.update.fixed.delay.string}")
+    @Scheduled(initialDelay = 10000, fixedDelayString = "${data.resource.lazy.update.update.fixed.delay.string}")
     private void startTask() {
-        List<DataResourceLazyUpdateModel> list = dataResourceLazyUpdateModelMongoReop.findAll();
-        for (DataResourceLazyUpdateModel dataResourceLazyUpdateModel :
-                list) {
-            try {
-                LOG.info("DataResourceLazyUpdate start dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
-                DataResource dataResource = dataResourceMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
-                dataResource.setTotalDataCount(String.valueOf(dataResourceLazyUpdateModel.getTotalDataCount()));
-                dataResourceContractService.update(dataResource);
+        LOG.info("DataResourceLazyUpdate begin");
+        List<DataResourceLazyUpdateModel> list = null;
+        try {
+            list = dataResourceLazyUpdateModelMongoReop.findAll();
+        } catch (Exception e) {
+            LOG.error("DataResourceLazyUpdate error:", e);
+            return;
+        }
 
-                ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
-                imageDataSet.setDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
-                imageDataSet.setLabeledCount(String.valueOf(dataResourceLazyUpdateModel.getLabeledCount()));
-                imageDataSet.setLabelList(dataResourceLazyUpdateModel.getLabelList());
-                imageDataSet.setLabelCompleted(String.valueOf(dataResourceLazyUpdateModel.isLabelCompleted() ? 1 : 0));
-                imageDataSetContractService.update(imageDataSet);
-                LOG.info("DataResourceLazyUpdate end dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
-            } catch (StatusCodeWithException e) {
-                LOG.error("DataResourceLazyUpdate error dataResourceId: " + dataResourceLazyUpdateModel.getDataResourceId(), e);
+        if (list != null && !list.isEmpty()) {
+            for (DataResourceLazyUpdateModel dataResourceLazyUpdateModel :
+                    list) {
+                try {
+                    LOG.info("DataResourceLazyUpdate start dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
+                    DataResource dataResource = dataResourceMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
+                    if (dataResource != null) {
+                        dataResource.setTotalDataCount(String.valueOf(dataResourceLazyUpdateModel.getTotalDataCount()));
+                        dataResourceContractService.update(dataResource);
+                        ImageDataSet imageDataSet = imageDataSetMongoReop.findByDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
+                        if (imageDataSet != null) {
+                            imageDataSet.setDataResourceId(dataResourceLazyUpdateModel.getDataResourceId());
+                            imageDataSet.setLabeledCount(String.valueOf(dataResourceLazyUpdateModel.getLabeledCount()));
+                            imageDataSet.setLabelList(dataResourceLazyUpdateModel.getLabelList());
+                            imageDataSet.setLabelCompleted(String.valueOf(dataResourceLazyUpdateModel.isLabelCompleted() ? 1 : 0));
+                            imageDataSetContractService.update(imageDataSet);
+                        }
+                    }
+                    LOG.info("DataResourceLazyUpdate end dataresouceId:" + dataResourceLazyUpdateModel.getDataResourceId());
+                } catch (Exception e) {
+                    LOG.error("DataResourceLazyUpdate error dataResourceId: " + dataResourceLazyUpdateModel.getDataResourceId(), e);
+                }
             }
         }
+        LOG.info("DataResourceLazyUpdate end");
     }
 }

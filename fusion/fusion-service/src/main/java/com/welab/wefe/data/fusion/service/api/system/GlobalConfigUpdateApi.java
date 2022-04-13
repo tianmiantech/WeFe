@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.welab.wefe.data.fusion.service.api.system;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -24,7 +23,6 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.data.fusion.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**

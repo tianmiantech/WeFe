@@ -17,10 +17,13 @@
 package com.welab.wefe.board.service.database.entity;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
+import com.welab.wefe.board.service.database.listener.AccountMysqlModelListener;
+import com.welab.wefe.board.service.database.listener.VerificationCodeMysqlModelListener;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import com.welab.wefe.common.wefe.enums.VerificationCodeSendChannel;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
@@ -31,6 +34,7 @@ import javax.persistence.Enumerated;
  * @date 2022/1/19 17:45
  **/
 @Entity(name = "verification_code")
+@EntityListeners(VerificationCodeMysqlModelListener.class)
 public class VerificationCodeMysqlModel extends AbstractMySqlModel {
     /**
      * Business id, This field can be used to associate business information

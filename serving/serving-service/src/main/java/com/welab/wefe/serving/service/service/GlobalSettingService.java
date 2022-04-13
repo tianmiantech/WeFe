@@ -25,6 +25,7 @@ import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.GlobalSettingMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
+import com.welab.wefe.serving.service.utils.ServingSM4Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +67,7 @@ public class GlobalSettingService {
             throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "The system has been initialized and cannot be repeated.");
         }
 
-        AccountMySqlModel account = accountRepository.findByPhoneNumber(CurrentAccount.phoneNumber());
+        AccountMySqlModel account = accountRepository.findByPhoneNumber(ServingSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("You do not have permission to initialize the system. Please contact the super administrator (the first person to register) for operation.", StatusCode.INVALID_USER);
         }

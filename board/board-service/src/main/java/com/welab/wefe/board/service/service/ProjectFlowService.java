@@ -495,7 +495,7 @@ public class ProjectFlowService extends AbstractService {
 
         ProjectFlowMySqlModel flow = findOne(flowId);
         if (flow == null) {
-            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND, "找不到需要更新的流程！");
+            throw new StatusCodeWithException("找不到需要更新的流程！", StatusCode.DATA_NOT_FOUND);
         }
 
         flow.setFlowStatus(projectFlowStatus);

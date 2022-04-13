@@ -27,6 +27,7 @@
                 <el-form-item
                     label="验证码"
                     :rules="codeRules"
+                    prop="smsCode"
                 >
                     <el-input
                         v-model="form.smsCode"
@@ -56,6 +57,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
                 <el-form-item
@@ -70,6 +74,9 @@
                         type="password"
                         maxlength="30"
                         clearable
+                        @paste.prevent
+                        @copy.prevent
+                        @contextmenu.prevent
                     />
                 </el-form-item>
                 <el-divider />

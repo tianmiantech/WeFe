@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,9 @@
  */
 package com.welab.wefe.board.service.api.data_output_info;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
-import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
-import com.welab.wefe.board.service.service.TaskResultService;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.board.service.service.ServingService;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -27,11 +25,11 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
+import java.util.TreeMap;
 
 /**
  * @author hunter.zhao
@@ -42,26 +40,19 @@ public class ModelExportToFileApi extends AbstractApi<ModelExportToFileApi.Input
 
 
     @Autowired
-    TaskResultService taskResultService;
-
+    ServingService servingService;
 
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
 
-        TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndTypeAndRole(input.taskId, TaskResultType.model_train.name(), input.getRole());
-
-        if (taskResult == null) {
-            throw new StatusCodeWithException("task result 不存在！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+        TreeMap<String, Object> body = servingService.setBody(input.getTaskId(), input.getRole());
 
         File file = WeFeFileSystem
                 .getBaseDir(WeFeFileSystem.UseType.Temp)
                 .resolve(input.getTaskId() + ".json")
                 .toFile();
 
-//        FileUtil.writeTextToFile(taskResult.getResult(), file.toPath(), false);
-
-        FileUtil.writeTextToFile("test", file.toPath(), false);
+        FileUtil.writeTextToFile(JSON.toJSONString(body), file.toPath(), false);
 
         return file(file);
     }
