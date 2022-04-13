@@ -154,6 +154,32 @@ start(){
             sh wefe_service.sh start gateway
             sh wefe_service.sh start python
             ;;
+        fusion)
+            cd $PWD/wefe_fusion_service
+            sh wefe_fusion_service_start.sh
+            cd ../wefe_fusion_website
+            sh wefe_fusion_website_start.sh
+            ;;
+        serving)
+            cd $PWD/wefe_serving_service
+            sh wefe_serving_service_start.sh
+            cd ../wefe_serving_website
+            sh wefe_serving_website_start.sh
+            ;;
+        manager)
+            cd $PWD/wefe_manager_service
+            sh wefe_manager_service_start.sh
+            cd ../wefe_manager_website
+            sh wefe_manager_website_start.sh
+            ;;
+        union)
+            cd $PWD/wefe_union_service
+            sh wefe_union_service_start.sh
+            ;;
+        blockchain_data_sync)
+            cd $PWD/wefe_blockchain_data_sync
+            sh wefe_blockchain_data_sync_start.sh
+            ;;
         *)
             echo "Please Input a Legal Service"
             echo "eg. {board|gateway|python|middleware}"
@@ -164,7 +190,7 @@ start(){
 stop(){
     # init
     case $INPUT_SERVICE in
-        board | gateway | python | middleware)
+        board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync)
             CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
             docker stop $CONTAINER
             if [ $INPUT_SERVICE = "python" ]; then
@@ -186,7 +212,7 @@ stop(){
 remove(){
     # init
     case $INPUT_SERVICE in
-        board | gateway | python | middleware)
+        board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync)
             CONTAINER=$(docker ps -a | grep $WEFE_ENV | grep $INPUT_SERVICE | awk '{print $1}' | xargs)
             docker rm $CONTAINER
             if [ $INPUT_SERVICE = "python" ]; then
@@ -207,7 +233,7 @@ remove(){
 
 restart(){
     case $INPUT_SERVICE in
-        board | gateway | python | middleware)
+        board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync)
             CONTAINER=$(docker ps -a | grep $WEFE_ENV |grep $INPUT_SERVICE | awk '{print $1}' | xargs)
             docker restart $CONTAINER
             ;;

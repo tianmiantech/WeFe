@@ -1,8 +1,8 @@
 version: "3"
 services:
 
-  wefe_union_service:
-    image: wefe_union_service:v.2.1 # wefe_version
+  wefe_blockchain_data_sync:
+    image: wefe_blockchain_data_sync:v.2.1 # wefe_version
     ports:
       - 8800:8080 # service_port
     restart: always
