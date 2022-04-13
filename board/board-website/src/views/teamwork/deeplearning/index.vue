@@ -1182,6 +1182,7 @@
 
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
+                $bus.$off('change-layout-header-title');
                 clearTimeout(vData.jobDetailTimer);
                 clearTimeout(vData.jobProgressTimer);
                 clearTimeout(vData.pauseJobTimer);

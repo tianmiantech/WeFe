@@ -111,7 +111,7 @@
                             type="primary"
                             class="mr10"
                             :underline="false"
-                            @click="linkTo('teamwork/detail/deep-learning/check-flow', { flow_id: scope.row.flow_id, project_id: project_id })"
+                            @click="linkTo('teamwork/detail/deep-learning/check-flow', { flow_id: scope.row.flow_id, flow_name: scope.row.flow_name, project_id: project_id, project_name: form.name })"
                         >
                             校验
                         </el-link>

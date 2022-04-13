@@ -281,7 +281,7 @@
 
                     if(code === 0) {
                         nextTick(_=> {
-                            vData.infer_session_id = data.task_view.results[0].result.infer_session_id;
+                            vData.infer_session_id = data.task_view.results[0] ? data.task_view.results[0].result.infer_session_id : '';
                             if (data.task_view.results[0] === null) {
                                 vData.isCanUpload = false;
                                 vData.isUploading = false;
@@ -416,10 +416,18 @@
                     document.body.appendChild(link);
                     link.click();
                 },
+                changeHeaderTitle() {
+                    if(route.meta.titleParams) {
+                        const htmlTitle = `<strong>${route.query.project_name}</strong> - ${route.query.flow_name} (${vData.forJobType === 'PaddleDetection' ? '目标检测' : vData.forJobType === 'PaddleClassify' ? '图像分类' : ''})`;
+
+                        $bus.$emit('change-layout-header-title', { meta: htmlTitle });
+                    }
+                },
             };
 
             onBeforeMount(()=> {
                 methods.getModelList();
+                methods.changeHeaderTitle();
                 if (vData.resetWidthTimer) clearTimeout(vData.resetWidthTimer);
                 vData.resetWidthTimer = setTimeout(_=> {
                     methods.resetWidth();
@@ -439,6 +447,7 @@
 
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
+                $bus.$off('change-layout-header-title');
                 clearTimeout(vData.timer);
                 clearTimeout(vData.resetWidthTimer);
                 clearTimeout(vData.runningTimer);
