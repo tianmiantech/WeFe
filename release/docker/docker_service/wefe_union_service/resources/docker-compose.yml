@@ -1,0 +1,20 @@
+version: "3"
+services:
+
+  wefe_union_service:
+    image: wefe_union_service:v.2.1 # wefe_version
+    ports:
+      - 8800:8080 # service_port
+    restart: always
+    privileged: true
+    networks:
+      - network
+    volumes:
+      - "/data/wefe/docker-compose/logs/wefe-union-service:/data/logs/wefe-union-service" # service_logs
+      - "./mount/start.sh:/opt/service/start.sh"
+      - "./mount/application.properties:/opt/service/application.properties"
+      - "./mount/wefe-union-service.jar:/opt/service/wefe-union-service.jar"
+
+networks:
+  network:
+    driver: bridge
