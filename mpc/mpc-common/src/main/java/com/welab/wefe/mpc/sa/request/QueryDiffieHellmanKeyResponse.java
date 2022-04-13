@@ -24,6 +24,8 @@ package com.welab.wefe.mpc.sa.request;
 public class QueryDiffieHellmanKeyResponse {
     private String uuid;
     private String diffieHellmanValue;
+    private String message;
+    private int code;
 
     public String getUuid() {
         return uuid;
@@ -39,5 +41,21 @@ public class QueryDiffieHellmanKeyResponse {
 
     public void setDiffieHellmanValue(String diffieHellmanValue) {
         this.diffieHellmanValue = diffieHellmanValue;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 }

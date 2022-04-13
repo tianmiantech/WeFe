@@ -29,4 +29,4 @@ class StopJobWorker(BaseFlowActionWorker):
         job_status = params.get('jobStatus', JobStatus.STOP_ON_RUNNING)
         message = params.get('message', '发起方终止了任务')
 
-        JobStopAction(job_id, dst_role).do(job_status, job_type, message)
+        JobStopAction(job_id, dst_role).do(job_status, message, job_type=job_type)

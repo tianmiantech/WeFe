@@ -39,6 +39,10 @@ public class QueryNaorPinkasRandomResponse {
      * 大小比混淆ids少1
      */
     private List<String> randoms;
+    
+    private int code;
+    
+    private String message;
 
     public String getUuid() {
         return uuid;
@@ -78,5 +82,21 @@ public class QueryNaorPinkasRandomResponse {
 
     public void setRandoms(List<String> randoms) {
         this.randoms = randoms;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

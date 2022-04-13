@@ -880,8 +880,8 @@ export default {
     .data-set-upload-tip {
         text-align: left;
         margin-top: 8px;
-        color: #ff5757;
         line-height: 130%;
+        color: $--color-danger;
     }
 
     .data-set-upload-tip li {
@@ -890,7 +890,7 @@ export default {
 }
 
 .warning-tip {
-    color: $color-danger;
+    color: $--color-danger;
     line-height: 18px;
     font-weight: bold;
 }
@@ -939,7 +939,7 @@ export default {
 
     &::before {
         content: "*";
-        color: #F85564;
+        color: $--color-danger;
         margin-right: 4px;
     }
 }

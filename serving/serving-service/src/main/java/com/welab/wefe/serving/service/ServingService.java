@@ -48,13 +48,13 @@ import com.welab.wefe.serving.service.service.MemberService;
 @EnableScheduling
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @ComponentScan(nameGenerator = ApiBeanNameGenerator.class,
-        basePackageClasses = {Launcher.class, Serving.class})
-public class Serving implements ApplicationContextAware {
+        basePackageClasses = {Launcher.class, ServingService.class})
+public class ServingService implements ApplicationContextAware {
 
     public static void main(String[] args) {
         Launcher
                 .instance()
-                .apiPackageClass(Serving.class)
+                .apiPackageClass(ServingService.class)
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
@@ -78,7 +78,7 @@ public class Serving implements ApplicationContextAware {
                             throw new RuntimeException("Unexpected enumeration value");
                     }
                 })
-                .launch(Serving.class, args);
+                .launch(ServingService.class, args);
 
         //Initialize model processor
         ModelProcessorManager.init();

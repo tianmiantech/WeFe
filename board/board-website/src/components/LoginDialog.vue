@@ -5,6 +5,7 @@
         :close-on-press-escape="false"
         :show-close="false"
         destroy-on-close
+        append-to-body
         width="400px"
         title="登录"
         center
@@ -97,6 +98,7 @@
                     // hide the chat room
                     window.localStorage.setItem(`${window.api.baseUrl}_chat`, 'disconnect');
                     this.$store.commit('SYSTEM_INITED', false);
+                    this.$store.commit('UPDATE_USERINFO', {});
                     this.form.code = '';
                     this.show = true;
                     this.getImgCode();

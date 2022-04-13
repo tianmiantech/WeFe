@@ -68,7 +68,10 @@ input[type="number"]{-moz-appearance:textfield;}
 }
 .el-card{z-index: 1;}
 .el-radio__label{padding-left: 5px;}
-.el-dialog__header{min-height: 50px;}
+.el-dialog__header{
+    min-height: 50px;
+    margin-right: 0;
+}
 .el-loading-parent--relative{z-index: 10;}
 .el-table__empty-block{width: 100% !important;}
 .el-scrollbar__bar{z-index: 1000;}
