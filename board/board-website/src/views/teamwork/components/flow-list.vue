@@ -156,6 +156,18 @@
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
+                    <p class="ml10 totop_btn" @click="flowToTopClick(scope.row)">
+                        <el-tooltip v-if="scope.row.top" effect="light" content="取消置顶" placement="bottom">
+                            <el-icon style="color: #f85564;">
+                                <elicon-bottom />
+                            </el-icon>
+                        </el-tooltip>
+                        <el-tooltip v-else effect="light" content="置顶" placement="bottom">
+                            <el-icon style="color: #438bff;">
+                                <elicon-top />
+                            </el-icon>
+                        </el-tooltip>
+                    </p>
                 </template>
             </el-table-column>
         </el-table>
@@ -682,6 +694,19 @@
             toTop() {
                 this.$emit('to-top', this.sortIndex);
             },
+            async flowToTopClick(item) {
+                const { code } = await this.$http.post({
+                    url:  '/project/flow/top',
+                    data: {
+                        flowId: item.flow_id,
+                        top:    !item.top,
+                    },
+                });
+
+                if(code === 0) {
+                    this.getFlowList();
+                }
+            },
         },
     };
 </script>
@@ -728,5 +753,9 @@
             color: #999;
             &.is-active{color: $--color-primary;}
         }
+    }
+    .totop_btn {
+        display: inline-block;
+        cursor: pointer;
     }
 </style>
