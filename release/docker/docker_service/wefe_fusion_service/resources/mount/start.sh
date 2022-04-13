@@ -1,0 +1,1 @@
+java -jar -Dconfig.path=config.properties fusion-service.jar

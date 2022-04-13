@@ -1,0 +1,19 @@
+version: "3"
+services:
+
+  wefe_manager_website:
+    image: wefe_manager_website:v.2.1 # wefe_version
+    ports:
+      - 80:80 # website_port
+    restart: always
+    privileged: true
+    networks:
+      - network
+    volumes:
+      - "./mount/index.html:/opt/website/html/manager-website/index.html"
+      - "./mount/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./mount/html:/opt/website/html"
+
+networks:
+  network:
+    driver: bridge
