@@ -11,7 +11,7 @@
                                     :disabled="vData.flowInfo.my_role !=='promoter'"
                                 >
                                     <el-form-item
-                                        label="流程名称："
+                                        label="训练名称："
                                         class="is-required"
                                     >
                                         <el-input
@@ -19,12 +19,12 @@
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
-                                    <el-form-item label="流程描述：">
+                                    <el-form-item label="训练描述：">
                                         <el-input
                                             v-model="vData.form.flow_desc"
                                             type="textarea"
                                             rows="6"
-                                            placeholder="请输入流程描述"
+                                            placeholder="请输入训练描述"
                                             @blur="methods.saveFlowInfo($event)"
                                         />
                                     </el-form-item>
@@ -68,7 +68,7 @@
                                                 <span
                                                     v-if="member.audit_status !== 'agree'"
                                                     class="f12"
-                                                >({{ member.audit_comment || '审核通过的成员才能参与流程' }})</span>
+                                                >({{ member.audit_comment || '审核通过的成员才能参与训练' }})</span>
                                                 <el-button
                                                     v-if="member.audit_status === 'agree' && !vData.disabled"
                                                     type="text"
@@ -892,8 +892,8 @@
                 },
                 async saveFlowInfo($event, callback) {
                     if(vData.form.flow_name.trim() === '') {
-                        vData.form.flow_name = '新流程';
-                        return $message.error('流程名称不能为空!');
+                        vData.form.flow_name = '新训练';
+                        return $message.error('训练名称不能为空!');
                     }
                     const { project_id, flow_id } = vData.flowInfo;
                     const params = {
@@ -1039,7 +1039,7 @@
                 },
                 async saveDeeplearningNode($event) {
                     // 1. 保存deeplearning node 数据
-                    // 2. 启动流程
+                    // 2. 启动训练
                     const btnState = {};
 
                     if($event !== 'node-update') {
