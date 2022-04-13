@@ -27,7 +27,14 @@
                     :to="{name: 'project-detail', query: { project_id: item.project_id, project_type: item.project_type }}"
                     class="li"
                 >
-                    <p v-if="item.project_type" class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type === 'DeepLearning' ? '视觉处理' : item.project_type === 'MachineLearning' ? '机器学习' : ''}}
+                    <p v-if="item.project_type" class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type === 'DeepLearning' ? '视觉处理' : item.project_type === 'MachineLearning' ? '机器学习' : ''}} <span v-if="item.top" style="font-size: 12px;color: #f85564;">(已置顶)</span></p>
+                    <p class="top_btn" @click.prevent="toTopClick(item)">
+                        <el-tooltip v-if="item.top" effect="light" content="取消置顶" placement="bottom">
+                            <el-icon style="color: #f85564;"><elicon-bottom /></el-icon>
+                        </el-tooltip>
+                        <el-tooltip v-else effect="light" content="置顶" placement="bottom">
+                            <el-icon style="color: #438bff;"><elicon-top /></el-icon>
+                        </el-tooltip>
                     </p>
                     <p class="p-name">
                         {{ item.name }}
@@ -172,6 +179,20 @@
                     });
                 });
             },
+
+            async toTopClick(item) {
+                const { code } = await this.$http.post({
+                    url:  '/project/top',
+                    data: {
+                        projectId: item.project_id,
+                        top:       !item.top,
+                    },
+                });
+
+                if(code === 0) {
+                    this.getList();
+                }
+            },
         },
     };
 </script>
@@ -246,6 +267,14 @@
                 border-bottom: 13px solid transparent;
             }
 
+        }
+        .top_btn {
+            position: absolute;
+            top: 26px;
+            right: 0;
+            padding-right: 5px;
+            font-size: 16px;
+            color: #666;
         }
     }
     @media screen and (min-width: 1000px) and (max-width: 1387px) {
