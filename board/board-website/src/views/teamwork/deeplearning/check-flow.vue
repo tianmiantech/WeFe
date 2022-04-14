@@ -194,10 +194,28 @@
                                 vData.modelList = data.list;
                                 vData.form.model = data.list[0].task_id;
                                 methods.getPredictDetail();
+                                methods.getModelResult();
                             }
                             vData.pageLoading = false;
                         });
                     }
+                },
+                async getModelResult() {
+                    const params = {
+                        task_id: vData.form.model,
+                        type:    'loss',
+                    };
+
+                    const { code, data } = await $http.post({
+                        url:  '/flow/job/task/result',
+                        data: params,
+                    });
+
+                    nextTick(_=> {
+                        if (code === 0) {
+                            console.log(data);
+                        }
+                    });
                 },
                 fileAddedImage(file) {
                     // split考虑文件名中有.，随机数文件名以清除文件缓存
