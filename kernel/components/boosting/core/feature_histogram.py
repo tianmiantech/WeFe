@@ -570,14 +570,11 @@ class FeatureHistogram(object):
                         # add 0 g/h sum to sparse point
                         sparse_point = bin_sparse_points[fid]
                         node_histograms[node_idx][fid][sparse_point][0] += zero_opt_node_sum[node_idx][0] - \
-                                                                           zero_optim[node_idx][fid][
-                                                                               0]
+                                                                           zero_optim[node_idx][fid][0]
                         node_histograms[node_idx][fid][sparse_point][1] += zero_opt_node_sum[node_idx][1] - \
-                                                                           zero_optim[node_idx][fid][
-                                                                               1]
+                                                                           zero_optim[node_idx][fid][1]
                         node_histograms[node_idx][fid][sparse_point][2] += zero_opt_node_sum[node_idx][2] - \
-                                                                           zero_optim[node_idx][fid][
-                                                                               2]
+                                                                           zero_optim[node_idx][fid][2]
                     else:
                         # if 0 is regarded as missing value, add to missing bin
                         node_histograms[node_idx][fid][-1][0] += zero_opt_node_sum[node_idx][0] - \

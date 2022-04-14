@@ -12,6 +12,12 @@
         "promoter"
       ]
     },
+    "bin_split_points": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
     "stop_flag": {
       "src": "promoter",
       "dst": [
