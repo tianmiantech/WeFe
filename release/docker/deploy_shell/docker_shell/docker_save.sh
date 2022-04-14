@@ -44,9 +44,11 @@ rm  -f wefe_python_gpu_service_$WEFE_VERSION.tar
 sudo docker save -o wefe_python_gpu_service_$WEFE_VERSION.tar wefe_python_gpu_service:$WEFE_VERSION
 echo "GPU PYTHON SERVICE SAVED"
 
+echo "COPY GPU PYTHON SERVICE"
 cp wefe_python_gpu_service_$WEFE_VERSION.tar /data/jenkins_docker_deploy/
 cd $SERVICE_WORK_DIR
 cp welab_wefe_${WEFE_VERSION}.tar /data/jenkins_docker_deploy/
+echo "COPY GPU PYTHON SERVICE FINISH"
 
 echo "SAVING FUSION SERVICE"
 cd $SERVICE_WORK_DIR/wefe_fusion_service/resources
