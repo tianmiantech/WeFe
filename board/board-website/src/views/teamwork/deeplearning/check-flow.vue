@@ -55,6 +55,7 @@
                             点击上传文件
                         </uploader-btn>
                         <el-button type="primary" @click="methods.downloadModel">模型下载</el-button>
+                        <el-button v-if="vData.isPredicting" type="primary" @click="methods.interruptPrediect">中断当前预测</el-button>
                     </div>
                 </uploader>
             </div>
@@ -106,7 +107,7 @@
         components: { LabelSystem, ImageThumbnailList },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http, $bus, $message } = appContext.config.globalProperties;
+            const { $http, $bus, $message, $confirm } = appContext.config.globalProperties;
             const route = useRoute();
             const router = useRouter();
             const labelSystemRef = ref();
@@ -270,7 +271,7 @@
                 },
                 async startPredict() {
                     const { code } = await $http.post({
-                        url:  '/model/deep_learning/call/start',
+                        url:  '/model/deep_learning/infer/start',
                         data: {
                             taskId:   vData.form.model,
                             filename: vData.http_upload_filename,
@@ -300,6 +301,7 @@
                     if(code === 0) {
                         nextTick(_=> {
                             vData.infer_session_id = data.task_view.results[0] ? data.task_view.results[0].result.infer_session_id : '';
+                            // 需考虑中断预测任务之后的状态 || data.task_view.results[0].result.status === 'stopped'
                             if (data.task_view.results[0] === null) {
                                 vData.isCanUpload = false;
                                 vData.isUploading = false;
@@ -433,6 +435,34 @@
                     link.style.display = 'none';
                     document.body.appendChild(link);
                     link.click();
+                },
+                async interruptPrediect() {
+                    $confirm('确定中断当前预测？', '警告', {
+                        type: 'warning',
+                    })
+                        .then(async action => {
+                            if(action === 'confirm') {
+                                const { code } = await $http.post({
+                                    url:  '/model/deep_learning/infer/stop',
+                                    data: {
+                                        taskId: vData.form.model,
+                                    },
+                                });
+
+                                nextTick(_=> {
+                                    if(code === 0) {
+                                        $message.success('操作成功！');
+                                        vData.isCanUpload = true;
+                                        vData.isUploading = false;
+                                        vData.isUploadedOk = false;
+                                        vData.isCheckFinished = false;
+                                        vData.isPredicting = false;
+                                    }
+                                });
+                            }
+                        });
+                        
+                   
                 },
                 changeHeaderTitle() {
                     if(route.meta.titleParams) {
