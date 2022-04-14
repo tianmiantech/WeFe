@@ -22,8 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * SHA-1 已在数学算法层面被破解，请使用 SHA-256 或 SHA-512。
+ *
  * @author hunter.zhao
  */
+@Deprecated
 public class Sha1 {
     public static String of(final String data) {
         return data == null ? null : DigestUtils.sha1Hex(data);
