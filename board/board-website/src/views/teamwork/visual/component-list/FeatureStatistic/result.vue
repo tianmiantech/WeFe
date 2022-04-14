@@ -4,7 +4,6 @@
             <el-collapse v-model="activeName">
                 <el-collapse-item title="基础信息" name="1">
                     <CommonResult :result="vData.commonResultData"  :currentObj="currentObj" :jobDetail="jobDetail"/>
-                    autoReadResult: {{ autoReadResult }}
                 </el-collapse-item>
                 <el-collapse-item v-if="vData.members.length" title="成员信息" name="2">
                     <el-tabs v-model="vData.tabName">
@@ -13,7 +12,11 @@
                             <el-table :data="member.table" stripe :border="true" style="width :100%" class="fold-table">
                                 <el-table-column type="expand">
                                     <template #default="props">
-                                        <el-tabs type="border-card" v-model="vData.activeTab" @tab-click="methods.tabChangeEvent(props.$index, mIdx, $event)">
+                                        <el-tabs
+                                            type="border-card"
+                                            v-model="vData.activeTab"
+                                            @tab-click="methods.tabChangeEvent(props.$index, mIdx, $event)"
+                                        >
                                             <el-tab-pane label="Overview" name="overview">
                                                 <el-table :data="member.table[props.$index].overviewtable" stripe border>
                                                     <el-table-column label="最小值" prop="min"/>
@@ -137,9 +140,9 @@
                 members:     [],
                 resultTypes: [],
                 activeTab:   'overview',
-            });
-            const PieChart = ref(), BarChart = ref();
-            const { appContext } = getCurrentInstance();
+            }), BarChart = {};
+            const PieChart = ref();
+            const { appContext, ctx } = getCurrentInstance();
             const { $bus } = appContext.config.globalProperties;
 
             let methods = {
@@ -266,14 +269,17 @@
                     }
                 },
                 tabChangeEvent(idx, mIdx, $event){
-                    switch (vData.activeTab) {
-                    case 'categories':
-                        PieChart.value.chartResize();
-                        break;
-                    case 'histogram':
-                        BarChart.value.chartResize();
-                        break;
-                    }
+                    nextTick(_ => {
+                        switch (vData.activeTab) {
+                        case 'categories':
+                            PieChart.value.chartResize();
+                            break;
+                        case 'histogram':
+                            BarChart = ctx.$refs.BarChart[0];
+                            BarChart.chartResize();
+                            break;
+                        }
+                    });
                 },
             };
 
@@ -282,8 +288,6 @@
                 context,
                 vData,
                 methods,
-                PieChart,
-                BarChart,
             });
 
             onBeforeMount(() => {

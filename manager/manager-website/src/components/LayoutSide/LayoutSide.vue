@@ -95,16 +95,12 @@
             overflow: auto;
         }
         .el-menu-item,
-        .el-sub-menu__title {
-            color: #a6aaae;
-        }
-        .el-menu-item-group__title {
-            display: none;
-        }
+        .el-sub-menu__title {color: #a6aaae;}
+        .el-menu-item-group__title {display: none;}
         .el-menu-item {
             &.is-active {
                 color: #fff;
-                background: #4c536d;
+                background: $nav-background-active !important;
                 &:after {
                     content: "";
                     position: absolute;
@@ -114,32 +110,25 @@
                     background: $nav-background-active;
                     width: 3px;
                 }
-                i {color: #fff;}
-                .icon {
-                    color: $nav-background-active;
-                }
             }
         }
         .el-menu-item,
         .el-sub-menu__title {
             &:hover,
             &:focus {
-                background: #4f566f;
+                background: $nav-background;
                 color: #fff;
-                i{color: #fff;}
-            }
-            i {
-                font-size: 16px;
             }
             .icon {
                 margin-right: 10px;
-                margin-top: -4px;
+                margin-top: -2px;
             }
         }
         .el-sub-menu {
             &.is-active {
-                background: #464e6c !important;
+                background: #020C16 !important;
                 .el-sub-menu__title {
+                    background: #020C16;
                     color: #fff;
                     &:after {
                         content: "";
@@ -150,19 +139,12 @@
                         background: $nav-background-active;
                         width: 3px;
                     }
-                    i {color: #fff;}
                 }
-                .sub-menu-list {
-                    background: $sub-menu-list_bg;
-                }
-                .el-menu-item:after {
-                    display: none;
-                }
+                .sub-menu-list {background: $sub-menu-list_bg;}
+                .el-menu-item:after {display: none;}
             }
         }
-        .el-menu:not(.el-menu--collapse) {
-            width: 200px;
-        }
+        .el-menu:not(.el-menu--collapse) {width: 200px;}
     }
     .sidebar-menu-popover{
         .el-menu--popup{
@@ -175,7 +157,7 @@
             &.is-active{color:#fff;}
             &:hover,
             &:focus {
-                background: #464e6c;
+                background: #020C16;
                 color: #fff;
             }
         }

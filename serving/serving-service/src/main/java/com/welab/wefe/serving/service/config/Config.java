@@ -29,7 +29,7 @@ public class Config extends CommonConfig {
     @Value("${wefe.service.cache.type}")
     private String serviceCacheType;
 
-    @Value("${sm4.secret.key}")
+    @Value("${sm4.secret.key:}")
     private String sm4SecretKey;
 
     @Value("${verification.code.send.channel:email}")
@@ -69,7 +69,7 @@ public class Config extends CommonConfig {
     private String mailUsername;
     
     
-    @Value("${encrypt.phone.number.open:true}")
+    @Value("${encrypt.phone.number.open:false}")
     private boolean encryptPhoneNumberOpen;
 
 
