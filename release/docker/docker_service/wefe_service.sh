@@ -182,7 +182,7 @@ start(){
             ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board|gateway|python|middleware}"
+            echo "eg. { board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
             exit -1
     esac
 }
@@ -204,7 +204,7 @@ stop(){
             ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board|gateway|python|middleware}"
+            echo "eg. { board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
             exit -1
     esac
 }
@@ -226,7 +226,7 @@ remove(){
             ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board|gateway|python|middleware}"
+            echo "eg. {board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
             exit -1
     esac
 }
@@ -243,14 +243,14 @@ restart(){
             ;;
         *)
             echo "Please Input a Legal Service"
-            echo "eg. {board | gateway | python | middleware}"
+            echo "eg. {board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync}"
             exit -1
     esac
 }
 
 help(){
     echo "Support Action: start | stop | restart"
-    echo "Support Service: board | gateway | python | middleware"
+    echo "Support Service: board | gateway | python | middleware | fusion | serving | manager | union | blockchain_data_sync"
     echo "sh service.sh [Action] [Service]"
 }
 

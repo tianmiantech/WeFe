@@ -14,6 +14,7 @@ services:
       - "./mount/start.sh:/opt/service/start.sh"
       - "./mount/application.properties:/opt/service/application.properties"
       - "./mount/wefe-union-service.jar:/opt/service/wefe-union-service.jar"
+      - "./mount/cert:/opt/service/cert"
 
 networks:
   network:
