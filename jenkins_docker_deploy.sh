@@ -2,7 +2,7 @@
 
 # 入参检查
 
-source ./docker/docker_service/wefe.cfg
+source ./release/docker/docker_service/wefe.cfg
 
 if [ -z $1 ]; then
     echo "请输入 Jenkins 的工作目录空间"
