@@ -522,6 +522,10 @@
             },
 
             async handleTask () {
+                if(!this.task.data_resource_id) {
+                    return this.$message.error('请选择对齐样本');
+                }
+
                 this.loading = true;
                 this.fieldInfoList.forEach((item, index) => {
                     item.columns = item.column_arr.join(',');

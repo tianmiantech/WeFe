@@ -61,6 +61,10 @@
                         @copy.prevent
                         @contextmenu.prevent
                     />
+                    <PasswordStrength
+                        ref="password-strength"
+                        :password="form.password"
+                    />
                 </el-form-item>
                 <el-form-item
                     label="确认新密码"
@@ -99,6 +103,7 @@
 <script>
     import md5 from 'js-md5';
     import { PASSWORDREG } from '@js/const/reg';
+    import { clearUserInfo } from '@src/router/auth';
 
     export default {
         data() {
@@ -124,7 +129,7 @@
                     },
                 ],
                 codeRules: [
-                    { required: true, message: '请输入短信验证码' },
+                    { required: true, message: '请输入验证码' },
                 ],
                 passwordRules: [
                     {
@@ -230,8 +235,8 @@
                         });
 
                         if(code === 0) {
+                            clearUserInfo();
                             this.$message.success('密码更新成功! 请重新登录!');
-                            this.$store.commit('UPDATE_USERINFO', null);
 
                             this.$router.replace({
                                 name: 'login',

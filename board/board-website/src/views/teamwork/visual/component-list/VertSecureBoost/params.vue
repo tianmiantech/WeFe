@@ -102,7 +102,6 @@
                     </el-form-item>
 
                     <el-form-item
-                        v-if="vData.member_list.length === 2"
                         prop="work_mode"
                         label="工作模式"
                     >
@@ -114,16 +113,35 @@
                                 label="普通模式"
                                 value="normal"
                             />
-                            <el-option
-                                label="layered 模式"
-                                value="layered"
-                            />
+                            <template v-if="vData.member_list.length === 2">
+                                <el-option
+                                    label="layered 模式"
+                                    value="layered"
+                                />
+                            </template>
                             <el-option
                                 label="skip 模式"
                                 value="skip"
                             />
+                            <el-option
+                                label="dp 模式"
+                                value="dp"
+                            />
                         </el-select>
                     </el-form-item>
+                    <template v-if="vData.form.other_param.work_mode === 'dp'">
+                        <el-form-item label="隐私预算">
+                            <el-input v-model="vData.form.other_param.epsilon" />
+                        </el-form-item>
+                        <p
+                            v-if="vData.form.other_param.epsilon && vData.form.other_param.bin_num"
+                            style="padding-left:90px;"
+                            class="f12"
+                        >
+                            隐私预算值: 有（
+                            {{ (1 / (Math.E ** vData.form.other_param.epsilon + vData.form.other_param.bin_num - 1) * 100).toFixed(2) }}% ）的概率移动到其他的箱中
+                        </p>
+                    </template>
                     <el-form-item
                         v-if="vData.form.other_param.work_mode === 'skip'"
                         label="单方每次构建树的数量"
@@ -466,7 +484,8 @@
     .el-form-item{
         margin-bottom: 10px;
         :deep(.el-form-item__label){
-            flex:1;
+            max-width:200px;
+            flex: 1;
         }
     }
     .el-collapse-item {

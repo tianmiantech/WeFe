@@ -371,7 +371,7 @@
                 });
 
                 if(code === 0) {
-                    this.$message.success('提交成功! 正在为您审核');
+                    this.$message.success('已提交成功，请等待审核');
                     setTimeout(() => {
                         this.$router.replace('member-view');
                     }, 500);

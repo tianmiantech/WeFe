@@ -12,7 +12,7 @@
     "prepare": "cd ../../ && husky install board/board-website/.husky"
   },
   "dependencies": {
-    "@antv/g6": "^4.3.11",
+    "@antv/g6": "^4.6.4",
     "@element-plus/icons-vue": "^1.1.4",
     "axios": "^0.21.4",
     "echarts": "^5.2.0",
@@ -26,7 +26,7 @@
     "vue-router": "^4.0.11",
     "vue3-virtual-list": "^1.0.2",
     "vuex": "^4.0.2",
-    "welabx-g6": "^0.6.8"
+    "welabx-g6": "^0.7.1"
   },
   "devDependencies": {
     "core-js": "^3.21.1",
