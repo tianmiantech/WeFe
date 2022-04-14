@@ -13,9 +13,17 @@ def copy_data(matrix_row_count, matrix_column_count, W, gpu_lib,
               pen_matrix_array, one_bytes, zero_bytes, CIPHER_BYTE, INT64_BYTE,
               g_bytes, n_bytes, nsquare_bytes, max_int_bytes):
     ii = 0
+
     for i in range(matrix_row_count):
         for j in range(matrix_column_count):
-            if W[i][j] is None:
+            if isinstance(W[i][j], int):
+                print(f'W[{i}][{j}]: {W[i][j]}')
+
+    for i in range(matrix_row_count):
+        for j in range(matrix_column_count):
+
+            if W[i][j] is None or W[i][j] == 0:
+
                 # x
                 if j < 5:
                     timebegin = dt.datetime.now()
@@ -119,6 +127,9 @@ def gpu_paillier_matrix_row_sum_up(W, public_key, matrix_row_count, matrix_colum
     CIPHER_BYTE = 256
     PLAIN_BYTE = 256
     device_type = 1
+
+    if matrix_column_count == 1:
+        return W
 
     total_count = matrix_row_count * matrix_column_count
     # public_key = W[0][0].public_key

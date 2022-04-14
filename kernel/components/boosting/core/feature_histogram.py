@@ -625,6 +625,7 @@ class FeatureHistogram(object):
             # g/h 长度 >= 2
             # 统一数组大小
             zero_opt_node_grad_max_len = max((len(grad) for grad in zero_opt_node_grad_matrix))
+            print(f'zero_opt_node_grad_max_len:{zero_opt_node_grad_max_len}')
             zero_opt_node_grad_matrix = list(
                 map(lambda l: l + [None] * (zero_opt_node_grad_max_len - len(l)), zero_opt_node_grad_matrix))
 
@@ -634,6 +635,8 @@ class FeatureHistogram(object):
 
             # 计算密态 g/h 求和
             print(f'row: {node_num}, col: {zero_opt_node_grad_max_len}')
+            for i in range(len(zero_opt_node_grad_matrix)):
+                print(f'zero_opt_node_grad_matrix[{i}], type:{zero_opt_node_grad_matrix[i]} ')
 
             start_grad_sum = time.time()
             zero_opt_node_grad_sum = cal.gpu_paillier_matrix_row_sum_up(zero_opt_node_grad_matrix, p_k, node_num,
@@ -685,12 +688,6 @@ class FeatureHistogram(object):
             for node_idx in range(node_num):
                 for fid in range(features_num):
                     for bid in range(len(node_histograms[node_idx][fid])):
-                        # print(f'node_histograms_grad_sum : {list(node_histograms_grad_sum)}')
-                        # print(f'node_histograms_grad_sum len:{len(node_histograms_grad_sum)}')
-                        # print(
-                        #     f'node_histograms_grad_sum index：{node_idx * features_num * bins_num + fid * bins_num + bid}')
-                        # print(
-                        #     f'node_idx：{node_idx}, fid: {fid}, bid: {bid}')
                         node_histograms[node_idx][fid][bid][0] = node_histograms_grad_sum[
                             node_idx * features_num * bins_num + fid * bins_num + bid]
                         if hess_encrypt_flag:
@@ -705,6 +702,8 @@ class FeatureHistogram(object):
             node_histograms_node_fea_grad_matrix = [node_histograms_grad_sum[i:i + bins_num] for i in
                                                     range(0, len(node_histograms_grad_sum), bins_num)]
             node_histograms_node_fea_grad_matrix = np.array(node_histograms_node_fea_grad_matrix)
+
+
             node_histograms_node_fea_grad = cal.gpu_paillier_matrix_row_sum_up(node_histograms_node_fea_grad_matrix,
                                                                                p_k,
                                                                                node_num * features_num,
