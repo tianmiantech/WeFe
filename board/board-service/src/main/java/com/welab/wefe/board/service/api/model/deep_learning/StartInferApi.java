@@ -42,8 +42,8 @@ import java.io.File;
  * @author zane
  * @date 2022/2/14
  */
-@Api(path = "model/deep_learning/call/start", name = "调用深度学习模型")
-public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, StartCallModelApi.Output> {
+@Api(path = "model/deep_learning/infer/start", name = "调用深度学习模型")
+public class StartInferApi extends AbstractApi<StartInferApi.Input, StartInferApi.Output> {
 
     @Autowired
     private TaskService taskService;
@@ -51,7 +51,7 @@ public class StartCallModelApi extends AbstractApi<StartCallModelApi.Input, Star
     private PaddleVisualService paddleVisualService;
 
     @Override
-    protected ApiResult<Output> handle(StartCallModelApi.Input input) throws Exception {
+    protected ApiResult<Output> handle(StartInferApi.Input input) throws Exception {
         // zip 文件解压到以 taskId 命名的文件夹中
         String distDir = WeFeFileSystem.CallDeepLearningModel
                 .getZipFileUnzipDir(input.taskId)
