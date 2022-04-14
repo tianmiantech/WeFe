@@ -205,3 +205,20 @@ ALTER TABLE `account` ADD COLUMN `history_password_list` text NULL COMMENT '历�
 -- author: aaron.li
 -- -------------------------------------
 ALTER TABLE account MODIFY COLUMN phone_number VARCHAR(200);
+
+
+CREATE TABLE `verification_code` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime(6) NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+  `mobile` varchar(200) DEFAULT NULL,
+  `code` varchar(30) NOT NULL COMMENT '验证码',
+  `success` varchar(10) DEFAULT NULL COMMENT 'true：成功，false：失败',
+  `send_channel` varchar(10) DEFAULT NULL COMMENT '发送渠道，sms：短信、email：邮件',
+  `business_type` varchar(30) DEFAULT NULL COMMENT '业务类型，memberRegister：成员注册、accountForgetPassword：账号忘记密码',
+  `resp_content` varchar(500) DEFAULT NULL COMMENT '响应内容',
+  `biz_id` varchar(64) DEFAULT NULL COMMENT '业务ID',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';

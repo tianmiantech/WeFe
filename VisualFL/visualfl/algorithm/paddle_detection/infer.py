@@ -58,7 +58,6 @@ from visualfl.utils.consts import TaskResultType,ComponentName
 import logging
 FORMAT = '%(asctime)s-%(levelname)s: %(message)s'
 logging.basicConfig(level=logging.INFO, format=FORMAT)
-logger = logging.getLogger(__name__)
 
 
 def get_save_image_name(output_dir, image_path):
@@ -98,7 +97,7 @@ def get_test_images(infer_dir, infer_img):
     images = list(images)
 
     assert len(images) > 0, "no image found in {}".format(infer_dir)
-    logger.info("Found {} inference images in total.".format(len(images)))
+    logging.info("Found {} inference images in total.".format(len(images)))
 
     return images
 
@@ -115,7 +114,12 @@ def main():
 
     main_arch = cfg.architecture
 
-    TaskDao(task_id=FLAGS.task_id).save_task_result({"status": "running"}, ComponentName.DETECTION, type=TaskResultType.INFER)
+    model = TaskDao(FLAGS.task_id).get_task_result(TaskResultType.INFER)
+    infer_result = {}
+    if model:
+        infer_result = json.loads(model.result)
+    infer_result.update({"status": "running"})
+    TaskDao(task_id=FLAGS.task_id).save_task_result(infer_result, ComponentName.DETECTION, type=TaskResultType.INFER)
 
     dataset = cfg.TestReader['dataset']
     test_images = get_test_images(FLAGS.infer_dir, FLAGS.infer_img)
@@ -188,7 +192,6 @@ def main():
         vdl_image_frame = 0  # each frame can display ten pictures at most.
 
 
-    infer_result = {}
     image_infers = []
     imid2path = dataset.get_imid2path()
     for iter_id, data in enumerate(loader()):
@@ -200,7 +203,7 @@ def main():
             k: (np.array(v), v.recursive_sequence_lengths())
             for k, v in zip(keys, outs)
         }
-        logger.info('Infer iter {}'.format(iter_id))
+        logging.info('Infer iter {}'.format(iter_id))
         if 'TTFNet' in cfg.architecture:
             res['bbox'][1].append([len(res['bbox'][0])])
         if 'CornerNet' in cfg.architecture:
@@ -252,7 +255,7 @@ def main():
                     vdl_image_frame += 1
 
             save_name = get_save_image_name(FLAGS.output_dir, image_path)
-            logger.info("Detection bbox results save in {}".format(save_name))
+            logging.info("Detection bbox results save in {}".format(save_name))
             image.save(save_name, quality=95)
             # xmin, ymin, w, h
             for bbox in bbox_results:

@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.listener;
 
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.service.EncryptPhoneNumberService;
 import com.welab.wefe.common.util.CommentedProperties;
 import com.welab.wefe.common.util.StringUtil;
@@ -39,10 +40,13 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
     @Autowired
     private EncryptPhoneNumberService encryptPhoneNumberService;
 
+    @Autowired
+    private Config config;
+
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         String configPath = configurableEnvironment.getProperty("config.path");
-        if (StringUtil.isEmpty(configPath)) {
+        if (StringUtil.isEmpty(configPath) || !config.isEncryptPhoneNumberOpen()) {
             return;
         }
         String key = "has.auto.encrypt.phone.number";

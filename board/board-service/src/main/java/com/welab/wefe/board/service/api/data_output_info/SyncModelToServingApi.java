@@ -46,9 +46,6 @@ public class SyncModelToServingApi extends AbstractNoneOutputApi<SyncModelToServ
         @Check(name = "taskId", require = true)
         private String taskId;
 
-//        @Check(name = "type", require = true)
-//        private TaskResultType type = TaskResultType.model_train;
-
         @Check(name = "模型角色", require = true)
         private JobMemberRole role;
 
@@ -61,14 +58,6 @@ public class SyncModelToServingApi extends AbstractNoneOutputApi<SyncModelToServ
         public void setTaskId(String taskId) {
             this.taskId = taskId;
         }
-
-//        public TaskResultType getType() {
-//            return type;
-//        }
-//
-//        public void setType(TaskResultType type) {
-//            this.type = type;
-//        }
 
         public JobMemberRole getRole() {
             return role;

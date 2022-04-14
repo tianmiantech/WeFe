@@ -23,10 +23,7 @@ import com.welab.wefe.board.service.sdk.PaddleVisualService;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.file.decompression.SuperDecompressor;
-import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -37,6 +34,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.util.UUID;
 
 /**
  * @author zane
@@ -52,47 +50,41 @@ public class StartInferApi extends AbstractApi<StartInferApi.Input, StartInferAp
 
     @Override
     protected ApiResult<Output> handle(StartInferApi.Input input) throws Exception {
-        // zip 文件解压到以 taskId 命名的文件夹中
-        String distDir = WeFeFileSystem.CallDeepLearningModel
-                .getZipFileUnzipDir(input.taskId)
-                .toAbsolutePath()
-                .toString();
-        File zipFile = WeFeFileSystem.CallDeepLearningModel.getZipFile(input.taskId);
-        DecompressionResult result = SuperDecompressor.decompression(zipFile, distDir, false);
+        File rawFile = WeFeFileSystem.CallDeepLearningModel.getRawFile(input.filename);
 
-        // 安全起见，把非图片文件删除掉。
-        int imageCount = 0;
-        for (File file : result.files) {
-            if (FileUtil.isImage(file)) {
-                imageCount++;
-                // 将文件移动到解压目录的根目录，避免zip包内有子文件导致路径不好管理。
-                FileUtil.moveFile(file, distDir);
-            } else {
-                file.delete();
-            }
-        }
-
-        // 调用飞桨开始推理
         TaskMySqlModel task = taskService.findOne(input.taskId);
         if (task == null) {
-            zipFile.delete();
-            result.deleteAllDirAndFiles();
+            rawFile.delete();
             StatusCode.PARAMETER_VALUE_INVALID.throwException("此task不存在:" + input.taskId);
         }
 
+        // 考虑到文件名冲突、并发问题，这里使用UUID作为本次预测的标识号。
+        String inferSessionId = UUID.randomUUID().toString().replace("-", "");
+
+        // 如果是单张图片
+        if (FileUtil.isImage(rawFile)) {
+            WeFeFileSystem.CallDeepLearningModel.moveSingleImageToSessionDir(rawFile, input.taskId, inferSessionId);
+        } else {
+            WeFeFileSystem.CallDeepLearningModel.moveZipFileToSessionDir(rawFile, input.taskId, inferSessionId);
+        }
+
+        File zipFile = WeFeFileSystem.CallDeepLearningModel.zipImageSimpleDir(input.taskId, inferSessionId);
+
+        // 调用VisualFL开始推理
         JObject dataSetInfo = JObject.create();
-        dataSetInfo.put("download_url", buildZipDownloadUrl(input.taskId));
-        dataSetInfo.put("name", input.filename);
+        dataSetInfo.put("download_url", buildZipDownloadUrl(input.taskId, inferSessionId));
+        dataSetInfo.put("name", zipFile.getName());
+        dataSetInfo.put("infer_session_id", inferSessionId);
 
         JSONObject json = JSON.parseObject(task.getTaskConf());
         json.put("data_set", dataSetInfo);
 
         JObject response = paddleVisualService.infer(json);
 
-        return success(new Output(imageCount, response));
+        return success(new Output(inferSessionId, response));
     }
 
-    private String buildZipDownloadUrl(String taskId) {
+    private String buildZipDownloadUrl(String taskId, String inferSessionId) {
         Api annotation = DownloadDataSetZipApi.class.getAnnotation(Api.class);
 
         return Launcher.getBean(GlobalConfigService.class)
@@ -100,15 +92,16 @@ public class StartInferApi extends AbstractApi<StartInferApi.Input, StartInferAp
                 .intranetBaseUri
                 + "/"
                 + annotation.path()
-                + "?taskId=" + taskId;
+                + "?taskId=" + taskId
+                + "&inferSessionId=" + inferSessionId;
     }
 
     public static class Output {
-        public int fileCount;
+        public String inferSessionId;
         public JObject response;
 
-        public Output(int fileCount, JObject response) {
-            this.fileCount = fileCount;
+        public Output(String inferSessionId, JObject response) {
+            this.inferSessionId = inferSessionId;
             this.response = response;
         }
     }
@@ -119,19 +112,5 @@ public class StartInferApi extends AbstractApi<StartInferApi.Input, StartInferAp
 
         @Check(require = true, messageOnEmpty = "请指定数据集文件")
         public String filename;
-
-        @Override
-        public void checkAndStandardize() throws StatusCodeWithException {
-            super.checkAndStandardize();
-
-            // 如果是单张图片，要打包为 zip。
-            if (FileUtil.isImage(filename)) {
-                File zipFile = WeFeFileSystem.CallDeepLearningModel.singleImageToZip(filename, taskId);
-                filename = zipFile.getName();
-            }
-
-            WeFeFileSystem.CallDeepLearningModel.renameZipFile(filename, taskId);
-
-        }
     }
 }

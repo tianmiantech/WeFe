@@ -20,6 +20,18 @@ import json
 from visualfl.utils.logger import Logger
 from visualfl.utils.consts import TaskStatus
 import logging
+import numpy
+
+class Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.integer):
+            return int(obj)
+        elif isinstance(obj, numpy.floating):
+            return float(obj)
+        elif isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        else:
+            return super(Encoder, self).default(obj)
 
 class TaskDao(Logger):
     
@@ -141,7 +153,7 @@ class TaskDao(Logger):
                 model.role = task.role
                 model.type = type
                 model.updated_time = datetime.datetime.now()
-                model.result = json.dumps(task_result)
+                model.result = json.dumps(task_result,cls=Encoder)
                 model.component_type = component_name
                 model.flow_id = task.flow_id
                 model.flow_node_id = task.flow_node_id
