@@ -17,10 +17,10 @@
                                 type="primary"
                                 @click="addFlowMethod"
                             >
-                                新建训练流程
+                                新建训练
                             </el-button>
                         </template>
-                        <span v-else class="ml10 f12">(协作方无法添加流程)</span>
+                        <span v-else class="ml10 f12">(协作方无法添加训练)</span>
                     </h3>
                 </div>
                 <div class="right-sort-area">
@@ -140,7 +140,7 @@
                                         size="small"
                                         @click="copyFlow(scope.row)"
                                     >
-                                        复制流程
+                                        复制训练
                                     </el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item divided>
@@ -150,7 +150,7 @@
                                         class="color-danger"
                                         @click="deleteFlow(scope.row, scope.$index)"
                                     >
-                                        删除流程
+                                        删除训练
                                     </el-button>
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -187,7 +187,7 @@
         </div>
 
         <el-dialog
-            title="复制流程:"
+            title="复制训练:"
             v-model="copyFlowDialog.visible"
             destroy-on-close
             width="400px"
@@ -232,7 +232,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    label="新流程名称："
+                    label="新训练名称："
                     label-width="100px"
                 >
                     <el-input v-model="copyFlowDialog.flowRename" />
@@ -257,7 +257,7 @@
         >
             <template #title>
                 选择模版:
-                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
+                <span class="ml10 f14 el-alert__description">(训练创建后将无法更改训练类型)</span>
             </template>
 
             <div
@@ -271,7 +271,7 @@
                     <span class="model-img f30">
                         纵向
                     </span>
-                    空白流程
+                    空白训练
                 </div>
                 <div
                     class="li empty-flow"
@@ -280,7 +280,7 @@
                     <span class="model-img f30">
                         横向
                     </span>
-                    空白流程
+                    空白训练
                 </div>
                 <div
                     class="li empty-flow"
@@ -289,7 +289,7 @@
                     <span class="model-img f30">
                         混合
                     </span>
-                    空白流程
+                    空白训练
                 </div>
 
                 <template
@@ -315,14 +315,14 @@
                 </template>
             </div>
         </el-dialog>
-        <!-- 深度学习流程 -->
+        <!-- 深度学习训练 -->
         <el-dialog
             v-model="addDeeplearningFlow"
             destroy-on-close
         >
             <template #title>
                 选择模版:
-                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
+                <span class="ml10 f14 el-alert__description">(训练创建后将无法更改训练类型)</span>
             </template>
 
             <div
@@ -533,7 +533,7 @@
                 const params = {
                     project_id:            this.project_id,
                     federatedLearningType: deeplearning ? 'horizontal' : opt.federated_learning_type,
-                    name:                  `${opt.name || '新流程'}-${this.getDateTime()}`,
+                    name:                  `${opt.name || '新训练'}-${this.getDateTime()}`,
                     desc:                  '',
                 };
 
@@ -646,7 +646,7 @@
             },
 
             deleteFlow(row, idx) {
-                this.$confirm('确定要删除该流程吗? 此操作不可撤销!', '警告', {
+                this.$confirm('确定要删除该训练吗? 此操作不可撤销!', '警告', {
                     type: 'warning',
                 })
                     .then(async action => {
@@ -670,7 +670,7 @@
                 if (this.form.project_type === 'MachineLearning') {
                     this.addFlow = true;
                 } else {
-                    // 创建深度学习流程
+                    // 创建深度学习训练
                     this.addDeeplearningFlow = true;
                 }
             },
