@@ -746,9 +746,15 @@ class FeatureHistogram(object):
                                                     range(node_num)]).flatten('A')
             zero_optim_fea_grad_list = np.array(
                 [[zero_optim[j][i][0] for i in range(features_num)] for j in range(node_num)]).flatten('A')
+
+            for i in range(node_num):
+                for j in range(features_num):
+                    print(f'zero_optim[j][i][0] type: {type(zero_optim[i][j][0])}, i: {i}, j:{j}')
+
             for i in range(len(zero_optim_fea_grad_list)):
                 print(f'zero_optim_fea_grad_list index: {i}, type: {zero_optim_fea_grad_list[i]}')
-            sub_grad_result = cal.gpu_paillier_array_pen_sub_pen(zero_opt_node_sum_grad_list, zero_optim_fea_grad_list)
+            sub_grad_result = cal.gpu_paillier_array_pen_sub_pen(p_k, zero_opt_node_sum_grad_list,
+                                                                 zero_optim_fea_grad_list)
 
         sub_hess_result = []
         if check_aclr_support() and len(grad) >= 2 and hess_encrypt_flag:
@@ -757,7 +763,8 @@ class FeatureHistogram(object):
                                                     range(node_num)]).flatten('A')
             zero_optim_fea_hess_list = np.array(
                 [[zero_optim[j][i][1] for i in range(features_num)] for j in range(node_num)]).flatten('A')
-            sub_hess_result = cal.gpu_paillier_array_pen_sub_pen(zero_opt_node_sum_hess_list, zero_optim_fea_hess_list)
+            sub_hess_result = cal.gpu_paillier_array_pen_sub_pen(p_k, zero_opt_node_sum_hess_list,
+                                                                 zero_optim_fea_hess_list)
 
         # node_histograms 基础上加一次 zero_opt_node_sum 减去 zero_optim 的结果，与上面的不同
         for node_idx in range(node_num):

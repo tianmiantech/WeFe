@@ -8,8 +8,9 @@ from numba import jit
 
 from kernel.security.paillier import PaillierEncryptedNumber
 
+
 def copy_data(matrix_row_count, matrix_column_count, W, gpu_lib,
-              pen_matrix_array, one_bytes, zero_bytes, CIPHER_BYTE,INT64_BYTE,
+              pen_matrix_array, one_bytes, zero_bytes, CIPHER_BYTE, INT64_BYTE,
               g_bytes, n_bytes, nsquare_bytes, max_int_bytes):
     ii = 0
     for i in range(matrix_row_count):
@@ -37,11 +38,11 @@ def copy_data(matrix_row_count, matrix_column_count, W, gpu_lib,
                 # if j < 5:
                 #    timebegin = dt.datetime.now()
                 x_bytes = W[i][j].ciphertext(False).to_bytes(
-                                           CIPHER_BYTE, 'little')
-                #if j < 5:
+                    CIPHER_BYTE, 'little')
+                # if j < 5:
                 #    timeover = dt.datetime.now()
                 #    costtime = (timeover - timebegin).total_seconds()
-                    # print(f"ciphertext:{W[i][j].ciphertext()}")
+                # print(f"ciphertext:{W[i][j].ciphertext()}")
                 #    print(" W[i][j].ciphertext().to_bytes, cost time:  %f " % (costtime))
 
                 # if j < 5:
@@ -49,7 +50,7 @@ def copy_data(matrix_row_count, matrix_column_count, W, gpu_lib,
                 gpu_lib.GPU_H_C_Memcpy(c_void_p(pen_matrix_array + ii),
                                        x_bytes,
                                        c_size_t(CIPHER_BYTE))
-                #if j < 5:
+                # if j < 5:
                 #    timeover = dt.datetime.now()
                 #    costtime = (timeover - timebegin).total_seconds()
                 #    print(" GPU_H_C_Memcpy x, cost time:  %f " % (costtime))
@@ -97,7 +98,7 @@ def copy_data(matrix_row_count, matrix_column_count, W, gpu_lib,
             if j < 1:
                 timeover = dt.datetime.now()
                 costtime = (timeover - timebegin).total_seconds()
-                print(" GPU_H_C_Memcpy max_int, cost time:  %f " %(costtime))
+                print(" GPU_H_C_Memcpy max_int, cost time:  %f " % (costtime))
 
             ii = ii + CIPHER_BYTE
 
@@ -215,7 +216,7 @@ def gpu_paillier_matrix_row_sum_up(W, public_key, matrix_row_count, matrix_colum
     out_sum_paillier_encrypted_number_array = np.empty(
         matrix_row_count, dtype=PaillierEncryptedNumber)
     for i in range(matrix_row_count):
-        x_string= ctypes.string_at(out_sum_array + i * CIPHER_BYTE, CIPHER_BYTE)
+        x_string = ctypes.string_at(out_sum_array + i * CIPHER_BYTE, CIPHER_BYTE)
         x = int.from_bytes(x_string, 'little')
 
         x_exponent_string = ctypes.string_at(out_exponent_array + i * INT64_BYTE, INT64_BYTE)
@@ -435,7 +436,7 @@ def gpu_paillier_array_pen_add_pen(a_array, b_array):
     return out_paillier_encrypted_number_array
 
 
-def gpu_paillier_array_pen_sub_pen(a_array, b_array):
+def gpu_paillier_array_pen_sub_pen(public_key, a_array, b_array):
     """
         sub
     Args:
@@ -465,20 +466,23 @@ def gpu_paillier_array_pen_sub_pen(a_array, b_array):
         raise TypeError("a_array's shape[0] not equal b_array's shape[0] \
                         : %s  %s" % a_array.shape[0], b_array.shape[0])
 
-    if not isinstance(a_array[0], PaillierEncryptedNumber):
-        raise TypeError("a_array should be an PaillierEncryptedNumber array, \
-                         not: %s" % type(a_array[0]))
+    # if not isinstance(a_array[0], PaillierEncryptedNumber):
+    #     raise TypeError("a_array should be an PaillierEncryptedNumber array, \
+    #                      not: %s" % type(a_array[0]))
 
-    if not isinstance(b_array[0], PaillierEncryptedNumber):
-        raise TypeError("b_array should be an PaillierEncryptedNumber array, \
-                         not: %s" % type(b_array[0]))
+    # if not isinstance(b_array[0], PaillierEncryptedNumber):
+    #     raise TypeError("b_array should be an PaillierEncryptedNumber array, \
+    #                      not: %s" % type(b_array[0]))
 
-    if a_array[0].public_key != b_array[0].public_key:
-        raise TypeError(
-            "a_array[0]'s public_key not equal b_array[0]'s public_key")
-
-    public_key = a_array[0].public_key
+    # if a_array[0].public_key != b_array[0].public_key:
+    #     raise TypeError(
+    #         "a_array[0]'s public_key not equal b_array[0]'s public_key")
     array_element_count = a_array.shape[0]
+
+    zero = 0
+    one = 1
+    zero_bytes = zero.to_bytes(INT64_BYTE, 'little')
+    one_bytes = one.to_bytes(CIPHER_BYTE, 'little')
 
     g_bytes = public_key.g.to_bytes(CIPHER_BYTE, 'little')
     n_bytes = public_key.n.to_bytes(CIPHER_BYTE, 'little')
@@ -513,29 +517,50 @@ def gpu_paillier_array_pen_sub_pen(a_array, b_array):
     for i in range(array_element_count):
         # skip x_sign
         ii = ii + INT64_BYTE
-        print(f'a_array index: {i}, type: {type(a_array[i])}')
-        print(f'b_array index: {i}, type: {type(b_array[i])}')
+        # print(f'a_array index: {i}, type: {type(a_array[i])}')
+        # print(f'b_array index: {i}, type: {type(b_array[i])}')
 
         # x
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(a_data + ii),
-                               a_array[i].ciphertext().to_bytes(
-                                   CIPHER_BYTE, 'little'),
-                               c_size_t(CIPHER_BYTE))
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(b_data + ii),
-                               b_array[i].ciphertext().to_bytes(
-                                   CIPHER_BYTE, 'little'),
-                               c_size_t(CIPHER_BYTE))
+        if 0 == a_array[i]:
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(a_data + ii),
+                                   one_bytes,
+                                   c_size_t(CIPHER_BYTE))
+        else:
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(a_data + ii),
+                                   a_array[i].ciphertext().to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   c_size_t(CIPHER_BYTE))
+        if 0 == b_array[i]:
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(b_data + ii),
+                                   one_bytes,
+                                   c_size_t(CIPHER_BYTE))
+        else:
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(b_data + ii),
+                                   b_array[i].ciphertext().to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   c_size_t(CIPHER_BYTE))
         ii = ii + CIPHER_BYTE
 
         # x_exponent
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(a_data + ii),
-                               a_array[i].exponent.to_bytes(
-                                   INT64_BYTE, 'little'),
-                               c_size_t(INT64_BYTE))
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(b_data + ii),
-                               b_array[i].exponent.to_bytes(
-                                   INT64_BYTE, 'little'),
-                               c_size_t(INT64_BYTE))
+        if 0 == a_array[i]:
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(a_data + ii),
+                                   zero_bytes,
+                                   c_size_t(INT64_BYTE))
+        else:
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(a_data + ii),
+                                   a_array[i].exponent.to_bytes(
+                                       INT64_BYTE, 'little'),
+                                   c_size_t(INT64_BYTE))
+
+        if 0 == b_array[i]:
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(b_data + ii),
+                                   zero_bytes,
+                                   c_size_t(INT64_BYTE))
+        else:
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(b_data + ii),
+                                   b_array[i].exponent.to_bytes(
+                                       INT64_BYTE, 'little'),
+                                   c_size_t(INT64_BYTE))
         ii = ii + INT64_BYTE
 
         # g
