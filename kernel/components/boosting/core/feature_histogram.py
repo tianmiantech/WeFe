@@ -709,6 +709,8 @@ class FeatureHistogram(object):
                                                                                p_k,
                                                                                node_num * features_num,
                                                                                bins_num)
+            for i in range(len(node_histograms_node_fea_grad)):
+                print(f'node_histograms_node_fea_grad index: {i}, type: {node_histograms_node_fea_grad[i]}')
             if hess_encrypt_flag:
                 node_histograms_node_fea_hess_matrix = [node_histograms_hess_sum[i:i + bins_num] for i in
                                                         range(0, len(node_histograms_hess_sum), bins_num)]
@@ -744,6 +746,8 @@ class FeatureHistogram(object):
                                                     range(node_num)]).flatten('A')
             zero_optim_fea_grad_list = np.array(
                 [[zero_optim[j][i][0] for i in range(features_num)] for j in range(node_num)]).flatten('A')
+            for i in range(len(zero_optim_fea_grad_list)):
+                print(f'zero_optim_fea_grad_list index: {i}, type: {zero_optim_fea_grad_list[i]}')
             sub_grad_result = cal.gpu_paillier_array_pen_sub_pen(zero_opt_node_sum_grad_list, zero_optim_fea_grad_list)
 
         sub_hess_result = []
