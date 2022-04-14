@@ -203,15 +203,15 @@ mkdir $WORKSPACE/deploy_package_resource
 cp -r $WORKSPACE/python_project $WORKSPACE/deploy_package_resource
 cp $WORKSPACE/board/board-service/target/wefe-board-service.jar $WORKSPACE/deploy_package_resource/board-service.jar
 cp $WORKSPACE/gateway/target/wefe-gateway.jar $WORKSPACE/deploy_package_resource/gateway.jar
-cp $WORKSPACE/fusion/target/fusion-service.jar $WORKSPACE/deploy_package_resource/fusion-service.jar
-cp $WORKSPACE/manager/target/manager-service.jar $WORKSPACE/deploy_package_resource/manager-service.jar
-cp $WORKSPACE/serving/target/serving-service.jar $WORKSPACE/deploy_package_resource/serving-service.jar
+cp $WORKSPACE/fusion/fusion-service/target/fusion-service.jar $WORKSPACE/deploy_package_resource/fusion-service.jar
+cp $WORKSPACE/manager/manager-service/target/manager-service.jar $WORKSPACE/deploy_package_resource/manager-service.jar
+cp $WORKSPACE/serving/serving-service/target/serving-service.jar $WORKSPACE/deploy_package_resource/serving-service.jar
 cp $WORKSPACE/union/blockchain-data-sync/target/wefe-blockchain-data-sync.jar $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar
 cp $WORKSPACE/union/union-service/target/wefe-union-service.jar $WORKSPACE/deploy_package_resource/wefe-union-service.jar
 
 cp -r $WORKSPACE/board/board-website/dist $WORKSPACE/deploy_package_resource/board-website
 cp -r $WORKSPACE/fusion/fusion-website/dist $WORKSPACE/deploy_package_resource/fusion-website
-cp -r $WORKSPACE/fusion/manager-website/dist $WORKSPACE/deploy_package_resource/manager-website
+cp -r $WORKSPACE/manager/manager-website/dist $WORKSPACE/deploy_package_resource/manager-website
 cp -r $WORKSPACE/serving/serving-website/dist $WORKSPACE/deploy_package_resource/serving-website
 
 cd $WORKSPACE/deploy_package_resource
