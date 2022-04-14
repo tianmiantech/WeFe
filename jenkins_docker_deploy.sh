@@ -28,7 +28,7 @@ if [[ ! -d $SHELL_DIR ]]; then
 fi
 
 # 更新 FC 环境，依赖于 wefe_fc_nas 项目部署
-cp -r $FC_WORKSPACE/common/python/calculation/fc/function/wefe-fc/.fun $WORKSPACE/common/python/calculation/fc/function/wefe-fc
+# cp -r $FC_WORKSPACE/common/python/calculation/fc/function/wefe-fc/.fun $WORKSPACE/common/python/calculation/fc/function/wefe-fc
 
 echo ' ___       __   _______   ________ _______      '
 echo '|\  \     |\  \|\  ___ \ |\  _____\\  ___ \     '
