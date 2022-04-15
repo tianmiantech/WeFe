@@ -61,7 +61,8 @@ def table_dot_cpu(a_table, b_table):
 # gpu table dot
 # X: int or float or PaillierEncryptedNumber matrix
 # Y: int or float matrix
-def gpu_paillier_table_dot(a_table, b_table, partitions):
+def gpu_paillier_table_dot(X, Y, partitions):
+    MAX_COUNT = 20000000
     INT64_TYPE = 1
     FLOAT_TYPE = 2
     PEN_BASE = 16
@@ -78,80 +79,88 @@ def gpu_paillier_table_dot(a_table, b_table, partitions):
     PLAIN_BYTE = 256
     device_type = 1
 
-    NULL = 0
-    NULL_bytes = int(NULL).to_bytes(PLAIN_BYTE, 'little')
-    NULL_void_pointer = ctypes.cast(c_char_p(NULL_bytes), ctypes.c_void_p)
-    NULL_char_pointer = c_char_p(NULL_bytes)
-
-    if isinstance(a_table[0][0], PaillierEncryptedNumber):
-        public_key = a_table[0][0].public_key
-
+    if isinstance(X[0][0], PaillierEncryptedNumber):
+        public_key = X[0][0].public_key
         g_bytes = public_key.g.to_bytes(CIPHER_BYTE, 'little')
         n_bytes = public_key.n.to_bytes(CIPHER_BYTE, 'little')
         nsquare_bytes = public_key.nsquare.to_bytes(CIPHER_BYTE, 'little')
         max_int_bytes = public_key.max_int.to_bytes(CIPHER_BYTE, 'little')
     else:
-        return table_dot_cpu(a_table, b_table)
+        return table_dot_cpu(X, Y)
 
-    if a_table.shape[0] != b_table.shape[0]:
+    if X.shape[0] != Y.shape[0]:
         raise ValueError("X's row count not equal Y's row count!")
 
-    if isinstance(b_table[0][0], PaillierEncryptedNumber):
+    if isinstance(Y[0][0], PaillierEncryptedNumber):
         raise ValueError("Y's element should not be PaillierEncryptedNumber!")
 
-    matrix_row_count = a_table.shape[0]
-    matrix_x_column_count = a_table.shape[1]
-    matrix_y_column_count = b_table.shape[1]
+    matrix_row_count = X.shape[0]
+    matrix_X_column_count = X.shape[1]
+    matrix_Y_column_count = Y.shape[1]
 
-    x_count = matrix_row_count * matrix_x_column_count
+    X_count = matrix_row_count * matrix_X_column_count
+
+    if X_count > MAX_COUNT:
+        raise ValueError("Total input element count = %i , too large ！[ > %i ]" % (X_count, MAX_COUNT))
 
     # GPU computing...
     gpu_lib = cdll.LoadLibrary("/usr/lib/libgpuhomomorphism.so")
     gpu_lib.GPU_H_C_Malloc.restype = c_void_p
     gpu_lib.GPU_H_Paillier_Encode.restype = c_void_p
     gpu_lib.GPU_H_Paillier_TableDot_MatrixMultiply.restype = c_void_p
+    gpu_lib.GPU_H_C_GetError.restype = c_char_p
+
+    gpu_time_begin = dt.datetime.now()
 
     # prepare X for GPU
-    x_array = a_table.reshape(matrix_row_count * matrix_x_column_count)
+    X_array = X.reshape(matrix_row_count * matrix_X_column_count)
 
-    x_array_encoded = gpu_lib.GPU_H_C_Malloc(c_size_t(x_count * (6 * CIPHER_BYTE + 2 * INT64_BYTE)))
+    X_array_encoded = gpu_lib.GPU_H_C_Malloc(
+        c_size_t(X_count * (6 * CIPHER_BYTE + 2 * INT64_BYTE)))
+    if X_array_encoded is None:
+        error_message = gpu_lib.GPU_H_C_GetError()
+        raise ValueError("gpu_lib ERROR: " +
+                         str(error_message, encoding='utf8'))
+
     ii = 0
-    for i in range(x_count):
+    for i in range(X_count):
         # skip x_sign
         ii = ii + INT64_BYTE
 
         # x
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(x_array_encoded + ii),
-                               x_array[i].ciphertext().to_bytes(CIPHER_BYTE, 'little'),
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(X_array_encoded + ii),
+                               X_array[i].ciphertext(False).to_bytes(
+                                   CIPHER_BYTE, 'little'),
                                c_size_t(CIPHER_BYTE))
         ii = ii + CIPHER_BYTE
 
         # x_exponent
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(x_array_encoded + ii),
-                               x_array[i].exponent.to_bytes(INT64_BYTE, 'little'),
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(X_array_encoded + ii),
+                               X_array[i].exponent.to_bytes(
+                                   INT64_BYTE, 'little'),
                                c_size_t(INT64_BYTE))
         ii = ii + INT64_BYTE
 
         # g
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(x_array_encoded + ii),
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(X_array_encoded + ii),
                                g_bytes,
                                CIPHER_BYTE)
         ii = ii + CIPHER_BYTE
 
         # n
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(x_array_encoded + ii),
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(X_array_encoded + ii),
                                n_bytes,
                                CIPHER_BYTE)
         ii = ii + CIPHER_BYTE
 
         # nsquare
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(x_array_encoded + ii),
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(X_array_encoded + ii),
                                nsquare_bytes,
                                CIPHER_BYTE)
         ii = ii + CIPHER_BYTE
 
         # max_int
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(x_array_encoded + ii),
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(X_array_encoded + ii),
                                max_int_bytes,
                                CIPHER_BYTE)
         ii = ii + CIPHER_BYTE
@@ -160,92 +169,187 @@ def gpu_paillier_table_dot(a_table, b_table, partitions):
         ii = ii + CIPHER_BYTE
 
     # prepare Y for GPU
-    y_array = b_table.reshape(matrix_row_count * matrix_y_column_count)
-    y_array_size = y_array.size
-    y_array_data = gpu_lib.GPU_H_C_Malloc(c_size_t(y_array_size * DOUBLE_BYTE))
-    # all turn to 64 bit data type
-    if y_array.dtype == 'int32':
-        y_array_as_typed = y_array.astype(np.int64)
-        y_array_ctypes = y_array_as_typed.ctypes.data_as(c_void_p)
-        data_type = INT64_TYPE
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(y_array_data), y_array_ctypes,
-                               y_array_size * INT64_BYTE)
-    elif y_array.dtype == 'int64':
-        y_array_ctypes = y_array.ctypes.data_as(c_void_p)
-        data_type = INT64_TYPE
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(y_array_data), y_array_ctypes,
-                               y_array_size * INT64_BYTE)
-    elif y_array.dtype == 'float32':
-        y_array_as_typed = y_array.astype(np.float64)
-        y_array_ctypes = y_array_as_typed.ctypes.data_as(c_void_p)
-        data_type = FLOAT_TYPE
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(y_array_data), y_array_ctypes,
-                               y_array_size * DOUBLE_BYTE)
-    elif y_array.dtype == 'float64':
-        y_array_ctypes = y_array.ctypes.data_as(c_void_p)
-        data_type = FLOAT_TYPE
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(y_array_data), y_array_ctypes,
-                               y_array_size * DOUBLE_BYTE)
-    else:
-        raise PermissionError("Invalid Data Type of y_array")
+    Y_array = Y.reshape(matrix_row_count * matrix_Y_column_count)
+    Y_array_size = Y_array.size
+    Y_array_data = gpu_lib.GPU_H_C_Malloc(c_size_t(Y_array_size * DOUBLE_BYTE))
+    if Y_array_data is None:
+        gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+        error_message = gpu_lib.GPU_H_C_GetError()
+        raise ValueError("gpu_lib ERROR: " +
+                         str(error_message, encoding='utf8'))
 
-    y_array_encoded = gpu_lib.GPU_H_Paillier_Encode(
+    # all turn to 64 bit data type
+    if (Y_array.dtype == 'int32'):
+        Y_array_astyped = Y_array.astype(np.int64)
+        Y_array_ctypes = Y_array_astyped.ctypes.data_as(c_void_p)
+        data_type = INT64_TYPE
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
+                               Y_array_size * INT64_BYTE)
+    elif (Y_array.dtype == 'int64'):
+        Y_array_ctypes = Y_array.ctypes.data_as(c_void_p)
+        data_type = INT64_TYPE
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
+                               Y_array_size * INT64_BYTE)
+    elif (Y_array.dtype == 'float32'):
+        Y_array_astyped = Y_array.astype(np.float64)
+        Y_array_ctypes = Y_array_astyped.ctypes.data_as(c_void_p)
+        data_type = FLOAT_TYPE
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
+                               Y_array_size * DOUBLE_BYTE)
+    elif (Y_array.dtype == 'float64'):
+        Y_array_ctypes = Y_array.ctypes.data_as(c_void_p)
+        data_type = FLOAT_TYPE
+        gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
+                               Y_array_size * DOUBLE_BYTE)
+    else:
+        raise PermissionError("Invalid Data Type of Y_array")
+
+    timebegin = dt.datetime.now()
+    Y_array_encoded = gpu_lib.GPU_H_Paillier_Encode(
         1,
         c_longlong(data_type),
-        c_void_p(y_array_data),
-        c_size_t(matrix_row_count * matrix_y_column_count),
+        c_void_p(None),
+        c_void_p(None),
+        c_void_p(Y_array_data),
+        c_size_t(matrix_row_count * matrix_Y_column_count),
         c_char_p(g_bytes),
         c_char_p(n_bytes),
         c_char_p(nsquare_bytes),
         c_char_p(max_int_bytes)
     )
+    if Y_array_encoded is None:
+        gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_data))
+        error_message = gpu_lib.GPU_H_C_GetError()
+        raise ValueError("gpu_lib ERROR: " +
+                         str(error_message, encoding='utf8'))
 
+    timeover = dt.datetime.now()
+    costtime = (timeover - timebegin).total_seconds()
+    print(" gpu_lib.GPU_H_Paillier_Encode matrix, cost time:  %f " % (costtime))
+    print(f' ')
+
+    # print(" _debug_print_pub_one_variable_instance, X_array_encoded ---------> :  " )
+    # _debug_print_pub_one_variable_instance(gpu_lib, X_array_encoded, matrix_row_count*matrix_X_column_count)
+
+    # print(" _debug_print_pub_one_variable_instance, Y_array_encoded ---------> :  ")
+    # _debug_print_pub_one_variable_instance(gpu_lib, Y_array_encoded, matrix_row_count*matrix_Y_column_count)
+
+    timebegin = dt.datetime.now()
     matrix_multiplied = gpu_lib.GPU_H_Paillier_TableDot_MatrixMultiply(
         1,
-        c_void_p(x_array_encoded),
-        c_void_p(y_array_encoded),
+        c_void_p(X_array_encoded),
+        c_void_p(Y_array_encoded),
         c_size_t(matrix_row_count),
-        c_size_t(matrix_x_column_count),
-        c_size_t(matrix_y_column_count)
+        c_size_t(matrix_X_column_count),
+        c_size_t(matrix_Y_column_count)
     )
+    if matrix_multiplied is None:
+        gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_data))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_encoded))
+        error_message = gpu_lib.GPU_H_C_GetError()
+        raise ValueError("gpu_lib ERROR: " +
+                         str(error_message, encoding='utf8'))
+
+    timeover = dt.datetime.now()
+    costtime = (timeover - timebegin).total_seconds()
+    print(
+        " gpu_lib.GPU_H_Paillier_MatrixElementWiseMultiplyColumn, cost time:  %f " %
+        (costtime))
+    print(f' ')
+
+    # print(" _debug_print_pub_two_variable_instance, matrix_multiplied ---------> :  ")
+    # _debug_print_pub_two_variable_instance(gpu_lib, matrix_multiplied, matrix_row_count*matrix_X_column_count*matrix_Y_column_count)
 
     # malloc output reduce sum host memory
-    out_sum_array = gpu_lib.GPU_H_C_Malloc(c_size_t(matrix_x_column_count * matrix_y_column_count * CIPHER_BYTE))
-    out_exponent_array = gpu_lib.GPU_H_C_Malloc(c_size_t(matrix_x_column_count * matrix_y_column_count * INT64_BYTE))
+    out_sum_array = gpu_lib.GPU_H_C_Malloc(
+        c_size_t(
+            matrix_X_column_count *
+            matrix_Y_column_count *
+            CIPHER_BYTE))
+    if out_sum_array is None:
+        gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_data))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_encoded))
+        gpu_lib.GPU_H_C_Free(c_void_p(matrix_multiplied))
+        error_message = gpu_lib.GPU_H_C_GetError()
+        raise ValueError("gpu_lib ERROR: " +
+                         str(error_message, encoding='utf8'))
 
-    gpu_lib.GPU_H_Paillier_TableDot_SumUp(
+    out_exponent_array = gpu_lib.GPU_H_C_Malloc(
+        c_size_t(
+            matrix_X_column_count *
+            matrix_Y_column_count *
+            INT64_BYTE))
+    if out_exponent_array is None:
+        gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_data))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_encoded))
+        gpu_lib.GPU_H_C_Free(c_void_p(matrix_multiplied))
+        gpu_lib.GPU_H_C_Free(c_void_p(out_sum_array))
+        error_message = gpu_lib.GPU_H_C_GetError()
+        raise ValueError("gpu_lib ERROR: " +
+                         str(error_message, encoding='utf8'))
+
+    timebegin = dt.datetime.now()
+    ret = gpu_lib.GPU_H_Paillier_TableDot_SumUp(
         1,
         c_void_p(matrix_multiplied),
         c_size_t(matrix_row_count),
-        c_size_t(matrix_x_column_count),
-        c_size_t(matrix_y_column_count),
+        c_size_t(matrix_X_column_count),
+        c_size_t(matrix_Y_column_count),
         c_char_p(out_sum_array),
         c_char_p(out_exponent_array)
     )
+    if 0 != ret:
+        gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_data))
+        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_encoded))
+        gpu_lib.GPU_H_C_Free(c_void_p(matrix_multiplied))
+        gpu_lib.GPU_H_C_Free(c_void_p(out_sum_array))
+        gpu_lib.GPU_H_C_Free(c_void_p(out_exponent_array))
+        error_message = gpu_lib.GPU_H_C_GetError()
+        raise ValueError("gpu_lib ERROR: " +
+                         str(error_message, encoding='utf8'))
+
+    timeover = dt.datetime.now()
+    costtime = (timeover - timebegin).total_seconds()
+    print(
+        " gpu_lib.GPU_H_Paillier_MatrixRowSumUp, cost time:  %f " %
+        (costtime))
+    print(f' ')
 
     # parse GPU reduce sum result
-    out_sum_paillier_encrypted_number_array = np.empty(matrix_x_column_count * matrix_y_column_count,
-                                                       dtype=PaillierEncryptedNumber)
-    out_sum_pen_bytes = c_buffer(CIPHER_BYTE)
-    out_exponent_bytes = c_buffer(INT64_BYTE)
-    for i in range(matrix_x_column_count * matrix_y_column_count):
-        gpu_lib.GPU_H_C_Memcpy(cast(out_sum_pen_bytes, c_void_p), c_char_p(out_sum_array + i * CIPHER_BYTE),
-                               CIPHER_BYTE)
-        out_sum_pen = int.from_bytes(out_sum_pen_bytes.raw, 'little')
-        gpu_lib.GPU_H_C_Memcpy(cast(out_exponent_bytes, c_void_p), c_char_p(out_exponent_array + i * INT64_BYTE),
-                               INT64_BYTE)
-        exponent = int.from_bytes(out_exponent_bytes.raw, 'little')
-        out_sum_paillier_encrypted_number_array[i] = PaillierEncryptedNumber(public_key, out_sum_pen, exponent)
+    out_sum_paillier_encrypted_number_array = np.empty(
+        matrix_X_column_count * matrix_Y_column_count,
+        dtype=PaillierEncryptedNumber)
+    for i in range(matrix_X_column_count * matrix_Y_column_count):
+        x_string = ctypes.string_at(out_sum_array + i * CIPHER_BYTE, CIPHER_BYTE)
+        x = int.from_bytes(x_string, 'little')
+
+        x_exponent_string = ctypes.string_at(out_exponent_array + i * INT64_BYTE, INT64_BYTE)
+        x_exponent = int.from_bytes(x_exponent_string, 'little')
+
+        out_sum_paillier_encrypted_number_array[i] = PaillierEncryptedNumber(
+            public_key, x, x_exponent)
 
     # free memory
-    gpu_lib.GPU_H_C_Free(c_void_p(x_array_encoded))
-    gpu_lib.GPU_H_C_Free(c_void_p(y_array_data))
-    gpu_lib.GPU_H_C_Free(c_void_p(y_array_encoded))
+    gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+    gpu_lib.GPU_H_C_Free(c_void_p(Y_array_data))
+    gpu_lib.GPU_H_C_Free(c_void_p(Y_array_encoded))
     gpu_lib.GPU_H_C_Free(c_void_p(matrix_multiplied))
     gpu_lib.GPU_H_C_Free(c_void_p(out_sum_array))
     gpu_lib.GPU_H_C_Free(c_void_p(out_exponent_array))
-    result = out_sum_paillier_encrypted_number_array.reshape(matrix_x_column_count, matrix_y_column_count)
-    return session.parallelize(result.tolist(), partition=partitions)
+
+    gpu_time_over = dt.datetime.now()
+    gpu_cost_time = (gpu_time_over - gpu_time_begin).total_seconds()
+    print(" GPU Table Dot, total cost time:  %f " % (gpu_cost_time))
+    print(f' ')
+
+    result = out_sum_paillier_encrypted_number_array.reshape(matrix_X_column_count, matrix_Y_column_count)
+    # return session.parallelize(result.tolist(), include_key=True, partition=partitions)
+    return result
 
 
 # dot

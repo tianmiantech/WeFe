@@ -41,16 +41,27 @@ def _table_dot_func(it):
 def table_dot(a_table, b_table):
     if check_aclr_support():
         partitions = a_table.get_partitions()
+        new_table = list(a_table.join(b_table, lambda x, y: [x, y]).collect())
+
         if a_table.count() > 0:
-            tables = [x[1] for x in a_table.collect()]
-            new_tables = np.array(tables, dtype=type(tables[0][0]))
-            return aclr.table_dot_gpu(new_tables, new_tables, partitions)
+            a_tables = [x[1][0] for x in new_table]
+            b_tables = [x[1][1] for x in new_table]
+            if type(a_tables[0][0]) == int:
+                # 此处如果用type== int 进行转换，程序会自动转为 int64，后续的table_dot 会溢出，随后报错
+                a_new_tables = np.array(a_tables)
+                b_new_tables = np.array(b_tables)
+            else:
+                a_new_tables = np.array(a_tables).astype(type(a_tables[0][0]))
+                b_new_tables = np.array(b_tables).astype(type(b_tables[0][0]))
+            rs = aclr.table_dot_gpu(a_new_tables, b_new_tables, partitions)
+            return rs
         else:
             return []
     else:
-        return a_table.join(b_table, lambda x, y: [x, y]) \
+        rs = a_table.join(b_table, lambda x, y: [x, y]) \
             .applyPartitions(lambda it: _table_dot_func(it)) \
             .reduce(lambda x, y: x if y is None else y if x is None else x + y)
+        return rs
 
 
 def table_dot_mod(a_table, b_table, q_field):
