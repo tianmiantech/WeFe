@@ -204,7 +204,6 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
 
                     LOGGER.debug(
                         "in _init_model, role: {}, local_member_id: {}".format(self.role, self.component_properties))
-                    self.binning_obj.set_role_party(self.role, self.component_properties.local_member_id)
                     self.binning_obj.params.bin_num = self.model_param.bin_num
                     self.binning_obj.params.method = self.model_param.method
                     self._setup_bin_inner_param(data_instances, self.model_param)
@@ -216,8 +215,8 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                                                                   bin_cols_map=self.bin_inner_param.get_need_cal_iv_cols_map(),
                                                                   label_table=label_table)
                     LOGGER.debug(f"iv_calculator.bin_results={bin_results.bin_results[0].all_cols_results}")
-                    LOGGER.debug(f"binning_obj={self.binning_obj}")
                     self.binning_obj.bin_results = bin_results.bin_results[0]
+                    self.binning_obj.set_role_party(self.role, self.component_properties.local_member_id)
                     LOGGER.debug(f"binning_obj.bin_results={self.binning_obj.bin_results}")
                     # self.binning_obj.cal_local_iv(data_instances, label_table=label_table)
                     LOGGER.debug("After cal_local_iv data_instances: {}".format(data_instances))
