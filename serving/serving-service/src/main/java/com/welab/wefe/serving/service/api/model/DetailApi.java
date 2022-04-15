@@ -68,11 +68,11 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     @Override
     protected ApiResult<DetailApi.Output> handle(Input input) {
 
-        Optional<ModelMySqlModel> modelMySqlModel = modelRepository.findById(input.getId());
-        if (modelMySqlModel == null) {
+        ModelMySqlModel model = modelRepository.findOne("id",input.getId(),ModelMySqlModel.class);
+        if (model == null) {
             return fail("No model was found");
         }
-        ModelMySqlModel model = modelMySqlModel.get();
+//        ModelMySqlModel model = modelMySqlModel.get();
 
         DetailApi.Output output = ModelMapper.map(model, DetailApi.Output.class);
 

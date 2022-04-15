@@ -255,9 +255,9 @@
         },
         other_param: {
             penalty:               'L2',
-            tol:                   0.00001,
+            tol:                   0.0001,
             alpha:                 1,
-            optimizer:             'sgd',
+            optimizer:             'adam',
             batch_size:            3000,
             learning_rate:         0.1,
             early_stop:            'diff',

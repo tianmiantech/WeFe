@@ -43,14 +43,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @ComponentScan(
         nameGenerator = ApiBeanNameGenerator.class,
-        basePackageClasses = {AppService.class, Launcher.class}
+        basePackageClasses = {FusionService.class, Launcher.class}
 )
-public class AppService implements ApplicationContextAware {
+public class FusionService implements ApplicationContextAware {
 
     public static void main(String[] args) {
         Launcher
                 .instance()
-                .apiPackageClass(AppService.class)
+                .apiPackageClass(FusionService.class)
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if (annotation.rsaVerify()) {
@@ -58,7 +58,7 @@ public class AppService implements ApplicationContextAware {
                     }
                 })
                 .apiLogger(new FusionApiLogger())
-                .launch(AppService.class, args);
+                .launch(FusionService.class, args);
 //        Launcher.instance().afterApiExecuteFunction(Launcher.CONTEXT.getBean(OperationLogAfterApiExecute.class));
     }
 

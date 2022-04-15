@@ -41,9 +41,9 @@ public interface RequestStatisticsRepository extends BaseRepository<RequestStati
      * @param endTime
      * @return
      */
-    @Query(value = "select concat(t.service_id ,t.client_id) as id, t.service_id as serviceId, t.service_name as serviceName, t.client_id as clientId, " +
-            "t.client_name as clientName, t.success_request as totalSuccessTimes, t.total_request as totalRequestTimes, " +
-            "t.total_request - t.success_request as totalFailTimes, t.service_type as serviceType " +
+    @Query(value = "select concat(t.service_id ,t.client_id) as id, t.service_id, t.service_name, t.client_id, " +
+            "t.client_name, t.success_request as total_success_times, t.total_request as total_request_times, " +
+            "t.total_request - t.success_request as total_fail_times, t.service_type " +
             "from ( " +
             "SELECT count(arr.request_result < 3 or null) as success_request, count(id) as total_request, arr.client_id, " +
             "arr.service_id, arr.service_name, arr.client_name ,arr.service_type " +
