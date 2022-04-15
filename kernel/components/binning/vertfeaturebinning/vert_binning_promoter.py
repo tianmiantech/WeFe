@@ -31,7 +31,6 @@
 
 
 import copy
-import functools
 
 from common.python import session
 from common.python.utils import log_utils
@@ -92,8 +91,9 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
         self._packer = PromoterIntegerPacker(pack_num=len(self.labels), pack_num_range=label_counts,
                                              encrypt_mode_calculator=cipher)
 
-        self.federated_iv(data_instances=data_instances, label_table=label_table,
-                          cipher=cipher, result_counts=label_counts_dict, label_elements=self.labels)
+        all_provider_result_list = self.federated_iv(data_instances=data_instances, label_table=label_table,
+                                                     cipher=cipher, result_counts=label_counts_dict,
+                                                     label_elements=self.labels)
 
         # f = functools.partial(self.encrypt, cipher=cipher)
         # encrypted_label_table = label_table.mapValues(f, need_send=True)
@@ -102,9 +102,9 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
         # self.transfer_variable.encrypted_label.remote(encrypted_label_table, role=consts.PROVIDER, idx=-1)
         # LOGGER.info("Get encrypted_bin_sum from provider")
 
-        encrypted_bin_infos_list = self.transfer_variable.encrypted_bin_sum.get(idx=-1)
+        # encrypted_bin_infos_list = self.transfer_variable.encrypted_bin_sum.get(idx=-1)
 
-        all_provider_result_list = self.caculate_provider_iv(data_instances, encrypted_bin_infos_list, cipher)
+        # all_provider_result_list = self.caculate_provider_iv(data_instances, encrypted_bin_infos_list, cipher)
         LOGGER.debug(" all_provider_result_list {}".format(all_provider_result_list))
         for provider_idx, per_provider_results in enumerate(all_provider_result_list):
             LOGGER.info("send result to providers ")
