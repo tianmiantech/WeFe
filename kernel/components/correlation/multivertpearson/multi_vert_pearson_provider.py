@@ -25,12 +25,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import time
 
 import numpy as np
 from common.python.utils import log_utils
 from kernel.components.correlation.multivertpearson.multi_vert_pearson_base import MultiVertPearsonBase
-from kernel.security.protol.spdz.tensor.fixedpoint_table import table_dot, table_dot_gpu
+from kernel.security.protol.spdz.tensor.fixedpoint_table import table_dot
 from kernel.utils import consts
 from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
 
@@ -46,14 +45,7 @@ class MultiVertPearsonProvider(MultiVertPearsonBase):
         # local
         data = self._select_columns(data_instance)
         n, normed = self._standardized(data)
-        if check_aclr_support():
-            if normed.count() > 0:
-                partitions = normed.get_partitions()
-                tables = [x[1] for x in normed.collect()]
-                new_tables = np.array(tables, dtype=type(tables[0][0]))
-                self.local_corr = table_dot_gpu(new_tables, new_tables, partitions)
-        else:
-            self.local_corr = table_dot(normed, normed)
+        self.local_corr = table_dot(normed, normed)
         self.local_corr /= n
         self._summary["local_corr"] = self.local_corr.tolist()
         self._summary["num_local_features"] = len(self.names)

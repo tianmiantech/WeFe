@@ -34,6 +34,10 @@ def table_dot(it, bits=2048):
     return operator_dot.table_dot(it, bits)
 
 
+def table_dot_gpu(X, Y, partitions):
+    return operator_dot.gpu_paillier_table_dot(X, Y, partitions)
+
+
 def dot(value, w, bits=2048):
     """
     dot
@@ -50,7 +54,8 @@ def dot(value, w, bits=2048):
     -------
 
     """
-    return operator_dot.dot(value, w, bits)
+    # return operator_dot.dot(value, w, bits)
+    return operator_dot.gpu_paillier_dot(value, w)
 
 
 def dh_encrypt_id(data_instance, r, p, is_hash=False, bits=2048):
