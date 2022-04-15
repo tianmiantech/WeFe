@@ -130,8 +130,8 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
             if(url.startsWith("/")) {
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("服务地址不能/开头");   
             }
-            if(!url.matches("^[a-z][a-z/]*")) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("服务地址只能包含字母和/");   
+            if(!url.matches("^[0-9a-zA-Z_][0-9a-zA-Z_/-]{1,}$")) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("服务地址只能包含数字字母与'/','_','-'");   
             }
         }
 
