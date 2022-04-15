@@ -37,7 +37,7 @@ class IvCalculator(object):
 
     def cal_local_iv(self, data_instances, split_points,
                      labels=None, label_counts=None, bin_cols_map=None,
-                     label_table=None):
+                     label_table=None, params=None):
         """
         data_bin_table : Table.
 
@@ -49,6 +49,11 @@ class IvCalculator(object):
         Returns:
             MultiClassBinResult object
         """
+        method = None
+        bin_num = None
+        if params is not None:
+            method = params.method
+            bin_num = params.bin_num
         header = data_instances.schema.get("header")
         if bin_cols_map is None:
             bin_cols_map = {name: idx for idx, name in enumerate(header)}
@@ -75,7 +80,7 @@ class IvCalculator(object):
                                                 role=self.role,
                                                 party_id=self.party_id)
         for col_name, sp in split_points.items():
-            multi_bin_res.put_col_split_points(col_name, sp)
+            multi_bin_res.put_col_split_points(col_name, sp, method=method, bin_num=bin_num)
         return multi_bin_res
 
     def cal_iv_from_counts(self, result_counts, labels, role, party_id):

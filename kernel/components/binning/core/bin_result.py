@@ -67,9 +67,6 @@ class BinColResults(object):
         self.params_bin_nums = bin_nums
         self.params_method = method
 
-    def set_split_points(self, split_points):
-        self.split_points = split_points
-
     def get_split_points(self):
         return np.array(self.split_points)
 
@@ -184,9 +181,11 @@ class BinResults(object):
             col_results.set_split_points(ori_col_results.get_split_points())
         self.all_cols_results[col_name] = col_results
 
-    def put_col_split_points(self, col_name, split_points):
+    def put_col_split_points(self, col_name, split_points, method=None, bin_num=None):
         col_results = self.all_cols_results.get(col_name, BinColResults())
         col_results.set_split_points(split_points)
+        if method is not None and bin_num is not None:
+            col_results.set_mode(bin_num, method)
         self.all_cols_results[col_name] = col_results
 
     def query_split_points(self, col_name):
@@ -293,12 +292,12 @@ class MultiClassBinResult(BinResults):
         return {label: self.bin_results[label_idx].summary(split_points) for
                 label_idx, label in enumerate(self.labels)}
 
-    def put_col_split_points(self, col_name, split_points, label_idx=None):
+    def put_col_split_points(self, col_name, split_points, label_idx=None, method=None, bin_num=None):
         if label_idx is None:
             for br in self.bin_results:
-                br.put_col_split_points(col_name, split_points)
+                br.put_col_split_points(col_name, split_points, method=method, bin_num=bin_num)
         else:
-            self.bin_results[label_idx].put_col_split_points(col_name, split_points)
+            self.bin_results[label_idx].put_col_split_points(col_name, split_points, method=method, bin_num=bin_num)
 
     def generated_pb_list(self, split_points=None):
         res = []

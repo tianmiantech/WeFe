@@ -213,7 +213,8 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                                                                   labels=self.labels,
                                                                   label_counts=label_counts,
                                                                   bin_cols_map=self.bin_inner_param.get_need_cal_iv_cols_map(),
-                                                                  label_table=label_table)
+                                                                  label_table=label_table,
+                                                                  params=self.binning_obj.params)
                     LOGGER.debug(f"iv_calculator.bin_results={bin_results.bin_results[0].all_cols_results}")
                     self.binning_obj.bin_results = bin_results.bin_results[0]
                     self.binning_obj.set_role_party(self.role, self.component_properties.local_member_id)
