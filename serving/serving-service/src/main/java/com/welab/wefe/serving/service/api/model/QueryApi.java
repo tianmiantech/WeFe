@@ -103,6 +103,8 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
         private String modelId;
 
+        private String name;
+
         private Algorithm algorithm;
 
         private FederatedLearningType flType;
@@ -211,6 +213,13 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
             this.updatedTime = updatedTime;
         }
 
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
         //endregion
     }
 

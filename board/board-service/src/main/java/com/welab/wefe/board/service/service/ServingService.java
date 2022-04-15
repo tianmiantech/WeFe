@@ -235,7 +235,13 @@ public class ServingService extends AbstractService {
 
         // body
         TreeMap<String, Object> params = new TreeMap<>();
-        params.put("modelId", taskResult.getJobId() + SEPARATOR + taskResult.getComponentType() + SEPARATOR + taskResult.getFlowNodeId());
+        params.put("modelId", buildModelId
+                (
+                        taskResult.getJobId(),
+                        taskResult.getComponentType(),
+                        taskResult.getFlowNodeId()
+                ));
+        params.put("name", job.getName());
         // The v2 version job does not have Algorithm and flType parameters
         params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
         params.put("flType", job.getFederatedLearningType().name());
@@ -244,6 +250,10 @@ public class ServingService extends AbstractService {
         params.put("featureEngineerMap", featureEngineerMap);
 
         return params;
+    }
+
+    private String buildModelId(String jobId, ComponentType type, String nodeId) {
+        return jobId + SEPARATOR + type + SEPARATOR + nodeId;
     }
 
     private Algorithm getAlgorithm(ComponentType componentType) {
