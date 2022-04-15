@@ -15,6 +15,7 @@ services:
       - "./mount/application.properties:/opt/service/application.properties"
       - "./mount/wefe-blockchain-data-sync.jar:/opt/service/wefe-blockchain-data-sync.jar"
       - "./mount/cert:/opt/service/cert"
+      - "./mount/solidity:/opt/service/solidity"
 
 networks:
   network:

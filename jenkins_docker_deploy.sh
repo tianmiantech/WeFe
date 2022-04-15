@@ -61,7 +61,6 @@ if [[ $? == 1 ]];then
 fi
 echo '====== DONE ======'
 echo ''
-
 echo '====== DOCKER BUILD ======'
 # 生成 Docker 镜像
 cd $SHELL_DIR/docker_shell
