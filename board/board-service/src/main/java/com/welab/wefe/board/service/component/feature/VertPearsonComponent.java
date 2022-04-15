@@ -73,7 +73,7 @@ public class VertPearsonComponent extends AbstractComponent<VertPearsonComponent
         JObject output = JObject.create();
 
         params.getMembers().forEach(x -> {
-            if (x.getMemberId().equals(CacheObjects.getMemberId())) {
+            if (x.getMemberId().equals(CacheObjects.getMemberId()) && graph.getJob().getMyRole() == x.getMemberRole()) {
                 List<String> features = new ArrayList<>();
                 x.getFeatures().forEach(feature -> {
                     if (StringUtil.isNotEmpty(feature.getMethod())) {
