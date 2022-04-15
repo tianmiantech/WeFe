@@ -5,7 +5,7 @@ source ../wefe.cfg
 
 # 修改服务启动配置
 sed -i "/service_logs/s@-.*:@- \"$DATA_PATH/logs/blockchain-data-sync:@g" ./resources/docker-compose.yml
-sed -i "/wefe_version/s/service:.*#/service:$WEFE_VERSION #/g" ./resources/docker-compose.yml
+sed -i "/wefe_version/s/data_sync:.*#/data_sync:$WEFE_VERSION #/g" ./resources/docker-compose.yml
 
 # 修改镜像文件配置
 sed -i "/service_port/s/-.*:/- $BLOCKCHAIN_DATA_SYNC_PORT:/g" ./resources/docker-compose.yml

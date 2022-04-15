@@ -10,7 +10,7 @@ services:
     networks:
       - network
     volumes:
-      - "/data/wefe/docker-compose/logs/wefe-blockchain-data-sync:/data/logs/wefe-blockchain-data-sync" # service_logs
+      - "/data/wefe/docker-compose/logs/wefe-blockchain-data-sync:/data/logs/blockchain-data-sync" # service_logs
       - "./mount/start.sh:/opt/service/start.sh"
       - "./mount/application.properties:/opt/service/application.properties"
       - "./mount/wefe-blockchain-data-sync.jar:/opt/service/wefe-blockchain-data-sync.jar"
