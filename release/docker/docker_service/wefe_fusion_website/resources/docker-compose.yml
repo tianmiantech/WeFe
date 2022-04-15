@@ -10,9 +10,8 @@ services:
     networks:
       - network
     volumes:
-      - "./mount/index.html:/opt/website/html/fusion-website/index.html"
       - "./mount/default.conf:/etc/nginx/conf.d/default.conf"
-      - "./mount/html:/opt/website/html"
+      - "./mount/fusion-website:/opt/website/fusion-website"
 
 networks:
   network:
