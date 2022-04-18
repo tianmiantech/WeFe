@@ -268,6 +268,16 @@ def rubbish_clear(rubbish_list):
             LOGGER.warning("destroy Dtable error,:{}, but this can be ignored sometimes".format(e))
 
 
+def convert_label(data_instances, label_elements):
+    def _convert(instance):
+        res_labels = np.zeros(len(label_elements))
+        res_labels[label_elements.index(instance.label)] = 1
+        return res_labels
+
+    label_table = data_instances.mapValues(_convert)
+    return label_table
+
+
 class DataStatistics(object):
     def __init__(self):
         self.multivariate_statistic_obj = None
