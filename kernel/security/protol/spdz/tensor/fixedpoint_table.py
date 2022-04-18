@@ -12,8 +12,11 @@ from kernel.security.protol.spdz.tensor import fixedpoint_numpy
 from kernel.security.protol.spdz.tensor.base import TensorBase
 from kernel.security.protol.spdz.utils import NamingService
 from kernel.security.protol.spdz.utils.random_utils import urand_tensor
+from common.python.calculation.acceleration.operator import cal
 
 LOGGER = log_utils.get_logger()
+
+GPU_TABLE_DOT_BATCH = 20000
 
 
 def _table_binary_op(x, y, q_field, op, need_send=False):
@@ -53,7 +56,24 @@ def table_dot(a_table, b_table):
             else:
                 a_new_tables = np.array(a_tables).astype(type(a_tables[0][0]))
                 b_new_tables = np.array(b_tables).astype(type(b_tables[0][0]))
-            rs = aclr.table_dot_gpu(a_new_tables, b_new_tables, partitions)
+
+            # 分批调用，防止 GPU 显存不足
+            table_batch_a = [a_new_tables[i:i + GPU_TABLE_DOT_BATCH] for i in
+                             range(0, len(a_new_tables), GPU_TABLE_DOT_BATCH)]
+            table_batch_b = [b_new_tables[i:i + GPU_TABLE_DOT_BATCH] for i in
+                             range(0, len(b_new_tables), GPU_TABLE_DOT_BATCH)]
+            rs = None
+
+            for i in range(len(table_batch_a)):
+                i_rs = aclr.table_dot_gpu(table_batch_a[i], table_batch_b[i])
+                if rs is None:
+                    rs = i_rs
+                else:
+                    # 调用 矩阵相加
+                    row, col = rs.shape
+                    arr1 = rs.flatten('A')
+                    arr2 = i_rs.flatten('A')
+                    rs = cal.gpu_paillier_array_pen_add_pen(arr1, arr2).reshape(row, col)
             return rs
         else:
             return []

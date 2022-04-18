@@ -61,7 +61,7 @@ def table_dot_cpu(a_table, b_table):
 # gpu table dot
 # X: int or float or PaillierEncryptedNumber matrix
 # Y: int or float matrix
-def gpu_paillier_table_dot(X, Y, partitions):
+def gpu_paillier_table_dot(X, Y):
     MAX_COUNT = 20000000
     INT64_TYPE = 1
     FLOAT_TYPE = 2
@@ -235,6 +235,7 @@ def gpu_paillier_table_dot(X, Y, partitions):
     # print(" _debug_print_pub_one_variable_instance, Y_array_encoded ---------> :  ")
     # _debug_print_pub_one_variable_instance(gpu_lib, Y_array_encoded, matrix_row_count*matrix_Y_column_count)
 
+    print(f'matrix_row_count:{matrix_row_count}, matrix_X_column_count:{matrix_X_column_count}, matrix_Y_column_count:{matrix_Y_column_count}')
     timebegin = dt.datetime.now()
     matrix_multiplied = gpu_lib.GPU_H_Paillier_TableDot_MatrixMultiply(
         1,

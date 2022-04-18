@@ -34,8 +34,8 @@ def table_dot(it, bits=2048):
     return operator_dot.table_dot(it, bits)
 
 
-def table_dot_gpu(X, Y, partitions):
-    return operator_dot.gpu_paillier_table_dot(X, Y, partitions)
+def table_dot_gpu(X, Y):
+    return operator_dot.gpu_paillier_table_dot(X, Y)
 
 
 def dot(value, w, bits=2048):
