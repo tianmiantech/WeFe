@@ -16,9 +16,6 @@
 
 package com.welab.wefe.board.service.dto.entity.job;
 
-import java.util.Date;
-import java.util.List;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.entity.AbstractOutputModel;
@@ -27,6 +24,9 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskStatus;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author zane.luo
@@ -40,6 +40,8 @@ public class TaskResultOutputModel extends AbstractOutputModel {
     private String flowNodeId;
     @Check(name = "子任务Id")
     private String taskId;
+    @Check(name = "task参数")
+    private JSONObject taskConfig;
     @Check(name = "任务名称，例如：vert_lr_0")
     private String name;
     @Check(name = "组件id")
@@ -215,6 +217,14 @@ public class TaskResultOutputModel extends AbstractOutputModel {
 
     public void setMembers(List<JObject> members) {
         this.members = members;
+    }
+
+    public JSONObject getTaskConfig() {
+        return taskConfig;
+    }
+
+    public void setTaskConfig(JSONObject taskConfig) {
+        this.taskConfig = taskConfig;
     }
 
     //endregion
