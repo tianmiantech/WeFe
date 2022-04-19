@@ -61,11 +61,15 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
         }
     }
 
+    public static String getDataSetFileName(String jobId, String version) {
+        return jobId + "_" + version + ".zip";
+    }
+
     public static File getDataSetFile(ImageDataSetMysqlModel dataSet, String jobId, String version) {
         return Paths.get(
                 dataSet.getStorageNamespace(),
                 "output",
-                jobId + "_" + version + ".zip"
+                getDataSetFileName(jobId, version)
         ).toFile();
     }
 

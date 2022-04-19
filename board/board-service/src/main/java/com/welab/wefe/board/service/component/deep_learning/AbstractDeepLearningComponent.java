@@ -34,6 +34,7 @@ import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
+import com.welab.wefe.board.service.service.data_resource.image_data_set.data_set_parser.AbstractImageDataSetParser;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
@@ -90,6 +91,8 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
         DataResourceOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
         JObject dataSetInfo = JObject.create(myJobDataSet);
         dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId(), job.jobId, jobBuilder.dataSetVersion));
+        dataSetInfo.put("download_file_name", AbstractImageDataSetParser.getDataSetFileName(job.jobId, jobBuilder.dataSetVersion));
+
 
         JObject output = JObject.create(job);
         output.put("data_set", dataSetInfo);
