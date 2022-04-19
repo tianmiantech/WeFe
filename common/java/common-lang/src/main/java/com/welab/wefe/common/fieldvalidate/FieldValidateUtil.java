@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.fieldvalidate;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -79,6 +80,9 @@ public class FieldValidateUtil {
             field.setAccessible(true);
             Object value = field.get(obj);
 
+            /**
+             * ********** require **********
+             */
             boolean emptyIsNotOk = check.require() && (value == null || "".equals(value));
 
             if (emptyIsNotOk) {
@@ -95,6 +99,9 @@ public class FieldValidateUtil {
 
             String valueStr = value.toString();
 
+            /**
+             * ********** standardize **********
+             */
             if (!check.type().equals(StandardFieldType.NONE)) {
 
                 StandardFieldType standardFieldType = check.type();
@@ -105,6 +112,9 @@ public class FieldValidateUtil {
                 }
             }
 
+            /**
+             * ********** regex **********
+             */
             if (StringUtils.isNotEmpty(check.regex())) {
                 if (!Pattern.matches(check.regex(), value.toString())) {
                     throw new StatusCodeWithException(getInvalidMessage(check, field, value), StatusCode.PARAMETER_VALUE_INVALID);
@@ -112,8 +122,8 @@ public class FieldValidateUtil {
 
             }
 
-            checkReactionaryKeyword(check, field.getName(), valueStr);
-            checkBlockXss(check, field.getName(), valueStr);
+            checkReactionaryKeyword(check, field.getName(), value);
+            checkBlockXss(check, field.getName(), value);
 
             // 对 string 字段进行防止 sql 注入处理
             if (value instanceof String && check.blockSqlInjection()) {
@@ -138,29 +148,29 @@ public class FieldValidateUtil {
     /**
      * 检查输入是否包含反动关键字
      */
-    private static void checkReactionaryKeyword(Check check, String fieldName, String valueStr) throws StatusCodeWithException {
+    private static void checkReactionaryKeyword(Check check, String fieldName, Object value) throws StatusCodeWithException {
         if (!check.blockReactionaryKeyword()) {
             return;
         }
 
+        String valueStr = JSON.toJSONString(value);
         String keyword = ReactionaryKeywords.match(valueStr);
         if (StringUtil.isNotEmpty(keyword)) {
             StatusCode
                     .PARAMETER_VALUE_INVALID
                     .throwException(fieldName + " 包含不允许的输入：" + keyword);
         }
-
-
     }
 
     /**
      * 检查输入是否包含 xss 关键字
      */
-    private static void checkBlockXss(Check check, String fieldName, String valueStr) throws StatusCodeWithException {
+    private static void checkBlockXss(Check check, String fieldName, Object value) throws StatusCodeWithException {
         if (!check.blockXss()) {
             return;
         }
 
+        String valueStr = JSON.toJSONString(value);
         for (String keyword : XSS_KEYWORDS) {
             if (valueStr.contains(keyword)) {
                 StatusCode
