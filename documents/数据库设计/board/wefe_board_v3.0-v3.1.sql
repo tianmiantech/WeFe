@@ -15,3 +15,7 @@ ALTER TABLE `project_flow`
     ADD COLUMN `top` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否置顶';
 ALTER TABLE `project_flow`
     ADD COLUMN `sort_num` int NOT NULL DEFAULT 0 COMMENT '排序序号';
+
+
+alter table `fusion_task`
+    add column `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除';
