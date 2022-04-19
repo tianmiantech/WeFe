@@ -558,9 +558,9 @@ public class FusionTaskService extends AbstractService {
 
         OnlineDemoBranchStrategy.hackOnDelete(input, task, "只能删除自己创建的流程。");
 
-//        if (!input.fromGateway() && !task.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
-//            throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
-//        }
+        if (!input.fromGateway() && !task.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
+            throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
+        }
 
         //Judge task status
         task.setDeleted(true);
