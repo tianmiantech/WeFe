@@ -16,13 +16,16 @@
 
 package com.welab.wefe.board.service.api.project.job.task;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.service.TaskService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -30,10 +33,7 @@ import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author zane.luo
@@ -47,7 +47,20 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResul
     @Override
     protected ApiResult<List<TaskResultOutputModel>> handle(Input input) throws StatusCodeWithException {
 
-        List<TaskMySqlModel> tasks = taskService.findAll(input);
+        List<TaskMySqlModel> tasks;
+        if (StringUtil.isNotEmpty(input.getTaskId())) {
+            TaskMySqlModel task = taskService.findOne(input.getTaskId());
+            if (task == null) {
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException("错误的 task id：" + input.getTaskId());
+            }
+            tasks = Arrays.asList(task);
+        } else {
+            tasks = taskService.findAll(input);
+        }
+
+
         if (tasks == null || tasks.isEmpty()) {
             return success();
         }
@@ -69,6 +82,7 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResul
             result.setErrorCause(task.getErrorCause());
             result.setPosition(task.getPosition());
             result.setSpend(task.getSpend());
+            result.setTaskConfig(JSON.parseObject(task.getTaskConf()));
             JObject taskInfo = taskConfigJson.getJObject("task");
             if (taskInfo != null) {
                 result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
