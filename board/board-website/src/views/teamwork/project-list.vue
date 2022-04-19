@@ -22,7 +22,7 @@
             </div>
             <template v-if="list.length">
                 <router-link
-                    v-for="item in list"
+                    v-for="(item, index) in list"
                     :key="item.project_id"
                     :to="{name: 'project-detail', query: { project_id: item.project_id, project_type: item.project_type }}"
                     class="li"
@@ -32,7 +32,7 @@
                         <el-tooltip v-if="item.top" effect="light" content="取消置顶" placement="bottom">
                             <el-icon style="color: #f85564;"><elicon-bottom /></el-icon>
                         </el-tooltip>
-                        <el-tooltip v-else effect="light" content="置顶" placement="bottom">
+                        <el-tooltip v-if="index !== 0 && !item.top" effect="light" content="置顶" placement="bottom">
                             <el-icon style="color: #438bff;"><elicon-top /></el-icon>
                         </el-tooltip>
                     </p>
