@@ -85,6 +85,8 @@ httpInstance.interceptors.response.use(
                 } else if (data.code === 10000) {
                     // system is not inited, logout
                     baseLogout();
+                } else if(data.code === 10017) {
+                    window.$app.config.globalProperties.$message.error(data.message);
                 } else if (data.code === 10050) {
                     window.$app.config.globalProperties.$message.error({
                         message:  '密码强度不够需重新设置密码',

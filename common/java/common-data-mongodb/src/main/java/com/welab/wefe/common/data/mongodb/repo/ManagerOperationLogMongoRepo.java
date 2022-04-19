@@ -24,6 +24,7 @@ public class ManagerOperationLogMongoRepo extends AbstractOperationLogMongoRepo{
                 .append("callerName", callerName)
                 .betweenByDate("requestTime",startTime,endTime)
                 .page(pageIndex, pageSize)
+                .sort("requestTime")
                 .build();
         List<OperationLog> list = mongoManagerTemplate.find(query, OperationLog.class);
         long count = mongoManagerTemplate.count(query, OperationLog.class);

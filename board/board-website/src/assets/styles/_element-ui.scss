@@ -97,3 +97,6 @@
 .el-upload-list__item-thumbnail{object-fit: contain;}
 .el-badge.el-message__badge{position:absolute;}
 .el-tag--default{padding:4px 10px;}
+.el-image{
+    .el-image__inner{height: auto;}
+}
