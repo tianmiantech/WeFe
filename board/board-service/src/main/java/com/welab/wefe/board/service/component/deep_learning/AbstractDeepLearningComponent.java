@@ -31,6 +31,7 @@ import com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
@@ -66,7 +67,7 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
 
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws StatusCodeWithException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws StatusCodeWithException {
         ImageDataIOComponent.Params imageDataIoParam = (ImageDataIOComponent.Params) graph.findOneNodeFromParent(node, ComponentType.ImageDataIO).getParamsModel();
 
         Set<String> labelNames = new HashSet<>();
@@ -88,7 +89,7 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
 
         DataResourceOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
         JObject dataSetInfo = JObject.create(myJobDataSet);
-        dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId(), job.jobId));
+        dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId(), job.jobId, jobBuilder.dataSetVersion));
 
         JObject output = JObject.create(job);
         output.put("data_set", dataSetInfo);
@@ -97,7 +98,7 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
         return output;
     }
 
-    private String buildDataSetDownloadUrl(String dataSetId, String jobId) {
+    private String buildDataSetDownloadUrl(String dataSetId, String jobId, String version) {
         Api annotation = ImageDataSetDownloadApi.class.getAnnotation(Api.class);
         return Launcher.getBean(GlobalConfigService.class)
                 .getBoardConfig()
@@ -105,7 +106,8 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
                 + "/"
                 + annotation.path()
                 + "?data_set_id=" + dataSetId
-                + "&job_id=" + jobId;
+                + "&job_id=" + jobId
+                + "&version=" + version;
 
     }
 
