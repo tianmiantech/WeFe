@@ -17,7 +17,7 @@ from kernel.security.paillier import PaillierEncryptedNumber
 
 LOGGER = log_utils.get_logger()
 
-GPU_TABLE_DOT_BATCH = 20000
+GPU_TABLE_DOT_BATCH = 5000
 
 
 def _table_binary_op(x, y, q_field, op, need_send=False):
