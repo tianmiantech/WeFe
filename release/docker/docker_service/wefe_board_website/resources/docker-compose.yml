@@ -10,9 +10,8 @@ services:
     networks:
       - network
     volumes:
-      - "./mount/index.html:/opt/website/html/board-website/index.html"
       - "./mount/default.conf:/etc/nginx/conf.d/default.conf"
-      - "./mount/html:/opt/website/html"
+      - "./mount/board-website:/opt/website/board-website"
 
 networks:
   network:
