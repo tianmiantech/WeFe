@@ -5,7 +5,16 @@
         class="nav-title mb30"
         :show="project_type !== 'DeepLearning'"
     >
-        <h3 class="mb10">模型列表</h3>
+        <template #header>
+            <div class="clearfix mb10 flex-row">
+                <h3 class="mb10">模型列表</h3>
+                <!-- <div class="right-sort-area">
+                    <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
+                    <el-icon :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span>
+                </div> -->
+            </div>
+        </template>
         <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
                 <el-select v-model="search.component_type">
@@ -140,7 +149,7 @@
                                     query: { job_id: scope.row.job_id, project_id, member_role: scope.row.role }
                                 }"
                             >
-                                查看任务
+                                查看结果
                             </router-link>
                         </template>
                     </el-table-column>
@@ -252,8 +261,11 @@
         },
         mixins: [table],
         props:  {
-            form: Object,
+            form:      Object,
+            sortIndex: Number,
+            maxIndex:  Number,
         },
+        emits:    ['move-up', 'move-down', 'to-top'],
         computed: {
             ...mapGetters(['userInfo']),
         },
@@ -443,6 +455,15 @@
                 });
 
                 window.open(href, '_blank');
+            },
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
             },
         },
     };

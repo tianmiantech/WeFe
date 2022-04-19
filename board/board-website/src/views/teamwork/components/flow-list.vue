@@ -4,21 +4,32 @@
         class="nav-title mb30"
         shadow="never"
     >
-        <h3 class="mb10 card-title">
-            训练列表
-            <template v-if="form.isPromoter">
-                <el-button
-                    v-if="!form.closed && !form.is_exited"
-                    class="ml10"
-                    size="small"
-                    type="primary"
-                    @click="addFlowMethod"
-                >
-                    新建训练流程
-                </el-button>
-            </template>
-            <span v-else class="ml10 f12">(协作方无法添加流程)</span>
-        </h3>
+        <template #header>
+            <div class="clearfix mb10" style="display: flex; justify-content: space-between;">
+                <div style="display: flex; align-items: center;">
+                    <h3 class="mb10 card-title">
+                        训练列表
+                        <template v-if="form.isPromoter">
+                            <el-button
+                                v-if="!form.closed && !form.is_exited"
+                                class="ml10"
+                                size="small"
+                                type="primary"
+                                @click="addFlowMethod"
+                            >
+                                新建训练
+                            </el-button>
+                        </template>
+                        <span v-else class="ml10 f12">(协作方无法添加训练)</span>
+                    </h3>
+                </div>
+                <!-- <div class="right-sort-area">
+                    <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
+                    <el-icon :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <span v-if="sortIndex !== 0" @click="toTop" class="f12">置顶</span>
+                </div> -->
+            </div>
+        </template>
 
         <el-table
             ref="multipleTable"
@@ -62,6 +73,11 @@
                     </template>
                 </template>
             </el-table-column>
+            <el-table-column label="训练类型">
+                <template v-slot="scope">
+                    <p>{{ form.project_type === 'MachineLearning' ? learningType(scope.row.federated_learning_type) : learningType(scope.row.deep_learning_job_type) }}</p>
+                </template>
+            </el-table-column>
             <el-table-column
                 label="创建者"
                 prop="creator_nickname"
@@ -72,11 +88,6 @@
             >
                 <template v-slot="scope">
                     <p>{{ dateFormat(scope.row.created_time) }}</p>
-                </template>
-            </el-table-column>
-            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
-                <template v-slot="scope">
-                    <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -100,7 +111,7 @@
                             type="primary"
                             class="mr10"
                             :underline="false"
-                            @click="linkTo('teamwork/detail/deep-learning/check-flow', { flow_id: scope.row.flow_id, project_id: project_id })"
+                            @click="linkTo('teamwork/detail/deep-learning/check-flow', { flow_id: scope.row.flow_id, flow_name: scope.row.flow_name, project_id: project_id, project_name: form.name })"
                         >
                             校验
                         </el-link>
@@ -129,7 +140,7 @@
                                         size="small"
                                         @click="copyFlow(scope.row)"
                                     >
-                                        复制流程
+                                        复制训练
                                     </el-button>
                                 </el-dropdown-item>
                                 <el-dropdown-item divided>
@@ -139,12 +150,25 @@
                                         class="color-danger"
                                         @click="deleteFlow(scope.row, scope.$index)"
                                     >
-                                        删除流程
+                                        删除训练
                                     </el-button>
                                 </el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
+                    <p v-if="list.length > 1" class="ml10 totop_btn" @click="flowToTopClick(scope.row)">
+                        <!-- <span :style="{'color': scope.row.top ? '#e6a23c' : '#438bff'}">{{scope.row.top ? '取消置顶' : '置顶'}}</span> -->
+                        <el-tooltip v-if="scope.row.top" effect="light" content="取消置顶" placement="bottom">
+                            <el-icon class="f14" style="color: #f85564; font-weight: 500;">
+                                <elicon-bottom />
+                            </el-icon>
+                        </el-tooltip>
+                        <el-tooltip v-if="scope.$index !== 0 && !scope.row.top" effect="light" content="置顶" placement="bottom">
+                            <el-icon class="f14" style="color: #438bff; font-weight: 500;">
+                                <elicon-top />
+                            </el-icon>
+                        </el-tooltip>
+                    </p>
                 </template>
             </el-table-column>
         </el-table>
@@ -164,7 +188,7 @@
         </div>
 
         <el-dialog
-            title="复制流程:"
+            title="复制训练:"
             v-model="copyFlowDialog.visible"
             destroy-on-close
             width="400px"
@@ -209,7 +233,7 @@
                     />
                 </el-form-item>
                 <el-form-item
-                    label="新流程名称："
+                    label="新训练名称："
                     label-width="100px"
                 >
                     <el-input v-model="copyFlowDialog.flowRename" />
@@ -234,7 +258,7 @@
         >
             <template #title>
                 选择模版:
-                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
+                <span class="ml10 f14 el-alert__description">(训练创建后将无法更改训练类型)</span>
             </template>
 
             <div
@@ -248,7 +272,7 @@
                     <span class="model-img f30">
                         纵向
                     </span>
-                    空白流程
+                    空白训练
                 </div>
                 <div
                     class="li empty-flow"
@@ -257,7 +281,7 @@
                     <span class="model-img f30">
                         横向
                     </span>
-                    空白流程
+                    空白训练
                 </div>
                 <div
                     class="li empty-flow"
@@ -266,7 +290,7 @@
                     <span class="model-img f30">
                         混合
                     </span>
-                    空白流程
+                    空白训练
                 </div>
 
                 <template
@@ -292,14 +316,14 @@
                 </template>
             </div>
         </el-dialog>
-        <!-- 深度学习流程 -->
+        <!-- 深度学习训练 -->
         <el-dialog
             v-model="addDeeplearningFlow"
             destroy-on-close
         >
             <template #title>
                 选择模版:
-                <span class="ml10 f14 el-alert__description">(流程创建后将无法更改流程类型)</span>
+                <span class="ml10 f14 el-alert__description">(训练创建后将无法更改训练类型)</span>
             </template>
 
             <div
@@ -340,8 +364,11 @@
         mixins: [table],
         inject: ['refresh'],
         props:  {
-            form: Object,
+            form:      Object,
+            sortIndex: Number,
+            maxIndex:  Number,
         },
+        emits: ['move-up', 'move-down', 'to-top'],
         data() {
             return {
                 timer:               null,
@@ -394,6 +421,8 @@
                         vertical:   '纵向',
                         horizontal: '横向',
                         mix:        '混合',
+                        classify:   '图像分类',
+                        detection:  '目标检测',
                     };
 
                     return types[val] || '-';
@@ -505,7 +534,7 @@
                 const params = {
                     project_id:            this.project_id,
                     federatedLearningType: deeplearning ? 'horizontal' : opt.federated_learning_type,
-                    name:                  `${opt.name || '新流程'}-${this.getDateTime()}`,
+                    name:                  `${opt.name || '新训练'}-${this.getDateTime()}`,
                     desc:                  '',
                 };
 
@@ -618,7 +647,7 @@
             },
 
             deleteFlow(row, idx) {
-                this.$confirm('确定要删除该流程吗? 此操作不可撤销!', '警告', {
+                this.$confirm('确定要删除该训练吗? 此操作不可撤销!', '警告', {
                     type: 'warning',
                 })
                     .then(async action => {
@@ -642,7 +671,7 @@
                 if (this.form.project_type === 'MachineLearning') {
                     this.addFlow = true;
                 } else {
-                    // 创建深度学习流程
+                    // 创建深度学习训练
                     this.addDeeplearningFlow = true;
                 }
             },
@@ -655,6 +684,28 @@
 
                 if (code === 0) {
                     this.config = data;
+                }
+            },
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
+            },
+            async flowToTopClick(item) {
+                const { code } = await this.$http.post({
+                    url:  '/project/flow/top',
+                    data: {
+                        flowId: item.flow_id,
+                        top:    !item.top,
+                    },
+                });
+
+                if(code === 0) {
+                    this.getFlowList();
                 }
             },
         },
@@ -703,5 +754,9 @@
             color: #999;
             &.is-active{color: $--color-primary;}
         }
+    }
+    .totop_btn {
+        display: inline-block;
+        cursor: pointer;
     }
 </style>
