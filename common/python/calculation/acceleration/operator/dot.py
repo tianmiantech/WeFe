@@ -235,7 +235,7 @@ def gpu_paillier_table_dot(X, Y):
     # print(" _debug_print_pub_one_variable_instance, Y_array_encoded ---------> :  ")
     # _debug_print_pub_one_variable_instance(gpu_lib, Y_array_encoded, matrix_row_count*matrix_Y_column_count)
 
-    print(f'matrix_row_count:{matrix_row_count}, matrix_X_column_count:{matrix_X_column_count}, matrix_Y_column_count:{matrix_Y_column_count}')
+    # print(f'matrix_row_count:{matrix_row_count}, matrix_X_column_count:{matrix_X_column_count}, matrix_Y_column_count:{matrix_Y_column_count}')
     timebegin = dt.datetime.now()
     matrix_multiplied = gpu_lib.GPU_H_Paillier_TableDot_MatrixMultiply(
         1,

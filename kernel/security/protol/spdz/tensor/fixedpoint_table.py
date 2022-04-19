@@ -13,6 +13,7 @@ from kernel.security.protol.spdz.tensor.base import TensorBase
 from kernel.security.protol.spdz.utils import NamingService
 from kernel.security.protol.spdz.utils.random_utils import urand_tensor
 from common.python.calculation.acceleration.operator import cal
+from kernel.security.paillier import PaillierEncryptedNumber
 
 LOGGER = log_utils.get_logger()
 
@@ -42,8 +43,7 @@ def _table_dot_func(it):
 
 
 def table_dot(a_table, b_table):
-    if check_aclr_support():
-        partitions = a_table.get_partitions()
+    if check_aclr_support() and isinstance(a_table.take()[0][1][0], PaillierEncryptedNumber):
         new_table = list(a_table.join(b_table, lambda x, y: [x, y]).collect())
 
         if a_table.count() > 0:
