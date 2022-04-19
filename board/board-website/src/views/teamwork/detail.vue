@@ -668,6 +668,9 @@
             cursor: pointer;
         }
     }
+    .el-card__header {
+        padding-bottom: unset;
+    }
 </style>
 
 <style lang="scss" scoped>

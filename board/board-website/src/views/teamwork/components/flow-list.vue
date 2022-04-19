@@ -23,11 +23,11 @@
                         <span v-else class="ml10 f12">(协作方无法添加训练)</span>
                     </h3>
                 </div>
-                <div class="right-sort-area">
+                <!-- <div class="right-sort-area">
                     <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
                     <el-icon :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
-                    <!-- <span v-if="sortIndex !== 0" @click="toTop" class="f12">置顶</span> -->
-                </div>
+                    <span v-if="sortIndex !== 0" @click="toTop" class="f12">置顶</span>
+                </div> -->
             </div>
         </template>
 
@@ -156,14 +156,15 @@
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
-                    <p class="ml10 totop_btn" @click="flowToTopClick(scope.row)">
+                    <p v-if="list.length > 1" class="ml10 totop_btn" @click="flowToTopClick(scope.row)">
+                        <!-- <span :style="{'color': scope.row.top ? '#e6a23c' : '#438bff'}">{{scope.row.top ? '取消置顶' : '置顶'}}</span> -->
                         <el-tooltip v-if="scope.row.top" effect="light" content="取消置顶" placement="bottom">
-                            <el-icon style="color: #f85564;">
+                            <el-icon class="f14" style="color: #f85564; font-weight: 500;">
                                 <elicon-bottom />
                             </el-icon>
                         </el-tooltip>
-                        <el-tooltip v-else effect="light" content="置顶" placement="bottom">
-                            <el-icon style="color: #438bff;">
+                        <el-tooltip v-if="scope.$index !== 0 && !scope.row.top" effect="light" content="置顶" placement="bottom">
+                            <el-icon class="f14" style="color: #438bff; font-weight: 500;">
                                 <elicon-top />
                             </el-icon>
                         </el-tooltip>

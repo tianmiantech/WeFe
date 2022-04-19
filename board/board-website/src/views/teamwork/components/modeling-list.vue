@@ -8,11 +8,11 @@
         <template #header>
             <div class="clearfix mb10 flex-row">
                 <h3 class="mb10">模型列表</h3>
-                <div class="right-sort-area">
+                <!-- <div class="right-sort-area">
                     <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
                     <el-icon :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
-                    <!-- <span @click="toTop" class="f12">置顶</span> -->
-                </div>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span>
+                </div> -->
             </div>
         </template>
         <el-form inline @submit.prevent>

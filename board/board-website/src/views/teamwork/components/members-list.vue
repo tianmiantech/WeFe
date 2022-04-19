@@ -7,11 +7,11 @@
         <template #header>
             <div class="clearfix mb10 flex-row">
                 <h3 class="card-title f19">参与成员</h3>
-                <div class="right-sort-area">
+                <!-- <div class="right-sort-area">
                     <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
                     <el-icon :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
-                    <!-- <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span> -->
-                </div>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span>
+                </div> -->
             </div>
         </template>
         <el-tabs
@@ -108,10 +108,10 @@
                                 <br>
                                 主键组合方式: {{ scope.row.data_resource.hash_function }}
                             </p>
-                            <template v-else>
-                                特征量：{{ scope.row.data_resource.feature_count }}
+                            <template v-if="scope.row.data_resource">
+                                特征量：{{ scope.row.data_resource.feature_count || 0 }}
                                 <br>
-                                样本量：{{ scope.row.data_resource.total_data_count }}
+                                样本量：{{ scope.row.data_resource.total_data_count || 0 }}
                             </template>
                         </template>
                     </el-table-column>
@@ -120,7 +120,7 @@
                         width="80"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : '-' }}
+                            {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
                         </template>
                     </el-table-column>
                     <el-table-column v-if="projectType === 'MachineLearning'" label="是否包含 Y">
@@ -195,7 +195,7 @@
                     >
                         <template v-slot="scope">
                             <el-tooltip
-                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id"
+                                v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && scope.row.member_id === userInfo.member_id"
                                 :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                 content="预览数据"
                                 placement="top"
@@ -212,19 +212,15 @@
                                     </el-icon>
                                 </el-button>
                             </el-tooltip>
-                            <!--
-                                1. 数据资源未被删除
-                                2. 成员是 promoter or 成员是自己
-                            -->
                             <el-button
-                                v-if="form.isPromoter || scope.row.member_id === userInfo.member_id"
+                                v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
                                 circle
                                 type="danger"
                                 class="mr10"
                                 icon="elicon-delete"
                                 @click="removeDataSet(scope.row, scope.$index)"
                             />
-                            <template v-if="scope.row.deleted">
+                            <template v-if="scope.row.data_resource && scope.row.data_resource.deleted">
                                 该数据资源已被移除
                             </template>
                         </template>
