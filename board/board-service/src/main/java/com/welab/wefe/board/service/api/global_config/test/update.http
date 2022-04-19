@@ -5,30 +5,4 @@ Content-Type: application/json
 token:{{token}}
 
 {
-  "groups": {
-    "alert_config": {
-      "email_alert_on_job_error": "true"
-    },
-    "wefe_board": {
-      "account_need_audit_when_register": "true",
-      "intranet_base_uri": "https://xbd-fat.wolaidai.com/board-service-01/"
-    },
-    "wefe_flow": {
-      "visual_fl_base_url": "http://10.90.0.86:10002",
-      "intranet_base_uri": "http://10.90.0.86:5600"
-    },
-    "wefe_gateway": {
-      "ip_white_list": "<script>\n*\n#10.5.210.20:8080\n# board 内网IP地址，由 board 自主上报。\n10.5.210.*\n\n# board 外网IP地址，由 board 自主上报。\n120.78.238.167\n\n# flow 内网IP地址，由 flow 自主上报。\n192.168.208.*\n\n# flow 上报IP地址，由 flow 自主上报。\nhttp://10.90.0.86\n\n# board 内网IP地址，由 board 自主上报。\n172.29.24.*\n\n# board 外网IP地址，由 board 自主上报。\n115.160.150.58\n\n# board 内网IP地址，由 board 自主上报。\n169.69.50.*\n\n# board 外网IP地址，由 board 自主上报。\n183.3.218.18\n\n# flow内网IP地址\n10.90.0.86\n\n# board 内网IP地址，由 board 自主上报。\n172.29.25.*\n\n# board 内网IP地址，由 board 自主上报。\n172.20.10.*\n\n# board 内网IP地址，由 board 自主上报。\n169.69.33.*\n\n# board 内网IP地址，由 board 自主上报。\n172.29.20.*\n\n# board 内网IP地址，由 board 自主登记。\n192.168.3.*\n\n# board 内网IP地址，由 board 自主登记。\n192.168.2.*\n\n# board 内网IP地址，由 board 自主登记。\n192.168.1.*\n\n# board 内网IP地址，由 board 自主登记。\n127.0.0.*\n\n# board 内网IP地址，由 board 自主登记。\n169.69.34.*\n\n# board 内网IP地址，由 board 自主登记。\n169.254.200.*\n\n# flow 内网IP地址，由 flow 自主上报。\n172.20.0.*\n\n# flow 内网IP地址，由 flow 自主上报。\n169.254.0.*\n\n# flow 内网IP地址，由 flow 自主上报。\n172.22.0.*\n\n# flow 内网IP地址，由 flow 自主上报。\n172.23.0.*\n\n# flow 内网IP地址，由 flow 自主上报。\n172.24.0.*\n\n# flow 内网IP地址，由 flow 自主上报。\n172.26.0.*\n\n# flow 内网IP地址，由 flow 自主上报。\n172.29.0.*\n\n# flow 内网IP地址，由 flow 自主上报。\n192.168.160.*\n\n# board 内网IP地址，由 board 自主登记。\n172.17.0.*\n\n# board 内网IP地址，由 board 自主登记。\n192.168.111.*\n\n# board 内网IP地址，由 board 自主登记。\n172.31.24.*\n",
-      "intranet_base_uri": "10.5.210.11:8080"
-    },
-    "mail_server": {
-      "mail_password": "Yc@welab.2022",
-      "mail_port": "465",
-      "mail_host": "smtp.exmail.qq.com",
-      "mail_username": "yippee.chen@welab-inc.com"
-    },
-    "wefe_serving": {
-      "intranet_base_uri": "https://xbd-fat.wolaidai.com/serving-service-01/"
-    }
-  }
 }
