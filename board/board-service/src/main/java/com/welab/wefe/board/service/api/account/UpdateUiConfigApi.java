@@ -38,7 +38,7 @@ public class UpdateUiConfigApi extends AbstractApi<UpdateUiConfigApi.Input, None
 
     @Override
     protected ApiResult<NoneApiOutput> handle(UpdateUiConfigApi.Input input) throws StatusCodeWithException {
-        accountService.updateUiConfig(input.config);
+        accountService.updateUiConfig(input.uiConfig);
 
         return success();
     }
@@ -46,7 +46,7 @@ public class UpdateUiConfigApi extends AbstractApi<UpdateUiConfigApi.Input, None
     public static class Input extends AbstractApiInput {
 
         @Check(name = "用户界面配置信息", require = true)
-        public Map<String, Object> config;
+        public Map<String, Object> uiConfig;
 
     }
 }
