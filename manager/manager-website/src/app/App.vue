@@ -5,6 +5,9 @@
 </template>
 
 <script>
+    import 'element-plus/theme-chalk/el-message.css';
+    import 'element-plus/theme-chalk/el-message-box.css';
+    import 'element-plus/theme-chalk/el-notification.css';
     import { ElConfigProvider } from 'element-plus';
     import zhCn from 'element-plus/lib/locale/lang/zh-cn';
 

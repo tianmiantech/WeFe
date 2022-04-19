@@ -23,10 +23,10 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties
 public class Config {
-    @Value("${sm4.secret.key}")
+    @Value("${sm4.secret.key:}")
     private String sm4SecretKey;
 
-    @Value("${encrypt.phone.number.open:true}")
+    @Value("${encrypt.phone.number.open:false}")
     private boolean encryptPhoneNumberOpen;
 
     public String getSm4SecretKey() {

@@ -97,7 +97,7 @@ public class PreviewApi extends AbstractApi<PreviewApi.Input, PreviewApi.Output>
 
             // 读取数据并推理每个字段的数据类型
             columnDataTypeInferrer = new ColumnDataTypeInferrer(header);
-            reader.read(columnDataTypeInferrer, 10000, 10_000);
+            reader.read(columnDataTypeInferrer, 100_000, 10_000);
         }
 
         return new Output(columnDataTypeInferrer);

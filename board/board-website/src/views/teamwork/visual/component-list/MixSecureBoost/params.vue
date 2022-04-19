@@ -102,7 +102,7 @@
                     </el-form-item>
                 </el-collapse-item>
                 <el-collapse-item title="tree param" name="2">
-                    <el-form-item label="标准函数">
+                    <el-form-item label="L2 正则项系数">
                         <el-input
                             v-model="vData.form.tree_param.criterion_method"
                             placeholder="如 xgboost"
@@ -130,12 +130,6 @@
                         <el-input
                             v-model="vData.form.tree_param.min_impurity_split"
                             placeholder="0.001"
-                        />
-                    </el-form-item>
-                    <el-form-item label="可拆分的最大并样本量">
-                        <el-input
-                            v-model="vData.form.tree_param.max_split_nodes"
-                            placeholder="65536"
                         />
                     </el-form-item>
                 </el-collapse-item>
@@ -230,13 +224,11 @@
 
     const XGBoost = {
         tree_param: {
-            criterion_method:   'xgboost',
-            criterion_params:   '0.1',
-            max_depth:          5,
+            criterion_params:   0.1,
+            max_depth:          3,
             min_sample_split:   2,
             min_leaf_node:      1,
             min_impurity_split: 0.001,
-            max_split_nodes:    65536,
         },
         objective_param: {
             objective: 'cross_entropy',
@@ -253,10 +245,10 @@
         other_param: {
             task_type:              'classification',
             learning_rate:          0.1,
-            num_trees:              100,
-            subsample_feature_rate: 0.8,
+            subsample_feature_rate: 1.0,
             n_iter_no_change:       true,
             tol:                    0.0001,
+            num_trees:              10,
             bin_num:                50,
             validation_freqs:       10,
             early_stopping_rounds:  5,

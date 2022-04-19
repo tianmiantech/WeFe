@@ -204,13 +204,13 @@
         </div>
 
         <el-dialog
-            title=""
+            title="导出"
             v-model="modelExportDialog"
             destroy-on-close
             width="420px"
         >
             <el-tabs v-model="modelExportType">
-                <el-tab-pane v-if="selectedRow.component_type === 'HorzSecureBoost' || selectedRow.component_type === 'HorzLR'" label="模型导出" :name="0">
+                <el-tab-pane v-if="selectedRow.component_type === 'HorzSecureBoost' || selectedRow.component_type === 'HorzLR'" label="导出为代码" :name="0">
                     <p class="mb10 f14">点击任意语言可下载对应的模型:</p>
                     <p class="color-danger mb10 f12">请使用浏览器默认下载器, 否则下载的文件格式可能有误</p>
                     <div v-loading="loading" class="select-lang">
@@ -223,7 +223,7 @@
                         </el-tag>
                     </div>
                 </el-tab-pane>
-                <el-tab-pane label="模型推送" :name="1">
+                <el-tab-pane label="同步到serving" :name="1">
                     <p>模型推送到 serving</p>
                     <div class="text-c mt30">
                         <el-button
@@ -306,6 +306,12 @@
                 }, {
                     label: '横向深度学习',
                     value: 'HorzNN',
+                }, {
+                    label: '混合 XGBoost',
+                    value: 'MixSecureBoost',
+                }, {
+                    label: '混合 LR',
+                    value: 'MixLR',
                 }],
                 list:          [],
                 watchRoute:    false,

@@ -26,6 +26,7 @@ import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.UnionNodeMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.SM2Util;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.Launcher;
@@ -35,6 +36,7 @@ import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.union.service.cache.MemberActivityCache;
 import com.welab.wefe.union.service.dto.common.SM2SignedApiInput;
 import com.welab.wefe.union.service.operation.UnionApiLogger;
+import com.welab.wefe.union.service.service.MemberContractService;
 import com.welab.wefe.union.service.service.flowlimit.FlowLimitByIpService;
 import com.welab.wefe.union.service.service.flowlimit.FlowLimitByMobileService;
 import org.springframework.beans.BeansException;
@@ -49,6 +51,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 
 /**
  * @author Jervis
@@ -77,7 +80,6 @@ public class UnionService implements ApplicationContextAware {
 
 
     public static void main(String[] args) {
-
         Launcher.instance()
                 .apiLogger(new UnionApiLogger())
                 .apiPackageClass(UnionService.class)
@@ -113,13 +115,16 @@ public class UnionService implements ApplicationContextAware {
             throw new StatusCodeWithException("成员不存在", StatusCode.INVALID_MEMBER);
         }
 
+
         if ("1".equals(member.getFreezed())) {
             throw new StatusCodeWithException("该成员已被冻结，请联系管理员", StatusCode.INVALID_MEMBER);
         }
 
-        // Due to performance issues, put it in the cache and then update it asynchronously
-        member.setLastActivityTime(String.valueOf(System.currentTimeMillis()));
-        MemberActivityCache.getInstance().add(member);
+        if (Long.parseLong(member.getLastActivityTime()) < DateUtil.currentDateMillis()) {
+            member.setLastActivityTime(String.valueOf(System.currentTimeMillis()));
+            MemberContractService memberContractService = UnionService.CONTEXT.getBean(MemberContractService.class);
+            memberContractService.updateLastActivityTimeById(member.getMemberId(), member.getLastActivityTime());
+        }
 
         String publicKey = member.getPublicKey();
         SecretKeyType secretKeyType = getSecretKeyType(member);
@@ -163,7 +168,7 @@ public class UnionService implements ApplicationContextAware {
 
     private static SecretKeyType getSecretKeyType(Member member) {
         MemberExtJSON extJson = member.getExtJson();
-        if(null == extJson || null == extJson.getSecretKeyType()) {
+        if (null == extJson || null == extJson.getSecretKeyType()) {
             return SecretKeyType.rsa;
         }
         return extJson.getSecretKeyType();
