@@ -29,10 +29,47 @@ public class Config extends CommonConfig {
     @Value("${wefe.service.cache.type}")
     private String serviceCacheType;
 
-    @Value("${sm4.secret.key}")
+    @Value("${sm4.secret.key:}")
     private String sm4SecretKey;
 
-    @Value("${encrypt.phone.number.open:true}")
+    @Value("${verification.code.send.channel:email}")
+    private String verificationCodeSendChannel;
+
+    @Value("${sms.aliyun.sign.name:xxx}")
+    private String smsAliyunSignName;
+
+    @Value("${sms.aliyun.account.forget.password.verification.code.template.code:xxx}")
+    private String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+
+    @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
+    private String smsAliyunMemberregisterVerificationCodeTemplateCode;
+
+    @Value("${email.account.forget.password.subject:忘记密码}")
+    private String emailAccountForgetPasswordSubject;
+
+    @Value("${email.account.forget.password.content:您正在执行忘记密码操作。您的验证码是#code#，2分钟内有效，请勿泄漏于他人!}")
+    private String emailAccountForgetPasswordContent;
+
+    @Value("${sms.access_key_id:xxx}")
+    private String smsAccessKeyId;
+
+    @Value("${sms.access_key_secret:xxx}")
+    private String smsAccessKeySecret;
+    
+    @Value("${wefe.mail_server.mail_host}")
+    private String mailHost;
+    
+    @Value("${wefe.mail_server.mail_password}")
+    private String mailPassword;
+    
+    @Value("${wefe.mail_server.port}")
+    private String mailPort;
+    
+    @Value("${wefe.mail_server.username}")
+    private String mailUsername;
+    
+    
+    @Value("${encrypt.phone.number.open:false}")
     private boolean encryptPhoneNumberOpen;
 
 
@@ -92,6 +129,104 @@ public class Config extends CommonConfig {
         this.sm4SecretKey = sm4SecretKey;
     }
 
+    public String getVerificationCodeSendChannel() {
+        return verificationCodeSendChannel;
+    }
+
+    public void setVerificationCodeSendChannel(String verificationCodeSendChannel) {
+        this.verificationCodeSendChannel = verificationCodeSendChannel;
+    }
+
+    public String getSmsAliyunSignName() {
+        return smsAliyunSignName;
+    }
+
+    public void setSmsAliyunSignName(String smsAliyunSignName) {
+        this.smsAliyunSignName = smsAliyunSignName;
+    }
+
+    public String getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode() {
+        return smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+    }
+
+    public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(
+            String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
+        this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
+    }
+
+    public String getSmsAliyunMemberregisterVerificationCodeTemplateCode() {
+        return smsAliyunMemberregisterVerificationCodeTemplateCode;
+    }
+
+    public void setSmsAliyunMemberregisterVerificationCodeTemplateCode(
+            String smsAliyunMemberregisterVerificationCodeTemplateCode) {
+        this.smsAliyunMemberregisterVerificationCodeTemplateCode = smsAliyunMemberregisterVerificationCodeTemplateCode;
+    }
+
+    public String getEmailAccountForgetPasswordSubject() {
+        return emailAccountForgetPasswordSubject;
+    }
+
+    public void setEmailAccountForgetPasswordSubject(String emailAccountForgetPasswordSubject) {
+        this.emailAccountForgetPasswordSubject = emailAccountForgetPasswordSubject;
+    }
+
+    public String getEmailAccountForgetPasswordContent() {
+        return emailAccountForgetPasswordContent;
+    }
+
+    public void setEmailAccountForgetPasswordContent(String emailAccountForgetPasswordContent) {
+        this.emailAccountForgetPasswordContent = emailAccountForgetPasswordContent;
+    }
+
+    public String getSmsAccessKeyId() {
+        return smsAccessKeyId;
+    }
+
+    public void setSmsAccessKeyId(String smsAccessKeyId) {
+        this.smsAccessKeyId = smsAccessKeyId;
+    }
+
+    public String getSmsAccessKeySecret() {
+        return smsAccessKeySecret;
+    }
+
+    public void setSmsAccessKeySecret(String smsAccessKeySecret) {
+        this.smsAccessKeySecret = smsAccessKeySecret;
+    }
+
+    public String getMailHost() {
+        return mailHost;
+    }
+
+    public void setMailHost(String mailHost) {
+        this.mailHost = mailHost;
+    }
+
+    public String getMailPassword() {
+        return mailPassword;
+    }
+
+    public void setMailPassword(String mailPassword) {
+        this.mailPassword = mailPassword;
+    }
+
+    public String getMailPort() {
+        return mailPort;
+    }
+
+    public void setMailPort(String mailPort) {
+        this.mailPort = mailPort;
+    }
+
+    public String getMailUsername() {
+        return mailUsername;
+    }
+
+    public void setMailUsername(String mailUsername) {
+        this.mailUsername = mailUsername;
+    }
+    
     public boolean isEncryptPhoneNumberOpen() {
         return encryptPhoneNumberOpen;
     }

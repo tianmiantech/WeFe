@@ -102,7 +102,6 @@
                     </el-form-item>
 
                     <el-form-item
-                        v-if="vData.member_list.length === 2"
                         prop="work_mode"
                         label="工作模式"
                     >
@@ -114,16 +113,34 @@
                                 label="普通模式"
                                 value="normal"
                             />
-                            <el-option
-                                label="layered 模式"
-                                value="layered"
-                            />
+                            <template v-if="vData.member_list.length === 2">
+                                <el-option
+                                    label="layered 模式"
+                                    value="layered"
+                                />
+                            </template>
                             <el-option
                                 label="skip 模式"
                                 value="skip"
                             />
+                            <el-option
+                                label="dp 模式"
+                                value="dp"
+                            />
                         </el-select>
                     </el-form-item>
+                    <template v-if="vData.form.other_param.work_mode === 'dp'">
+                        <el-form-item label="隐私预算">
+                            <el-input v-model="vData.form.other_param.epsilon" />
+                        </el-form-item>
+                        <p
+                            v-if="vData.form.other_param.epsilon && vData.form.other_param.bin_num"
+                            style="padding-left:90px;"
+                            class="f12"
+                        >
+                            有 {{ ((vData.form.other_param.bin_num - 1) / (Math.E ** vData.form.other_param.epsilon + vData.form.other_param.bin_num - 1) * 100).toFixed(2) }}% 的概率移动到其他箱中
+                        </p>
+                    </template>
                     <el-form-item
                         v-if="vData.form.other_param.work_mode === 'skip'"
                         label="单方每次构建树的数量"
@@ -140,7 +157,7 @@
                     </template>
                 </el-collapse-item>
                 <el-collapse-item title="tree param" name="2">
-                    <el-form-item label="标准函数">
+                    <el-form-item label="L2 正则项系数">
                         <el-input
                             v-model="vData.form.tree_param.criterion_method"
                             placeholder="如 xgboost"
@@ -170,12 +187,6 @@
                             placeholder="0.001"
                         />
                     </el-form-item>
-                    <el-form-item label="可拆分的最大并样本量">
-                        <el-input
-                            v-model="vData.form.tree_param.max_split_nodes"
-                            placeholder="65536"
-                        />
-                    </el-form-item>
                 </el-collapse-item>
                 <el-collapse-item title="objective param" name="3">
                     <el-form-item label="目标函数：">
@@ -199,7 +210,11 @@
                         />
                     </el-form-item>
                 </el-collapse-item>
-                <el-collapse-item title="encrypt param" name="4">
+                <el-collapse-item
+                    v-if="vData.form.other_param.work_mode !== 'dp'"
+                    title="encrypt param"
+                    name="4"
+                >
                     <el-form-item
                         prop="encrypt_param__method"
                         label="同态加密方法"
@@ -267,13 +282,11 @@
 
     const XGBoost = {
         tree_param: {
-            criterion_method:   'xgboost',
-            criterion_params:   '0.1',
-            max_depth:          5,
+            criterion_params:   0.1,
+            max_depth:          3,
             min_sample_split:   2,
             min_leaf_node:      1,
             min_impurity_split: 0.001,
-            max_split_nodes:    65536,
         },
         objective_param: {
             objective: 'cross_entropy',
@@ -290,14 +303,15 @@
         other_param: {
             task_type:              'classification',
             learning_rate:          0.1,
-            num_trees:              100,
-            subsample_feature_rate: 0.8,
+            subsample_feature_rate: 1.0,
             n_iter_no_change:       true,
             tol:                    0.0001,
+            num_trees:              10,
             bin_num:                50,
             validation_freqs:       10,
             early_stopping_rounds:  5,
-            work_mode:              'normal',
+            work_mode:              'dp',
+            epsilon:                3,
         },
     };
 
@@ -466,7 +480,8 @@
     .el-form-item{
         margin-bottom: 10px;
         :deep(.el-form-item__label){
-            flex:1;
+            max-width:200px;
+            flex: 1;
         }
     }
     .el-collapse-item {

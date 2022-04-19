@@ -503,8 +503,8 @@
         color:#909399;
         font-size: 13px;
     }
-    :deep(.el-input__inner),
-    :deep(.el-textarea__inner){max-width: 300px;}
+    :deep(.el-input),
+    :deep(.el-textarea){max-width: 300px;}
 }
 #pane-help, .component-panel-content{height: 100%;}
 #pane-params, #pane-result{

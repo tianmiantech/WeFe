@@ -100,6 +100,18 @@
                 }, {
                     label: '横向 LR',
                     value: 'HorzLR',
+                }, {
+                    label: '纵向深度学习',
+                    value: 'VertNN',
+                }, {
+                    label: '横向深度学习',
+                    value: 'HorzNN',
+                }, {
+                    label: '混合 XGBoost',
+                    value: 'MixSecureBoost',
+                }, {
+                    label: '混合 LR',
+                    value: 'MixLR',
                 }],
                 list:       [],
                 isShowTopN: true, // show topn
