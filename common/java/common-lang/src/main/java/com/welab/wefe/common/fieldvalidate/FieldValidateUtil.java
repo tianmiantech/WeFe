@@ -16,10 +16,8 @@
 
 package com.welab.wefe.common.fieldvalidate;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.ClassUtils;
 import com.welab.wefe.common.util.StringUtil;
@@ -154,7 +152,8 @@ public class FieldValidateUtil {
             return;
         }
 
-        String valueStr = JSON.toJSONString(value, LoggerSerializeConfig.instance());
+        // String valueStr = JSON.toJSONString(value, LoggerSerializeConfig.instance());
+        String valueStr = value.toString();
         String keyword = ReactionaryKeywords.match(valueStr);
         if (StringUtil.isNotEmpty(keyword)) {
             StatusCode
@@ -171,7 +170,7 @@ public class FieldValidateUtil {
             return;
         }
 
-        String valueStr = JSON.toJSONString(value, LoggerSerializeConfig.instance());
+        String valueStr = value.toString();
         for (String keyword : XSS_KEYWORDS) {
             if (valueStr.contains(keyword)) {
                 StatusCode
