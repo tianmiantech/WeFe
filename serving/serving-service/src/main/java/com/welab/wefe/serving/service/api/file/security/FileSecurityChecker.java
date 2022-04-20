@@ -38,7 +38,7 @@ public abstract class FileSecurityChecker {
      * 允许的文件类型
      */
     private static final List<String> ALLOW_FILE_TYPES = Arrays.asList(
-            "json", "zip"
+            "json", "zip", "txt"
     );
 
     protected abstract void doCheck(File file) throws IOException;
