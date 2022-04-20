@@ -22,6 +22,7 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
@@ -47,6 +48,12 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
+        }
+        
+        List<JobMemberMySqlModel> jobMembers = graph.getMembers();
+        long memberCount = jobMembers.size();
+        if (memberCount > 2 && "layered".equalsIgnoreCase(params.otherParam.workMode)) {
+            throw new FlowNodeException(node, "layered模式 只支持两个参与方");
         }
     }
 
