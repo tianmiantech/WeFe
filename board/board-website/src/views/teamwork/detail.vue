@@ -108,30 +108,33 @@
                 :projectType="form.project_type"
                 @deleteDataSetEmit="deleteDataSetEmit"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
 
             <FusionList
                 v-if="item.name === 'FusionList'"
                 :form="form"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
 
             <FlowList
                 v-if="item.name === 'FlowList'"
                 :form="form"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
 
             <ModelingList
@@ -139,20 +142,22 @@
                 ref="ModelingList"
                 :form="form"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
 
             <DerivedList
                 v-if="item.name === 'DerivedList' && form.project_type === 'MachineLearning'"
                 :project-type="form.project_type"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
         </template>
 
@@ -641,7 +646,16 @@
             toTop(idx) {
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
 
-                this.swapArray(list, idx, 0);
+                const temp = list.splice(idx, 1)[0];
+
+                list.unshift(temp);
+            },
+            toBottom(idx) {
+                const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
+
+                const temp = list.splice(idx, 1)[0];
+
+                list.push(temp);
             },
             swapArray(arr, idx1, idx2) {
                 arr[idx1] = arr.splice(idx2, 1, arr[idx1])[0];
