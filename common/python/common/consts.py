@@ -224,6 +224,7 @@ class ComponentName:
     HORZ_SECURE_BOOST = "HorzSecureBoost"
     VERT_SECURE_BOOST = "VertSecureBoost"
     VERT_FAST_SECURE_BOOST = "VertFastSecureBoost"
+    VERT_DP_SECURE_BOOST = "VertDPSecureBoost"
     HORZ_LR_VALIDATION_DATA_SET_LOADER = "HorzLRValidationDataSetLoader"
     VERT_LR_VALIDATION_DATA_SET_LOADER = "VertLRValidationDataSetLoader"
     HORZ_XG_BOOST_VALIDATION_DATA_SET_LOADER = "HorzXGBoostValidationDataSetLoader"
