@@ -51,8 +51,8 @@ public abstract class FileSecurityChecker {
             checkIsAllowFileType(file.getName());
 
             switch (suffix) {
-                case "json":
                 case "zip":
+                case "txt":
                     break;
                 default:
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("不支持的文件类型：" + suffix);
