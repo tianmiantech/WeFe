@@ -28,6 +28,18 @@ import java.util.stream.Collectors;
  * @author Zane
  */
 public class ModelMapper {
+    /**
+     * 根据官方文档，modelmapper 是线程安全的。
+     * http://modelmapper.org/user-manual/faq/
+     */
+    private static final org.modelmapper.ModelMapper MAPPER = new org.modelmapper.ModelMapper();
+
+    static {
+        MAPPER.getConfiguration().setFullTypeMatchingRequired(true);
+        MAPPER.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        MAPPER.getConfiguration().setMethodAccessLevel(Configuration.AccessLevel.PUBLIC);
+    }
+
     private ModelMapper() {
     }
 
@@ -37,12 +49,7 @@ public class ModelMapper {
             return null;
         }
 
-        org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
-        mapper.getConfiguration().setFullTypeMatchingRequired(true);
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        mapper.getConfiguration().setMethodAccessLevel(Configuration.AccessLevel.PUBLIC);
-
-        return mapper.map(source, destinationType);
+        return MAPPER.map(source, destinationType);
 
     }
 
