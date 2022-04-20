@@ -17,6 +17,18 @@
 package com.welab.wefe.serving.service.service;
 
 
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -29,23 +41,22 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.serving.service.api.account.*;
+import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
+import com.welab.wefe.serving.service.api.account.AuditApi;
+import com.welab.wefe.serving.service.api.account.EnableApi;
+import com.welab.wefe.serving.service.api.account.ForgetPasswordApi;
 import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
+import com.welab.wefe.serving.service.api.account.QueryApi;
+import com.welab.wefe.serving.service.api.account.RegisterApi;
+import com.welab.wefe.serving.service.api.account.ResetPasswordApi;
+import com.welab.wefe.serving.service.api.account.UpdateApi;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.service.verificationcode.VerificationCodeService;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * @author Zane
@@ -56,6 +67,9 @@ public class AccountService extends AbstractAccountService {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private VerificationCodeService verificationCodeService;
+    
     /**
      * Paging query
      */
@@ -354,6 +368,48 @@ public class AccountService extends AbstractAccountService {
         model.setPassword(password);
         model.setSalt(salt);
         model.setHistoryPasswordList(historyPasswords);
+        accountRepository.save(model);
+    }
+    
+    public void forgetPassword(ForgetPasswordApi.Input input) throws StatusCodeWithException {
+        if (StringUtil.isEmpty(input.getPhoneNumber())) {
+            throw new StatusCodeWithException("手机号不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (StringUtil.isEmpty(input.getPassword())) {
+            throw new StatusCodeWithException("密码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (StringUtil.isEmpty(input.getSmsVerificationCode())) {
+            throw new StatusCodeWithException("验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        AccountMySqlModel model = accountRepository.findOne("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()), AccountMySqlModel.class);
+        // phone number error
+        if (model == null) {
+            throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (!model.getEnable()) {
+            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
+        }
+
+        AccountInfo accountInfo = toAccountInfo(model);
+        int historyCount = 4;
+        if (inHistoryPassword(input.getPassword(), historyCount, accountInfo)) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("您输入的新密码必须与前四次设置的密码不一致");
+        }
+
+        // Check verification code is valid?
+        verificationCodeService.checkVerificationCode(input.getPhoneNumber(), input.getSmsVerificationCode(), VerificationCodeBusinessType.accountForgetPassword);
+
+        // 当前密码成为历史
+        accountInfo.getHistoryPasswordList().add(new HistoryPasswordItem(accountInfo.getPassword(), accountInfo.getSalt()));
+        // 历史密码
+        String historyPasswordListString = JSON.toJSONString(accountInfo.getPasswordHistoryList(historyCount - 1));
+
+        // Regenerate salt
+        String salt = createRandomSalt();
+        model.setSalt(salt);
+        model.setPassword(Sha1.of(input.getPassword() + salt));
+        model.setHistoryPasswordList(JSON.parseArray(historyPasswordListString));
         accountRepository.save(model);
     }
 }

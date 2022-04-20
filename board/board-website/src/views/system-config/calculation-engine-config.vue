@@ -40,7 +40,7 @@
                                     <el-option label="GPU" value="gpu"></el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="飞浆可视化服务地址：">
+                            <el-form-item label="VisualFL服务地址：" class="mt10">
                                 <el-input v-model="vData.form.deep_learning_config.paddle_visual_dl_base_url" style="width: 82%; margin-right: 5px;" placeholder="请输入地址" clearable />
                                 <el-button type="primary" @click="methods.jumpToNewPage">跳转</el-button>
                             </el-form-item>

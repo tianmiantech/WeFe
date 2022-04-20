@@ -211,7 +211,7 @@
 
                                 switch(row.$key) {
                                 case 'during':
-                                    row[job.id] = job.finish_time > job.start_time ? this.timeFormat(job.finish_time / 1000 > job.start_time / 1000) : '--';
+                                    row[job.id] = job.finish_time > job.start_time ? this.timeFormat(job.finish_time / 1000 - job.start_time / 1000) : '--';
                                     break;
                                 case 'job_type':
                                     row[job.id] = types[job.federated_learning_type];

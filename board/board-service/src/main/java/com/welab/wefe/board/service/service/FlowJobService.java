@@ -63,6 +63,7 @@ public class FlowJobService extends AbstractService {
                 .equal("flowId", input.getFlowId())
                 .equal("jobId", input.getJobId())
                 .equal("status", input.getStatus())
+                .notEqual("myRole", JobMemberRole.arbiter)
                 .contains("name", input.getName())
                 .build(JobMySqlModel.class);
 

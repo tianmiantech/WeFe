@@ -30,7 +30,6 @@
 # limitations under the License.
 
 
-
 import numpy as np
 
 from common.python.utils import log_utils
@@ -67,9 +66,6 @@ class BinColResults(object):
     def set_mode(self, bin_nums, method):
         self.params_bin_nums = bin_nums
         self.params_method = method
-
-    def set_split_points(self, split_points):
-        self.split_points = split_points
 
     def get_split_points(self):
         return np.array(self.split_points)
@@ -145,6 +141,29 @@ class BinColResults(object):
         return result
 
 
+class SplitPointsResult(object):
+    def __init__(self):
+        self.split_results = {}
+
+    def put_col_split_points(self, col_name, split_points):
+        self.split_results[col_name] = split_points
+
+    @property
+    def all_split_points(self):
+        return self.split_results
+
+    def get_split_points_array(self, col_names):
+        split_points_result = []
+        for col_name in col_names:
+            if col_name not in self.split_results:
+                continue
+            split_points_result.append(self.split_results[col_name])
+        return np.array(split_points_result)
+
+    def to_json(self):
+        return {k: list(v) for k, v in self.split_results.items()}
+
+
 class BinResults(object):
     def __init__(self):
         self.all_cols_results = {}
@@ -162,9 +181,11 @@ class BinResults(object):
             col_results.set_split_points(ori_col_results.get_split_points())
         self.all_cols_results[col_name] = col_results
 
-    def put_col_split_points(self, col_name, split_points):
+    def put_col_split_points(self, col_name, split_points, method=None, bin_num=None):
         col_results = self.all_cols_results.get(col_name, BinColResults())
         col_results.set_split_points(split_points)
+        if method is not None and bin_num is not None:
+            col_results.set_mode(bin_num, method)
         self.all_cols_results[col_name] = col_results
 
     def query_split_points(self, col_name):
@@ -188,6 +209,30 @@ class BinResults(object):
                 continue
             split_points_result.append(self.all_cols_results[bin_name].get_split_points())
         return np.array(split_points_result)
+
+    @property
+    def all_ivs(self):
+        return [(col_name, x.iv) for col_name, x in self.all_cols_results.items()]
+
+    @property
+    def all_woes(self):
+        return {col_name: x.woe_array for col_name, x in self.all_cols_results.items()}
+
+    @property
+    def all_monotonic(self):
+        return {col_name: x.is_woe_monotonic for col_name, x in self.all_cols_results.items()}
+
+    def summary(self, split_points=None):
+        if split_points is None:
+            split_points = {}
+            for col_name, x in self.all_cols_results.items():
+                sp = x.get_split_points().tolist()
+                split_points[col_name] = sp
+        # split_points = {col_name: x.split_points for col_name, x in self.all_cols_results.items()}
+        return {"iv": self.all_ivs,
+                "woe": self.all_woes,
+                "monotonic": self.all_monotonic,
+                "split_points": split_points}
 
     def generated_pb(self):
         col_result_dict = {}
@@ -219,3 +264,63 @@ class BinResults(object):
             col_bin_obj.reconstruct2(col_bin_result)
             self.all_cols_results[col_name] = col_bin_obj
         return self
+
+
+class MultiClassBinResult(BinResults):
+    def __init__(self, labels):
+        super().__init__()
+        self.labels = labels
+        if len(self.labels) == 2:
+            self.is_multi_class = False
+            self.bin_results = [BinResults()]
+        else:
+            self.is_multi_class = True
+            self.bin_results = [BinResults() for _ in range(len(self.labels))]
+
+    def set_role_party(self, role, party_id):
+        self.role = role
+        self.party_id = party_id
+        for br in self.bin_results:
+            br.set_role_party(role, party_id)
+
+    def put_col_results(self, col_name, col_results: BinColResults, label_idx=0):
+        self.bin_results[label_idx].put_col_results(col_name, col_results)
+
+    def summary(self, split_points=None):
+        if not self.is_multi_class:
+            return {"result": self.bin_results[0].summary(split_points)}
+        return {label: self.bin_results[label_idx].summary(split_points) for
+                label_idx, label in enumerate(self.labels)}
+
+    def put_col_split_points(self, col_name, split_points, label_idx=None, method=None, bin_num=None):
+        if label_idx is None:
+            for br in self.bin_results:
+                br.put_col_split_points(col_name, split_points, method=method, bin_num=bin_num)
+        else:
+            self.bin_results[label_idx].put_col_split_points(col_name, split_points, method=method, bin_num=bin_num)
+
+    def generated_pb_list(self, split_points=None):
+        res = []
+        for br in self.bin_results:
+            res.append(br.generated_pb(split_points))
+        return res
+
+    @staticmethod
+    def reconstruct(result_pb, labels=None):
+        if not isinstance(result_pb, list):
+            result_pb = [result_pb]
+
+        if labels is None:
+            if len(result_pb) <= 1:
+                labels = [0, 1]
+            else:
+                labels = list(range(len(result_pb)))
+        result = MultiClassBinResult(labels)
+        for idx, pb in enumerate(result_pb):
+            result.bin_results[idx].reconstruct(pb)
+
+        return result
+
+    @property
+    def all_split_points(self):
+        return self.bin_results[0].all_split_points

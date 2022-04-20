@@ -1,0 +1,22 @@
+version: "3"
+services:
+
+  wefe_blockchain_data_sync:
+    image: wefe_blockchain_data_sync:v.2.1 # wefe_version
+    ports:
+      - 8800:8080 # service_port
+    restart: always
+    privileged: true
+    networks:
+      - network
+    volumes:
+      - "/data/wefe/docker-compose/logs/wefe-blockchain-data-sync:/data/logs/blockchain-data-sync" # service_logs
+      - "./mount/start.sh:/opt/service/start.sh"
+      - "./mount/application.properties:/opt/service/application.properties"
+      - "./mount/wefe-blockchain-data-sync.jar:/opt/service/wefe-blockchain-data-sync.jar"
+      - "./mount/cert:/opt/service/cert"
+      - "./mount/solidity:/opt/service/solidity"
+
+networks:
+  network:
+    driver: bridge

@@ -21,6 +21,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,8 +58,8 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
                                          @Param("service_name") String serviceName,
                                          @Param("service_type") Integer serviceType,
                                          @Param("query_type") String queryType,
-                                         @Param("start_time") Long startTime,
-                                         @Param("end_time") Long endTime,
+                                         @Param("start_time") Date startTime,
+                                         @Param("end_time") Date endTime,
                                          @Param("pageOffset") Integer pageOffset,
                                          @Param("pageSize") Integer pageSize);
 
@@ -90,6 +91,6 @@ public interface FeeRecordRepository extends BaseRepository<FeeDetailOutputModel
                   @Param("service_name") String serviceName,
                   @Param("service_type") Integer serviceType,
                   @Param("query_type") String queryType,
-                  @Param("start_time") Long startTime,
-                  @Param("end_time") Long endTime);
+                  @Param("start_time") Date startTime,
+                  @Param("end_time") Date endTime);
 }

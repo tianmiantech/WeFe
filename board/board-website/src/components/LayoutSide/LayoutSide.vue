@@ -98,16 +98,12 @@
             overflow: auto;
         }
         .el-menu-item,
-        .el-sub-menu__title {
-            color: #a6aaae;
-        }
-        .el-menu-item-group__title {
-            display: none;
-        }
+        .el-sub-menu__title {color: #a6aaae;}
+        .el-menu-item-group__title {display: none;}
         .el-menu-item {
             &.is-active {
                 color: #fff;
-                background: #4c536d;
+                background: $nav-background-active !important;
                 &:after {
                     content: "";
                     position: absolute;
@@ -123,7 +119,7 @@
         .el-sub-menu__title {
             &:hover,
             &:focus {
-                background: #4f566f;
+                background: $nav-background;
                 color: #fff;
             }
             .icon {
@@ -133,8 +129,9 @@
         }
         .el-sub-menu {
             &.is-active {
-                background: #464e6c !important;
+                background: #020C16 !important;
                 .el-sub-menu__title {
+                    background: #020C16;
                     color: #fff;
                     &:after {
                         content: "";
@@ -146,17 +143,11 @@
                         width: 3px;
                     }
                 }
-                .sub-menu-list {
-                    background: $sub-menu-list_bg;
-                }
-                .el-menu-item:after {
-                    display: none;
-                }
+                .sub-menu-list {background: $sub-menu-list_bg;}
+                .el-menu-item:after {display: none;}
             }
         }
-        .el-menu:not(.el-menu--collapse) {
-            width: 200px;
-        }
+        .el-menu:not(.el-menu--collapse) {width: 200px;}
     }
     .sidebar-menu-popover{
         .el-menu--popup{
@@ -169,7 +160,7 @@
             &.is-active{color:#fff;}
             &:hover,
             &:focus {
-                background: #464e6c;
+                background: #020C16;
                 color: #fff;
             }
         }

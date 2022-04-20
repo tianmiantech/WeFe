@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.api;
+package com.welab.wefe.serving.service.api.model;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;

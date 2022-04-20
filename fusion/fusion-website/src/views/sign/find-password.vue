@@ -103,6 +103,7 @@
 <script>
     import md5 from 'js-md5';
     import { PASSWORDREG } from '@js/const/reg';
+    import { clearUserInfo } from '@src/router/auth';
 
     export default {
         data() {
@@ -218,8 +219,8 @@
                         });
 
                         if(code === 0) {
+                            clearUserInfo();
                             this.$message.success('密码更新成功! 请重新登录!');
-                            this.$store.commit('UPDATE_USERINFO', null);
 
                             this.$router.replace({
                                 name: 'login',

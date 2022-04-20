@@ -1692,6 +1692,14 @@
    ]
   }
  },
+ "CipherCompressorTransferVariable": {
+  "compress_para": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
  "CommonTransferVariable": {
   "promoter2provider_complete_status": {
    "src": "promoter",
@@ -1780,6 +1788,24 @@
    ],
    "dst": [
     "promoter",
+    "provider"
+   ]
+  }
+ },
+ "HorzOneHotTransferVariable": {
+  "provider_columns": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "aligned_columns": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
     "provider"
    ]
   }
