@@ -147,6 +147,7 @@ public class ModelService {
         Specification<ModelMySqlModel> jobWhere = Where
                 .create()
                 .contains("modelId", input.getModelId())
+                .contains("name", input.getName())
                 .equal("algorithm", input.getAlgorithm())
                 .equal("flType", input.getFlType())
                 .equal("createdBy", input.getCreator())
