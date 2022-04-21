@@ -14,36 +14,39 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.api.global_config;
+package com.welab.wefe.board.service.api.account;
 
-import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.dto.NoneApiOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
 /**
- * @author lonnie
+ * @author zane
  */
-@Api(path = "global_config/update", name = "update system global configs")
-public class GlobalConfigUpdateApi extends AbstractNoneOutputApi<GlobalConfigUpdateApi.Input> {
-
+@Api(path = "account/update_ui_config", name = "修改用户UI配置信息")
+public class UpdateUiConfigApi extends AbstractApi<UpdateUiConfigApi.Input, NoneApiOutput> {
     @Autowired
-    private GlobalConfigService globalConfigService;
+    private AccountService accountService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        globalConfigService.update(input);
+    protected ApiResult<NoneApiOutput> handle(UpdateUiConfigApi.Input input) throws StatusCodeWithException {
+        accountService.updateUiConfig(input.uiConfig);
+
         return success();
     }
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "配置项组", require = true)
-        public Map<String, Map<String, String>> groups;
+
+        @Check(name = "用户界面配置信息", require = true)
+        public Map<String, Object> uiConfig;
+
     }
 }

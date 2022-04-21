@@ -634,7 +634,7 @@ public class ProjectService extends AbstractService {
 
         int total = projectRepo.queryByClass(sql.append(buildQueryWhere(input)).toString(), ProjectMySqlModel.class).size();
 
-        sql.append(" order by p.sort_num desc,p.created_time desc");
+        sql.append(" order by p.top desc,p.sort_num desc,p.created_time desc");
         sql.append(" limit " + input.getPageIndex() * input.getPageSize() + "," + input.getPageSize());
 
         List<ProjectMySqlModel> projectList = projectRepo.queryByClass(sql.toString(), ProjectMySqlModel.class);

@@ -29,6 +29,7 @@ import com.welab.wefe.board.service.dto.entity.MemberModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.util.JObject;
@@ -59,19 +60,19 @@ public class HorzStatisticComponent extends AbstractComponent<HorzStatisticCompo
     public boolean canSelectFeatures() {
         return true;
     }
-    
-	@Override
-	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-			Params params) throws FlowNodeException {
-		List<MemberFeatureInfoModel> members = params.members;
-		for (MemberFeatureInfoModel member : members) {
-			if (CacheObjects.getMemberId().equals(member.getMemberId())) {
-				List<String> features = member.features;
-				return JObject.create("col_names", features);
-			}
-		}
-		return JObject.create();
-	}
+
+    @Override
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+                                          Params params) throws FlowNodeException {
+        List<MemberFeatureInfoModel> members = params.members;
+        for (MemberFeatureInfoModel member : members) {
+            if (CacheObjects.getMemberId().equals(member.getMemberId())) {
+                List<String> features = member.features;
+                return JObject.create("col_names", features);
+            }
+        }
+        return JObject.create();
+    }
 
     @Override
     protected List<TaskResultMySqlModel> getAllResult(String taskId) {
