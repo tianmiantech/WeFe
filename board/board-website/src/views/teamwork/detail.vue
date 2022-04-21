@@ -292,10 +292,26 @@
                         name: 'FlowList',
                     },
                 ],
+                isCustom: false, // 用户是否自定义当前项目的模块顺序
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
+            ...mapGetters(['uiConfig']),
+        },
+        watch: {
+            moduleList: {
+                handler() {
+                    this.isCustom = true;
+                },
+                deep: true,
+            },
+            dModuleList: {
+                handler() {
+                    this.isCustom = true;
+                },
+                deep: true,
+            },
         },
         async created() {
             this.loading = true;
@@ -334,8 +350,33 @@
             this.$bus.$off('check-service-status');
             this.$bus.$off('delete-data-set-emit');
             this.$bus.$off('update-title-navigator');
+            // this.refresh();
+            this.updateProjectModuleList();
         },
         methods: {
+            async updateProjectModuleList() {
+                let list = {};
+
+                if (this.uiConfig.project_module_sort) {
+                    list = JSON.parse(JSON.stringify(this.uiConfig.project_module_sort));
+                    if (this.isCustom) {
+                        list[this.project.project_id] = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
+                    }
+                }
+                
+                const { code } = await this.$http.post({
+                    url:  '/account/update_ui_config',
+                    data: {
+                        uiConfig: { project_module_sort: list },
+                    },
+                });
+
+                this.$nextTick(_ => {
+                    if (code === 0) {
+                        this.$store.commit('UI_CONFIG', { 'project_module_sort': list });
+                    }
+                });
+            },
             async getProjectInfo(callback, opt = {
                 requestFromRefresh: false,
             }) {
@@ -494,6 +535,20 @@
                     timer = setTimeout(() => {
                         this.getProjectInfo(null, { requestFromRefresh: true });
                     }, 30 * 10e2);
+                    
+                    // 自定义模块顺序
+                    if (this.uiConfig.project_module_sort) {
+                        const idx = Object.keys(this.uiConfig.project_module_sort).indexOf(this.form.project_id);
+
+                        if (idx >= 0) {
+                            if (this.form.project_type === 'MachineLearning') {
+                                this.moduleList = Object.values(this.uiConfig.project_module_sort)[idx];
+                            }
+                            if (this.form.project_type === 'DeepLearning') {
+                                this.dModuleList = Object.values(this.uiConfig.project_module_sort)[idx];
+                            }
+                        }
+                    }
                 }
             },
 

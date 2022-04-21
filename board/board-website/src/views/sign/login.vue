@@ -210,6 +210,7 @@
                         if (code === 10000) {
                             this.$store.commit('SYSTEM_INITED', false);
                             this.$store.commit('UPDATE_USERINFO', data);
+                            this.$store.commit('UI_CONFIG', data.ui_config);
 
                             this.$router.replace({
                                 name: 'init',
@@ -217,6 +218,7 @@
                         } else if (code === 0) {
                             this.$store.commit('UPDATE_USERINFO', data);
                             this.$store.commit('SYSTEM_INITED', true);
+                            this.$store.commit('UI_CONFIG', data.ui_config || {});
 
                             const res = await this.$http.get({
                                 url: '/member/detail',
