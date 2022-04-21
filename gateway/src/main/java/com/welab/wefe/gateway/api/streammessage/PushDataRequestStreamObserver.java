@@ -54,6 +54,7 @@ public class PushDataRequestStreamObserver implements StreamObserver<GatewayMeta
     @Override
     public void onError(Throwable throwable) {
         LOG.error("Encountered error in pushData: ", throwable);
+        onCompleted();
     }
 
     @Override
