@@ -350,7 +350,8 @@
             this.$bus.$off('check-service-status');
             this.$bus.$off('delete-data-set-emit');
             this.$bus.$off('update-title-navigator');
-            // this.refresh();
+        },
+        beforeUpdate() {
             this.updateProjectModuleList();
         },
         methods: {
