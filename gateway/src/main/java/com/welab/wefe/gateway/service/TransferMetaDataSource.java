@@ -251,6 +251,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
                 if (finishFuture.isDone()) {
                     break;
                 }
+                ThreadUtil.sleep(500);
             }
             requestStreamObserver.onCompleted();
             // Blocking, waiting for the server to notify that the data has been processed, otherwise the message will be discarded
