@@ -157,13 +157,7 @@
                     </template>
                 </el-collapse-item>
                 <el-collapse-item title="tree param" name="2">
-                    <el-form-item label="L2 正则项系数">
-                        <el-input
-                            v-model="vData.form.tree_param.criterion_method"
-                            placeholder="如 xgboost"
-                        />
-                    </el-form-item>
-                    <el-form-item label="标准参数">
+                    <el-form-item label="正则项系数">
                         <el-input
                             v-model="vData.form.tree_param.criterion_params"
                             placeholder="支持 0.1,0.2 区间范围"
@@ -400,6 +394,19 @@
                         vData.form.objective_param.params = params.objective_param.params.join('');
                     }
                 },
+                async getNodeDetail(model) {
+                    const { code, data } = await $http.get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId:  model.id,
+                            flow_id: props.flowId,
+                        },
+                    });
+
+                    if (code === 0 && data && data.params && data.params.tree_param.criterion_params) {
+                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params;
+                    }
+                },
                 async getNodeData() {
                     const { code, data } = await $http.get({
                         url:    '/flow/dataset/info',
@@ -430,7 +437,7 @@
                         },
                     } = vData.form;
 
-                    if(criterion_params.includes(',')) {
+                    if(criterion_params.toString().includes(',')) {
                         $params.tree_param.criterion_params = criterion_params.split(',').map(str => +str);
                     } else {
                         $params.tree_param.criterion_params = [+criterion_params];
