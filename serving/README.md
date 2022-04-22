@@ -63,7 +63,7 @@ mvn clean install -Dmaven.test.skip=true -am -pl serving/serving-service
 
 #### 前端
 
-[部署文档][../serving/serving-website/README.md]
+[部署文档](../serving/serving-website/README.md)
 
 
 
