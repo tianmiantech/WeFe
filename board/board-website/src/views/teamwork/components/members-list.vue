@@ -3,8 +3,19 @@
         name="参与成员"
         class="nav-title mb30"
         shadow="never"
+        :idx="sortIndex"
     >
-        <h3 class="mb10 card-title">参与成员</h3>
+        <template #header>
+            <div class="clearfix mb10 flex-row">
+                <h3 class="card-title f19">参与成员</h3>
+                <div class="right-sort-area">
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
+                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
+                </div>
+            </div>
+        </template>
         <el-tabs
             v-if="promoter.member_id"
             v-model="memberTabName"
@@ -99,10 +110,10 @@
                                 <br>
                                 主键组合方式: {{ scope.row.data_resource.hash_function }}
                             </p>
-                            <template v-else>
-                                特征量：{{ scope.row.data_resource.feature_count }}
+                            <template v-if="scope.row.data_resource">
+                                特征量：{{ scope.row.data_resource.feature_count || 0 }}
                                 <br>
-                                样本量：{{ scope.row.data_resource.total_data_count }}
+                                样本量：{{ scope.row.data_resource.total_data_count || 0 }}
                             </template>
                         </template>
                     </el-table-column>
@@ -111,7 +122,7 @@
                         width="80"
                     >
                         <template v-slot="scope">
-                            {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : '-' }}
+                            {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
                         </template>
                     </el-table-column>
                     <el-table-column v-if="projectType === 'MachineLearning'" label="是否包含 Y">
@@ -186,7 +197,7 @@
                     >
                         <template v-slot="scope">
                             <el-tooltip
-                                v-if="!scope.row.deleted && scope.row.member_id === userInfo.member_id"
+                                v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && scope.row.member_id === userInfo.member_id"
                                 :disabled="scope.row.data_resource_type === 'BloomFilter'"
                                 content="预览数据"
                                 placement="top"
@@ -203,19 +214,15 @@
                                     </el-icon>
                                 </el-button>
                             </el-tooltip>
-                            <!--
-                                1. 数据资源未被删除
-                                2. 成员是 promoter or 成员是自己
-                            -->
                             <el-button
-                                v-if="form.isPromoter || scope.row.member_id === userInfo.member_id"
+                                v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
                                 circle
                                 type="danger"
                                 class="mr10"
                                 icon="elicon-delete"
                                 @click="removeDataSet(scope.row, scope.$index)"
                             />
-                            <template v-if="scope.row.deleted">
+                            <template v-if="scope.row.data_resource && scope.row.data_resource.deleted">
                                 该数据资源已被移除
                             </template>
                         </template>
@@ -369,7 +376,10 @@
             form:        Object,
             promoter:    Object,
             projectType: String,
+            sortIndex:   Number,
+            maxIndex:    Number,
         },
+        emits: ['move-up', 'move-down', 'to-top', 'to-bottom'],
         data() {
             return {
                 dataSetPreviewDialog: false,
@@ -598,7 +608,18 @@
                         }
                     });
             },
-
+            moveUp() {
+                this.$emit('move-up', this.sortIndex);
+            },
+            moveDown() {
+                this.$emit('move-down', this.sortIndex);
+            },
+            toTop() {
+                this.$emit('to-top', this.sortIndex);
+            },
+            toBottom() {
+                this.$emit('to-bottom', this.sortIndex);
+            },
         },
     };
 </script>

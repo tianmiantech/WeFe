@@ -1,5 +1,5 @@
 <template>
-    <ul :class="['navigator-list', { show: vData.showNavigation }]">
+    <ul v-if="vData.isTitleOk" :class="['navigator-list', { show: vData.showNavigation }]">
         <li
             v-for="(item, index) in vData.list"
             :key="index"
@@ -27,6 +27,7 @@
         reactive,
         onMounted,
         getCurrentInstance,
+        onBeforeUnmount,
     } from 'vue';
     import { useRoute } from 'vue-router';
 
@@ -39,9 +40,12 @@
             const { $bus } = appContext.config.globalProperties;
             const route = useRoute();
             const vData = reactive({
-                showNavigation: false,
-                show:           false,
-                list:           [],
+                showNavigation:      false,
+                show:                false,
+                list:                [],
+                isTitleOk:           false,
+                updateTitleIdxTimer: null,
+                updateOkTimer:       null,
             });
             const getElementOffset = el => {
                 let offsetTop = el.offsetTop,
@@ -100,19 +104,24 @@
                             const title = item.getAttribute('name');
                             const show = item.getAttribute('show');
 
-                            if (show !== 'false') {
-                                vData.list.push({
-                                    title,
-                                    highlight: false,
-                                });
-                            }
+                            vData.updateTitleIdxTimer = setTimeout(()=> {
+                                let index = item.getAttribute('idx');
+
+                                index = Number(index) + 1;
+                                if (show !== 'false') {
+                                    vData.list[index] = { title, highlight: false };
+                                }
+                            }, 200);
                         }
                     }
                 }
-                if(vData.list.length) {
-                    vData.showNavigation = route.meta.navigation;
-                    hightlightTitle();
-                }
+                vData.updateOkTimer = setTimeout(() => {
+                    if(vData.list.length) {
+                        vData.showNavigation = route.meta.navigation;
+                        hightlightTitle();
+                    }
+                }, 250);
+                
             };
             const hightlightTitle = () => {
                 if(route.meta.navigation) {
@@ -127,6 +136,7 @@
                             vData.list[i].highlight = true;
                         }
                     }
+                    vData.isTitleOk = true;
                 }
             };
             const init = () => {
@@ -179,10 +189,15 @@
 
                             getTitles();
                             hightlightTitle();
-                        }, 100);
+                        }, 300);
                     }
                 },
             );
+
+            onBeforeUnmount(()=> {
+                if (vData.updateTitleIdxTimer) clearTimeout(vData.updateTitleIdxTimer);
+                if (vData.updateOkTimer) clearTimeout(vData.updateOkTimer);
+            });
 
             return {
                 vData,
