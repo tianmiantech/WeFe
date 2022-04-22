@@ -56,9 +56,6 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
         @Check(name = "单次拆分的要达到的最小增益", require = true)
         private float minImpuritySplit;
 
-        @Check(name = "可分叉的最大节点数", require = true)
-        private int maxSplitNodes;
-
         public String getCriterionMethod() {
             return criterionMethod;
         }
@@ -107,13 +104,6 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
             this.minImpuritySplit = minImpuritySplit;
         }
 
-        public int getMaxSplitNodes() {
-            return maxSplitNodes;
-        }
-
-        public void setMaxSplitNodes(int maxSplitNodes) {
-            this.maxSplitNodes = maxSplitNodes;
-        }
     }
 
     @Check(require = true)
