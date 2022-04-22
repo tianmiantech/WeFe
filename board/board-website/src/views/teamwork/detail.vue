@@ -7,6 +7,7 @@
             name="项目简介"
             shadow="never"
             class="nav-title mb30"
+            idx="-1"
         >
             <el-form @submit.prevent>
                 <el-alert
@@ -108,30 +109,33 @@
                 :projectType="form.project_type"
                 @deleteDataSetEmit="deleteDataSetEmit"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
 
             <FusionList
                 v-if="item.name === 'FusionList'"
                 :form="form"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
 
             <FlowList
                 v-if="item.name === 'FlowList'"
                 :form="form"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
 
             <ModelingList
@@ -139,20 +143,22 @@
                 ref="ModelingList"
                 :form="form"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
 
             <DerivedList
                 v-if="item.name === 'DerivedList' && form.project_type === 'MachineLearning'"
                 :project-type="form.project_type"
                 :sort-index="index"
-                :max-index="form.project_type === 'MachineLearning' ? moduleList.length : dModuleList.length"
+                :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
+                @to-bottom="toBottom"
             />
         </template>
 
@@ -287,10 +293,26 @@
                         name: 'FlowList',
                     },
                 ],
+                isCustom: false, // 用户是否自定义当前项目的模块顺序
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
+            ...mapGetters(['uiConfig']),
+        },
+        watch: {
+            moduleList: {
+                handler() {
+                    this.isCustom = true;
+                },
+                deep: true,
+            },
+            dModuleList: {
+                handler() {
+                    this.isCustom = true;
+                },
+                deep: true,
+            },
         },
         async created() {
             this.loading = true;
@@ -330,7 +352,33 @@
             this.$bus.$off('delete-data-set-emit');
             this.$bus.$off('update-title-navigator');
         },
+        beforeUpdate() {
+            this.updateProjectModuleList();
+        },
         methods: {
+            async updateProjectModuleList() {
+                let list = {};
+
+                if (this.uiConfig.project_module_sort) {
+                    list = JSON.parse(JSON.stringify(this.uiConfig.project_module_sort));
+                    if (this.isCustom) {
+                        list[this.project.project_id] = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
+                    }
+                }
+                
+                const { code } = await this.$http.post({
+                    url:  '/account/update_ui_config',
+                    data: {
+                        uiConfig: { project_module_sort: list },
+                    },
+                });
+
+                this.$nextTick(_ => {
+                    if (code === 0) {
+                        this.$store.commit('UI_CONFIG', { 'project_module_sort': list });
+                    }
+                });
+            },
             async getProjectInfo(callback, opt = {
                 requestFromRefresh: false,
             }) {
@@ -489,6 +537,20 @@
                     timer = setTimeout(() => {
                         this.getProjectInfo(null, { requestFromRefresh: true });
                     }, 30 * 10e2);
+                    
+                    // 自定义模块顺序
+                    if (this.uiConfig.project_module_sort) {
+                        const idx = Object.keys(this.uiConfig.project_module_sort).indexOf(this.form.project_id);
+
+                        if (idx >= 0) {
+                            if (this.form.project_type === 'MachineLearning') {
+                                this.moduleList = Object.values(this.uiConfig.project_module_sort)[idx];
+                            }
+                            if (this.form.project_type === 'DeepLearning') {
+                                this.dModuleList = Object.values(this.uiConfig.project_module_sort)[idx];
+                            }
+                        }
+                    }
                 }
             },
 
@@ -641,7 +703,16 @@
             toTop(idx) {
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
 
-                this.swapArray(list, idx, 0);
+                const temp = list.splice(idx, 1)[0];
+
+                list.unshift(temp);
+            },
+            toBottom(idx) {
+                const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
+
+                const temp = list.splice(idx, 1)[0];
+
+                list.push(temp);
             },
             swapArray(arr, idx1, idx2) {
                 arr[idx1] = arr.splice(idx2, 1, arr[idx1])[0];

@@ -25,22 +25,26 @@ export default _ => {
     const KEEPALIVE = `${baseUrl}_keepAlive`;
     const TAGSLIST = `${baseUrl}_tagsList`;
     const SYSTEM_INITED = `${baseUrl}_system_inited`;
+    const UI_CONFIG = `${baseUrl}_uiConfig`;
 
     let keepAlive = localStorage.getItem(KEEPALIVE),
         userInfo = localStorage.getItem(USERINFO),
         tagsList = localStorage.getItem(TAGSLIST),
-        systemInited = localStorage.getItem(SYSTEM_INITED);
+        systemInited = localStorage.getItem(SYSTEM_INITED),
+        uiConfig = localStorage.getItem(UI_CONFIG);
 
     keepAlive = keepAlive ? parseKey(keepAlive, false) : false;
     userInfo = userInfo ? parseKey(userInfo, {}) : {};
     tagsList = tagsList ? parseKey(tagsList, []) : [];
     systemInited = systemInited ? parseKey(systemInited, false) : false;
+    uiConfig = uiConfig ? parseKey(uiConfig, {}) : {};
 
     const state = {
         keepAlive,
         userInfo,
         tagsList,
         systemInited,
+        uiConfig,
     };
 
     const getters = {
@@ -48,6 +52,7 @@ export default _ => {
         tagsList:     state => state.tagsList,
         userInfo:     state => state.userInfo,
         systemInited: state => state.systemInited,
+        uiConfig:     state => state.uiConfig,
     };
 
     const mutations = {
@@ -67,6 +72,10 @@ export default _ => {
         'SYSTEM_INITED' (state, data) {
             state.systemInited = data;
             setStorage().setItem(SYSTEM_INITED, JSON.stringify(data));
+        },
+        'UI_CONFIG' (state, data) {
+            state.uiConfig = data;
+            setStorage().setItem(UI_CONFIG, JSON.stringify(data));
         },
     };
 

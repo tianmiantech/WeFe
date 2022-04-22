@@ -5,6 +5,7 @@
         class="nav-title mb30"
         shadow="never"
         :show="project_type !== 'DeepLearning'"
+        :idx="sortIndex"
     >
         <template #header>
             <div class="clearfix mb10 flex-row">
@@ -24,11 +25,12 @@
                     </template>
                     <span v-else class="ml10 f12">(协作方无法创建任务)</span>
                 </div>
-                <!-- <div class="right-sort-area">
-                    <el-icon class="el-icon-top" @click="moveUp"><elicon-top /></el-icon>
-                    <el-icon :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
-                    <span v-if="sortIndex !== 0 && sortIndex !== 1" @click="toTop" class="f12">置顶</span>
-                </div> -->
+                <div class="right-sort-area">
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
+                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
+                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
+                </div>
             </div>
         </template>
 
@@ -123,7 +125,7 @@
             sortIndex: Number,
             maxIndex:  Number,
         },
-        emits: ['move-up', 'move-down', 'to-top'],
+        emits: ['move-up', 'move-down', 'to-top', 'to-bottom'],
         data() {
             return {
                 timer:      null,
@@ -277,6 +279,9 @@
             },
             toTop() {
                 this.$emit('to-top', this.sortIndex);
+            },
+            toBottom() {
+                this.$emit('to-bottom', this.sortIndex);
             },
         },
     };
