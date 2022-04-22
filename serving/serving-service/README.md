@@ -114,7 +114,7 @@ public class ShowFeatureDataProcessor extends AbstractFeatureDataProcessor {
 
 Sql配置： 通过编写sql脚本指定特征获取方式，例：select x1,x2 from table where id = ? 。此处?为占位符，实际运行时会根据接口中的用户标识入参进行sql拼接，得到想要查询的某条样本的特征。查询的特征名需要对应到模型里面的特征，如果表中的某个特征的字段名跟模型的特征名有差异需要改成名称一样，具体做法select a as x1,b as x2 from table where id = ? 。
 
-![SQL配置](/Users/hunter.zhao/Desktop/workspace/code/Wefe/documents/开发文档/image/serving/SQL配置.png)
+![SQL配置](../../documents/开发文档/image/serving/SQL配置.png)
 
 
 
