@@ -329,3 +329,4 @@ sdk jar 包下载
 
 # 模型配置
 
+[配置说明](../serving/serving-service/README.md)
