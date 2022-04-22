@@ -8,9 +8,9 @@ Serving 本身是一个独立的服务，但其预测所需的模型数据依赖
 
 ##### 工作泳道图
 
-![serving-在线预测-2](/Users/hunter.zhao/Downloads/serving-在线预测-2.png)
+![serving-在线预测](../documents/开发文档/image/serving/serving-在线预测.png)
 
-# 功能实现
+# 功能实现  
 
 单条、批量的预测功能；
 
@@ -63,7 +63,7 @@ mvn clean install -Dmaven.test.skip=true -am -pl serving/serving-service
 
 #### 前端
 
-[部署文档][./serving/serving-website/README.md]
+[部署文档][../serving/serving-website/README.md]
 
 
 
