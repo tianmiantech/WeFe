@@ -35,6 +35,7 @@ import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.*;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -156,7 +157,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws StatusCodeWithException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws StatusCodeWithException {
         if (graph.getJob().getMyRole() == JobMemberRole.arbiter) {
             return null;
         }

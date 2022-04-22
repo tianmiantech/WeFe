@@ -15,3 +15,11 @@ ALTER TABLE `project_flow`
     ADD COLUMN `top` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否置顶';
 ALTER TABLE `project_flow`
     ADD COLUMN `sort_num` int NOT NULL DEFAULT 0 COMMENT '排序序号';
+
+
+-- -------------------------------------
+-- account 增加字段功能
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `account`
+    ADD COLUMN `ui_config` text NULL COMMENT 'UI 相关配置信息';
