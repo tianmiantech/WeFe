@@ -3,7 +3,17 @@
         <el-divider content-position="left">
             数据资源简介
         </el-divider>
-        <h3 class="mb10"><strong>{{ dataInfo.name }}</strong></h3>
+        <h3 class="mb10">
+            <strong>{{ dataInfo.name }}</strong>
+            <router-link
+                :to="{
+                    name: 'data-update',
+                    query: { id, type: 'img' }
+                }"
+            >
+                <el-button class="ml5" plain size="small"><el-icon><elicon-edit-pen /></el-icon> 编辑</el-button>
+            </router-link>
+        </h3>
         <div class="flex-box">
             <el-descriptions :column="2">
                 <template #extra>
