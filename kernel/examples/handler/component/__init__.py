@@ -24,8 +24,10 @@ from kernel.examples.handler.component.vert_onehot import VertOneHot
 from kernel.examples.handler.component.vert_pca import VertPCA
 from kernel.examples.handler.component.vert_pearson import VertPerson
 from kernel.examples.handler.component.vert_secureboost import VertSecureBoost
+from kernel.examples.handler.component.vert_dp_secureboost import VertDPSecureBoost
 
-__all__ = ["DataIO", "Evaluation", "VertLR", "VertSecureBoost", "VertFastSecureBoost", "HorzLR", "HorzNN",
+
+__all__ = ["DataIO", "Evaluation", "VertLR", "VertSecureBoost", "VertFastSecureBoost","VertDPSecureBoost", "HorzLR", "HorzNN",
            "HorzSecureBoost", "Intersection", "LocalBaseline", "VertPerson", "VertOneHot", "VertNN",
            "Statistic",
            "FillMissValue",

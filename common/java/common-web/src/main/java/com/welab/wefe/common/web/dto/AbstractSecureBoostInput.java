@@ -38,7 +38,7 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
     }
 
     public static class TreeParam extends AbstractCheckModel {
-        @Check(name = "xgboost标准函数正则项系数", require = true)
+        @Check(name = "xgboost标准函数正则项系数")
         private String criterionMethod;
 
         @Check(name = "xgboost标准函数正则项系数", require = true)
