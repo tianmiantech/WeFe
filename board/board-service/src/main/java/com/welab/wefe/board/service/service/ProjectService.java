@@ -1230,7 +1230,7 @@ public class ProjectService extends AbstractService {
     /**
      * close project
      */
-    public void closeProject(CloseProjectApi.Input input) throws StatusCodeWithException {
+    public void closeProject(String projectId,) throws StatusCodeWithException {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
