@@ -62,8 +62,7 @@ public class HorzSecureBoostComponent extends AbstractModelingComponent<HorzSecu
                 .append("max_depth", params.getTreeParam().getMaxDepth())
                 .append("min_sample_split", params.getTreeParam().getMinSampleSplit())
                 .append("min_impurity_split", params.getTreeParam().getMinImpuritySplit())
-                .append("min_leaf_node", params.getTreeParam().getMinLeafNode())
-                .append("max_split_nodes", params.getTreeParam().getMaxSplitNodes());
+                .append("min_leaf_node", params.getTreeParam().getMinLeafNode());
 
         JObject objectiveParam = JObject.create().append("objective", params.getObjectiveParam().getObjective())
                 .append("params", params.getObjectiveParam().getParams());
