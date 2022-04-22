@@ -81,11 +81,6 @@
                             </template>
                         </template>
                     </el-table-column>
-                    <el-table-column label="数据类型" min-width="100">
-                        <template v-slot="scope">
-                            {{ sourceTypeMap[scope.row.data_resource_type] }}
-                        </template>
-                    </el-table-column>
                     <el-table-column label="关键词">
                         <template v-slot="scope">
                             <template v-if="scope.row.data_resource && scope.row.data_resource.tags">
@@ -119,7 +114,7 @@
                     </el-table-column>
                     <el-table-column
                         label="使用次数"
-                        width="80"
+                        min-width="90"
                     >
                         <template v-slot="scope">
                             {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
@@ -134,7 +129,7 @@
                         v-if="projectType === 'DeepLearning'"
                         label="样本分类"
                         prop="for_job_type"
-                        width="100"
+                        min-width="100"
                     >
                         <template v-slot="scope">
                             <template v-if="scope.row.data_resource">
@@ -144,40 +139,18 @@
                     </el-table-column>
                     <el-table-column
                         v-if="projectType === 'DeepLearning'"
-                        label="数据总量"
-                        width="80"
-                    >
-                        <template v-slot="scope">
-                            {{ scope.row.data_resource ? scope.row.data_resource.total_data_count : 0 }}
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                        v-if="projectType === 'DeepLearning'"
-                        label="已标注"
-                        prop="labeled_count"
-                        width="100"
+                        label="已标注/样本量"
+                        min-width="120"
                     >
                         <template v-slot="scope">
                             <template v-if="scope.row.data_resource">
-                                {{scope.row.data_resource ? scope.row.data_resource.labeled_count : scope.row.labeled_count}}
-                            </template>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                        v-if="projectType === 'DeepLearning'"
-                        label="标注状态"
-                        prop="label_completed"
-                        width="100"
-                    >
-                        <template v-slot="scope">
-                            <template v-if="scope.row.data_resource">
-                                {{scope.row.data_resource.label_completed ? '已完成' : '标注中'}}
+                                {{scope.row.data_resource.labeled_count}}/{{ scope.row.data_resource.total_data_count }}
                             </template>
                         </template>
                     </el-table-column>
                     <el-table-column
                         label="状态"
-                        width="100"
+                        min-width="100"
                     >
                         <template v-slot="scope">
                             {{ scope.row.audit_status === 'auditing' ? '待授权' : scope.row.audit_status === 'disagree' ? '已拒绝' : scope.row.audit_status === 'agree' ? '已授权' : '-' }}
