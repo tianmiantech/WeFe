@@ -404,7 +404,7 @@
                     });
 
                     if (code === 0 && data && data.params && data.params.tree_param.criterion_params) {
-                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params;
+                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params.join(',');
                     }
                 },
                 async getNodeData() {

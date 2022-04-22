@@ -72,7 +72,7 @@
                             <div class="empty f14">没有满足条件的识别结果</div>
                         </template>
                         <el-table-column prop="category_name" label="预测标签" />
-                        <el-table-column prop="score" label="得分">
+                        <el-table-column prop="score" label="置信度">
                             <template v-slot="scope">
                                 {{scope.row.score.toFixed(5)}}
                             </template>
