@@ -3,6 +3,7 @@
         name="参与成员"
         class="nav-title mb30"
         shadow="never"
+        :idx="sortIndex"
     >
         <template #header>
             <div class="clearfix mb10 flex-row">

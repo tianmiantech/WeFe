@@ -3,6 +3,7 @@
         name="训练列表"
         class="nav-title mb30"
         shadow="never"
+        :idx="sortIndex"
     >
         <template #header>
             <div class="clearfix mb10" style="display: flex; justify-content: space-between;">

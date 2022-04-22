@@ -7,6 +7,7 @@
             name="项目简介"
             shadow="never"
             class="nav-title mb30"
+            idx="-1"
         >
             <el-form @submit.prevent>
                 <el-alert

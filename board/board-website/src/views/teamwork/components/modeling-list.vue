@@ -4,6 +4,7 @@
         shadow="never"
         class="nav-title mb30"
         :show="project_type !== 'DeepLearning'"
+        :idx="sortIndex"
     >
         <template #header>
             <div class="clearfix mb10 flex-row">
