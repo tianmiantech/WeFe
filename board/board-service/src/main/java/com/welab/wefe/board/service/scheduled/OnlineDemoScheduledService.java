@@ -59,8 +59,8 @@ public class OnlineDemoScheduledService {
     /**
      * 清理体验者产生的过多无效数据
      */
-//    @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
-    @Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
+    @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
+//    @Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
     public void clean() {
         if (!config.isOnlineDemo()) {
             return;
