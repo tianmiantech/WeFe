@@ -131,7 +131,7 @@
                                 class="link mr10"
                                 :to="{
                                     name: 'project-flow',
-                                    query: { flow_id: scope.row.flow_id }
+                                    query: { flow_id: scope.row.flow_id, job_id: scope.row.job_id }
                                 }"
                             >
                                 查看流程
