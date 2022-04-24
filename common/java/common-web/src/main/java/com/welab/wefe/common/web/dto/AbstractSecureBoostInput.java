@@ -38,7 +38,7 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
     }
 
     public static class TreeParam extends AbstractCheckModel {
-        @Check(name = "xgboost标准函数正则项系数", require = true)
+        @Check(name = "xgboost标准函数正则项系数")
         private String criterionMethod;
 
         @Check(name = "xgboost标准函数正则项系数", require = true)
@@ -55,9 +55,6 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
 
         @Check(name = "单次拆分的要达到的最小增益", require = true)
         private float minImpuritySplit;
-
-        @Check(name = "可分叉的最大节点数", require = true)
-        private int maxSplitNodes;
 
         public String getCriterionMethod() {
             return criterionMethod;
@@ -107,13 +104,6 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
             this.minImpuritySplit = minImpuritySplit;
         }
 
-        public int getMaxSplitNodes() {
-            return maxSplitNodes;
-        }
-
-        public void setMaxSplitNodes(int maxSplitNodes) {
-            this.maxSplitNodes = maxSplitNodes;
-        }
     }
 
     @Check(require = true)

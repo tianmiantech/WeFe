@@ -114,6 +114,6 @@ def decode_plan(s, split_token='_'):
     result = []
     for string in s:
         t = string.split(split_token)
-        result.append((int(t[0]), int(t[1])))
+        result.append((t[0], t[1]))
 
     return result
