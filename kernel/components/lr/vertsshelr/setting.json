@@ -1,0 +1,11 @@
+{
+  "param_class": "../param.py/VertLogisticParam",
+  "role": {
+    "promoter": {
+      "program": "vert_lr_promoter.py/VertLRPromoter"
+    },
+    "provider": {
+      "program": "vert_lr_provider.py/VertLRProvider"
+    }
+  }
+}

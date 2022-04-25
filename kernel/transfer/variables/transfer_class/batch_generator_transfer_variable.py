@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Copyright 2021 Tianmian Tech. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,23 +29,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import abc
 
-from kernel.security.protol.spdz.utils import NamingService
+################################################################################
+#
+# AUTO GENERATED TRANSFER VARIABLE CLASS. DO NOT MODIFY
+#
+################################################################################
+
+from kernel.transfer.variables.base_transfer_variable import BaseTransferVariables
 
 
-class TensorBase(object):
-    __array_ufunc__ = None
-
-    def __init__(self, q_field, tensor_name: str = None):
-        self.q_field = q_field
-        self.tensor_name = NamingService.get_instance().next() if tensor_name is None else tensor_name
-
-    @classmethod
-    def get_spdz(cls):
-        from kernel.security.protol.spdz import SPDZ
-        return SPDZ.get_instance()
-
-    @abc.abstractmethod
-    def dot(self, other, target_name=None):
-        pass
+# noinspection PyAttributeOutsideInit
+class BatchGeneratorTransferVariable(BaseTransferVariables):
+    def __init__(self, flowid=0):
+        super().__init__(flowid)
+        self.batch_data_index = self._create_variable(name='batch_data_index')
+        self.batch_info = self._create_variable(name='batch_info')
