@@ -47,6 +47,7 @@ public class NaorPinkasRandomService {
     }
 
     public QueryNaorPinkasRandomResponse handle(QueryKeysRequest request, String uuid, int keySize) {
+        LOGGER.info("uuid={} start process NP first step", uuid);
         List<Object> queryConditions = request.getIds();
         if (queryConditions == null || queryConditions.isEmpty()) {
             throw new IllegalArgumentException("query condition is empty");
@@ -65,7 +66,7 @@ public class NaorPinkasRandomService {
         response.setRandoms(rndString);
 
         new Thread(() -> process(uuid, diffieHellmanKey, key, rnds, queryConditions)).start();
-
+        LOGGER.info("uuid={} finish NP first step", uuid);
         return response;
     }
 
@@ -88,6 +89,7 @@ public class NaorPinkasRandomService {
     }
 
     public void process(String uuid, DiffieHellmanKey key, BigInteger a, List<BigInteger> randoms, List<Object> queryConditions) {
+        LOGGER.info("uuid={} NP process data", uuid);
         CacheOperation<String> mCacheOperation = CacheOperationFactory.getCacheOperation();
         mCacheOperation.save(uuid, Constants.PIR.NAORPINKAS_P, DiffieHellmanUtil.bigIntegerToHexString(key.getP()));
         mCacheOperation.save(uuid, Constants.PIR.NAORPINKAS_A, DiffieHellmanUtil.bigIntegerToHexString(a));
