@@ -715,6 +715,7 @@ public class ServiceService {
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
             }
         }
+        LOG.info("begin query data from datasource");
         CommonThreadPool.run(() -> {
             Map<String, String> result = new HashMap<>();
             // 0 根据ID查询对应的数据
@@ -743,6 +744,7 @@ public class ServiceService {
             LOG.info("save service handle result");
             queryResult.save(uuid, Constants.RESULT, result);
         });
+        LOG.info("finished query data from datasource");
         return response;
     }
 
