@@ -69,6 +69,6 @@ public interface ProjectRepository extends BaseRepository<ProjectMySqlModel, Str
      */
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query(value = "update #{#entityName} set top=false and sort_num=0 where project_id=?1", nativeQuery = true)
+    @Query(value = "update #{#entityName} set top=false, sort_num=0 where project_id=?1", nativeQuery = true)
     void cancelTop(String projectId);
 }
