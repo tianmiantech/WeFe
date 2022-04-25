@@ -73,10 +73,8 @@ public class LazyUpdateApi extends AbstractApi<LazyUpdateApi.Input, AbstractApiO
         @Check(require = true)
         private String dataResourceId;
         @Check(require = true)
-        private String labelList;
-        @Check(require = true)
         private int totalDataCount;
-        @Check(require = true)
+        private String labelList;
         private int labeledCount;
 
         public String getDataResourceId() {
