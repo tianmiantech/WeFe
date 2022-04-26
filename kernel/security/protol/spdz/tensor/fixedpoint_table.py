@@ -29,26 +29,23 @@ import functools
 import operator
 
 import numpy as np
-import ctypes
-from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
-from common.python.calculation.acceleration import aclr
 
 from common.python.calculation.acceleration import aclr
+from common.python.calculation.acceleration.operator import cal
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
+from common.python.common import consts
 from common.python.session import is_table
+from common.python.utils import conf_utils
 from common.python.utils import log_utils
 from common.python.utils.member import Member
 from kernel.security.fixedpoint import FixedPointEndec
+from kernel.security.paillier import PaillierEncryptedNumber
 from kernel.security.protol.spdz.beaver_triples import beaver_triplets
 from kernel.security.protol.spdz.tensor import fixedpoint_numpy
 from kernel.security.protol.spdz.tensor.base import TensorBase
 from kernel.security.protol.spdz.utils import NamingService
-from kernel.security.protol.spdz.utils.random_utils import urand_tensor
-from common.python.calculation.acceleration.operator import cal
-from kernel.security.paillier import PaillierEncryptedNumber
-from common.python.common import consts
-from common.python.utils import conf_utils
-# from kernel.security.protol.spdz.utils.random_utils import urand_tensor
 from kernel.security.protol.spdz.utils import urand_tensor
+from kernel.security.protol.spdz.utils.random_utils import urand_tensor
 
 LOGGER = log_utils.get_logger()
 
@@ -56,6 +53,7 @@ LOGGER = log_utils.get_logger()
 def get_gpu_batch(algo_type='paillier_table_dot'):
     return int(aclr.gpu_device_info('max_array_size', algo_type) / conf_utils.get_comm_config(
         consts.COMM_CONF_KEY_GPU_INSTANCE, 1))
+
 
 def _table_binary_op(x, y, op):
     return x.join(y, lambda a, b: op(a, b))
