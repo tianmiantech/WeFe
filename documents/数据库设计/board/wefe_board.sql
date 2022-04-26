@@ -1068,6 +1068,7 @@ CREATE TABLE `fusion_task`
     `processed_count`            int(11) DEFAULT NULL COMMENT '已处理数据量',
     `hash_function`              varchar(100)  DEFAULT NULL COMMENT '主键hash方式',
     `partner_hash_function`      varchar(100)  DEFAULT NULL COMMENT '合作方主键hash方式',
+    `deleted`                    tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='融合任务表';
 
