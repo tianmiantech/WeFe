@@ -11,7 +11,7 @@ python_pack(){
     cp -r kernel ./python_project
     cd python_project
     tar cvf python-project.tar ./*
-    mv ./python-project.tar $RES_PACK
+    mv ./python-project.tar $PACK_DIR
     cd ..
     rm -rf python_project
 }
@@ -25,7 +25,7 @@ pack_web(){
   sed -i 's@<title>@&<script>window.clientApi = {env: "prod", baseUrl: "`$2`", prefixPath: "/`$3`/"};</script>@' dist/$3/index.html
   mv dist "$3"
   tar -cvf $3.tar $3
-  mv $3.tar $RES_PACK/
+  mv $3.tar $PACK_DIR/
 }
 
 pack_webs(){
@@ -40,7 +40,7 @@ pack_webs(){
 copy_jar(){
    for i in $*;
     do
-        cp -r $i $RES_PACK
+        cp -r $i $PACK_DIR
     done
 }
 
