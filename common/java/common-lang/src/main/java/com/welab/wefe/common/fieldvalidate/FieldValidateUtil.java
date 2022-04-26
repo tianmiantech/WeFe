@@ -132,15 +132,10 @@ public class FieldValidateUtil {
                 field.set(
                         obj,
                         valueStr
-                                .replace(",", "，")
                                 .replace("\"", "“")
                                 .replace("'", "’")
                                 .replace("#", "")
-                                .replace("-", "")
-                                .replace("%", "")
-                                .replace("<", "")
-                                .replace("\\", "")
-                                .replace("/", "")
+                                .replace("--", "")
                 );
             }
 
