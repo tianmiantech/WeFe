@@ -16,12 +16,6 @@
 
 package com.welab.wefe.board.service.component.feature;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.io.IODataType;
@@ -33,10 +27,16 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Params> {
@@ -55,8 +55,8 @@ public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Para
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-    		VertOneHotComponent.Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+                                          VertOneHotComponent.Params params) throws FlowNodeException {
         JObject resultObj = JObject.create();
         List<String> featureList = new ArrayList<>();
         params.getMembers().forEach(member -> {

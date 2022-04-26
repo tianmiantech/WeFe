@@ -28,6 +28,7 @@ import com.welab.wefe.board.service.dto.entity.MemberFeatureInfoModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -62,7 +63,7 @@ public class VertPearsonComponent extends AbstractComponent<VertPearsonComponent
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
         // Need to find DataIO data set
         FlowGraphNode dataIONode = graph.findOneNodeFromParent(node, ComponentType.DataIO);
         TaskMySqlModel dataIOTask = findTaskFromPretasks(preTasks, dataIONode);
@@ -73,7 +74,7 @@ public class VertPearsonComponent extends AbstractComponent<VertPearsonComponent
         JObject output = JObject.create();
 
         params.getMembers().forEach(x -> {
-            if (x.getMemberId().equals(CacheObjects.getMemberId())) {
+            if (x.getMemberId().equals(CacheObjects.getMemberId()) && graph.getJob().getMyRole() == x.getMemberRole()) {
                 List<String> features = new ArrayList<>();
                 x.getFeatures().forEach(feature -> {
                     if (StringUtil.isNotEmpty(feature.getMethod())) {

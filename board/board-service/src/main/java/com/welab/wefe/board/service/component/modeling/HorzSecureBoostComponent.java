@@ -26,6 +26,7 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -53,7 +54,7 @@ public class HorzSecureBoostComponent extends AbstractModelingComponent<HorzSecu
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
         JObject output = JObject.create();
         JObject treeParam = JObject.create().append("criterion_method", "xgboost")
@@ -61,8 +62,7 @@ public class HorzSecureBoostComponent extends AbstractModelingComponent<HorzSecu
                 .append("max_depth", params.getTreeParam().getMaxDepth())
                 .append("min_sample_split", params.getTreeParam().getMinSampleSplit())
                 .append("min_impurity_split", params.getTreeParam().getMinImpuritySplit())
-                .append("min_leaf_node", params.getTreeParam().getMinLeafNode())
-                .append("max_split_nodes", params.getTreeParam().getMaxSplitNodes());
+                .append("min_leaf_node", params.getTreeParam().getMinLeafNode());
 
         JObject objectiveParam = JObject.create().append("objective", params.getObjectiveParam().getObjective())
                 .append("params", params.getObjectiveParam().getParams());

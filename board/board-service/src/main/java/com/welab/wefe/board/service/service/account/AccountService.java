@@ -54,10 +54,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author Zane
@@ -498,5 +495,9 @@ public class AccountService extends AbstractAccountService {
         model.setPassword(Sha1.of(input.getPassword() + salt));
         model.setHistoryPasswordList(JSON.parseArray(historyPasswordListString));
         accountRepository.save(model);
+    }
+
+    public void updateUiConfig(Map<String, Object> config) {
+        accountRepository.updateUiConfig(CurrentAccount.id(), JSON.toJSONString(config));
     }
 }

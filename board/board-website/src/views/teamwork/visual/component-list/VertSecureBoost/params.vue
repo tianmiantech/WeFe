@@ -138,8 +138,7 @@
                             style="padding-left:90px;"
                             class="f12"
                         >
-                            隐私预算值: 有（
-                            {{ (1 / (Math.E ** vData.form.other_param.epsilon + vData.form.other_param.bin_num - 1) * 100).toFixed(2) }}% ）的概率移动到其他的箱中
+                            有 {{ ((vData.form.other_param.bin_num - 1) / (Math.E ** vData.form.other_param.epsilon + vData.form.other_param.bin_num - 1) * 100).toFixed(2) }}% 的概率移动到其他箱中
                         </p>
                     </template>
                     <el-form-item
@@ -158,13 +157,7 @@
                     </template>
                 </el-collapse-item>
                 <el-collapse-item title="tree param" name="2">
-                    <el-form-item label="标准函数">
-                        <el-input
-                            v-model="vData.form.tree_param.criterion_method"
-                            placeholder="如 xgboost"
-                        />
-                    </el-form-item>
-                    <el-form-item label="标准参数">
+                    <el-form-item label="正则项系数">
                         <el-input
                             v-model="vData.form.tree_param.criterion_params"
                             placeholder="支持 0.1,0.2 区间范围"
@@ -186,12 +179,6 @@
                         <el-input
                             v-model="vData.form.tree_param.min_impurity_split"
                             placeholder="0.001"
-                        />
-                    </el-form-item>
-                    <el-form-item label="可拆分的最大并样本量">
-                        <el-input
-                            v-model="vData.form.tree_param.max_split_nodes"
-                            placeholder="65536"
                         />
                     </el-form-item>
                 </el-collapse-item>
@@ -217,7 +204,11 @@
                         />
                     </el-form-item>
                 </el-collapse-item>
-                <el-collapse-item title="encrypt param" name="4">
+                <el-collapse-item
+                    v-if="vData.form.other_param.work_mode !== 'dp'"
+                    title="encrypt param"
+                    name="4"
+                >
                     <el-form-item
                         prop="encrypt_param__method"
                         label="同态加密方法"
@@ -285,13 +276,11 @@
 
     const XGBoost = {
         tree_param: {
-            criterion_method:   'xgboost',
-            criterion_params:   '0.1',
-            max_depth:          5,
+            criterion_params:   0.1,
+            max_depth:          3,
             min_sample_split:   2,
             min_leaf_node:      1,
             min_impurity_split: 0.001,
-            max_split_nodes:    65536,
         },
         objective_param: {
             objective: 'cross_entropy',
@@ -308,14 +297,15 @@
         other_param: {
             task_type:              'classification',
             learning_rate:          0.1,
-            num_trees:              100,
-            subsample_feature_rate: 0.8,
+            subsample_feature_rate: 1.0,
             n_iter_no_change:       true,
             tol:                    0.0001,
+            num_trees:              10,
             bin_num:                50,
             validation_freqs:       10,
             early_stopping_rounds:  5,
-            work_mode:              'normal',
+            work_mode:              'dp',
+            epsilon:                3,
         },
     };
 
@@ -404,6 +394,19 @@
                         vData.form.objective_param.params = params.objective_param.params.join('');
                     }
                 },
+                async getNodeDetail(model) {
+                    const { code, data } = await $http.get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId:  model.id,
+                            flow_id: props.flowId,
+                        },
+                    });
+
+                    if (code === 0 && data && data.params && data.params.tree_param.criterion_params) {
+                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params;
+                    }
+                },
                 async getNodeData() {
                     const { code, data } = await $http.get({
                         url:    '/flow/dataset/info',
@@ -434,7 +437,7 @@
                         },
                     } = vData.form;
 
-                    if(criterion_params.includes(',')) {
+                    if(criterion_params.toString().includes(',')) {
                         $params.tree_param.criterion_params = criterion_params.split(',').map(str => +str);
                     } else {
                         $params.tree_param.criterion_params = [+criterion_params];

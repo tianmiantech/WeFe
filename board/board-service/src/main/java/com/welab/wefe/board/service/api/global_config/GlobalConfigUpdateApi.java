@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.api.global_config;
 
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -42,6 +43,7 @@ public class GlobalConfigUpdateApi extends AbstractNoneOutputApi<GlobalConfigUpd
     }
 
     public static class Input extends AbstractApiInput {
+        @Check(name = "配置项组", require = true)
         public Map<String, Map<String, String>> groups;
     }
 }

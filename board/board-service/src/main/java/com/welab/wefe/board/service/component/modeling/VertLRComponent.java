@@ -16,27 +16,30 @@
 
 package com.welab.wefe.board.service.component.modeling;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractLRInput;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
-import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author lonnie
@@ -50,6 +53,11 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
         }
+        List<JobMemberMySqlModel> jobMembers = graph.getMembers();
+        long memberCount = jobMembers.size();
+        if (memberCount > 2 && "sshe-lr".equalsIgnoreCase(params.getOtherParam().getLrMethod())) {
+            throw new FlowNodeException(node, "sshe-lr 只支持两个参与方");
+        }
     }
 
 
@@ -59,7 +67,7 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
         JObject output = JObject.create();
         output.append("penalty", params.otherParam.penalty)
@@ -145,8 +153,8 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
         }
 
         public static class OtherParam extends AbstractCheckModel {
-        	@Check(name = "LR算法", require = true)
-        	private String lrMethod;
+            @Check(name = "LR算法", require = true)
+            private String lrMethod;
             @Check(name = "惩罚方式", require = true)
             private String penalty;
 
@@ -187,14 +195,14 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
             private int earlyStoppingRounds;
 
             public String getLrMethod() {
-				return lrMethod;
-			}
+                return lrMethod;
+            }
 
-			public void setLrMethod(String lrMethod) {
-				this.lrMethod = lrMethod;
-			}
+            public void setLrMethod(String lrMethod) {
+                this.lrMethod = lrMethod;
+            }
 
-			public String getPenalty() {
+            public String getPenalty() {
                 return penalty;
             }
 

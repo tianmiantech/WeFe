@@ -35,6 +35,7 @@
                     <el-collapse
                         class="job-history"
                         accordion
+                        v-model="vData.currentJob"
                     >
                         <el-collapse-item
                             v-for="item in vData.jobHistoryList"
@@ -162,7 +163,7 @@
         onBeforeUnmount,
         getCurrentInstance,
     } from 'vue';
-    import { useRouter } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import {
         Menu,
         Minimap,
@@ -210,6 +211,7 @@
                 dateFormat,
             } = appContext.config.globalProperties;
             const router = useRouter();
+            const route = useRoute();
             const vData = reactive({
                 jobId:          '',
                 showName:       true,
@@ -227,6 +229,7 @@
                     page_size:  10,
                     page_index: 1,
                 },
+                currentJob: route.query.job_id || '',
             });
             const jobMinimap = ref();
             const jobGraphRef = ref();
@@ -796,6 +799,10 @@
 
             onMounted(_ => {
                 methods.getJobHistory();
+
+                if (vData.currentJob) {
+                    methods.switchJobGraphPanel(true);
+                }
 
                 $bus.$on('sideCollapsed', () => {
                     if (graph.instance) {

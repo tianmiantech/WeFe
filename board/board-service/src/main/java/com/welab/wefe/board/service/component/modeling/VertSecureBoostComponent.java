@@ -22,11 +22,13 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -48,6 +50,12 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
         }
+        
+        List<JobMemberMySqlModel> jobMembers = graph.getMembers();
+        long memberCount = jobMembers.size();
+        if (memberCount > 2 && "layered".equalsIgnoreCase(params.otherParam.workMode)) {
+            throw new FlowNodeException(node, "layered模式 只支持两个参与方");
+        }
     }
 
 
@@ -57,7 +65,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
         JObject output = JObject.create();
         JObject treeParam = JObject.create().append("criterion_method", "xgboost")
@@ -65,8 +73,7 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("max_depth", params.getTreeParam().getMaxDepth())
                 .append("min_sample_split", params.getTreeParam().getMinSampleSplit())
                 .append("min_impurity_split", params.getTreeParam().getMinImpuritySplit())
-                .append("min_leaf_node", params.getTreeParam().getMinLeafNode())
-                .append("max_split_nodes", params.getTreeParam().getMaxSplitNodes());
+                .append("min_leaf_node", params.getTreeParam().getMinLeafNode());
 
         JObject objectiveParam = JObject.create().append("objective", params.getObjectiveParam().getObjective())
                 .append("params", params.getObjectiveParam().getParams());
@@ -91,14 +98,15 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
                 .append("tree_param", treeParam)
                 .append("objective_param", objectiveParam)
                 .append("encrypt_param", encryptParam)
-				.append("cv_param", cvParam)
-				.append("work_mode", params.otherParam.workMode);
-		if ("layered".equalsIgnoreCase(params.otherParam.workMode)) {
-			output.append("promoter_depth", params.otherParam.promoterDepth).append("provider_depth",
-					params.otherParam.providerDepth);
-		} else if ("skip".equalsIgnoreCase(params.otherParam.workMode)) {
-			output.append("tree_num_per_member", params.otherParam.treeNumPerMember);
-		}
+                .append("cv_param", cvParam).append("work_mode", params.otherParam.workMode);
+        if ("layered".equalsIgnoreCase(params.otherParam.workMode)) {
+            output.append("promoter_depth", params.otherParam.promoterDepth).append("provider_depth",
+                    params.otherParam.providerDepth);
+        } else if ("skip".equalsIgnoreCase(params.otherParam.workMode)) {
+            output.append("tree_num_per_member", params.otherParam.treeNumPerMember);
+        } else if ("dp".equalsIgnoreCase(params.otherParam.workMode)) {
+            output.append("epsilon", params.otherParam.epsilon);
+        }
         return output;
     }
 
@@ -206,6 +214,9 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
             @Check(name = "单方每次构建树的数量")
             private int treeNumPerMember;
             
+            // 当work_mode==dp时 隐私预算
+            @Check(name = "隐私预算") // 1.22
+            private float epsilon;
 
             public String getTaskType() {
                 return taskType;
@@ -310,6 +321,14 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
 			public void setTreeNumPerMember(int treeNumPerMember) {
 				this.treeNumPerMember = treeNumPerMember;
 			}
+
+            public float getEpsilon() {
+                return epsilon;
+            }
+
+            public void setEpsilon(float epsilon) {
+                this.epsilon = epsilon;
+            }
         }
 
     }

@@ -55,6 +55,7 @@
                             点击上传文件
                         </uploader-btn>
                         <el-button type="primary" @click="methods.downloadModel">模型下载</el-button>
+                        <el-button v-if="vData.isPredicting" type="primary" @click="methods.interruptPrediect">中断当前预测</el-button>
                     </div>
                 </uploader>
             </div>
@@ -106,7 +107,7 @@
         components: { LabelSystem, ImageThumbnailList },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
-            const { $http, $bus, $message } = appContext.config.globalProperties;
+            const { $http, $bus, $message, $confirm } = appContext.config.globalProperties;
             const route = useRoute();
             const router = useRouter();
             const labelSystemRef = ref();
@@ -194,10 +195,28 @@
                                 vData.modelList = data.list;
                                 vData.form.model = data.list[0].task_id;
                                 methods.getPredictDetail();
+                                methods.getModelResult();
                             }
                             vData.pageLoading = false;
                         });
                     }
+                },
+                async getModelResult() {
+                    const params = {
+                        task_id: vData.form.model,
+                        type:    'loss',
+                    };
+
+                    const { code, data } = await $http.post({
+                        url:  '/flow/job/task/result',
+                        data: params,
+                    });
+
+                    nextTick(_=> {
+                        if (code === 0) {
+                            console.log(data);
+                        }
+                    });
                 },
                 fileAddedImage(file) {
                     // split考虑文件名中有.，随机数文件名以清除文件缓存
@@ -252,7 +271,7 @@
                 },
                 async startPredict() {
                     const { code } = await $http.post({
-                        url:  '/model/deep_learning/call/start',
+                        url:  '/model/deep_learning/infer/start',
                         data: {
                             taskId:   vData.form.model,
                             filename: vData.http_upload_filename,
@@ -281,7 +300,8 @@
 
                     if(code === 0) {
                         nextTick(_=> {
-                            vData.infer_session_id = data.task_view.results[0].result.infer_session_id;
+                            vData.infer_session_id = data.task_view.results[0] ? data.task_view.results[0].result.infer_session_id : '';
+                            // 需考虑中断预测任务之后的状态 || data.task_view.results[0].result.status === 'stopped'
                             if (data.task_view.results[0] === null) {
                                 vData.isCanUpload = false;
                                 vData.isUploading = false;
@@ -416,10 +436,46 @@
                     document.body.appendChild(link);
                     link.click();
                 },
+                async interruptPrediect() {
+                    $confirm('确定中断当前预测？', '警告', {
+                        type: 'warning',
+                    })
+                        .then(async action => {
+                            if(action === 'confirm') {
+                                const { code } = await $http.post({
+                                    url:  '/model/deep_learning/infer/stop',
+                                    data: {
+                                        taskId: vData.form.model,
+                                    },
+                                });
+
+                                nextTick(_=> {
+                                    if(code === 0) {
+                                        $message.success('操作成功！');
+                                        vData.isCanUpload = true;
+                                        vData.isUploading = false;
+                                        vData.isUploadedOk = false;
+                                        vData.isCheckFinished = false;
+                                        vData.isPredicting = false;
+                                    }
+                                });
+                            }
+                        });
+                        
+                   
+                },
+                changeHeaderTitle() {
+                    if(route.meta.titleParams) {
+                        const htmlTitle = `<strong>${route.query.project_name}</strong> - ${route.query.flow_name} (${vData.forJobType === 'PaddleDetection' ? '目标检测' : vData.forJobType === 'PaddleClassify' ? '图像分类' : ''})`;
+
+                        $bus.$emit('change-layout-header-title', { meta: htmlTitle });
+                    }
+                },
             };
 
             onBeforeMount(()=> {
                 methods.getModelList();
+                methods.changeHeaderTitle();
                 if (vData.resetWidthTimer) clearTimeout(vData.resetWidthTimer);
                 vData.resetWidthTimer = setTimeout(_=> {
                     methods.resetWidth();
@@ -439,10 +495,12 @@
 
             onBeforeUnmount(_ => {
                 $bus.$off('history-backward');
+                $bus.$off('change-layout-header-title');
                 clearTimeout(vData.timer);
                 clearTimeout(vData.resetWidthTimer);
                 clearTimeout(vData.runningTimer);
                 clearTimeout(vData.resultNullTimer);
+                window.onresize = null;
             });
 
             return {

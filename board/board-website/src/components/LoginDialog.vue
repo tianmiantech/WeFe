@@ -148,6 +148,7 @@
                         ...data,
                     });
                     this.$store.commit('SYSTEM_INITED', true);
+                    this.$store.commit('UI_CONFIG', data.ui_config);
                     this.$message.success('登录成功');
 
                     const res = await this.$http.get({

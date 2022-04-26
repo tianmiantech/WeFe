@@ -43,6 +43,7 @@ CREATE TABLE `account`
     `cancelled`             tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
     `last_action_time`      datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '最后活动时间',
     `history_password_list` text NULL COMMENT '历史曾用密码',
+    `ui_config`             text NULL COMMENT 'UI 相关配置信息',
     PRIMARY KEY (`id`),
     UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
     KEY                     `idx_create_time` (`created_time`)

@@ -51,6 +51,8 @@ public class ModelingInfoOutputModel extends AbstractOutputModel {
     private JSONObject result;
     @Check(name = "是否是可以导出到 serving 的模型")
     private boolean servingModel;
+    @Check(name = "模型Id")
+    private String modelId;
 
     public String getJobId() {
         return jobId;
@@ -146,5 +148,13 @@ public class ModelingInfoOutputModel extends AbstractOutputModel {
 
     public void setServingModel(boolean servingModel) {
         this.servingModel = servingModel;
+    }
+
+    public String getModelId() {
+        return modelId;
+    }
+
+    public void setModelId(String modelId) {
+        this.modelId = modelId;
     }
 }

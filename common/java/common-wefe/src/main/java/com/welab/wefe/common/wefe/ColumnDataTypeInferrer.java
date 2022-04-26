@@ -15,10 +15,15 @@
  */
 package com.welab.wefe.common.wefe;
 
+import com.welab.wefe.common.CommonThreadPool;
+import com.welab.wefe.common.Stopwatch;
 import com.welab.wefe.common.Validator;
+import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.wefe.enums.ColumnDataType;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
 
 /**
@@ -29,7 +34,14 @@ import java.util.function.Consumer;
  */
 public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Object>> {
     private final static List<String> NULL_VALUE_LIST = Arrays.asList("", "null", "NA", "nan", "None");
+    /**
+     * 字段列表
+     */
     private List<String> columns;
+    /**
+     * 电子围栏，用于检查多线程推理时所有线程运行完毕。
+     */
+    LongAdder counter = new LongAdder();
     /**
      * 数据样本
      */
@@ -39,19 +51,30 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
      */
     private final LinkedHashMap<String, ColumnDataType> result = new LinkedHashMap<>();
     /**
-     * 推理过程中的中间信息
+     * 推理过程中的中间信息：各字段的类型列表
      */
-    private final LinkedHashMap<String, Set<ColumnDataType>> columnDataTypes = new LinkedHashMap<>();
+    private final Map<String, Set<ColumnDataType>> columnDataTypes = new ConcurrentHashMap<>();
+    /**
+     * 推理过程中的中间信息：各字段有推出结果的次数
+     */
+    private final Map<String, LongAdder> columnDataTypeInferCountMap = new ConcurrentHashMap<>();
+    /**
+     * 计时器，用于开发过程中调测性能。
+     */
+    private Stopwatch stopwatch = Stopwatch.startNew();
 
     /**
      * @param columns 需要推理的字段列表
      */
     public ColumnDataTypeInferrer(List<String> columns) {
+        stopwatch.tapAndPrint("初始化");
         this.columns = columns;
         for (String name : columns) {
             result.put(name, null);
             columnDataTypes.put(name, new HashSet<>());
+            columnDataTypeInferCountMap.put(name, new LongAdder());
         }
+        stopwatch.tapAndPrint("初始化完成");
     }
 
     public List<String> getColumnNames() {
@@ -65,13 +88,21 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
         }
 
         // 如果所有字段已推理出结果，则不再接收数据进行推理。
-        if (columnDataTypes.isEmpty()) {
+        if (columnDataTypeInferCountMap.isEmpty()) {
             return;
         }
 
-        Iterator<String> iterator = columnDataTypes.keySet().iterator();
+
+        counter.increment();
+        CommonThreadPool.run(() -> inferRow(row));
+
+    }
+
+    private void inferRow(LinkedHashMap<String, Object> row) {
+        Iterator<String> iterator = columnDataTypeInferCountMap.keySet().iterator();
         while (iterator.hasNext()) {
             String name = iterator.next();
+
 
             Object value = row.get(name);
             // 根据字段的值，推理出字段的类型
@@ -83,23 +114,32 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
             // 记录该字段发现的所有数据类型
             this.columnDataTypes.get(name).add(dataType);
 
-            // 如果当前值是 String，则无需继续推理。
-            if (dataType == ColumnDataType.String) {
-                result.put(name, dataType);
+            // 当前字段已成功推理的次数
+            LongAdder columnInferredCount = columnDataTypeInferCountMap.get(name);
+            // 由于这里是多线程，所以可能其它线程已经删除了 MAP 中当前 name 对应的记录。
+            if (columnInferredCount == null) {
+                continue;
             }
 
-            // 将已推理出结论的字段移除
-            if (result.get(name) != null) {
+            columnInferredCount.increment();
+            // 已推理过10行，则认为该字段的类型已经确定，不再继续推理。
+            if (columnInferredCount.sum() >= 10) {
                 iterator.remove();
             }
         }
-
+        counter.decrement();
     }
 
     /**
-     * 结束推理，根据当前线索推理出所有字段的数据类型。
+     * 结束推理，根据当前线索敲定出所有字段的数据类型。
      */
     public Map<String, ColumnDataType> getResult() {
+        stopwatch.tapAndPrint("start getResult");
+        // 等待所有线程运行完毕
+        while (counter.sum() > 0) {
+            ThreadUtil.sleep(10);
+        }
+
         Iterator<String> iterator = columnDataTypes.keySet().iterator();
         while (iterator.hasNext()) {
             String name = iterator.next();
@@ -117,12 +157,15 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
                 result.put(name, ColumnDataType.Long);
             } else if (types.contains(ColumnDataType.Integer)) {
                 result.put(name, ColumnDataType.Integer);
+            } else if (types.contains(ColumnDataType.Boolean)) {
+                result.put(name, ColumnDataType.Boolean);
             } else {
                 throw new RuntimeException("执行到这里说明在未来的有一天，新增了数据类型，这里的代码要做相应的修改。");
             }
 
             iterator.remove();
         }
+        stopwatch.tapAndPrint("end getResult");
         return result;
     }
 
@@ -144,6 +187,10 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
 
         if (Validator.isDouble(value)) {
             return ColumnDataType.Double;
+        }
+
+        if (Validator.isBoolean(value)) {
+            return ColumnDataType.Boolean;
         }
 
         return ColumnDataType.String;

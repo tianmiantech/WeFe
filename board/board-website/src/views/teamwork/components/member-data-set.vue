@@ -250,10 +250,10 @@
                             <br>
                             主键组合方式: {{ scope.row.data_resource.hash_function }}
                         </p>
-                        <template v-else>
-                            特征量：{{ scope.row.data_resource.feature_count }}
+                        <template v-if="scope.row.data_resource">
+                            特征量：{{ scope.row.data_resource.feature_count || 0 }}
                             <br>
-                            样本量：{{ scope.row.data_resource.total_data_count }}
+                            样本量：{{ scope.row.data_resource.total_data_count || 0 }}
                         </template>
                     </template>
                 </el-table-column>
@@ -374,7 +374,7 @@
                             </template>
                         </template>
                         <el-tooltip
-                            v-if="scope.row.member_id === userInfo.member_id && scope.row.data_resource_type === 'TableDataSet' && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
+                            v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && scope.row.member_id === userInfo.member_id && scope.row.data_resource_type === 'TableDataSet' && scope.row.audit_status !== 'auditing' && form.project_type === 'MachineLearning'"
                             :disabled="scope.row.data_resource_type === 'BloomFilter'"
                             content="预览数据"
                             placement="top"
@@ -396,14 +396,14 @@
                             2. member is promoter || member is myself
                          -->
                         <el-button
-                            v-if="form.isPromoter || scope.row.member_id === userInfo.member_id"
+                            v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
                             circle
                             type="danger"
                             class="mr10"
                             icon="elicon-delete"
                             @click="methods.removeDataSet(scope.row, scope.$index)"
                         />
-                        <template v-if="scope.row.deleted">
+                        <template v-if="scope.row.data_resource && scope.row.data_resource.deleted">
                             该数据资源已被移除
                         </template>
                     </template>
