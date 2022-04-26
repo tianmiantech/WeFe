@@ -20,9 +20,9 @@
                         :ref="piechartRefs[$index]"
                         :config="result.chart"
                     /> -->
-                    <div v-for="item in vData.textList" :key="item" class="mt10">
-                        <p class="mb5"><el-tag type="success" size="small">已对齐</el-tag><span class="f14">：{{item.intersect_count}}</span></p>
-                        <p><el-tag type="warning" size="small">未对齐</el-tag><span class="f14">：{{item.count - item.intersect_count}}</span></p>
+                    <div class="mt10">
+                        <p class="mb5"><el-tag type="success" size="small">已对齐</el-tag><span class="f14">：{{result.chart.series[0].value}}</span></p>
+                        <p><el-tag type="warning" size="small">未对齐</el-tag><span class="f14">：{{result.chart.series[1].value}}</span></p>
                     </div>
 
                 </template>
@@ -61,14 +61,12 @@
             let vData = reactive({
                 resultTypes:   ['metric'],
                 resultConfigs: [],
-                textList:      [],
             });
 
             let methods = {
                 showResult(list) {
                     piechartRefs = [];
                     vData.resultConfigs = [];
-                    vData.textList = [];
                     list.forEach((data, index) => {
                         const titleText = data.members.map(m => `${m.member_name} (${m.member_role})`).join(' & ');
                         const result = {
@@ -90,7 +88,6 @@
                             },
                         };
 
-                        vData.textList.push(data.result);
                         vData.resultConfigs.push(result);
                         piechartRefs.push(ref(index));
                     });
