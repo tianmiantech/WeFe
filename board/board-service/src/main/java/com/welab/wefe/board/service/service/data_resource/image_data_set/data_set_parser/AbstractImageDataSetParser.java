@@ -84,7 +84,12 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
      */
     public String parseSamplesToDataSetFile(String jobId, ImageDataSetMysqlModel dataSet, final List<ImageDataSetSampleMysqlModel> samples, int trainTestSplitRatio) throws Exception {
         // 构建数据集文件的版本号
-        String version = trainTestSplitRatio + "-" + samples.size() + "-" + samples.stream().mapToLong(x -> x.getUpdatedTime().getTime()).max().orElse(0);
+        long samplesLastUpdateTime = samples.stream().mapToLong(x ->
+                x.getUpdatedTime() == null
+                        ? x.getCreatedTime().getTime()
+                        : x.getUpdatedTime().getTime()
+        ).max().orElse(0);
+        String version = trainTestSplitRatio + "-" + samples.size() + "-" + samplesLastUpdateTime;
 
         File file = getDataSetFile(dataSet, jobId, version);
         // 如果数据集文件已经存在，不重复生成，节省磁盘。
