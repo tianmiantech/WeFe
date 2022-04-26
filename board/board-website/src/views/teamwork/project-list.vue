@@ -28,7 +28,7 @@
                     class="li"
                 >
                     <p v-if="item.project_type" class="project_type" :style="{color: item.project_type === 'DeepLearning' ? '#E89B00' : '#438BFF'}">{{item.project_type === 'DeepLearning' ? '视觉处理' : item.project_type === 'MachineLearning' ? '机器学习' : ''}} <span v-if="item.top" style="font-size: 12px;color: #f85564;">(已置顶)</span></p>
-                    <p class="top_btn" @click.prevent="toTopClick(item)">
+                    <p v-if="userInfo.admin_role" class="top_btn" @click.prevent="toTopClick(item)">
                         <el-tooltip v-if="item.top" effect="light" content="取消置顶" placement="bottom">
                             <el-icon style="color: #f85564;"><elicon-bottom /></el-icon>
                         </el-tooltip>

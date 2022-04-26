@@ -160,7 +160,7 @@
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
-                    <p v-if="list.length > 1" class="ml10 totop_btn" @click="flowToTopClick(scope.row)">
+                    <p v-if="list.length > 1 && userInfo.admin_role" class="ml10 totop_btn" @click="flowToTopClick(scope.row)">
                         <!-- <span :style="{'color': scope.row.top ? '#e6a23c' : '#438bff'}">{{scope.row.top ? '取消置顶' : '置顶'}}</span> -->
                         <el-tooltip v-if="scope.row.top" effect="light" content="取消置顶" placement="bottom">
                             <el-icon class="f14" style="color: #f85564; font-weight: 500;">
@@ -358,6 +358,7 @@
 <script>
     import table from '@src/mixins/table';
     import FlowStatusTag from '@src/components/views/flow-status-tag';
+    import { mapGetters } from 'vuex';
 
     const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
@@ -432,6 +433,7 @@
                     return types[val] || '-';
                 };
             },
+            ...mapGetters(['userInfo']),
         },
         created() {
             this.project_id = this.$route.query.project_id;
