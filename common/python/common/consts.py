@@ -47,6 +47,7 @@ COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY = "flow.spark.submit.default.executo
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES = "flow.spark.submit.default.executor.cores"
 # COMM_CONF_KEY_BACKEND = "wefe.job.backend"
 COMM_CONF_KEY_ACCELERATION = "wefe.job.acceleration"
+COMM_CONF_KEY_GPU_INSTANCE = "wefe.gpu.instance"
 
 COMM_CONF_KEY_FC_STORAGE_TYPE = "fc.storage.type"
 COMM_CONF_KEY_FC_REGION = "fc.region"

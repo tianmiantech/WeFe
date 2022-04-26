@@ -14,10 +14,15 @@ from kernel.security.protol.spdz.utils import NamingService
 from kernel.security.protol.spdz.utils.random_utils import urand_tensor
 from common.python.calculation.acceleration.operator import cal
 from kernel.security.paillier import PaillierEncryptedNumber
+from common.python.common import consts
+from common.python.utils import conf_utils
 
 LOGGER = log_utils.get_logger()
 
-GPU_TABLE_DOT_BATCH = 5000
+
+def get_gpu_batch(algo_type='paillier_table_dot'):
+    return int(aclr.gpu_device_info('max_array_size', algo_type) / conf_utils.get_comm_config(
+        consts.COMM_CONF_KEY_GPU_INSTANCE, 1))
 
 
 def _table_binary_op(x, y, q_field, op, need_send=False):
@@ -57,11 +62,14 @@ def table_dot(a_table, b_table):
                 a_new_tables = np.array(a_tables).astype(type(a_tables[0][0]))
                 b_new_tables = np.array(b_tables).astype(type(b_tables[0][0]))
 
+            # 获取 GPU 可执行批量数
+            gpu_table_dot_batch = get_gpu_batch()
+            LOGGER.debug(f'gpu_table_dot_batch: {gpu_table_dot_batch}')
             # 分批调用，防止 GPU 显存不足
-            table_batch_a = [a_new_tables[i:i + GPU_TABLE_DOT_BATCH] for i in
-                             range(0, len(a_new_tables), GPU_TABLE_DOT_BATCH)]
-            table_batch_b = [b_new_tables[i:i + GPU_TABLE_DOT_BATCH] for i in
-                             range(0, len(b_new_tables), GPU_TABLE_DOT_BATCH)]
+            table_batch_a = [a_new_tables[i:i + gpu_table_dot_batch] for i in
+                             range(0, len(a_new_tables), gpu_table_dot_batch)]
+            table_batch_b = [b_new_tables[i:i + gpu_table_dot_batch] for i in
+                             range(0, len(b_new_tables), gpu_table_dot_batch)]
             rs = None
 
             for i in range(len(table_batch_a)):
