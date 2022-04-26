@@ -128,6 +128,7 @@
                 @resizeCanvas="methods.resizeCanvas"
                 @checkResult="methods.checkResult"
                 @checkHelp="methods.checkHelp"
+                @graphInit="methods.updateGraphEmit"
             />
             <!-- Error prompt box -->
             <ErrorPanel ref="errorPanel" />
@@ -349,7 +350,7 @@
                     }
                     return true;
                 },
-                async init (opt = { requestFromRefresh: false }) {
+                async init (opt = { requestFromRefresh: false, job_id: '' }) {
                     vData.loading = true;
 
                     const { code, data } = await $http.get({
@@ -357,6 +358,7 @@
                         params: {
                             flow_id:                vData.flow_id,
                             'request-from-refresh': opt.requestFromRefresh,
+                            job_id:                 opt.job_id,
                         },
                     });
 
@@ -396,8 +398,10 @@
                                 }
 
                                 methods.createGraph({ nodes, edges, combos });
-                                methods.changeHeaderTitle();
-                                methods.getComponents();
+                                if (!opt.job_id) {
+                                    methods.changeHeaderTitle();
+                                    methods.getComponents();
+                                }
 
                                 // get task details
                                 ToolbarRef.value && ToolbarRef.value.methods.init(opt);
@@ -408,6 +412,10 @@
 
                         methods.resizeCanvas(graph.instance);
                     });
+                },
+
+                updateGraphEmit({ nodes, edges, combos }) {
+                    methods.createGraph({ nodes, edges, combos });
                 },
 
                 updateEmptyParamsNode(list) {
