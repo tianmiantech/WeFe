@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python_pack(){
+pack_python(){
     cd "$WORK_DIR"
     rm -rf python-project
     mkdir python-project
@@ -68,7 +68,7 @@ init_dir(){
         done
 }
 
-java_pack(){
+pack_java(){
     for i in $*;
         do
             mvn clean install -Dmaven.test.skip=true -am -pl $i

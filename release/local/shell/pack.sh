@@ -7,7 +7,7 @@ rebuild_cd_dir $WORK_DIR/package
 init_dir $INIT_DIR_STR
 
 cd $WORK_DIR
-java_pack $JAVA_PACK_STR
+pack_java $JAVA_PACK_STR
 
 cd $WORK_DIR
 JAR_PATH_STR=`get_jar_path $JAVA_PACK_STR`
