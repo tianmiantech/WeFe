@@ -748,37 +748,50 @@ public class ServiceService {
         return response;
     }
 
-	public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
-		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
-		if (model == null) {
-			throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
-		}
-		int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
-		Path basePath = Paths.get(config.getFileBasePath());
+    public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
+        ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+        int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
+        Path basePath = Paths.get(config.getFileBasePath());
 //		String basePath = config.getFileBasePath();
-		List<File> fileList = new ArrayList<>();
-		File readme = new File(basePath.resolve("readme.md").toString());
-		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
-			// 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath.resolve("mpc-pir-sdk-1.0.0.jar").toString()));
-			fillReadmeFile(model, readme);
-		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
-			// 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath.resolve("mpc-psi-sdk-1.0.0.jar").toString()));
-			fillReadmeFile(model, readme);
-		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
-			// 将需要提供的文件加到这个列表
-			fileList.add(new File(basePath.resolve("mpc-sa-sdk-1.0.0.jar").toString()));
-			fillReadmeFile(model, readme);
-		} else {
-			fillReadmeFile(null, readme);
-		}
-		fileList.add(readme);
-		String sdkZipName = "sdk.zip";
-		String outputPath = basePath.resolve(sdkZipName).toString();
-		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
-		ZipUtils.toZip(fileList, fos2);
-		File file = new File(outputPath);
+        List<File> fileList = new ArrayList<>();
+        File readme = new File(basePath.resolve("readme.md").toString());
+        if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
+            // 将需要提供的文件加到这个列表
+            fileList.add(new File(basePath.resolve("mpc-pir-sdk-1.0.0.jar").toString()));
+            if (serviceType == ServiceTypeEnum.PIR.getCode()) {
+                fileList.add(new File(basePath.resolve("PirClient.java").toString()));
+            }
+            if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
+                fileList.add(new File(basePath.resolve("MultiPir.java").toString()));
+            }
+            fillReadmeFile(model, readme);
+        } else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
+            // 将需要提供的文件加到这个列表
+            fileList.add(new File(basePath.resolve("mpc-psi-sdk-1.0.0.jar").toString()));
+            if (serviceType == ServiceTypeEnum.PSI.getCode()) {
+                fileList.add(new File(basePath.resolve("PsiClient.java").toString()));
+            }
+            if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
+                fileList.add(new File(basePath.resolve("MultiPsi.java").toString()));
+            }
+            fillReadmeFile(model, readme);
+        } else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
+            // 将需要提供的文件加到这个列表
+            fileList.add(new File(basePath.resolve("mpc-sa-sdk-1.0.0.jar").toString()));
+            fileList.add(new File(basePath.resolve("SaClient.java").toString()));
+            fillReadmeFile(model, readme);
+        } else {
+            fillReadmeFile(null, readme);
+        }
+        fileList.add(readme);
+        String sdkZipName = "sdk.zip";
+        String outputPath = basePath.resolve(sdkZipName).toString();
+        FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
+        ZipUtils.toZip(fileList, fos2);
+        File file = new File(outputPath);
 //		HttpHeaders headers = new HttpHeaders();
 //		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 //		headers.setContentDispositionFormData("attachment", sdkZipName);
@@ -788,8 +801,8 @@ public class ServiceService {
 //			e.printStackTrace();
 //			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
 //		}
-		return file;
-	}
+        return file;
+    }
 
 	private void fillReadmeFile(ServiceMySqlModel model, File readme) throws IOException {
 		Map<String, Object> valuesMap = new HashMap<>();
