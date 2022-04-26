@@ -11,12 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import json
 from typing import List
 
 import requests
 from requests import Response
 
+from common.python.db.db_models import GlobalSetting
 from common.python.db.global_config_dao import GlobalConfigDao
 from common.python.utils.core_utils import current_timestamp
 from common.python.utils.log_utils import LoggerFactory
@@ -24,6 +25,7 @@ from flow.service.board.board_output import JobProgressOutput
 from flow.utils.bean_util import BeanUtil
 from flow.web.util.const import ServiceStatusMessage
 from flow.web.utils.const import JsonField
+import rsa
 
 BOARD_BASE_URL = GlobalConfigDao.getBoardConfig().intranet_base_uri
 
@@ -88,16 +90,19 @@ class BoardService:
         The data of json response
         """
         url = BOARD_BASE_URL + api
-
+        sign = rsa.sign(json.dumps(data).encode('utf-8'),GlobalSetting.get_rsa_private_key().encode('utf-8'), 'SHA-1')
         # send request
-
         BoardService.LOG.info(
             "board request url:{}, {}".format(url, str(data))
         )
         start_time = current_timestamp()
         spend = 0
+        req = {
+            "data": data,
+            "sign": sign
+        }
         try:
-            response: Response = requests.post(url, json=data)
+            response: Response = requests.post(url, json=req)
             spend = current_timestamp() - start_time
         except Exception as e:
             spend = current_timestamp() - start_time
