@@ -319,6 +319,8 @@ class TaskExecutor(object):
             work_mode = runtime_conf["params"].get("work_mode")
             if work_mode is None or work_mode == "normal":
                 return name.lower()
+            elif work_mode == 'dp':
+                return ComponentName.VERT_DP_SECURE_BOOST.lower()
             else:
                 return ComponentName.VERT_FAST_SECURE_BOOST.lower()
 

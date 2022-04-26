@@ -622,6 +622,96 @@
    ]
   }
  },
+ "VertDPDecisionTreeTransferVariable": {
+  "tree": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_data": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_data_by_provider": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "predict_finish_tag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "sync_flag": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "VertDPSecureBoostingTransferVariable": {
+  "tree_dim": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "data_bin_with_dp": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "bin_split_points": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "stop_flag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "begin_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_start_round": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "predict_stop_flag": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "promoter_predict_data": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_predict_data": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  }
+ },
  "VertDecisionTreeTransferVariable": {
   "encrypted_grad_and_hess": {
    "src": "promoter",
@@ -1594,6 +1684,47 @@
    ]
   }
  },
+ "SSHEModelTransferVariable": {
+  "q_field": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  },
+  "provider_prob": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "begin_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "loss": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "is_converged": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+
  "VertPCATransferVariable": {
   "provider_cov_infos": {
    "src": "provider",
@@ -1692,6 +1823,29 @@
    ]
   }
  },
+ "BatchGeneratorTransferVariable": {
+  "batch_data_index": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "batch_info": {
+   "src": "promoter",
+   "dst": [
+    "provider",
+    "arbiter"
+   ]
+  }
+ },
+ "CipherCompressorTransferVariable": {
+  "compress_para": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
  "CommonTransferVariable": {
   "promoter2provider_complete_status": {
    "src": "promoter",
@@ -1727,6 +1881,20 @@
    "src": "promoter",
    "dst": [
     "promoter"
+   ]
+  }
+ },
+ "ConvergeCheckerTransferVariable": {
+  "square_sum": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "converge_info": {
+   "src": "promoter",
+   "dst": [
+    "provider"
    ]
   }
  },
@@ -1780,6 +1948,24 @@
    ],
    "dst": [
     "promoter",
+    "provider"
+   ]
+  }
+ },
+ "HorzOneHotTransferVariable": {
+  "provider_columns": {
+   "src": [
+    "provider"
+   ],
+   "dst": [
+    "promoter"
+   ]
+  },
+  "aligned_columns": {
+   "src": [
+    "promoter"
+   ],
+   "dst": [
     "provider"
    ]
   }
@@ -2109,7 +2295,7 @@
     "provider"
    ]
   },
-  "rescontruct": {
+  "reconstruct": {
    "src": [
     "promoter",
     "provider"
@@ -2120,6 +2306,26 @@
    ]
   },
   "share": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "encrypted_share_matrix": {
+   "src": [
+    "promoter",
+    "provider"
+   ],
+   "dst": [
+    "promoter",
+    "provider"
+   ]
+  },
+  "q_field": {
    "src": [
     "promoter",
     "provider"

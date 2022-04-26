@@ -101,7 +101,7 @@ class PaillierPublicKey(object):
             raise TypeError("plaintext should be int, but got: %s" %
                             type(plaintext))
 
-        if plaintext >= (self.n - self.max_int) and plaintext < self.n:
+        if (self.n - self.max_int) <= plaintext < self.n:
             # Very large plaintext, take a sneaky shortcut using inverses
             neg_plaintext = self.n - plaintext  # = abs(plaintext - nsquare)
             neg_ciphertext = (self.n * neg_plaintext + 1) % self.nsquare
@@ -423,6 +423,8 @@ class PaillierPublicKey(object):
     def encrypt(self, value, precision=None, random_value=None):
         """Encode and Paillier encrypt a real number value.
         """
+        if isinstance(value, FixedPointNumber):
+            value = value.decode()
         encoding = FixedPointNumber.encode(value, self.n, self.max_int, precision)
         obfuscator = random_value or 1
         ciphertext = self.raw_encrypt(encoding.encoding, random_value=obfuscator)
@@ -590,7 +592,8 @@ class PaillierEncryptedNumber(object):
     def __mul__(self, scalar, in_gpu=False):
         """return Multiply by an scalar(such as int, float)
         """
-
+        if isinstance(scalar, FixedPointNumber):
+            scalar = scalar.decode()
         encode = FixedPointNumber.encode(scalar, self.public_key.n, self.public_key.max_int)
         plaintext = encode.encoding
 
@@ -631,7 +634,7 @@ class PaillierEncryptedNumber(object):
         factor = pow(FixedPointNumber.BASE, new_exponent - self.exponent)
         if in_gpu:
             mul_param = self.__mul__(factor, in_gpu)
-            return (mul_param[0], new_exponent)
+            return mul_param[0], new_exponent
         new_encryptednumber = self.__mul__(factor)
         new_encryptednumber.exponent = new_exponent
 
@@ -650,6 +653,8 @@ class PaillierEncryptedNumber(object):
     def __add_scalar(self, scalar, in_gpu=False):
         """return PaillierEncryptedNumber: z = E(x) + y
         """
+        if isinstance(scalar, FixedPointNumber):
+            scalar = scalar.decode()
         encoded = FixedPointNumber.encode(scalar,
                                           self.public_key.n,
                                           self.public_key.max_int,

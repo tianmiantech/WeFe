@@ -24,6 +24,7 @@ import com.welab.wefe.serving.service.service.FeeDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author ivenn.zheng
@@ -67,12 +68,12 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         /**
          * 统计开始时间
          */
-        private Long startTime;
+        private Date startTime;
 
         /**
          * 统计结束时间
          */
-        private Long endTime;
+        private Date endTime;
 
         public String getServiceName() {
             return serviceName;
@@ -106,19 +107,19 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.queryDateType = queryDateType;
         }
 
-        public Long getStartTime() {
+        public Date getStartTime() {
             return startTime;
         }
 
-        public void setStartTime(Long startTime) {
+        public void setStartTime(Date startTime) {
             this.startTime = startTime;
         }
 
-        public Long getEndTime() {
+        public Date getEndTime() {
             return endTime;
         }
 
-        public void setEndTime(Long endTime) {
+        public void setEndTime(Date endTime) {
             this.endTime = endTime;
         }
     }

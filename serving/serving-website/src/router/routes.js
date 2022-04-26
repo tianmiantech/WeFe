@@ -20,9 +20,8 @@ const baseRoutes = [
     {
         path: `${prefixPath}`,
         meta: {
-        title: '模型中心',
+            title: '模型中心',
             icon:  'el-icon-monitor',
-            index: 0,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -31,7 +30,6 @@ const baseRoutes = [
                 name: 'index',
                 meta: {
                     title: '模型列表',
-                    index: '0-0',
                 },
                 component: () => import('@views/model/model-list.vue'),
             },
@@ -40,11 +38,18 @@ const baseRoutes = [
                 name: 'model-view',
                 meta: {
                     title:  '模型详情',
-                    index:  '0-1',
                     hidden: true,
                     active: `${prefixPath}model-view`,
                 },
                 component: () => import('@views/model/model-view.vue'),
+            },
+            {
+                path: `${prefixPath}model-import`,
+                name: 'model-import',
+                meta: {
+                    title: '模型导入',
+                },
+                component: () => import('@views/model/model-import.vue'),
             },
         ],
     },
@@ -118,8 +123,6 @@ const baseRoutes = [
 
                 component: () => import('@views/client/client-edit.vue'),
             },
-
-
         ],
     },
     {
@@ -135,7 +138,6 @@ const baseRoutes = [
                 name: 'service-list',
                 meta: {
                     title:           '我的服务',
-                    index:           '5-1',
                     active:          `${prefixPath}service-list`,
                     loginAndRefresh: true,
                 },
@@ -146,7 +148,6 @@ const baseRoutes = [
                 name: 'union-service-list',
                 meta: {
                     title:           '联邦服务',
-                    index:           '5-2',
                     active:          `${prefixPath}union-service-list`,
                     loginAndRefresh: true,
                 },
@@ -157,7 +158,6 @@ const baseRoutes = [
                 name: 'service-view',
                 meta: {
                     title:  '服务详情',
-                    index:  '5-3',
                     hidden: true,
                     active: `${prefixPath}service-view`,
                 },
@@ -293,7 +293,6 @@ const baseRoutes = [
                 name: 'log-statistics',
                 meta: {
                     title:  '调用统计',
-                    index:  '2-1',
                     active: `${prefixPath}log-statistics`,
                 },
                 component: () => import('@views/logger/log-statistics.vue'),
@@ -303,13 +302,11 @@ const baseRoutes = [
                 name: 'log-view',
                 meta: {
                     title:  '调用详情',
-                    index:  '2-2',
                     hidden: true,
                     active: `${prefixPath}log-view`,
                 },
                 component: () => import('@views/logger/log-view.vue'),
             },
-
         ],
     },
     {
@@ -325,7 +322,6 @@ const baseRoutes = [
                 name: 'data-resouce-list',
                 meta: {
                     title:  '数据源配置',
-                    index:  '4-1',
                     active: `${prefixPath}data-souce-list`,
                 },
                 component: () => import('@views/data_source/data-source-list.vue'),
@@ -335,7 +331,6 @@ const baseRoutes = [
                 name: 'global-setting-view',
                 meta: {
                     title: 'member信息',
-                    index: '3-0',
                 },
                 component: () => import('@views/global_setting/global-setting-view.vue'),
             },

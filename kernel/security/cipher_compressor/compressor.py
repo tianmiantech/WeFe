@@ -168,7 +168,7 @@ class NormalCipherPackage(CipherPackage):
     def unpack(self, decrypter):
 
         if type(decrypter) == PaillierEncrypt:
-            LOGGER.debug(f"cipher_text: {self._cipher_text}")
+            # LOGGER.debug(f"cipher_text: {self._cipher_text}")
             compressed_plain_text = decrypter.privacy_key.raw_decrypt(self._cipher_text.ciphertext())
         elif type(decrypter) == IterativeAffineEncrypt:
             compressed_plain_text = decrypter.key.raw_decrypt(self._cipher_text)

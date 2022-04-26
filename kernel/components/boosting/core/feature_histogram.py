@@ -55,6 +55,7 @@ LOGGER = log_utils.get_logger()
 
 
 class HistogramBag(object):
+
     """
     holds histograms
     """
@@ -321,7 +322,7 @@ class FeatureHistogram(object):
         # reformat, now format is: key, ((data_instance, node position), (g, h))
         batch_histogram_intermediate_rs = data_bin.join(grad_and_hess, lambda data_inst, g_h: (data_inst, g_h))
 
-        if batch_histogram_intermediate_rs.count() == 0:  # if input sample number is 0, return empty histograms
+        if batch_histogram_intermediate_rs.count() == 0: # if input sample number is 0, return empty histograms
 
             node_histograms = FeatureHistogram._generate_histogram_template(node_map, bin_split_points, valid_features,
                                                                             1 if use_missing else 0)
@@ -373,9 +374,6 @@ class FeatureHistogram(object):
 
             if ret == "tensor":
                 feature_num = bin_split_points.shape[0]
-                # if isinstance(histograms_table, list):
-                #     histogram_list = histograms_table
-                # else:
                 histogram_list = list(histograms_table.collect())
                 rs = FeatureHistogram._recombine_histograms(histogram_list, node_map, feature_num)
                 return rs
@@ -809,7 +807,6 @@ class FeatureHistogram(object):
         ret = FeatureHistogram._generate_histogram_key_value_list(node_histograms, node_map, bin_split_points,
                                                                   parent_nid_map, sibling_node_id_map,
                                                                   partition_key=partition_key)
-        # print(f'batch histograms 耗时：{time.time() - start_batch}')
         return ret
 
     @staticmethod

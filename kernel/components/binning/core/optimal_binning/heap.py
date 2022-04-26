@@ -146,7 +146,6 @@ class ChiSquareHeapNode(HeapNode):
                      np.square(self.left_bucket.non_event_count - e_left_0) / e_left_0 + \
                      np.square(self.right_bucket.event_count - e_right_1) / e_right_1 + \
                      np.square(self.right_bucket.non_event_count - e_right_0) / e_right_0
-        LOGGER.debug("chi_sqaure: {}".format(chi_square))
 
         self.score = chi_square
 

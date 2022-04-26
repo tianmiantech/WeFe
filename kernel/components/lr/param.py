@@ -39,6 +39,7 @@ from kernel.base.params.init_model_param import InitParam
 from kernel.base.params.predict_param import PredictParam
 from kernel.base.params.sqn_param import StochasticQuasiNewtonParam
 from kernel.base.params.stepwise_param import StepwiseParam
+from kernel.callbacks.callback_param import CallbackParam
 from kernel.utils import consts
 
 
@@ -107,6 +108,15 @@ class LogisticParam(BaseParam):
     use_first_metric_only: bool, default: False
         Indicate whether use the first metric only for early stopping judgement.
 
+    reveal_strategy: str, "respectively", "encrypted_reveal_in_host", default: "respectively"
+        "respectively": Means promoter and provider can reveal their own part of weights only.
+        "encrypted_reveal_in_host": Means provider can be revealed his weights in encrypted mode, and promoter can be revealed in normal mode.
+
+    reveal_every_iter: bool, default: True
+        Whether reconstruct model weights every iteration. If so, Regularization is available.
+        The performance will be better as well since the algorithm process is simplified.
+
+
     """
 
     def __init__(self, penalty='L2',
@@ -118,7 +128,11 @@ class LogisticParam(BaseParam):
                  multi_class='ovr', validation_freqs=None, early_stopping_rounds=None,
                  stepwise_param=StepwiseParam(),
                  metrics=None,
-                 use_first_metric_only=False
+                 use_first_metric_only=False,
+                 use_mix_rand=False,
+                 reveal_strategy="respectively",
+                 reveal_every_iter=True,
+                 encrypted_mode_calculator_param=EncryptedModeCalculatorParam()
                  ):
         super(LogisticParam, self).__init__()
         self.penalty = penalty
@@ -142,6 +156,12 @@ class LogisticParam(BaseParam):
         self.metrics = metrics or []
         self.use_first_metric_only = use_first_metric_only
         self.model_save_to_storage = True
+
+        self.use_mix_rand = use_mix_rand
+        self.reveal_strategy = reveal_strategy
+        self.reveal_every_iter = reveal_every_iter
+        self.cv_param = cv_param
+        self.encrypted_mode_calculator_param = copy.deepcopy(encrypted_mode_calculator_param)
 
     def check(self):
         descr = "logistic_param's"
@@ -237,6 +257,9 @@ class LogisticParam(BaseParam):
         if not isinstance(self.use_first_metric_only, bool):
             raise ValueError("use_first_metric_only should be a boolean")
 
+        self.check_boolean(self.reveal_every_iter, descr)
+        self.cv_param.check()
+
         return True
 
 
@@ -317,7 +340,8 @@ class VertLogisticParam(LogisticParam):
                  decay=1, decay_sqrt=True, sqn_param=StochasticQuasiNewtonParam(),
                  multi_class='ovr', validation_freqs=None, early_stopping_rounds=None,
                  metrics=['auc', 'ks'],
-                 use_first_metric_only=False
+                 use_first_metric_only=False,
+                 lr_method='lr'
                  ):
         super(VertLogisticParam, self).__init__(penalty=penalty, tol=tol, alpha=alpha, optimizer=optimizer,
                                                 batch_size=batch_size,
@@ -332,6 +356,7 @@ class VertLogisticParam(LogisticParam):
                                                 use_first_metric_only=use_first_metric_only)
         self.encrypted_mode_calculator_param = copy.deepcopy(encrypted_mode_calculator_param)
         self.sqn_param = copy.deepcopy(sqn_param)
+        self.lr_method = lr_method
 
     def check(self):
         super().check()

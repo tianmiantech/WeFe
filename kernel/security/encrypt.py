@@ -39,6 +39,7 @@ from kernel.base.instance import Instance
 from kernel.security import gmpy_math
 from kernel.security.affine import AffineCipher
 from kernel.security.iterative_affine import IterativeAffineCipher
+from kernel.security.paillier import PaillierEncryptedNumber
 from kernel.security.paillier import PaillierKeypair
 from kernel.security.random import RandomPads
 from kernel.security.paillier import PaillierEncryptedNumber
@@ -415,7 +416,7 @@ class IterativeAffineEncrypt(SymmetricEncrypt):
     def __init__(self):
         super(IterativeAffineEncrypt, self).__init__()
 
-    def generate_key(self, key_size=1024, key_round=5, encode_precision=2 ** 100, randomized=False):
+    def generate_key(self, key_size=1024, key_round=5, encode_precision=2**100, randomized=False):
         self.key = IterativeAffineCipher.generate_keypair(
             key_size=key_size,
             key_round=key_round,
