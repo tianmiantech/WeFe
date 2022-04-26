@@ -70,8 +70,8 @@ public class BoardService implements ApplicationContextAware {
                 .instance()
                 .apiLogger(new BoardApiLogger())
                 .apiPackageClass(BoardService.class)
-                // Login status check method
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                // 禁止未登录且无验签的访问
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.rsaVerify())
                 .onApiExceptionFunction((api, e) -> {
 
                     // When an exception occurs in a node,
@@ -119,8 +119,17 @@ public class BoardService implements ApplicationContextAware {
 
     /**
      * rsa signature check
+     * 需要验签的接口有两种情况：
+     * 1. 请求来自前端，已登录状态，不需要验签，只检登录状态就好了。
+     * 2. 未登录的情况下，请求来自其他子系统，需要进行验签。
      */
     private static void rsaVerify(JSONObject params) throws Exception {
+
+        // 如果是登录状态，不验签。
+        if (CurrentAccount.get() != null) {
+            return;
+        }
+
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
 
         // At present, the board service only serves the application services of its own wefe system,

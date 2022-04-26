@@ -27,7 +27,7 @@ import java.util.Date;
  * @author zane
  * @date 2022/4/7
  */
-@Api(path = "service/version", name = "版本信息")
+@Api(path = "service/version", name = "版本信息", login = false)
 public class VersionApi extends AbstractNoneInputApi<VersionApi.Output> {
 
     @Override
