@@ -92,15 +92,15 @@ class BoardService:
         url = BOARD_BASE_URL + api
         sign = rsa.sign(json.dumps(data).encode('utf-8'),GlobalSetting.get_rsa_private_key().encode('utf-8'), 'SHA-1')
         # send request
-        BoardService.LOG.info(
-            "board request url:{}, {}".format(url, str(data))
-        )
-        start_time = current_timestamp()
-        spend = 0
         req = {
             "data": data,
             "sign": sign
         }
+        BoardService.LOG.info(
+            "board request url:{}, {}".format(url, str(req))
+        )
+        start_time = current_timestamp()
+        spend = 0
         try:
             response: Response = requests.post(url, json=req)
             spend = current_timestamp() - start_time
