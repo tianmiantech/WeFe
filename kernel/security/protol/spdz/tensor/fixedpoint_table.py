@@ -30,7 +30,7 @@ import operator
 
 import numpy as np
 
-# from common.python.common.consts import Member
+from common.python.calculation.acceleration import aclr
 from common.python.session import is_table
 from common.python.utils import log_utils
 from common.python.utils.member import Member
@@ -39,7 +39,6 @@ from kernel.security.protol.spdz.beaver_triples import beaver_triplets
 from kernel.security.protol.spdz.tensor import fixedpoint_numpy
 from kernel.security.protol.spdz.tensor.base import TensorBase
 from kernel.security.protol.spdz.utils import NamingService
-# from kernel.security.protol.spdz.utils.random_utils import urand_tensor
 from kernel.security.protol.spdz.utils import urand_tensor
 
 LOGGER = log_utils.get_logger()
@@ -72,13 +71,7 @@ def _table_dot_mod_func(it, q_field):
 
 
 def _table_dot_func(it):
-    ret = None
-    for _, (x, y) in it:
-        if ret is None:
-            ret = np.tensordot(x, y, [[], []])
-        else:
-            ret += np.tensordot(x, y, [[], []])
-    return ret
+    return aclr.table_dot(it)
 
 
 def table_dot(a_table, b_table):
@@ -177,7 +170,7 @@ class FixedPointTensor(TensorBase):
             frac = kwargs['frac'] if 'frac' in kwargs else 6
             q_field = kwargs['q_field'] if 'q_field' in kwargs else spdz.q_field
             encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
-            max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
+        max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
         if is_table(source):
             source = encoder.encode(source)
             _pre = urand_tensor(max_rand, source, use_mix=spdz.use_mix_rand)
@@ -216,7 +209,6 @@ class FixedPointTensor(TensorBase):
         for other_share in spdz.communicator.get_rescontruct_shares(name):
             share_val = _table_binary_op(share_val, other_share, self.q_field, operator.add)
 
-        share_val = _table_binary_mod_op(share_val, other_share, self.q_field, operator.add)
         return share_val
 
     def broadcast_reconstruct_share(self, tensor_name=None):
