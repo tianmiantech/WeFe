@@ -1,4 +1,4 @@
-export WORK_DIR=/data/jenkins_workspace/workspace/pull_code
+export WORK_DIR=${WORKSPACE}
 export PACK_DIR=$WORK_DIR/package
 
 export JAVA_PACK_STR="board/board-service \
