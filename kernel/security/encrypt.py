@@ -223,9 +223,9 @@ class PaillierEncrypt(Encrypt):
             if len(datas) > 0:
                 _datas = [x[1][0] if isinstance(x[1], list) else x[1] for x in datas]
                 values = np.array(_datas, dtype=type(_datas[0]))
-            start_time = time.time()
+            # start_time = time.time()
             result = self.public_key.encrypt_gpu(values)
-            print(f'gpu encrypt... 耗时：{time.time() - start_time}')
+            # print(f'gpu encrypt... 耗时：{time.time() - start_time}')
 
             return session.parallelize(result.tolist(), partition=partitions)
         else:

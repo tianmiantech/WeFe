@@ -514,7 +514,7 @@ class FeatureHistogram(object):
                                    bin_sparse_points=None, valid_features=None,
                                    node_map=None, use_missing=False, zero_as_missing=False,
                                    parent_nid_map=None, sibling_node_id_map=None, stable_reduce=False):
-        start_batch = time.time()
+        # start_batch = time.time()
 
         data_bins = []
         node_ids = []
@@ -578,7 +578,7 @@ class FeatureHistogram(object):
         hess_encrypt_flag = True if len(hess) == 0 or type(hess[0]) == PaillierEncryptedNumber else False
 
         p_k = ''
-        start_data_record = time.time()
+        # start_data_record = time.time()
         for rid in range(data_record):
 
             # node index is the position in the histogram list of a certain node
@@ -616,7 +616,7 @@ class FeatureHistogram(object):
                     node_histograms[node_idx][fid][value][1] += hess[rid]
 
                 node_histograms[node_idx][fid][value][2] += 1
-        print(f'start_data_record cpu 耗时：{time.time() - start_data_record}')
+        # print(f'start_data_record cpu 耗时：{time.time() - start_data_record}')
 
         node_histograms_hess_sum = []
         node_histograms_grad_sum = []
@@ -625,7 +625,7 @@ class FeatureHistogram(object):
             # g/h 长度 >= 2
             # 统一数组大小
             zero_opt_node_grad_max_len = max((len(grad) for grad in zero_opt_node_grad_matrix))
-            print(f'zero_opt_node_grad_max_len:{zero_opt_node_grad_max_len}')
+            # print(f'zero_opt_node_grad_max_len:{zero_opt_node_grad_max_len}')
             zero_opt_node_grad_matrix = list(
                 map(lambda l: l + [None] * (zero_opt_node_grad_max_len - len(l)), zero_opt_node_grad_matrix))
 
@@ -635,14 +635,14 @@ class FeatureHistogram(object):
 
             # 计算密态 g/h 求和
             print(f'row: {node_num}, col: {zero_opt_node_grad_max_len}')
-            for i in range(len(zero_opt_node_grad_matrix)):
-                print(f'zero_opt_node_grad_matrix[{i}], type:{zero_opt_node_grad_matrix[i]} ')
+            # for i in range(len(zero_opt_node_grad_matrix)):
+            #     print(f'zero_opt_node_grad_matrix[{i}], type:{zero_opt_node_grad_matrix[i]} ')
 
-            start_grad_sum = time.time()
+            # start_grad_sum = time.time()
             zero_opt_node_grad_sum = cal.gpu_paillier_matrix_row_sum_up(zero_opt_node_grad_matrix, p_k, node_num,
                                                                         zero_opt_node_grad_max_len)
-            print(f'start_grad_sum gpu 耗时________________：{time.time() - start_grad_sum}')
-            print(f' ')
+            # print(f'start_grad_sum gpu 耗时________________：{time.time() - start_grad_sum}')
+            # print(f' ')
 
             zero_opt_node_hess_sum = []
             if hess_encrypt_flag:
@@ -708,8 +708,8 @@ class FeatureHistogram(object):
                                                                                p_k,
                                                                                node_num * features_num,
                                                                                bins_num)
-            for i in range(len(node_histograms_node_fea_grad)):
-                print(f'node_histograms_node_fea_grad index: {i}, type: {node_histograms_node_fea_grad[i]}')
+            # for i in range(len(node_histograms_node_fea_grad)):
+            #     print(f'node_histograms_node_fea_grad index: {i}, type: {node_histograms_node_fea_grad[i]}')
             if hess_encrypt_flag:
                 node_histograms_node_fea_hess_matrix = [node_histograms_hess_sum[i:i + bins_num] for i in
                                                         range(0, len(node_histograms_hess_sum), bins_num)]
@@ -717,7 +717,7 @@ class FeatureHistogram(object):
                 node_histograms_node_fea_hess = cal.gpu_paillier_matrix_row_sum_up(node_histograms_node_fea_hess_matrix,
                                                                                    p_k, node_num * features_num,
                                                                                    bins_num)
-        print(f'data record 耗时：{time.time() - start_data_record}')
+        # print(f'data record 耗时：{time.time() - start_data_record}')
         for nid in range(node_num):
             # cal feature level g_h incrementally
             for fid in range(bin_split_points.shape[0]):
@@ -739,25 +739,25 @@ class FeatureHistogram(object):
 
         sub_grad_result = []
         if check_aclr_support() and len(grad) >= 2 and grad_encrypt_flag:
-            print(f'len(grad): {len(grad)}， grad_encrypt_flag：{grad_encrypt_flag}')
-            print(f'zero_opt_node_sum[j][0] type: {type(zero_opt_node_sum[0][0])}')
+            # print(f'len(grad): {len(grad)}， grad_encrypt_flag：{grad_encrypt_flag}')
+            # print(f'zero_opt_node_sum[j][0] type: {type(zero_opt_node_sum[0][0])}')
             zero_opt_node_sum_grad_list = np.array([[zero_opt_node_sum[j][0] for i in range(features_num)] for j in
                                                     range(node_num)]).flatten('A')
             zero_optim_fea_grad_list = np.array(
                 [[zero_optim[j][i][0] for i in range(features_num)] for j in range(node_num)]).flatten('A')
 
-            for i in range(node_num):
-                for j in range(features_num):
-                    print(f'zero_optim[j][i][0] type: {type(zero_optim[i][j][0])}, i: {i}, j:{j}')
+            # for i in range(node_num):
+            #     for j in range(features_num):
+            #         print(f'zero_optim[j][i][0] type: {type(zero_optim[i][j][0])}, i: {i}, j:{j}')
 
-            for i in range(len(zero_optim_fea_grad_list)):
-                print(f'zero_optim_fea_grad_list index: {i}, type: {zero_optim_fea_grad_list[i]}')
+            # for i in range(len(zero_optim_fea_grad_list)):
+            #     print(f'zero_optim_fea_grad_list index: {i}, type: {zero_optim_fea_grad_list[i]}')
             sub_grad_result = cal.gpu_paillier_array_pen_sub_pen(p_k, zero_opt_node_sum_grad_list,
                                                                  zero_optim_fea_grad_list)
 
         sub_hess_result = []
         if check_aclr_support() and len(grad) >= 2 and hess_encrypt_flag:
-            print(f'len(grad): {len(grad)}， hess_encrypt_flag：{hess_encrypt_flag}')
+            # print(f'len(grad): {len(grad)}， hess_encrypt_flag：{hess_encrypt_flag}')
             zero_opt_node_sum_hess_list = np.array([[zero_opt_node_sum[j][1] for i in range(features_num)] for j in
                                                     range(node_num)]).flatten('A')
             zero_optim_fea_hess_list = np.array(
@@ -809,7 +809,7 @@ class FeatureHistogram(object):
         ret = FeatureHistogram._generate_histogram_key_value_list(node_histograms, node_map, bin_split_points,
                                                                   parent_nid_map, sibling_node_id_map,
                                                                   partition_key=partition_key)
-        print(f'batch histograms 耗时：{time.time() - start_batch}')
+        # print(f'batch histograms 耗时：{time.time() - start_batch}')
         return ret
 
     @staticmethod
