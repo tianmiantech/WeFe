@@ -1,0 +1,76 @@
+#!/bin/bash
+
+python_pack(){
+    cd "$WORK_DIR"
+    rm -rf python-project
+    mkdir python-project
+    find ./common/ -name 'python' | xargs tar czf ./common-python.tgz
+    tar zxf common-python.tgz -C ./python_project
+    rm -rf common-python.tgz
+    cp -r flow ./python_project
+    cp -r kernel ./python_project
+    cd python_project
+    tar cvf python-project.tar ./*
+    mv ./python-project.tar $RES_PACK
+    cd ..
+    rm -rf python_project
+}
+
+pack_web(){
+  cd $WORK_DIR
+  cd $1
+  npm install
+  echo "VUE_APP_PROD = $2" > ./.env
+  npm run build -- prod=$3
+  sed -i 's@<title>@&<script>window.clientApi = {env: "prod", baseUrl: "`$2`", prefixPath: "/`$3`/"};</script>@' dist/$3/index.html
+  mv dist "$3"
+  tar -cvf $3.tar $3
+  mv $3.tar $RES_PACK/
+}
+
+pack_webs(){
+  for i in $*;
+  do
+      cfg=`echo $i | tr ',' ' '`
+      echo $cfg
+      pack_web $cfg
+  done
+}
+
+copy_jar(){
+   for i in $*;
+    do
+        cp -r $i $RES_PACK
+    done
+}
+
+get_jar_path(){
+  JAR_PATH_STR=''
+  for i in $*;
+  do
+    cd $i/target
+    JAR=$(ls | grep jar$)
+    JAR_PATH_STR=$JAR_PATH_STR' '$(pwd)/$JAR
+    cd - > /dev/null
+  done
+  echo $JAR_PATH_STR
+  return $?
+}
+
+rebuild_cd_dir(){
+    rm -rf $1 && mkdir $1 && cd $1
+}
+
+init_dir(){
+    for i in $*;
+        do
+            mkdir $i
+        done
+}
+
+java_pack(){
+    for i in $*;
+        do
+            mvn clean install -Dmaven.test.skip=true -am -pl $i
+        done
+}
