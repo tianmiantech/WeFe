@@ -47,11 +47,15 @@ public class AlgorithmManager {
         MAP.put("LogisticRegression_vertical_promoter", LrVertPromoterAlgorithm.class);
         MAP.put("LogisticRegression_vertical_provider", LrVertProviderAlgorithm.class);
         MAP.put("LogisticRegression_horizontal_provider", LrHorzPromoterAlgorithm.class);
+        MAP.put("LogisticRegression_mix_promoter", LrVertPromoterAlgorithm.class);
+        MAP.put("LogisticRegression_mix_provider", LrVertProviderAlgorithm.class);
 
         MAP.put("XGBoost_vertical_promoter", XgboostVertPromoterAlgorithm.class);
         MAP.put("XGBoost_vertical_provider", XgboostVertProviderAlgorithm.class);
         MAP.put("XGBoost_horizontal_promoter", XgboostHorzPromoterAlgorithm.class);
         MAP.put("XGBoost_horizontal_provider", XgboostHorzPromoterAlgorithm.class);
+        MAP.put("XGBoost_mix_promoter", XgboostVertPromoterAlgorithm.class);
+        MAP.put("XGBoost_mix_provider", XgboostVertProviderAlgorithm.class);
     }
 
     static {
@@ -59,11 +63,16 @@ public class AlgorithmManager {
         BATCH_MAP.put("LogisticRegression_vertical_promoter", LrVertPromoterBatchAlgorithm.class);
         BATCH_MAP.put("LogisticRegression_vertical_provider", LrVertProviderBatchAlgorithm.class);
         BATCH_MAP.put("LogisticRegression_horizontal_provider", LrHorzPromoterBatchAlgorithm.class);
+        BATCH_MAP.put("LogisticRegression_mix_promoter", LrVertPromoterBatchAlgorithm.class);
+        BATCH_MAP.put("LogisticRegression_mix_provider", LrVertProviderBatchAlgorithm.class);
 
         BATCH_MAP.put("XGBoost_vertical_promoter", XgboostVertPromoterBatchAlgorithm.class);
         BATCH_MAP.put("XGBoost_vertical_provider", XgboostVertProviderBatchAlgorithm.class);
         BATCH_MAP.put("XGBoost_horizontal_promoter", XgboostHorzPromoterBatchAlgorithm.class);
         BATCH_MAP.put("XGBoost_horizontal_provider", XgboostHorzPromoterBatchAlgorithm.class);
+        BATCH_MAP.put("XGBoost_mix_promoter", XgboostVertPromoterBatchAlgorithm.class);
+        BATCH_MAP.put("XGBoost_mix_provider", XgboostVertProviderBatchAlgorithm.class);
+
     }
 
 

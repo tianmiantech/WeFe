@@ -59,6 +59,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
         private String creator;
 
 
+        @Check(name = "模型名称")
+        private String name;
+
         //region getter/setter
 
         public String getModelId() {
@@ -93,6 +96,13 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
             this.creator = creator;
         }
 
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
 
         //endregion
     }
@@ -102,6 +112,8 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
         private String id;
 
         private String modelId;
+
+        private String name;
 
         private Algorithm algorithm;
 
@@ -211,6 +223,13 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
             this.updatedTime = updatedTime;
         }
 
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
         //endregion
     }
 
