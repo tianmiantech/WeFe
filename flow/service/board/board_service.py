@@ -23,7 +23,6 @@ from common.python.utils.core_utils import current_timestamp
 from common.python.utils.log_utils import LoggerFactory
 from flow.service.board.board_output import JobProgressOutput
 from flow.utils.bean_util import BeanUtil
-from flow.web.util.const import ServiceStatusMessage
 from flow.web.utils.const import JsonField
 import rsa
 
