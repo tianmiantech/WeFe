@@ -13,3 +13,5 @@ export WEB_PACK_STR="board/board-website,http://127.0.0.1/board-service,board-we
 serving/serving-website,http://127.0.0.1/serving-service,serving-website \
 fusion/fusion-website,http://127.0.0.1/fusion-service,fusion-website \
 manager/manager-website,http://127.0.0.1/manager-service,manager-website"
+
+export UPLOAD_OSS_URL=oss://welab-wefe-release/WEFE-LATEST/PACKAGE/

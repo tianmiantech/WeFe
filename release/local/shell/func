@@ -1,5 +1,14 @@
 #!/bin/bash
 
+upload_packages(){
+  cd $PACK_DIR
+  PACKAGES=`ls`
+  for i in $PACKAGES
+  do
+    oss cp -f $i $UPLOAD_OSS_URL
+  done
+}
+
 pack_python(){
     cd "$WORK_DIR"
     rm -rf python-project
