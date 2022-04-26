@@ -90,7 +90,7 @@ class BoardService:
         The data of json response
         """
         url = BOARD_BASE_URL + api
-        sign = rsa.sign(json.dumps(data).encode('utf-8'),GlobalSetting.get_rsa_private_key().encode('utf-8'), 'SHA-1')
+        sign = rsa.sign(json.dumps(data).encode('utf-8'), GlobalSetting.get_rsa_private_key().encode('utf-8'), 'SHA-1')
         # send request
         req = {
             "data": data,
