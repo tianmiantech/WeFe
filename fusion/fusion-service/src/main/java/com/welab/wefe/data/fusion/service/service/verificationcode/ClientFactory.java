@@ -73,8 +73,8 @@ public class ClientFactory {
         smsRequest.put("SignName", config.getSmsAliyunSignName());
         smsRequest.put("templateCode", templateCode);
 
-        String aliyunAccessKeyId = config.getAliyunAccessKeyId();
-        String accessKeySecret = config.getAliyunAccessKeySecret();
+        String aliyunAccessKeyId = config.getSmsAccessKeyId();
+        String accessKeySecret = config.getSmsAccessKeySecret();
         return AliyunSmsClient.createClient(aliyunAccessKeyId, accessKeySecret, smsRequest);
     }
 }
