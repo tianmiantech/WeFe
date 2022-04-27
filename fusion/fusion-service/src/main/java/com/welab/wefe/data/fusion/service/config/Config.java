@@ -34,15 +34,14 @@ import java.nio.file.Paths;
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
-
-    @Value("${aliyun.access_key_id:xxx}")
-    private String aliyunAccessKeyId;
-
-    @Value("${aliyun.access_key_secret:xxx}")
-    private String aliyunAccessKeySecret;
-
     @Value("${verification.code.send.channel:sms}")
     private String verificationCodeSendChannel;
+
+    @Value("${sms.access_key_id:xxx}")
+    private String smsAccessKeyId;
+
+    @Value("${sms.access_key_secret:xxx}")
+    private String smsAccessKeySecret;
 
     @Value("${sms.aliyun.sign.name:xxx}")
     private String smsAliyunSignName;
@@ -109,22 +108,21 @@ public class Config extends CommonConfig {
         this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
     }
 
-    public String getAliyunAccessKeyId() {
-        return aliyunAccessKeyId;
+    public String getSmsAccessKeyId() {
+        return smsAccessKeyId;
     }
 
-    public void setAliyunAccessKeyId(String aliyunAccessKeyId) {
-        this.aliyunAccessKeyId = aliyunAccessKeyId;
+    public void setSmsAccessKeyId(String smsAccessKeyId) {
+        this.smsAccessKeyId = smsAccessKeyId;
     }
 
-    public String getAliyunAccessKeySecret() {
-        return aliyunAccessKeySecret;
+    public String getSmsAccessKeySecret() {
+        return smsAccessKeySecret;
     }
 
-    public void setAliyunAccessKeySecret(String aliyunAccessKeySecret) {
-        this.aliyunAccessKeySecret = aliyunAccessKeySecret;
+    public void setSmsAccessKeySecret(String smsAccessKeySecret) {
+        this.smsAccessKeySecret = smsAccessKeySecret;
     }
-
 
     public String getBloomFilterDir() {
         return Paths.get(getFileUploadDir()).resolve("bloom_filter").toString();
