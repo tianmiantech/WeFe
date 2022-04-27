@@ -19,7 +19,7 @@ package com.welab.wefe.common.web.delegate.api_log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
-import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
+import com.welab.wefe.common.fastjson.LoggerValueFilter;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -161,7 +161,7 @@ public abstract class AbstractApiLogger implements AfterApiExecuteFunction {
             log.setCallerId(params.getString("caller_id"));
         }
         log.setApiName(annotation.path());
-        log.setRequestData(JSON.toJSONString(params, LoggerSerializeConfig.instance()));
+        log.setRequestData(JSON.toJSONString(params, new LoggerValueFilter()));
         log.setResponseCode(result.code);
         log.setResponseMessage(result.message);
 
