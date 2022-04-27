@@ -145,7 +145,7 @@ public class ProjectFlowJobService extends AbstractService {
                                         && x.getMemberId().equals(CacheObjects.getMemberId())
                         );
                 if (inPromoterAndProvider) {
-                    StatusCode.PARAMETER_VALUE_INVALID.throwException("横向联邦时，您不能同时作为 promoter 和 provider！");
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("横向联邦时，您不能同时作为 发起方 和 协作方！");
                 }
             }
         }
