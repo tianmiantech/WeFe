@@ -19,11 +19,11 @@ CREATE TABLE service_call_log
     response_code         INT          NOT NULL DEFAULT 0 COMMENT '响应码',
     response_status       VARCHAR(255) NOT NULL COMMENT '响应状态',
     request_ip            VARCHAR(255) NOT NULL COMMENT '请求ip',
+    spend_time            INT COMMENT '响应时间',
     created_by            VARCHAR(32) COMMENT '创建人',
     created_time          DATETIME COMMENT '创建时间',
     updated_by            VARCHAR(32) COMMENT '更新人',
     updated_time          DATETIME COMMENT '更新时间',
-    spend_time            INT COMMENT '响应时间',
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '服务调用日志表';
 CREATE INDEX service_order_index ON service_call_log (service_id, order_id);
