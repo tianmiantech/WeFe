@@ -35,11 +35,11 @@ import java.nio.file.Paths;
 public class Config extends CommonConfig {
 
 
-    @Value("${fc.access_key_id:xxx}")
-    private String fcAccessKeyId;
+    @Value("${aliyun.access_key_id:xxx}")
+    private String aliyunAccessKeyId;
 
-    @Value("${fc.access_key_secret:xxx}")
-    private String fcAccessKeySecret;
+    @Value("${aliyun.access_key_secret:xxx}")
+    private String aliyunAccessKeySecret;
 
     @Value("${verification.code.send.channel:sms}")
     private String verificationCodeSendChannel;
@@ -53,18 +53,11 @@ public class Config extends CommonConfig {
     @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
     private String smsAliyunMemberregisterVerificationCodeTemplateCode;
 
-    @Value("${email.account.forget.password.subject:忘记密码}")
-    private String emailAccountForgetPasswordSubject;
-
-    @Value("${email.account.forget.password.content:您正在执行忘记密码操作。您的验证码是#code#，2分钟内有效，请勿泄漏于他人!}")
-    private String emailAccountForgetPasswordContent;
-
     @Value("${sm4.secret.key:}")
     private String sm4SecretKey;
 
     @Value("${encrypt.phone.number.open:false}")
     private boolean encryptPhoneNumberOpen;
-
 
     // region getter/setter
 
@@ -116,37 +109,22 @@ public class Config extends CommonConfig {
         this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
     }
 
-    public String getFcAccessKeyId() {
-        return fcAccessKeyId;
+    public String getAliyunAccessKeyId() {
+        return aliyunAccessKeyId;
     }
 
-    public void setFcAccessKeyId(String fcAccessKeyId) {
-        this.fcAccessKeyId = fcAccessKeyId;
+    public void setAliyunAccessKeyId(String aliyunAccessKeyId) {
+        this.aliyunAccessKeyId = aliyunAccessKeyId;
     }
 
-    public String getFcAccessKeySecret() {
-        return fcAccessKeySecret;
+    public String getAliyunAccessKeySecret() {
+        return aliyunAccessKeySecret;
     }
 
-    public void setFcAccessKeySecret(String fcAccessKeySecret) {
-        this.fcAccessKeySecret = fcAccessKeySecret;
+    public void setAliyunAccessKeySecret(String aliyunAccessKeySecret) {
+        this.aliyunAccessKeySecret = aliyunAccessKeySecret;
     }
 
-    public String getEmailAccountForgetPasswordSubject() {
-        return emailAccountForgetPasswordSubject;
-    }
-
-    public void setEmailAccountForgetPasswordSubject(String emailAccountForgetPasswordSubject) {
-        this.emailAccountForgetPasswordSubject = emailAccountForgetPasswordSubject;
-    }
-
-    public String getEmailAccountForgetPasswordContent() {
-        return emailAccountForgetPasswordContent;
-    }
-
-    public void setEmailAccountForgetPasswordContent(String emailAccountForgetPasswordContent) {
-        this.emailAccountForgetPasswordContent = emailAccountForgetPasswordContent;
-    }
 
     public String getBloomFilterDir() {
         return Paths.get(getFileUploadDir()).resolve("bloom_filter").toString();
@@ -157,5 +135,4 @@ public class Config extends CommonConfig {
     }
 
     // endregion
-
 }
