@@ -351,6 +351,13 @@
                                 继续运行
                             </el-button>
                         </template>
+                        <template v-if="vData.jobInfo.status === 'success'">
+                            <router-link
+                                :to="{ name: 'check-flow', query: {project_id: vData.project_id, flow_id: vData.flow_id, project_name: vData.flowInfo.project.name, flow_name: vData.flowInfo.flow_name } }"
+                            >
+                                <el-button plain class="ml10">去校验</el-button>
+                            </router-link>
+                        </template>
                     </div>
                 </div>
             </div>

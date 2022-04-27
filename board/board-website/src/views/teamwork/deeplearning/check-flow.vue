@@ -2,11 +2,92 @@
     <el-card v-loading="vData.pageLoading">
         <el-form :model="vData.form" inline>
             <el-form-item label="选择模型：">
-                <el-select v-model="vData.form.model" placeholder="请选择模型" :disabled="!vData.isCanUpload">
+                <el-select v-model="vData.form.model" placeholder="请选择模型" :disabled="!vData.isCanUpload" @change="methods.modelChange">
                     <el-option v-for="item in vData.modelList" :key="item.task_id" :label="item.flow_name" :value="item.task_id"></el-option>
                 </el-select>
             </el-form-item>
         </el-form>
+        <div class="model_info">
+            <div class="model_params mr10">
+                <el-divider content-position="center">模型参数</el-divider>
+                <div v-if="vData.algorithm_config" class="model_params_box">
+                    <h3>算法参数信息：</h3>
+                    <el-row>
+                        <el-col :span="8"><span>算法类型：{{vData.algorithm_config.program}}</span></el-col>
+                        <el-col :span="8"><span>模型名称：{{vData.algorithm_config.architecture}}</span></el-col>
+                        <el-col :span="8"><span>迭代次数：{{vData.algorithm_config.max_iter}}</span></el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="8"><span>聚合步长：{{vData.algorithm_config.inner_step}}</span></el-col>
+                        <el-col :span="8"><span>学习率：{{vData.algorithm_config.base_lr}}</span></el-col>
+                        <el-col :span="8"><span>图片通道数：{{vData.algorithm_config.image_shape[0] === 3 ? '彩色' : '黑色'}}（{{vData.algorithm_config.image_shape[0]}}）</span></el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="8"><span>图片宽度( px )：{{vData.algorithm_config.image_shape[1]}}</span></el-col>
+                        <el-col :span="8"><span>图片高度( px )：{{vData.algorithm_config.image_shape[2]}}</span></el-col>
+                        <el-col :span="8"><span>批量大小：{{vData.algorithm_config.batch_size}}</span></el-col>
+                    </el-row>
+                </div>
+                <div v-if="vData.data_set" class="model_params_box">
+                    <h3>我方数据集信息：</h3>
+                    <el-row>
+                        <el-col :span="12"><span>数据集名称：{{vData.data_set.name}}</span></el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="24"><span>数据集ID：{{vData.data_set.data_resource_id}}</span></el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12"><span>已标注/样本量：{{ vData.data_set.labeled_count }} / {{ vData.data_set.total_data_count }}</span></el-col>
+                        <el-col :span="12"><span>标签个数：{{ vData.data_set.label_list.split(',').length }}</span></el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12"><span>已标注/样本量：{{ vData.data_set.labeled_count }} / {{ vData.data_set.total_data_count }}</span></el-col>
+                        <el-col :span="12"><span>样本分类：{{ vData.data_set.for_job_type === 'classify' ? '图像分类' : vData.data_set.for_job_type === 'detection' ? '目标检测' : '-' }}</span></el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="24">标签列表：
+                            <template v-for="item in vData.data_set.label_list.split(',')" :key="item">
+                                <el-tag
+                                    v-show="item"
+                                    class="mr5 mb10"
+                                    type="info"
+                                    effect="plain"
+                                >
+                                    {{ item }}
+                                </el-tag>
+                            </template>
+                        </el-col>
+                    </el-row>
+                </div>
+                <div v-if="vData.members" class="model_params_box">
+                    <h3>成员信息：</h3>
+                    <el-row v-for="item in vData.members" :key="item.member_id">
+                        <el-row>
+                            <el-col :span="24"><span>成员ID：{{item.member_id}}</span></el-col>
+                        </el-row>
+                        <el-col :span="12"><span>成员名称：<el-tag>{{item.member_name}}</el-tag></span></el-col>
+                        <el-col :span="12"><span>成员角色：{{item.member_role === 'promoter' ? '发起方' : '协作方'}}</span></el-col>
+                    </el-row>
+                </div>
+            </div>
+            <div class="model_result" v-loading="vData.lossLoading">
+                <el-divider content-position="center">模型结果</el-divider>
+                <div class="model_result_box" style="height: 400px;">
+                    <el-tabs v-model="vData.activeTab" @tab-click="methods.tabChange">
+                        <el-tab-pane label="Loss" name="loss"></el-tab-pane>
+                        <el-tab-pane v-if="vData.forJobType === 'PaddleClassify'" label="Accuracy" name="accuracy"></el-tab-pane>
+                    </el-tabs>
+                    <LineChart
+                        v-if="vData.isshow"
+                        ref="LineChart"
+                        :config="vData.train_loss"
+                    />
+                </div>
+            </div>
+        </div>
+        <el-divider content-position="center">
+            模型校验
+        </el-divider>
         <div class="opearate_box">
             <div class="upload_box" :style="{width: vData.width+'px'}">
                 <uploader
@@ -56,6 +137,11 @@
                         </uploader-btn>
                         <el-button type="primary" @click="methods.downloadModel">模型下载</el-button>
                         <el-button v-if="vData.isPredicting" type="primary" @click="methods.interruptPrediect">中断当前预测</el-button>
+                        <router-link
+                            :to="{ name: 'project-deeplearning-flow', query: {project_id: vData.projectId, flow_id: vData.flowId, training_type: vData.forJobType === 'PaddleDetection' ? 'detection' : vData.forJobType === 'PaddleClassify' ? 'paddle_clas' : '' } }"
+                        >
+                            <el-button plain class="ml10">查看流程</el-button>
+                        </router-link>
                     </div>
                 </uploader>
             </div>
@@ -98,7 +184,7 @@
 </template>
 
 <script>
-    import { ref, computed, reactive, getCurrentInstance, nextTick, onBeforeMount, onBeforeUnmount } from 'vue';
+    import { ref, computed, reactive, getCurrentInstance, nextTick, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
     import { useStore } from 'vuex';
     import { useRoute, useRouter } from 'vue-router';
     import LabelSystem from './components/model-show.vue';
@@ -115,6 +201,7 @@
             const imgUploaderRef = ref();
             const store = useStore();
             const userInfo = computed(() => store.state.base.userInfo);
+            const LineChart = ref();
             const vData = reactive({
                 projectId: route.query.project_id,
                 flowId:    route.query.flow_id,
@@ -177,6 +264,16 @@
                 isPredicting:     false, // 是否处于预测中
                 isChecking:       false, // 是否处于检测是否有正在预测的任务中
                 infer_session_id: '',
+                algorithm_config: null,
+                activeTab:        'loss',
+                train_loss:       {
+                    xAxis:  [],
+                    series: [[]],
+                },
+                isshow:      false,
+                lossLoading: false,
+                data_set:    null,
+                members:     null,
             });
             const methods = {
                 async getModelList() {
@@ -202,9 +299,10 @@
                     }
                 },
                 async getModelResult() {
+                    vData.lossLoading = true;
                     const params = {
                         task_id: vData.form.model,
-                        type:    'loss',
+                        type:    vData.activeTab,
                     };
 
                     const { code, data } = await $http.post({
@@ -213,10 +311,39 @@
                     });
 
                     nextTick(_=> {
-                        if (code === 0) {
-                            console.log(data);
+                        if (code === 0 && data) {
+                            vData.forJobType = data[0].component_type;
+                            vData.algorithm_config = data[0].task_config.algorithm_config;
+                            vData.data_set = data[0].task_config.data_set;
+                            vData.members = data[0].task_config.members;
+                            methods.showResult(data);
                         }
+                        vData.lossLoading = false;
                     });
+                },
+                showResult(data) {
+                    vData.train_loss = {
+                        xAxis:  [],
+                        series: [[]],
+                    };
+                    if(data[0].result) {
+                        vData.isshow = true;
+                        const train_loss = data[0].result.data;
+
+                        for (const key in train_loss) {
+                            vData.train_loss.xAxis.push(key);
+                            vData.train_loss.series[0].push(train_loss[key].value);
+                        }
+                    }
+                },
+                modelChange() {
+                    methods.getModelResult();
+                    vData.isshow = false;
+                },
+                tabChange(val) {
+                    vData.activeTab = val.paneName;
+                    methods.getModelResult();
+                    vData.isshow = false;
                 },
                 fileAddedImage(file) {
                     // split考虑文件名中有.，随机数文件名以清除文件缓存
@@ -324,7 +451,6 @@
                                 }
                             }
                             if (data.task_view.results[0] !== null && data.task_view.results[0].result.status === 'finish' && data.task_view.results[0].result.result.length) {
-                                vData.forJobType = data.task_view.results[0].component_type;
                                 vData.totalResultCount = data.task_view.results[0].result.result.length;
                                 const list = data.task_view.results[0].result.result;
 
@@ -363,6 +489,7 @@
                                     methods.getPredictDetail();
                                 }, 3000);
                             }
+                            console.log(vData.forJobType);
                         });
                     }
                 },
@@ -503,18 +630,50 @@
                 window.onresize = null;
             });
 
+            onMounted(_=> {
+                window.onresize = () => {
+                    LineChart.value && LineChart.value.chartResize();
+                };
+            });
+
             return {
                 vData,
                 methods,
                 labelSystemRef,
                 imgThumbnailListRef,
                 imgUploaderRef,
+                LineChart,
             };
         },
     };
 </script>
 
 <style lang="scss" scoped>
+.model_info {
+    // border: 1px dashed #e4e7ed;
+    display: flex;
+    justify-content: space-between;
+    >div {
+        flex: 1;
+    }
+    .model_params_box {
+        padding: 0 20px;
+        font-size: 14px;
+        h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+        .el-row {
+            line-height: 28px;
+        }
+    }
+    .model_result_box {
+        .el-tabs {
+            margin-bottom: -50px;
+        }
+    }
+}
 .opearate_box {
     display: flex;
     .upload_box {
