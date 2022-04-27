@@ -136,7 +136,7 @@ public class ProjectFlowJobService extends AbstractService {
         List<JobMemberMySqlModel> jobMembers = listJobMembers(project.getProjectId(), input.getFlowId(),
                 input.getJobId(), jobArbiterInfo, isOotMode);
 
-        // 横向联邦时，不支持 promoter 和 provider 在同一方。
+        // 横向联邦时，不支持一方同时参与 promoter 和 provider。
         if (flow.getFederatedLearningType() == FederatedLearningType.horizontal) {
             if (project.getMyRole() == JobMemberRole.promoter) {
                 boolean inPromoterAndProvider = jobMembers.stream()
