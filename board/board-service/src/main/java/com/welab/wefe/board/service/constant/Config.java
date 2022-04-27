@@ -33,9 +33,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
-    @Value("${wefe.job.work_mode}")
-    private Integer workMode;
-
     @Value("${db.storage.type}")
     private DBType dbType;
 
@@ -70,14 +67,6 @@ public class Config extends CommonConfig {
     private boolean encryptPhoneNumberOpen;
 
     // region getter/setter
-
-    public Integer getWorkMode() {
-        return workMode;
-    }
-
-    public void setWorkMode(Integer workMode) {
-        this.workMode = workMode;
-    }
 
     public DBType getDbType() {
         return dbType;

@@ -49,7 +49,13 @@ public class Env {
 
         env.setBackend(JobBackendType.valueOf(calculationEngineConfig.backend));
         env.setDbType(config.getDbType());
-        env.setWorkMode(config.getWorkMode());
+        /** Working mode of modeling tasks
+         * Use integer type definition: Cluster mode=1, stand-alone mode=0
+         * If work_mode=1 is used, multi-party interaction needs to go through the gateway
+         * work_mode=0 is only used in stand-alone mode，without gateway interaction, the transmitted data is directly written to mysql，often used with "wefe.job.backend=LOCAL"
+         */
+        // board 创建的任务全部为集群模式，即需要通过网关访问。
+        env.setWorkMode(1);
         env.setName(config.getEnvName());
         return env;
     }
