@@ -15,7 +15,21 @@
  */
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.api.serviceorder.QueryListApi;
+import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
+import com.welab.wefe.serving.service.database.serving.entity.ServiceOrderMysqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.ServiceOrderRepository;
+import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author ivenn.zheng
@@ -23,4 +37,44 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ServiceOrderService {
+
+
+    @Autowired
+    ServiceOrderRepository serviceOrderRepository;
+
+    public void save(SaveApi.Input input) {
+
+        ServiceOrderMysqlModel model = serviceOrderRepository.findOne("id", input.getId(), ServiceOrderMysqlModel.class);
+        if (null == model) {
+            model = new ServiceOrderMysqlModel();
+            input.setId(model.getId());
+        }
+        model = ModelMapper.map(input, ServiceOrderMysqlModel.class);
+        model.setUpdatedBy(input.getUpdatedBy());
+        model.setUpdatedTime(new Date());
+
+        serviceOrderRepository.save(model);
+    }
+
+    public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
+
+        Specification<ServiceOrderMysqlModel> where = Where.create()
+                .equal("serviceId", input.getServiceId())
+                .contains("serviceName", input.getServiceName())
+                .equal("serviceType", input.getServiceType())
+                .equal("orderType", input.getOrderType())
+                .equal("status", input.getStatus())
+                .contains("requestPartnerName", input.getRequestPartnerName())
+                .contains("responsePartnerName", input.getResponsePartnerName())
+                .build(ServiceOrderMysqlModel.class);
+
+        PagingOutput<ServiceOrderMysqlModel> models = serviceOrderRepository.paging(where, input);
+        List<QueryListApi.Output> list = new ArrayList<>();
+        models.getList().forEach(x -> {
+            QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
+            list.add(output);
+        });
+        return PagingOutput.of(list.size(), list);
+
+    }
 }

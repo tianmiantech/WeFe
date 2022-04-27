@@ -15,7 +15,13 @@
  */
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.database.serving.entity.OrderStatisticsMysqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.OrderStatisticsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * @author ivenn.zheng
@@ -23,4 +29,20 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class OrderStatisticsService {
+
+    @Autowired
+    OrderStatisticsRepository orderStatisticsRepository;
+
+    public void save(OrderStatisticsMysqlModel input) {
+
+        OrderStatisticsMysqlModel model = orderStatisticsRepository.findOne("id", input.getId(), OrderStatisticsMysqlModel.class);
+        if (null == model) {
+            model = new OrderStatisticsMysqlModel();
+        }
+        model = ModelMapper.map(input, OrderStatisticsMysqlModel.class);
+        model.setUpdatedBy(input.getUpdatedBy());
+        model.setUpdatedTime(new Date());
+
+        orderStatisticsRepository.save(model);
+    }
 }

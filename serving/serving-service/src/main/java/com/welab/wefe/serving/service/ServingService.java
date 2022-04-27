@@ -57,7 +57,7 @@ public class ServingService implements ApplicationContextAware {
                 .apiPackageClass(ServingService.class)
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
 
                     if (!annotation.rsaVerify()) {
