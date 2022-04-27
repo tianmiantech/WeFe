@@ -47,7 +47,7 @@ public class PartnerService {
             throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
         }
 
-        partnerMysqlModel = queryByClientName(input.getName());
+        partnerMysqlModel = queryByPartnerName(input.getName());
         if (null != partnerMysqlModel) {
             throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
         }
@@ -87,7 +87,7 @@ public class PartnerService {
         return PagingOutput.of(page.getTotal(), list);
     }
 
-    public PartnerMysqlModel queryByClientName(String name) {
+    public PartnerMysqlModel queryByPartnerName(String name) {
         return partnerRepository.findOne("name", name, PartnerMysqlModel.class);
     }
 
@@ -102,7 +102,7 @@ public class PartnerService {
     }
 
     public QueryPartnerApi.Output queryByName(String name) {
-        PartnerMysqlModel model = partnerRepository.findOne("name", name, PartnerMysqlModel.class);
+        PartnerMysqlModel model = queryByPartnerName(name);
         return ModelMapper.map(model, QueryPartnerApi.Output.class);
     }
 
