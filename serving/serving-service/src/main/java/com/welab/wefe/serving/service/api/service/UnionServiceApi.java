@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -54,6 +55,8 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 		private int serviceType; // 服务类型
 		private Date createdTime;// 创建时间
 		private Date updatedTime;// 更新时间
+		
+		private JSONObject memberInfo;
 
 		public String getId() {
 			return id;
@@ -142,6 +145,15 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 		public void setKeyCalcRule(String keyCalcRule) {
 			this.keyCalcRule = keyCalcRule;
 		}
+
+        public JSONObject getMemberInfo() {
+            return memberInfo;
+        }
+
+        public void setMemberInfo(JSONObject memberInfo) {
+            this.memberInfo = memberInfo;
+        }
+		
 	}
 
 	public static class Input extends PagingInput {
