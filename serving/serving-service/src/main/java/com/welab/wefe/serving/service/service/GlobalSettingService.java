@@ -98,6 +98,8 @@ public class GlobalSettingService {
 		if (input.getRsaPrivateKey().length() > 50 && !input.getRsaPrivateKey().contains("*****")) {
 			model.setRsaPrivateKey(input.getRsaPrivateKey());
 		}
+		model.setServingBaseUrl(input.getServingBaseUrl());
+		// TODO update union
         globalSettingRepository.save(model);
         CacheObjects.refreshMemberInfo();
     }
