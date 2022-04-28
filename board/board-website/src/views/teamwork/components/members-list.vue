@@ -8,7 +8,7 @@
         <template #header>
             <div class="clearfix mb10 flex-row">
                 <h3 class="card-title f19">参与成员</h3>
-                <div class="right-sort-area">
+                <div v-if="form.is_project_admin" class="right-sort-area">
                     <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
                     <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown"><elicon-bottom /></el-icon>
                     <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
@@ -41,7 +41,7 @@
                 </p>
 
                 <el-button
-                    v-if="form.isCreator && !form.closed"
+                    v-if="form.isCreator && !form.closed && form.is_project_admin"
                     type="primary"
                     @click="addDataSet('promoter_creator', 0, promoter.member_id, promoter.$data_set)"
                 >
@@ -188,7 +188,7 @@
                                 </el-button>
                             </el-tooltip>
                             <el-button
-                                v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
+                                v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && form.is_project_admin && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
                                 circle
                                 type="danger"
                                 class="mr10"
@@ -275,7 +275,7 @@
             class="mt20"
         >
             <el-button
-                v-if="projectType === 'MachineLearning'"
+                v-if="projectType === 'MachineLearning' && form.is_project_admin"
                 class="add-provider-btn mr20"
                 @click="showSelectMemberDialog('promoter')"
             >
@@ -283,6 +283,7 @@
             </el-button>
 
             <el-button
+                v-if="form.is_project_admin"
                 type="primary"
                 class="add-provider-btn"
                 @click="showSelectMemberDialog('provider')"

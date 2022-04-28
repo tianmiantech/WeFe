@@ -182,7 +182,7 @@
                 3. auding is agree
              -->
             <el-button
-                v-if="!form.closed && !member.exited && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
+                v-if="!form.closed && !member.exited && form.is_project_admin && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
                 type="primary"
                 @click="methods.addDataSet(role, memberIndex, member.member_id, member.$data_set)"
             >
@@ -369,7 +369,7 @@
                             2. member is promoter || member is myself
                          -->
                         <el-button
-                            v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
+                            v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && form.is_project_admin && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
                             circle
                             type="danger"
                             class="mr10"

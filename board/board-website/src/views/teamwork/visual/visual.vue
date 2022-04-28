@@ -64,6 +64,7 @@
                 :flow-id="vData.flow_id"
                 :my-role="vData.my_role"
                 :graph="graph"
+                :is-project-admin="vData.is_project_admin"
                 @excute="methods.excute"
                 @reset-graph-state="methods.resetGraphState"
                 @switchJobGraphPanel="methods.switchJobGraphPanel"
@@ -149,6 +150,7 @@
             :job-id="vData.job_id"
             :project-id="vData.project_id"
             :old-learning-type="vData.learningType"
+            :is-project-admin="vData.is_project_admin"
             @getComponents="methods.getComponents"
             @updateFlowInfo="methods.updateFlowInfo"
             @resetGraphState="methods.resetGraphState"
@@ -227,6 +229,7 @@
             const route = useRoute();
             const router = useRouter();
             const { flow_id } = route.query;
+            const { is_project_admin } = route.query || 'false';
             const vData = reactive({
                 loadingText:            '',
                 locker:                 false,
@@ -236,6 +239,7 @@
                 showMinimap:            true,
                 project_id:             '',
                 flow_id,
+                is_project_admin,
                 job_id:                 '',
                 oot_job_id:             '',
                 oot_model_flow_node_id: '',
