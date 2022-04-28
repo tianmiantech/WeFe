@@ -162,7 +162,7 @@ class VertDPSecureBoostingPromoter(BoostingTree):
         for data_bin in privider_data_bins:
             self.data_bin = binning_obj.merge_data_bins(self.data_bin, data_bin)
         for bin_shape, bin_sparse_points, sitename in privider_split_points:
-            self.bin_split_points = np.zeros((self.bin_split_points.shape[0]+bin_shape[0],self.bin_split_points.shape[1]))
+            self.bin_split_points = np.zeros((self.bin_split_points.shape[0]+bin_shape[0],self.bin_num))
             for k,v in bin_sparse_points.items():
                 self.bin_sparse_points[k+feature_num] = v
             feature_num += bin_shape[0]
