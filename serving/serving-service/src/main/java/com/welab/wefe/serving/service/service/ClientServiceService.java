@@ -21,11 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.serving.service.enums.PayTypeEnum;
-import com.welab.wefe.serving.service.enums.PaymentsTypeEnum;
-import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -35,6 +30,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.clientservice.QueryApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryListApi;
 import com.welab.wefe.serving.service.api.clientservice.SaveApi;
@@ -50,6 +46,9 @@ import com.welab.wefe.serving.service.database.serving.repository.ClientServiceR
 import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.PayTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 
 
 /**
@@ -108,7 +107,8 @@ public class ClientServiceService {
             // 保存计费规则相关信息
             model.setPayType(input.getPayType());
             model.setUnitPrice(input.getUnitPrice());
-
+            model.setType(input.getType());
+            model.setPublicKey(input.getPublicKey());
             clientServiceRepository.save(model);
             FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
             feeConfigMysqlModel.setServiceId(input.getServiceId());

@@ -62,7 +62,6 @@ public class ClientService {
             throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
         }
 
-
         ClientMysqlModel model = clientRepository.findOne("id", input.getId(), ClientMysqlModel.class);
 
         if (null == model) {

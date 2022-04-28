@@ -23,12 +23,15 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+
+import javax.persistence.Column;
 
 
 @Api(path = "clientservice/save", name = "save client service model")
@@ -63,6 +66,12 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "unit price")
         private Double unitPrice;
 
+        @Column(name = "公钥")
+        private String publicKey;
+
+        @Column(name = "服务类型")
+        private int type = ServiceClientTypeEnum.OPEN.getValue();
+        
         @Check(name = "created by")
         private String createdBy;
 
@@ -120,6 +129,22 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setStatus(Integer status) {
             this.status = status;
+        }
+
+        public String getPublicKey() {
+            return publicKey;
+        }
+
+        public void setPublicKey(String publicKey) {
+            this.publicKey = publicKey;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            this.type = type;
         }
     }
 
