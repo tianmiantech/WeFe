@@ -47,6 +47,7 @@ import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepos
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.PayTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 
@@ -92,13 +93,17 @@ public class ClientServiceService {
                 model.setServiceId(input.getServiceId());
             }
             model.setCreatedBy(input.getCreatedBy());
-
             // 保存服务类型
-            ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(), ServiceMySqlModel.class);
+            ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
+                    ServiceMySqlModel.class);
             model.setServiceType(serviceMySqlModel.getServiceType());
-            model.setUrl(serviceMySqlModel.getUrl());
-            model.setServiceName(serviceMySqlModel.getName());
-
+            if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
+                model.setUrl(serviceMySqlModel.getUrl());
+                model.setServiceName(serviceMySqlModel.getName());
+            } else {
+                model.setUrl(input.getUrl());
+                model.setStatus(ServiceStatusEnum.USED.getCode());
+            }
             // 保存客户相关信息
             ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getClientId(), ClientMysqlModel.class);
             model.setIpAdd(clientMysqlModel.getIpAdd());
@@ -122,13 +127,10 @@ public class ClientServiceService {
         }
     }
 
-
     public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
-        Specification<ClientServiceMysqlModel> where = Where.create()
-                .contains("serviceName", input.getServiceName())
-                .contains("clientName", input.getClientName())
-                .equal("status", input.getStatus())
-                .orderBy("createdTime", OrderBy.desc)
+        Specification<ClientServiceMysqlModel> where = Where.create().contains("serviceName", input.getServiceName())
+                .contains("clientName", input.getClientName()).equal("status", input.getStatus())
+                .equal("type", input.getType()).orderBy("createdTime", OrderBy.desc)
                 .build(ClientServiceMysqlModel.class);
 
         PagingOutput<ClientServiceMysqlModel> models = clientServiceRepository.paging(where, input);

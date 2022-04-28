@@ -204,4 +204,14 @@ public class PartnerService {
 
         clientServiceRepository.saveAll(collect);
     }
+
+    public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)
+                .equal("clientId", clientId).build(ClientServiceMysqlModel.class);
+        return clientServiceRepository.findOne(where).orElse(null);
+    }
+
+    public ClientMysqlModel queryByClientName(String name) {
+        return clientRepository.findOne("name", name, ClientMysqlModel.class);
+    }
 }

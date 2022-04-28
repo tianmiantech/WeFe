@@ -16,22 +16,20 @@
 
 package com.welab.wefe.serving.service.api.clientservice;
 
+import java.io.IOException;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceOutputModel;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.persistence.Column;
-import java.io.IOException;
-import java.util.Date;
 
 /**
  * @author ivenn.zheng
@@ -56,6 +54,9 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
 
         @Check(name = "启用状态")
         private Integer status;
+        
+        @Check(name = "类型") // 激活 或者 开通
+        private int type;
 
         public String getServiceName() {
             return serviceName;
@@ -80,9 +81,17 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         public void setStatus(Integer status) {
             this.status = status;
         }
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            this.type = type;
+        }
     }
 
-    public static class Output extends PagingOutput{
+    public static class Output extends AbstractApiOutput{
 
         private String serviceId;
 
