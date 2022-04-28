@@ -777,15 +777,6 @@ public class ServiceService {
 		FileOutputStream fos2 = new FileOutputStream(new File(outputPath));
 		ZipUtils.toZip(fileList, fos2);
 		File file = new File(outputPath);
-//		HttpHeaders headers = new HttpHeaders();
-//		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//		headers.setContentDispositionFormData("attachment", sdkZipName);
-//		try {
-//			return new ResponseEntity<>(ServiceUtil.fileToBytes(file), headers, HttpStatus.CREATED);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
-//		}
 		return file;
 	}
 
