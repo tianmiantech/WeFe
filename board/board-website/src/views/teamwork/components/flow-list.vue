@@ -567,9 +567,10 @@
                 this.loading = false;
                 if(code === 0) {
                     const query = {
-                        flow_id:       data.flow_id,
-                        training_type: deeplearning ? opt.federated_learning_type : '',
-                        project_id:    this.project_id,
+                        flow_id:          data.flow_id,
+                        training_type:    deeplearning ? opt.federated_learning_type : '',
+                        project_id:       this.project_id,
+                        is_project_admin: this.form.is_project_admin,
                     };
 
                     this.linkTo(deeplearning ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', query);
