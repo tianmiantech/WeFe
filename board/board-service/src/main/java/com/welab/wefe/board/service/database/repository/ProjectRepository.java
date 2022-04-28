@@ -42,7 +42,7 @@ public interface ProjectRepository extends BaseRepository<ProjectMySqlModel, Str
      */
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query(value = "update #{#entityName} set top=true,sort_num=((SELECT num FROM (SELECT MAX(sort_num) AS num FROM project_flow) AS sub_selected) + 1) where project_id=?1", nativeQuery = true)
+    @Query(value = "update #{#entityName} set top=true,sort_num=((SELECT num FROM (SELECT MAX(sort_num) AS num FROM #{#entityName}) AS sub_selected) + 1) where project_id=?1", nativeQuery = true)
     void top(String projectId);
 
     /**
