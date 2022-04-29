@@ -420,10 +420,16 @@ public class XgboostAlgorithmHelper {
                  */
                 boolean direction = false;
 
-                if (featureDataMap.containsKey(Integer.toString(fid)) && decisionTree.getSplitMaskdict().containsKey(j)) {
+                if (featureDataMap.containsKey(Integer.toString(fid))) {
                     Object featVal = featureDataMap.get(Integer.toString(fid));
-                    double splitValue = decisionTree.getSplitMaskdict().get(j);
+                    double splitValue;
+                    if (MapUtils.isNotEmpty(decisionTree.getSplitMaskdict())) {
+                        splitValue = decisionTree.getSplitMaskdict().get(j);
+                    } else {
+                        splitValue = decisionTree.getTree(j).getBid();
+                    }
                     direction = TypeUtils.castToDouble(featVal) <= splitValue + 1e-20;
+
                 } else {
                     if (MapUtils.isNotEmpty(decisionTree.getMissingDirMaskdict()) && decisionTree.getMissingDirMaskdict().containsKey(Integer.toString(j))) {
                         int missingDir = decisionTree.getMissingDirMaskdict().get(Integer.toString(j));
