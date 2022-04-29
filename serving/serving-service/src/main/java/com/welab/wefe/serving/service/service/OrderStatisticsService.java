@@ -139,7 +139,7 @@ public class OrderStatisticsService {
                 .equal("requestPartnerId", input.getRequestPartnerId())
                 .equal("responsePartnerId", input.getResponsePartnerId())
                 .equal("minute", input.getMinute())
-                .betweenAndDate("createdTime", input.getStartTime().getTime(), input.getEndTime().getTime())
+                .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime().getTime(), input.getEndTime() == null ? null : input.getEndTime().getTime())
                 .build(OrderStatisticsMysqlModel.class);
 
 
