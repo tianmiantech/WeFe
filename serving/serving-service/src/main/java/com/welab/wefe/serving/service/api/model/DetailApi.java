@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 /**
  * @author hunter.zhao
  */
-@Api(path = "model/detail", name = "Get model", login = false)
+@Api(path = "model/detail", name = "Get model")
 public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     @Autowired
     ModelService modelService;
@@ -168,7 +168,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
             //Traversing the processing node tree
             TreeNode root = map.get(0);
-            if (root.getData().getLeftNode() != -1 && root.getData().getRightNode() != -1) {
+            if (root != null && root.getData().getLeftNode() != -1 && root.getData().getRightNode() != -1) {
                 recursive(map, root);
             }
             xgboost.add(root);
