@@ -1,11 +1,11 @@
 /*
- * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ * Copyright 2021 The WeFe Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.serving.service.enums;
 
 /**
- * @author hunter.zhao
+ * @author ivenn.zheng
+ * @date 2022/4/27
  */
-public enum DateTypeEnum {
-    /**
-     * Granularity: month
-     */
-    month,
+public enum ServiceOrderEnum {
 
-    /**
-     * Granularity: day
-     */
-    day,
+    SUCCESS("成功"),
+    FAILED("失败"),
+    ORDERING("进行中");
 
-    /**
-     * Granularity: minute
-     */
-    minute,
+    private String value;
 
-    /**
-     * Granularity: hour
-     */
-    hour
+    ServiceOrderEnum(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }
