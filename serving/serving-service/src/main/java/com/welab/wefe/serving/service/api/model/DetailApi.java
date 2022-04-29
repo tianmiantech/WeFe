@@ -44,6 +44,7 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -169,7 +170,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
                 data.setThreshold(
-                        output.flType == FederatedLearningType.vertical ?
+                        output.flType == FederatedLearningType.vertical && MapUtils.isNotEmpty(splitMaskdict) ?
                                 splitMaskdict.get(xgboostNodeModel.getId()) : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
