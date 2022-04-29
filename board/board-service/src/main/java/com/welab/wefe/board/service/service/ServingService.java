@@ -250,14 +250,17 @@ public class ServingService extends AbstractService {
         switch (componentType) {
             case HorzLR:
             case VertLR:
+            case MixLR:
                 return Algorithm.LogisticRegression;
             case HorzSecureBoost:
             case VertSecureBoost:
+            case MixSecureBoost:
                 return Algorithm.XGBoost;
             default:
                 throw new RuntimeException("预算之外的组件类型");
         }
     }
+
 
     private String getModelParam(String taskResult) {
         return JObject.create(taskResult).getString("model_param");
