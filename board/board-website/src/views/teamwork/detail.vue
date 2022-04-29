@@ -302,6 +302,7 @@
             ...mapGetters(['userInfo']),
             ...mapGetters(['uiConfig']),
             ...mapGetters(['adminUserList']),
+            ...mapGetters(['isDemo']),
         },
         watch: {
             moduleList: {
@@ -452,8 +453,13 @@
                     this.promoter.$data_set = promoter.data_resource_list;
 
                     const admin_user = this.adminUserList.filter(item => item.id === this.userInfo.id) || [];
+                    const is_admin_created = this.adminUserList.filter(item => item.id === data.created_by) || [];
 
-                    this.form.is_project_admin = admin_user.length > 0 ? true : false || this.userInfo.id === data.created_by;
+                    if (this.isDemo) {
+                        this.form.is_project_admin = admin_user.length > 0 ? true : !(false || this.userInfo.id === data.created_by || is_admin_created.length > 0);
+                    } else {
+                        this.form.is_project_admin = true;
+                    }
 
                     const members = {};
                     const { providerService, promoterService } = this;
