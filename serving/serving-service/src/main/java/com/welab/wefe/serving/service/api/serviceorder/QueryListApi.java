@@ -24,6 +24,8 @@ import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.ServiceOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
+
 /**
  * @author ivenn.zheng
  * @date 2022/4/27
@@ -167,17 +169,33 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         @Check(name = "订单状态")  // 订单状态;成功、失败、进行中
         private String status;
 
-//        @Check(name = "请求方 id")
-//        private String requestPartnerId;
-
         @Check(name = "请求方名称")
         private String requestPartnerName;
 
-//        @Check(name = "响应方 id")
-//        private String responsePartnerId;
-
         @Check(name = "响应方名称")
         private String responsePartnerName;
+
+        @Check(name = "开始时间")
+        private Date startTime;
+
+        @Check(name = "结束时间")
+        private Date endTime;
+
+        public Date getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(Date startTime) {
+            this.startTime = startTime;
+        }
+
+        public Date getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(Date endTime) {
+            this.endTime = endTime;
+        }
 
         public String getServiceId() {
             return serviceId;

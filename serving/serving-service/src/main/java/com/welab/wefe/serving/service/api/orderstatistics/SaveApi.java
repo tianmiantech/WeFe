@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.serving.service.api.serviceorder;
+package com.welab.wefe.serving.service.api.orderstatistics;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -21,8 +21,7 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.service.ServiceOrderService;
+import com.welab.wefe.serving.service.service.OrderStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
@@ -30,49 +29,62 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author ivenn.zheng
  * @date 2022/4/27
  */
-@Api(path = "serviceorder/save", name = "save service order")
+@Api(path = "orderstatistics/save", name = "新增订单统计")
 public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
+
     @Autowired
-    ServiceOrderService serviceOrderService;
+    private OrderStatisticsService orderStatisticsService;
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        serviceOrderService.save(input);
+        orderStatisticsService.save(input);
         return success();
     }
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "订单 id")
+        @Check(name = "id")
         private String id;
 
-        @Check(name = "服务 id", require = true)
-        private String serviceId;
+        @Check(name = "总请求次数")
+        private Integer callTimes;
 
-        @Check(name = "服务名称")
-        private String serviceName;
+        @Check(name = "总成功次数")
+        private Integer successTimes;
 
-        @Check(name = "服务类型")
-        private String serviceType;
+        @Check(name = "总失败次数")
+        private Integer failedTimes;
 
-        @Check(name = "订单类型", require = true)
-        private Integer orderType;
+        @Check(name = "minute")
+        private String minute;
 
-        @Check(name = "订单状态")
-        private String status = ServiceOrderEnum.ORDERING.getValue();
+        @Check(name = "hour")
+        private String hour;
 
-        @Check(name = "请求方 id", require = true)
+        @Check(name = "day")
+        private String day;
+
+        @Check(name = "month")
+        private String month;
+
+        @Check(name = "请求方id")
         private String requestPartnerId;
 
         @Check(name = "请求方名称")
         private String requestPartnerName;
 
-        @Check(name = "响应方 id", require = true)
+        @Check(name = "响应方id")
         private String responsePartnerId;
 
         @Check(name = "响应方名称")
         private String responsePartnerName;
+
+        @Check(name = "服务id")
+        private String serviceId;
+
+        @Check(name = "服务名称")
+        private String serviceName;
 
         @Check(name = "更新人")
         private String updatedBy;
@@ -80,20 +92,20 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "创建人")
         private String createdBy;
 
-        public String getCreatedBy() {
-            return createdBy;
-        }
-
-        public void setCreatedBy(String createdBy) {
-            this.createdBy = createdBy;
-        }
-
         public String getUpdatedBy() {
             return updatedBy;
         }
 
         public void setUpdatedBy(String updatedBy) {
             this.updatedBy = updatedBy;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
         }
 
         public String getId() {
@@ -104,44 +116,60 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
             this.id = id;
         }
 
-        public String getServiceId() {
-            return serviceId;
+        public Integer getCallTimes() {
+            return callTimes;
         }
 
-        public void setServiceId(String serviceId) {
-            this.serviceId = serviceId;
+        public void setCallTimes(Integer callTimes) {
+            this.callTimes = callTimes;
         }
 
-        public String getServiceName() {
-            return serviceName;
+        public Integer getSuccessTimes() {
+            return successTimes;
         }
 
-        public void setServiceName(String serviceName) {
-            this.serviceName = serviceName;
+        public void setSuccessTimes(Integer successTimes) {
+            this.successTimes = successTimes;
         }
 
-        public String getServiceType() {
-            return serviceType;
+        public Integer getFailedTimes() {
+            return failedTimes;
         }
 
-        public void setServiceType(String serviceType) {
-            this.serviceType = serviceType;
+        public void setFailedTimes(Integer failedTimes) {
+            this.failedTimes = failedTimes;
         }
 
-        public Integer getOrderType() {
-            return orderType;
+        public String getMinute() {
+            return minute;
         }
 
-        public void setOrderType(Integer orderType) {
-            this.orderType = orderType;
+        public void setMinute(String minute) {
+            this.minute = minute;
         }
 
-        public String getStatus() {
-            return status;
+        public String getHour() {
+            return hour;
         }
 
-        public void setStatus(String status) {
-            this.status = status;
+        public void setHour(String hour) {
+            this.hour = hour;
+        }
+
+        public String getDay() {
+            return day;
+        }
+
+        public void setDay(String day) {
+            this.day = day;
+        }
+
+        public String getMonth() {
+            return month;
+        }
+
+        public void setMonth(String month) {
+            this.month = month;
         }
 
         public String getRequestPartnerId() {
@@ -174,6 +202,22 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setResponsePartnerName(String responsePartnerName) {
             this.responsePartnerName = responsePartnerName;
+        }
+
+        public String getServiceId() {
+            return serviceId;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
         }
     }
 }

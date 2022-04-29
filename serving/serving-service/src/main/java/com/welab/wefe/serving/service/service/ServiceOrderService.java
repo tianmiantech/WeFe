@@ -22,7 +22,8 @@ import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceOrderRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -66,6 +67,7 @@ public class ServiceOrderService {
                 .equal("status", input.getStatus())
                 .contains("requestPartnerName", input.getRequestPartnerName())
                 .contains("responsePartnerName", input.getResponsePartnerName())
+                .betweenAndDate("createdTime", input.getStartTime().getTime(), input.getEndTime().getTime())
                 .build(ServiceOrderMysqlModel.class);
 
         PagingOutput<ServiceOrderMysqlModel> models = serviceOrderRepository.paging(where, input);
@@ -77,4 +79,31 @@ public class ServiceOrderService {
         return PagingOutput.of(list.size(), list);
 
     }
+
+    /**
+     * 根据参数获取列表, 且不查询进行中的订单
+     *
+     * @param input
+     * @return
+     */
+    public List<ServiceOrderMysqlModel> getByParams(ServiceOrderInput input) {
+        Specification<ServiceOrderMysqlModel> where = Where.create()
+                .equal("serviceId", input.getServiceId())
+                .contains("serviceName", input.getServiceName())
+                .equal("status", input.getStatus())
+                .equal("requestPartnerId", input.getRequestPartnerId())
+                .contains("requestPartnerName", input.getRequestPartnerName())
+                .equal("responsePartnerId", input.getResponsePartnerId())
+                .contains("responsePartnerName", input.getResponsePartnerName())
+                .notEqual("status", input.getStatus())
+                .equal("orderType", input.getOrderType())
+                .betweenAndDate("createdTime", input.getCreatedStartTime().getTime(), input.getCreatedEndTime().getTime())
+                .betweenAndDate("updatedTime", input.getUpdatedStartTime().getTime(), input.getUpdatedEndTime().getTime())
+                .build(ServiceOrderMysqlModel.class);
+
+        return serviceOrderRepository.findAll(where);
+
+    }
+
+
 }
