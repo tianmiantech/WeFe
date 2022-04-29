@@ -23,7 +23,6 @@ import com.welab.wefe.serving.service.database.serving.entity.ServiceOrderMysqlM
 import com.welab.wefe.serving.service.database.serving.repository.ServiceOrderRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -52,7 +51,7 @@ public class ServiceOrderService {
         }
         model = ModelMapper.map(input, ServiceOrderMysqlModel.class);
         model.setUpdatedBy(input.getUpdatedBy());
-        model.setUpdatedTime(new Date());
+        model.setUpdatedTime(new Date(System.currentTimeMillis()));
 
         serviceOrderRepository.save(model);
     }
@@ -67,7 +66,7 @@ public class ServiceOrderService {
                 .equal("status", input.getStatus())
                 .contains("requestPartnerName", input.getRequestPartnerName())
                 .contains("responsePartnerName", input.getResponsePartnerName())
-                .betweenAndDate("createdTime", input.getStartTime().getTime(), input.getEndTime().getTime())
+                .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime().getTime(), input.getEndTime() == null ? null : input.getEndTime().getTime())
                 .build(ServiceOrderMysqlModel.class);
 
         PagingOutput<ServiceOrderMysqlModel> models = serviceOrderRepository.paging(where, input);
@@ -90,15 +89,14 @@ public class ServiceOrderService {
         Specification<ServiceOrderMysqlModel> where = Where.create()
                 .equal("serviceId", input.getServiceId())
                 .contains("serviceName", input.getServiceName())
-                .equal("status", input.getStatus())
                 .equal("requestPartnerId", input.getRequestPartnerId())
                 .contains("requestPartnerName", input.getRequestPartnerName())
                 .equal("responsePartnerId", input.getResponsePartnerId())
                 .contains("responsePartnerName", input.getResponsePartnerName())
                 .notEqual("status", input.getStatus())
                 .equal("orderType", input.getOrderType())
-                .betweenAndDate("createdTime", input.getCreatedStartTime().getTime(), input.getCreatedEndTime().getTime())
-                .betweenAndDate("updatedTime", input.getUpdatedStartTime().getTime(), input.getUpdatedEndTime().getTime())
+                .betweenAndDate("createdTime", input.getCreatedStartTime() == null ? null : input.getCreatedStartTime().getTime(), input.getCreatedEndTime() == null ? null : input.getCreatedEndTime().getTime())
+                .betweenAndDate("updatedTime", input.getUpdatedStartTime() == null ? null : input.getUpdatedStartTime().getTime(), input.getUpdatedEndTime() == null ? null : input.getUpdatedEndTime().getTime())
                 .build(ServiceOrderMysqlModel.class);
 
         return serviceOrderRepository.findAll(where);

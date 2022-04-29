@@ -16,12 +16,15 @@
 
 package com.welab.wefe.serving.service.listener;
 
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
+import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
+import com.welab.wefe.serving.service.config.Config;
+import com.welab.wefe.serving.service.database.serving.entity.*;
+import com.welab.wefe.serving.service.dto.OrderStatisticsInput;
+import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.service.*;
+import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +32,10 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
-import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
-import com.welab.wefe.serving.service.service.ApiRequestRecordService;
-import com.welab.wefe.serving.service.service.ClientServiceService;
-import com.welab.wefe.serving.service.service.FeeConfigService;
-import com.welab.wefe.serving.service.service.FeeDetailService;
-import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -62,29 +57,105 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
 
     @Autowired
     private FeeConfigService feeConfigService;
-    
+
+    @Autowired
+    private ServiceOrderService serviceOrderService;
+
+    @Autowired
+    private OrderStatisticsService orderStatisticsService;
+
     @Autowired
     private Config config;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        checkAndSaveFeeDetail();
-		logger.info("config wefe.service.cache.type=" + config.getServiceCacheType());
-		// init PrivateInformationRetrievalServer
-		if ("redis".equalsIgnoreCase(config.getServiceCacheType())) {
-			PrivateInformationRetrievalServer.init(100, new RedisIntermediateCache(config.getRedisHost(),
-					Integer.valueOf(config.getRedisPort()), config.getRedisPassword()));
-			logger.info("init RedisIntermediateCache");
-		} else {
-			PrivateInformationRetrievalServer.init(100);
-			logger.info("init LocalIntermediateCache");
-		}
+//        checkAndSaveFeeDetail();
+        checkAndSaveOrderStatistics();
+        logger.info("config wefe.service.cache.type=" + config.getServiceCacheType());
+        // init PrivateInformationRetrievalServer
+        if ("redis".equalsIgnoreCase(config.getServiceCacheType())) {
+            PrivateInformationRetrievalServer.init(100, new RedisIntermediateCache(config.getRedisHost(),
+                    Integer.valueOf(config.getRedisPort()), config.getRedisPassword()));
+            logger.info("init RedisIntermediateCache");
+        } else {
+            PrivateInformationRetrievalServer.init(100);
+            logger.info("init LocalIntermediateCache");
+        }
     }
 
 
-    /**
-     *
-     */
+    public void checkAndSaveOrderStatistics() {
+        // 获取1h之前的时间
+        String now = DateUtil.getCurrentDate();
+        Date oneHourAgo = DateUtil.addHours(DateUtil.fromString(now, DateUtil.YYYY_MM_DD_HH_MM_SS2), -1);
+
+        ServiceOrderInput input = new ServiceOrderInput();
+        input.setUpdatedStartTime(oneHourAgo);
+        input.setUpdatedEndTime(DateUtil.fromString(now, DateUtil.YYYY_MM_DD_HH_MM_SS2));
+        // 排除进行中的订单
+        input.setStatus(ServiceOrderEnum.ORDERING.getValue());
+        List<ServiceOrderMysqlModel> serviceOrderMysqlModelList = serviceOrderService.getByParams(input);
+        // 进行分组
+        Map<String, Map<String, Map<String, List<ServiceOrderMysqlModel>>>> collect = serviceOrderMysqlModelList.stream().collect(
+                Collectors.groupingBy(ServiceOrderMysqlModel::getServiceId,
+                        Collectors.groupingBy(ServiceOrderMysqlModel::getRequestPartnerId,
+                                Collectors.groupingBy(x -> DateUtil.toString(x.getUpdatedTime(), DateUtil.YYYY_MM_DD_HH_MM))))
+        );
+
+        List<OrderStatisticsMysqlModel> orderStatisticsMysqlModels = new ArrayList<>();
+
+        collect.forEach((k, v) -> {
+            v.forEach((k1, v2) -> {
+                v2.forEach((str, list) -> {
+                    ServiceOrderMysqlModel serviceOrderMysqlModel = list.get(0);
+                    OrderStatisticsMysqlModel os = new OrderStatisticsMysqlModel();
+                    int successTimes = (int) list.stream().filter(x ->
+                            ServiceOrderEnum.SUCCESS.getValue().equals(x.getStatus())).count();
+
+                    int failedTimes = (int) list.stream().filter(x ->
+                            ServiceOrderEnum.FAILED.getValue().equals(x.getStatus())).count();
+
+                    Date date = DateUtil.addMinutes(serviceOrderMysqlModel.getUpdatedTime(), 1);
+                    // 秒位置0
+                    date.setSeconds(0);
+                    os.setCallTimes(list.size());
+                    os.setSuccessTimes(successTimes);
+                    os.setFailedTimes(failedTimes);
+                    os.setMinute(DateUtil.toString(date, DateUtil.YYYY_MM_DD_HH_MM));
+                    os.setHour(DateUtil.toString(date, DateUtil.YYYY_MM_DD_HH));
+                    os.setDay(DateUtil.toString(date, DateUtil.YYYY_MM_DD));
+                    os.setMonth(DateUtil.toString(date, DateUtil.YYYY_MM));
+                    os.setRequestPartnerId(serviceOrderMysqlModel.getRequestPartnerId());
+                    os.setRequestPartnerName(serviceOrderMysqlModel.getRequestPartnerName());
+                    os.setResponsePartnerId(serviceOrderMysqlModel.getResponsePartnerId());
+                    os.setResponsePartnerName(serviceOrderMysqlModel.getResponsePartnerName());
+                    os.setServiceId(serviceOrderMysqlModel.getServiceId());
+                    os.setServiceName(serviceOrderMysqlModel.getServiceName());
+                    // 此处填写本应保存的时间，即和date 一致
+                    os.setCreatedTime(date);
+                    os.setUpdatedTime(date);
+                    orderStatisticsMysqlModels.add(os);
+                });
+            });
+        });
+
+
+        // 统计时间段内未进行的订单统计
+        orderStatisticsMysqlModels.forEach(x -> {
+            OrderStatisticsInput input1 = new OrderStatisticsInput();
+            input1.setServiceId(x.getServiceId());
+            input1.setRequestPartnerId(x.getRequestPartnerId());
+            input1.setMinute(x.getMinute());
+            List<OrderStatisticsMysqlModel> orderStatisticsMysqlModelList = orderStatisticsService.getByParams(input1);
+            if (orderStatisticsMysqlModelList.size() == 0) {
+                orderStatisticsService.insert(x);
+            }
+        });
+
+
+    }
+
+
     public void checkAndSaveFeeDetail() {
 
         List<ClientServiceMysqlModel> clientServiceMysqlModels = clientServiceService.getAll();

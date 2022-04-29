@@ -38,6 +38,10 @@ public class ServiceCallLogService {
     @Autowired
     ServiceCallLogRepository serviceCallLogRepository;
 
+    /**
+     * 兼容 新增/更新
+     * @param input
+     */
     public void save(ServiceCallLogMysqlModel input) {
 
         ServiceCallLogMysqlModel model = serviceCallLogRepository.findOne("id", input.getId(), ServiceCallLogMysqlModel.class);
@@ -54,6 +58,7 @@ public class ServiceCallLogService {
 
     /**
      * 根据参数获取服务调用日志
+     *
      * @param input
      * @return
      */
@@ -66,7 +71,7 @@ public class ServiceCallLogService {
                 .equal("serviceId", input.getServiceId())
                 .equal("requestId", input.getRequestId())
                 .equal("responseId", input.getResponseId())
-                .betweenAndDate("createdTime", input.getStartTime().getTime(), input.getEndTime().getTime())
+                .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime().getTime(), input.getEndTime() == null ? null : input.getEndTime().getTime())
                 .build(ServiceCallLogMysqlModel.class);
 
         return serviceCallLogRepository.findAll(where);

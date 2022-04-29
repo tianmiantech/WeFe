@@ -112,7 +112,7 @@ public class OrderStatisticsScheduler {
                                 os.setRequestPartnerId(serviceOrderMysqlModel.getRequestPartnerId());
                                 os.setRequestPartnerName(serviceOrderMysqlModel.getRequestPartnerName());
                                 os.setResponsePartnerId(serviceOrderMysqlModel.getResponsePartnerId());
-                                os.setRequestPartnerName(serviceOrderMysqlModel.getResponsePartnerName());
+                                os.setResponsePartnerName(serviceOrderMysqlModel.getResponsePartnerName());
                                 os.setServiceId(serviceOrderMysqlModel.getServiceId());
                                 os.setServiceName(serviceOrderMysqlModel.getServiceName());
                                 os.setCreatedTime(endTime);
