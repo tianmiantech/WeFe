@@ -43,6 +43,7 @@ import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -68,11 +69,10 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     @Override
     protected ApiResult<DetailApi.Output> handle(Input input) {
 
-        ModelMySqlModel model = modelRepository.findOne("id",input.getId(),ModelMySqlModel.class);
+        ModelMySqlModel model = modelRepository.findOne("id", input.getId(), ModelMySqlModel.class);
         if (model == null) {
             return fail("No model was found");
         }
-//        ModelMySqlModel model = modelMySqlModel.get();
 
         DetailApi.Output output = ModelMapper.map(model, DetailApi.Output.class);
 
@@ -169,8 +169,9 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
             //Traversing the processing node tree
             TreeNode root = map.get(0);
-            recursive(map, root);
-
+            if (CollectionUtils.isNotEmpty(root.getChildren())) {
+                recursive(map, root);
+            }
             xgboost.add(root);
         }
     }
