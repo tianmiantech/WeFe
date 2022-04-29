@@ -16,19 +16,17 @@
 
 package com.welab.wefe.serving.service.api.clientservice;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
-import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.math.BigDecimal;
 
 
 @Api(path = "clientservice/save", name = "save client service model")
@@ -63,6 +61,15 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "unit price")
         private Double unitPrice;
 
+        @Check(name = "公钥")
+        private String publicKey;
+
+        @Check(name = "服务类型")
+        private int type = ServiceClientTypeEnum.OPEN.getValue();
+        
+        @Check(name = "服务地址")
+        private String url;
+        
         @Check(name = "created by")
         private String createdBy;
 
@@ -120,6 +127,30 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setStatus(Integer status) {
             this.status = status;
+        }
+
+        public String getPublicKey() {
+            return publicKey;
+        }
+
+        public void setPublicKey(String publicKey) {
+            this.publicKey = publicKey;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            this.type = type;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 

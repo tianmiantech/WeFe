@@ -25,6 +25,8 @@ import javax.persistence.Entity;
 @Entity(name = "global_setting")
 public class GlobalSettingMySqlModel extends AbstractBaseMySqlModel {
 
+    private static final long serialVersionUID = -8671971928261399816L;
+
     @Column(name = "member_id")
     private String memberId;
 
@@ -39,6 +41,9 @@ public class GlobalSettingMySqlModel extends AbstractBaseMySqlModel {
 
     @Column(name = "gateway_uri")
     private String gatewayUri;
+    
+    @Column(name = "serving_base_url")
+    private String servingBaseUrl;
 
     public String getMemberId() {
         return memberId;
@@ -79,4 +84,13 @@ public class GlobalSettingMySqlModel extends AbstractBaseMySqlModel {
     public void setGatewayUri(String gatewayUri) {
         this.gatewayUri = gatewayUri;
     }
+
+    public String getServingBaseUrl() {
+        return servingBaseUrl;
+    }
+
+    public void setServingBaseUrl(String servingBaseUrl) {
+        this.servingBaseUrl = servingBaseUrl;
+    }
+    
 }

@@ -15,13 +15,16 @@
  */
 package com.welab.wefe.serving.service.database.serving.entity;
 
-import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
+
 @Entity(name = "client_service")
 public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
+
+    private static final long serialVersionUID = -2660433592111729597L;
 
     @Column(name = "service_id")
     private String serviceId;
@@ -37,8 +40,6 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
 
     @Column(name = "service_type")
     private Integer serviceType;
-
-
     /**
      * status: false means unused, true means used, default = 0
      */
@@ -54,6 +55,12 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
 
     @Column(name = "unit_price")
     private Double unitPrice;
+
+    @Column(name = "public_key")
+    private String publicKey;
+
+    @Column(name = "type")
+    private int type = ServiceClientTypeEnum.OPEN.getValue();
 
     public Integer getPayType() {
         return payType;
@@ -133,5 +140,21 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

@@ -58,6 +58,9 @@ public class GlobalSettingUpdateApi extends AbstractNoneOutputApi<GlobalSettingU
         
         @Check(name="私钥")
         private String rsaPrivateKey;
+        
+        @Check(name="服务地址")
+        private String servingBaseUrl;
 
         //region getter/setter
 
@@ -93,6 +96,14 @@ public class GlobalSettingUpdateApi extends AbstractNoneOutputApi<GlobalSettingU
 			this.rsaPrivateKey = rsaPrivateKey;
 		}
 
+        public String getServingBaseUrl() {
+            return servingBaseUrl;
+        }
+
+        public void setServingBaseUrl(String servingBaseUrl) {
+            this.servingBaseUrl = servingBaseUrl;
+        }
+		
         //endregion
     }
 

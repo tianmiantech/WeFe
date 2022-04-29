@@ -53,6 +53,8 @@ public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDe
         private String rsaPublicKey;
         
         private String rsaPrivateKey;
+        
+        private String servingBaseUrl;
 
         //region getter/setter
 
@@ -87,6 +89,14 @@ public class GlobalSettingDetailApi extends AbstractNoneInputApi<GlobalSettingDe
 		public void setRsaPrivateKey(String rsaPrivateKey) {
 			this.rsaPrivateKey = rsaPrivateKey;
 		}
+
+        public String getServingBaseUrl() {
+            return servingBaseUrl;
+        }
+
+        public void setServingBaseUrl(String servingBaseUrl) {
+            this.servingBaseUrl = servingBaseUrl;
+        }
 
         //endregion
     }
