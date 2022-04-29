@@ -43,6 +43,7 @@ import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -145,6 +146,14 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
             List<XgboostNodeModel> tree = trees.get(i).getTree();
             Map<Integer, Double> splitMaskdict = trees.get(i).getSplitMaskdict();
 
+            //When the tree is on each other
+            if (CollectionUtils.isEmpty(tree)) {
+                TreeNode node = new TreeNode();
+                node.setId(i + "-" + 0);
+                xgboost.add(node);
+                continue;
+            }
+
             //Composite node
             for (XgboostNodeModel xgboostNodeModel : tree) {
                 //Find child nodes
@@ -168,7 +177,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
             //Traversing the processing node tree
             TreeNode root = map.get(0);
-            if (root != null && root.getData().getLeftNode() != -1 && root.getData().getRightNode() != -1) {
+            if (root.getData().getLeftNode() != -1 && root.getData().getRightNode() != -1) {
                 recursive(map, root);
             }
             xgboost.add(root);
