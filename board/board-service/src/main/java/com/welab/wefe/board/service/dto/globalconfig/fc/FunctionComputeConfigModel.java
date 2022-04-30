@@ -13,13 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.globalconfig;
+package com.welab.wefe.board.service.dto.globalconfig.fc;
 
 /**
  * @author zane
  * @date 2021/10/29
  */
 public class FunctionComputeConfigModel {
+
+    /**
+     * 函数计算的提供商：aliyun/tencentcloud
+     */
+    public String cloudProvider = "aliyun";
+    /**
+     * 日费用上限
+     */
     public int maxCostInDay = 500;
+    /**
+     * 月费用上限
+     */
     public int maxCostInMonth = 1000;
 }

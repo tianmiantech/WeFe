@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service.globalconfig;
 
 import com.welab.wefe.board.service.api.global_config.GlobalConfigUpdateApi;
 import com.welab.wefe.board.service.dto.globalconfig.*;
+import com.welab.wefe.board.service.dto.globalconfig.fc.FunctionComputeConfigModel;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
