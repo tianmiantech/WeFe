@@ -132,7 +132,7 @@ public class ServiceOrderService {
                 .equal("status", input.getStatus())
                 .contains("requestPartnerName", input.getRequestPartnerName())
                 .contains("responsePartnerName", input.getResponsePartnerName())
-                .betweenAndDate("createdTime", input.getStartTime().getTime(), input.getEndTime().getTime())
+                .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime().getTime(), input.getEndTime() == null ? null : input.getEndTime().getTime())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(ServiceOrderMysqlModel.class);
 
