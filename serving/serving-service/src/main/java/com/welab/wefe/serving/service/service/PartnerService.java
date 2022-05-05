@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -90,9 +91,13 @@ public class PartnerService {
     }
 
     public void save(SavePartnerApi.Input input) throws StatusCodeWithException {
-        PartnerMysqlModel partnerMysqlModel = queryByCode(input.getCode());
-        if (partnerMysqlModel != null) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
+        PartnerMysqlModel partnerMysqlModel = null;
+        
+        if (StringUtils.isNotBlank(input.getCode())) {
+            partnerMysqlModel = queryByCode(input.getCode());
+            if (partnerMysqlModel != null) {
+                throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
+            }
         }
 
         partnerMysqlModel = queryByPartnerName(input.getName());
