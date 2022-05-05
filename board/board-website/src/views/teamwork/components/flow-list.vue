@@ -106,7 +106,7 @@
                             type="primary"
                             class="link mr10"
                             :underline="false"
-                            @click="linkTo('teamwork/detail/deep-learning/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type })"
+                            @click="linkTo('teamwork/detail/deep-learning/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type, is_project_admin: form.is_project_admin })"
                         >
                             查看
                         </el-link>

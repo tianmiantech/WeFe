@@ -329,7 +329,7 @@
                         <el-button
                             type="primary"
                             @click="methods.saveDeeplearningNode"
-                            :disabled="vData.flowInfo.my_role !=='promoter'"
+                            :disabled="vData.flowInfo.my_role !=='promoter' || vData.is_project_admin === 'false'"
                         >
                             开始训练
                         </el-button>
@@ -879,8 +879,8 @@
                     // }
                     methods.saveImageDataIOInfo();
                 },
-                scalarArrayEquals(array1,array2) {
-                    return array1.length === array2.length && array1.every(function(v,i) { return v === array2[i];});
+                scalarArrayEquals(arr1, arr2) {
+                    return arr1.length === arr2.length && arr1.every(function(v,i) { return v === arr2[i];});
                 },
                 dataSetSearch() {
                     const { allList, name, contains_y, data_set_id } = vData.rawSearch;
@@ -1048,6 +1048,25 @@
                     }, 1000);
                 },
                 async saveDeeplearningNode($event) {
+                    console.log(vData.member_list);
+                    for(let i =0; i<vData.member_list.length; i++) {
+                        if (!vData.member_list[i].$data_set_list.length && vData.member_list[i].member_role === 'promoter') {
+                            $message.error('当前任务不包含我方数据集，请先选择数据集！');
+                            return;
+                        }
+                        if (vData.member_list.length === 2 && vData.member_list[1].$data_set_list.length !== 0) {
+                            console.log(i+1);
+                            if (vData.member_list[i].$data_set_list[0].data_resource.label_list !== vData.member_list[1].$data_set_list[0].data_resource.label_list) {
+                                $message.error('请确保成员数据资源标注标签统一！');
+                                vData.stopNext = true;
+                                return;
+                            }
+                        } else {
+                            $message.error('当前任务不包含协作方数据集，请先选择数据集！');
+                            return;
+                        }
+                    }
+
                     // 1. 保存deeplearning node 数据
                     // 2. 启动训练
                     const btnState = {};
@@ -1089,6 +1108,7 @@
                             if ($event) methods.startFlow();
                         });
                     }
+                    if (vData.startLoading) vData.startLoading = false;
                 },
                 async startFlow() {
                     vData.startLoading = true;
