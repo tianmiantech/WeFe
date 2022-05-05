@@ -274,7 +274,7 @@ public class XgboostAlgorithmHelper {
      * @param decisionTreeMap decisionTreeMap
      * @return PredictModel
      */
-    public static PredictModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Map<String, Boolean>> decisionTreeMap) {
+    public static PredictModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<Integer, Map<Integer, Boolean>> decisionTreeMap) {
         //TODO 新增skip模式处理方法
         if (workMode.equals(XgboostWorkMode.skip.name())) {
             return skipPredictModel(model, userId, featureDataMap, decisionTreeMap);
@@ -343,7 +343,7 @@ public class XgboostAlgorithmHelper {
         }
     }
 
-    private static PredictModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Map<String, Boolean>> decisionTreeMap) {
+    private static PredictModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<Integer, Map<Integer, Boolean>> decisionTreeMap) {
         int[] treeNodeIds = new int[model.getTreeNum()];
         double[] weights = new double[model.getTreeNum()];
 
@@ -430,14 +430,14 @@ public class XgboostAlgorithmHelper {
      * @param decisionTreeMap decisionTreeMap
      * @return treeNodeId
      */
-    private static int federatedDecision(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, Map<String, Map<String, Boolean>> decisionTreeMap) {
+    private static int federatedDecision(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, Map<Integer, Map<Integer, Boolean>> decisionTreeMap) {
 
         while (!isLeaf(model, treeId, treeNodeId)) {
             if (getSite(model, treeId, treeNodeId).equals(PROMOTER)) {
                 treeNodeId = nextTreeNodeIdByVert(model, treeId, treeNodeId, featureDataMap);
             } else {
-                Map<String, Boolean> decision = decisionTreeMap.get(treeId);
-                if (decision.get(String.valueOf(treeNodeId))) {
+                Map<Integer, Boolean> decision = decisionTreeMap.get(treeId);
+                if (decision.get(treeNodeId)) {
                     treeNodeId = model.getTrees().get(treeId).getTree().get(treeNodeId).getLeftNodeId();
                 } else {
                     treeNodeId = model.getTrees().get(treeId).getTree().get(treeNodeId).getRightNodeId();

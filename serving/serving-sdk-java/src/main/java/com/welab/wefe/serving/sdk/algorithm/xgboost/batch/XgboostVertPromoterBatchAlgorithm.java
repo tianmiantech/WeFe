@@ -45,7 +45,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
     /**
      * Federated forecast returns data
      */
-    private Map<String, Map<String, Map<String, Boolean>>> remoteResult = new HashMap<>();
+    private Map<String, Map<Integer, Map<Integer, Boolean>>> remoteResult = new HashMap<>();
 
     private CopyOnWriteArrayList<PredictModel> predictModelList = new CopyOnWriteArrayList<>();
 
@@ -89,14 +89,14 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
             for (JObject jobj : predictModelList) {
 
                 PredictModel model = jobj.toJavaObject(PredictModel.class);
-                Map<String, Map<String, Boolean>> tree = (Map) model.getData();
+                Map<Integer, Map<Integer, Boolean>> tree = (Map) model.getData();
 
-                Map<String, Map<String, Boolean>> remote = remoteResult.get(model.getUserId());
+                Map<Integer, Map<Integer, Boolean>> remote = remoteResult.get(model.getUserId());
                 if (MapUtils.isEmpty(remote)) {
                     remote = new HashMap<>(16);
                 }
 
-                for (String key : tree.keySet()) {
+                for (Integer key : tree.keySet()) {
                     if (remote.containsKey(key)) {
                         remote.get(key).putAll(tree.get(key));
                     } else {

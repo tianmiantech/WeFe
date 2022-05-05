@@ -41,7 +41,7 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
     /**
      * Federal forecast decision tree results
      */
-    private Map<String, Map<String, Boolean>> remoteDecisionTreeMap = new HashMap<>();
+    private Map<Integer, Map<Integer, Boolean>> remoteDecisionTreeMap = new HashMap<>();
 
 
     /**
@@ -76,9 +76,9 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
 
             PredictModel predictModel = remote.getJObject("data").toJavaObject(PredictModel.class);
 
-            Map<String, Map<String, Boolean>> tree = (Map) predictModel.getData();
+            Map<Integer, Map<Integer, Boolean>> tree = (Map) predictModel.getData();
 
-            for (String key : tree.keySet()) {
+            for (Integer key : tree.keySet()) {
                 if (remoteDecisionTreeMap.containsKey(key)) {
                     remoteDecisionTreeMap.get(key).putAll(tree.get(key));
                 } else {
