@@ -32,7 +32,7 @@ import java.sql.Connection;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/test_db_connect", name = "结果导出", desc = "结果导出")
+@Api(path = "fusion/test_db_connect", name = "测试数据库连接", desc = "测试数据库连接")
 public class TestDBConnectApi extends AbstractApi<TestDBConnectApi.Input, TestDBConnectApi.Output> {
 
     @Override
