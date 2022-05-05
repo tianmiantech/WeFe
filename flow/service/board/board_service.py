@@ -99,12 +99,12 @@ class BoardService:
             "sign": sign
         }
         BoardService.LOG.info(
-            "board request url:{}, {}".format(url, str(data))
+            "board request url:{}, {}".format(url, str(req))
         )
         start_time = current_timestamp()
         spend = 0
         try:
-            response: Response = requests.post(url, json=data)
+            response: Response = requests.post(url, json=req)
             spend = current_timestamp() - start_time
         except Exception as e:
             spend = current_timestamp() - start_time
