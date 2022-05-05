@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import json
 from typing import List
 
 import requests
@@ -24,7 +23,11 @@ from common.python.utils.log_utils import LoggerFactory
 from flow.service.board.board_output import JobProgressOutput
 from flow.utils.bean_util import BeanUtil
 from flow.web.utils.const import JsonField
-import rsa
+import base64
+import json
+from Crypto.Hash import SHA1
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5 as PKCS1_v1_5_sign
 
 BOARD_BASE_URL = GlobalConfigDao.getBoardConfig().intranet_base_uri
 
@@ -89,12 +92,12 @@ class BoardService:
         The data of json response
         """
         url = BOARD_BASE_URL + api
-        # sign = rsa.sign(json.dumps(data).encode('utf-8'), GlobalSetting.get_rsa_private_key().encode('utf-8'), 'SHA-1')
         # send request
-        # req = {
-        #     "data": data,
-        #     "sign": sign
-        # }
+        sign = BoardService.gen_sign(json.dumps(data, separators=(',', ':')), GlobalSetting.get_rsa_private_key())
+        req = {
+            "data": data,
+            "sign": sign
+        }
         BoardService.LOG.info(
             "board request url:{}, {}".format(url, str(data))
         )
@@ -145,3 +148,11 @@ class BoardService:
                 JsonField.SPEND: spend,
                 JsonField.DATA: data
             }
+
+    @staticmethod
+    def gen_sign(data_str, rsa_key_pri):
+        private_key_obj = RSA.importKey(base64.b64decode(rsa_key_pri))
+        msg_hash = SHA1.new(data_str.encode())
+        signature = PKCS1_v1_5_sign.new(private_key_obj).sign(msg_hash)
+        sign = base64.b64encode(signature).decode()
+        return sign
