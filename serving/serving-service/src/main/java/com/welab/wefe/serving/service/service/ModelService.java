@@ -60,7 +60,7 @@ public class ModelService {
     private MemberRepository memberRepository;
 
     @Transactional(rollbackFor = Exception.class)
-    public void save(String modelId, Algorithm algorithm, FederatedLearningType flType, String modelParam, List<MemberParams> memberParams) {
+    public void save(String modelId, Algorithm algorithm, FederatedLearningType flType, String modelParam, List<MemberParams> memberParams, String name) {
 
         ModelMySqlModel model = modelRepository.findOne("modelId", modelId, ModelMySqlModel.class);
 
@@ -111,6 +111,7 @@ public class ModelService {
 
 
         model.setModelId(modelId);
+        model.setName(name);
         model.setModelParam(modelParam);
         model.setAlgorithm(algorithm);
         model.setFlType(flType);
@@ -146,6 +147,7 @@ public class ModelService {
         Specification<ModelMySqlModel> jobWhere = Where
                 .create()
                 .contains("modelId", input.getModelId())
+                .contains("name", input.getName())
                 .equal("algorithm", input.getAlgorithm())
                 .equal("flType", input.getFlType())
                 .equal("createdBy", input.getCreator())

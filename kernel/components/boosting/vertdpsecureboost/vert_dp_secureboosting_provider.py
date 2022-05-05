@@ -130,8 +130,7 @@ class VertDPSecureBoostingProvider(BoostingTree):
 
     def sync_provider_data_bin_with_dp(self):
         sitename = ":".join([consts.PROVIDER, str(self.component_properties.local_member_id,)])
-        sync_data = (np.zeros(self.bin_split_points.shape), self.bin_sparse_points, sitename)
-        # LOGGER.debug("sync provider data bin with dp data {}".format(sync_data))
+        sync_data = (self.bin_split_points.shape, self.bin_sparse_points, sitename)
         self.transfer_variable.data_bin_with_dp.remote(self.data_bin,
                                                             role=consts.PROMOTER,
                                                             idx=-1)
