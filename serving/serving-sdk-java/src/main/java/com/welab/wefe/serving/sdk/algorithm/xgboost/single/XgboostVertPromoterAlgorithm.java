@@ -97,6 +97,7 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
 
         return XgboostAlgorithmHelper
                 .promoterPredictByVert(
+                        modelParam.getModelMeta().getWorkMode(),
                         modelParam.getModelParam(),
                         predictParams.getUserId(),
                         fidValueMapping,

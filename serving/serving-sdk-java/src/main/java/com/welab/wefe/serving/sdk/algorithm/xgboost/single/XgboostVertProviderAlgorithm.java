@@ -32,6 +32,11 @@ public class XgboostVertProviderAlgorithm extends AbstractXgboostAlgorithm<BaseX
 
     @Override
     protected PredictModel handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-        return XgboostAlgorithmHelper.providerPredict(modelParam.getModelParam(), predictParams.getUserId(), fidValueMapping);
+        return XgboostAlgorithmHelper.providerPredict(
+                modelParam.getModelMeta().getWorkMode(),
+                modelParam.getModelParam(),
+                predictParams.getUserId(),
+                fidValueMapping
+        );
     }
 }

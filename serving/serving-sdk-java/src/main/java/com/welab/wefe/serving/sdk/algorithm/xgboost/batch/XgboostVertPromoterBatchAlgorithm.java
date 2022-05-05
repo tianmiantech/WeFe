@@ -125,6 +125,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
                     try {
                         predictModelList.add(
                                 XgboostAlgorithmHelper.promoterPredictByVert(
+                                        modelParam.getModelMeta().getWorkMode(),
                                         modelParam.getModelParam(),
                                         k,
                                         v,

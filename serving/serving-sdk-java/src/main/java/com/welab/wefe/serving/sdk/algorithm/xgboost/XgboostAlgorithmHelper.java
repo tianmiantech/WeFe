@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.sdk.algorithm.xgboost;
 
 import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
@@ -273,52 +274,96 @@ public class XgboostAlgorithmHelper {
      * @param decisionTreeMap decisionTreeMap
      * @return PredictModel
      */
-    public static PredictModel promoterPredictByVert(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Map<String, Boolean>> decisionTreeMap) {
+    public static PredictModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Map<String, Boolean>> decisionTreeMap) {
+        //TODO 新增skip模式处理方法
+        if (workMode.equals(XgboostWorkMode.skip.name())) {
+            return skipPredictModel(model, userId, featureDataMap, decisionTreeMap);
+        } else {
+
+            int[] treeNodeIds = new int[model.getTreeNum()];
+            double[] weights = new double[model.getTreeNum()];
+
+            while (true) {
+
+                /**
+                 * Tree to be processed
+                 * <p>
+                 * - Determine whether leaf
+                 * - Local decision, find child nodes
+                 * - The loop is broken when the tree to be processed is empty
+                 * - Federated decision, find child nodes
+                 * </>
+                 */
+                Map<String, Object> pendingTree = new HashMap<>(16);
+
+                /**
+                 * Local decision making
+                 **/
+                for (int i = 0; i < model.getTreeNum(); i++) {
+
+                    if (isLeaf(model, i, treeNodeIds[i])) {
+                        continue;
+                    }
+
+                    treeNodeIds[i] = decision(model, i, treeNodeIds[i], featureDataMap);
+
+                    if (!isLeaf(model, i, treeNodeIds[i])) {
+                        pendingTree.put(String.valueOf(i), treeNodeIds[i]);
+                    }
+
+                }
+
+                if (pendingTree.size() == 0) {
+                    break;
+                }
+
+                //The federal decision
+                for (String treeIdx : pendingTree.keySet()) {
+
+                    int idx = Integer.parseInt(treeIdx);
+                    int curNodeId = (Integer) pendingTree.get(treeIdx);
+                    int finalNodeId = federatedDecision(model, idx, curNodeId, featureDataMap, decisionTreeMap);
+                    treeNodeIds[idx] = finalNodeId;
+                }
+            }
+
+            for (int i = 0; i < model.getTreeNum(); i++) {
+
+                /**
+                 * Get weight value
+                 */
+                weights[i] = getTreeLeafWeight(model, i, treeNodeIds[i]);
+            }
+
+
+            return PredictModel.ofScores(
+                    userId,
+                    finalPredict(model, weights)
+            );
+        }
+    }
+
+    private static PredictModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Map<String, Boolean>> decisionTreeMap) {
         int[] treeNodeIds = new int[model.getTreeNum()];
         double[] weights = new double[model.getTreeNum()];
 
-        while (true) {
+        /**
+         * Local decision making
+         **/
+        for (int i = 0; i < model.getTreeNum(); i++) {
 
-            /**
-             * Tree to be processed
-             * <p>
-             * - Determine whether leaf
-             * - Local decision, find child nodes
-             * - The loop is broken when the tree to be processed is empty
-             * - Federated decision, find child nodes
-             * </>
-             */
-            Map<String, Object> pendingTree = new HashMap<>(16);
-
-            /**
-             * Local decision making
-             **/
-            for (int i = 0; i < model.getTreeNum(); i++) {
-
-                if (isLeaf(model, i, treeNodeIds[i])) {
-                    continue;
-                }
-
-                treeNodeIds[i] = decision(model, i, treeNodeIds[i], featureDataMap);
-
-                if (!isLeaf(model, i, treeNodeIds[i])) {
-                    pendingTree.put(String.valueOf(i), treeNodeIds[i]);
-                }
-
+            if (model.getTrees().get(i).getTree(0).getLeftNodeId() == -1
+                    && model.getTrees().get(i).getTree(0).getRightNodeId() == -1) {
+                treeNodeIds[i] = Integer.valueOf(decisionTreeMap.get(i).toString());
+                continue;
             }
 
-            if (pendingTree.size() == 0) {
-                break;
+            if (isLeaf(model, i, treeNodeIds[i])) {
+                continue;
             }
 
-            //The federal decision
-            for (String treeIdx : pendingTree.keySet()) {
+            treeNodeIds[i] = decision(model, i, treeNodeIds[i], featureDataMap);
 
-                int idx = Integer.parseInt(treeIdx);
-                int curNodeId = (Integer) pendingTree.get(treeIdx);
-                int finalNodeId = federatedDecision(model, idx, curNodeId, featureDataMap, decisionTreeMap);
-                treeNodeIds[idx] = finalNodeId;
-            }
         }
 
         for (int i = 0; i < model.getTreeNum(); i++) {
@@ -328,6 +373,7 @@ public class XgboostAlgorithmHelper {
              */
             weights[i] = getTreeLeafWeight(model, i, treeNodeIds[i]);
         }
+
 
         return PredictModel.ofScores(
                 userId,
@@ -350,6 +396,24 @@ public class XgboostAlgorithmHelper {
     private static int decision(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> input) {
 
         while (!isLeaf(model, treeId, treeNodeId) && getSite(model, treeId, treeNodeId).equals(PROMOTER)) {
+            treeNodeId = nextTreeNodeIdByVert(model, treeId, treeNodeId, input);
+        }
+
+        return treeNodeId;
+    }
+
+    /**
+     * The initiator decides to take the child node
+     *
+     * @param model      model
+     * @param treeId     treeId
+     * @param treeNodeId treeNodeId
+     * @param input      input
+     * @return treeNodeId
+     */
+    private static int providerDecision(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> input) {
+
+        while (!isLeaf(model, treeId, treeNodeId)) {
             treeNodeId = nextTreeNodeIdByVert(model, treeId, treeNodeId, input);
         }
 
@@ -395,57 +459,97 @@ public class XgboostAlgorithmHelper {
      * @param featureDataMap featureDataMap
      * @return PredictModel
      */
-    public static PredictModel providerPredict(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
-        Map<String, Map<String, Boolean>> result = new HashMap<>(16);
+    public static PredictModel providerPredict(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap) {
+        //TODO 新增skip模式处理方法
+        if (workMode.equals(XgboostWorkMode.skip.name())) {
+            return skipProviderPredictModel(model, userId, featureDataMap);
+        } else {
 
-        //Traverse the tree
-        for (int i = 0; i < model.getTrees().size(); i++) {
+            Map<String, Map<String, Boolean>> result = new HashMap<>(16);
 
-            XgboostDecisionTreeModel decisionTree = model.getTrees().get(i);
-            Map<String, Boolean> treeRoute = new HashMap<>(16);
+            //Traverse the tree
+            for (int i = 0; i < model.getTrees().size(); i++) {
 
-            for (int j = 0; j < decisionTree.getTree().size(); j++) {
+                XgboostDecisionTreeModel decisionTree = model.getTrees().get(i);
+                Map<String, Boolean> treeRoute = new HashMap<>(16);
 
-                XgboostNodeModel tree = decisionTree.getTree().get(j);
+                for (int j = 0; j < decisionTree.getTree().size(); j++) {
 
-                if (!PROVIDER.equals(getSite(model, i, j))) {
-                    continue;
-                }
+                    XgboostNodeModel tree = decisionTree.getTree().get(j);
 
-                int fid = tree.getFid();
-
-                /**
-                 * False Select the right node
-                 * true Select the left node
-                 */
-                boolean direction = false;
-
-                if (featureDataMap.containsKey(Integer.toString(fid))) {
-                    Object featVal = featureDataMap.get(Integer.toString(fid));
-                    double splitValue;
-                    if (MapUtils.isNotEmpty(decisionTree.getSplitMaskdict())) {
-                        splitValue = decisionTree.getSplitMaskdict().get(j);
-                    } else {
-                        splitValue = decisionTree.getTree(j).getBid();
-                    }
-                    direction = TypeUtils.castToDouble(featVal) <= splitValue + 1e-20;
-
-                } else {
-                    if (MapUtils.isNotEmpty(decisionTree.getMissingDirMaskdict()) && decisionTree.getMissingDirMaskdict().containsKey(Integer.toString(j))) {
-                        int missingDir = decisionTree.getMissingDirMaskdict().get(Integer.toString(j));
-                        direction = (missingDir != 1);
-                    } else {
-                        int missingDir = decisionTree.getTree(j).getMissingDir();
-                        direction = (missingDir != 1);
+                    if (!PROVIDER.equals(getSite(model, i, j))) {
+                        continue;
                     }
 
+                    int fid = tree.getFid();
+
+                    /**
+                     * False Select the right node
+                     * true Select the left node
+                     */
+                    boolean direction = false;
+
+                    if (featureDataMap.containsKey(Integer.toString(fid))) {
+                        Object featVal = featureDataMap.get(Integer.toString(fid));
+                        double splitValue;
+                        if (MapUtils.isNotEmpty(decisionTree.getSplitMaskdict())) {
+                            splitValue = decisionTree.getSplitMaskdict().get(j);
+                        } else {
+                            splitValue = decisionTree.getTree(j).getBid();
+                        }
+                        direction = TypeUtils.castToDouble(featVal) <= splitValue + 1e-20;
+
+                    } else {
+                        if (MapUtils.isNotEmpty(decisionTree.getMissingDirMaskdict()) && decisionTree.getMissingDirMaskdict().containsKey(Integer.toString(j))) {
+                            int missingDir = decisionTree.getMissingDirMaskdict().get(Integer.toString(j));
+                            direction = (missingDir != 1);
+                        } else {
+                            int missingDir = decisionTree.getTree(j).getMissingDir();
+                            direction = (missingDir != 1);
+                        }
+
+                    }
+
+                    treeRoute.put(Integer.toString(j), direction);
                 }
 
-                treeRoute.put(Integer.toString(j), direction);
+                result.put(Integer.toString(i), treeRoute);
             }
 
-            result.put(Integer.toString(i), treeRoute);
+            return PredictModel.ofObject(userId, result);
         }
+    }
+
+    /**
+     * Skip mode partner prediction
+     *
+     * @param model          model
+     * @param userId         userId
+     * @param featureDataMap featureDataMap
+     * @return PredictModel
+     */
+    private static PredictModel skipProviderPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
+        Map<Integer, Integer> result = new HashMap<>(16);
+        int[] treeNodeIds = new int[model.getTreeNum()];
+
+        /**
+         * Local decision making
+         **/
+        for (int i = 0; i < model.getTreeNum(); i++) {
+
+            if (model.getTrees().get(i).getTree().size() == 0 || !PROVIDER.equals(getSite(model, i, 0))) {
+                continue;
+            }
+
+            if (isLeaf(model, i, treeNodeIds[i])) {
+                continue;
+            }
+
+            treeNodeIds[i] = providerDecision(model, i, treeNodeIds[i], featureDataMap);
+
+            result.put(i, treeNodeIds[i]);
+        }
+
 
         return PredictModel.ofObject(userId, result);
     }

@@ -24,6 +24,8 @@ public class ModelMeta {
 
     private Double tol;
 
+    private String workMode;
+
 
     public Double getLearningRate() {
         return learningRate;
@@ -39,5 +41,13 @@ public class ModelMeta {
 
     public void setTol(Double tol) {
         this.tol = tol;
+    }
+
+    public String getWorkMode() {
+        return workMode;
+    }
+
+    public void setWorkMode(String workMode) {
+        this.workMode = workMode;
     }
 }
