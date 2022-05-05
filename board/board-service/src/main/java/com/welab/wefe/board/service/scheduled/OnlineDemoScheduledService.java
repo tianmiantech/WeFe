@@ -92,6 +92,20 @@ public class OnlineDemoScheduledService {
 
         }
 
+        /**
+         * 清理 project
+         * 1. 太久没使用
+         * 2. 无流程或已关闭的项目删掉
+         *
+         * 注意：这里不管项目是否是管理员创建的，都删。
+         */
+        delete(
+                ProjectMySqlModel.class,
+                "where DATEDIFF(now(), created_time)>10 "
+                        + "and (updated_time is null or DATEDIFF(now(), updated_time)>10) "
+                        + "and (project_id not in (select project_id from project_flow) or closed=true)"
+        );
+
 
         /**
          * 公共前提：
@@ -101,17 +115,6 @@ public class OnlineDemoScheduledService {
         String commonWhere = "where DATEDIFF(now(), created_time)>10 and"
                 + "(updated_time is null or DATEDIFF(now(), updated_time)>10) and "
                 + "created_by not in (select id from account where admin_role=true or super_admin_role=true)";
-
-
-        /**
-         * 清理 project
-         * 1. 无流程或已关闭的项目删掉
-         */
-        delete(
-                ProjectMySqlModel.class,
-                commonWhere
-                        + "and (project_id not in (select project_id from project_flow) or closed=true)"
-        );
 
 //        /**
 //         * 清理 table_data_set
