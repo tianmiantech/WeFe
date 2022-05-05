@@ -23,6 +23,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,7 +42,7 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
     /**
      * Federal forecast decision tree results
      */
-    private Map<Integer, Map<Integer, Boolean>> remoteDecisionTreeMap = new HashMap<>();
+    private Map<String, Object> remoteDecisionTreeMap = new HashMap<>();
 
 
     /**
@@ -76,11 +77,14 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
 
             PredictModel predictModel = remote.getJObject("data").toJavaObject(PredictModel.class);
 
-            Map<Integer, Map<Integer, Boolean>> tree = (Map) predictModel.getData();
+            Map<String, Object> tree = (Map) predictModel.getData();
 
-            for (Integer key : tree.keySet()) {
-                if (remoteDecisionTreeMap.containsKey(key)) {
-                    remoteDecisionTreeMap.get(key).putAll(tree.get(key));
+            for (String key : tree.keySet()) {
+                if (remoteDecisionTreeMap.containsKey(key)
+                        && XgboostWorkMode.skip.name().equals(modelParam.getModelMeta().getWorkMode())) {
+                    Map<String, Boolean> map = (Map) remoteDecisionTreeMap.get(key);
+                    map.putAll((Map) tree.get(key));
+                    remoteDecisionTreeMap.put(key, map);
                 } else {
                     remoteDecisionTreeMap.put(key, tree.get(key));
                 }

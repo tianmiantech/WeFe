@@ -274,7 +274,7 @@ public class XgboostAlgorithmHelper {
      * @param decisionTreeMap decisionTreeMap
      * @return PredictModel
      */
-    public static PredictModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<Integer, Map<Integer, Boolean>> decisionTreeMap) {
+    public static PredictModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
         //TODO 新增skip模式处理方法
         if (workMode.equals(XgboostWorkMode.skip.name())) {
             return skipPredictModel(model, userId, featureDataMap, decisionTreeMap);
@@ -343,7 +343,7 @@ public class XgboostAlgorithmHelper {
         }
     }
 
-    private static PredictModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<Integer, Map<Integer, Boolean>> decisionTreeMap) {
+    private static PredictModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
         int[] treeNodeIds = new int[model.getTreeNum()];
         double[] weights = new double[model.getTreeNum()];
 
@@ -354,7 +354,7 @@ public class XgboostAlgorithmHelper {
 
             if (model.getTrees().get(i).getTree(0).getLeftNodeId() == -1
                     && model.getTrees().get(i).getTree(0).getRightNodeId() == -1) {
-                treeNodeIds[i] = Integer.valueOf(decisionTreeMap.get(i).toString());
+                treeNodeIds[i] = (int) decisionTreeMap.get(String.valueOf(i));
                 continue;
             }
 
@@ -430,14 +430,14 @@ public class XgboostAlgorithmHelper {
      * @param decisionTreeMap decisionTreeMap
      * @return treeNodeId
      */
-    private static int federatedDecision(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, Map<Integer, Map<Integer, Boolean>> decisionTreeMap) {
+    private static int federatedDecision(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
 
         while (!isLeaf(model, treeId, treeNodeId)) {
             if (getSite(model, treeId, treeNodeId).equals(PROMOTER)) {
                 treeNodeId = nextTreeNodeIdByVert(model, treeId, treeNodeId, featureDataMap);
             } else {
-                Map<Integer, Boolean> decision = decisionTreeMap.get(treeId);
-                if (decision.get(treeNodeId)) {
+                Map<String, Boolean> decision = (Map) decisionTreeMap.get(String.valueOf(treeId));
+                if (decision.get(String.valueOf(treeNodeId))) {
                     treeNodeId = model.getTrees().get(treeId).getTree().get(treeNodeId).getLeftNodeId();
                 } else {
                     treeNodeId = model.getTrees().get(treeId).getTree().get(treeNodeId).getRightNodeId();

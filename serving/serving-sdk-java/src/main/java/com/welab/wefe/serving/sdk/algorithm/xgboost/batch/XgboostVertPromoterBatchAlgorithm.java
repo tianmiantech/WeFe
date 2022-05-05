@@ -23,6 +23,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
@@ -45,7 +46,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
     /**
      * Federated forecast returns data
      */
-    private Map<String, Map<Integer, Map<Integer, Boolean>>> remoteResult = new HashMap<>();
+    private Map<String, Map<String, Object>> remoteResult = new HashMap<>();
 
     private CopyOnWriteArrayList<PredictModel> predictModelList = new CopyOnWriteArrayList<>();
 
@@ -89,16 +90,20 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
             for (JObject jobj : predictModelList) {
 
                 PredictModel model = jobj.toJavaObject(PredictModel.class);
-                Map<Integer, Map<Integer, Boolean>> tree = (Map) model.getData();
+                Map<String, Object> tree = (Map) model.getData();
 
-                Map<Integer, Map<Integer, Boolean>> remote = remoteResult.get(model.getUserId());
+                Map<String, Object> remote = remoteResult.get(model.getUserId());
                 if (MapUtils.isEmpty(remote)) {
                     remote = new HashMap<>(16);
                 }
 
-                for (Integer key : tree.keySet()) {
-                    if (remote.containsKey(key)) {
-                        remote.get(key).putAll(tree.get(key));
+                for (String key : tree.keySet()) {
+                    if (remote.containsKey(key)
+                            && XgboostWorkMode.skip.name().equals(modelParam.getModelMeta().getWorkMode())) {
+                        Map<String, Boolean> map = (Map) remote.get(key);
+                        map.putAll((Map) tree.get(key));
+                        remote.put(key, map);
+
                     } else {
                         remote.put(key, tree.get(key));
                     }
