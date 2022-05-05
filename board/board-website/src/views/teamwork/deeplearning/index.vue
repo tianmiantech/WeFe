@@ -1061,10 +1061,11 @@
                                 vData.stopNext = true;
                                 return;
                             }
-                        } else {
-                            $message.error('当前任务不包含协作方数据集，请先选择数据集！');
-                            return;
-                        }
+                        } 
+                        // else { // 缺少协作方数据集时提示
+                        //     $message.error('当前任务不包含协作方数据集，请先选择数据集！');
+                        //     return;
+                        // }
                     }
 
                     // 1. 保存deeplearning node 数据
