@@ -453,10 +453,16 @@
                     this.promoter.$data_set = promoter.data_resource_list;
 
                     const admin_user = this.adminUserList.filter(item => item.id === this.userInfo.id) || [];
-                    const is_admin_created = this.adminUserList.filter(item => item.id === data.created_by) || [];
+                    const is_admin_created = this.adminUserList.filter(item => item.id === data.created_by) || []; 
+
+                    // demo环境下：
+                    // 1. 非管理员创建的项目，其他非管理员可以编辑
+                    // 2. 管理员创建的项目，非管理员不可以编辑
+                    // 3. 管理员创建的项目，其他管理员可以编辑
 
                     if (this.isDemo) {
-                        this.form.is_project_admin = admin_user.length > 0 ? true : !(false || this.userInfo.id === data.created_by || is_admin_created.length > 0);
+                        // this.form.is_project_admin = admin_user.length > 0 || this.userInfo.id === data.created_by || (!this.userInfo.admin_role && is_admin_created.length === 0) ? true : false; 
+                        this.form.is_project_admin = !!(admin_user.length > 0 || this.userInfo.id === data.created_by || (!this.userInfo.admin_role && is_admin_created.length === 0)); 
                     } else {
                         this.form.is_project_admin = true;
                     }
