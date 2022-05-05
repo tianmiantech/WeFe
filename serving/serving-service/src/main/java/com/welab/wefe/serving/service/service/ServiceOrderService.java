@@ -16,17 +16,29 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.api.serviceorder.DownloadApi;
 import com.welab.wefe.serving.service.api.serviceorder.QueryListApi;
 import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceOrderRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import de.siegmar.fastcsv.writer.CsvWriter;
+import de.siegmar.fastcsv.writer.LineDelimiter;
+import de.siegmar.fastcsv.writer.QuoteStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +50,10 @@ import java.util.List;
 @Service
 public class ServiceOrderService {
 
+    @Autowired
+    private Config config;
+
+    private static final String filePrefix = "service_order/";
 
     @Autowired
     ServiceOrderRepository serviceOrderRepository;
@@ -103,5 +119,73 @@ public class ServiceOrderService {
 
     }
 
+
+    public File downloadFile(DownloadApi.Input input) {
+        String fileName = DateUtil.getCurrentDate() + "_result.csv";
+        Specification<ServiceOrderMysqlModel> where = Where
+                .create()
+                .equal("id", input.getId())
+                .equal("serviceId", input.getServiceId())
+                .contains("serviceName", input.getServiceName())
+                .equal("serviceType", input.getServiceType())
+                .equal("orderType", input.getOrderType())
+                .equal("status", input.getStatus())
+                .contains("requestPartnerName", input.getRequestPartnerName())
+                .contains("responsePartnerName", input.getResponsePartnerName())
+                .betweenAndDate("createdTime", input.getStartTime().getTime(), input.getEndTime().getTime())
+                .orderBy("createdTime", OrderBy.desc)
+                .build(ServiceOrderMysqlModel.class);
+
+        List<ServiceOrderMysqlModel> all = serviceOrderRepository.findAll(where);
+        try {
+            return writeCSV(all, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public File writeCSV(List<ServiceOrderMysqlModel> dataList, String fileName) throws IOException {
+        final StringWriter sw = new StringWriter();
+        CsvWriter csvWriter = CsvWriter.builder()
+                .fieldSeparator(',')
+                .quoteStrategy(QuoteStrategy.EMPTY)
+                .lineDelimiter(LineDelimiter.LF)
+                .build(sw);
+
+        csvWriter.writeRow("订单Id", "服务Id", "服务名称", "服务类型", "是否为己方生成的订单", "订单状态",
+                "调用方Id", "调用方名称", "响应方Id", "响应方名称", "创建时间");
+
+        for (ServiceOrderMysqlModel model : dataList) {
+            csvWriter.writeRow(
+                    model.getId(),
+                    model.getServiceId(),
+                    model.getServiceName(),
+                    model.getServiceType(),
+                    model.getOrderType().toString(),
+                    model.getStatus(),
+                    model.getRequestPartnerId(),
+                    model.getRequestPartnerName(),
+                    model.getResponsePartnerId(),
+                    model.getResponsePartnerName(),
+                    DateUtil.toString(model.getCreatedTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2)
+            );
+        }
+
+        File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
+        if (!csvFile.exists()) {
+            File file = new File(csvFile.getParent());
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+        }
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
+        bw.write('\ufeff');
+        bw.write(sw.toString());
+        bw.flush();
+        bw.close();
+
+        return csvFile;
+    }
 
 }
