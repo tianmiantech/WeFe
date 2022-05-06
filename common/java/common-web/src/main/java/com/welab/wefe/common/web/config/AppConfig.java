@@ -21,6 +21,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.welab.wefe.common.TimeSpan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -30,8 +31,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.MediaType;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,25 +54,24 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
      */
     @Bean
     public FilterRegistrationBean corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         String[] corsAllowedOrigins = commonConfig.getCorsAllowedOrigins();
         if (corsAllowedOrigins != null && corsAllowedOrigins.length > 0) {
             for (String item : corsAllowedOrigins) {
-                corsConfiguration.addAllowedOrigin(item);
+                corsConfiguration.addAllowedOrigin(item.trim());
             }
         } else {
             corsConfiguration.addAllowedOrigin("*");
         }
-        corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader(CorsConfiguration.ALL);
+        corsConfiguration.addAllowedMethod(CorsConfiguration.ALL);
+        corsConfiguration.setMaxAge(TimeSpan.fromMinute(10).toSeconds());
         corsConfiguration.setAllowCredentials(true);
 
-        source.registerCorsConfiguration("/**", corsConfiguration);
-
-        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+        FilterRegistrationBean bean = new FilterRegistrationBean(new MyCorsFilter(corsConfiguration));
         bean.setOrder(0);
         return bean;
     }
