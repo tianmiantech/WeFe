@@ -275,4 +275,7 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
 
     def set_model_param(self, model_param):
         super(VertFastSecureBoostingTreePromoter, self).set_model_param(model_param)
-        self.tree_plan = plan.decode_plan(model_param.tree_plan)
+        if type(model_param) is dict:
+            self.tree_plan = plan.decode_plan(model_param.get("treePlan"))
+        else:
+            self.tree_plan = plan.decode_plan(model_param.tree_plan)
