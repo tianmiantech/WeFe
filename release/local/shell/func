@@ -31,7 +31,6 @@ pack_web(){
   npm install
   echo "VUE_APP_PROD = $2" > ./.env
   npm run build -- prod=$3
-  sed -i 's@</title>@&<script>window.clientApi = {env: "prod", baseUrl: "`$2`", prefixPath: "/`$3`/"};</script>@' dist/$3/index.html
   mv dist "$3"
   tar -cvf $3.tar $3
   mv $3.tar $PACK_DIR/
