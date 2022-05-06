@@ -21,6 +21,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationListener;
@@ -41,6 +42,9 @@ import java.util.List;
 @Configuration
 public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
 
+    @Autowired
+    private CommonConfig commonConfig;
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
 
@@ -54,7 +58,15 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("*");
+
+        String[] corsAllowedOrigins = commonConfig.getCorsAllowedOrigins();
+        if (corsAllowedOrigins != null && corsAllowedOrigins.length > 0) {
+            for (String item : corsAllowedOrigins) {
+                corsConfiguration.addAllowedOrigin(item);
+            }
+        } else {
+            corsConfiguration.addAllowedOrigin("*");
+        }
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.setAllowCredentials(true);
