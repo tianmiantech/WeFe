@@ -31,14 +31,14 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
 @Api(path = "service/show_sql", name = "service show sql")
-public class ServiceSQLTestApi extends AbstractApi<ServiceSQLTestApi.Input, ServiceSQLTestApi.Output> {
+public class ServiceShowSQLApi extends AbstractApi<ServiceShowSQLApi.Input, ServiceShowSQLApi.Output> {
 
 	@Autowired
 	ServiceService serviceService;
 
 	@Override
 	protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
-		return success(serviceService.sqlTest(input));
+		return success(serviceService.showSql(input));
 	}
 
 	public static class Output extends AbstractApiOutput {

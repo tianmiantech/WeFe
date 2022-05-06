@@ -113,7 +113,7 @@ public class ServiceUtil {
 		String tableName = dbName + "." + dataSource.getString("table");
 		String resultfields = parseReturnFields(dataSource);
 		String where = parseWhere(dataSource, JObject.create(params));
-		String sql = "SELECT " + resultfields + " FROM " + tableName + " WHERE " + where;
+		String sql = "SELECT " + resultfields + " FROM " + tableName + " WHERE " + where + " limit 1";
 		System.out.println(sql);
 		return sql;
 	}

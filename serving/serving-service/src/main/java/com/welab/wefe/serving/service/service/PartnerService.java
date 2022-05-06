@@ -106,7 +106,9 @@ public class PartnerService {
         }
 
         PartnerMysqlModel model = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
-
+        if (model == null) {
+            model = partnerRepository.findOne("partnerId", input.getPartnerId(), PartnerMysqlModel.class);
+        }
         if (null == model) {
             model = new PartnerMysqlModel();
         }
