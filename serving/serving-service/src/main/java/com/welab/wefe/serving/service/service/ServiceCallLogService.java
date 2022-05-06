@@ -16,15 +16,18 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.api.servicecalllog.QueryListApi;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceCallLogMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceCallLogRepository;
+import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceCallLogInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -38,8 +41,29 @@ public class ServiceCallLogService {
     @Autowired
     ServiceCallLogRepository serviceCallLogRepository;
 
+    public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
+
+        Specification<ServiceCallLogMysqlModel> where = Where.create()
+                .equal("serviceId", input.getServiceId())
+                .equal("orderId", input.getOrderId())
+                .orderBy("createdTime", OrderBy.asc)
+                .build(ServiceCallLogMysqlModel.class);
+
+
+        PagingOutput<ServiceCallLogMysqlModel> paging = serviceCallLogRepository.paging(where, input);
+
+        List<QueryListApi.Output> list = new ArrayList<>();
+        paging.getList().forEach(x -> {
+            QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
+            list.add(output);
+        });
+        return PagingOutput.of(list.size(), list);
+
+    }
+
     /**
      * 兼容 新增/更新
+     *
      * @param input
      */
     public void save(ServiceCallLogMysqlModel input) {
