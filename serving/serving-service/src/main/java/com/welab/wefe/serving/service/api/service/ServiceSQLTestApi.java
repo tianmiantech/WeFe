@@ -30,7 +30,7 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ServiceService;
 
-@Api(path = "service/show_sql", name = "service show sql")
+@Api(path = "service/sql_test", name = "service sql test")
 public class ServiceSQLTestApi extends AbstractApi<ServiceSQLTestApi.Input, ServiceSQLTestApi.Output> {
 
 	@Autowired
