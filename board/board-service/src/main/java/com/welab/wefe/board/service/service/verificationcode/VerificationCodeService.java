@@ -116,7 +116,7 @@ public class VerificationCodeService {
             throw e;
         } catch (Exception e) {
             LOG.error("Send verification code exception: ", e);
-            throw new StatusCodeWithException("发送验证码异常:" + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("发送验证码失败", StatusCode.SYSTEM_ERROR);
         }
     }
 

@@ -133,7 +133,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.welab.wefe.data.fusion.service.AppService</mainClass>
+                    <mainClass>com.welab.wefe.data.fusion.service.FusionService</mainClass>
                     <includeSystemScope>true</includeSystemScope>
                 </configuration>
             </plugin>

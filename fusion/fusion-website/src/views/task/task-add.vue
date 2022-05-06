@@ -48,12 +48,14 @@
                             <el-radio
                                 v-model="task.data_resource_type"
                                 label="DataSet"
-                                @change="task.data_resource_id='',
-                                         task.data_resource_name='',
-                                         task.row_count='',
-                                         fieldInfoList=[],
-                                         dataSetList=[],
-                                         bloomFilterList=[]"
+                                @change="
+                                    task.data_resource_id='',
+                                    task.data_resource_name='',
+                                    task.row_count='',
+                                    fieldInfoList=[],
+                                    dataSetList=[],
+                                    bloomFilterList=[]
+                                "
                             >
                                 数据集
                             </el-radio>
@@ -513,6 +515,13 @@
             },
 
             async addTask (event) {
+                if(!this.task.name) {
+                    return this.$message.error('请先填写任务名称');
+                }
+                if(!this.task.description) {
+                    return this.$message.error('请先填写任务描述');
+                }
+
                 this.loading = true;
                 this.fieldInfoList.forEach((item, index) => {
                     item.columns=item.column_arr.join(',');

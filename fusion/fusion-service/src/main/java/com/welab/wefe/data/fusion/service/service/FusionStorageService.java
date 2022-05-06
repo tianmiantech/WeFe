@@ -16,13 +16,11 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
-import com.welab.wefe.data.fusion.service.enums.DBType;
 import com.welab.wefe.data.fusion.service.repo.Storage;
 import com.welab.wefe.data.fusion.service.repo.impl.MysqlStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,19 +37,9 @@ public class FusionStorageService {
     @Autowired
     private MysqlStorage mysqlStorage;
 
-    @Value(value = "${db.storage.type}")
-    private DBType dbType;
 
     public Storage getStorage() {
-        Storage result = null;
-        switch (dbType) {
-            case MYSQL_FUSION:
-                result = mysqlStorage;
-                break;
-            default:
-                break;
-        }
-        return result;
+        return mysqlStorage;
     }
 
     public void createTable(String dbName, String tbName, List<String> rows) {
@@ -103,14 +91,4 @@ public class FusionStorageService {
     public int count(String dbName, String tbName) throws Exception {
         return getStorage().count(dbName, tbName);
     }
-//
-//    public <K, V> void saveList(List<DataItemModel<K, V>> data, Map<String, Object> args) {
-//        try {
-//            getStorage().putAll(data, args);
-//        } catch (Exception e) {
-//            LOG.error(e.getMessage(), e);
-//        }
-//    }
-
-
 }

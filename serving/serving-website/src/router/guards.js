@@ -62,10 +62,13 @@ export default router => {
                     const queryObject = {};
 
                     queryArr.forEach((val, i) => {
-                        if (i % 2 === 0) {
+                        const key = queryArr[i - 1];
+
+                        if (i % 2 === 0 && val) {
                             queryObject[val] = '';
-                        } else {
-                            queryObject[queryArr[i - 1]] = val;
+                        }
+                        if (i % 2 === 1) {
+                            queryObject[key] = val;
                         }
                     });
 
@@ -79,7 +82,8 @@ export default router => {
                     if (pathIsBlackList) {
                         next();
                     } else {
-                        if (to.fullPath === redirectUrl) { // break the loop
+                        if (to.fullPath === redirectUrl || to.path === redirectUrl.split('?')[0]) {
+                            // break the loop
                             next();
                         } else {
                             next({ path, query: queryObject, replace: true });
