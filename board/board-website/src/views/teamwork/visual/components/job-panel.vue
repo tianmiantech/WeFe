@@ -14,6 +14,7 @@
                 :my-role="myRole"
                 :graph="mainGraph"
                 :is-creator="isCreator"
+                :is-project-admin="isProjectAdmin"
                 @excute="methods.excute"
                 @job-running="methods.jobRunning"
                 @reset-graph-state="methods.resetGraphState"
@@ -189,17 +190,18 @@
             NodeResultHistory,
         },
         props: {
-            currentObj:    Object,
-            jobDetail:     Object,
-            componentType: String,
-            projectId:     String,
-            flowId:        String,
-            myRole:        String,
-            isCreator:     Boolean,
-            jobGraphShow:  Boolean,
-            ootJobId:      String,
-            mainGraph:     Object,
-            parentCanvas:  Object,
+            currentObj:     Object,
+            jobDetail:      Object,
+            componentType:  String,
+            projectId:      String,
+            flowId:         String,
+            myRole:         String,
+            isCreator:      Boolean,
+            jobGraphShow:   Boolean,
+            ootJobId:       String,
+            mainGraph:      Object,
+            parentCanvas:   Object,
+            isProjectAdmin: String,
         },
         emits: ['resetGraphState', 'switchJobGraphPanel', 'checkResult', 'checkHelp', 'switchComponent', 'graphInit'],
         setup (props, context) {

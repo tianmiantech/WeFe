@@ -123,6 +123,7 @@
                 :current-obj="vData.currentObj"
                 :component-type="vData.componentType"
                 :job-graph-show="vData.jobGraphShow"
+                :is-project-admin="vData.is_project_admin"
                 @resetGraphState="methods.resetGraphState"
                 @switchComponent="methods.switchComponent"
                 @switchJobGraphPanel="methods.switchJobGraphPanel"
