@@ -52,20 +52,23 @@
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
                         value-format="timestamp"
-                        order-statistics            @change="timeChange()"
+                        order-statistics
+                        @change="timeChange()"
                     />
                 </div>
             </el-form-item>
 
-            <el-button class="ml10"
-                       type="primary"
-                       @click="getList({watchRoute: false})"
+            <el-button
+                class="ml10"
+                type="primary"
+                @click="getSearchList"
             >
                 查询
             </el-button>
 
-            <el-button class="ml10"
-                       @click="downloadStatistics"
+            <el-button
+                class="ml10"
+                @click="downloadStatistics"
             >
                 下载
             </el-button>
@@ -78,14 +81,14 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
 
             <el-table-column
                 label="序号"
                 min-width="50"
                 type="index"
-            ></el-table-column>
+            />
 
             <el-table-column
                 label="服务名称"
@@ -94,7 +97,6 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
                     <p class="id">{{ scope.row.service_id }}</p>
-
                 </template>
             </el-table-column>
 
@@ -105,7 +107,6 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.request_partner_name }}</p>
                     <p class="id">{{ scope.row.request_partner_id }}</p>
-
                 </template>
             </el-table-column>
 
@@ -116,7 +117,6 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.response_partner_name }}</p>
                     <p class="id">{{ scope.row.response_partner_id }}</p>
-
                 </template>
             </el-table-column>
 
@@ -181,12 +181,11 @@
             width="70%"
         >
             <el-table :data="apiCallDetails">
-
                 <el-table-column
                     label="序号"
                     min-width="40"
                     type="index"
-                ></el-table-column>
+                />
 
                 <el-table-column
                     label="服务名称"
@@ -275,46 +274,47 @@
 
 <script>
 import table from '@src/mixins/table';
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
-    name: 'OrderStatistics',
+    name:   'OrderStatistics',
     mixins: [table],
     data() {
         return {
-            loading: false,
-            list: [],
-            services: [],
-            clients: [],
+            loading:    false,
+            list:       [],
+            services:   [],
+            clients:    [],
             getListApi: '/orderstatistics/query-list',
-            search: {
-                serviceName: '',
-                requestPartnerName: '',
-                responsePartnerName: '',
+            search:     {
+                serviceName:            '',
+                requestPartnerName:     '',
+                responsePartnerName:    '',
                 statisticalGranularity: 'minute',
-                startTime: '',
-                endTime: '',
+                startTime:              '',
+                endTime:                '',
             },
-            defaultTime: [],
+            defaultTime:      [],
             dialogPagination: {
-                total: '',
-                page_size: 10,
-                page_index: 1,
-                serviceId: '',
-                clientId: '',
+                total:       '',
+                page_size:   10,
+                page_index:  1,
+                serviceId:   '',
+                clientId:    '',
                 change_flag: false,
             },
 
             statistical_granularity: [
-                {value: '月', label: '月'},
-                {value: '日', label: '日'},
-                {value: '小时', label: '小时'},
-                {value: '分钟', label: '分钟'},
+                { value: '月', label: '月' },
+                { value: '日', label: '日' },
+                { value: '小时', label: '小时' },
+                { value: '分钟', label: '分钟' },
             ],
 
             apiCallDetails: [],
 
             dialogTableVisible: false,
+            defaultSearch:      false,
         };
     },
 
@@ -330,6 +330,7 @@ export default {
 
         // this.getServices();
         // this.getClients();
+        this.getSearchList();
     },
 
     computed: {
@@ -337,21 +338,21 @@ export default {
     },
 
     methods: {
-        // async getSearchList() {
-        //     console.log(this.search)
-        //     await this.getList();
-        // },
+        async getSearchList() {
+            this.search.statisticalGranularity = 'minute';
+            await this.getList();
+        },
         dialogCurrentPageChange(val) {
-            this.dialogPagination.change_flag = true
-            this.dialogPagination.page_index = val
-            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
+            this.dialogPagination.change_flag = true;
+            this.dialogPagination.page_index = val;
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag);
         },
 
         dialogCurrentPageSizeChange(val) {
-            this.dialogPagination.change_flag = true
-            this.dialogPagination.page_size = val
-            this.dialogPagination.page_index = 1
-            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
+            this.dialogPagination.change_flag = true;
+            this.dialogPagination.page_size = val;
+            this.dialogPagination.page_index = 1;
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag);
         },
 
 
@@ -371,11 +372,11 @@ export default {
 
         timeChange() {
             if (!this.defaultTime) {
-                this.search.startTime = ''
-                this.search.endTime = ''
+                this.search.startTime = '';
+                this.search.endTime = '';
             } else {
-                this.search.startTime = this.defaultTime[0]
-                this.search.endTime = this.defaultTime[1]
+                this.search.startTime = this.defaultTime[0];
+                this.search.endTime = this.defaultTime[1];
             }
         },
 
@@ -398,11 +399,11 @@ export default {
         },
 
         async getServices() {
-            const {code, data} = await this.$http.post({
-                url: '/service/query',
+            const { code, data } = await this.$http.post({
+                url:  '/service/query',
                 data: {
                     status: 1,
-                }
+                },
             });
 
             if (code === 0) {
@@ -411,7 +412,7 @@ export default {
         },
 
         async getClients() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/client/query-list',
             });
 
@@ -423,26 +424,26 @@ export default {
 
         async getDetails(serviceId, clientId, change_flag) {
 
-            this.dialogPagination.serviceId = serviceId
-            this.dialogPagination.clientId = clientId
+            this.dialogPagination.serviceId = serviceId;
+            this.dialogPagination.clientId = clientId;
 
-            this.apiCallDetails = []
-            const {code, data} = await this.$http.post({
-                url: '/orderstatistics/query-list',
+            this.apiCallDetails = [];
+            const { code, data } = await this.$http.post({
+                url:  '/orderstatistics/query-list',
                 data: {
-                    serviceId: this.dialogPagination.serviceId,
-                    clientId: this.dialogPagination.clientId,
+                    serviceId:  this.dialogPagination.serviceId,
+                    clientId:   this.dialogPagination.clientId,
                     page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
-                    page_size: change_flag ? this.dialogPagination.page_size : 10,
-                    startTime: this.search.startTime,
-                    endTime: this.search.endTime
+                    page_size:  change_flag ? this.dialogPagination.page_size : 10,
+                    startTime:  this.search.startTime,
+                    endTime:    this.search.endTime,
                 },
             });
 
             if (code === 0) {
-                this.apiCallDetails = data.list
-                this.dialogTableVisible = true
-                this.dialogPagination.total = data.total
+                this.apiCallDetails = data.list;
+                this.dialogTableVisible = true;
+                this.dialogPagination.total = data.total;
 
             }
         },
