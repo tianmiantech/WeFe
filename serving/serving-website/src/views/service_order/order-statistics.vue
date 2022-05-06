@@ -28,7 +28,22 @@
                 />
             </el-form-item>
 
-            <el-form-item label="时间：">
+            <el-form-item label="统计粒度：">
+                <el-select
+                    v-model="search.statisticalGranularity"
+                    clearable
+                    placeholder="请选择(默认分钟)"
+                >
+                    <el-option
+                        v-for="item in statistical_granularity"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
+
+            <el-form-item label="调用时间：">
                 <div class="block">
                     <el-date-picker
                         v-model="defaultTime"
@@ -37,14 +52,14 @@
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
                         value-format="timestamp"
-                        @change="timeChange()"
+                        order-statistics            @change="timeChange()"
                     />
                 </div>
             </el-form-item>
 
             <el-button class="ml10"
                        type="primary"
-                       @click="getList({ to: true})"
+                       @click="getList({watchRoute: false})"
             >
                 查询
             </el-button>
@@ -68,22 +83,13 @@
 
             <el-table-column
                 label="序号"
-                width="50"
+                min-width="50"
                 type="index"
             ></el-table-column>
 
             <el-table-column
-                label="订单号"
-                min-width="240"
-            >
-                <template slot-scope="scope">
-                    <p>{{ scope.row.id }}</p>
-                </template>
-            </el-table-column>
-
-            <el-table-column
                 label="服务名称"
-                min-width="230"
+                min-width="100"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
@@ -91,9 +97,10 @@
 
                 </template>
             </el-table-column>
+
             <el-table-column
                 label="请求方名称"
-                min-width="230"
+                min-width="120"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.request_partner_name }}</p>
@@ -102,10 +109,9 @@
                 </template>
             </el-table-column>
 
-
             <el-table-column
                 label="响应方名称"
-                min-width="230"
+                min-width="120"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.response_partner_name }}</p>
@@ -114,44 +120,54 @@
                 </template>
             </el-table-column>
 
+
             <el-table-column
-                label="服务类型"
-                min-width="100"
+                label="总成功次数"
+                min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.service_type }}</p>
+                    <p>{{ scope.row.success_times }}</p>
                 </template>
             </el-table-column>
 
             <el-table-column
-                label="订单状态"
-                min-width="100"
+                label="总失败次数"
+                min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.status }}</p>
+                    <p>{{ scope.row.failed_times }}</p>
                 </template>
             </el-table-column>
 
             <el-table-column
-                label="是否为我方发起"
-                min-width="120"
+                label="总请求次数"
+                min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.order_type }}</p>
+                    <p>{{ scope.row.call_times }}</p>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="调用时间"
+                min-width="80"
+            >
+                <template slot-scope="scope">
+                    <p>{{ scope.row.date_time | dateFormat }}</p>
                 </template>
             </el-table-column>
 
 
             <el-table-column
                 label="操作"
-                min-width="80"
+                min-width="60"
                 align="center"
                 fixed="right"
             >
                 <template slot-scope="scope">
                     <el-button
                         type="primary"
-                        @click="getDetails(scope.row.id)"
+                        @click="getDetails(scope.row.service_id,scope.row.client_id)"
                     >
                         详情
                     </el-button>
@@ -173,76 +189,29 @@
                 ></el-table-column>
 
                 <el-table-column
-                    label="请求Id"
-                    min-width="120"
+                    label="服务名称"
+                    min-width="30"
                 >
                     <template slot-scope="scope">
-                        <p>{{ scope.row.request_id }}</p>
+                        <p>{{ scope.row.service_name }}</p>
                     </template>
                 </el-table-column>
                 <el-table-column
-                    label="请求数据"
-                    min-width="200"
-                >
-                    <template v-slot="scope">
-                        <template v-if="scope.row.request_data">
-                            <p>{{
-                                    scope.row.request_data.length > 100 ? scope.row.request_data.substring(0, 101) + '...' : scope.row.request_data
-                                }}</p>
-                            <el-button
-                                v-if="scope.row.request_data.length > 100"
-                                type="text"
-                                @click="showRequest(scope.row.request_data)"
-                            >
-                                查看更多
-                            </el-button>
-                        </template>
-                    </template>
-                    <!--                    <template slot-scope="scope">-->
-                    <!--                        <p>{{ scope.row.request_data }}</p>-->
-                    <!--                    </template>-->
-                </el-table-column>
-                <el-table-column
-                    label="响应Id"
-                    min-width="120"
+                    label="客户名称"
+                    min-width="30"
                 >
                     <template slot-scope="scope">
-                        <p>{{ scope.row.response_id }}</p>
+                        <p>{{ scope.row.client_name }}</p>
                     </template>
                 </el-table-column>
-
                 <el-table-column
-                    label="响应数据"
-                    min-width="200"
-                >
-                    <template v-slot="scope">
-                        <template v-if="scope.row.response_data">
-                            <p>{{
-                                    scope.row.response_data.length > 100 ? scope.row.response_data.substring(0, 101) + '...' : scope.row.response_data
-                                }}</p>
-                            <el-button
-                                v-if="scope.row.response_data.length > 100"
-                                type="text"
-                                @click="showResponse(scope.row.response_data)"
-                            >
-                                查看更多
-                            </el-button>
-                        </template>
-                    </template>
-                    <!--                    <template slot-scope="scope">-->
-                    <!--                        <p>{{ scope.row.response_data }}</p>-->
-                    <!--                    </template>-->
-                </el-table-column>
-
-                <el-table-column
-                    label="请求方IP"
-                    min-width="80"
+                    label="服务类型"
+                    min-width="30"
                 >
                     <template slot-scope="scope">
-                        <p>{{ scope.row.request_ip }}</p>
+                        <p>{{ scope.row.service_type }}</p>
                     </template>
                 </el-table-column>
-
                 <el-table-column
                     label="调用时间"
                     min-width="120"
@@ -252,6 +221,23 @@
                     </template>
                 </el-table-column>
 
+                <el-table-column
+                    label="调用 IP"
+                    min-width="40"
+                >
+                    <template slot-scope="scope">
+                        <p>{{ scope.row.ip_add }}</p>
+                    </template>
+                </el-table-column>
+
+                <el-table-column
+                    label="请求结果"
+                    min-width="30"
+                >
+                    <template slot-scope="scope">
+                        <p>{{ scope.row.request_result }}</p>
+                    </template>
+                </el-table-column>
             </el-table>
 
             <div
@@ -284,18 +270,6 @@
                 @size-change="pageSizeChange"
             />
         </div>
-
-
-        <el-dialog
-            :title="title"
-            :visible.sync="requestDataDialog"
-        >
-            <JsonViewer
-                :value="jsonData"
-                :expand-depth="5"
-                copyable
-            />
-        </el-dialog>
     </el-card>
 </template>
 
@@ -304,20 +278,20 @@ import table from '@src/mixins/table';
 import {mapGetters} from 'vuex';
 
 export default {
-    name: 'RequestStatistics',
+    name: 'OrderStatistics',
     mixins: [table],
     data() {
         return {
-            requestDataDialog: false,
-            jsonData: '',
-            title: '',
+            loading: false,
+            list: [],
             services: [],
             clients: [],
+            getListApi: '/orderstatistics/query-list',
             search: {
                 serviceName: '',
                 requestPartnerName: '',
                 responsePartnerName: '',
-                orderType: 0,
+                statisticalGranularity: 'minute',
                 startTime: '',
                 endTime: '',
             },
@@ -327,27 +301,17 @@ export default {
                 page_size: 10,
                 page_index: 1,
                 serviceId: '',
-                id: '',  // orderId
                 clientId: '',
                 change_flag: false,
             },
-            getListApi: '/serviceorder/query-list',
-            serviceType: {
-                1: '两方匿踪查询',
-                2: '两方交集查询',
-                3: '多方安全统计(被查询方)',
-                4: '多方安全统计(查询方)',
-                5: '多方交集查询',
-                6: '多方匿踪查询',
-            },
-            requestResult: {
-                1: '成功',
-                2: '成功(没有数据)',
-                3: '失败(服务不可用)',
-                4: '失败(服务未授权)',
-                5: '失败(IP被限制)',
-                6: '失败(服务异常)',
-            },
+
+            statistical_granularity: [
+                {value: '月', label: '月'},
+                {value: '日', label: '日'},
+                {value: '小时', label: '小时'},
+                {value: '分钟', label: '分钟'},
+            ],
+
             apiCallDetails: [],
 
             dialogTableVisible: false,
@@ -373,39 +337,27 @@ export default {
     },
 
     methods: {
-        showRequest(data) {
-            this.requestDataDialog = true;
-            this.title = '请求体';
-            setTimeout(() => {
-                this.jsonData = JSON.parse(data);
-            });
-        },
-
-        showResponse(data) {
-            this.requestDataDialog = true;
-            this.title = '响应体';
-            setTimeout(() => {
-                this.jsonData = JSON.parse(data);
-            });
-        },
-
+        // async getSearchList() {
+        //     console.log(this.search)
+        //     await this.getList();
+        // },
         dialogCurrentPageChange(val) {
             this.dialogPagination.change_flag = true
             this.dialogPagination.page_index = val
-            this.getDetails(this.dialogPagination.id, this.dialogPagination.change_flag)
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
         },
 
         dialogCurrentPageSizeChange(val) {
             this.dialogPagination.change_flag = true
             this.dialogPagination.page_size = val
             this.dialogPagination.page_index = 1
-            this.getDetails(this.dialogPagination.id, this.dialogPagination.change_flag)
+            this.getDetails(this.dialogPagination.serviceId, this.dialogPagination.clientId, this.dialogPagination.change_flag)
         },
 
 
         downloadStatistics() {
 
-            const api = `${window.api.baseUrl}/serviceorder/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&orderType=${this.search.orderType}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
+            const api = `${window.api.baseUrl}/apirequestrecord/download?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
             const link = document.createElement('a');
 
             link.href = api;
@@ -469,22 +421,21 @@ export default {
         },
 
 
-        async getDetails(id, change_flag) {
+        async getDetails(serviceId, clientId, change_flag) {
 
-            // this.dialogPagination.serviceId = serviceId
-            // this.dialogPagination.clientId = clientId
-            this.dialogPagination.id = id
+            this.dialogPagination.serviceId = serviceId
+            this.dialogPagination.clientId = clientId
 
             this.apiCallDetails = []
             const {code, data} = await this.$http.post({
-                url: '/servicecalllog/query-list',
+                url: '/orderstatistics/query-list',
                 data: {
                     serviceId: this.dialogPagination.serviceId,
-                    orderId: this.dialogPagination.id,
+                    clientId: this.dialogPagination.clientId,
                     page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
                     page_size: change_flag ? this.dialogPagination.page_size : 10,
-                    // startTime: this.search.startTime,
-                    // endTime: this.search.endTime
+                    startTime: this.search.startTime,
+                    endTime: this.search.endTime
                 },
             });
 

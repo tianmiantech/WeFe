@@ -70,7 +70,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         @Check(name = "服务名称")
         private String serviceName;
 
-        @Check(name = "统计粒度")
+        @Check(name = "统计粒度", require = true)
         private String statisticalGranularity = DateTypeEnum.minute.name();
 
         public Date getStartTime() {

@@ -289,6 +289,14 @@ const baseRoutes = [
                 component: () => import('@views/service_order/order-list.vue'),
             },
             {
+                path: `${prefixPath}order-statistics`,
+                name: 'order-statistics',
+                meta: {
+                    title: '订单统计',
+                },
+                component: () => import('@views/service_order/order-statistics.vue'),
+            },
+            {
                 path: `${prefixPath}record-list`,
                 name: 'record-list',
                 meta: {
