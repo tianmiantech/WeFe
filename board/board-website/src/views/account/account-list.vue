@@ -73,6 +73,7 @@
             :data="list"
             stripe
             border
+            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
         >
             <template #empty>
                 <EmptyData />
@@ -80,7 +81,6 @@
             <el-table-column
                 label="姓名"
                 prop="nickname"
-                min-width="100"
             />
             <el-table-column
                 v-if="userInfo.admin_role"
@@ -98,7 +98,7 @@
                 v-if="userInfo.admin_role"
                 label="管理员"
                 align="center"
-                width="70"
+                min-width="70"
             >
                 <template v-slot="scope">
                     <span
@@ -120,9 +120,10 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="userInfo.super_admin_role"
                 label="已注销"
                 align="center"
-                width="70"
+                min-width="70"
             >
                 <template v-slot="scope">
                     <span
@@ -168,13 +169,13 @@
             </el-table-column>
             <el-table-column
                 label="注册时间"
-                min-width="140"
             >
                 <template v-slot="scope">
                     {{ dateFormat(scope.row.created_time) }}
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="userInfo.admin_role"
                 min-width="340"
                 label="操作"
             >
