@@ -69,7 +69,7 @@ public class MyCorsFilter extends OncePerRequestFilter {
             if (needCheckCors) {
                 if (blockRequest(request, response)) {
                     setCorsInfoIntoResponseHeader(response);
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "request origin not allowed null");
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "request origin not allowed");
                     return;
                 }
             }
