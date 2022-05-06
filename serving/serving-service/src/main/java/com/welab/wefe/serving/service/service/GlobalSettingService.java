@@ -26,6 +26,10 @@ import com.welab.wefe.serving.service.database.serving.entity.GlobalSettingMySql
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,12 +38,18 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class GlobalSettingService {
+    
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    
     @Autowired
     private GlobalSettingRepository globalSettingRepository;
 
 
     @Autowired
     private AccountRepository accountRepository;
+    
+    @Autowired
+    private UnionServiceService unionServiceService;
 
     /**
      * Is the system initialized
@@ -98,8 +108,14 @@ public class GlobalSettingService {
 		if (input.getRsaPrivateKey().length() > 50 && !input.getRsaPrivateKey().contains("*****")) {
 			model.setRsaPrivateKey(input.getRsaPrivateKey());
 		}
-		model.setServingBaseUrl(input.getServingBaseUrl());
-		// TODO update union
+		if(StringUtils.isNotBlank(input.getServingBaseUrl())) {
+		    model.setServingBaseUrl(input.getServingBaseUrl());  
+		    try {
+	            unionServiceService.updateServingBaseUrlOnUnion(input.getServingBaseUrl());
+	        } catch (StatusCodeWithException e) {
+	            LOG.warn("updateServingBaseUrlOnUnion error", e);
+	        }
+		}
         globalSettingRepository.save(model);
         CacheObjects.refreshMemberInfo();
     }
