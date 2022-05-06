@@ -208,10 +208,6 @@ public class AccountService extends AbstractAccountService {
      */
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) throws StatusCodeWithException {
         
-        if (!CurrentAccount.isAdmin() && !CurrentAccount.isSuperAdmin()) {
-            throw new StatusCodeWithException("您不是管理员，无法进行此操作。", StatusCode.PERMISSION_DENIED);
-        }
-        
         Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus()).contains("nickname", input.getNickname())
                 .orderBy("createdTime", OrderBy.desc).build(AccountMySqlModel.class);
