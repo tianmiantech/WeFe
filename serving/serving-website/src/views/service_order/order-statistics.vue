@@ -61,7 +61,7 @@
             <el-button
                 class="ml10"
                 type="primary"
-                @click="getSearchList"
+                @click="getList({resetPagination: true})"
             >
                 查询
             </el-button>
@@ -330,7 +330,9 @@ export default {
 
         // this.getServices();
         // this.getClients();
-        this.getSearchList();
+
+        this.search.statisticalGranularity = 'minute';
+        this.getList();
     },
 
     computed: {
@@ -338,10 +340,6 @@ export default {
     },
 
     methods: {
-        async getSearchList() {
-            this.search.statisticalGranularity = 'minute';
-            await this.getList();
-        },
         dialogCurrentPageChange(val) {
             this.dialogPagination.change_flag = true;
             this.dialogPagination.page_index = val;
