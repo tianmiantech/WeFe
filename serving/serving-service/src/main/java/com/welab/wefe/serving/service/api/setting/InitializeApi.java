@@ -22,21 +22,24 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.service.GlobalSettingService;
+import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.enums.ServingModeEnum;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Zane
  */
-@Api(path = "global_setting/initialize", name = "Initialize system", desc = "Initialize the system and set global parameters.")
+@Api(path = "global_config/initialize", name = "Initialize system", desc = "Initialize the system and set global parameters.")
 public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
 
     @Autowired
-    private GlobalSettingService globalSettingService;
+    private GlobalConfigService globalConfigService;
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        globalSettingService.initialize(input);
+        IdentityInfoModel model = input.convertToIdentityInfoModel();
+        globalConfigService.initialize(model);
         return success();
     }
 
@@ -59,6 +62,17 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
 
         @Check(name = "私钥")
         private String rsaPrivateKey;
+
+        public IdentityInfoModel convertToIdentityInfoModel() {
+            IdentityInfoModel model = new IdentityInfoModel();
+            model.setId(memberId);
+            model.setName(memberName);
+            model.setAvatar("");
+            model.setRsaPrivateKey(rsaPrivateKey);
+            model.setRsaPublicKey(rsaPublicKey);
+            model.setMode(ServingModeEnum.standalone.name());
+            return model;
+        }
 
         //region getter/setter
 

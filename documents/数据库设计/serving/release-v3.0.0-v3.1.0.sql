@@ -82,6 +82,8 @@ CREATE INDEX hour_index ON order_statistics (hour);
 CREATE INDEX day_index ON order_statistics (day);
 CREATE INDEX month_index ON order_statistics (month);
 
+-- 移除两个表： global_setting
+-- 使用新的 global_config 表替代旧表
 -- 全局配置表
 DROP TABLE IF EXISTS `global_config`;
 CREATE TABLE `global_config`
@@ -98,3 +100,11 @@ CREATE TABLE `global_config`
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique_group_name` (`group`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置';
+
+
+insert into global_config(`id`, `group`, `name`, `comment`, `value`)
+values (replace(uuid(),'-',''), 'identity_info', 'id', '系统身份 Id 全局唯一，联邦模式为memberId,独立模式为uuid。', (select member_id from global_setting limit 1)),
+(replace(uuid(),'-',''),'identity_info','name','系统名称',(select member_name from global_setting limit 1)),
+(replace(uuid(),'-',''),'identity_info','rsa_private_key','私钥',(select rsa_private_key from global_setting limit 1)),
+(replace(uuid(),'-',''),'identity_info','rsa_public_key','公钥',(select rsa_public_key from global_setting limit 1))
+

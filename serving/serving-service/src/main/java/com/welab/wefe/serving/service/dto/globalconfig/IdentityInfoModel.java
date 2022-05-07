@@ -39,6 +39,9 @@ public class IdentityInfoModel {
     @Check(name = "公钥")
     private String rsaPublicKey;
 
+    @Check(name = "模式 standalone-独立模式 union-联邦模式")
+    private String mode;
+
     //region getter/setter
 
 
@@ -98,6 +101,13 @@ public class IdentityInfoModel {
         this.rsaPublicKey = rsaPublicKey;
     }
 
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
 
     //endregion
 }

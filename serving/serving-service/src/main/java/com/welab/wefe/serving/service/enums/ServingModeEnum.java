@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.serving.service.api.setting;
-
-import com.welab.wefe.common.web.api.base.Api;
+package com.welab.wefe.serving.service.enums;
 
 /**
  * @author hunter.zhao
  * @date 2022/5/7
  */
-@Api(path = "global_config/update/test", name = "更新配置信息", login = false)
-public class UpdateMemberRsaKeyApi {
+public enum ServingModeEnum {
+    standalone,
+
+    union
 }

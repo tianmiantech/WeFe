@@ -20,10 +20,9 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.serving.service.api.setting.GlobalConfigUpdateApi;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.welab.wefe.serving.service.service.CacheObjects;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -34,8 +33,33 @@ import java.util.Map;
 @Service
 public class GlobalConfigService extends BaseGlobalConfigService {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    /**
+     * Is the system initialized
+     */
+    public boolean isInitialized() {
+        return getIdentityInfo() != null;
+    }
+
+    /**
+     * check initialized
+     */
+    private void checkInitialized() throws StatusCodeWithException {
+        if (isInitialized()) {
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "The system has been initialized and cannot be repeated.");
+        }
+    }
+
+    /**
+     * Initialize system
+     */
+    public void initialize(IdentityInfoModel model) throws StatusCodeWithException {
+
+        checkInitialized();
+
+        setIdentityInfo(model);
+
+        CacheObjects.refreshIdentityInfo();
+    }
 
 
     public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
@@ -91,14 +115,9 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     }
 
 
-//
-//    public void setAlertConfig(AlertConfigModel model) throws StatusCodeWithException {
-//        put(Group.ALERT_CONFIG, model);
-//    }
-//
-//    public AlertConfigModel getAlertConfig() {
-//        return getModel(Group.ALERT_CONFIG, AlertConfigModel.class);
-//    }
+    public void setIdentityInfo(IdentityInfoModel model) throws StatusCodeWithException {
+        put(Group.IDENTITY_INFO, model);
+    }
 
 
 }
