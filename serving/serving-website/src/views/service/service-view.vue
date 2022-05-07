@@ -290,10 +290,12 @@
                             <el-radio
                                 v-model="sqlOperator"
                                 label="and"
+                                @change="sqlShow"
                             >
                                 And
                             </el-radio>
                             <el-radio
+                                @change="sqlShow"
                                 v-model="sqlOperator"
                                 label="or"
                             >
