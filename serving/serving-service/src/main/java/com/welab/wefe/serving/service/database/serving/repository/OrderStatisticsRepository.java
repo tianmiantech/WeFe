@@ -58,9 +58,10 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
             "if(:request_partner_name !='', os.request_partner_name like concat('%',:request_partner_name,'%'), 1=1) and " +
             "if(:response_partner_id !='', os.response_partner_id = :response_partner_id, 1=1) and " +
             "if(:response_partner_name !='', os.response_partner_name like concat('%',:response_partner_name,'%'), 1=1) and " +
-            "os.created_time  > if(:start_time is not null, :start_time, '1900-01-01 00:00:00') <=  " +
-            "if(:end_time is not null ,:end_time ,NOW()) " +
-            "group by os.minute ", nativeQuery = true, countProjection = "1")
+            "os.created_time between if(:start_time is not null, :start_time,'1900-01-01 00:00:00') and   " +
+            "if(:end_time is not null ,:end_time ,NOW() ) " +
+            "group by os.minute " +
+            "order by os.minute desc ", nativeQuery = true, countProjection = "1")
     List<Map<String,Object>>  groupByMinute(@Param("service_id") String serviceId,
                                             @Param("service_name") String serviceName,
                                             @Param("request_partner_id") String requestPartnerId,
@@ -93,9 +94,10 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
             "if(:request_partner_name !='', os.request_partner_name like concat('%',:request_partner_name,'%'), 1=1) and " +
             "if(:response_partner_id !='', os.response_partner_id = :response_partner_id, 1=1) and " +
             "if(:response_partner_name !='', os.response_partner_name like concat('%',:response_partner_name,'%'), 1=1) and " +
-            "os.created_time  > if(:start_time is not null, :start_time, '1900-01-01 00:00:00') <=   " +
-            "if(:end_time is not null ,:end_time ,NOW()) " +
-            "group by os.hour ", nativeQuery = true, countProjection = "1")
+            "os.created_time between if(:start_time is not null, :start_time,'1900-01-01 00:00:00') and   " +
+            "if(:end_time is not null ,:end_time ,NOW() ) " +
+            "group by os.hour " +
+            "order by os.hour desc ", nativeQuery = true, countProjection = "1")
     List<Map<String,Object>> groupByHour(@Param("service_id") String serviceId,
                                                 @Param("service_name") String serviceName,
                                                 @Param("request_partner_id") String requestPartnerId,
@@ -128,9 +130,10 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
             "if(:request_partner_name !='', os.request_partner_name like concat('%',:request_partner_name,'%'), 1=1) and " +
             "if(:response_partner_id !='', os.response_partner_id = :response_partner_id, 1=1) and " +
             "if(:response_partner_name !='', os.response_partner_name like concat('%',:response_partner_name,'%'), 1=1) and " +
-            "os.created_time  > if(:start_time is not null, :start_time, '1900-01-01 00:00:00') <=   " +
-            "if(:end_time is not null ,:end_time ,NOW()) " +
-            "group by os.day ", nativeQuery = true, countProjection = "1")
+            "os.created_time between if(:start_time is not null, :start_time,'1900-01-01 00:00:00') and   " +
+            "if(:end_time is not null ,:end_time ,NOW() ) " +
+            "group by os.day " +
+            "order by os.day desc ", nativeQuery = true, countProjection = "1")
     List<Map<String,Object>> groupByDay(@Param("service_id") String serviceId,
                                                @Param("service_name") String serviceName,
                                                @Param("request_partner_id") String requestPartnerId,
@@ -163,9 +166,10 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
             "if(:request_partner_name !='', os.request_partner_name like concat('%',:request_partner_name,'%'), 1=1) and " +
             "if(:response_partner_id !='', os.response_partner_id = :response_partner_id, 1=1) and " +
             "if(:response_partner_name !='', os.response_partner_name like concat('%',:response_partner_name,'%'), 1=1) and " +
-            "os.created_time > if(:start_time is not null, :start_time, '1900-01-01 00:00:00') <=   " +
-            "if(:end_time is not null ,:end_time ,NOW()) " +
-            "group by os.month ", nativeQuery = true, countProjection = "1")
+            "os.created_time between if(:start_time is not null, :start_time,'1900-01-01 00:00:00') and   " +
+            "if(:end_time is not null ,:end_time ,NOW() ) " +
+            "group by os.month " +
+            "order by os.`month` desc ", nativeQuery = true, countProjection = "1")
     List<Map<String,Object>> groupByMonth(@Param("service_id") String serviceId,
                                            @Param("service_name") String serviceName,
                                            @Param("request_partner_id") String requestPartnerId,

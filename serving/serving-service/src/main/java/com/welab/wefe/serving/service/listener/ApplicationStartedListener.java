@@ -191,10 +191,18 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
             Date startTime = calendar.getTime();
 
             // get request records
-            List<ApiRequestRecordMysqlModel> list = apiRequestRecordService.getList(serviceId, clientId, startTime, endTime);
+            ServiceOrderInput input = new ServiceOrderInput();
+            input.setStatus(ServiceOrderEnum.ORDERING.getValue());
+            input.setServiceId(serviceId);
+            input.setRequestPartnerId(clientId);
+            input.setCreatedStartTime(startTime);
+            input.setCreatedEndTime(endTime);
+            List<ServiceOrderMysqlModel> list = serviceOrderService.getByParams(input);
+
             if (list.size() != 0) {
-                ApiRequestRecordMysqlModel apiRequestRecordMysqlModel = list.get(0);
-                FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(apiRequestRecordMysqlModel.getServiceId(), apiRequestRecordMysqlModel.getClientId());
+                ServiceOrderMysqlModel serviceOrderMysqlModel = list.get(0);
+                FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(serviceOrderMysqlModel.getServiceId(), serviceOrderMysqlModel.getRequestPartnerId());
+
                 Double unitPrice = feeConfigMysqlModel.getUnitPrice();
                 if (unitPrice == 0) {
                     logger.warn("unit price is zero!");
@@ -215,14 +223,14 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
                 // 创建时间为整点
                 feeDetailMysqlModel.setCreatedTime(endTime);
                 // 其他信息
-                feeDetailMysqlModel.setClientName(apiRequestRecordMysqlModel.getClientName());
-                feeDetailMysqlModel.setServiceType(apiRequestRecordMysqlModel.getServiceType());
-                feeDetailMysqlModel.setServiceName(apiRequestRecordMysqlModel.getServiceName());
+                feeDetailMysqlModel.setClientName(serviceOrderMysqlModel.getRequestPartnerName());
+                feeDetailMysqlModel.setServiceType(serviceOrderMysqlModel.getServiceType());
+                feeDetailMysqlModel.setServiceName(serviceOrderMysqlModel.getServiceName());
 
                 feeDetailService.save(feeDetailMysqlModel);
 
                 logger.info("save fee detail by the listener in: " + DateUtil.getCurrentDate() + ", service id: "
-                        + apiRequestRecordMysqlModel.getServiceId() + ", client id: " + apiRequestRecordMysqlModel.getClientId()
+                        + serviceOrderMysqlModel.getServiceId() + ", request partner id: " + serviceOrderMysqlModel.getRequestPartnerId()
                         + ", startTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(startTime)
                         + ", endTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime));
             } else {

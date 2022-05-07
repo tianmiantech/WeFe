@@ -58,7 +58,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         /**
          * 服务类型
          */
-        private Integer serviceType;
+        private String serviceType;
 
         /**
          * 统计类型：1 每年、 2 每月、 3 每日, 4 每小时
@@ -91,11 +91,11 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.clientName = clientName;
         }
 
-        public Integer getServiceType() {
+        public String getServiceType() {
             return serviceType;
         }
 
-        public void setServiceType(Integer serviceType) {
+        public void setServiceType(String serviceType) {
             this.serviceType = serviceType;
         }
 
