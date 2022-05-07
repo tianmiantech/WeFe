@@ -216,12 +216,11 @@
                     </el-form-item>
 
                     <template v-if="form.service_type === 1 || form.service_type === 3">
-                        <el-divider />
                         <el-form-item
                             v-for="(item, $index) in form.data_source.condition_fields"
                             :key="`condition_field-${$index}`"
                             class="condition_fields"
-                            label="查询字段:"
+                            label="查询条件:"
                         >
                             <el-tag>{{ sqlOperator === 'and' ? 'And' : 'Or' }}</el-tag>
                             <el-select
@@ -302,7 +301,7 @@
                                 Or
                             </el-radio>
                         </el-form-item>
-
+                        <el-divider />
                         <div
                             v-if="form.service_type !== 3"
                             class="mt5 mb20"
