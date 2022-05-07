@@ -81,7 +81,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData />
+                <TableEmptyData/>
             </div>
 
             <el-table-column
@@ -158,102 +158,102 @@
             </el-table-column>
 
 
-            <el-table-column
-                label="操作"
-                min-width="60"
-                align="center"
-                fixed="right"
-            >
-                <template slot-scope="scope">
-                    <el-button
-                        type="primary"
-                        @click="getDetails(scope.row.service_id,scope.row.client_id)"
-                    >
-                        详情
-                    </el-button>
-                </template>
-            </el-table-column>
+<!--            <el-table-column-->
+<!--                label="操作"-->
+<!--                min-width="60"-->
+<!--                align="center"-->
+<!--                fixed="right"-->
+<!--            >-->
+<!--                <template slot-scope="scope">-->
+<!--                    <el-button-->
+<!--                        type="primary"-->
+<!--                        @click="getDetails(scope.row.service_id,scope.row.client_id)"-->
+<!--                    >-->
+<!--                        详情-->
+<!--                    </el-button>-->
+<!--                </template>-->
+<!--            </el-table-column>-->
         </el-table>
 
-        <el-dialog
-            title="调用详情"
-            :visible.sync="dialogTableVisible"
-            width="70%"
-        >
-            <el-table :data="apiCallDetails">
-                <el-table-column
-                    label="序号"
-                    min-width="40"
-                    type="index"
-                />
+<!--        <el-dialog-->
+<!--            title="调用详情"-->
+<!--            :visible.sync="dialogTableVisible"-->
+<!--            width="70%"-->
+<!--        >-->
+<!--            <el-table :data="apiCallDetails">-->
+<!--                <el-table-column-->
+<!--                    label="序号"-->
+<!--                    min-width="40"-->
+<!--                    type="index"-->
+<!--                />-->
 
-                <el-table-column
-                    label="服务名称"
-                    min-width="30"
-                >
-                    <template slot-scope="scope">
-                        <p>{{ scope.row.service_name }}</p>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    label="客户名称"
-                    min-width="30"
-                >
-                    <template slot-scope="scope">
-                        <p>{{ scope.row.client_name }}</p>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    label="服务类型"
-                    min-width="30"
-                >
-                    <template slot-scope="scope">
-                        <p>{{ scope.row.service_type }}</p>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    label="调用时间"
-                    min-width="120"
-                >
-                    <template slot-scope="scope">
-                        <p>{{ scope.row.created_time | dateFormat }}</p>
-                    </template>
-                </el-table-column>
+<!--                <el-table-column-->
+<!--                    label="服务名称"-->
+<!--                    min-width="30"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.service_name }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
+<!--                <el-table-column-->
+<!--                    label="客户名称"-->
+<!--                    min-width="30"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.client_name }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
+<!--                <el-table-column-->
+<!--                    label="服务类型"-->
+<!--                    min-width="30"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.service_type }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
+<!--                <el-table-column-->
+<!--                    label="调用时间"-->
+<!--                    min-width="120"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.created_time | dateFormat }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
 
-                <el-table-column
-                    label="调用 IP"
-                    min-width="40"
-                >
-                    <template slot-scope="scope">
-                        <p>{{ scope.row.ip_add }}</p>
-                    </template>
-                </el-table-column>
+<!--                <el-table-column-->
+<!--                    label="调用 IP"-->
+<!--                    min-width="40"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.ip_add }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
 
-                <el-table-column
-                    label="请求结果"
-                    min-width="30"
-                >
-                    <template slot-scope="scope">
-                        <p>{{ scope.row.request_result }}</p>
-                    </template>
-                </el-table-column>
-            </el-table>
+<!--                <el-table-column-->
+<!--                    label="请求结果"-->
+<!--                    min-width="30"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.request_result }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
+<!--            </el-table>-->
 
-            <div
-                v-if="dialogPagination.total"
-                class="mt20 text-r"
-            >
-                <el-pagination
-                    :total="dialogPagination.total"
-                    :page-sizes="[10, 20, 30, 40, 50]"
-                    :page-size="dialogPagination.page_size"
-                    :current-page="dialogPagination.page_index"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    @current-change="dialogCurrentPageChange"
-                    @size-change="dialogCurrentPageSizeChange"
-                />
-            </div>
-        </el-dialog>
+<!--            <div-->
+<!--                v-if="dialogPagination.total"-->
+<!--                class="mt20 text-r"-->
+<!--            >-->
+<!--                <el-pagination-->
+<!--                    :total="dialogPagination.total"-->
+<!--                    :page-sizes="[10, 20, 30, 40, 50]"-->
+<!--                    :page-size="dialogPagination.page_size"-->
+<!--                    :current-page="dialogPagination.page_index"-->
+<!--                    layout="total, sizes, prev, pager, next, jumper"-->
+<!--                    @current-change="dialogCurrentPageChange"-->
+<!--                    @size-change="dialogCurrentPageSizeChange"-->
+<!--                />-->
+<!--            </div>-->
+<!--        </el-dialog>-->
 
         <div
             v-if="pagination.total"
@@ -274,62 +274,51 @@
 
 <script>
 import table from '@src/mixins/table';
-import { mapGetters } from 'vuex';
+import {mapGetters} from 'vuex';
 
 export default {
-    name:   'OrderStatistics',
+    name: 'OrderStatistics',
     mixins: [table],
     data() {
         return {
-            loading:    false,
-            list:       [],
-            services:   [],
-            clients:    [],
+            loading: false,
+            list: [],
+            services: [],
+            clients: [],
             getListApi: '/orderstatistics/query-list',
-            search:     {
-                serviceName:            '',
-                requestPartnerName:     '',
-                responsePartnerName:    '',
+            search: {
+                serviceName: '',
+                requestPartnerName: '',
+                responsePartnerName: '',
                 statisticalGranularity: 'minute',
-                startTime:              '',
-                endTime:                '',
+                startTime: '',
+                endTime: '',
             },
-            defaultTime:      [],
+            defaultTime: [],
             dialogPagination: {
-                total:       '',
-                page_size:   10,
-                page_index:  1,
-                serviceId:   '',
-                clientId:    '',
+                total: '',
+                page_size: 10,
+                page_index: 1,
+                serviceId: '',
+                clientId: '',
                 change_flag: false,
             },
 
             statistical_granularity: [
-                { value: '月', label: '月' },
-                { value: '日', label: '日' },
-                { value: '小时', label: '小时' },
-                { value: '分钟', label: '分钟' },
+                {value: 'month', label: 'month'},
+                {value: 'day', label: 'day'},
+                {value: 'hour', label: 'hour'},
+                {value: 'minute', label: 'minute'},
             ],
 
             apiCallDetails: [],
 
             dialogTableVisible: false,
-            defaultSearch:      false,
+            defaultSearch: false,
         };
     },
 
     created() {
-
-        // this.defaultTime[0] = new Date(new Date().getFullYear() + '-'
-        //     + new Date().getMonth() + 1 + '-'
-        //     + new Date().getDate() + ' 00:00:00');
-        //
-        // this.defaultTime[1] = new Date(new Date().getFullYear() + '-'
-        //     + new Date().getMonth() + 1 + '-'
-        //     + new Date().getDate() + ' 23:59:59');
-
-        // this.getServices();
-        // this.getClients();
 
         this.search.statisticalGranularity = 'minute';
         this.getList();
@@ -397,8 +386,8 @@ export default {
         },
 
         async getServices() {
-            const { code, data } = await this.$http.post({
-                url:  '/service/query',
+            const {code, data} = await this.$http.post({
+                url: '/service/query',
                 data: {
                     status: 1,
                 },
@@ -410,7 +399,7 @@ export default {
         },
 
         async getClients() {
-            const { code, data } = await this.$http.post({
+            const {code, data} = await this.$http.post({
                 url: '/client/query-list',
             });
 
@@ -426,15 +415,15 @@ export default {
             this.dialogPagination.clientId = clientId;
 
             this.apiCallDetails = [];
-            const { code, data } = await this.$http.post({
-                url:  '/orderstatistics/query-list',
+            const {code, data} = await this.$http.post({
+                url: '/orderstatistics/query-list',
                 data: {
-                    serviceId:  this.dialogPagination.serviceId,
-                    clientId:   this.dialogPagination.clientId,
+                    serviceId: this.dialogPagination.serviceId,
+                    clientId: this.dialogPagination.clientId,
                     page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
-                    page_size:  change_flag ? this.dialogPagination.page_size : 10,
-                    startTime:  this.search.startTime,
-                    endTime:    this.search.endTime,
+                    page_size: change_flag ? this.dialogPagination.page_size : 10,
+                    startTime: this.search.startTime,
+                    endTime: this.search.endTime,
                 },
             });
 
