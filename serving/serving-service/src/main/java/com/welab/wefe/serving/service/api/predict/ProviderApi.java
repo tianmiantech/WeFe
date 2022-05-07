@@ -53,7 +53,7 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
         try {
 
             if (!ModelManager.getModelEnable(input.getModelId())) {
-                return fail("模型成员 " + CacheObjects.getMemberName() + " 未上线该模型");
+                return fail("模型成员 " + CacheObjects.getName() + " 未上线该模型");
             }
 
             /**

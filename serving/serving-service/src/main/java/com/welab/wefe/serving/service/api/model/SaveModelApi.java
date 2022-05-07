@@ -25,8 +25,6 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.dto.DTOConvertUtil;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.service.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
