@@ -41,7 +41,7 @@ public class OperationLogService {
     public PageOutput<OperationLog> findList(OperationLogQueryInput input) throws StatusCodeWithException {
 
         if (!CurrentAccount.isAdmin()) {
-            throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
+            throw new StatusCodeWithException("非管理员无法查看。", StatusCode.PERMISSION_DENIED);
         }
 
         return operationLogMongoRepo.findList(
