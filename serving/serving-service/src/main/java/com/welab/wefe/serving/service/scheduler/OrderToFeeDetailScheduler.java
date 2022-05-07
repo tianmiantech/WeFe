@@ -17,14 +17,11 @@ package com.welab.wefe.serving.service.scheduler;
 
 
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.FeeDetailMysqlModel;
-import com.welab.wefe.serving.service.service.ApiRequestRecordService;
-import com.welab.wefe.serving.service.service.ClientServiceService;
-import com.welab.wefe.serving.service.service.FeeConfigService;
-import com.welab.wefe.serving.service.service.FeeDetailService;
+import com.welab.wefe.serving.service.database.serving.entity.*;
+import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import com.welab.wefe.serving.service.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +35,15 @@ import java.util.List;
 import java.util.TimeZone;
 
 /**
- * 用于定时将接口调用信息转化为费用记录
+ * 用于定时将订单信息转化为费用记录
  *
  * @author ivenn.zheng
  * @date 2021/12/24
  */
-@Component
-public class ApiRequestToFeeDetailScheduler {
+//@Component
+public class OrderToFeeDetailScheduler {
 
-    private Logger logger = LoggerFactory.getLogger(LogStatisticsScheduler.class);
+    private Logger logger = LoggerFactory.getLogger(OrderToFeeDetailScheduler.class);
 
     @Autowired
     private FeeDetailService feeDetailService;
@@ -60,7 +57,10 @@ public class ApiRequestToFeeDetailScheduler {
     @Autowired
     private ClientServiceService clientServiceService;
 
-    @Scheduled(cron = "0 0 0-23 * * ?")
+    @Autowired
+    private ServiceOrderService serviceOrderService;
+
+//    @Scheduled(cron = "0 0 0-23 * * ?")
     public void feeRecord() {
 
         try {
@@ -78,8 +78,15 @@ public class ApiRequestToFeeDetailScheduler {
             List<ClientServiceMysqlModel> clientServiceMysqlModels = clientServiceService.getAll();
 
             for (ClientServiceMysqlModel model : clientServiceMysqlModels) {
+                ServiceOrderInput input = new ServiceOrderInput();
+                input.setStatus(ServiceOrderEnum.ORDERING.getValue());
+                input.setServiceId(model.getServiceId());
+                input.setRequestPartnerId(model.getClientId());
+                input.setCreatedStartTime(startTime);
+                input.setCreatedEndTime(endTime);
                 // get request records
-                List<ApiRequestRecordMysqlModel> list = apiRequestRecordService.getList(model.getServiceId(), model.getClientId(), startTime, endTime);
+                List<ServiceOrderMysqlModel> list = serviceOrderService.getByParams(input);
+
                 if (list.size() != 0) {
 
                     FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(model.getServiceId(), model.getClientId());
@@ -110,16 +117,16 @@ public class ApiRequestToFeeDetailScheduler {
                     feeDetailMysqlModel.setCreatedTime(endTime);
                     // 其他信息
                     feeDetailMysqlModel.setClientName(model.getClientName());
-                    feeDetailMysqlModel.setServiceType(model.getServiceType());
+                    feeDetailMysqlModel.setServiceType(ServiceTypeEnum.getValue(model.getServiceType()));
                     feeDetailMysqlModel.setServiceName(model.getServiceName());
 
                     feeDetailService.save(feeDetailMysqlModel);
 
                     logger.info("save fee detail by the scheduler in: " + DateUtil.getCurrentDate() + ", service id: "
-                            + model.getServiceId() + ", client id: " + model.getClientId()
+                            + model.getServiceId() + ", request partner id: " + model.getClientId()
                             + ", startTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(startTime)
                             + ", endTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime));
-                    logger.info("ApiRequestToFeeDetailScheduler end.");
+                    logger.info("OrderToFeeDetailScheduler end.");
                 } else {
                     logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
                 }

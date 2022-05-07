@@ -51,7 +51,7 @@ public class FeeDetailOutputModel {
      * 服务类型
      */
     @Column(name = "service_type")
-    private Integer serviceType;
+    private String serviceType;
 
     /**
      * 单价
@@ -63,7 +63,7 @@ public class FeeDetailOutputModel {
      * 付费类型
      */
     @Column(name = "pay_type")
-    private Integer payType;
+    private String payType;
 
     /**
      * 总调用次数
@@ -123,11 +123,11 @@ public class FeeDetailOutputModel {
         this.clientName = clientName;
     }
 
-    public Integer getServiceType() {
+    public String getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(Integer serviceType) {
+    public void setServiceType(String serviceType) {
         this.serviceType = serviceType;
     }
 
@@ -139,11 +139,11 @@ public class FeeDetailOutputModel {
         this.unitPrice = unitPrice;
     }
 
-    public Integer getPayType() {
+    public String getPayType() {
         return payType;
     }
 
-    public void setPayType(Integer payType) {
+    public void setPayType(String payType) {
         this.payType = payType;
     }
 
