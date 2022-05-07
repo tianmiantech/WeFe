@@ -17,9 +17,8 @@
 package com.welab.wefe.board.service.api.data_output_info;
 
 import com.welab.wefe.board.service.service.ServingService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -30,15 +29,14 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author hunter.zhao
  */
 @Api(path = "data_output_info/sync_model_to_serving", name = "sync model to serving service")
-public class SyncModelToServingApi extends AbstractNoneOutputApi<SyncModelToServingApi.Input> {
+public class PushModelToServingApi extends AbstractApi<PushModelToServingApi.Input, Object> {
 
     @Autowired
     private ServingService servingService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        servingService.syncModelToServing(input);
-        return success();
+    protected ApiResult<Object> handle(Input input) throws Exception {
+        return success(servingService.syncModelToServing(input));
     }
 
     public static class Input extends AbstractApiInput {
@@ -67,7 +65,12 @@ public class SyncModelToServingApi extends AbstractNoneOutputApi<SyncModelToServ
             this.role = role;
         }
 
-
+        public static Input of(String taskId, JobMemberRole role) {
+            Input input = new Input();
+            input.taskId = taskId;
+            input.role = role;
+            return input;
+        }
         //endregion
 
     }

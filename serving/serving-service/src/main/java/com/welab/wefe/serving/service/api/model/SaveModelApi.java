@@ -24,6 +24,9 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.dto.DTOConvertUtil;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.service.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,21 +51,16 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
 
     @Override
     protected ApiResult<?> handler(Input input) {
-        modelService.save(
-                input.getModelId(),
-                input.getAlgorithm(),
-                input.getFlType(),
-                input.getModelParam(),
-                input.getMemberParams(),
-                input.getName());
-
+        modelService.save(input);
         return success();
     }
 
     public static class Input extends AbstractApiInput {
 
-        @Check(require = true, name = "流水号")
+        @Check(require = true, name = "模型ID")
         private String modelId;
+        @Check(require = true, name = "我的角色")
+        private JobMemberRole myRole;
         @Check(name = "模型名称")
         private String name;
         @Check(require = true, name = "算法")
@@ -73,7 +71,6 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
         private String modelParam;
         @Check(require = true, name = "成员入参")
         private List<MemberParams> memberParams;
-
         @Check(name = "特征工程参数")
         Map<Integer, Object> featureEngineerMap;
 
@@ -135,6 +132,15 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
         public void setName(String name) {
             this.name = name;
         }
+
+        public JobMemberRole getMyRole() {
+            return myRole;
+        }
+
+        public void setMyRole(JobMemberRole myRole) {
+            this.myRole = myRole;
+        }
+
 
         //endregion
     }
