@@ -47,12 +47,12 @@ public class AliyunFunctionComputeConfigModel {
     /**
      * OSS的bucketName
      */
-    public String ossBucketName;
+    public String oss_bucket_name;
 
     /**
      * 专有网络vpc id，可选
      */
-    public String vpcId;
+    public String vpc_id;
     /**
      * 交换机v switch id，可选
      */
@@ -60,7 +60,7 @@ public class AliyunFunctionComputeConfigModel {
     /**
      * 安全组secure group id，可选
      */
-    public String securityGroupId;
+    public String security_group_id;
 
     /**
      * 版本号，默认LATEST，可选
