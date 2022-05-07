@@ -31,6 +31,16 @@
                             autosize
                         />
                     </el-form-item>
+
+                    <el-form-item
+                        label="Serving服务地址："
+                    >
+                        <el-input
+                            v-model="form.serving_base_url"
+                            placeholder=""
+                            :disabled="is_update"
+                        />
+                    </el-form-item>
                 </el-col>
             </el-row>
             <el-row :gutter="100">
@@ -67,6 +77,7 @@
                     rsa_private_key: '',
                     rsa_public_key:  '',
                     gateway_uri:     '',
+                    serving_base_url:'',
                 },
 
             };
