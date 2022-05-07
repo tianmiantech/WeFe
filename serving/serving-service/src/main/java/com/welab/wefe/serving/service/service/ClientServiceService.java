@@ -36,21 +36,21 @@ import com.welab.wefe.serving.service.api.clientservice.QueryApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryListApi;
 import com.welab.wefe.serving.service.api.clientservice.SaveApi;
 import com.welab.wefe.serving.service.api.clientservice.UpdateApi;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceOutputModel;
-import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ClientServiceQueryRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
-import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
+import com.welab.wefe.serving.service.database.serving.entity.*;
+import com.welab.wefe.serving.service.database.serving.repository.*;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -195,5 +195,29 @@ public class ClientServiceService {
 
     public List<ClientServiceMysqlModel> getAll() {
         return clientServiceRepository.findAll();
+    }
+
+
+    /**
+     * save clientService
+     *
+     * @param serviceId
+     * @param clientId
+     * @param publicKey
+     * @param type
+     * @throws StatusCodeWithException
+     */
+    public void save(String serviceId,
+                     String clientId,
+                     String publicKey,
+                     ServiceClientTypeEnum type,
+                     ServiceStatusEnum status) throws StatusCodeWithException {
+        SaveApi.Input clientService = new SaveApi.Input();
+        clientService.setClientId(clientId);
+        clientService.setServiceId(serviceId);
+        clientService.setStatus(status.getCode());
+        clientService.setPublicKey(publicKey);
+        clientService.setType(type.getValue());
+        save(clientService);
     }
 }

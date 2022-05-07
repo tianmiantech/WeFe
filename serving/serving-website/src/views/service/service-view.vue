@@ -64,7 +64,7 @@
                         label="sum"
                     >
                         SUM
-                    </el-radio>
+                    </el-radio>p
                     <el-radio
                         v-model="form.operator"
                         label="avg"
@@ -216,17 +216,17 @@
                     </el-form-item>
 
                     <template v-if="form.service_type === 1 || form.service_type === 3">
-                        <el-divider />
                         <el-form-item
                             v-for="(item, $index) in form.data_source.condition_fields"
                             :key="`condition_field-${$index}`"
                             class="condition_fields"
-                            label="查询字段:"
+                            label="查询条件:"
                         >
                             <el-tag>{{ sqlOperator === 'and' ? 'And' : 'Or' }}</el-tag>
                             <el-select
                                 v-model="item.field_on_table"
                                 class="ml10"
+                                @change="sqlShow"
                                 clearable
                             >
                                 <el-option
@@ -240,6 +240,7 @@
                             <el-select
                                 v-model="item.condition"
                                 class="ml10 no-arrow"
+                                @change="sqlShow"
                                 style="width:40px;"
                             >
                                 <el-option
@@ -260,6 +261,7 @@
                                 v-model="item.field_on_param"
                                 placeholder="从查询参数配置中选择"
                                 class="ml10"
+                                @change="sqlShow"
                                 clearable
                             >
                                 <el-option
@@ -287,17 +289,19 @@
                             <el-radio
                                 v-model="sqlOperator"
                                 label="and"
+                                @change="sqlShow"
                             >
                                 And
                             </el-radio>
                             <el-radio
+                                @change="sqlShow"
                                 v-model="sqlOperator"
                                 label="or"
                             >
                                 Or
                             </el-radio>
                         </el-form-item>
-
+                        <el-divider />
                         <div
                             v-if="form.service_type !== 3"
                             class="mt5 mb20"
@@ -308,6 +312,7 @@
                             >
                                 SQL测试
                             </el-button>
+                            <span style="font-size:12px;padding-left: 5px">{{show_sql_result}}</span>
                         </div>
                     </template>
                 </template>
@@ -558,6 +563,7 @@ export default {
                 return_fields: [],
             },
             sqlOperator: 'and',
+            show_sql_result:'',
         };
     },
     computed: {
@@ -648,7 +654,9 @@ export default {
                             };
                         });
                     }
-
+                    if(this.show_sql_result === ''){
+                        await this.sqlShow();
+                    }
                     this.api = preview || {};
                 }
             }
@@ -752,6 +760,33 @@ export default {
                 this.service_config.push(...rows);
             }
         },
+        async sqlShow(){
+            const { data_source: obj } = this.form;
+            const $params = {
+                data_source: {
+                    id:    obj.id,
+                    table: obj.table,
+                },
+            };
+            $params.data_source.return_fields = obj.return_fields.map(x => {
+                return {
+                    name: x,
+                    value: '',
+                };
+            });
+            $params.data_source.condition_fields = obj.condition_fields.map(x => {
+                x.operator = this.sqlOperator;
+                return x;
+            });
+            const { code, data } = await this.$http.post({
+                url:      '/service/show_sql',
+                timeout:  1000 * 60 * 24 * 30,
+                data:     $params
+            });
+            if (code === 0 && data) {
+                this.show_sql_result = '预览:' + data.result['sql'];
+            }
+        },
         sqlTest() {
             for (const i in this.form.paramsArr) {
                 const x = this.form.paramsArr[i];
@@ -833,7 +868,6 @@ export default {
                     target: event,
                 },
             });
-
             if (code === 0 && data) {
                 this.sql_test.return_fields.forEach(x => {
                     x.value = data.result[x.label] || '';

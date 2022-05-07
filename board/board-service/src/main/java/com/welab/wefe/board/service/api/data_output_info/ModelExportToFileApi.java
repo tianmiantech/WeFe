@@ -52,7 +52,7 @@ public class ModelExportToFileApi extends AbstractApi<ModelExportToFileApi.Input
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
 
-        TreeMap<String, Object> body = servingService.setBody(input.getTaskId(), input.getRole());
+        TreeMap<String, Object> body = servingService.setContent(input.getTaskId(), input.getRole());
 
         File file = WeFeFileSystem
                 .getBaseDir(WeFeFileSystem.UseType.Temp)

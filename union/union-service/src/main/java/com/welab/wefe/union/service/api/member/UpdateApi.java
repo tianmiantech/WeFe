@@ -17,8 +17,10 @@
 package com.welab.wefe.union.service.api.member;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -87,6 +89,13 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, MemberOutput> {
         if (StringUtil.isNotEmpty(input.getLogo())) {
             member.setLogo(input.getLogo());
         }
+
+        if (StringUtil.isNotEmpty(input.getServingBaseUrl())) {
+            MemberExtJSON memberExtJSON = JObject.parseObject(member.getExtJson(), MemberExtJSON.class);
+            memberExtJSON.setServingBaseUrl(input.getServingBaseUrl());
+            member.setExtJson(JObject.toJSONString(memberExtJSON));
+        }
+
         member.setUpdatedTime(new Date());
         member.setLastActivityTime(System.currentTimeMillis());
         return member;
@@ -107,6 +116,7 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, MemberOutput> {
         private String publicKey;
         private String gatewayUri;
         private String logo;
+        private String servingBaseUrl;
 
         public String getId() {
             return id;
@@ -194,6 +204,14 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, MemberOutput> {
 
         public void setLogo(String logo) {
             this.logo = logo;
+        }
+
+        public String getServingBaseUrl() {
+            return servingBaseUrl;
+        }
+
+        public void setServingBaseUrl(String servingBaseUrl) {
+            this.servingBaseUrl = servingBaseUrl;
         }
     }
 

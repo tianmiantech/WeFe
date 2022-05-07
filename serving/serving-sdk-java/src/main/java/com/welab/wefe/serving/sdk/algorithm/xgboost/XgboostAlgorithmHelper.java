@@ -21,6 +21,7 @@ import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -179,8 +180,14 @@ public class XgboostAlgorithmHelper {
     private static int nextTreeNodeIdByVert(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap) {
 
         int fid = model.getTrees().get(treeId).getTree(treeNodeId).getFid();
-        double splitValue = model.getTrees().get(treeId).getSplitMaskdict().get(treeNodeId);
         String fidStr = String.valueOf(fid);
+
+        double splitValue;
+        if (MapUtils.isNotEmpty(model.getTrees().get(treeId).getSplitMaskdict())) {
+            splitValue = model.getTrees().get(treeId).getSplitMaskdict().get(treeNodeId);
+        } else {
+            splitValue = model.getTrees().get(treeId).getTree(treeNodeId).getBid();
+        }
 
         return getNextNodeId(model, treeId, treeNodeId, featureDataMap, splitValue, fidStr);
     }
@@ -194,13 +201,13 @@ public class XgboostAlgorithmHelper {
      * @param treeId         Tree number
      * @param treeNodeId     Tree Node Number
      * @param featureDataMap Processed feature maps
-     * @param value          Node threshold
+     * @param splitValue     Node threshold
      * @param fidStr         Characteristics of the serial number
      */
-    private static int getNextNodeId(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, double value, String fidStr) {
+    private static int getNextNodeId(XgboostModel model, int treeId, int treeNodeId, Map<String, Object> featureDataMap, double splitValue, String fidStr) {
         if (featureDataMap.containsKey(fidStr)) {
             //Find the threshold by the number
-            if (TypeUtils.castToDouble(featureDataMap.get(fidStr)) <= value + COMPARING_VALUES) {
+            if (TypeUtils.castToDouble(featureDataMap.get(fidStr)) <= splitValue + COMPARING_VALUES) {
                 return model.getTrees().get(treeId).getTree().get(treeNodeId).getLeftNodeId();
             } else {
                 return model.getTrees().get(treeId).getTree().get(treeNodeId).getRightNodeId();
@@ -417,8 +424,11 @@ public class XgboostAlgorithmHelper {
                     double splitValue = decisionTree.getSplitMaskdict().get(j);
                     direction = TypeUtils.castToDouble(featVal) <= splitValue + 1e-20;
                 } else {
-                    if (decisionTree.getMissingDirMaskdict().containsKey(Integer.toString(j))) {
+                    if (MapUtils.isNotEmpty(decisionTree.getMissingDirMaskdict()) && decisionTree.getMissingDirMaskdict().containsKey(Integer.toString(j))) {
                         int missingDir = decisionTree.getMissingDirMaskdict().get(Integer.toString(j));
+                        direction = (missingDir != 1);
+                    } else {
+                        int missingDir = decisionTree.getTree(j).getMissingDir();
                         direction = (missingDir != 1);
                     }
                 }

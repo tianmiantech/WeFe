@@ -69,7 +69,7 @@ public class UnionServiceService {
         JSONObject result = query4Union(input);
         LOG.info("union query result = " + JSONObject.toJSONString(result));
         List<UnionServiceApi.Output> list = new ArrayList<>();
-        if (result.getInteger("code") == 0) {
+        if (result != null && result.getInteger("code") == 0) {
             JSONObject data = result.getJSONObject("data");
             JSONArray arr = data.getJSONArray("list");
             for (int i = 0; i < arr.size(); i++) {
@@ -139,6 +139,12 @@ public class UnionServiceService {
 		return request("member/service/put", params);
 	}
 	
+	public JSONObject updateServingBaseUrlOnUnion(String servingBaseUrl) throws StatusCodeWithException {
+	    JObject params = JObject.create().put("servingBaseUrl", servingBaseUrl);
+        LOG.info("union updateServingBaseUrlOnUnion params = " + JSONObject.toJSONString(params));
+        return request("member/update_serving_base_url", params);
+	}
+	
     public JSONObject memberQuery(String memberId) throws StatusCodeWithException {
         if (CACHE_MAP.containsKey(memberId)) {
             return (JSONObject) CACHE_MAP.get(memberId);
@@ -154,11 +160,13 @@ public class UnionServiceService {
                 CACHE_MAP.put(memberId, jo);
             }
         }
-
         return (JSONObject) CACHE_MAP.get(memberId);
     }
 
 	private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
+	    if (StringUtils.isBlank(config.getUnionBaseUrl())) {
+	        return new JSONObject();
+	    }
 		return request(api, params, true);
 	}
 
@@ -196,10 +204,13 @@ public class UnionServiceService {
 					StatusCode.REMOTE_SERVICE_ERROR);
 		}
 		Integer code = json.getInteger("code");
-		if (code == null || !code.equals(0)) {
-			throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"),
-					StatusCode.REMOTE_SERVICE_ERROR);
-		}
+        if (code == null || !code.equals(0)) {
+            if (code == 10031) {
+                throw new StatusCodeWithException("您尚未加入联邦：", StatusCode.PERMISSION_DENIED);
+            }
+            throw new StatusCodeWithException("union 响应失败(" + code + ")：" + json.getString("message"),
+                    StatusCode.PERMISSION_DENIED);
+        }
 		return json;
 	}
 }

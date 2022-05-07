@@ -17,27 +17,29 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.Algorithm;
-import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.service.api.model.EnableApi;
 import com.welab.wefe.serving.service.api.model.QueryApi;
-import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
+import com.welab.wefe.serving.service.api.model.SaveModelApi;
 import com.welab.wefe.serving.service.database.serving.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.MemberRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,75 +52,118 @@ import java.util.stream.Collectors;
 @Service
 public class ModelService {
 
+    Logger LOG = LoggerFactory.getLogger(getClass());
+
     @Autowired
     private ModelRepository modelRepository;
+
+    @Autowired
+    private ModelMemberService modelMemberService;
+
+    @Autowired
+    private PartnerService partnerService;
+
+    @Autowired
+    private ClientServiceService clientServiceService;
 
     @Autowired
     private ModelMemberRepository modelMemberRepository;
 
     @Autowired
-    private MemberRepository memberRepository;
+    private ServiceService serviceService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void save(String modelId, Algorithm algorithm, FederatedLearningType flType, String modelParam, List<MemberParams> memberParams, String name) {
+    public void save(SaveModelApi.Input input) {
 
-        ModelMySqlModel model = modelRepository.findOne("modelId", modelId, ModelMySqlModel.class);
+        modelMemberService.save(input.getModelId(), input.getMemberParams());
 
+        //Add partner
+        partnerService.save(input.getMemberParams());
+
+        //open or activate
+        openService(input);
+
+        //save model
+        upsert(input);
+
+        //TODO 考虑模型是否放到service表
+    }
+
+    private void upsert(SaveModelApi.Input input) {
+        ModelMySqlModel model = findOne(input.getModelId());
         if (model == null) {
             model = new ModelMySqlModel();
         }
 
-        Specification<ModelMemberMySqlModel> where = Where.
-                create().equal("modelId", modelId)
-                .build(ModelMemberMySqlModel.class);
+        convertTo(input, model);
 
-        List<ModelMemberMySqlModel> modelList = modelMemberRepository.findAll(where);
-        modelMemberRepository.deleteAll(modelList);
-
-
-        /**
-         * Model member information
-         */
-        List<ModelMemberMySqlModel> list = new ArrayList<>();
-        memberParams.forEach(x -> {
-            ModelMemberMySqlModel member = new ModelMemberMySqlModel();
-            member.setModelId(modelId);
-            member.setMemberId(x.getMemberId());
-            member.setRole(x.getRole());
-            list.add(member);
-        });
-
-        modelMemberRepository.saveAll(list);
-
-        /**
-         * Member basic information
-         */
-        List<MemberMySqlModel> members = new ArrayList<>();
-        for (MemberParams param : memberParams) {
-
-            MemberMySqlModel member = memberRepository.findOne("memberId", param.getMemberId(), MemberMySqlModel.class);
-            if (member == null) {
-                member = new MemberMySqlModel();
-            }
-
-            member.setMemberId(param.getMemberId());
-            member.setName(param.getName());
-            member.setPublicKey(param.getPublicKey());
-            members.add(member);
-        }
-
-        memberRepository.saveAll(members);
-
-
-        model.setModelId(modelId);
-        model.setName(name);
-        model.setModelParam(modelParam);
-        model.setAlgorithm(algorithm);
-        model.setFlType(flType);
         model.setUpdatedTime(new Date());
-
         modelRepository.save(model);
+    }
 
+    private ModelMySqlModel convertTo(SaveModelApi.Input input, ModelMySqlModel model) {
+        BeanUtils.copyProperties(input, model);
+        return model;
+    }
+
+    private void openService(SaveModelApi.Input input) {
+        if (JobMemberRole.provider.equals(input.getMyRole())) {
+            openPartnerService(input.getModelId(), input.getMemberParams());
+        } else {
+            activatePartnerService(input.getModelId(), input.getMemberParams());
+        }
+    }
+
+    /**
+     * promoter：Activate model service
+     *
+     * @param modelId
+     * @param memberParams
+     */
+    private void activatePartnerService(String modelId, List<MemberParams> memberParams) {
+        memberParams.forEach(
+                x -> {
+                    if (JobMemberRole.provider.equals(x.getRole())) {
+                        try {
+                            clientServiceService.save(
+                                    modelId,
+                                    x.getMemberId(),
+                                    x.getPublicKey(),
+                                    ServiceClientTypeEnum.ACTIVATE,
+                                    ServiceStatusEnum.UNUSED
+                            );
+                        } catch (StatusCodeWithException e) {
+                            LOG.error("模型服务激活失败: {]", e.getMessage());
+                        }
+                    }
+                }
+        );
+    }
+
+    /**
+     * provider: add opening record
+     *
+     * @param modelId
+     * @param memberParams
+     */
+    private void openPartnerService(String modelId, List<MemberParams> memberParams) {
+        memberParams.forEach(
+                x -> {
+                    if (JobMemberRole.promoter.equals(x.getRole())) {
+                        try {
+                            clientServiceService.save(
+                                    modelId,
+                                    x.getMemberId(),
+                                    x.getPublicKey(),
+                                    ServiceClientTypeEnum.OPEN,
+                                    ServiceStatusEnum.UNUSED
+                            );
+                        } catch (StatusCodeWithException e) {
+                            LOG.error("开通模型服务失败：{}", e.getMessage());
+                        }
+                    }
+                }
+        );
     }
 
     public ModelMySqlModel findOne(String modelId) {

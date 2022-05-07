@@ -25,7 +25,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.api.clientservice.SaveApi.Input;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 
-@Api(path = "clientservice/save", name = "save client service model")
+@Api(path = "clientservice/activate", name = "save client service model")
 public class ActivateServiceApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
     @Autowired

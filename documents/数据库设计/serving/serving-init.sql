@@ -367,3 +367,21 @@ CREATE TABLE `verification_code`
     `biz_id`        varchar(64)  DEFAULT NULL COMMENT '业务ID',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证码';
+
+
+
+DROP TABLE IF EXISTS `global_config`;
+CREATE TABLE `global_config`
+(
+    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`   varchar(32) DEFAULT NULL COMMENT '创建人',
+    `created_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`   varchar(32) DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
+    `group`        varchar(32) DEFAULT NULL COMMENT '配置项所在的组',
+    `name`         varchar(32) DEFAULT NULL COMMENT '配置项名称',
+    `value`        text COMMENT '配置项的值',
+    `comment`      text COMMENT '配置项的解释说明',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `index_unique_group_name` (`group`,`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置';
