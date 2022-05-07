@@ -461,8 +461,8 @@
                                 });
                             }
                         });
-                        
-                   
+
+
                 },
                 changeHeaderTitle() {
                     if(route.meta.titleParams) {
