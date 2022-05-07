@@ -29,6 +29,7 @@ import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import com.welab.wefe.serving.service.enums.QueryDateTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -53,18 +54,8 @@ public class FeeDetailService {
         if (null == model) {
             model = new FeeDetailMysqlModel();
         }
-
-        model.setTotalRequestTimes(input.getTotalRequestTimes());
-        model.setTotalFee(input.getTotalFee());
-        model.setClientId(input.getClientId());
-        model.setServiceId(input.getServiceId());
-        model.setUnitPrice(input.getUnitPrice());
-        model.setFeeConfigId(input.getFeeConfigId());
-        model.setPayType(input.getPayType());
+        BeanUtils.copyProperties(input, model);
         model.setCreatedTime(input.getCreatedTime() != null ? input.getCreatedTime() : new Date());
-        model.setServiceName(input.getServiceName());
-        model.setClientName(input.getClientName());
-        model.setServiceType(input.getServiceType());
         feeDetailRepository.save(model);
     }
 
