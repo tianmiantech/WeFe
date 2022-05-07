@@ -17,20 +17,30 @@ package com.welab.wefe.serving.service.service;
 
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.api.orderstatistics.DownloadApi;
 import com.welab.wefe.serving.service.api.orderstatistics.QueryListApi;
 import com.welab.wefe.serving.service.api.orderstatistics.SaveApi;
+import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.OrderStatisticsMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.OrderStatisticsRepository;
 import com.welab.wefe.serving.service.dto.OrderStatisticsInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import de.siegmar.fastcsv.writer.CsvWriter;
+import de.siegmar.fastcsv.writer.LineDelimiter;
+import de.siegmar.fastcsv.writer.QuoteStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +57,117 @@ public class OrderStatisticsService {
 
     @Autowired
     OrderStatisticsRepository orderStatisticsRepository;
+
+    @Autowired
+    private Config config;
+
+    private static final String filePrefix = "order_statistics/";
+
+    public File downloadFile(DownloadApi.Input input) {
+        String fileName = DateUtil.getCurrentDate() + "_result.csv";
+        List<Map<String, Object>> list = new ArrayList<>();
+        switch (input.getStatisticalGranularity()) {
+            case "month":
+
+                list = orderStatisticsRepository.groupByMonth(
+                        input.getServiceId(),
+                        input.getServiceName(),
+                        input.getRequestPartnerId(),
+                        input.getRequestPartnerName(),
+                        input.getResponsePartnerId(),
+                        input.getResponsePartnerName(),
+                        input.getStartTime(),
+                        input.getEndTime());
+                break;
+            case "day":
+                list = orderStatisticsRepository.groupByDay(
+                        input.getServiceId(),
+                        input.getServiceName(),
+                        input.getRequestPartnerId(),
+                        input.getRequestPartnerName(),
+                        input.getResponsePartnerId(),
+                        input.getResponsePartnerName(),
+                        input.getStartTime(),
+                        input.getEndTime());
+                break;
+            case "hour":
+                list = orderStatisticsRepository.groupByHour(
+                        input.getServiceId(),
+                        input.getServiceName(),
+                        input.getRequestPartnerId(),
+                        input.getRequestPartnerName(),
+                        input.getResponsePartnerId(),
+                        input.getResponsePartnerName(),
+                        input.getStartTime(),
+                        input.getEndTime());
+                break;
+            case "minute":
+                list = orderStatisticsRepository.groupByMinute(
+                        input.getServiceId(),
+                        input.getServiceName(),
+                        input.getRequestPartnerId(),
+                        input.getRequestPartnerName(),
+                        input.getResponsePartnerId(),
+                        input.getResponsePartnerName(),
+                        input.getStartTime(),
+                        input.getEndTime());
+                break;
+            default:
+                log.info("order statistics not match!");
+                break;
+        }
+        String jsonString = JSON.toJSONString(list);
+        List<QueryListApi.Output> all = JSON.parseArray(jsonString, QueryListApi.Output.class);
+        try {
+            return writeCSV(all, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public File writeCSV(List<QueryListApi.Output> dataList, String fileName) throws IOException {
+        final StringWriter sw = new StringWriter();
+        CsvWriter csvWriter = CsvWriter.builder()
+                .fieldSeparator(',')
+                .quoteStrategy(QuoteStrategy.EMPTY)
+                .lineDelimiter(LineDelimiter.LF)
+                .build(sw);
+
+        csvWriter.writeRow("服务Id", "服务名称", "请求方Id", "请求方名称",
+                "响应方Id", "响应方名称", "总请求次数", "总成功次数", "总失败次数", "时间");
+
+        for (QueryListApi.Output model : dataList) {
+            csvWriter.writeRow(
+                    model.getServiceId(),
+                    model.getServiceName(),
+                    model.getRequestPartnerId(),
+                    model.getRequestPartnerName(),
+                    model.getResponsePartnerId(),
+                    model.getResponsePartnerName(),
+                    model.getCallTimes().toString(),
+                    model.getSuccessTimes().toString(),
+                    model.getFailedTimes().toString(),
+                    model.getDateTime()
+            );
+        }
+
+        File csvFile = new File(config.getFileBasePath() + filePrefix + fileName);
+        if (!csvFile.exists()) {
+            File file = new File(csvFile.getParent());
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+        }
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile), StandardCharsets.UTF_8));
+        bw.write('\ufeff');
+        bw.write(sw.toString());
+        bw.flush();
+        bw.close();
+
+        return csvFile;
+    }
+
 
     public void save(SaveApi.Input input) {
 

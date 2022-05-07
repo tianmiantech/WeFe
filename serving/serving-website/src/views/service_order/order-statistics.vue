@@ -158,102 +158,102 @@
             </el-table-column>
 
 
-            <!--            <el-table-column-->
-            <!--                label="操作"-->
-            <!--                min-width="60"-->
-            <!--                align="center"-->
-            <!--                fixed="right"-->
-            <!--            >-->
-            <!--                <template slot-scope="scope">-->
-            <!--                    <el-button-->
-            <!--                        type="primary"-->
-            <!--                        @click="getDetails(scope.row.service_id,scope.row.client_id)"-->
-            <!--                    >-->
-            <!--                        详情-->
-            <!--                    </el-button>-->
-            <!--                </template>-->
-            <!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                label="操作"-->
+<!--                min-width="60"-->
+<!--                align="center"-->
+<!--                fixed="right"-->
+<!--            >-->
+<!--                <template slot-scope="scope">-->
+<!--                    <el-button-->
+<!--                        type="primary"-->
+<!--                        @click="getDetails(scope.row.service_id,scope.row.client_id)"-->
+<!--                    >-->
+<!--                        详情-->
+<!--                    </el-button>-->
+<!--                </template>-->
+<!--            </el-table-column>-->
         </el-table>
 
-        <!--        <el-dialog-->
-        <!--            title="调用详情"-->
-        <!--            :visible.sync="dialogTableVisible"-->
-        <!--            width="70%"-->
-        <!--        >-->
-        <!--            <el-table :data="apiCallDetails">-->
-        <!--                <el-table-column-->
-        <!--                    label="序号"-->
-        <!--                    min-width="40"-->
-        <!--                    type="index"-->
-        <!--                />-->
+<!--        <el-dialog-->
+<!--            title="调用详情"-->
+<!--            :visible.sync="dialogTableVisible"-->
+<!--            width="70%"-->
+<!--        >-->
+<!--            <el-table :data="apiCallDetails">-->
+<!--                <el-table-column-->
+<!--                    label="序号"-->
+<!--                    min-width="40"-->
+<!--                    type="index"-->
+<!--                />-->
 
-        <!--                <el-table-column-->
-        <!--                    label="服务名称"-->
-        <!--                    min-width="30"-->
-        <!--                >-->
-        <!--                    <template slot-scope="scope">-->
-        <!--                        <p>{{ scope.row.service_name }}</p>-->
-        <!--                    </template>-->
-        <!--                </el-table-column>-->
-        <!--                <el-table-column-->
-        <!--                    label="客户名称"-->
-        <!--                    min-width="30"-->
-        <!--                >-->
-        <!--                    <template slot-scope="scope">-->
-        <!--                        <p>{{ scope.row.client_name }}</p>-->
-        <!--                    </template>-->
-        <!--                </el-table-column>-->
-        <!--                <el-table-column-->
-        <!--                    label="服务类型"-->
-        <!--                    min-width="30"-->
-        <!--                >-->
-        <!--                    <template slot-scope="scope">-->
-        <!--                        <p>{{ scope.row.service_type }}</p>-->
-        <!--                    </template>-->
-        <!--                </el-table-column>-->
-        <!--                <el-table-column-->
-        <!--                    label="调用时间"-->
-        <!--                    min-width="120"-->
-        <!--                >-->
-        <!--                    <template slot-scope="scope">-->
-        <!--                        <p>{{ scope.row.created_time | dateFormat }}</p>-->
-        <!--                    </template>-->
-        <!--                </el-table-column>-->
+<!--                <el-table-column-->
+<!--                    label="服务名称"-->
+<!--                    min-width="30"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.service_name }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
+<!--                <el-table-column-->
+<!--                    label="客户名称"-->
+<!--                    min-width="30"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.client_name }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
+<!--                <el-table-column-->
+<!--                    label="服务类型"-->
+<!--                    min-width="30"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.service_type }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
+<!--                <el-table-column-->
+<!--                    label="调用时间"-->
+<!--                    min-width="120"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.created_time | dateFormat }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
 
-        <!--                <el-table-column-->
-        <!--                    label="调用 IP"-->
-        <!--                    min-width="40"-->
-        <!--                >-->
-        <!--                    <template slot-scope="scope">-->
-        <!--                        <p>{{ scope.row.ip_add }}</p>-->
-        <!--                    </template>-->
-        <!--                </el-table-column>-->
+<!--                <el-table-column-->
+<!--                    label="调用 IP"-->
+<!--                    min-width="40"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.ip_add }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
 
-        <!--                <el-table-column-->
-        <!--                    label="请求结果"-->
-        <!--                    min-width="30"-->
-        <!--                >-->
-        <!--                    <template slot-scope="scope">-->
-        <!--                        <p>{{ scope.row.request_result }}</p>-->
-        <!--                    </template>-->
-        <!--                </el-table-column>-->
-        <!--            </el-table>-->
+<!--                <el-table-column-->
+<!--                    label="请求结果"-->
+<!--                    min-width="30"-->
+<!--                >-->
+<!--                    <template slot-scope="scope">-->
+<!--                        <p>{{ scope.row.request_result }}</p>-->
+<!--                    </template>-->
+<!--                </el-table-column>-->
+<!--            </el-table>-->
 
-        <!--            <div-->
-        <!--                v-if="dialogPagination.total"-->
-        <!--                class="mt20 text-r"-->
-        <!--            >-->
-        <!--                <el-pagination-->
-        <!--                    :total="dialogPagination.total"-->
-        <!--                    :page-sizes="[10, 20, 30, 40, 50]"-->
-        <!--                    :page-size="dialogPagination.page_size"-->
-        <!--                    :current-page="dialogPagination.page_index"-->
-        <!--                    layout="total, sizes, prev, pager, next, jumper"-->
-        <!--                    @current-change="dialogCurrentPageChange"-->
-        <!--                    @size-change="dialogCurrentPageSizeChange"-->
-        <!--                />-->
-        <!--            </div>-->
-        <!--        </el-dialog>-->
+<!--            <div-->
+<!--                v-if="dialogPagination.total"-->
+<!--                class="mt20 text-r"-->
+<!--            >-->
+<!--                <el-pagination-->
+<!--                    :total="dialogPagination.total"-->
+<!--                    :page-sizes="[10, 20, 30, 40, 50]"-->
+<!--                    :page-size="dialogPagination.page_size"-->
+<!--                    :current-page="dialogPagination.page_index"-->
+<!--                    layout="total, sizes, prev, pager, next, jumper"-->
+<!--                    @current-change="dialogCurrentPageChange"-->
+<!--                    @size-change="dialogCurrentPageSizeChange"-->
+<!--                />-->
+<!--            </div>-->
+<!--        </el-dialog>-->
 
         <div
             v-if="pagination.total"
@@ -344,7 +344,8 @@ export default {
 
 
         downloadStatistics() {
-            const api = `${window.api.baseUrl}/orderstatistics/download?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}&version=${Math.random()}`;
+
+            const api = `${window.api.baseUrl}/orderstatistics/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&statisticalGranularity=${this.search.statisticalGranularity}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}&version=${Math.random()}`;
             const link = document.createElement('a');
 
             link.href = api;
