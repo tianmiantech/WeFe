@@ -97,6 +97,15 @@
             </el-table-column>
 
             <el-table-column
+                label="URL"
+                min-width="140px"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.url }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
                 label="服务类型"
                 prop="service_type"
                 min-width="100px"

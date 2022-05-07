@@ -76,20 +76,11 @@
             </el-table-column>
 
             <el-table-column
-                label="API 名称"
-                min-width="140px"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.api_name }}
-                </template>
-            </el-table-column>
-
-            <el-table-column
                 label="URL"
                 min-width="140px"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.base_url }}
+                    {{ scope.row.base_url }}{{ scope.row.api_name }}
                 </template>
             </el-table-column>
 
@@ -187,7 +178,6 @@ export default {
         //         this.list = data.list
         //     }
         // }
-
     },
 };
 </script>
