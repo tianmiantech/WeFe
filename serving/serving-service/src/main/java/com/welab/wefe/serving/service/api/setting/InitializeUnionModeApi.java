@@ -16,26 +16,38 @@
 
 package com.welab.wefe.serving.service.api.setting;
 
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.service.GlobalSettingService;
+import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.enums.ServingModeEnum;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Zane
  */
-@Api(path = "global_setting/update", name = "Update global settings")
-public class GlobalSettingUpdateApi extends AbstractNoneOutputApi<GlobalSettingUpdateApi.Input> {
+@Api(
+        path = "global_config/initialize/union",
+        name = "Initialize system",
+        desc = "Initialize the system and set global parameters.",
+        login = false
+)
+public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnionModeApi.Input> {
 
     @Autowired
-    private GlobalSettingService globalSettingService;
+    private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<?> handler(Input input) {
-        globalSettingService.updateMemberInfo(input);
+    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+        //校验账号密码 check方法。
+
+        //initialize
+        IdentityInfoModel model = input.convertToIdentityInfoModel();
+        globalConfigService.initialize(model);
         return success();
     }
 
@@ -55,12 +67,26 @@ public class GlobalSettingUpdateApi extends AbstractNoneOutputApi<GlobalSettingU
 
         @Check(name = "公钥")
         private String rsaPublicKey;
-        
-        @Check(name="私钥")
+
+        @Check(name = "私钥")
         private String rsaPrivateKey;
-        
-        @Check(name="服务地址")
-        private String servingBaseUrl;
+
+        @Check(require = true)
+        private String phoneNumber;
+
+        @Check(require = true)
+        private String password;
+
+        public IdentityInfoModel convertToIdentityInfoModel() {
+            IdentityInfoModel model = new IdentityInfoModel();
+            model.setId(memberId);
+            model.setName(memberName);
+            model.setAvatar("");
+            model.setRsaPrivateKey(rsaPrivateKey);
+            model.setRsaPublicKey(rsaPublicKey);
+            model.setMode(ServingModeEnum.union.name());
+            return model;
+        }
 
         //region getter/setter
 
@@ -88,22 +114,30 @@ public class GlobalSettingUpdateApi extends AbstractNoneOutputApi<GlobalSettingU
             this.rsaPublicKey = rsaPublicKey;
         }
 
-		public String getRsaPrivateKey() {
-			return rsaPrivateKey;
-		}
-
-		public void setRsaPrivateKey(String rsaPrivateKey) {
-			this.rsaPrivateKey = rsaPrivateKey;
-		}
-
-        public String getServingBaseUrl() {
-            return servingBaseUrl;
+        public String getRsaPrivateKey() {
+            return rsaPrivateKey;
         }
 
-        public void setServingBaseUrl(String servingBaseUrl) {
-            this.servingBaseUrl = servingBaseUrl;
+        public void setRsaPrivateKey(String rsaPrivateKey) {
+            this.rsaPrivateKey = rsaPrivateKey;
         }
-		
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
         //endregion
     }
 

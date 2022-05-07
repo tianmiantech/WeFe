@@ -16,16 +16,15 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import org.springframework.data.domain.Sort;
-
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.GlobalSettingMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
-import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
+import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
+import org.springframework.data.domain.Sort;
+
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Global cache
@@ -38,11 +37,13 @@ import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingR
  */
 public class CacheObjects {
 
-    private static String MEMBER_ID;
+    private static String ID;
+    //    private static String MEMBER_ID;
     private static String RSA_PRIVATE_KEY;
     private static String RSA_PUBLIC_KEY;
     private static String BASE_URL;
-    private static String MEMBER_NAME;
+    //    private static String MEMBER_NAME;
+    private static String NAME;
 
     /**
      * accountId : nickname
@@ -50,53 +51,56 @@ public class CacheObjects {
     private static LinkedHashMap<String, String> ACCOUNT_MAP = new LinkedHashMap<>();
 
     public static String getMemberId() {
-        if (MEMBER_ID == null) {
-            refreshMemberInfo();
+        if (ID == null) {
+            refreshIdentityInfo();
         }
-        return MEMBER_ID;
+        return ID;
     }
 
     public static String getRsaPrivateKey() {
         if (RSA_PRIVATE_KEY == null) {
-            refreshMemberInfo();
+            refreshIdentityInfo();
         }
         return RSA_PRIVATE_KEY;
     }
 
     public static String getRsaPublicKey() {
         if (RSA_PUBLIC_KEY == null) {
-            refreshMemberInfo();
+            refreshIdentityInfo();
         }
         return RSA_PUBLIC_KEY;
     }
 
     public static String getBaseUrl() {
         if (BASE_URL == null) {
-            refreshMemberInfo();
+            refreshIdentityInfo();
         }
         return BASE_URL;
     }
 
-    public static String getMemberName() {
-        if (MEMBER_NAME == null) {
-            refreshMemberInfo();
+    public static String getName() {
+        if (NAME == null) {
+            refreshIdentityInfo();
         }
-        return MEMBER_NAME;
+        return NAME;
     }
 
 
     /**
      * Reload member information
      */
-    public static void refreshMemberInfo() {
-        GlobalSettingRepository repo = Launcher.CONTEXT.getBean(GlobalSettingRepository.class);
-        GlobalSettingMySqlModel model = repo.singleton();
+    public static void refreshIdentityInfo() {
+        GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
+        IdentityInfoModel model = service.getIdentityInfo();
 
-        MEMBER_ID = model.getMemberId();
+        if (model == null) {
+            return;
+        }
+
+        ID = model.getId();
         RSA_PUBLIC_KEY = model.getRsaPublicKey();
         RSA_PRIVATE_KEY = model.getRsaPrivateKey();
-        BASE_URL = model.getGatewayUri();
-        MEMBER_NAME = model.getMemberName();
+        NAME = model.getName();
     }
 
 

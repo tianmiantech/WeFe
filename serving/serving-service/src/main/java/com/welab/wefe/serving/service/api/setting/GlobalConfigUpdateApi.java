@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,34 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.serving.service.api.setting;
 
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.api.base.Caller;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.service.GlobalSettingService;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
+
 /**
- * @author Zane
+ * @author hunter.zhao
  */
-@Api(
-        path = "global_setting/refresh",
-        name = "更新 全局设置",
-        rsaVerify = true,
-        login = false,
-        domain = Caller.Board
-)
-public class GlobalSettingRefreshApi extends AbstractNoneOutputApi<GlobalSettingUpdateApi.Input> {
+@Api(path = "global_config/update", name = "更新配置信息", login = false)
+public class GlobalConfigUpdateApi extends AbstractNoneOutputApi<GlobalConfigUpdateApi.Input> {
 
     @Autowired
-    private GlobalSettingService globalSettingService;
+    private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<?> handler(GlobalSettingUpdateApi.Input input) {
-        globalSettingService.updateMemberInfo(input);
+    protected ApiResult handler(Input input) throws StatusCodeWithException {
+        globalConfigService.update(input);
         return success();
+    }
+
+    public static class Input extends AbstractApiInput {
+        public Map<String, Map<String, String>> groups;
     }
 }
