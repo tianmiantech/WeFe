@@ -101,7 +101,10 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     public void init() throws StatusCodeWithException, InstantiationException, IllegalAccessException {
         LOG.info("start init global config");
 
-        List<Class<?>> classes = ReflectionsUtil.getClassesWithAnnotation(GlobalConfigFlag.class.getPackage().getName(), ConfigModel.class);
+        List<Class<?>> classes = ReflectionsUtil.getClassesWithAnnotation(
+                GlobalConfigFlag.class.getPackage().getName(),
+                ConfigModel.class
+        );
         for (Class<?> aClass : classes) {
             Object model = getModel(aClass);
             if (model == null) {
