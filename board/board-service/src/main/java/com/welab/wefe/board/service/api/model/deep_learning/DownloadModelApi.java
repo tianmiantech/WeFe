@@ -60,7 +60,7 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
     @Override
     protected ApiResult<ResponseEntity<?>> handle(Input input) throws Exception {
         TaskMySqlModel task = taskService.findOne(input.taskId);
-        DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
+        DeepLearningConfigModel deepLearningConfig = globalConfigService.getModel(DeepLearningConfigModel.class);
         if (deepLearningConfig == null || StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
             StatusCode.RPC_ERROR.throwException("尚未设置VisualFL服务地址，请在[全局设置][计算引擎设置]中设置VisualFL服务地址。");
         }

@@ -25,6 +25,7 @@ import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
+import com.welab.wefe.board.service.dto.globalconfig.BoardConfigModel;
 import com.welab.wefe.board.service.dto.kernel.Member;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.Env;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob;
@@ -104,7 +105,7 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
     private String buildDataSetDownloadUrl(String dataSetId, String jobId, String version) {
         Api annotation = ImageDataSetDownloadApi.class.getAnnotation(Api.class);
         return Launcher.getBean(GlobalConfigService.class)
-                .getBoardConfig()
+                .getModel(BoardConfigModel.class)
                 .intranetBaseUri
                 + "/"
                 + annotation.path()

@@ -21,7 +21,6 @@ import com.welab.wefe.board.service.database.entity.chat.MessageQueueMySqlModel;
 import com.welab.wefe.board.service.database.repository.ChatUnreadMessageRepository;
 import com.welab.wefe.board.service.service.MemberChatService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     public void onApplicationEvent(ApplicationStartedEvent event) {
         try {
             globalConfigService.init();
-        } catch (StatusCodeWithException e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
         startChatListener();

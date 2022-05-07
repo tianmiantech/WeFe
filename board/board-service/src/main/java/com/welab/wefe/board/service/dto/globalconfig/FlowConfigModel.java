@@ -16,9 +16,13 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+
 /**
  * @author zane.luo
  */
+@ConfigModel(group = ConfigGroupConstant.WEFE_FLOW)
 public class FlowConfigModel {
     /***
      * Flow service intranet base uri

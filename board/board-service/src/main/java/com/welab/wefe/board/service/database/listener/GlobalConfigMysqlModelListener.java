@@ -17,8 +17,7 @@
 package com.welab.wefe.board.service.database.listener;
 
 import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
-import com.welab.wefe.board.service.database.entity.VerificationCodeMysqlModel;
-import com.welab.wefe.board.service.service.globalconfig.BaseGlobalConfigService;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 
@@ -34,7 +33,7 @@ public class GlobalConfigMysqlModelListener {
     public void prePersist(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
-            if (BaseGlobalConfigService.Group.MEMBER_INFO.equals(model.getGroup())
+            if (ConfigGroupConstant.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
                 model.setValue(BoardSM4Util.encryptCommonText(model.getValue()));
             }
@@ -56,7 +55,7 @@ public class GlobalConfigMysqlModelListener {
     public void postLoad(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
-            if (BaseGlobalConfigService.Group.MEMBER_INFO.equals(model.getGroup())
+            if (ConfigGroupConstant.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
                 if (BoardSM4Util.isEncryptText(model.getValue())) {
                     model.setValue(BoardSM4Util.decryptCommonText(model.getValue()));

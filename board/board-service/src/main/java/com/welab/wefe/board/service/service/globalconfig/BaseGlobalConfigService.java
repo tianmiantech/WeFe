@@ -24,6 +24,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigInput;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -39,20 +40,6 @@ import java.util.Objects;
  * @author zane
  */
 public class BaseGlobalConfigService extends AbstractService {
-
-    public static class Group {
-        public static String MEMBER_INFO = "member_info";
-        public static String MAIL_SERVER = "mail_server";
-        public static String ALERT_CONFIG = "alert_config";
-        public static String WEFE_GATEWAY = "wefe_gateway";
-        public static String WEFE_BOARD = "wefe_board";
-        public static String WEFE_FLOW = "wefe_flow";
-        public static String WEFE_SERVING = "wefe_serving";
-        public static String FC_CONFIG = "function_compute_config";
-        public static String DEEP_LEARNING_CONFIG = "deep_learning_config";
-        public static String CALCULATION_ENGINE_CONFIG = "calculation_engine_config";
-
-    }
 
 
     @Autowired
@@ -70,7 +57,7 @@ public class BaseGlobalConfigService extends AbstractService {
     /**
      * Add or update an object (multiple records)
      */
-    protected void put(String group, Object obj) throws StatusCodeWithException {
+    public void put(Object obj) throws StatusCodeWithException {
         /**
          * 1. The names stored in the database are unified as underscores
          * 2. Since fastjson discards fields with a value of null by default,
@@ -80,9 +67,11 @@ public class BaseGlobalConfigService extends AbstractService {
         config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
         String json_string = JSON.toJSONString(obj, config, SerializerFeature.WriteMapNullValue);
 
+        ConfigModel annotation = obj.getClass().getAnnotation(ConfigModel.class);
+
         JSONObject json = JSON.parseObject(json_string);
         for (String name : json.keySet()) {
-            put(group, name, json.getString(name), null);
+            put(annotation.group(), name, json.getString(name), null);
         }
     }
 
@@ -139,8 +128,9 @@ public class BaseGlobalConfigService extends AbstractService {
     /**
      * Get the entity corresponding to the specified group
      */
-    protected <T> T getModel(String group, Class<T> clazz) {
-        List<GlobalConfigMysqlModel> list = list(group);
+    public <T> T getModel(Class<T> clazz) {
+        ConfigModel annotation = clazz.getAnnotation(ConfigModel.class);
+        List<GlobalConfigMysqlModel> list = list(annotation.group());
         return toModel(list, clazz);
     }
 

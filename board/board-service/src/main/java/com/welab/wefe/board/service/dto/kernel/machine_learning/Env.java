@@ -40,7 +40,7 @@ public class Env {
     @JSONField(serialize = false)
     public static Env get() {
         Env env = new Env();
-        CalculationEngineConfigModel calculationEngineConfig = Launcher.getBean(GlobalConfigService.class).getCalculationEngineConfig();
+        CalculationEngineConfigModel calculationEngineConfig = Launcher.getBean(GlobalConfigService.class).getModel(CalculationEngineConfigModel.class);
         if (StringUtil.isEmpty(calculationEngineConfig.backend)) {
             throw new RuntimeException("计算环境未选择，请在[全局设置][计算引擎设置]中指定计算环境。");
         }

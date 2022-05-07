@@ -15,33 +15,27 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.fc;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+
 /**
  * @author zane
  * @date 2021/10/29
  */
-public class AliyunFunctionComputeConfigModel extends FunctionComputeConfigModel {
-
-    /**
-     * 函数计算所在的区域
-     */
-    public String region = "cn-shenzhen";
-    /**
-     * 版本号，默认LATEST
-     */
-    public String qualifier = "LATEST";
-    /**
-     * 服务名称
-     */
-    public String serviceName;
-
+@ConfigModel(group = ConfigGroupConstant.ALIYUN_FC_CONFIG)
+public class AliyunFunctionComputeConfigModel {
     /**
      * 账号类型：api/admin
      */
-    public String accountType = "api";
+    public String accountType = "admin";
     /**
      * 账号ID
      */
     public String accountId;
+    /**
+     * 函数计算所在的区域
+     */
+    public String region = "cn-shenzhen";
     /**
      * AccessKeyId
      */
@@ -51,9 +45,10 @@ public class AliyunFunctionComputeConfigModel extends FunctionComputeConfigModel
      */
     public String accessKeySecret;
     /**
-     * 函数请求的Endpoint
+     * OSS的bucketName
      */
-    public String endPoint;
+    public String ossBucketName;
+
     /**
      * 专有网络vpc id，可选
      */
@@ -67,38 +62,8 @@ public class AliyunFunctionComputeConfigModel extends FunctionComputeConfigModel
      */
     public String securityGroupId;
 
-
     /**
-     * OSS的bucketName
+     * 版本号，默认LATEST，可选
      */
-    public String ossBucketName;
-    /**
-     * OSS的外网Endpoint
-     */
-    public String ossEndpoint;
-    /**
-     * OSS的内网Endpoint
-     */
-    public String ossInternalEndpoint;
-
-    /**
-     * OSS临时授权的外网Endpoint
-     */
-    public String cloudStoreTempAuthEndPoint;
-    /**
-     * OSS临时授权的内网endpoint
-     */
-    public String cloudStoreTempAuthInternalEndPoint;
-    /**
-     * OSS临时授权的角色ARN
-     */
-    public String cloudStoreTempAuthRoleArn;
-    /**
-     * OSS临时授权的Session名
-     */
-    public String cloudStoreTempAuthRoleSessionName = "tianmian";
-    /**
-     * OSS临时授权的有效时间，单位：分钟。默认3600
-     */
-    public String cloudStoreTempAuthDurationSeconds = "3600";
+    public String qualifier = "LATEST";
 }

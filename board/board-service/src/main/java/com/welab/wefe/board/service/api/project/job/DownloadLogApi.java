@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.project.job;
 
+import com.welab.wefe.board.service.dto.globalconfig.FlowConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -42,7 +43,7 @@ public class DownloadLogApi extends AbstractApi<DownloadLogApi.Input, ResponseEn
     @Override
     protected ApiResult<ResponseEntity> handle(DownloadLogApi.Input input) throws StatusCodeWithException {
 
-        String url = globalConfigService.getFlowConfig().intranetBaseUri + "/job/download_logs?job_id=" + input.jobId;
+        String url = globalConfigService.getModel(FlowConfigModel.class).intranetBaseUri + "/job/download_logs?job_id=" + input.jobId;
         RequestEntity requestEntity = new RequestEntity<>(null, null, HttpMethod.GET, UrlUtil.createUri(url));
 
         RestTemplate restTemplate = new RestTemplate();

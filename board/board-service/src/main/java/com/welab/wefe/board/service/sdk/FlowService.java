@@ -49,7 +49,7 @@ public class FlowService extends AbstractService {
     }
 
     private JObject request(String api, JSONObject params) throws StatusCodeWithException {
-        FlowConfigModel flowConfig = globalConfigService.getFlowConfig();
+        FlowConfigModel flowConfig = globalConfigService.getModel(FlowConfigModel.class);
         if (flowConfig == null || StringUtil.isEmpty(flowConfig.intranetBaseUri)) {
             StatusCode.RPC_ERROR.throwException("尚未设置 flow 内网地址，请在[全局设置][系统设置]中设置 flow 服务的内网地址。");
         }
@@ -64,7 +64,7 @@ public class FlowService extends AbstractService {
         }
 
         HttpResponse response = HttpRequest
-                .create(globalConfigService.getFlowConfig().intranetBaseUri + api)
+                .create(globalConfigService.getModel(FlowConfigModel.class).intranetBaseUri + api)
                 .setBody(data)
                 .postJson();
 

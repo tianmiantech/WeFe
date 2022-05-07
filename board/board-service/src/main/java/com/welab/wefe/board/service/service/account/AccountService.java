@@ -23,6 +23,7 @@ import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
+import com.welab.wefe.board.service.dto.globalconfig.BoardConfigModel;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -129,7 +130,7 @@ public class AccountService extends AbstractAccountService {
         // Whether others want to review it depends on the configuration.
         else {
             model.setAuditStatus(
-                    globalConfigService.getBoardConfig().accountNeedAuditWhenRegister
+                    globalConfigService.getModel(BoardConfigModel.class).accountNeedAuditWhenRegister
                             ? AuditStatus.auditing
                             : AuditStatus.agree
             );

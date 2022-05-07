@@ -15,10 +15,14 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.fc;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+
 /**
  * @author zane
  * @date 2021/10/29
  */
+@ConfigModel(group = ConfigGroupConstant.FC_CONFIG)
 public class FunctionComputeConfigModel {
 
     /**

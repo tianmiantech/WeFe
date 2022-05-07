@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.board.service.dto.globalconfig;
+package com.welab.wefe.board.service.dto.globalconfig.storage;
 
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.common.data.storage.common.DBType;
 
 /**
- * @author zane.luo
+ * @author zane
+ * @date 2022/5/6
  */
-@ConfigModel(group = ConfigGroupConstant.WEFE_SERVING)
-public class ServingConfigModel {
-
-    /***
-     * Serving service intranet address
-     */
-    public String intranetBaseUri;
+@ConfigModel(group = ConfigGroupConstant.STORAGE)
+public class StorageConfigModel {
+    public DBType storageType;
 }

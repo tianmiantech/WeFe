@@ -15,12 +15,16 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+
 /**
  * 计算引擎相关配置
  *
  * @author zane
  * @date 2021/12/3
  */
+@ConfigModel(group = ConfigGroupConstant.CALCULATION_ENGINE_CONFIG)
 public class CalculationEngineConfigModel {
     /**
      * SPARK、FC

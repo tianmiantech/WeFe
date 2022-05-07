@@ -24,8 +24,7 @@ import com.welab.wefe.board.service.database.entity.VerificationCodeMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.board.service.database.repository.VerificationCodeRepository;
-import com.welab.wefe.board.service.service.globalconfig.BaseGlobalConfigService;
-import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +63,7 @@ public class EncryptPhoneNumberService {
                 verificationCodeRepository.save(model);
             }
         }
-        List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(BaseGlobalConfigService.Group.MEMBER_INFO);
+        List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(ConfigGroupConstant.MEMBER_INFO);
         if (!CollectionUtils.isEmpty(globalConfigMysqlModelList)) {
             for (GlobalConfigMysqlModel model : globalConfigMysqlModelList) {
                 model.setUpdatedTime(new Date());

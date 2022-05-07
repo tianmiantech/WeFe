@@ -16,9 +16,13 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+
 /**
  * @author zane
  */
+@ConfigModel(group = ConfigGroupConstant.ALERT_CONFIG)
 public class AlertConfigModel {
     /**
      * 开关：Job 执行失败的通知

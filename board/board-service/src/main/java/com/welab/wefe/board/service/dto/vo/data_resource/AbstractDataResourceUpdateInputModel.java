@@ -69,7 +69,7 @@ public class AbstractDataResourceUpdateInputModel extends AbstractApiInput {
         super.checkAndStandardize();
 
         // 当全局拒绝暴露时，禁止选择暴露资源。
-        MemberInfoModel member = Launcher.getBean(GlobalConfigService.class).getMemberInfo();
+        MemberInfoModel member = Launcher.getBean(GlobalConfigService.class).getModel(MemberInfoModel.class);
         if (publicLevel != DataResourcePublicLevel.OnlyMyself) {
             if (!member.getMemberAllowPublicDataSet()) {
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("当前联邦成员不允许资源对外可见，请在[全局设置][成员设置]中开启。");

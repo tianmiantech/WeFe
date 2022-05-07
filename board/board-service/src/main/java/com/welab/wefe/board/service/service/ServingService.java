@@ -133,7 +133,7 @@ public class ServingService extends AbstractService {
             data = body.toJSONString();
         }
 
-        ServingConfigModel servingConfig = globalConfigService.getServingConfig();
+        ServingConfigModel servingConfig = globalConfigService.getModel(ServingConfigModel.class);
         if (servingConfig == null || StringUtil.isEmpty(servingConfig.intranetBaseUri)) {
             StatusCode.RPC_ERROR.throwException("请在[全局设置][系统设置]中指定 Serving 服务地址后重试");
         }

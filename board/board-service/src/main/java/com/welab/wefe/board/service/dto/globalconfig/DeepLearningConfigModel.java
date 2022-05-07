@@ -15,10 +15,14 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+
 /**
  * @author zane
  * @date 2021/10/29
  */
+@ConfigModel(group = ConfigGroupConstant.DEEP_LEARNING_CONFIG)
 public class DeepLearningConfigModel {
     public String device = "cpu";
     public String paddleVisualDlBaseUrl;

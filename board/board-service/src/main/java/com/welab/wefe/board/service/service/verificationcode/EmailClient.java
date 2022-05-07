@@ -57,7 +57,7 @@ public class EmailClient extends AbstractClient {
 
         EmailService emailService = Launcher.CONTEXT.getBean(EmailService.class);
         GlobalConfigService globalConfigService = Launcher.CONTEXT.getBean(GlobalConfigService.class);
-        MailServerModel mailServer = globalConfigService.getMailServer();
+        MailServerModel mailServer = globalConfigService.getModel(MailServerModel.class);
         String businessTypeStr = String.valueOf(getExtendParams().get("businessType"));
         VerificationCodeBusinessType businessType = VerificationCodeBusinessType.valueOf(businessTypeStr);
         String subject = String.valueOf(getExtendParams().get("subject"));

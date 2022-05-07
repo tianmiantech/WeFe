@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.service.checkpoint;
 
+import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.web.Launcher;
@@ -45,7 +46,7 @@ public class GatewayIntranetCheckpoint extends AbstractCheckpoint {
 
     @Override
     public String getConfigValue() {
-        return globalConfigService.getGatewayConfig().intranetBaseUri;
+        return globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri;
     }
 
     @Override

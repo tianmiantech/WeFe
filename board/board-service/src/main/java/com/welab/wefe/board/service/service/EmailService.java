@@ -79,7 +79,7 @@ public class EmailService extends AbstractService {
                 return sendFailEmails;
             }
 
-            MailServerModel mailServer = globalConfigService.getMailServer();
+            MailServerModel mailServer = globalConfigService.getModel(MailServerModel.class);
             sendFailEmails = sendMail(mailServer.getMailUsername(), totalEmails, subject, content);
             // All sent successfully
             if (CollectionUtils.isEmpty(sendFailEmails)) {
@@ -163,13 +163,12 @@ public class EmailService extends AbstractService {
     }
 
 
-
     /**
      * Get message sender
      */
     private JavaMailSenderImpl getMailSender() throws Exception {
 
-        MailServerModel mailServer = globalConfigService.getMailServer();
+        MailServerModel mailServer = globalConfigService.getModel(MailServerModel.class);
         if (mailServer == null) {
             throw new Exception("邮件服务器未设置");
         }

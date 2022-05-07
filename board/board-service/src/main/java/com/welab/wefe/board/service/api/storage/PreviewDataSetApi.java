@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.api.storage;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
+import com.welab.wefe.board.service.dto.globalconfig.FlowConfigModel;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -83,7 +84,7 @@ public class PreviewDataSetApi extends AbstractApi<PreviewDataSetApi.Input, Prev
      * View the data of the derived data set from flow service
      */
     private List<List<String>> getRowsFromFlow(TableDataSetMysqlModel model) throws StatusCodeWithException {
-        String url = globalConfigService.getFlowConfig().intranetBaseUri
+        String url = globalConfigService.getModel(FlowConfigModel.class).intranetBaseUri
                 + String.format(
                 "/data_set/view?table_name=%s&table_namespace=%s",
                 model.getStorageResourceName(),

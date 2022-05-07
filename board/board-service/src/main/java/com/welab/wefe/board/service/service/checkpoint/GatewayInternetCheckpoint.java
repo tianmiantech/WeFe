@@ -43,7 +43,7 @@ public class GatewayInternetCheckpoint extends AbstractCheckpoint {
 
     @Override
     public String getConfigValue() {
-        MemberInfoModel memberInfo = globalConfigService.getMemberInfo();
+        MemberInfoModel memberInfo = globalConfigService.getModel(MemberInfoModel.class);
         if (memberInfo == null) {
             return null;
         }

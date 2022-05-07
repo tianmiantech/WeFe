@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
+import com.welab.wefe.board.service.dto.globalconfig.BoardConfigModel;
 import com.welab.wefe.board.service.sdk.PaddleVisualService;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
@@ -88,7 +89,7 @@ public class StartInferApi extends AbstractApi<StartInferApi.Input, StartInferAp
         Api annotation = DownloadDataSetZipApi.class.getAnnotation(Api.class);
 
         return Launcher.getBean(GlobalConfigService.class)
-                .getBoardConfig()
+                .getModel(BoardConfigModel.class)
                 .intranetBaseUri
                 + "/"
                 + annotation.path()

@@ -58,7 +58,7 @@ public class BaseGatewayService extends AbstractService {
      */
     protected JSONObject sendToMyselfGateway(String gatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
         if (gatewayUri == null) {
-            GatewayConfigModel gatewayConfig = globalConfigService.getGatewayConfig();
+            GatewayConfigModel gatewayConfig = globalConfigService.getModel(GatewayConfigModel.class);
             if (gatewayConfig != null) {
                 gatewayUri = gatewayConfig.intranetBaseUri;
             }
@@ -78,7 +78,7 @@ public class BaseGatewayService extends AbstractService {
      */
     protected JSONObject sendToOtherGateway(String dstMemberId, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
         return callGateway(
-                globalConfigService.getGatewayConfig().intranetBaseUri,
+                globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri,
                 dstMemberId,
                 CacheObjects.getMemberName(dstMemberId),
                 action,
