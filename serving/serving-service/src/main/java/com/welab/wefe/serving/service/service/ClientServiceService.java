@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -116,10 +117,7 @@ public class ClientServiceService {
             model.setPublicKey(input.getPublicKey());
             clientServiceRepository.save(model);
             FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
-            feeConfigMysqlModel.setServiceId(input.getServiceId());
-            feeConfigMysqlModel.setPayType(input.getPayType());
-            feeConfigMysqlModel.setClientId(input.getClientId());
-            feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+            BeanUtils.copyProperties(input, feeConfigMysqlModel);
             feeConfigRepository.save(feeConfigMysqlModel);
 
         } else {
@@ -160,19 +158,13 @@ public class ClientServiceService {
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
-            model.setStatus(input.getStatus());
-            model.setUpdatedBy(input.getUpdatedBy());
+            BeanUtils.copyProperties(input, model);
             model.setUpdatedTime(new Date());
-            model.setUnitPrice(input.getUnitPrice());
-            model.setPayType(input.getPayType());
             clientServiceRepository.save(model);
 
             // 修改计费规则，新增一条计费规则记录
             FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
-            feeConfigMysqlModel.setClientId(input.getClientId());
-            feeConfigMysqlModel.setServiceId(input.getServiceId());
-            feeConfigMysqlModel.setPayType(input.getPayType());
-            feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+            BeanUtils.copyProperties(input, feeConfigMysqlModel);
             feeConfigRepository.save(feeConfigMysqlModel);
         }
     }
