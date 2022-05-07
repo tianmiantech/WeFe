@@ -16,27 +16,10 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.serving.service.api.member.QueryApi;
-import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.serving.service.api.apirequestrecord.DownloadApi;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.apirequestrecord.QueryListApi;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
@@ -44,10 +27,16 @@ import com.welab.wefe.serving.service.database.serving.repository.ApiRequestReco
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
-
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * @author ivenn.zheng
@@ -134,24 +123,24 @@ public class ApiRequestRecordService {
 
     }
 
-    public File downloadFile(DownloadApi.Input input) {
-        String fileName = DateUtil.getCurrentDate() + "_result.csv";
-        Specification<ApiRequestRecordMysqlModel> where = Where
-                .create()
-                .equal("serviceId", input.getServiceId())
-                .equal("clientId", input.getClientId())
-                .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
-                .orderBy("createdTime", OrderBy.desc)
-                .build(ApiRequestRecordMysqlModel.class);
-
-        List<ApiRequestRecordMysqlModel> all = apiRequestRecordRepository.findAll(where);
-        try {
-            return writeCSV(all, fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    public File downloadFile(DownloadApi.Input input) {
+//        String fileName = DateUtil.getCurrentDate() + "_result.csv";
+//        Specification<ApiRequestRecordMysqlModel> where = Where
+//                .create()
+//                .equal("serviceId", input.getServiceId())
+//                .equal("clientId", input.getClientId())
+//                .betweenAndDate("createdTime", input.getStartTime(), input.getEndTime())
+//                .orderBy("createdTime", OrderBy.desc)
+//                .build(ApiRequestRecordMysqlModel.class);
+//
+//        List<ApiRequestRecordMysqlModel> all = apiRequestRecordRepository.findAll(where);
+//        try {
+//            return writeCSV(all, fileName);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     public File writeCSV(List<ApiRequestRecordMysqlModel> dataList, String fileName) throws IOException {
         final StringWriter sw = new StringWriter();

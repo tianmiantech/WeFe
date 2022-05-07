@@ -370,6 +370,17 @@ public class ServiceService {
 		out.setResult(JObject.create(result));
 		return out;
 	}
+	
+    public com.welab.wefe.serving.service.api.service.ServiceShowSQLApi.Output showSql(
+            com.welab.wefe.serving.service.api.service.ServiceShowSQLApi.Input input) throws StatusCodeWithException {
+        JSONObject dataSource = JObject.parseObject(input.getDataSource());
+        String dataSourceId = dataSource.getString("id");
+        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
+        String sql = ServiceUtil.generateSQL(input.getParams(), dataSource, dataSourceModel.getDatabaseName());
+        com.welab.wefe.serving.service.api.service.ServiceShowSQLApi.Output out = new com.welab.wefe.serving.service.api.service.ServiceShowSQLApi.Output();
+        out.setResult(JObject.create("sql", sql));
+        return out;
+    }
 
     public JObject check(ServiceMySqlModel service, JObject res, String serviceUrl,
             com.welab.wefe.serving.service.api.service.RouteApi.Input input, String clientIp) {

@@ -36,7 +36,7 @@ public class FeeDetailMysqlModel extends AbstractBaseMySqlModel {
     private String serviceName;
 
     @Column(name = "service_type")
-    private Integer serviceType;
+    private String serviceType;
 
     @Column(name = "client_name")
     private String clientName;
@@ -70,11 +70,11 @@ public class FeeDetailMysqlModel extends AbstractBaseMySqlModel {
         this.payType = payType;
     }
 
-    public Integer getServiceType() {
+    public String getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(Integer serviceType) {
+    public void setServiceType(String serviceType) {
         this.serviceType = serviceType;
     }
 

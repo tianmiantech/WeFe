@@ -25,6 +25,7 @@ import java.util.List;
  * @date: 2021/10/19
  */
 public class MemberExtJSON {
+    private String servingBaseUrl;
     private int realNameAuthStatus;
     private String reporter;
     private String principalName;
@@ -35,6 +36,14 @@ public class MemberExtJSON {
     private List<RealnameAuthFileInfo> realnameAuthFileInfoList;
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
+
+    public String getServingBaseUrl() {
+        return servingBaseUrl;
+    }
+
+    public void setServingBaseUrl(String servingBaseUrl) {
+        this.servingBaseUrl = servingBaseUrl;
+    }
 
     public int getRealNameAuthStatus() {
         return realNameAuthStatus;

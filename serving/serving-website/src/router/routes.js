@@ -281,6 +281,22 @@ const baseRoutes = [
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
+                path: `${prefixPath}order-list`,
+                name: 'order-list',
+                meta: {
+                    title: '订单列表',
+                },
+                component: () => import('@views/service_order/order-list.vue'),
+            },
+            {
+                path: `${prefixPath}order-statistics`,
+                name: 'order-statistics',
+                meta: {
+                    title: '订单统计',
+                },
+                component: () => import('@views/service_order/order-statistics.vue'),
+            },
+            {
                 path: `${prefixPath}record-list`,
                 name: 'record-list',
                 meta: {

@@ -103,11 +103,10 @@ public class FeeDetailService {
         List<QueryListApi.Output> list = new ArrayList<>();
         models.forEach(x -> {
             QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
-            output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
-            output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
+            output.setServiceType(x.getServiceType());
+            output.setPayType(x.getPayType());
             list.add(output);
         });
-
 
         return PagingOutput.of(total == null ? 0 : total, list);
     }

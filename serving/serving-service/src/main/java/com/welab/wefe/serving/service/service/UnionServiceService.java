@@ -139,6 +139,12 @@ public class UnionServiceService {
 		return request("member/service/put", params);
 	}
 	
+	public JSONObject updateServingBaseUrlOnUnion(String servingBaseUrl) throws StatusCodeWithException {
+	    JObject params = JObject.create().put("servingBaseUrl", servingBaseUrl);
+        LOG.info("union updateServingBaseUrlOnUnion params = " + JSONObject.toJSONString(params));
+        return request("member/update_serving_base_url", params);
+	}
+	
     public JSONObject memberQuery(String memberId) throws StatusCodeWithException {
         if (CACHE_MAP.containsKey(memberId)) {
             return (JSONObject) CACHE_MAP.get(memberId);
