@@ -26,7 +26,7 @@ import com.welab.wefe.common.SamplingLogger;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
+import com.welab.wefe.common.fastjson.LoggerValueFilter;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -38,8 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.BeansException;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -150,34 +148,18 @@ public class ApiExecutor {
 
     public static void logResponse(Api annotation, ApiResult<?> result) {
 
-        String content = "";
         /**
          * 警告 ⚠️:
          * 当响应内容为 ResponseEntity<FileSystemResource> 时
          * JSON.toJSONString(result) 序列化时会导致文件被置空
          * 所以这里写日志时需要进行检查，避免对 FileSystemResource 进行 json 序列化。
          */
-        if (result.data instanceof ResponseEntity) {
-            Object body = ((ResponseEntity) result.data).getBody();
-            if (body instanceof FileSystemResource) {
-                FileSystemResource fileSystemResource = (FileSystemResource) body;
-                content = "spend:" + result.spend + "ms File:" + fileSystemResource.getPath();
-            }
-        } else if (result.data instanceof byte[]) {
-            byte[] bytes = (byte[]) result.data;
-            content = "bytes(length " + bytes.length + ")";
+        String content = JSON.toJSONString(result, new LoggerValueFilter());
+
+        if ("debug".equals(annotation.logLevel())) {
+            LOG.debug("response({}):{}", annotation.path(), content);
         } else {
-            content = JSON.toJSONString(result, LoggerSerializeConfig.instance());
-        }
-
-
-        switch (annotation.logLevel()) {
-            case "debug":
-                LOG.debug("response({}):{}", annotation.path(), content);
-                break;
-            default:
-                LOG.info("response({}):{}", annotation.path(), content);
-
+            LOG.info("response({}):{}", annotation.path(), content);
         }
     }
 
