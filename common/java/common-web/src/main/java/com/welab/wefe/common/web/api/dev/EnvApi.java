@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.common.web.api.dev;
 
+import com.welab.wefe.common.InformationSize;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
@@ -22,8 +23,12 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.config.CommonConfig;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.env.EnvBranch;
-import com.welab.wefe.common.wefe.enums.env.EnvName;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.lang.management.ManagementFactory;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author zane
@@ -37,18 +42,42 @@ public class EnvApi extends AbstractNoneInputApi<EnvApi.Output> {
     @Override
     protected ApiResult<Output> handle() throws StatusCodeWithException {
         Output output = new Output();
-        output.envName = config.getEnvName();
-        output.envBranch = config.getEnvBranch();
-        output.isDemo = config.getEnvBranch() == EnvBranch.online_demo;
-        return null;
+
+        for (String name : System.getProperties().stringPropertyNames()) {
+            if (name.startsWith("java") || name.startsWith("os")) {
+                output.systemProperties.put(name, System.getProperty(name));
+            }
+
+        }
+
+        Runtime runtime = Runtime.getRuntime();
+        output.runtimeProperties.put("thread_count", ManagementFactory.getThreadMXBean().getThreadCount() + "");
+        output.runtimeProperties.put("jvm_max_memory", InformationSize.fromByte(runtime.maxMemory()).toString());
+        output.runtimeProperties.put("jvm_use_memory", InformationSize.fromByte(runtime.totalMemory() - runtime.freeMemory()).toString());
+        output.runtimeProperties.put("jvm_total_memory", InformationSize.fromByte(runtime.totalMemory()).toString());
+        output.runtimeProperties.put("jvm_free_memory", InformationSize.fromByte(runtime.freeMemory()).toString());
+        output.runtimeProperties.put("available_processors", String.valueOf(runtime.availableProcessors()));
+
+        String[] keys = {"PWD", "USER"};
+        Map<String, String> envMap = System.getenv();
+
+        for (String key : keys) {
+            output.envProperties.put("system_" + key.toLowerCase(), envMap.get(key));
+        }
+
+        output.envProperties.put("env_name", config.getEnvName().name());
+        output.envProperties.put("env_branch", config.getEnvBranch().name());
+        output.envProperties.put("is_demo", (config.getEnvBranch() == EnvBranch.online_demo) + "");
+
+        return success(output);
     }
 
     public class Output {
-        @Check(name = "环境名称")
-        public EnvName envName;
-        @Check(name = "环境分支")
-        public EnvBranch envBranch;
-        @Check(name = "是否是 demo 环境")
-        public boolean isDemo;
+        @Check(name = "环境信息")
+        public LinkedHashMap<String, String> envProperties = new LinkedHashMap<>();
+        @Check(name = "系统信息")
+        public TreeMap<String, String> systemProperties = new TreeMap<>();
+        @Check(name = "运行时信息")
+        public LinkedHashMap<String, String> runtimeProperties = new LinkedHashMap<>();
     }
 }
