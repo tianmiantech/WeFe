@@ -38,10 +38,6 @@ public class SavePartnerApi extends AbstractApi<SavePartnerApi.Input, SavePartne
     }
 
     public static class Input extends AbstractApiInput {
-
-        @Check(name = "id")
-        private String id;
-
         @Check(name = "合作者id")
         private String partnerId;
 
@@ -65,14 +61,6 @@ public class SavePartnerApi extends AbstractApi<SavePartnerApi.Input, SavePartne
 
         @Check(name = "合作者 Serving地址")
         private String servingBaseUrl;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
 
         public String getPartnerId() {
             return partnerId;

@@ -104,22 +104,24 @@ public class PartnerService {
         if (null != partnerMysqlModel) {
             throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
         }
-
-        PartnerMysqlModel model = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
-        if (model == null) {
-            model = partnerRepository.findOne("partnerId", input.getPartnerId(), PartnerMysqlModel.class);
+        
+        if (StringUtils.isNotBlank(input.getPartnerId())) {
+            partnerMysqlModel = partnerRepository.findOne("partnerId", input.getPartnerId(), PartnerMysqlModel.class);
         }
-        if (null == model) {
-            model = new PartnerMysqlModel();
+        else {
+            input.setPartnerId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
-        model.setName(input.getName());
-        model.setEmail(input.getEmail());
-        model.setRemark(input.getRemark());
-        model.setServingBaseUrl(input.getServingBaseUrl());
-        model.setCreatedBy(input.getCreatedBy());
-        model.setCode(input.getCode());
-        model.setPartnerId(input.getPartnerId());
-        partnerRepository.save(model);
+        if (null == partnerMysqlModel) {
+            partnerMysqlModel = new PartnerMysqlModel();
+        }
+        partnerMysqlModel.setName(input.getName());
+        partnerMysqlModel.setEmail(input.getEmail());
+        partnerMysqlModel.setRemark(input.getRemark());
+        partnerMysqlModel.setServingBaseUrl(input.getServingBaseUrl());
+        partnerMysqlModel.setCreatedBy(input.getCreatedBy());
+        partnerMysqlModel.setCode(input.getCode());
+        partnerMysqlModel.setPartnerId(input.getPartnerId());
+        partnerRepository.save(partnerMysqlModel);
     }
 
     public PartnerMysqlModel findOne(String partnerId) {
