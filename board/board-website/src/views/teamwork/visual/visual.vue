@@ -64,6 +64,7 @@
                 :flow-id="vData.flow_id"
                 :my-role="vData.my_role"
                 :graph="graph"
+                :is-project-admin="vData.is_project_admin"
                 @excute="methods.excute"
                 @reset-graph-state="methods.resetGraphState"
                 @switchJobGraphPanel="methods.switchJobGraphPanel"
@@ -122,12 +123,14 @@
                 :current-obj="vData.currentObj"
                 :component-type="vData.componentType"
                 :job-graph-show="vData.jobGraphShow"
+                :is-project-admin="vData.is_project_admin"
                 @resetGraphState="methods.resetGraphState"
                 @switchComponent="methods.switchComponent"
                 @switchJobGraphPanel="methods.switchJobGraphPanel"
                 @resizeCanvas="methods.resizeCanvas"
                 @checkResult="methods.checkResult"
                 @checkHelp="methods.checkHelp"
+                @graphInit="methods.updateGraphEmit"
             />
             <!-- Error prompt box -->
             <ErrorPanel ref="errorPanel" />
@@ -148,6 +151,7 @@
             :job-id="vData.job_id"
             :project-id="vData.project_id"
             :old-learning-type="vData.learningType"
+            :is-project-admin="vData.is_project_admin"
             @getComponents="methods.getComponents"
             @updateFlowInfo="methods.updateFlowInfo"
             @resetGraphState="methods.resetGraphState"
@@ -226,6 +230,7 @@
             const route = useRoute();
             const router = useRouter();
             const { flow_id } = route.query;
+            const { is_project_admin } = route.query || 'false';
             const vData = reactive({
                 loadingText:            '',
                 locker:                 false,
@@ -235,6 +240,7 @@
                 showMinimap:            true,
                 project_id:             '',
                 flow_id,
+                is_project_admin,
                 job_id:                 '',
                 oot_job_id:             '',
                 oot_model_flow_node_id: '',
@@ -349,7 +355,7 @@
                     }
                     return true;
                 },
-                async init (opt = { requestFromRefresh: false }) {
+                async init (opt = { requestFromRefresh: false, job_id: '' }) {
                     vData.loading = true;
 
                     const { code, data } = await $http.get({
@@ -357,6 +363,7 @@
                         params: {
                             flow_id:                vData.flow_id,
                             'request-from-refresh': opt.requestFromRefresh,
+                            job_id:                 opt.job_id,
                         },
                     });
 
@@ -396,8 +403,10 @@
                                 }
 
                                 methods.createGraph({ nodes, edges, combos });
-                                methods.changeHeaderTitle();
-                                methods.getComponents();
+                                if (!opt.job_id) {
+                                    methods.changeHeaderTitle();
+                                    methods.getComponents();
+                                }
 
                                 // get task details
                                 ToolbarRef.value && ToolbarRef.value.methods.init(opt);
@@ -408,6 +417,10 @@
 
                         methods.resizeCanvas(graph.instance);
                     });
+                },
+
+                updateGraphEmit({ nodes, edges, combos }) {
+                    methods.createGraph({ nodes, edges, combos });
                 },
 
                 updateEmptyParamsNode(list) {

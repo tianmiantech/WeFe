@@ -9,7 +9,7 @@
         <template #header>
             <div class="clearfix mb10 flex-row">
                 <h3 class="mb10">模型列表</h3>
-                <div class="right-sort-area">
+                <div v-if="form.is_project_admin" class="right-sort-area">
                     <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
                     <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
                     <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
@@ -131,7 +131,7 @@
                                 class="link mr10"
                                 :to="{
                                     name: 'project-flow',
-                                    query: { flow_id: scope.row.flow_id }
+                                    query: { flow_id: scope.row.flow_id, job_id: scope.row.job_id }
                                 }"
                             >
                                 查看流程

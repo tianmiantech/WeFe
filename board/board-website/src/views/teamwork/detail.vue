@@ -155,6 +155,7 @@
                 :project-type="form.project_type"
                 :sort-index="index"
                 :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
+                :form="form"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
@@ -236,6 +237,7 @@
                     // other member's audit comment
                     audit_status_from_others: '',
                     project_type:             'MachineLearning',
+                    is_project_admin:         false,
                 },
                 cooperAuthDialog: {
                     show: false,
@@ -299,6 +301,8 @@
         computed: {
             ...mapGetters(['userInfo']),
             ...mapGetters(['uiConfig']),
+            ...mapGetters(['adminUserList']),
+            ...mapGetters(['isDemo']),
         },
         watch: {
             moduleList: {
@@ -447,6 +451,21 @@
                     this.promoter.member_role = promoter.member_role;
                     this.promoter.member_name = promoter.member_name;
                     this.promoter.$data_set = promoter.data_resource_list;
+
+                    const admin_user = this.adminUserList.filter(item => item.id === this.userInfo.id) || [];
+                    const is_admin_created = this.adminUserList.filter(item => item.id === data.created_by) || []; 
+
+                    // demo环境下：
+                    // 1. 非管理员创建的项目，其他非管理员可以编辑
+                    // 2. 管理员创建的项目，非管理员不可以编辑
+                    // 3. 管理员创建的项目，其他管理员可以编辑
+
+                    if (this.isDemo) {
+                        // this.form.is_project_admin = admin_user.length > 0 || this.userInfo.id === data.created_by || (!this.userInfo.admin_role && is_admin_created.length === 0) ? true : false; 
+                        this.form.is_project_admin = !!(admin_user.length > 0 || this.userInfo.id === data.created_by || (!this.userInfo.admin_role && is_admin_created.length === 0)); 
+                    } else {
+                        this.form.is_project_admin = true;
+                    }
 
                     const members = {};
                     const { providerService, promoterService } = this;

@@ -12,7 +12,7 @@
                         训练列表
                         <template v-if="form.isPromoter">
                             <el-button
-                                v-if="!form.closed && !form.is_exited"
+                                v-if="!form.closed && !form.is_exited && form.is_project_admin"
                                 class="ml10"
                                 size="small"
                                 type="primary"
@@ -24,7 +24,7 @@
                         <span v-else class="ml10 f12">(协作方无法添加训练)</span>
                     </h3>
                 </div>
-                <div class="right-sort-area">
+                <div v-if="form.is_project_admin" class="right-sort-area">
                     <div class="right-sort-area">
                         <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
                         <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
@@ -55,7 +55,7 @@
                     <el-link
                         type="primary"
                         :underline="false"
-                        @click="linkTo(form.project_type === 'DeepLearning' ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: form.project_type === 'DeepLearning' ? scope.row.deep_learning_job_type : '' })"
+                        @click="linkTo(form.project_type === 'DeepLearning' ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: form.project_type === 'DeepLearning' ? scope.row.deep_learning_job_type : '', is_project_admin: form.is_project_admin })"
                     >
                         {{ scope.row.flow_name }}
                     </el-link>
@@ -106,7 +106,7 @@
                             type="primary"
                             class="link mr10"
                             :underline="false"
-                            @click="linkTo('teamwork/detail/deep-learning/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type })"
+                            @click="linkTo('teamwork/detail/deep-learning/flow', { flow_id: scope.row.flow_id, project_id: project_id, training_type: scope.row.deep_learning_job_type, is_project_admin: form.is_project_admin })"
                         >
                             查看
                         </el-link>
@@ -129,7 +129,7 @@
                     >
                         执行记录
                     </el-link>
-                    <el-dropdown v-if="scope.row.is_creator" size="small">
+                    <el-dropdown v-if="scope.row.is_creator && form.is_project_admin" size="small">
                         <el-button type="text" size="small">
                             更多
                             <el-icon>
@@ -160,7 +160,7 @@
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
-                    <p v-if="list.length > 1" class="ml10 totop_btn" @click="flowToTopClick(scope.row)">
+                    <p v-if="list.length > 1 && userInfo.admin_role" class="ml10 totop_btn" @click="flowToTopClick(scope.row)">
                         <!-- <span :style="{'color': scope.row.top ? '#e6a23c' : '#438bff'}">{{scope.row.top ? '取消置顶' : '置顶'}}</span> -->
                         <el-tooltip v-if="scope.row.top" effect="light" content="取消置顶" placement="bottom">
                             <el-icon class="f14" style="color: #f85564; font-weight: 500;">
@@ -358,6 +358,7 @@
 <script>
     import table from '@src/mixins/table';
     import FlowStatusTag from '@src/components/views/flow-status-tag';
+    import { mapGetters } from 'vuex';
 
     const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
@@ -432,6 +433,7 @@
                     return types[val] || '-';
                 };
             },
+            ...mapGetters(['userInfo']),
         },
         created() {
             this.project_id = this.$route.query.project_id;
@@ -565,9 +567,10 @@
                 this.loading = false;
                 if(code === 0) {
                     const query = {
-                        flow_id:       data.flow_id,
-                        training_type: deeplearning ? opt.federated_learning_type : '',
-                        project_id:    this.project_id,
+                        flow_id:          data.flow_id,
+                        training_type:    deeplearning ? opt.federated_learning_type : '',
+                        project_id:       this.project_id,
+                        is_project_admin: this.form.is_project_admin,
                     };
 
                     this.linkTo(deeplearning ? 'teamwork/detail/deep-learning/flow' : 'teamwork/detail/flow', query);

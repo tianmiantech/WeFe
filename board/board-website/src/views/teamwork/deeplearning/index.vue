@@ -8,7 +8,7 @@
                             <div class="item base_setting">
                                 <el-form
                                     @submit.prevent
-                                    :disabled="vData.flowInfo.my_role !=='promoter'"
+                                    :disabled="vData.flowInfo.my_role !=='promoter' || vData.is_project_admin === 'false'"
                                 >
                                     <el-form-item
                                         label="训练名称："
@@ -70,7 +70,7 @@
                                                     class="f12"
                                                 >({{ member.audit_comment || '审核通过的成员才能参与训练' }})</span>
                                                 <el-button
-                                                    v-if="member.audit_status === 'agree' && !vData.disabled"
+                                                    v-if="member.audit_status === 'agree' && !vData.disabled && vData.is_project_admin !== 'false'"
                                                     type="text"
                                                     class="ml10"
                                                     @click="methods.checkDataSet(member, index)"
@@ -92,7 +92,7 @@
                                                     <el-form-item label="数据资源名称：">
                                                         {{ row.data_resource.name }}
                                                         <el-icon
-                                                            v-if="!vData.disabled"
+                                                            v-if="!vData.disabled && vData.is_project_admin !== 'false'"
                                                             class="el-icon-circle-close f16 ml10"
                                                             @click="methods.removeDataSet(index)"
                                                         >
@@ -160,7 +160,7 @@
                                             ref="form"
                                             :model="vData.dataCutForm"
                                             @submit.prevent
-                                            :disabled="vData.flowInfo.my_role !=='promoter'"
+                                            :disabled="vData.flowInfo.my_role !=='promoter' || vData.is_project_admin === 'false'"
                                         >
                                             <el-form-item label="训练与验证数据比例（%）：" style="width: 300px">
                                                 <div style="height: 50px;">
@@ -196,7 +196,7 @@
                                     <h4 class="mb5">设置模型参数</h4>
                                     <el-form
                                         @submit.prevent
-                                        :disabled="vData.flowInfo.my_role !=='promoter'"
+                                        :disabled="vData.flowInfo.my_role !=='promoter' || vData.is_project_admin === 'false'"
                                     >
                                         <el-form-item label="算法类型：" class="is-required">
                                             <el-select v-model="vData.deepLearnParams.program" disabled placeholder="请选择算法类型">
@@ -329,7 +329,7 @@
                         <el-button
                             type="primary"
                             @click="methods.saveDeeplearningNode"
-                            :disabled="vData.flowInfo.my_role !=='promoter'"
+                            :disabled="vData.flowInfo.my_role !=='promoter' || vData.is_project_admin === 'false'"
                         >
                             开始训练
                         </el-button>
@@ -350,6 +350,13 @@
                             >
                                 继续运行
                             </el-button>
+                        </template>
+                        <template v-if="vData.jobInfo.status === 'success'">
+                            <router-link
+                                :to="{ name: 'check-flow', query: {project_id: vData.project_id, flow_id: vData.flow_id, project_name: vData.flowInfo.project.name, flow_name: vData.flowInfo.flow_name } }"
+                            >
+                                <el-button plain class="ml10">去校验</el-button>
+                            </router-link>
                         </template>
                     </div>
                 </div>
@@ -388,11 +395,12 @@
             const deeplearningResultRef = ref();
             const { training_type } = route.query;
             const vData = reactive({
-                loading:    false,
-                active:     0,
-                flow_id:    route.query.flow_id,
-                project_id: route.query.project_id,
-                form:       {
+                loading:          false,
+                active:           0,
+                flow_id:          route.query.flow_id,
+                project_id:       route.query.project_id,
+                is_project_admin: route.query.is_project_admin,
+                form:             {
                     flow_name: '',
                     flow_desc: '',
                 },
@@ -871,8 +879,8 @@
                     // }
                     methods.saveImageDataIOInfo();
                 },
-                scalarArrayEquals(array1,array2) {
-                    return array1.length === array2.length && array1.every(function(v,i) { return v === array2[i];});
+                scalarArrayEquals(arr1, arr2) {
+                    return arr1.length === arr2.length && arr1.every(function(v,i) { return v === arr2[i];});
                 },
                 dataSetSearch() {
                     const { allList, name, contains_y, data_set_id } = vData.rawSearch;
@@ -1040,6 +1048,26 @@
                     }, 1000);
                 },
                 async saveDeeplearningNode($event) {
+                    console.log(vData.member_list);
+                    for(let i =0; i<vData.member_list.length; i++) {
+                        if (!vData.member_list[i].$data_set_list.length && vData.member_list[i].member_role === 'promoter') {
+                            $message.error('当前任务不包含我方数据集，请先选择数据集！');
+                            return;
+                        }
+                        if (vData.member_list.length === 2 && vData.member_list[1].$data_set_list.length !== 0) {
+                            console.log(i+1);
+                            if (vData.member_list[i].$data_set_list[0].data_resource.label_list !== vData.member_list[1].$data_set_list[0].data_resource.label_list) {
+                                $message.error('请确保成员数据资源标注标签统一！');
+                                vData.stopNext = true;
+                                return;
+                            }
+                        } 
+                        // else { // 缺少协作方数据集时提示
+                        //     $message.error('当前任务不包含协作方数据集，请先选择数据集！');
+                        //     return;
+                        // }
+                    }
+
                     // 1. 保存deeplearning node 数据
                     // 2. 启动训练
                     const btnState = {};
@@ -1081,6 +1109,7 @@
                             if ($event) methods.startFlow();
                         });
                     }
+                    if (vData.startLoading) vData.startLoading = false;
                 },
                 async startFlow() {
                     vData.startLoading = true;
