@@ -88,19 +88,22 @@
                         min-width="200px"
                     >
                         <template v-slot="scope">
-                            <p
-                                v-if="form.isPromoter"
-                                :class="['result-name', { 'current-panel': result_panel_idx === +scope.$index }]"
-                                @click="showResult(scope.row, scope.$index)"
-                            >
-                                {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
-                            </p>
-                            <p
-                                v-else
-                                :class="[{ 'current-panel': result_panel_idx === +scope.$index }]"
-                            >
-                                {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
-                            </p>
+                            <span>
+                                <span
+                                    v-if="form.isPromoter"
+                                    :class="['result-name', { 'current-panel': result_panel_idx === +scope.$index }]"
+                                    @click="showResult(scope.row, scope.$index)"
+                                >
+                                    {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
+                                </span>
+                                <span
+                                    v-else
+                                    :class="[{ 'current-panel': result_panel_idx === +scope.$index }]"
+                                >
+                                    {{ scope.row.role }}: {{ scope.row.flow_name }} - {{ scope.row.name }}
+                                </span>
+                            </span>
+                            <el-icon class="el-icon-copy-btn" @click="copyModelId(scope.row.model_id)"><elicon-document-copy /></el-icon>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -470,6 +473,16 @@
             toBottom() {
                 this.$emit('to-bottom', this.sortIndex);
             },
+            copyModelId(id) {
+                const input = document.createElement('input');
+
+                input.value = id;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('Copy');
+                document.body.removeChild(input);
+                this.$message.success('模型id复制成功！');
+            },
         },
     };
 </script>
@@ -520,5 +533,10 @@
             cursor: pointer;
             &:hover{background:#dfefff;}
         }
+    }
+    .el-icon-copy-btn {
+        cursor: pointer;
+        font-size: 16px;
+        padding-left: 4px;
     }
 </style>
