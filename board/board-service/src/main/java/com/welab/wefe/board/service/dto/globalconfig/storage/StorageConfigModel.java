@@ -25,5 +25,5 @@ import com.welab.wefe.common.data.storage.common.DBType;
  */
 @ConfigModel(group = ConfigGroupConstant.STORAGE)
 public class StorageConfigModel {
-    public DBType storageType;
+    public DBType storageType = DBType.CLICKHOUSE;
 }

@@ -100,6 +100,42 @@
                     </el-col>
                     <el-col :span="12">
                         <fieldset>
+                            <legend>数据集存储</legend>
+                            <el-form-item label="类型：">
+                                <el-radio v-model="config.storage_config.storage_type" :label="CLICKHOUSE">
+                                    Clickhouse
+                                </el-radio>
+                                <el-radio v-model="config.storage_config.storage_type" disabled :label="HDFS">
+                                    <el-tooltip class="item" effect="dark" content="coming soon" placement="top-start">
+                                        HDFS
+                                    </el-tooltip>
+                                </el-radio>
+                            </el-form-item>
+                            <el-form-item label="host：">
+                                <el-input v-model="config.clickhouse_storage_config.host" />
+                            </el-form-item>
+                            <el-form-item label="http port：">
+                                <el-input v-model="config.clickhouse_storage_config.http_port" />
+                            </el-form-item>
+                            <el-form-item label="tcp port：">
+                                <el-input v-model="config.clickhouse_storage_config.tcp_port" />
+                            </el-form-item>
+                            <el-form-item label="username：">
+                                <el-input v-model="config.clickhouse_storage_config.username" />
+                            </el-form-item>
+                            <el-form-item label="password：">
+                                <el-input
+                                    v-model="config.clickhouse_storage_config.password"
+                                    type="password"
+                                    placeholder="请输入密码"
+                                    autocomplete="new-password"
+                                    @paste.prevent
+                                    @copy.prevent
+                                    @contextmenu.prevent
+                                />
+                            </el-form-item>
+                        </fieldset>
+                        <fieldset>
                             <legend>提醒</legend>
                             <el-form-item label="是否开启任务失败邮件提醒功能：">
                                 <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="'true'">
@@ -173,6 +209,8 @@
                     wefe_serving: {},
                     alert_config: {},
                     mail_server:  {},
+                    storage_config: {},
+                    clickhouse_storage_config: {},
                 },
                 visible: true,
             };
@@ -188,7 +226,17 @@
                 this.loading = true;
                 const { code, data } = await this.$http.post({
                     url:  '/global_config/get',
-                    data: { groups: ['wefe_board','wefe_gateway','alert_config','mail_server', 'wefe_flow', 'wefe_serving'] },
+                    data: {
+                        groups: [
+                            'wefe_board',
+                            'wefe_gateway',
+                            'alert_config',
+                            'mail_server',
+                            'wefe_flow',
+                            'wefe_serving',
+                            'storage_config',
+                            'clickhouse_storage_config',
+                        ] },
                 });
 
                 if (code === 0) {

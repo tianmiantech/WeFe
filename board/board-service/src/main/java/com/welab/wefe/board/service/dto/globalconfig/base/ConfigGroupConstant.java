@@ -32,8 +32,8 @@ public class ConfigGroupConstant {
     public static final String WEFE_SERVING = "wefe_serving";
 
     /****************************** 依赖服务 *************************************/
-    public static final String STORAGE = "storage";
-    public static final String CLICKHOUSE_STORAGE = "clickhouse_storage";
+    public static final String STORAGE = "storage_config";
+    public static final String CLICKHOUSE_STORAGE = "clickhouse_storage_config";
 
     /****************************** 函数计算 *************************************/
     public static final String FC_CONFIG = "function_compute_config";

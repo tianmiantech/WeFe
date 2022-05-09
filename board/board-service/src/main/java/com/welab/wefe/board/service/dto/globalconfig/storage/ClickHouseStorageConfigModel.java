@@ -25,7 +25,7 @@ import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 @ConfigModel(group = ConfigGroupConstant.CLICKHOUSE_STORAGE)
 public class ClickHouseStorageConfigModel {
     public String host;
-    public int httpPort = 8123;
+    public int http_port = 8123;
     public int tcpPort = 9000;
     public String username;
     public String password;

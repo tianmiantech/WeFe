@@ -44,7 +44,11 @@
                                     <el-form-item label="云服务供应商：">
                                         <el-radio-group v-model="vData.form.function_compute_config.cloud_provider" size="small">
                                             <el-radio label="aliyun">阿里云</el-radio>
-                                            <el-radio label="tencentcloud">腾讯云</el-radio>
+                                            <el-radio disabled label="tencentcloud">
+                                                <el-tooltip class="item" effect="dark" content="coming soon" placement="top-start">
+                                                腾讯云
+                                                </el-tooltip>
+                                            </el-radio>
                                         </el-radio-group>
                                     </el-form-item>
                                     <el-form-item label="每日费用上限：">
@@ -66,7 +70,16 @@
                                         <el-input v-model="vData.form.aliyun_function_compute_config.access_key_id" clearable />
                                     </el-form-item>
                                     <el-form-item label="AccessKeySecret：">
-                                        <el-input v-model="vData.form.aliyun_function_compute_config.access_key_secret" clearable />
+                                        <el-input
+                                            v-model="vData.form.aliyun_function_compute_config.access_key_secret"
+                                            clearable
+                                            type="password"
+                                            placeholder="请输入密码"
+                                            autocomplete="new-password"
+                                            @paste.prevent
+                                            @copy.prevent
+                                            @contextmenu.prevent
+                                        />
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="10">
