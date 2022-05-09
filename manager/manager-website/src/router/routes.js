@@ -126,7 +126,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh:  true,
                     title:            '用户列表',
-                    normalUserCanSee: false,
+                    normalUserCanSee: true,
                 },
                 component: () => import('../views/system/user-list'),
             },

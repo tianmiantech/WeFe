@@ -236,6 +236,7 @@ public class ServingService extends AbstractService {
         // body
         TreeMap<String, Object> params = new TreeMap<>();
         params.put("modelId", taskResult.getModelId());
+        params.put("name", job.getName());
         // The v2 version job does not have Algorithm and flType parameters
         params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
         params.put("flType", job.getFederatedLearningType().name());
