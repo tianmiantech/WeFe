@@ -608,61 +608,63 @@ public class TaskResultService extends AbstractService {
                 }
             }
         }
-        TableDataSetMysqlModel myTmpDataSet = tableDataSetService.query(flowGraph.getLastJob().getJobId(),
-                node.getComponentType());
-        if (myTmpDataSet != null) {
-            for (MemberFeatureInfoModel member : members) {
-                if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
-                    DetailApi.Input input = new DetailApi.Input();
-                    input.setId(myTmpDataSet.getId());
-                    try {
-                        TableDataSetOutputModel output = gatewayService.callOtherMemberBoard(member.getMemberId(),
-                                JobMemberRole.promoter, DetailApi.class, input, TableDataSetOutputModel.class);
-                        if (output != null) {
-                            LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
-                            List<String> newColumnNameList = new ArrayList<>(
-                                    Arrays.asList(output.getFeatureNameList().split(",")));
-                            List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+        if (flowGraph.getLastJob() != null) {
+            TableDataSetMysqlModel myTmpDataSet = tableDataSetService.query(flowGraph.getLastJob().getJobId(),
+                    node.getComponentType());
+            if (myTmpDataSet != null) {
+                for (MemberFeatureInfoModel member : members) {
+                    if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
+                        DetailApi.Input input = new DetailApi.Input();
+                        input.setId(myTmpDataSet.getId());
+                        try {
+                            TableDataSetOutputModel output = gatewayService.callOtherMemberBoard(member.getMemberId(),
+                                    JobMemberRole.promoter, DetailApi.class, input, TableDataSetOutputModel.class);
+                            if (output != null) {
+                                LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
+                                List<String> newColumnNameList = new ArrayList<>(
+                                        Arrays.asList(output.getFeatureNameList().split(",")));
+                                List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
 
-                            List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
-                            for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
-                                if (newColumnNameList.contains(feature.getName())) {
-                                    newFeatures.add(feature);
-                                    newColumnNameList.remove(feature.getName());
+                                List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+                                for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+                                    if (newColumnNameList.contains(feature.getName())) {
+                                        newFeatures.add(feature);
+                                        newColumnNameList.remove(feature.getName());
+                                    }
                                 }
-                            }
-                            if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
-                                for (String s : newColumnNameList) {
-                                    MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
-                                    f.setName(s);
-                                    newFeatures.add(f);
+                                if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+                                    for (String s : newColumnNameList) {
+                                        MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+                                        f.setName(s);
+                                        newFeatures.add(f);
+                                    }
                                 }
+                                member.setFeatures(newFeatures);
                             }
-                            member.setFeatures(newFeatures);
+                        } catch (MemberGatewayException e) {
+                            throw new FlowNodeException(node, member.getMemberId());
                         }
-                    } catch (MemberGatewayException e) {
-                        throw new FlowNodeException(node, member.getMemberId());
-                    }
-                } else {
-                    List<String> newColumnNameList = new ArrayList<>(
-                            Arrays.asList(myTmpDataSet.getFeatureNameList().split(",")));
-                    List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+                    } else {
+                        List<String> newColumnNameList = new ArrayList<>(
+                                Arrays.asList(myTmpDataSet.getFeatureNameList().split(",")));
+                        List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
 
-                    List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
-                    for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
-                        if (newColumnNameList.contains(feature.getName())) {
-                            newFeatures.add(feature);
-                            newColumnNameList.remove(feature.getName());
+                        List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+                        for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+                            if (newColumnNameList.contains(feature.getName())) {
+                                newFeatures.add(feature);
+                                newColumnNameList.remove(feature.getName());
+                            }
                         }
-                    }
-                    if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
-                        for (String s : newColumnNameList) {
-                            MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
-                            f.setName(s);
-                            newFeatures.add(f);
+                        if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+                            for (String s : newColumnNameList) {
+                                MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+                                f.setName(s);
+                                newFeatures.add(f);
+                            }
                         }
+                        member.setFeatures(newFeatures);
                     }
-                    member.setFeatures(newFeatures);
                 }
             }
         }

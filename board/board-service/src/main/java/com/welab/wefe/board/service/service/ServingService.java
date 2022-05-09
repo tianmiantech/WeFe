@@ -236,6 +236,7 @@ public class ServingService extends AbstractService {
         // body
         TreeMap<String, Object> params = new TreeMap<>();
         params.put("modelId", taskResult.getModelId());
+        params.put("name", job.getName());
         // The v2 version job does not have Algorithm and flType parameters
         params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
         params.put("flType", job.getFederatedLearningType().name());
@@ -250,9 +251,11 @@ public class ServingService extends AbstractService {
         switch (componentType) {
             case HorzLR:
             case VertLR:
+            case MixLR:
                 return Algorithm.LogisticRegression;
             case HorzSecureBoost:
             case VertSecureBoost:
+            case MixSecureBoost:
                 return Algorithm.XGBoost;
             default:
                 throw new RuntimeException("预算之外的组件类型");

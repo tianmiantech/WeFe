@@ -35,7 +35,7 @@ public class DeleteApi extends AbstractNoneOutputApi<DeleteApi.Input> {
 
     @Override
     protected ApiResult handler(Input input) throws StatusCodeWithException {
-        fusionTaskService.delete(input.id);
+        fusionTaskService.delete(input);
         return success();
     }
 

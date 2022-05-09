@@ -23,3 +23,8 @@ ALTER TABLE `project_flow`
 -- -------------------------------------
 ALTER TABLE `account`
     ADD COLUMN `ui_config` text NULL COMMENT 'UI 相关配置信息';
+
+
+
+alter table `fusion_task`
+    add column `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除';
