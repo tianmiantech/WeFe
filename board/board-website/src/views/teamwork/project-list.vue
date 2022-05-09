@@ -32,7 +32,7 @@
                         <el-tooltip v-if="item.top" effect="light" content="取消置顶" placement="bottom">
                             <el-icon style="color: #f85564;"><elicon-bottom /></el-icon>
                         </el-tooltip>
-                        <el-tooltip v-if="index !== 0 && !item.top" effect="light" content="置顶" placement="bottom">
+                        <el-tooltip v-if="(index !== 0 && !item.top) || (index === 0 && !item.top)" effect="light" content="置顶" placement="bottom">
                             <el-icon style="color: #438bff;"><elicon-top /></el-icon>
                         </el-tooltip>
                     </p>
