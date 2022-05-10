@@ -1047,25 +1047,36 @@
                         methods.saveImageDataIOInfo();
                     }, 1000);
                 },
+                isAllEqual(array) {
+                    if (array.length > 0) {
+                        return !array.some(function (value, index) {
+                            return value !== array[0];
+                        });
+                    } else {
+                        return true;
+                    }
+                },
                 async saveDeeplearningNode($event) {
-                    console.log(vData.member_list);
+                    const labelList = [];
+                    const provider_list = [];
+
                     for(let i =0; i<vData.member_list.length; i++) {
                         if (!vData.member_list[i].$data_set_list.length && vData.member_list[i].member_role === 'promoter') {
                             $message.error('当前任务不包含我方数据集，请先选择数据集！');
                             return;
                         }
-                        if (vData.member_list.length === 2 && vData.member_list[1].$data_set_list.length !== 0) {
-                            console.log(i+1);
-                            if (vData.member_list[i].$data_set_list[0].data_resource.label_list !== vData.member_list[1].$data_set_list[0].data_resource.label_list) {
-                                $message.error('请确保成员数据资源标注标签统一！');
-                                vData.stopNext = true;
-                                return;
-                            }
-                        } 
-                        // else { // 缺少协作方数据集时提示
-                        //     $message.error('当前任务不包含协作方数据集，请先选择数据集！');
-                        //     return;
-                        // }
+                        // 把所有成员的标签放在同一个数组当中，进行组内数据比较
+                        if (vData.member_list[i].$data_set_list && vData.member_list[i].$data_set_list.length) labelList.push(vData.member_list[i].$data_set_list[0].data_resource.label_list);
+                        if (vData.member_list[i].member_role === 'provider' && vData.member_list[i].$data_set_list.length) provider_list.push(vData.member_list[i].$data_set_list);
+                    }
+                    if (provider_list.length === 0) {
+                        $message.error('需要在【参数设置】中选择两个或两个以上的数据集！');
+                        return;
+                    }
+                    if (!methods.isAllEqual(labelList)) {
+                        $message.error('请确保成员数据资源标注标签统一！');
+                        vData.stopNext = true;
+                        return;
                     }
 
                     // 1. 保存deeplearning node 数据

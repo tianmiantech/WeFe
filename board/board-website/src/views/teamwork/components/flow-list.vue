@@ -167,7 +167,7 @@
                                 <elicon-bottom />
                             </el-icon>
                         </el-tooltip>
-                        <el-tooltip v-if="scope.$index !== 0 && !scope.row.top" effect="light" content="置顶" placement="bottom">
+                        <el-tooltip v-if="(scope.$index !== 0 && !scope.row.top) || (scope.$index === 0 && !scope.row.top && this.pagination.page_index !== 1)" effect="light" content="置顶" placement="bottom">
                             <el-icon class="f14" style="color: #438bff; font-weight: 500;">
                                 <elicon-top />
                             </el-icon>
