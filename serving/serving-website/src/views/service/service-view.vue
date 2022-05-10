@@ -654,7 +654,7 @@ export default {
                             };
                         });
                     }
-                    if(this.show_sql_result === ''){
+                    if(this.show_sql_result === '' && this.form.service_type == '1'){
                         await this.sqlShow();
                     }
                     this.api = preview || {};
