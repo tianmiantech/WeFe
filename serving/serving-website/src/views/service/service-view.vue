@@ -64,7 +64,7 @@
                         label="sum"
                     >
                         SUM
-                    </el-radio>p
+                    </el-radio>
                     <el-radio
                         v-model="form.operator"
                         label="avg"
