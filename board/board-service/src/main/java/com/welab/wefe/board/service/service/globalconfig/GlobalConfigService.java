@@ -16,6 +16,11 @@
 
 package com.welab.wefe.board.service.service.globalconfig;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.PropertyNamingStrategy;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.board.service.api.global_config.GlobalConfigUpdateApi;
 import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigFlag;
@@ -96,24 +101,33 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
 
     /**
-     * init global config items
+     * 初始化配置项
      */
-    public void init() throws StatusCodeWithException, InstantiationException, IllegalAccessException {
+    public synchronized void init() throws StatusCodeWithException, InstantiationException, IllegalAccessException {
         LOG.info("start init global config");
 
+        // 反射获取所有 ConfigModel
         List<Class<?>> classes = ReflectionsUtil.getClassesWithAnnotation(
                 GlobalConfigFlag.class.getPackage().getName(),
                 ConfigModel.class
         );
+
+        // 遍历所有 ConfigModel，将配置项添加到数据库。
         for (Class<?> aClass : classes) {
-            Object model = getModel(aClass);
-            if (model == null) {
-                LOG.info("init config model: " + aClass.getSimpleName());
-                Object o = aClass.newInstance();
-                put(o);
+            SerializeConfig config = new SerializeConfig();
+            config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
+            String jsonString = JSON.toJSONString(aClass.newInstance(), config, SerializerFeature.WriteMapNullValue);
+
+            ConfigModel annotation = aClass.getAnnotation(ConfigModel.class);
+
+            JSONObject json = JSON.parseObject(jsonString);
+            for (String name : json.keySet()) {
+                // 当数据库中没有该配置项时，添加该配置项。
+                if (findOne(annotation.group(), name) == null) {
+                    put(annotation.group(), name, json.getString(name), null);
+                }
             }
         }
-
 
         LOG.info("init global config success!");
     }

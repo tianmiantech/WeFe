@@ -24,6 +24,12 @@
                             <el-card v-show="vData.form.calculation_engine_config.backend === 'SPARK'">
                                 <el-row :gutter="24">
                                     <el-col :span="11">
+                                        <el-form-item label="硬件加速：">
+                                            <el-radio-group v-model="vData.form.spark_standalone_config.hardware_acceleration" size="small">
+                                                <el-radio label="NONE">无</el-radio>
+                                                <el-radio label="GPU">GPU</el-radio>
+                                            </el-radio-group>
+                                        </el-form-item>
                                         <el-form-item label="driver内存上限：">
                                             <el-input v-model="vData.form.spark_standalone_config.driver_memory" clearable />
                                         </el-form-item>

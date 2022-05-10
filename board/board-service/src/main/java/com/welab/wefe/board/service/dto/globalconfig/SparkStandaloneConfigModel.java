@@ -41,5 +41,11 @@ public class SparkStandaloneConfigModel {
      * 单位：m、g
      */
     public String executorMemory = "1g";
+    /**
+     * 硬件加速
+     * <p>
+     * enums：NONE、GPU
+     */
+    public String hardwareAcceleration = "NONE";
 
 }
