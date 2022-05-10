@@ -204,6 +204,7 @@
                             :placeholder="form.service_type === 3 ? '' : '支持多选'"
                             :multiple="form.service_type !== 3"
                             value-key="value"
+                            @change="sqlShow"
                             clearable
                         >
                             <el-option
@@ -654,7 +655,7 @@ export default {
                             };
                         });
                     }
-                    if(this.show_sql_result === '' && this.form.service_type === '1'){
+                    if(this.show_sql_result === '' && (this.form.service_type === 1 || this.form.service_type === 3)){
                         await this.sqlShow();
                     }
                     this.api = preview || {};
@@ -768,12 +769,22 @@ export default {
                     table: obj.table,
                 },
             };
-            $params.data_source.return_fields = obj.return_fields.map(x => {
-                return {
-                    name: x,
-                    value: '',
-                };
-            });
+            if(this.form.service_type === 1){
+                $params.data_source.return_fields = obj.return_fields.map(x => {
+                    return {
+                        name: x,
+                        value: '',
+                    };
+                });
+            }
+            if(this.form.service_type === 3){
+                obj.return_fields.forEach(x => {
+                    $params.data_source.return_fields.push( {
+                        name: x,
+                        value: '',
+                    });
+                });
+            }
             $params.data_source.condition_fields = obj.condition_fields.map(x => {
                 x.operator = this.sqlOperator;
                 return x;
