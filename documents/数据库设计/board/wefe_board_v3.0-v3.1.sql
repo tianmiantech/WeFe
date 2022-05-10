@@ -23,3 +23,11 @@ ALTER TABLE `project_flow`
 -- -------------------------------------
 ALTER TABLE `account`
     ADD COLUMN `ui_config` text NULL COMMENT 'UI 相关配置信息';
+
+
+-- -------------------------------------
+-- job 表加字段
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `job`
+    ADD COLUMN `job_config` text NULL COMMENT '配置信息';

@@ -251,6 +251,7 @@ CREATE TABLE `job`
     `star`                     tinyint(1) NOT NULL DEFAULT '0' COMMENT '收藏/置顶/标记',
     `job_middle_data_is_clear` tinyint(1) NOT NULL DEFAULT '0' COMMENT '中间数据是否已清理',
     `remark`                   text COMMENT '备注',
+    `job_config`               text COMMENT '配置信息',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`job_id`, `my_role`)
 ) ENGINE = InnoDB
