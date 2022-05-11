@@ -16,31 +16,41 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.api.clientservice.DetailApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryListApi;
 import com.welab.wefe.serving.service.api.clientservice.SaveApi;
 import com.welab.wefe.serving.service.api.clientservice.UpdateApi;
-import com.welab.wefe.serving.service.database.serving.entity.*;
-import com.welab.wefe.serving.service.database.serving.repository.*;
+import com.welab.wefe.serving.service.api.clientservice.UpdateStatusApi;
+import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.ClientServiceOutputModel;
+import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.serving.repository.ClientServiceQueryRepository;
+import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
+import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepository;
+import com.welab.wefe.serving.service.database.serving.repository.PartnerRepository;
+import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -63,9 +73,9 @@ public class ClientServiceService {
     private FeeConfigRepository feeConfigRepository;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private PartnerRepository partnerRepository;
 
-    public void save(SaveApi.Input input) throws StatusCodeWithException {
+    public void add(SaveApi.Input input) throws StatusCodeWithException {
 
         Specification<ClientServiceMysqlModel> where = Where.create()
                 .equal("serviceId", input.getServiceId())
@@ -77,29 +87,25 @@ public class ClientServiceService {
 
         if (!clientServiceMysqlModel.isPresent()) {
             ClientServiceMysqlModel model = new ClientServiceMysqlModel();
-            if (StringUtil.isNotEmpty(input.getClientId())) {
-                model.setClientId(input.getClientId());
-            }
-            if (StringUtil.isNotEmpty(input.getServiceId())) {
-                model.setServiceId(input.getServiceId());
-            }
+            model.setClientId(input.getClientId());
+            model.setServiceId(input.getServiceId());
             model.setCreatedBy(input.getCreatedBy());
             // 保存服务类型
             ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
                     ServiceMySqlModel.class);
             model.setServiceType(serviceMySqlModel.getServiceType());
+            // 客户相关信息
+            PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(), PartnerMysqlModel.class);
+            model.setClientName(partnerMysqlModel.getName());
+            
             if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                model.setUrl(serviceMySqlModel.getUrl());
+                model.setUrl(partnerMysqlModel.getServingBaseUrl() + "" + serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
-            } else {
+            } else {// 激活
                 model.setUrl(input.getUrl());
                 model.setStatus(ServiceStatusEnum.USED.getCode());
             }
-            // 保存客户相关信息
-            ClientMysqlModel clientMysqlModel = clientRepository.findOne("id", input.getClientId(), ClientMysqlModel.class);
-            model.setIpAdd(clientMysqlModel.getIpAdd());
-            model.setClientName(clientMysqlModel.getName());
-
+            model.setIpAdd(input.getIpAdd());
             // 保存计费规则相关信息
             model.setPayType(input.getPayType());
             model.setUnitPrice(input.getUnitPrice());
@@ -141,12 +147,20 @@ public class ClientServiceService {
     public ClientServiceOutputModel queryOne(QueryApi.Input input) {
         return clientServiceQueryRepository.queryOne(input.getId());
     }
+    
+    public ClientServiceOutputModel detail(DetailApi.Input input) {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId()).build(ClientServiceMysqlModel.class);
+        Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
+        if (optional.isPresent()) {
+            return ModelMapper.map(optional.get(), ClientServiceOutputModel.class);
+        }
+        return null;
+    }
 
-    public void update(UpdateApi.Input input) {
-        Specification<ClientServiceMysqlModel> where = Where.create()
-                .equal("serviceId", input.getServiceId())
-                .equal("clientId", input.getClientId())
-                .build(ClientServiceMysqlModel.class);
+    public void update(UpdateApi.Input input) throws StatusCodeWithException {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId()).build(ClientServiceMysqlModel.class);
 
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
@@ -156,6 +170,20 @@ public class ClientServiceService {
             model.setUpdatedTime(new Date());
             model.setUnitPrice(input.getUnitPrice());
             model.setPayType(input.getPayType());
+            model.setIpAdd(input.getIpAdd());
+            model.setPublicKey(input.getPublicKey());
+            // 客户相关信息
+            PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
+                    PartnerMysqlModel.class);
+            // 保存服务类型
+            ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
+                    ServiceMySqlModel.class);
+
+            if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
+                model.setUrl(partnerMysqlModel.getServingBaseUrl() + "" + serviceMySqlModel.getUrl());
+            } else {
+                model.setUrl(input.getUrl()); // 激活
+            }
             clientServiceRepository.save(model);
 
             // 修改计费规则，新增一条计费规则记录
@@ -165,6 +193,28 @@ public class ClientServiceService {
             feeConfigMysqlModel.setPayType(input.getPayType());
             feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
             feeConfigRepository.save(feeConfigMysqlModel);
+        }
+        else {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+    }
+    
+    public void updateStatus(UpdateStatusApi.Input input) throws StatusCodeWithException {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId()).build(ClientServiceMysqlModel.class);
+
+        Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
+        if (optional.isPresent()) {
+            ClientServiceMysqlModel model = optional.get();
+            if(model.getStatus() == input.getStatus()) {
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+            }
+            model.setStatus(input.getStatus());
+            model.setUpdatedBy(input.getUpdatedBy());
+            model.setUpdatedTime(new Date());
+            clientServiceRepository.save(model);
+        } else {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
     }
 
@@ -217,6 +267,6 @@ public class ClientServiceService {
         clientService.setStatus(status.getCode());
         clientService.setPublicKey(publicKey);
         clientService.setType(type.getValue());
-        save(clientService);
+        add(clientService);
     }
 }

@@ -37,7 +37,7 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        clientServiceService.save(input);
+        clientServiceService.add(input);
         return success();
     }
 
@@ -63,11 +63,14 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         @Check(name = "公钥")
         private String publicKey;
+        
+        @Check(name = "IP白名单")
+        private String ipAdd;
 
         @Check(name = "服务类型")
         private int type = ServiceClientTypeEnum.OPEN.getValue();
         
-        @Check(name = "服务地址")
+        @Check(name = "服务地址") // 激活服务使用
         private String url;
         
         @Check(name = "created by")
@@ -151,6 +154,14 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setUrl(String url) {
             this.url = url;
+        }
+
+        public String getIpAdd() {
+            return ipAdd;
+        }
+
+        public void setIpAdd(String ipAdd) {
+            this.ipAdd = ipAdd;
         }
     }
 

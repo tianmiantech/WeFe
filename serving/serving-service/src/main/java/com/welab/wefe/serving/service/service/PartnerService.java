@@ -38,6 +38,8 @@ import com.welab.wefe.serving.service.database.serving.repository.PartnerReposit
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -76,7 +78,7 @@ public class PartnerService {
             PartnerMysqlModel model = ModelMapper.map(m, PartnerMysqlModel.class);
             model.setServingBaseUrl(m.getApi());
             model.setPartnerId(m.getMemberId());
-            model.setUnionMember(true);
+            model.setIsUnionMember(true);
             model.setStatus(ClientStatusEnum.NORMAL.getValue());
             partnerRepository.save(model);
         }
@@ -177,8 +179,6 @@ public class PartnerService {
 
     public PagingOutput<Output> queryList(Input input) {
         Specification<PartnerMysqlModel> where = Where.create().contains("name", input.getPartnerName())
-                .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime(),
-                        input.getEndTime() == null ? null : input.getEndTime())
                 .build(PartnerMysqlModel.class);
 
         PagingOutput<PartnerMysqlModel> page = partnerRepository.paging(where, input);
@@ -197,21 +197,26 @@ public class PartnerService {
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());
-        model.setRemark(input.getRemark());
         model.setUpdatedBy(input.getUpdatedBy());
+        model.setUpdatedTime(new Date());
         model.setStatus(input.getStatus());
+        model.setIsUnionMember(input.getIsUnionMember());
+        model.setServingBaseUrl(input.getServingBaseUrl());
+        model.setRemark(input.getRemark());
         partnerRepository.save(model);
         // 客户信息变动时，客户服务表中的字段也更新
         Specification<ClientServiceMysqlModel> where = Where.create().equal("clientId", input.getId())
                 .build(ClientServiceMysqlModel.class);
 
         List<ClientServiceMysqlModel> all = clientServiceRepository.findAll(where);
-        List<ClientServiceMysqlModel> collect = all.stream().map(x -> {
-            x.setClientName(input.getName());
-            return x;
-        }).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(all)) {
+            List<ClientServiceMysqlModel> collect = all.stream().map(x -> {
+                x.setClientName(input.getName());
+                return x;
+            }).collect(Collectors.toList());
 
-        clientServiceRepository.saveAll(collect);
+            clientServiceRepository.saveAll(collect);
+        }
     }
 
     public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {

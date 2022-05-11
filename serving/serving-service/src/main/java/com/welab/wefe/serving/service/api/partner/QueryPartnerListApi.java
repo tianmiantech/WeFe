@@ -46,34 +46,12 @@ public class QueryPartnerListApi
         @Check(name = "合作者名称")
         private String partnerName;
 
-        @Check(name = "开始时间")
-        private Long startTime;
-
-        @Check(name = "结束时间")
-        private Long endTime;
-
         public String getPartnerName() {
             return partnerName;
         }
 
         public void setPartnerName(String partnerName) {
             this.partnerName = partnerName;
-        }
-
-        public Long getStartTime() {
-            return startTime;
-        }
-
-        public void setStartTime(Long startTime) {
-            this.startTime = startTime;
-        }
-
-        public Long getEndTime() {
-            return endTime;
-        }
-
-        public void setEndTime(Long endTime) {
-            this.endTime = endTime;
         }
     }
 
@@ -175,11 +153,11 @@ public class QueryPartnerListApi
             this.email = email;
         }
 
-        public boolean isUnionMember() {
+        public boolean getIsUnionMember() {
             return isUnionMember;
         }
 
-        public void setUnionMember(boolean isUnionMember) {
+        public void setIsUnionMember(boolean isUnionMember) {
             this.isUnionMember = isUnionMember;
         }
 

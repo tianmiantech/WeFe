@@ -24,26 +24,23 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 /**
  * @author ivenn.zheng
  * @date 2022/1/19
  */
-@Api(path = "clientservice/update", name = "update client service")
-public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
+@Api(path = "clientservice/update_status", name = "update client service status")
+public class UpdateStatusApi extends AbstractNoneOutputApi<UpdateStatusApi.Input> {
 
     @Autowired
     private ClientServiceService clientServiceService;
 
-
     @Override
-    protected ApiResult<?> handler(UpdateApi.Input input) throws StatusCodeWithException {
-        clientServiceService.update(input);
+    protected ApiResult<?> handler(UpdateStatusApi.Input input) throws StatusCodeWithException {
+        clientServiceService.updateStatus(input);
         return success();
     }
 
     public static class Input extends AbstractApiInput {
-
 
         @Check(name = "服务 id", require = true, messageOnEmpty = "请选择服务")
         private String serviceId;
@@ -54,23 +51,8 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         @Check(name = "use status")
         private int status;
 
-        @Check(name = "pay type")
-        private int payType;
-
-        @Check(name = "unit price")
-        private Double unitPrice;
-
         @Check(name = "updated by")
         private String updatedBy;
-        
-        @Check(name = "公钥")
-        private String publicKey;
-        
-        @Check(name = "IP白名单")
-        private String ipAdd;
-        
-        @Check(name = "服务地址")
-        private String url;
 
         public String getUpdatedBy() {
             return updatedBy;
@@ -96,7 +78,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
             this.clientId = clientId;
         }
 
-
         public int getStatus() {
             return status;
         }
@@ -104,46 +85,5 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         public void setStatus(int status) {
             this.status = status;
         }
-
-        public int getPayType() {
-            return payType;
-        }
-
-        public void setPayType(int payType) {
-            this.payType = payType;
-        }
-
-        public Double getUnitPrice() {
-            return unitPrice;
-        }
-
-        public void setUnitPrice(Double unitPrice) {
-            this.unitPrice = unitPrice;
-        }
-
-        public String getPublicKey() {
-            return publicKey;
-        }
-
-        public void setPublicKey(String publicKey) {
-            this.publicKey = publicKey;
-        }
-
-        public String getIpAdd() {
-            return ipAdd;
-        }
-
-        public void setIpAdd(String ipAdd) {
-            this.ipAdd = ipAdd;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
     }
 }
-
