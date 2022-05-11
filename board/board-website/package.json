@@ -23,13 +23,13 @@
     "tiny-emitter": "^2.1.0",
     "vue": "^3.2.21",
     "vue-cheetah-grid": "^1.1.5",
+    "vue-json-viewer": "^3.0.4",
     "vue-router": "^4.0.11",
     "vue3-virtual-list": "^1.0.2",
     "vuex": "^4.0.2",
     "welabx-g6": "^0.7.1"
   },
   "devDependencies": {
-    "core-js": "^3.21.1",
     "@babel/eslint-parser": "^7.15.4",
     "@babel/plugin-transform-runtime": "^7.15.0",
     "@babel/polyfill": "^7.12.1",
@@ -42,6 +42,7 @@
     "autoprefixer": "^9.8.6",
     "babel-plugin-import": "^1.13.3",
     "copy-webpack-plugin": "^5.1.2",
+    "core-js": "^3.21.1",
     "eslint": "^7.32.0",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-plugin-html": "^6.1.2",

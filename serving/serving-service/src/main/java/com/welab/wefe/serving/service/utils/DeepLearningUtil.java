@@ -93,7 +93,13 @@ public class DeepLearningUtil {
         return convertStreamToStr(process.getInputStream());
     }
 
+    public void callShellCommand() {
+
+    }
+
     public static void main(String[] args) throws IOException, InterruptedException {
+        String cmd = "python3 -m paddle_serving_server.serve --model serving_server --port 9393";
+
         // 创建命令集合
         List<String> commandList = new ArrayList<String>();
 //        commandList.add("/bin/sh");

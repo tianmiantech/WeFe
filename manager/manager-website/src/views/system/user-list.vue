@@ -39,122 +39,124 @@
 
         <el-table
             v-loading="loading"
-            class="card-list"
             :data="list"
             border
             stripe
+            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
         >
             <template #empty>
                 <EmptyData />
             </template>
-            <el-table-column label="序号" type="index"></el-table-column>
-            <el-table-column label="用户名" prop="nickname" width="140" />
-            <el-table-column label="手机号" prop="phone_number" width="140" />
-            <el-table-column label="邮箱" prop="email" width="180" />
-            <el-table-column label="用户角色" width="140">
-                <template v-slot="scope">
-                    {{ scope.row.super_admin_role ? '超级管理员' : (scope.row.admin_role ? '普通管理员' : '普通用户') }}
-                </template>
-            </el-table-column>
-            <el-table-column label="成员状态">
-                <template v-slot="scope">
-                    {{ scope.row.enable ? '可用' : '已禁用' }}
-                </template>
-            </el-table-column>
-            <el-table-column label="审核状态" width="220">
-                <template v-slot="scope">
-                    <el-tag v-if="scope.row.audit_status === 'agree'" type="success">
-                        通过
-                    </el-tag>
-                    <p v-if="scope.row.audit_status === 'disagree'">
-                        <el-tag type="danger">
-                            不通过
-                        </el-tag> <span>({{scope.row.audit_comment}})</span>
-                    </p>
-                    <el-tag v-if="scope.row.audit_status === 'auditing'">
-                        待审核
-                    </el-tag>
-                </template>
-            </el-table-column>
-            <el-table-column
-                label="已注销"
-                align="center"
-                width="70"
-            >
-                <template v-slot="scope">
-                    <span v-if="scope.row.cancelled">
-                        <i class="el-icon-check"></i>
-                    </span>
-                    <span v-else>
-                        <i class="el-icon-close"></i>
-                    </span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                v-if="userInfo.admin_role"
-                min-width="370"
-                fixed="right"
-                label="操作"
-            >
-                <template v-slot="scope">
-                    <template v-if="scope.row.account_id !== userInfo.account_id">
-                        <template v-if="scope.row.audit_status === 'agree' && userInfo.admin_role">
-                            <template v-if="userInfo.super_admin_role">
-                                <el-button
-                                    v-if="scope.row.admin_role"
-                                    @click="changeRole($event, scope.row)"
-                                >
-                                    设为普通用户
-                                </el-button>
-                                <el-button
-                                    v-else
-                                    type="danger"
-                                    @click="changeRole($event, scope.row)"
-                                >
-                                    设为管理员
-                                </el-button>
-                            </template>
-                            <el-button
-                                v-if="userInfo.admin_role"
-                                type="primary"
-                                @click="resetPassword($event, scope.row)"
-                            >
-                                重置用户密码
-                            </el-button>
-                            <el-button
-                                v-if="!scope.row.super_admin_role"
-                                :type="scope.row.enable ? 'danger' : 'success'"
-                                plain
-                                @click="changeStatus($event, scope.row)"
-                            >
-                                {{scope.row.enable ? '禁用' : '启用'}}
-                            </el-button>
-                        </template>
-                        <template v-else>
-                            <el-popconfirm
-                                confirm-button-text="同意"
-                                cancel-button-text="拒绝"
-                                cancelButtonType="danger"
-                                :hide-icon="true"
-                                trigger="hover"
-                                @confirm="memberAduit($event, scope.row, 'agree')"
-                                @cancel="memberAduit($event, scope.row, 'disagree')"
-                            >
-                                <template #reference>
-                                    <el-button plain>
-                                        {{ scope.row.audit_status === 'auditing' ? '审核' : scope.row.audit_status === 'disagree' ? '重新审核' : '' }}
+            <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
+            <el-table-column label="用户名" prop="nickname" min-width="140" />
+            <el-table-column label="手机号" prop="phone_number" min-width="140" />
+            <el-table-column label="邮箱" prop="email" min-width="180" />
+            <template v-if="userInfo.admin_role">
+                <el-table-column label="用户角色" width="140">
+                    <template v-slot="scope">
+                        {{ scope.row.super_admin_role ? '超级管理员' : (scope.row.admin_role ? '普通管理员' : '普通用户') }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="成员状态">
+                    <template v-slot="scope">
+                        {{ scope.row.enable ? '可用' : '已禁用' }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="审核状态" width="220">
+                    <template v-slot="scope">
+                        <el-tag v-if="scope.row.audit_status === 'agree'" type="success">
+                            通过
+                        </el-tag>
+                        <p v-if="scope.row.audit_status === 'disagree'">
+                            <el-tag type="danger">
+                                不通过
+                            </el-tag> <span>({{scope.row.audit_comment}})</span>
+                        </p>
+                        <el-tag v-if="scope.row.audit_status === 'auditing'">
+                            待审核
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    label="已注销"
+                    align="center"
+                    width="70"
+                >
+                    <template v-slot="scope">
+                        <span v-if="scope.row.cancelled">
+                            <i class="el-icon-check"></i>
+                        </span>
+                        <span v-else>
+                            <i class="el-icon-close"></i>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    min-width="370"
+                    fixed="right"
+                    label="操作"
+                >
+                    <template v-slot="scope">
+                        <template v-if="scope.row.account_id !== userInfo.account_id">
+                            <template v-if="scope.row.audit_status === 'agree' && userInfo.admin_role">
+                                <template v-if="userInfo.super_admin_role">
+                                    <el-button
+                                        v-if="scope.row.admin_role"
+                                        @click="changeRole($event, scope.row)"
+                                    >
+                                        设为普通用户
+                                    </el-button>
+                                    <el-button
+                                        v-else
+                                        type="danger"
+                                        @click="changeRole($event, scope.row)"
+                                    >
+                                        设为管理员
                                     </el-button>
                                 </template>
-                            </el-popconfirm>
+                                <el-button
+                                    v-if="userInfo.admin_role"
+                                    type="primary"
+                                    @click="resetPassword($event, scope.row)"
+                                >
+                                    重置用户密码
+                                </el-button>
+                                <el-button
+                                    v-if="!scope.row.super_admin_role"
+                                    :type="scope.row.enable ? 'danger' : 'success'"
+                                    plain
+                                    @click="changeStatus($event, scope.row)"
+                                >
+                                    {{scope.row.enable ? '禁用' : '启用'}}
+                                </el-button>
+                            </template>
+                            <template v-else>
+                                <el-popconfirm
+                                    confirm-button-text="同意"
+                                    cancel-button-text="拒绝"
+                                    cancelButtonType="danger"
+                                    :hide-icon="true"
+                                    trigger="hover"
+                                    @confirm="memberAduit($event, scope.row, 'agree')"
+                                    @cancel="memberAduit($event, scope.row, 'disagree')"
+                                >
+                                    <template #reference>
+                                        <el-button plain>
+                                            {{ scope.row.audit_status === 'auditing' ? '审核' : scope.row.audit_status === 'disagree' ? '重新审核' : '' }}
+                                        </el-button>
+                                    </template>
+                                </el-popconfirm>
+                            </template>
                         </template>
                     </template>
-                </template>
-            </el-table-column>
+                </el-table-column>
+            </template>
         </el-table>
 
         <div
             v-if="pagination.total"
             class="mt20 text-r"
+            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
         >
             <el-pagination
                 :total="pagination.total"

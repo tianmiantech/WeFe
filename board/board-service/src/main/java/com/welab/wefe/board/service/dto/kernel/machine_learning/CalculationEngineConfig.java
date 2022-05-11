@@ -17,9 +17,7 @@ package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.board.service.dto.globalconfig.calculation_engine.CalculationEngineBaseConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc.AliyunFunctionComputeConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc.FunctionComputeBaseConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.calculation_engine.spark.SparkStandaloneConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.JobBackendType;
@@ -32,9 +30,10 @@ public class CalculationEngineConfig {
     private static GlobalConfigService CONFIG_SERVICE = Launcher.getBean(GlobalConfigService.class);
 
     public JobBackendType backend;
-    public FunctionComputeBaseConfigModel functionComputeBaseConfig;
-    public AliyunFunctionComputeConfigModel aliyunFunctionComputeConfig;
-    public SparkStandaloneConfigModel sparkStandaloneConfig;
+    /**
+     * 函数计算服务提供商
+     */
+    public String fcCloudProvider;
 
     @JSONField(serialize = false)
     public static CalculationEngineConfig get() {
@@ -45,9 +44,7 @@ public class CalculationEngineConfig {
 
         CalculationEngineConfig config = new CalculationEngineConfig();
         config.backend = baseConfig.backend;
-        config.functionComputeBaseConfig = CONFIG_SERVICE.getModel(FunctionComputeBaseConfigModel.class);
-        config.aliyunFunctionComputeConfig = CONFIG_SERVICE.getModel(AliyunFunctionComputeConfigModel.class);
-        config.sparkStandaloneConfig = CONFIG_SERVICE.getModel(SparkStandaloneConfigModel.class);
+        config.fcCloudProvider = CONFIG_SERVICE.getModel(FunctionComputeBaseConfigModel.class).cloudProvider;
 
         return config;
     }

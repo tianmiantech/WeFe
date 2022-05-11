@@ -18,8 +18,10 @@ package com.welab.wefe.serving.service.service.model;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.AESUtil;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
@@ -33,14 +35,13 @@ import com.welab.wefe.serving.service.database.serving.repository.MemberReposito
 import com.welab.wefe.serving.service.database.serving.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
+import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,13 +67,14 @@ public class ModelImportService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void saveMachineLearningModel(String filename) throws StatusCodeWithException {
+    public void saveMachineLearningModel(String name, String filename) throws StatusCodeWithException {
         try {
-            File jsonFile = ServingFileUtil
+            String path = ServingFileUtil
                     .getBaseDir(ServingFileUtil.FileType.MachineLearningModelFile)
-                    .resolve(filename).toFile();
-            String jsonStr = FileUtil.readAllText(jsonFile);
-            JObject jObject = JObject.create(jsonStr);
+                    .resolve(filename).toString();
+            List<String> jsonStr = FileUtil.readAllForLine(path, "UTF-8");
+            String aesKey = RSAUtil.decryptByPrivateKey(jsonStr.get(0), CacheObjects.getRsaPrivateKey());
+            JObject jObject = JObject.create(AESUtil.decrypt(jsonStr.get(1), aesKey));
 
             String modelId = getModelId(jObject);
             List<MemberParams> memberParams = getMemberParams(jObject);
@@ -131,8 +133,9 @@ public class ModelImportService {
             model.setFeatureSource(PredictFeatureDataSource.api);
             model.setModelParam(getModelParam(jObject));
             model.setEnable(false);
+            model.setName(name);
             modelRepository.save(model);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new StatusCodeWithException("导入模型失败！error: " + e.getMessage(), StatusCode.FILE_IO_ERROR);
         }
@@ -175,7 +178,7 @@ public class ModelImportService {
         ServingFileUtil.DeepLearningModelFile.renameZipFile(filename, model.getId());
 
         model.setSourcePath(path);
-        model.setFilename("test");
+        model.setFilename(model.getId() + ".zip");
         model.setUseCount(0);
         model.setName(name);
 

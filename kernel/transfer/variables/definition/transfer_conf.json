@@ -1674,25 +1674,65 @@
   "provider_en_gradient_r": {
    "src": "provider",
    "dst": [
-    "promoter"
+     "promoter"
    ]
   },
-  "provider_prob": {
-   "src": "provider",
-   "dst": [
-    "promoter"
-   ]
-  }
+   "provider_prob": {
+     "src": "provider",
+     "dst": [
+       "promoter"
+     ]
+   }
  },
- "VertPCATransferVariable": {
-  "provider_cov_infos": {
-   "src": "provider",
-   "dst": [
-    "promoter"
-   ]
+  "SSHEModelTransferVariable": {
+    "q_field": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_prob": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "begin_iter": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "loss": {
+      "src": [
+        "provider"
+      ],
+      "dst": [
+        "promoter"
+      ]
+    },
+    "is_converged": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    }
   },
-  "promoter_features": {
-   "src": "promoter",
+  "VertPCATransferVariable": {
+    "provider_cov_infos": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "promoter_features": {
+      "src": "promoter",
    "dst": [
     "provider"
    ]
@@ -1772,24 +1812,39 @@
     "arbiter"
    ]
   },
-  "ModelBroadcasterTransVar.server_model": {
-   "src": [
-    "arbiter"
-   ],
-   "dst": [
-    "promoter",
-    "provider"
-   ]
-  }
+   "ModelBroadcasterTransVar.server_model": {
+     "src": [
+       "arbiter"
+     ],
+     "dst": [
+       "promoter",
+       "provider"
+     ]
+   }
  },
- "CipherCompressorTransferVariable": {
-  "compress_para": {
-   "src": "promoter",
-   "dst": [
-    "provider"
-   ]
-  }
- },
+  "BatchGeneratorTransferVariable": {
+    "batch_data_index": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "batch_info": {
+      "src": "promoter",
+      "dst": [
+        "provider",
+        "arbiter"
+      ]
+    }
+  },
+  "CipherCompressorTransferVariable": {
+    "compress_para": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
+  },
  "CommonTransferVariable": {
   "promoter2provider_complete_status": {
    "src": "promoter",
@@ -1818,26 +1873,40 @@
   "provider2provider_complete_status": {
    "src": "provider",
    "dst": [
-    "provider"
+     "provider"
    ]
   },
-  "promoter2promoter_complete_status": {
-   "src": "promoter",
-   "dst": [
-    "promoter"
-   ]
-  }
+   "promoter2promoter_complete_status": {
+     "src": "promoter",
+     "dst": [
+       "promoter"
+     ]
+   }
  },
- "CrossValidationTransferVariable": {
-  "train_sid": {
-   "src": "promoter",
-   "dst": [
-    "provider"
-   ]
+  "ConvergeCheckerTransferVariable": {
+    "square_sum": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    },
+    "converge_info": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    }
   },
-  "test_sid": {
-   "src": "promoter",
-   "dst": [
+  "CrossValidationTransferVariable": {
+    "train_sid": {
+      "src": "promoter",
+      "dst": [
+        "provider"
+      ]
+    },
+    "test_sid": {
+      "src": "promoter",
+      "dst": [
     "provider"
    ]
   }
@@ -2225,26 +2294,46 @@
     "provider"
    ]
   },
-  "rescontruct": {
-   "src": [
-    "promoter",
-    "provider"
-   ],
-   "dst": [
-    "promoter",
-    "provider"
-   ]
-  },
-  "share": {
-   "src": [
-    "promoter",
-    "provider"
-   ],
-   "dst": [
-    "promoter",
-    "provider"
-   ]
-  }
+   "reconstruct": {
+     "src": [
+       "promoter",
+       "provider"
+     ],
+     "dst": [
+       "promoter",
+       "provider"
+     ]
+   },
+   "share": {
+     "src": [
+       "promoter",
+       "provider"
+     ],
+     "dst": [
+       "promoter",
+       "provider"
+     ]
+   },
+   "encrypted_share_matrix": {
+     "src": [
+       "promoter",
+       "provider"
+     ],
+     "dst": [
+       "promoter",
+       "provider"
+     ]
+   },
+   "q_field": {
+     "src": [
+       "promoter",
+       "provider"
+     ],
+     "dst": [
+       "promoter",
+       "provider"
+     ]
+   }
  },
  "SecureAddExampleTransferVariable": {
   "promoter_share": {

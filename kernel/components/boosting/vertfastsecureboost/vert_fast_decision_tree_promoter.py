@@ -82,7 +82,7 @@ class VertFastDecisionTreePromoter(VertDecisionTreePromoter):
         return self.node_plan[idx]
 
     def provider_id_to_idx(self, provider_id):
-        if provider_id == -1:
+        if provider_id == -1 or provider_id == '-1':
             return -1
         return self.provider_member_idlist.index(provider_id)
 

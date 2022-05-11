@@ -29,7 +29,13 @@ public class Env {
 
     private int workMode;
     private EnvName name;
+    /**
+     * 计算引擎相关配置
+     */
     private CalculationEngineConfig calculationEngineConfig;
+    /**
+     * storage 相关配置
+     */
     private StorageConfig storageConfig;
 
     @JSONField(serialize = false)

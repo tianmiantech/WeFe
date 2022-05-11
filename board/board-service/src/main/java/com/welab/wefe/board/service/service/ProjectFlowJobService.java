@@ -136,6 +136,21 @@ public class ProjectFlowJobService extends AbstractService {
         List<JobMemberMySqlModel> jobMembers = listJobMembers(project.getProjectId(), input.getFlowId(),
                 input.getJobId(), jobArbiterInfo, isOotMode);
 
+        // 横向联邦时，不支持一方同时参与 promoter 和 provider。
+        if (flow.getFederatedLearningType() == FederatedLearningType.horizontal) {
+            if (project.getMyRole() == JobMemberRole.promoter) {
+                boolean inPromoterAndProvider = jobMembers.stream()
+                        .anyMatch(x ->
+                                x.getJobRole() == JobMemberRole.provider
+                                        && x.getMemberId().equals(CacheObjects.getMemberId())
+                        );
+                if (inPromoterAndProvider) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("横向联邦时，您不能同时作为 发起方 和 协作方！");
+                }
+            }
+        }
+
+
         if (!input.fromGateway()) {
             if (jobMembers.stream().noneMatch(x -> CacheObjects.getMemberId().equals(x.getMemberId()))) {
                 throw new StatusCodeWithException("当前任务不包含我方数据集，无法启动。", StatusCode.PARAMETER_VALUE_INVALID);

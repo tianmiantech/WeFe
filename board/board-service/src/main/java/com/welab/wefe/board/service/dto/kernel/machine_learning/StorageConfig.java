@@ -16,7 +16,6 @@
 package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.welab.wefe.board.service.dto.globalconfig.storage.ClickHouseStorageConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.data.storage.common.DBType;
@@ -30,7 +29,7 @@ public class StorageConfig {
     private static GlobalConfigService CONFIG_SERVICE = Launcher.getBean(GlobalConfigService.class);
 
     public DBType dbType;
-    public ClickHouseStorageConfigModel clickHouseStorageConfigModel;
+
 
     @JSONField(serialize = false)
     public static StorageConfig get() {
@@ -41,8 +40,6 @@ public class StorageConfig {
 
         StorageConfig config = new StorageConfig();
         config.dbType = baseConfig.storageType;
-        config.clickHouseStorageConfigModel = CONFIG_SERVICE.getModel(ClickHouseStorageConfigModel.class);
-
         return config;
     }
 }

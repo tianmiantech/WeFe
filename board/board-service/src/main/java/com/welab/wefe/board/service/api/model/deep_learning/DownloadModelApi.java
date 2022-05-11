@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.dto.globalconfig.DeepLearningConfigModel;
 import com.welab.wefe.board.service.service.TaskService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.InformationSize;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -41,8 +42,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 /**
  * @author zane
@@ -117,13 +116,13 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
                 fileout.write(buffer, 0, ch);
                 downloadSize += ch;
                 if (downloadSize % 1024 == 0) {
-                    LOG.info("模型下载进度：" + getSizeString(downloadSize));
+                    LOG.info("模型下载进度：" + InformationSize.fromByte(downloadSize));
                 }
             }
             is.close();
             fileout.flush();
             fileout.close();
-            LOG.info("模型下载完毕：" + getSizeString(downloadSize));
+            LOG.info("模型下载完毕：" + InformationSize.fromByte(downloadSize));
         } catch (Exception e) {
             throw e;
         } finally {
@@ -131,17 +130,6 @@ public class DownloadModelApi extends AbstractApi<DownloadModelApi.Input, Respon
         }
     }
 
-    private String getSizeString(long byteSize) {
-        if (byteSize < 1024) {
-            return byteSize + "byte";
-        }
-        if (byteSize < 1024 * 1024) {
-            return BigDecimal.valueOf(byteSize)
-                    .divide(BigDecimal.valueOf(1024), 2, RoundingMode.FLOOR) + "KB";
-        }
-        return BigDecimal.valueOf(byteSize)
-                .divide(BigDecimal.valueOf(1024 * 1024), 2, RoundingMode.FLOOR) + "MB";
-    }
 
     public static class Input extends AbstractApiInput {
         @Check(require = true)

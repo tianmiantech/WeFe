@@ -16,38 +16,6 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
@@ -86,11 +54,7 @@ import com.welab.wefe.serving.service.api.service.QueryOneApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.*;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
@@ -101,6 +65,26 @@ import com.welab.wefe.serving.service.utils.MD5Util;
 import com.welab.wefe.serving.service.utils.SHA256Utils;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
 import com.welab.wefe.serving.service.utils.ZipUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 服务 Service
@@ -715,16 +699,17 @@ public class ServiceService {
                 throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
             }
         }
-        CommonThreadPool.run(() -> {
-            Map<String, String> result = new HashMap<>();
-            // 0 根据ID查询对应的数据
-            for (String id : ids) {// params
-                JSONObject dataSource = JObject.parseObject(model.getDataSource());
-                String dataSourceId = dataSource.getString("id");
-                DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-                String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
-                String resultfields = ServiceUtil.parseReturnFields(dataSource);
-                try {
+		LOG.info("begin query data from datasource");
+		CommonThreadPool.run(() -> {
+			Map<String, String> result = new HashMap<>();
+			// 0 根据ID查询对应的数据
+			for (String id : ids) {// params
+				JSONObject dataSource = JObject.parseObject(model.getDataSource());
+				String dataSourceId = dataSource.getString("id");
+				DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
+				String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
+				String resultfields = ServiceUtil.parseReturnFields(dataSource);
+				try {
                     Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
                             Arrays.asList(resultfields.split(",")));
                     if (resultMap == null || resultMap.isEmpty()) {
@@ -733,18 +718,19 @@ public class ServiceService {
                     }
                     String resultStr = JObject.toJSONString(resultMap);
                     LOG.info("pir datasource result : " + id + "\t " + resultStr);
-                    result.put(id, resultStr);
-                } catch (StatusCodeWithException e) {
-                    LOG.error("pir query data error", e);
-                }
-            }
-            // 将 0 步骤查询的数据 保存到 CacheOperation
-            CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
-            LOG.info("save service handle result");
-            queryResult.save(uuid, Constants.RESULT, result);
-        });
-        return response;
-    }
+					result.put(id, resultStr);
+				} catch (StatusCodeWithException e) {
+					LOG.error("pir query data error", e);
+				}
+			}
+			// 将 0 步骤查询的数据 保存到 CacheOperation
+			CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
+			LOG.info("save service handle result");
+			queryResult.save(uuid, Constants.RESULT, result);
+		});
+		LOG.info("finished query data from datasource");
+		return response;
+	}
 
 	public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
 		ServiceMySqlModel model = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
@@ -759,14 +745,27 @@ public class ServiceService {
 		if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
 			// 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath.resolve("mpc-pir-sdk-1.0.0.jar").toString()));
+			if (serviceType == ServiceTypeEnum.PIR.getCode()) {
+				fileList.add(new File(basePath.resolve("PirClient.java").toString()));
+			}
+			if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
+				fileList.add(new File(basePath.resolve("MultiPir.java").toString()));
+			}
 			fillReadmeFile(model, readme);
 		} else if (serviceType == ServiceTypeEnum.PSI.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
 			// 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath.resolve("mpc-psi-sdk-1.0.0.jar").toString()));
+			if (serviceType == ServiceTypeEnum.PSI.getCode()) {
+				fileList.add(new File(basePath.resolve("PsiClient.java").toString()));
+			}
+			if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
+				fileList.add(new File(basePath.resolve("MultiPsi.java").toString()));
+			}
 			fillReadmeFile(model, readme);
 		} else if (serviceType == ServiceTypeEnum.SA.getCode() || serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
 			// 将需要提供的文件加到这个列表
 			fileList.add(new File(basePath.resolve("mpc-sa-sdk-1.0.0.jar").toString()));
+			fileList.add(new File(basePath.resolve("SaClient.java").toString()));
 			fillReadmeFile(model, readme);
 		} else {
 			fillReadmeFile(null, readme);
