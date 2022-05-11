@@ -281,7 +281,7 @@
 
                     if(code === 0) {
                         nextTick(_=> {
-                            vData.infer_session_id = data.task_view.results[0].result.infer_session_id;
+                            vData.infer_session_id = data.task_view.results[0] ? data.task_view.results[0].result.infer_session_id : '';
                             if (data.task_view.results[0] === null) {
                                 vData.isCanUpload = false;
                                 vData.isUploading = false;

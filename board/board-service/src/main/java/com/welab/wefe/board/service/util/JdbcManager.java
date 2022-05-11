@@ -69,7 +69,7 @@ public class JdbcManager {
             conn = DriverManager.getConnection(url, userName, password);
         } catch (Exception e) {
             LOG.error("数据库连接失败", e);
-            throw new StatusCodeWithException("数据库连接失败：" + e.getMessage(), StatusCode.DATABASE_LOST);
+            throw new StatusCodeWithException("测试连接数据库失败，请检查数据库是否正常或者账号密码是否填写错误：" + e.getMessage(), StatusCode.DATABASE_LOST);
         }
 
         return conn;
