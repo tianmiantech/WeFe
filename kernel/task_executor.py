@@ -79,8 +79,11 @@ class TaskExecutor(object):
             global_config.ENV = args.environment
             task_config = load_config(args)
             params = task_config.get('params', {})
-            # params = task_config["params"]
-            job_env = task_config['job']['env']
+
+            # 改为从 job_config 中获取
+            with DB.connection_context():
+                job = Job.select().where(Job.job_id == job_id)
+            job_env = job['env']
             task_input_dsl = task_config['input']
             task_output_dsl = task_config['output']
             module_name = task_config['module']
@@ -106,12 +109,12 @@ class TaskExecutor(object):
             # backend = conf_utils.get_backend_from_string(
             #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
             # )
-            backend = job_env.get('backend')
+            backend = job_env['calculation_engine_config'].get('backend')
             # backend = 0
             options = TaskExecutor.session_options(task_config)
             RuntimeConfig.init_config(WORK_MODE=job_env['work_mode'],
                                       BACKEND=backend,
-                                      DB_TYPE=job_env.get('db_type', DBTypes.CLICKHOUSE))
+                                      DB_TYPE=job_env['storage_config'].get('db_type', DBTypes.CLICKHOUSE))
             session.init(job_id='{}_{}_{}'.format(task_id, role, member_id), mode=RuntimeConfig.WORK_MODE,
                          backend=RuntimeConfig.BACKEND, db_type=RuntimeConfig.DB_TYPE,
                          options=options)
@@ -131,7 +134,7 @@ class TaskExecutor(object):
             # Obtain the input data according to the rules
             task_run_args = TaskExecutor.get_task_run_args(
                 project_id=project_id, job_id=job_id, role=role, task_id=task_id,
-                member_id=member_id, job_env=job_env, params=params,
+                member_id=member_id, params=params,
                 module_name=module_name, input_dsl=task_input_dsl
             )
 
@@ -211,7 +214,7 @@ class TaskExecutor(object):
         return parameter
 
     @staticmethod
-    def get_task_run_args(project_id, job_id, role, task_id, member_id, job_env, params, module_name, input_dsl):
+    def get_task_run_args(project_id, job_id, role, task_id, member_id, params, module_name, input_dsl):
         task_run_args = {}
         # input_dsl => {'data': {'': ['']}, 'model': {'': ['']}}
         for input_type, input_detail in input_dsl.items():
