@@ -54,3 +54,10 @@ class MailServerModel(object):
 class FunctionComputeConfig(object):
     max_cost_in_day: int
     max_cost_in_month: int
+
+
+class SparkStandaloneConfig(object):
+    executor_memory: str
+    driver_max_result_size: str
+    driver_memory: str
+    hardware_acceleration: str
