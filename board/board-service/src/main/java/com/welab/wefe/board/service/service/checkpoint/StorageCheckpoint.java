@@ -39,12 +39,6 @@ public class StorageCheckpoint extends AbstractCheckpoint {
     @Autowired
     protected GlobalConfigService configService;
 
-    private StorageBaseConfigModel config;
-
-    public StorageCheckpoint() {
-        config = configService.getModel(StorageBaseConfigModel.class);
-    }
-
     @Override
     public ServiceType service() {
         return ServiceType.StorageService;
@@ -68,6 +62,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck(String value) throws Exception {
+        StorageBaseConfigModel config = configService.getModel(StorageBaseConfigModel.class);
 
         StorageService service = Launcher.getBean(StorageService.class);
         Storage storage = service.getStorage();
