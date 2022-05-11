@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.dto.kernel.Member;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.wefe.enums.FederatedLearningModel;
@@ -35,6 +36,10 @@ public class KernelJob {
     @Check(name = "Mixed Federation promoter_id")
     private String mixPromoterMemberId;
     private FederatedLearningModel federatedLearningMode;
+
+    public JSONObject toJson() {
+        return JSONObject.parseObject(JSONObject.toJSONString(this));
+    }
 
     //region getter/setter
 
@@ -94,5 +99,6 @@ public class KernelJob {
     public void setFederatedLearningMode(FederatedLearningModel federatedLearningMode) {
         this.federatedLearningMode = federatedLearningMode;
     }
+
     //endregion
 }

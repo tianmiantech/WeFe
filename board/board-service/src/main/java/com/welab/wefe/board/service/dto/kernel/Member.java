@@ -116,7 +116,7 @@ public class Member {
     private static JobBackendType getMemberJobBackendType(String memberId) {
         // 自己，从本地取。
         if (CacheObjects.isCurrentMember(memberId)) {
-            return Env.get().getBackend();
+            return Env.get().getCalculationEngineConfig().backend;
         }
 
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
@@ -126,7 +126,7 @@ public class Member {
         } catch (StatusCodeWithException e) {
             return null;
         }
-        return env.getBackend();
+        return env.getCalculationEngineConfig().backend;
     }
 
     //region getter/setter

@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.constant;
 
-import com.welab.wefe.common.data.storage.common.DBType;
 import com.welab.wefe.common.web.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -32,9 +31,6 @@ import org.springframework.stereotype.Component;
 @PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
 @ConfigurationProperties
 public class Config extends CommonConfig {
-
-    @Value("${db.storage.type}")
-    private DBType dbType;
 
     @Value("${fc.access_key_id:xxx}")
     private String fcAccessKeyId;
@@ -67,14 +63,6 @@ public class Config extends CommonConfig {
     private boolean encryptPhoneNumberOpen;
 
     // region getter/setter
-
-    public DBType getDbType() {
-        return dbType;
-    }
-
-    public void setDbType(DBType dbType) {
-        this.dbType = dbType;
-    }
 
     public String getVerificationCodeSendChannel() {
         return verificationCodeSendChannel;

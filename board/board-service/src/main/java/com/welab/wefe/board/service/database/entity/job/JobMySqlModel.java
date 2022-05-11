@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.database.entity.job;
 import com.alibaba.fastjson.JSONObject;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.JobStatus;
@@ -115,6 +116,11 @@ public class JobMySqlModel extends AbstractBaseMySqlModel {
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private JSONObject jobConfig;
+
+
+    public void setJobConfig(KernelJob kernelJob) {
+        this.jobConfig = kernelJob.toJson();
+    }
 
     //region getter/setter
 
@@ -263,5 +269,5 @@ public class JobMySqlModel extends AbstractBaseMySqlModel {
         this.jobConfig = jobConfig;
     }
 
-//endregion
+    //endregion
 }

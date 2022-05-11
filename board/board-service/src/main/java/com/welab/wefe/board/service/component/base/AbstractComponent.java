@@ -30,7 +30,6 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.dto.kernel.Member;
-import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
@@ -110,7 +109,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks pre task list
      * @param node     node
      */
-    public List<TaskMySqlModel> buildMixTask(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
+    public List<TaskMySqlModel> buildMixTask(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -167,7 +166,6 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                     taskParam.put("random_cipher_seed", randomCipherSeed);
                 }
             }
-            taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
             taskConfig.setParams(taskParam);
             taskConfig.setInput(generateInput(graph, node, count));
@@ -246,7 +244,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks A collection of created tasks
      * @param node     the node of flow
      */
-    public TaskMySqlModel buildTask(JobBuilder jobBuilder, ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
+    public TaskMySqlModel buildTask(JobBuilder jobBuilder, ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -278,7 +276,6 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
 
         if (project.getProjectType() == ProjectType.MachineLearning) {
             TaskConfig taskConfig = new TaskConfig();
-            taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
             taskConfig.setParams(taskParam);
             taskConfig.setInput(getInputs(graph, node));

@@ -18,12 +18,7 @@ package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.dto.globalconfig.CalculationEngineConfigModel;
-import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.data.storage.common.DBType;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.wefe.enums.JobBackendType;
 import com.welab.wefe.common.wefe.enums.env.EnvName;
 
 
@@ -31,24 +26,19 @@ import com.welab.wefe.common.wefe.enums.env.EnvName;
  * @author zane.luo
  */
 public class Env {
-    private DBType dbType;
-    private JobBackendType backend;
+
     private int workMode;
     private EnvName name;
-
+    private CalculationEngineConfig calculationEngineConfig;
+    private StorageConfig storageConfig;
 
     @JSONField(serialize = false)
     public static Env get() {
         Env env = new Env();
-        CalculationEngineConfigModel calculationEngineConfig = Launcher.getBean(GlobalConfigService.class).getModel(CalculationEngineConfigModel.class);
-        if (StringUtil.isEmpty(calculationEngineConfig.backend)) {
-            throw new RuntimeException("计算环境未选择，请在[全局设置][计算引擎设置]中指定计算环境。");
-        }
 
-        Config config = Launcher.getBean(Config.class);
+        env.calculationEngineConfig = CalculationEngineConfig.get();
+        env.storageConfig = StorageConfig.get();
 
-        env.setBackend(JobBackendType.valueOf(calculationEngineConfig.backend));
-        env.setDbType(config.getDbType());
         /** Working mode of modeling tasks
          * Use integer type definition: Cluster mode=1, stand-alone mode=0
          * If work_mode=1 is used, multi-party interaction needs to go through the gateway
@@ -56,27 +46,11 @@ public class Env {
          */
         // board 创建的任务全部为集群模式，即需要通过网关访问。
         env.setWorkMode(1);
-        env.setName(config.getEnvName());
+        env.setName(Launcher.getBean(Config.class).getEnvName());
         return env;
     }
 
     //region getter/setter
-
-    public DBType getDbType() {
-        return dbType;
-    }
-
-    public void setDbType(DBType dbType) {
-        this.dbType = dbType;
-    }
-
-    public JobBackendType getBackend() {
-        return backend;
-    }
-
-    public void setBackend(JobBackendType backend) {
-        this.backend = backend;
-    }
 
     public int getWorkMode() {
         return workMode;
@@ -94,6 +68,21 @@ public class Env {
         this.name = name;
     }
 
+    public CalculationEngineConfig getCalculationEngineConfig() {
+        return calculationEngineConfig;
+    }
+
+    public void setCalculationEngineConfig(CalculationEngineConfig calculationEngineConfig) {
+        this.calculationEngineConfig = calculationEngineConfig;
+    }
+
+    public StorageConfig getStorageConfig() {
+        return storageConfig;
+    }
+
+    public void setStorageConfig(StorageConfig storageConfig) {
+        this.storageConfig = storageConfig;
+    }
 
     //endregion
 }

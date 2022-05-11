@@ -26,7 +26,6 @@ import java.util.Map;
  * @author zane.luo
  */
 public class TaskConfig {
-    private KernelJob job;
     private ComponentType module;
 
     @Check(name = "组件的输入相关信息")
@@ -44,14 +43,6 @@ public class TaskConfig {
     private KernelTask task;
 
     //region getter/setter
-
-    public KernelJob getJob() {
-        return job;
-    }
-
-    public void setJob(KernelJob job) {
-        this.job = job;
-    }
 
     public ComponentType getModule() {
         return module;

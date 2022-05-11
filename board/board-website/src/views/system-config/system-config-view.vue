@@ -102,10 +102,10 @@
                         <fieldset>
                             <legend>数据集存储</legend>
                             <el-form-item label="类型：">
-                                <el-radio v-model="config.storage_config.storage_type" :label="CLICKHOUSE">
+                                <el-radio v-model="config.storage_config.storage_type" label="CLICKHOUSE">
                                     Clickhouse
                                 </el-radio>
-                                <el-radio v-model="config.storage_config.storage_type" disabled :label="HDFS">
+                                <el-radio v-model="config.storage_config.storage_type" disabled label="HDFS">
                                     <el-tooltip class="item" effect="dark" content="coming soon" placement="top-start">
                                         HDFS
                                     </el-tooltip>

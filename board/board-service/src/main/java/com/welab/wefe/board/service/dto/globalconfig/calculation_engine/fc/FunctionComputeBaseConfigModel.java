@@ -13,21 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.globalconfig;
+package com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc;
 
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 
 /**
- * 计算引擎相关配置
+ * 函数计算基础配置项
  *
  * @author zane
- * @date 2021/12/3
+ * @date 2021/10/29
  */
-@ConfigModel(group = ConfigGroupConstant.CALCULATION_ENGINE_CONFIG)
-public class CalculationEngineConfigModel {
+@ConfigModel(group = ConfigGroupConstant.FC_CONFIG)
+public class FunctionComputeBaseConfigModel {
+
     /**
-     * SPARK、FC
+     * 函数计算的提供商：aliyun/tencentcloud
      */
-    public String backend = "SPARK";
+    public String cloudProvider = "aliyun";
+    /**
+     * 日费用上限
+     */
+    public int maxCostInDay = 500;
+    /**
+     * 月费用上限
+     */
+    public int maxCostInMonth = 1000;
 }

@@ -16,7 +16,8 @@
 
 package com.welab.wefe.board.service.service.checkpoint;
 
-import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.repo.Storage;
@@ -36,7 +37,13 @@ import static com.welab.wefe.board.service.service.DataSetStorageService.DATABAS
 @Service
 public class StorageCheckpoint extends AbstractCheckpoint {
     @Autowired
-    protected Config config;
+    protected GlobalConfigService configService;
+
+    private StorageBaseConfigModel config;
+
+    public StorageCheckpoint() {
+        config = configService.getModel(StorageBaseConfigModel.class);
+    }
 
     @Override
     public ServiceType service() {
@@ -69,14 +76,14 @@ public class StorageCheckpoint extends AbstractCheckpoint {
             storage.put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
         } catch (Exception e) {
             super.log(e);
-            throw new Exception(config.getDbType().name() + " put 异常，请检查相关配置是否正确：" + e.getMessage());
+            throw new Exception(config.storageType.name() + " put 异常，请检查相关配置是否正确：" + e.getMessage());
         }
 
         try {
             storage.dropTB(DATABASE_NAME, name);
         } catch (Exception e) {
             super.log(e);
-            throw new Exception(config.getDbType().name() + " drop 异常，请检查相关配置是否正确：" + e.getMessage());
+            throw new Exception(config.storageType.name() + " drop 异常，请检查相关配置是否正确：" + e.getMessage());
         }
 
     }

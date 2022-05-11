@@ -113,7 +113,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
             if (!availableInfo.isSuccess()) {
                 StatusCode
                         .DATABASE_LOST
-                        .throwException("storage 服务访问失败：" + availableInfo.getMessage() + "，请检服务是否正常：" + config.getDbType());
+                        .throwException("storage 服务访问失败：" + availableInfo.getMessage());
             }
 
             model.setStorageType(DataResourceStorageType.StorageService);

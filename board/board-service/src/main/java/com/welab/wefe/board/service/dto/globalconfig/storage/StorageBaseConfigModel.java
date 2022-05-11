@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,39 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.globalconfig;
+package com.welab.wefe.board.service.dto.globalconfig.storage;
 
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.common.data.storage.common.DBType;
 
 /**
- * 单机版配置
- *
  * @author zane
- * @date 2022/04/27
+ * @date 2022/5/6
  */
-@ConfigModel(group = ConfigGroupConstant.SPARK_STANDALONE_CONFIG)
-public class SparkStandaloneConfigModel {
-    /**
-     * Driver内存，默认1024m：
-     * 单位：m、g
-     */
-    public String driverMemory = "1g";
-    /**
-     * 结果集的最大大小，默认1G
-     * 单位：m、g
-     */
-    public String driverMaxResultSize = "1g";
-    /**
-     * 每个executor的内存
-     * 单位：m、g
-     */
-    public String executorMemory = "1g";
-    /**
-     * 硬件加速
-     * <p>
-     * enums：NONE、GPU
-     */
-    public String hardwareAcceleration = "NONE";
-
+@ConfigModel(group = ConfigGroupConstant.STORAGE)
+public class StorageBaseConfigModel {
+    public DBType storageType = DBType.CLICKHOUSE;
 }
