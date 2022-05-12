@@ -260,6 +260,7 @@
 .config_form {
     :deep(.el-form-item) {
         margin-bottom: 8px;
+        width: 100%;
     }
 }
 </style>
