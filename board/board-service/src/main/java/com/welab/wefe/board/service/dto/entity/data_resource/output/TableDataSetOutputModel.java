@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.entity.data_resource.output;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
@@ -44,6 +45,8 @@ public class TableDataSetOutputModel extends DataResourceOutputModel {
     private Long yPositiveSampleCount;
     @Check(name = "正例比例")
     private Double yPositiveSampleRatio;
+    @Check(name = "label 的分布情况")
+    private JSONObject labelDistribution;
 
     // region getter/setter
 
@@ -135,6 +138,13 @@ public class TableDataSetOutputModel extends DataResourceOutputModel {
         this.yPositiveSampleRatio = yPositiveSampleRatio;
     }
 
+    public JSONObject getLabelDistribution() {
+        return labelDistribution;
+    }
 
-    // endregion
+    public void setLabelDistribution(JSONObject labelDistribution) {
+        this.labelDistribution = labelDistribution;
+    }
+
+// endregion
 }

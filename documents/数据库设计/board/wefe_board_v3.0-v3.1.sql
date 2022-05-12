@@ -35,3 +35,10 @@ alter table `fusion_task`
 -- -------------------------------------
 ALTER TABLE `job`
     ADD COLUMN `job_config` text NULL COMMENT '配置信息';
+
+-- -------------------------------------
+-- table_data_set 表加字段
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `table_data_set`
+    ADD COLUMN `label_distribution` text NULL COMMENT 'label 分布情况';

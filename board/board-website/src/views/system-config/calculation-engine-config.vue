@@ -14,7 +14,7 @@
                     <el-col>
                         <el-form-item label="计算引擎：">
                             <el-radio-group v-model="vData.form.calculation_engine_config.backend" size="small">
-                                <el-radio label="SPARK">Spark</el-radio>
+                                <el-radio label="SPARK">Spark（单机）</el-radio>
                                 <el-radio label="FC">函数计算</el-radio>
                             </el-radio-group>
                         </el-form-item>
