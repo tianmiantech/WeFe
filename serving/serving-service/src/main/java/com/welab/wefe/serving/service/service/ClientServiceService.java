@@ -204,6 +204,7 @@ public class ClientServiceService {
                 model.setClientName(input.getClientName());
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
+                model.setUrl(input.getUrl());
                 model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
             }
