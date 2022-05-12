@@ -29,6 +29,7 @@ import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMy
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.vo.data_set.table_data_set.LabelDistribution;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
@@ -101,15 +102,27 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             throw new FlowNodeException(node, "promoter 的数据集必须包含 y 值");
         }
 
-        // Check if the data set has been deleted
         for (DataSetItem dataSet : params.getDataSetList()) {
+            // 仅检查己方数据集
             if (!CacheObjects.getMemberId().equals(dataSet.memberId)) {
                 continue;
             }
 
+            // 检查数据集是否已删除
             TableDataSetMysqlModel one = tableDataSetService.findOneById(dataSet.getDataSetId());
             if (one == null) {
                 throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 不存在，请检查是否已删除。");
+            }
+
+            // 检查 label 的种类是否只有一种
+            if (one.isContainsY()) {
+                JSONObject json = one.getLabelDistribution();
+                if (json != null) {
+                    LabelDistribution labelDistribution = json.toJavaObject(LabelDistribution.class);
+                    if (labelDistribution.labelSpeciesCount <= 1) {
+                        throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 的 y(label) 值种类必须大于 1");
+                    }
+                }
             }
         }
 
