@@ -17,6 +17,7 @@
 package com.welab.wefe.manager.service.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.Account;
@@ -24,7 +25,6 @@ import com.welab.wefe.common.data.mongodb.repo.AccountMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.util.RandomUtil;
-import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
@@ -61,7 +61,7 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("该账号已存在", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
 
         account.setPassword(hashPasswordWithSalt(account.getPassword(),salt));
         account.setSalt(salt);
@@ -114,7 +114,7 @@ public class AccountService extends AbstractAccountService {
         historyPasswordList.add(new HistoryPasswordItem(historyPassword,historySalt));
 
         // Regenerate salt
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
 
         String newPassword = RandomUtil.generateRandomPwd(6);
 

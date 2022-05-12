@@ -32,6 +32,7 @@ import com.welab.wefe.board.service.service.WebSocketServer;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.board.service.service.verificationcode.VerificationCodeService;
 import com.welab.wefe.board.service.util.BoardSM4Util;
+import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
@@ -102,7 +103,7 @@ public class AccountService extends AbstractAccountService {
         }
 
         // generate salt
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
 
         // sha hash
         String password = Sha1.of(input.getPassword() + salt);
@@ -340,7 +341,7 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("只有超级管理员才能重置管理员的密码", StatusCode.PERMISSION_DENIED);
         }
 
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         String newPassword = RandomStringUtils.randomAlphanumeric(2) + new Random().nextInt(999999);
 
         String websitePassword = model.getPhoneNumber() + newPassword + model.getPhoneNumber() + model.getPhoneNumber().substring(0, 3) + newPassword.substring(newPassword.length() - 3);
@@ -491,7 +492,7 @@ public class AccountService extends AbstractAccountService {
         String historyPasswordListString = JSON.toJSONString(accountInfo.getPasswordHistoryList(historyCount - 1));
 
         // Regenerate salt
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         model.setSalt(salt);
         model.setPassword(Sha1.of(input.getPassword() + salt));
         model.setHistoryPasswordList(JSON.parseArray(historyPasswordListString));
