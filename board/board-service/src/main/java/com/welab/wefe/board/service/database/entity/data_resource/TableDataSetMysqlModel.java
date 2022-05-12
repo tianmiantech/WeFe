@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.database.entity.data_resource;
 
 import com.alibaba.fastjson.JSONObject;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import com.welab.wefe.board.service.dto.vo.data_set.table_data_set.LabelDistribution;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -89,6 +90,10 @@ public class TableDataSetMysqlModel extends DataResourceMysqlModel {
 
     public TableDataSetMysqlModel() {
         super.setDataResourceType(DataResourceType.TableDataSet);
+    }
+
+    public void setLabelDistribution(LabelDistribution labelDistribution) {
+        this.labelDistribution = labelDistribution.toJson();
     }
 
     // region getter/setter

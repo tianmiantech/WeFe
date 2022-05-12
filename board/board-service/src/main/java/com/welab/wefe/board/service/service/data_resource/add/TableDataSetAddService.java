@@ -219,7 +219,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
         model.setyNameList(dataSetReader.isContainsY() ? "y" : null);
         model.setyPositiveSampleCount(dataRowConsumer.getPositiveExampleCount());
         model.setyPositiveSampleRatio(dataRowConsumer.getPositiveExampleRatio());
-
+        model.setLabelDistribution(dataRowConsumer.getLabelDistribution());
     }
 
     /**
