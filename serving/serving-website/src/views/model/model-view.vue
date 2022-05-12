@@ -62,6 +62,7 @@
                 <el-col
                     :span="10"
                     style="margin-left: 20px"
+                    class="feature_config"
                 >
                     <el-form
                         ref="form"
@@ -79,16 +80,15 @@
                         >
                             {{ form.model_id }}
                         </el-form-item>
-
+                        <el-form-item label="算法类型：">
+                            <div v-if="form.algorithm === 'LogisticRegression'">
+                                逻辑回归
+                            </div>
+                            <div v-else>
+                                安全决策树
+                            </div>
+                        </el-form-item>
                         <div>
-                            <el-form-item label="算法类型：">
-                                <div v-if="form.algorithm === 'LogisticRegression'">
-                                    逻辑回归
-                                </div>
-                                <div v-else>
-                                    安全决策树
-                                </div>
-                            </el-form-item>
                             <el-form-item label="联邦类型：">
                                 <div v-if="form.fl_type === 'horizontal'">
                                     横向
@@ -97,28 +97,28 @@
                                     纵向
                                 </div>
                             </el-form-item>
-
-                            <el-form-item label="特征来源：">
-                                <el-radio
-                                    v-model="form.feature_source"
-                                    label="api"
-                                >
-                                    API入参
-                                </el-radio>
-                                <el-radio
-                                    v-model="form.feature_source"
-                                    label="code"
-                                >
-                                    代码配置
-                                </el-radio>
-                                <el-radio
-                                    v-model="form.feature_source"
-                                    label="sql"
-                                >
-                                    SQL配置
-                                </el-radio>
-                            </el-form-item>
                         </div>
+
+                        <el-form-item label="特征来源：">
+                            <el-radio
+                                v-model="form.feature_source"
+                                label="api"
+                            >
+                                API入参
+                            </el-radio>
+                            <el-radio
+                                v-model="form.feature_source"
+                                label="code"
+                            >
+                                代码配置
+                            </el-radio>
+                            <el-radio
+                                v-model="form.feature_source"
+                                label="sql"
+                            >
+                                SQL配置
+                            </el-radio>
+                        </el-form-item>
                     </el-form>
                 </el-col>
 
@@ -657,4 +657,11 @@
     .save-btn {
         width: 100px;
     }
+</style>
+<style lang="scss">
+.feature_config {
+    .el-form-item--small.el-form-item {
+        margin-bottom: 8px;
+    }
+}
 </style>
