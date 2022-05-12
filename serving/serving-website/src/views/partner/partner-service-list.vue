@@ -33,6 +33,21 @@
                 </el-select>
             </el-form-item>
 
+            <el-form-item label="服务类型：">
+                <el-select
+                    v-model="search.type"
+                    placeholder="请选择"
+                    clearable
+                >
+                    <el-option
+                        v-for="item in types"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
+            </el-form-item>
+
             <el-form-item>
                 <el-button
                     type="primary"
@@ -46,6 +61,15 @@
                 >
                     <el-button>
                         添加合作者服务
+                    </el-button>
+                </router-link>
+
+                <router-link
+                    class="ml10"
+                    :to="{name: 'activate-service-add'}"
+                >
+                    <el-button>
+                        激活服务
                     </el-button>
                 </router-link>
             </el-form-item>
@@ -94,7 +118,7 @@
             </el-table-column>
 
             <el-table-column
-                label="IP 白名单"
+                label="调用方出口IP"
                 width="200"
             >
                 <template slot-scope="scope">
@@ -184,7 +208,6 @@
                     >
                         启用
                     </el-button>
-                    &nbsp;
                     <el-button
                         v-if="scope.row.status === '已启用'"
                         type="danger"
@@ -192,11 +215,12 @@
                     >
                         禁用
                     </el-button>
+                    &nbsp;
 
 
                     <router-link
                         :to="{
-                            name: 'partner-service-edit',
+                            name: scope.row.type === 0 ?'partner-service-edit':'activate-service-edit',
                             query: {
                                 serviceId: scope.row.service_id,
                                 clientId: scope.row.client_id,
@@ -242,6 +266,7 @@ export default {
                 clientName: '',
                 status: '',
                 serviceName: '',
+                type:'',
             },
             options: [{
                 value: '1',
@@ -250,6 +275,16 @@ export default {
                 value: '0',
                 label: '未启用',
             }],
+            types:[
+                {
+                    value : '1',
+                    label:'激活',
+                },
+                {
+                    value : '0',
+                    label:'开通',
+                }
+            ],
             changeStatusType: '',
             getListApi: '/clientservice/query-list',
         };
