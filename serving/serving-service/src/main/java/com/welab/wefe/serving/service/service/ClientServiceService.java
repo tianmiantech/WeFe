@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,8 @@ import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+
+import cn.hutool.core.lang.UUID;
 
 
 /**
@@ -86,51 +89,62 @@ public class ClientServiceService {
         Optional<ClientServiceMysqlModel> clientServiceMysqlModel = clientServiceRepository.findOne(where);
 
         if (!clientServiceMysqlModel.isPresent()) {
-            ClientServiceMysqlModel model = new ClientServiceMysqlModel();
-            model.setClientId(input.getClientId());
-            model.setServiceId(input.getServiceId());
-            model.setCreatedBy(input.getCreatedBy());
-            // 保存服务类型
-            ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
-                    ServiceMySqlModel.class);
-            model.setServiceType(serviceMySqlModel.getServiceType());
-            // 客户相关信息
-            PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(), PartnerMysqlModel.class);
-            model.setClientName(partnerMysqlModel.getName());
-            
+            ClientServiceMysqlModel model = ModelMapper.map(input, ClientServiceMysqlModel.class);
+            model.setId(UUID.randomUUID().toString().replaceAll("-",""));
             if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                model.setUrl(partnerMysqlModel.getServingBaseUrl() + "" + serviceMySqlModel.getUrl());
+                // 保存服务类型
+                ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
+                        ServiceMySqlModel.class);
+                model.setServiceType(serviceMySqlModel.getServiceType());
+                // 客户相关信息
+                PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
+                        PartnerMysqlModel.class);
+                model.setClientName(partnerMysqlModel.getName());
+                model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
+                        ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
+                                : (partnerMysqlModel.getServingBaseUrl() + "/"))
+                        : "") + "api/" + serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
             } else {// 激活
-                model.setUrl(input.getUrl());
+                model.setUnitPrice(0.0);
+                model.setIpAdd("-");
+                model.setUrl("-");
                 model.setStatus(ServiceStatusEnum.USED.getCode());
+                model.setServiceType(-1);
             }
-            model.setIpAdd(input.getIpAdd());
             // 保存计费规则相关信息
-            model.setPayType(input.getPayType());
-            model.setUnitPrice(input.getUnitPrice());
-            model.setType(input.getType());
-            model.setPublicKey(input.getPublicKey());
             clientServiceRepository.save(model);
-            FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
-            feeConfigMysqlModel.setServiceId(input.getServiceId());
-            feeConfigMysqlModel.setPayType(input.getPayType());
-            feeConfigMysqlModel.setClientId(input.getClientId());
-            feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
-            feeConfigRepository.save(feeConfigMysqlModel);
-
+            if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
+                FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
+                feeConfigMysqlModel.setServiceId(input.getServiceId());
+                feeConfigMysqlModel.setPayType(input.getPayType());
+                feeConfigMysqlModel.setClientId(input.getClientId());
+                feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+                feeConfigRepository.save(feeConfigMysqlModel);
+            }
         } else {
             throw new StatusCodeWithException(StatusCode.CLIENT_SERVICE_EXIST);
         }
     }
 
     public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
-        Specification<ClientServiceMysqlModel> where = Where.create().contains("serviceName", input.getServiceName())
-                .contains("clientName", input.getClientName()).equal("status", input.getStatus())
-                .equal("type", input.getType()).orderBy("createdTime", OrderBy.desc)
+        Where where = Where.create();
+        if (StringUtils.isNotBlank(input.getServiceName())) {
+            where.contains("serviceName", input.getServiceName());
+        }
+        if (StringUtils.isNotBlank(input.getClientName())) {
+            where.contains("clientName", input.getClientName());
+        }
+        if (input.getStatus() != null) {
+            where.equal("status", input.getStatus());
+        }
+        if (input.getType() != null) {
+            where.equal("type", input.getType());
+        }
+        Specification<ClientServiceMysqlModel> specification = where.orderBy("createdTime", OrderBy.desc)
                 .build(ClientServiceMysqlModel.class);
 
-        PagingOutput<ClientServiceMysqlModel> models = clientServiceRepository.paging(where, input);
+        PagingOutput<ClientServiceMysqlModel> models = clientServiceRepository.paging(specification, input);
         List<QueryListApi.Output> list = new ArrayList<>();
 
         models.getList().forEach(x -> {
@@ -180,19 +194,30 @@ public class ClientServiceService {
                     ServiceMySqlModel.class);
 
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                model.setUrl(partnerMysqlModel.getServingBaseUrl() + "" + serviceMySqlModel.getUrl());
+                model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
+                        ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
+                                : (partnerMysqlModel.getServingBaseUrl() + "/"))
+                        : "") + "api/" + serviceMySqlModel.getUrl());
+                model.setServiceName(serviceMySqlModel.getName());
             } else {
-                model.setUrl(input.getUrl()); // 激活
+                model.setServiceName(input.getServiceName());
+                model.setClientName(input.getClientName());
+                model.setUnitPrice(0.0);
+                model.setIpAdd("-");
+                model.setStatus(ServiceStatusEnum.USED.getCode());
+                model.setServiceType(-1);
             }
             clientServiceRepository.save(model);
 
-            // 修改计费规则，新增一条计费规则记录
-            FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
-            feeConfigMysqlModel.setClientId(input.getClientId());
-            feeConfigMysqlModel.setServiceId(input.getServiceId());
-            feeConfigMysqlModel.setPayType(input.getPayType());
-            feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
-            feeConfigRepository.save(feeConfigMysqlModel);
+            if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
+                // 修改计费规则，新增一条计费规则记录
+                FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
+                feeConfigMysqlModel.setClientId(input.getClientId());
+                feeConfigMysqlModel.setServiceId(input.getServiceId());
+                feeConfigMysqlModel.setPayType(input.getPayType());
+                feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+                feeConfigRepository.save(feeConfigMysqlModel);
+            }
         }
         else {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);

@@ -56,7 +56,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         private Integer status;
         
         @Check(name = "类型") // 激活 或者 开通
-        private int type;
+        private Integer type;
 
         public String getServiceName() {
             return serviceName;
@@ -82,11 +82,11 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.status = status;
         }
 
-        public int getType() {
+        public Integer getType() {
             return type;
         }
 
-        public void setType(int type) {
+        public void setType(Integer type) {
             this.type = type;
         }
     }
@@ -118,6 +118,8 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         private String updatedBy;
 
         private Date createdTime;
+        
+        private int type;
 
         public String getCreatedBy() {
             return createdBy;
@@ -221,6 +223,14 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
 
         public void setUnitPrice(Double unitPrice) {
             this.unitPrice = unitPrice;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            this.type = type;
         }
     }
 }
