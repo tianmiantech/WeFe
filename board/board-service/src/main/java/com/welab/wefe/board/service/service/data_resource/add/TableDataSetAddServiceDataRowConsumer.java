@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.service.data_resource.add;
 
 
+import com.welab.wefe.board.service.dto.vo.data_set.table_data_set.LabelDistribution;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceUploadTaskService;
 import com.welab.wefe.board.service.util.AbstractTableDataSetReader;
@@ -25,21 +26,19 @@ import com.welab.wefe.board.service.util.unique.ContainResult;
 import com.welab.wefe.board.service.util.unique.DataSetBloomUniqueFilter;
 import com.welab.wefe.board.service.util.unique.DataSetMemoryUniqueFilter;
 import com.welab.wefe.common.BatchConsumer;
-import com.welab.wefe.common.Validator;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.util.Md5;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import org.apache.commons.collections4.CollectionUtils;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
@@ -49,6 +48,7 @@ import java.util.function.Consumer;
  */
 public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHashMap<String, Object>> {
     private final Logger LOG = LoggerFactory.getLogger(TableDataSetAddServiceDataRowConsumer.class);
+    private final static String Y_COLUMN_NAME = "y";
 
     //region construction parameters
 
@@ -98,6 +98,14 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
      * The number of duplicate data in the primary key
      */
     private final LongAdder repeatDataCount = new LongAdder();
+    /**
+     * 标签列表
+     */
+    private final Set<String> labelSet = new ConcurrentHashSet<>();
+    /**
+     * 标签分布情况
+     */
+    private final Map<String, Integer> labelDistribution = new ConcurrentHashMap<>();
 
     public TableDataSetAddServiceDataRowConsumer(String dataSetId, boolean deduplication, AbstractTableDataSetReader dataSetReader) throws StatusCodeWithException {
         this.dataSetId = dataSetId;
@@ -110,8 +118,8 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
 
         List<String> headers = dataSetReader.getHeader();
         this.firstColumnName = headers.get(0);
-        this.containsY = headers.contains("y");
-        this.yIndex = headers.indexOf("y");
+        this.containsY = headers.contains(Y_COLUMN_NAME);
+        this.yIndex = headers.indexOf(Y_COLUMN_NAME);
 
         this.dataSetStorageService = Launcher.getBean(DataSetStorageService.class);
         this.dataResourceUploadTaskService = Launcher.getBean(DataResourceUploadTaskService.class);
@@ -173,6 +181,22 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
         // Move column y to the second column (the first column is the primary key)
         if (containsY) {
             moveY(values, values.get(yIndex));
+
+            /**
+             * 统计 Y 的分布情况
+             *
+             * 在回归场景中 y 值是连续型，这种情况统计分布没有意义。
+             * 所以在种类过多时停止统计
+             */
+            if (labelSet.size() < 100_000) {
+                labelSet.add(row.get(Y_COLUMN_NAME).toString());
+
+                if (labelSet.size() < 1_000) {
+                    labelDistribution.compute(row.get(Y_COLUMN_NAME).toString(), (k, v) -> v == null ? 1 : v + 1);
+                }
+            } else {
+                labelDistribution.clear();
+            }
         }
 
         // Save the data row
@@ -201,16 +225,16 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
      * Move column y to the second column (the first column is the primary key)
      */
     private void moveY(List<Object> values, Object y) {
-
-        if (!Validator.isInteger(y)) {
-            throw new RuntimeException(
-                    "y 列必须为整数，数据集第 "
-                            + dataSetReader.getReadDataRows()
-                            + " 行附近发现非整数："
-                            + (StringUtil.isEmpty(String.valueOf(y)) ? "空" : y)
-                            + "，请修正数据集后重试。"
-            );
-        }
+        // 由于深度学习的回归场景允许 y 为连续型数据，所以这里不再限制 y 为 int。
+        // if (!Validator.isInteger(y)) {
+        //     throw new RuntimeException(
+        //             "y 列必须为整数，数据集第 "
+        //                     + dataSetReader.getReadDataRows()
+        //                     + " 行附近发现非整数："
+        //                     + (StringUtil.isEmpty(String.valueOf(y)) ? "空" : y)
+        //                     + "，请修正数据集后重试。"
+        //     );
+        // }
 
         ListUtil.moveElement(values, yIndex, 1);
     }
@@ -307,5 +331,9 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
      */
     public long getPositiveExampleCount() {
         return yPositiveExampleCount.get();
+    }
+
+    public LabelDistribution getLabelDistribution() {
+        return new LabelDistribution(labelSet.size(), labelDistribution);
     }
 }
