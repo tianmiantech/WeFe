@@ -26,11 +26,9 @@ import com.welab.wefe.board.service.util.unique.ContainResult;
 import com.welab.wefe.board.service.util.unique.DataSetBloomUniqueFilter;
 import com.welab.wefe.board.service.util.unique.DataSetMemoryUniqueFilter;
 import com.welab.wefe.common.BatchConsumer;
-import com.welab.wefe.common.Validator;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ListUtil;
 import com.welab.wefe.common.util.Md5;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -224,16 +222,16 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
      * Move column y to the second column (the first column is the primary key)
      */
     private void moveY(List<Object> values, Object y) {
-
-        if (!Validator.isInteger(y)) {
-            throw new RuntimeException(
-                    "y 列必须为整数，数据集第 "
-                            + dataSetReader.getReadDataRows()
-                            + " 行附近发现非整数："
-                            + (StringUtil.isEmpty(String.valueOf(y)) ? "空" : y)
-                            + "，请修正数据集后重试。"
-            );
-        }
+        // 由于深度学习的回归场景允许 y 为连续型数据，所以这里不再限制 y 为 int。
+        // if (!Validator.isInteger(y)) {
+        //     throw new RuntimeException(
+        //             "y 列必须为整数，数据集第 "
+        //                     + dataSetReader.getReadDataRows()
+        //                     + " 行附近发现非整数："
+        //                     + (StringUtil.isEmpty(String.valueOf(y)) ? "空" : y)
+        //                     + "，请修正数据集后重试。"
+        //     );
+        // }
 
         ListUtil.moveElement(values, yIndex, 1);
     }
