@@ -55,7 +55,7 @@
                 &nbsp;
                 <router-link
                     :to="{
-                            name: 'client-service-list',
+                            name: 'partner-service-list',
                         }"
                 >
                     <el-button>返回</el-button>
@@ -196,11 +196,11 @@ export default {
                         data: {
                             serviceId: this.clientService.serviceId,
                             clientId: this.clientService.clientId,
-                            unitPrice: this.clientService.unitPrice,
                             ipAdd : this.clientService.ipAdd,
                             publicKey:this.clientService.publicKey,
-                            payType: this.clientService.payType,
-                            status: this.$route.query.status === '未启用' ? 0 : 1,
+                            serviceName: this.clientService.serviceName,
+                            clientName: this.clientService.clientName,
+                            unitPrice:this.clientService.unitPrice,
                             updatedBy: this.userInfo.nickname,
                         },
                     });
@@ -301,7 +301,6 @@ export default {
                 this.clientService.publicKey = data.public_key;
                 this.clientService.ipAdd = data.ip_add;
             }
-            console.log(data);
         },
 
     }

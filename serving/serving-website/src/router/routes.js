@@ -123,6 +123,28 @@ const baseRoutes = [
 
                 component: () => import('@views/partner/partner-edit.vue'),
             },
+            {
+                path: `${prefixPath}activate-service-add`,
+                name: 'activate-service-add',
+                meta: {
+                    title:           '激活服务',
+                    loginAndRefresh: true,
+                    hidden:          true,
+                },
+
+                component: () => import('@views/partner/activate-service-add.vue'),
+            },
+            {
+                path: `${prefixPath}activate-service-edit`,
+                name: 'activate-service-edit',
+                meta: {
+                    title:           '激活服务',
+                    loginAndRefresh: true,
+                    hidden:          true,
+                },
+
+                component: () => import('@views/partner/activate-service-edit.vue'),
+            },
         ],
     },
     {
