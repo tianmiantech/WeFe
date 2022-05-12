@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -99,7 +100,10 @@ public class ClientServiceService {
             model.setClientName(partnerMysqlModel.getName());
             
             if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                model.setUrl(partnerMysqlModel.getServingBaseUrl() + "" + serviceMySqlModel.getUrl());
+                model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
+                        ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
+                                : (partnerMysqlModel.getServingBaseUrl() + "/"))
+                        : "") + "api/" + serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
             } else {// 激活
                 model.setUrl(input.getUrl());
@@ -112,13 +116,14 @@ public class ClientServiceService {
             model.setType(input.getType());
             model.setPublicKey(input.getPublicKey());
             clientServiceRepository.save(model);
-            FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
-            feeConfigMysqlModel.setServiceId(input.getServiceId());
-            feeConfigMysqlModel.setPayType(input.getPayType());
-            feeConfigMysqlModel.setClientId(input.getClientId());
-            feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
-            feeConfigRepository.save(feeConfigMysqlModel);
-
+            if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
+                FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
+                feeConfigMysqlModel.setServiceId(input.getServiceId());
+                feeConfigMysqlModel.setPayType(input.getPayType());
+                feeConfigMysqlModel.setClientId(input.getClientId());
+                feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+                feeConfigRepository.save(feeConfigMysqlModel);
+            }
         } else {
             throw new StatusCodeWithException(StatusCode.CLIENT_SERVICE_EXIST);
         }
@@ -180,19 +185,25 @@ public class ClientServiceService {
                     ServiceMySqlModel.class);
 
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                model.setUrl(partnerMysqlModel.getServingBaseUrl() + "" + serviceMySqlModel.getUrl());
+                model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
+                        ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
+                                : (partnerMysqlModel.getServingBaseUrl() + "/"))
+                        : "") + "api/" + serviceMySqlModel.getUrl());
+                model.setServiceName(serviceMySqlModel.getName());
             } else {
                 model.setUrl(input.getUrl()); // 激活
             }
             clientServiceRepository.save(model);
 
-            // 修改计费规则，新增一条计费规则记录
-            FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
-            feeConfigMysqlModel.setClientId(input.getClientId());
-            feeConfigMysqlModel.setServiceId(input.getServiceId());
-            feeConfigMysqlModel.setPayType(input.getPayType());
-            feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
-            feeConfigRepository.save(feeConfigMysqlModel);
+            if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
+                // 修改计费规则，新增一条计费规则记录
+                FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
+                feeConfigMysqlModel.setClientId(input.getClientId());
+                feeConfigMysqlModel.setServiceId(input.getServiceId());
+                feeConfigMysqlModel.setPayType(input.getPayType());
+                feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
+                feeConfigRepository.save(feeConfigMysqlModel);
+            }
         }
         else {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
