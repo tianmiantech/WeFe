@@ -39,9 +39,11 @@ jobs/
 # 排除build
 build/
 **/bin/
+package-lock.json
 # 排除mac本地文件
 *.DS_Store
 *.properties
+
 venv/
 /docker/
 /assembly/*
