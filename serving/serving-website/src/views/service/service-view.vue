@@ -37,42 +37,54 @@
                 </el-input>
             </el-form-item>
 
-            <el-form-item
-                prop="service_type"
-                label="服务类型:"
-            >
-                <el-select
-                    v-model="form.service_type"
-                    size="medium"
-                    clearable
-                    @change="serviceTypeChange"
+            <div style="display: flex; margin-bottom: -10px;">
+                <el-form-item
+                    prop="service_type"
+                    label="服务类型:"
+                    style="min-width: 280px;"
                 >
-                    <el-option
-                        v-for="item in serviceTypeList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.name"
-                    />
-                </el-select>
-
+                    <el-select
+                        v-model="form.service_type"
+                        size="medium"
+                        clearable
+                        @change="serviceTypeChange"
+                    >
+                        <el-option
+                            v-for="item in serviceTypeList"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.name"
+                        />
+                    </el-select>
+                    <div
+                        v-if="form.service_type === 4"
+                        class="ml10"
+                    >
+                        <el-radio
+                            v-model="form.operator"
+                            label="sum"
+                        >
+                            SUM
+                        </el-radio>
+                        <el-radio
+                            v-model="form.operator"
+                            label="avg"
+                        >
+                            AVG
+                        </el-radio>
+                    </div>
+                </el-form-item>
                 <div
-                    v-if="form.service_type === 4"
                     class="ml10"
+                    style="font-size: 13px; color: #666; line-height: 20px;"
                 >
-                    <el-radio
-                        v-model="form.operator"
-                        label="sum"
-                    >
-                        SUM
-                    </el-radio>
-                    <el-radio
-                        v-model="form.operator"
-                        label="avg"
-                    >
-                        AVG
-                    </el-radio>
+                    <i
+                        class="el-icon-info"
+                        style="margin-right: 4px"
+                    />
+                    <span>{{ currentDesc }}</span>
                 </div>
-            </el-form-item>
+            </div>
 
             <template v-if="form.service_type">
                 <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
@@ -132,7 +144,7 @@
                         <label style="margin-left: 10px; color: #6C757D;">
                             <span>参数描述：</span>
                             <el-input
-                                v-model.trim="item.desc"
+                                v-model="item.desc"
                                 style="width: 230px;"
                                 clearable
                             />
@@ -576,10 +588,16 @@ export default {
             },
             sqlOperator:     'and',
             show_sql_result: '',
+            currentDesc:     '',
         };
     },
     computed: {
         ...mapGetters(['userInfo']),
+    },
+    watch: {
+        'form.service_type'() {
+            this.setServiceDesc();
+        },
     },
     created() {
         this.serviceId = this.$route.query.id;
@@ -591,6 +609,11 @@ export default {
         }
     },
     methods: {
+        setServiceDesc() {
+            const descList = ['两方匿踪查询两方匿踪查询，两方匿踪查询两方匿踪查询两方匿踪查询,两方匿踪查询两方匿踪查询两方匿踪查询两方匿踪查询，两方匿踪查询两方匿踪查询两方匿踪查询，两方匿踪查询两方匿踪查询两方匿踪查询---描述', '两方交集查询---描述', '多方安全统计(被查询方)---描述', '多方安全统计(查询方)---描述', '多方交集查询---描述', '多方匿踪查询---描述'];
+
+            this.currentDesc = descList[this.form.service_type - 1];
+        },
         async getSqlConfigDetail() {
             const { code, data } = await this.$http.post({
                 url:  '/service/detail',
@@ -601,11 +624,11 @@ export default {
                 if (data) {
                     const {
                         service_type: type,
-                        query_params: params,
                         service_config,
                         data_source,
                         preview,
                     } = data;
+                    const params = data.query_params_config || data.query_params;
 
                     this.form.name = data.name;
                     this.form.url = data.url;
@@ -614,9 +637,9 @@ export default {
                     if (params) {
                         this.form.paramsArr = params.map(x => {
                             return {
-                                label: x,
-                                value: x,
-                                desc:  x,
+                                label: x.name ? x.name : x,
+                                value: x.name ? x.name : x,
+                                desc:  x.desc ? x.desc : '',
                             };
                         });
                     }
@@ -999,7 +1022,6 @@ export default {
                     }
 
                     $params.query_params_config = params;
-                    console.log($params);
                 }
 
                 if (type === 4 || type === 5 || type === 6) {
