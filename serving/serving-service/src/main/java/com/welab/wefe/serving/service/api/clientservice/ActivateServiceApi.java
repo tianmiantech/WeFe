@@ -33,7 +33,7 @@ public class ActivateServiceApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        clientServiceService.save(input);
+        clientServiceService.add(input);
         return success();
     }
 }

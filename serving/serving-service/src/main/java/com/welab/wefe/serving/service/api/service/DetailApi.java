@@ -61,9 +61,12 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		if (StringUtils.isNotBlank(entity.getQueryParams())) {
 			output.setQueryParams(Arrays.asList(entity.getQueryParams().split(",")));
 		}
-		if (StringUtils.isNotBlank(entity.getServiceConfig())) {
-			output.setServiceConfig(JSONObject.parseArray(entity.getServiceConfig()));
-		}
+        if (StringUtils.isNotBlank(entity.getServiceConfig())) {
+            output.setServiceConfig(JSONObject.parseArray(entity.getServiceConfig()));
+        }
+        if (StringUtils.isNotBlank(entity.getQueryParamsConfig())) {
+            output.setQueryParamsConfig(JSONObject.parseArray(entity.getQueryParamsConfig()));
+        }
 		JSONObject preview = new JSONObject();
 		preview.put("id", entity.getId());
 		preview.put("params", entity.getQueryParams());
@@ -96,6 +99,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		private String url;
 		private int serviceType;
 		private List<String> queryParams;// json
+		private JSONArray queryParamsConfig;//json
 		private JSONObject dataSource;// json
 		private JSONArray serviceConfig;
 		private String createdBy;
@@ -209,6 +213,14 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 		public void setPreview(JSONObject preview) {
 			this.preview = preview;
 		}
+
+        public JSONArray getQueryParamsConfig() {
+            return queryParamsConfig;
+        }
+
+        public void setQueryParamsConfig(JSONArray queryParamsConfig) {
+            this.queryParamsConfig = queryParamsConfig;
+        }
 	}
 
 }
