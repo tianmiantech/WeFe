@@ -190,9 +190,12 @@ public class TableDataSetAddServiceDataRowConsumer implements Consumer<LinkedHas
              */
             if (labelSet.size() < 100_000) {
                 labelSet.add(row.get(Y_COLUMN_NAME).toString());
-            }
-            if (labelSet.size() < 5_000) {
-                labelDistribution.compute(row.get(Y_COLUMN_NAME).toString(), (k, v) -> v == null ? 1 : v + 1);
+
+                if (labelSet.size() < 1_000) {
+                    labelDistribution.compute(row.get(Y_COLUMN_NAME).toString(), (k, v) -> v == null ? 1 : v + 1);
+                }
+            } else {
+                labelDistribution.clear();
             }
         }
 
