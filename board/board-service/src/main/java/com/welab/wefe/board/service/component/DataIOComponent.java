@@ -114,9 +114,13 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
                 throw new FlowNodeException(node, "成员 " + CacheObjects.getMemberName(dataSet.memberId) + " 的数据集 " + dataSet.getDataSetId() + " 不存在，请检查是否已删除。");
             }
 
-            // 检查 label 的种类是否只有一种
+            /**
+             * 检查 label 的种类是否只有一种
+             */
+            // 仅在数据集中包含 y 值，且己方是 promoter 时才检查 label 的种类。
             if (one.isContainsY() && CacheObjects.getMemberId().equals(promoter.getMemberId())) {
                 JSONObject json = one.getLabelDistribution();
+                // 历史数据集的 label 分布是空的，这种情况下就不检查了。
                 if (json != null) {
                     LabelDistribution labelDistribution = json.toJavaObject(LabelDistribution.class);
                     if (labelDistribution.labelSpeciesCount <= 1) {
