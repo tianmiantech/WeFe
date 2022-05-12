@@ -61,3 +61,15 @@ class SparkStandaloneConfig(object):
     driver_max_result_size: str
     driver_memory: str
     hardware_acceleration: str
+
+
+class StorageConfig(object):
+    storage_type: str
+
+
+class ClickhouseStorageConfig(object):
+    tcp_port: str
+    password: str
+    host: str
+    http_port: str
+    username: str

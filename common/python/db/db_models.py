@@ -14,6 +14,7 @@
 
 import inspect
 import operator
+import os
 import sys
 
 from peewee import *
@@ -23,7 +24,6 @@ from playhouse.pool import PooledMySQLDatabase
 from common.python.common import consts
 from common.python.utils import log_utils, sqlite_utils
 from common.python.utils.conf_utils import get_comm_config, get_env_config
-from common.python.db.global_config_dao import GlobalConfigDao
 
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
@@ -51,7 +51,7 @@ settings = {'host': env_host or host,
             }
 
 # 改为读取数据库配置, 且该配置已放入 job config 中
-work_mode = get_comm_config(consts.COMM_CONF_WEFE_JOB_WORK_MODE)
+work_mode = get_comm_config(consts.COMM_CONF_KEY_EXAMPLE_RUN)
 
 DB = None
 

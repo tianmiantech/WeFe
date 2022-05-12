@@ -85,11 +85,11 @@ class TaskController(object):
             default_driver_max_result_size = conf_utils.get_comm_config(
                 consts.COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE, "2g")
             default_num_executors = int(
-                conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS))
+                conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS, 1))
             default_executor_memory = conf_utils.get_comm_config(
                 consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY)
             default_executor_cores = int(
-                conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES))
+                conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES, 1))
             if role == 'arbiter':
                 default_num_executors = 1 if default_num_executors < 4 else int(default_num_executors / 4)
             default_total_executor_cores = default_num_executors * default_executor_cores

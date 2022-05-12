@@ -71,7 +71,8 @@ class FCStorage(object):
             elif consts.STORAGETYPE.OSS in self._cloud_store_temp_auth['temp_auth_end_point']:
                 return consts.STORAGETYPE.OSS
         else:
-            return conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE)
+            return consts.STORAGETYPE.OSS
+            # return conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE, "oss")
 
     def get_temp_storage_name(self):
         if self._storage_type == consts.STORAGETYPE.OTS:

@@ -14,7 +14,6 @@
 
 from common.python.common import consts
 from common.python.utils import conf_utils
-from common.python.db.global_config_dao import GlobalConfigDao
 
 BITS = 2048
 
@@ -52,9 +51,7 @@ def to_bytes(value: int, bits):
 
 
 def check_aclr_support():
-    # 改为查询数据库
-    aclr_type = GlobalConfigDao.get_spark_standalone_config().hardware_acceleration
-    # aclr_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_ACCELERATION, "")
+    aclr_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_ACCELERATION, "")
     return aclr_type in [consts.AccelerationType.GPU]
 
 

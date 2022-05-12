@@ -16,7 +16,7 @@ import uuid
 
 from common.python.db.db_models import DB, GlobalConfigModel
 from common.python.dto.global_config import MailServerModel, GatewayConfigModel, \
-    MemberInfo, BoardConfigModel, FunctionComputeConfig, SparkStandaloneConfig
+    MemberInfo, BoardConfigModel, FunctionComputeConfig, SparkStandaloneConfig, StorageConfig, ClickhouseStorageConfig
 
 
 class GlobalConfigDao:
@@ -133,6 +133,26 @@ class GlobalConfigDao:
             SparkStandaloneConfig of GlobalConfig
         """
         return GlobalConfigDao.getModel("spark_standalone_config", SparkStandaloneConfig)
+
+    @staticmethod
+    def get_storage_config() -> StorageConfig:
+        """
+         Get StorageConfig from database.
+
+         Returns:
+             StorageConfig of GlobalConfig
+         """
+        return GlobalConfigDao.getModel("storage_config", StorageConfig)
+
+    @staticmethod
+    def get_clickhouse_storage_config() -> ClickhouseStorageConfig:
+        """
+         Get ClickhouseStorageConfig from database.
+
+         Returns:
+             ClickhouseStorageConfig of GlobalConfig
+         """
+        return GlobalConfigDao.getModel("clickhouse_storage_config", ClickhouseStorageConfig)
 
     @staticmethod
     def getModel(group, clazz):

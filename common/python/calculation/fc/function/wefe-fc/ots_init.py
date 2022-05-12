@@ -22,7 +22,7 @@ def init_ots_table():
     init OTS data table
     :return:
     """
-    fc_storage_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE)
+    fc_storage_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE, consts.STORAGETYPE.OTS)
     if fc_storage_type != consts.STORAGETYPE.OTS:
         return
 

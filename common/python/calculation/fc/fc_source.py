@@ -401,9 +401,9 @@ class FCSource(Table):
 
             except Exception as ex:
                 # if used oss ，reset dst name
-                if conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE) == consts.STORAGETYPE.OSS:
+                if conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE,
+                                              consts.STORAGETYPE.OSS) == consts.STORAGETYPE.OSS:
                     input_param = self._reset_dest_name(input_param)
-
                 LOGGER.error(f"function`{fc_name}`error,execution_name:{execution_name}", ex)
                 exception = ex
                 time.sleep(last_sleep_time)

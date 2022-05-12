@@ -29,7 +29,7 @@ class FCCaller(object):
         Function caller
     """
 
-    SERVICE_NAME = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_SERVICE_NAME, 'wefe-fc')
+    SERVICE_NAME = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_SERVICE_NAME)
     FUNCTION_NAME = 'index'
 
     def __init__(self, service_name=SERVICE_NAME, init_client=True):
