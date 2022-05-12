@@ -19,54 +19,71 @@ CONF_KEY_LOCAL = "local"
 CONF_KEY_FEDERATION = "gateway"
 CONF_KEY_SERVER = "servers"
 
-# global config
-COMM_CONF_KEY_DATA_TYPE = "db.storage.type"
-COMM_CONF_KEY_CK_HOST = "db.storage.clickhouse.host"
-COMM_CONF_KEY_CK_PORT = "db.storage.clickhouse.tcp.port"
-COMM_CONF_KEY_CK_USER = "db.storage.clickhouse.username"
-COMM_CONF_KEY_CK_PWD = "db.storage.clickhouse.password"
+# global config start ------------------------------------------------------------------------------
+
+# global config: clickhouse_storage_config
+CLICKHOUSE_STORAGE_CONFIG = "clickhouse_storage_config"
+COMM_CONF_KEY_CK_HOST = CLICKHOUSE_STORAGE_CONFIG, "host"
+COMM_CONF_KEY_CK_PORT = CLICKHOUSE_STORAGE_CONFIG, "tcp_port"
+COMM_CONF_KEY_CK_HTTP_PORT = CLICKHOUSE_STORAGE_CONFIG, "http_port"
+COMM_CONF_KEY_CK_USER = CLICKHOUSE_STORAGE_CONFIG, "username"
+COMM_CONF_KEY_CK_PWD = CLICKHOUSE_STORAGE_CONFIG, "password"
+
+STORAGE_CONFIG = "storage_config"
+COMM_CONF_KEY_DATA_TYPE = STORAGE_CONFIG, "storage_type"
+
+# SPARK_STANDALONE_CONFIG
+SPARK_STANDALONE_CONFIG = "spark_standalone_config"
+COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MEMORY = SPARK_STANDALONE_CONFIG, "driver_memory"
+COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE = SPARK_STANDALONE_CONFIG, "driver_max_result_size"
+COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY = SPARK_STANDALONE_CONFIG, "executor_memory"
+COMM_CONF_KEY_ACCELERATION = SPARK_STANDALONE_CONFIG, "hardware_acceleration"
+
+ALIYUN_FUNCTION_COMPUTE_CONFIG = "aliyun_function_compute_config"
+COMM_CONF_KEY_FC_ACCOUNT_TYPE = ALIYUN_FUNCTION_COMPUTE_CONFIG, "account_type"
+COMM_CONF_KEY_FC_V_SWITCH_IDS = ALIYUN_FUNCTION_COMPUTE_CONFIG, "v_switch_ids"
+COMM_CONF_KEY_FC_VPC_ID = ALIYUN_FUNCTION_COMPUTE_CONFIG, "vpc_id"
+COMM_CONF_KEY_FC_SECURITY_GROUP_ID = ALIYUN_FUNCTION_COMPUTE_CONFIG, "security_group_id"
+COMM_CONF_KEY_FC_REGION = ALIYUN_FUNCTION_COMPUTE_CONFIG, "region"
+COMM_CONF_KEY_FC_ACCOUNT_ID = ALIYUN_FUNCTION_COMPUTE_CONFIG, "account_id"
+COMM_CONF_KEY_FC_ACCESS_KEY_ID = ALIYUN_FUNCTION_COMPUTE_CONFIG, "access_key_id"
+COMM_CONF_KEY_FC_KEY_SECRET = ALIYUN_FUNCTION_COMPUTE_CONFIG, "access_key_secret"
+COMM_CONF_KEY_FC_OSS_BUCKET_NAME = ALIYUN_FUNCTION_COMPUTE_CONFIG, "oss_bucket_name"
+COMM_CONF_KEY_FC_QUALIFIER = ALIYUN_FUNCTION_COMPUTE_CONFIG, "qualifier"
+
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_internal_end_point"
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_END_POINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_end_point"
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_ARN = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_role_arn"
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_SESSION_NAME = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_role_session_name"
+COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_DURATION_SECONDS = ALIYUN_FUNCTION_COMPUTE_CONFIG, "temp_auth_duration_seconds"
+COMM_CONF_KEY_FC_END_POINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "end_point"
+COMM_CONF_KEY_FC_SERVICE_NAME = ALIYUN_FUNCTION_COMPUTE_CONFIG, "service.name"
+COMM_CONF_KEY_FC_OSS_ENDPOINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "oss_endpoint"
+COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "oss_internal_endpoint"
+# global config end ------------------------------------------------------------------------------
+
 COMM_CONF_KEY_MYSQL_HOST = "db.mysql.host"
 COMM_CONF_KEY_MYSQL_PORT = "db.mysql.port"
 COMM_CONF_KEY_MYSQL_DATABASE = "db.mysql.database"
 COMM_CONF_KEY_MYSQL_USERNAME = "db.mysql.username"
 COMM_CONF_KEY_MYSQL_PASSWORD = "db.mysql.password"
 
-# SQLite config
-COMM_CONF_DB_SQLITE_DATABASE = "db.sqlite.database"
-
-COMM_CONF_WEFE_JOB_WORK_MODE = "wefe.job.work_mode"
-
 COMM_CONF_KEY_SPARK_NUM_SLICES = "flow.spark.default.num.slices"
 COMM_CONF_KEY_UNION_BASE_URL = "wefe.union.base-url"
 COMM_CONF_KEY_LOG_ROOT = "flow.log.root.path"
 
-COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MEMORY = "flow.spark.submit.default.driver.memory"
-COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE = "flow.spark.submit.default.driver.maxResultSize"
 COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS = "flow.spark.submit.default.num.executors"
-COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY = "flow.spark.submit.default.executor.memory"
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES = "flow.spark.submit.default.executor.cores"
-# COMM_CONF_KEY_BACKEND = "wefe.job.backend"
-COMM_CONF_KEY_ACCELERATION = "wefe.job.acceleration"
 
+# FC config
 COMM_CONF_KEY_FC_STORAGE_TYPE = "fc.storage.type"
-COMM_CONF_KEY_FC_REGION = "fc.region"
-COMM_CONF_KEY_FC_ACCOUNT_ID = "fc.account_id"
-COMM_CONF_KEY_FC_OTS_END_POINT = "fc.ots.end_point"
-COMM_CONF_KEY_FC_OTS_INTERNAL_END_POINT = "fc.ots.internal_end_point"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT = "fc.cloud_store.temp_auth_internal_end_point"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_END_POINT = "fc.cloud_store.temp_auth_end_point"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_ARN = "fc.cloud_store.temp_auth_role_arn"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_SESSION_NAME = "fc.cloud_store.temp_auth_role_session_name"
-COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_DURATION_SECONDS = "fc.cloud_store.temp_auth_duration_seconds"
-COMM_CONF_KEY_FC_ACCESS_KEY_ID = "fc.access_key_id"
-COMM_CONF_KEY_FC_KEY_SECRET = "fc.access_key_secret"
-COMM_CONF_KEY_FC_OTS_INSTANCE_NAME = "fc.ots.instance_name"
-COMM_CONF_KEY_FC_OSS_BUCKET_NAME = "fc.oss.bucket_name"
-COMM_CONF_KEY_FC_END_POINT = "fc.end_point"
-COMM_CONF_KEY_FC_QUALIFIER = "fc.qualifier"
-COMM_CONF_KEY_FC_SERVICE_NAME = 'fc.service.name'
-COMM_CONF_KEY_FC_OSS_ENDPOINT = "fc.oss.endpoint"
-COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT = "fc.oss.internal_endpoint"
+# COMM_CONF_KEY_FC_OTS_END_POINT = "fc.ots.end_point"
+# COMM_CONF_KEY_FC_OTS_INTERNAL_END_POINT = "fc.ots.internal_end_point"
+# COMM_CONF_KEY_FC_OTS_INSTANCE_NAME = "fc.ots.instance_name"
+
+
+# example config
+COMM_CONF_KEY_EXAMPLE_RUN = "example.run"
 
 COMM_CONF_KEY_WEB_IP = "flow.web.ip"
 COMM_CONF_KEY_WEB_PORT = "flow.web.port"

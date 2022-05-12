@@ -14,6 +14,7 @@
 
 import inspect
 import operator
+import os
 import sys
 
 from peewee import *
@@ -49,7 +50,8 @@ settings = {'host': env_host or host,
             'max_connections': 100
             }
 
-work_mode = get_comm_config(consts.COMM_CONF_WEFE_JOB_WORK_MODE)
+# 改为读取数据库配置, 且该配置已放入 job config 中
+work_mode = get_comm_config(consts.COMM_CONF_KEY_EXAMPLE_RUN)
 
 DB = None
 
