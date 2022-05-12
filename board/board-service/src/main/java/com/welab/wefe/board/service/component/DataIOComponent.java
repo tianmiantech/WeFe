@@ -115,7 +115,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
             }
 
             // 检查 label 的种类是否只有一种
-            if (one.isContainsY()) {
+            if (one.isContainsY() && CacheObjects.getMemberId().equals(promoter.getMemberId())) {
                 JSONObject json = one.getLabelDistribution();
                 if (json != null) {
                     LabelDistribution labelDistribution = json.toJavaObject(LabelDistribution.class);
