@@ -37,42 +37,54 @@
                 </el-input>
             </el-form-item>
 
-            <el-form-item
-                prop="service_type"
-                label="服务类型:"
-            >
-                <el-select
-                    v-model="form.service_type"
-                    size="medium"
-                    clearable
-                    @change="serviceTypeChange"
+            <div style="display: flex; margin-bottom: -10px;">
+                <el-form-item
+                    prop="service_type"
+                    label="服务类型:"
+                    style="min-width: 280px;"
                 >
-                    <el-option
-                        v-for="item in serviceTypeList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.name"
-                    />
-                </el-select>
-
+                    <el-select
+                        v-model="form.service_type"
+                        size="medium"
+                        clearable
+                        @change="serviceTypeChange"
+                    >
+                        <el-option
+                            v-for="item in serviceTypeList"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.name"
+                        />
+                    </el-select>
+                    <div
+                        v-if="form.service_type === 4"
+                        class="ml10"
+                    >
+                        <el-radio
+                            v-model="form.operator"
+                            label="sum"
+                        >
+                            SUM
+                        </el-radio>
+                        <el-radio
+                            v-model="form.operator"
+                            label="avg"
+                        >
+                            AVG
+                        </el-radio>
+                    </div>
+                </el-form-item>
                 <div
-                    v-if="form.service_type === 4"
                     class="ml10"
+                    style="font-size: 13px; color: #666; line-height: 20px;"
                 >
-                    <el-radio
-                        v-model="form.operator"
-                        label="sum"
-                    >
-                        SUM
-                    </el-radio>
-                    <el-radio
-                        v-model="form.operator"
-                        label="avg"
-                    >
-                        AVG
-                    </el-radio>
+                    <i
+                        class="el-icon-info"
+                        style="margin-right: 4px"
+                    />
+                    <span>{{ currentDesc }}</span>
                 </div>
-            </el-form-item>
+            </div>
 
             <template v-if="form.service_type">
                 <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
@@ -119,14 +131,24 @@
                         :key="`paramsArr-${index}`"
                         :prop="`paramsArr.${index}.value`"
                         :rules="{ required: true, message: '参数名称不能为空', trigger: 'blur' }"
-                        label="参数名称:"
                     >
-                        <el-input
-                            v-model.trim="item.value"
-                            style="width: 230px;"
-                            clearable
-                            @input="paramsValidate(index)"
-                        />
+                        <label style="color: #6C757D;">
+                            <span>参数名称：</span>
+                            <el-input
+                                v-model.trim="item.value"
+                                style="width: 230px;"
+                                clearable
+                                @input="paramsValidate(index)"
+                            />
+                        </label>
+                        <label style="margin-left: 10px; color: #6C757D;">
+                            <span>参数描述：</span>
+                            <el-input
+                                v-model="item.desc"
+                                style="width: 230px;"
+                                clearable
+                            />
+                        </label>
                         <i
                             class="icons el-icon-delete color-danger"
                             @click="deleteParams(index, form.paramsArr)"
@@ -204,8 +226,8 @@
                             :placeholder="form.service_type === 3 ? '' : '支持多选'"
                             :multiple="form.service_type !== 3"
                             value-key="value"
-                            @change="sqlShow"
                             clearable
+                            @change="sqlShow"
                         >
                             <el-option
                                 v-for="item in data_fields"
@@ -227,8 +249,8 @@
                             <el-select
                                 v-model="item.field_on_table"
                                 class="ml10"
-                                @change="sqlShow"
                                 clearable
+                                @change="sqlShow"
                             >
                                 <el-option
                                     v-for="each in data_fields"
@@ -241,8 +263,8 @@
                             <el-select
                                 v-model="item.condition"
                                 class="ml10 no-arrow"
-                                @change="sqlShow"
                                 style="width:40px;"
+                                @change="sqlShow"
                             >
                                 <el-option
                                     label="="
@@ -262,8 +284,8 @@
                                 v-model="item.field_on_param"
                                 placeholder="从查询参数配置中选择"
                                 class="ml10"
-                                @change="sqlShow"
                                 clearable
+                                @change="sqlShow"
                             >
                                 <el-option
                                     v-for="($item, index) in form.paramsArr"
@@ -295,9 +317,9 @@
                                 And
                             </el-radio>
                             <el-radio
-                                @change="sqlShow"
                                 v-model="sqlOperator"
                                 label="or"
+                                @change="sqlShow"
                             >
                                 Or
                             </el-radio>
@@ -313,7 +335,7 @@
                             >
                                 SQL测试
                             </el-button>
-                            <span style="font-size:12px;padding-left: 5px">{{show_sql_result}}</span>
+                            <span style="font-size:12px;padding-left: 5px">{{ show_sql_result }}</span>
                         </div>
                     </template>
                 </template>
@@ -505,6 +527,7 @@ export default {
                 paramsArr: [{
                     label: '',
                     value: '',
+                    desc:  '',
                 }],
                 key_calc_rules: [],
                 stringResult:   '',
@@ -563,12 +586,18 @@ export default {
                 params_json:   {},
                 return_fields: [],
             },
-            sqlOperator: 'and',
-            show_sql_result:'',
+            sqlOperator:     'and',
+            show_sql_result: '',
+            currentDesc:     '',
         };
     },
     computed: {
         ...mapGetters(['userInfo']),
+    },
+    watch: {
+        'form.service_type'() {
+            this.setServiceDesc();
+        },
     },
     created() {
         this.serviceId = this.$route.query.id;
@@ -580,6 +609,11 @@ export default {
         }
     },
     methods: {
+        setServiceDesc() {
+            const descList = ['两方匿踪查询两方匿踪查询，两方匿踪查询两方匿踪查询两方匿踪查询,两方匿踪查询两方匿踪查询两方匿踪查询两方匿踪查询，两方匿踪查询两方匿踪查询两方匿踪查询，两方匿踪查询两方匿踪查询两方匿踪查询---描述', '两方交集查询---描述', '多方安全统计(被查询方)---描述', '多方安全统计(查询方)---描述', '多方交集查询---描述', '多方匿踪查询---描述'];
+
+            this.currentDesc = descList[this.form.service_type - 1];
+        },
         async getSqlConfigDetail() {
             const { code, data } = await this.$http.post({
                 url:  '/service/detail',
@@ -590,11 +624,11 @@ export default {
                 if (data) {
                     const {
                         service_type: type,
-                        query_params: params,
                         service_config,
                         data_source,
                         preview,
                     } = data;
+                    const params = data.query_params_config || data.query_params;
 
                     this.form.name = data.name;
                     this.form.url = data.url;
@@ -603,8 +637,9 @@ export default {
                     if (params) {
                         this.form.paramsArr = params.map(x => {
                             return {
-                                label: x,
-                                value: x,
+                                label: x.name ? x.name : x,
+                                value: x.name ? x.name : x,
+                                desc:  x.desc ? x.desc : '',
                             };
                         });
                     }
@@ -633,7 +668,7 @@ export default {
                             if (type === 1) {
                                 this.form.data_source.return_fields = data_source.return_fields.map(x => x.name);
                             } else {
-                                this.form.data_source.return_fields = data_source.return_fields[0].name;
+                                this.form.data_source.return_fields = data_source.return_fields.length ? data_source.return_fields[0].name : '';
                             }
                             this.form.data_source.condition_fields = data_source.condition_fields.map(x => {
                                 this.sqlOperator = x.operator;
@@ -673,6 +708,7 @@ export default {
             this.form.paramsArr.push({
                 label: '',
                 value: '',
+                desc:  '',
             });
         },
         paramsValidate(index) {
@@ -769,18 +805,19 @@ export default {
                     table: obj.table,
                 },
             };
+
             if(this.form.service_type === 1){
                 $params.data_source.return_fields = obj.return_fields.map(x => {
                     return {
-                        name: x,
+                        name:  x,
                         value: '',
                     };
                 });
             }
-            if(this.form.service_type === 3){
+            if(this.form.service_type === 3 && obj.return_fields.length){
                 obj.return_fields.forEach(x => {
                     $params.data_source.return_fields.push( {
-                        name: x,
+                        name:  x,
                         value: '',
                     });
                 });
@@ -790,10 +827,11 @@ export default {
                 return x;
             });
             const { code, data } = await this.$http.post({
-                url:      '/service/show_sql',
-                timeout:  1000 * 60 * 24 * 30,
-                data:     $params
+                url:     '/service/show_sql',
+                timeout: 1000 * 60 * 24 * 30,
+                data:    $params,
             });
+
             if (code === 0 && data) {
                 this.show_sql_result = '预览:' + data.result['sql'];
             }
@@ -879,6 +917,7 @@ export default {
                     target: event,
                 },
             });
+
             if (code === 0 && data) {
                 this.sql_test.return_fields.forEach(x => {
                     x.value = data.result[x.label] || '';
@@ -975,11 +1014,14 @@ export default {
                         if (!x.value) {
                             return this.$message.error('请将查询字段填写完整!');
                         } else {
-                            params.push(x.value);
+                            params.push({
+                                name: x.value,
+                                desc: x.desc || '',
+                            });
                         }
                     }
 
-                    $params.query_params = params;
+                    $params.query_params_config = params;
                 }
 
                 if (type === 4 || type === 5 || type === 6) {
