@@ -178,15 +178,23 @@ class RunTaskAction:
             default_num_executors = 1 if default_num_executors < 4 else int(default_num_executors / 4)
         default_total_executor_cores = default_num_executors * default_executor_cores
 
-        spark_submit_config = task_config_json['job']['env'].get("spark_submit_config", dict())
-        deploy_mode = spark_submit_config.get("deploy-mode", "client")
-        queue = spark_submit_config.get("queue", "default")
-        driver_memory = spark_submit_config.get("driver-memory", default_driver_memory)
-        num_executors = spark_submit_config.get("num-executors", default_num_executors)
-        executor_memory = spark_submit_config.get("executor-memory", default_executor_memory)
-        executor_cores = spark_submit_config.get("executor-cores", default_executor_cores)
-        total_executor_cores = spark_submit_config.get("total_executor_cores",
-                                                       default_total_executor_cores)
+        # spark_submit_config = task_config_json['job']['env'].get("spark_submit_config", dict())
+        # deploy_mode = spark_submit_config.get("deploy-mode", "client")
+        # queue = spark_submit_config.get("queue", "default")
+        # driver_memory = spark_submit_config.get("driver-memory", default_driver_memory)
+        # num_executors = spark_submit_config.get("num-executors", default_num_executors)
+        # executor_memory = spark_submit_config.get("executor-memory", default_executor_memory)
+        # executor_cores = spark_submit_config.get("executor-cores", default_executor_cores)
+        # total_executor_cores = spark_submit_config.get("total_executor_cores",
+        #                                                default_total_executor_cores)
+
+        deploy_mode = "client"
+        queue = "default"
+        driver_memory = default_driver_memory
+        num_executors = default_num_executors
+        executor_memory = default_executor_memory
+        executor_cores = default_executor_cores
+        total_executor_cores = default_total_executor_cores
 
         print(
             f'deploy_mode:{deploy_mode},queue:{queue},driver_memory:{driver_memory},num_executors:{num_executors},executor_memory:{executor_memory},executor_cores:{executor_cores}')
