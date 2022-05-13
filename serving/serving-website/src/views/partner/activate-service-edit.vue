@@ -4,7 +4,7 @@
 
         <h2 class="title">更新激活服务</h2>
 
-        <el-form :model="clientService" label-width="112px" :rules="rules" ref="clientService">
+        <el-form :model="clientService" label-width="142px" :rules="rules" ref="clientService">
             <el-form-item label="服务ID：" prop="serviceId" class = "url">
                 <el-input v-model="clientService.serviceId"></el-input>
             </el-form-item>
@@ -13,28 +13,39 @@
                 <el-input v-model="clientService.serviceName"></el-input>
             </el-form-item>
 
-            <el-form-item label="合作者ID：" prop="clientId" class = "url">
+            <el-form-item label="服务提供商ID：" prop="clientId" class = "url">
                 <el-input v-model="clientService.clientId"></el-input>
             </el-form-item>
 
-            <el-form-item label="合作者名称：" prop="clientName" class = "url">
+            <el-form-item label="服务提供商名称：" prop="clientName" class = "url">
                 <el-input v-model="clientService.clientName"></el-input>
             </el-form-item>
-            <el-form-item label="URL：" prop="url" class = "url">
+            <el-form-item label="服务访问URL：" prop="url" class = "url">
                 <el-input v-model="clientService.url"></el-input>
             </el-form-item>
-
+            <el-form-item label="code：" prop="code" class = "url">
+                <el-input v-model="clientService.code"></el-input>
+            </el-form-item>
             <el-form-item label="公钥：" prop="publicKey" class="public_key">
                 <el-input v-model="clientService.publicKey"
                           type="textarea"
                           rows="5"
-                          :maxlength="300"
+                          :minlength="0"
+                          show-word-limit>
+                </el-input>
+            </el-form-item>
+
+            <el-form-item label="私钥：" prop="privateKey" class="public_key">
+                <el-input v-model="clientService.privateKey"
+                          type="textarea"
+                          rows="5"
                           :minlength="0"
                           show-word-limit>
                 </el-input>
             </el-form-item>
 
             <el-form-item>
+                <el-button type="primary" @click="getRsaKey">填充系统公私钥</el-button>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
                     :to="{
@@ -79,8 +90,9 @@ export default {
                 clientId: '',
                 ipAdd:'',
                 publicKey:'',
+                privateKey:'',
+                code:'',
                 url:'',
-                // 预留字段
                 serviceName: '',
                 clientName: '',
             },
@@ -102,6 +114,9 @@ export default {
                 clientName: [
                     {required: true, validator: validateClientName, trigger: 'change'}
                 ],
+                url: [
+                    {required: true, trigger: 'change'}
+                ],
             },
         }
     },
@@ -120,6 +135,19 @@ export default {
     },
 
     methods: {
+        async getRsaKey(){
+            const { code, data } = await this.$http.post({
+                url: '/global_config/detail',
+                data:{
+                    "groups":['identity_info']
+                }
+            });
+
+            if (code === 0) {
+                this.clientService.privateKey=data.identity_info.rsa_private_key;
+                this.clientService.publicKey=data.identity_info.rsa_public_key;
+            }
+        },
 
         onSubmit() {
             this.$refs.clientService.validate(async (valid) => {
@@ -130,10 +158,12 @@ export default {
                             serviceId: this.clientService.serviceId,
                             clientId: this.clientService.clientId,
                             publicKey:this.clientService.publicKey,
+                            privateKey:this.clientService.privateKey,
                             ipAdd:this.clientService.ipAdd,
                             url:this.clientService.url,
                             serviceName: this.clientService.serviceName,
                             clientName: this.clientService.clientName,
+                            code:this.clientService.code,
                             createdBy: this.userInfo.nickname,
                         },
                     });
@@ -167,6 +197,8 @@ export default {
                 this.clientService.publicKey = data.public_key;
                 this.clientService.clientId = data.client_id;
                 this.clientService.clientName = data.client_name;
+                this.clientService.privateKey = data.private_key;
+                this.clientService.code = data.code;
                 this.clientService.url = data.url;
             }
         },
