@@ -76,7 +76,11 @@ def get_comm_config(key, default=None):
 
     if isinstance(key, tuple) and key is not None:
         # 需从数据库读取
-        return get_config(key)
+        result = get_config(key)
+        if result is None:
+            return default
+        else:
+            return result
     else:
 
         comm_file_path = os.path.join(file_utils.get_project_base_directory(),

@@ -99,7 +99,8 @@ class TaskExecutor(object):
                     'project_id': job_config['project']['project_id']
                 },
                 'members': job_config['members'],
-                'data_sets': job_config['data_sets']
+                'data_sets': job_config['data_sets'],
+                'env': job_config['env']
             }
 
             project_id = task_config['job']['project']['project_id']

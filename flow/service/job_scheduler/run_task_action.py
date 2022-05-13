@@ -188,6 +188,8 @@ class RunTaskAction:
         total_executor_cores = spark_submit_config.get("total_executor_cores",
                                                        default_total_executor_cores)
 
+        print(
+            f'deploy_mode:{deploy_mode},queue:{queue},driver_memory:{driver_memory},num_executors:{num_executors},executor_memory:{executor_memory},executor_cores:{executor_cores}')
         if deploy_mode not in ["client"]:
             raise ValueError(f"deploy mode {deploy_mode} not supported")
         spark_home = os.environ["SPARK_HOME"]
@@ -220,10 +222,11 @@ class RunTaskAction:
         job_config_json = json.loads(self.job.job_config)
         backend = Backend.get_by_task_config(job_config_json)
 
+        print(f'build_process_cmd, job_config_json: {job_config_json}')
         if backend.is_local() or backend.is_fc():
             process_cmd = self.build_process_cmd_for_local_or_fc()
         elif backend.is_spark():
-            process_cmd = self.build_process_cmd_for_spark(task_config_json)
+            process_cmd = self.build_process_cmd_for_spark(job_config_json)
         else:
             raise ValueError(f"${backend} supported")
 
