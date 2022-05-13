@@ -52,6 +52,7 @@ import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
 
 import cn.hutool.core.lang.UUID;
 
@@ -108,9 +109,17 @@ public class ClientServiceService {
             } else {// 激活
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
-                model.setUrl("-");
                 model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
+                model.setCode(input.getCode());
+                if (StringUtils.isBlank(input.getPrivateKey()) || !input.getPrivateKey().contains("******")) {
+                    model.setPrivateKey(input.getPrivateKey());
+                    model.setPublicKey(input.getPublicKey());
+                }
+                else if(input.getPrivateKey().contains("******")) {
+                    model.setPrivateKey(CacheObjects.getRsaPrivateKey());
+                    model.setPublicKey(CacheObjects.getRsaPublicKey());
+                }
             }
             // 保存计费规则相关信息
             clientServiceRepository.save(model);
@@ -162,12 +171,25 @@ public class ClientServiceService {
         return clientServiceQueryRepository.queryOne(input.getId());
     }
     
+    public ClientServiceMysqlModel findActivateClientServiceByUrl(String url) {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("url", url)
+                .build(ClientServiceMysqlModel.class);
+        Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
+    }
+    
     public ClientServiceOutputModel detail(DetailApi.Input input) {
         Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId()).build(ClientServiceMysqlModel.class);
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
-            return ModelMapper.map(optional.get(), ClientServiceOutputModel.class);
+            ClientServiceOutputModel output = ModelMapper.map(optional.get(), ClientServiceOutputModel.class);
+            output.setPrivateKey(ServiceUtil.around(output.getPrivateKey(), 10, 10));
+            output.setPublicKey(ServiceUtil.around(output.getPublicKey(), 10, 10));
+            return output;
         }
         return null;
     }
@@ -207,6 +229,15 @@ public class ClientServiceService {
                 model.setUrl(input.getUrl());
                 model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
+                model.setCode(input.getCode());
+                if (StringUtils.isBlank(input.getPrivateKey()) || !input.getPrivateKey().contains("******")) {
+                    model.setPrivateKey(input.getPrivateKey());
+                    model.setPublicKey(input.getPublicKey());
+                }
+                else if(input.getPrivateKey().contains("******")) {
+                    model.setPrivateKey(CacheObjects.getRsaPrivateKey());
+                    model.setPublicKey(CacheObjects.getRsaPublicKey());
+                }
             }
             clientServiceRepository.save(model);
 

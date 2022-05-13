@@ -68,6 +68,8 @@ public class ClientServiceOutputModel {
     private String ipAdd;
     
     private String publicKey;
+    private String privateKey;
+    private String code;
 
     /**
      * 请求地址
@@ -168,5 +170,21 @@ public class ClientServiceOutputModel {
 
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

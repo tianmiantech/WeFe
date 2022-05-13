@@ -67,6 +67,12 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         @Check(name = "公钥")
         private String publicKey;
+        
+        @Check(name = "私钥")
+        private String privateKey;
+        
+        @Check(name = "调用者code")
+        private String code;
 
         @Check(name = "IP白名单")
         private String ipAdd;
@@ -160,6 +166,22 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         public void setClientName(String clientName) {
             this.clientName = clientName;
+        }
+
+        public String getPrivateKey() {
+            return privateKey;
+        }
+
+        public void setPrivateKey(String privateKey) {
+            this.privateKey = privateKey;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
         }
     }
 }
