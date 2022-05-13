@@ -87,9 +87,9 @@ import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.PartnerMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ServiceRepository;
@@ -121,13 +121,10 @@ public class ServiceService {
 	private AccountRepository accountRepository;
 	@Autowired
 	private UnionServiceService unionServiceService;
-
 	@Autowired
-	private ClientService clientService;
-	
+	private PartnerService partnerService;
 	@Autowired
 	private ClientServiceService clientServiceService;
-
 	@Autowired
 	private Config config;
 
@@ -397,7 +394,7 @@ public class ServiceService {
             res.append("message", "invalid request: url = " + serviceUrl);
             return res;
         } else {
-            ClientMysqlModel client = clientService.queryByCode(input.getCustomerId());
+            PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
             if (client == null || client.getStatus() != 1) {
                 res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
                 res.append("message",
@@ -406,7 +403,7 @@ public class ServiceService {
                 log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
             }
-            ClientServiceMysqlModel clientServiceMysqlModel = clientService.queryByServiceIdAndClientId(service.getId(),
+            ClientServiceMysqlModel clientServiceMysqlModel = partnerService.queryByServiceIdAndClientId(service.getId(),
                     client.getId());
             if (clientServiceMysqlModel == null || clientServiceMysqlModel.getStatus() != 1) {
                 res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
@@ -415,8 +412,8 @@ public class ServiceService {
                 log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
             }
-            if (StringUtils.isNotBlank(client.getIpAdd()) && !"*".equalsIgnoreCase(client.getIpAdd())
-                    && !Arrays.asList(client.getIpAdd().split(",|，")).contains(clientIp)) {
+            if (StringUtils.isNotBlank(clientServiceMysqlModel.getIpAdd()) && !"*".equalsIgnoreCase(clientServiceMysqlModel.getIpAdd())
+                    && !Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp)) {
                 res.append("code", ServiceResultEnum.IP_NOT_AUTHORITY.getCode());
                 res.append("message", "invalid request: url = " + serviceUrl + ",clientIp=" + clientIp);
                 long duration = System.currentTimeMillis() - start;
@@ -424,17 +421,14 @@ public class ServiceService {
                 return res;
             }
             int serviceType = service.getServiceType();
-            ClientMysqlModel currentClient = clientService.queryByClientName(CacheObjects.getMemberId());
             if (serviceType == ServiceTypeEnum.MULTI_SA.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()
                     || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
-                if (currentClient == null) {
-                    res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
-                    res.append("message", "invalid request: url = " + serviceUrl
-                            + ", not found currentClient, customerName = " + CacheObjects.getMemberId());
-                    long duration = System.currentTimeMillis() - start;
-                    log(service, client, duration, clientIp, res.getIntValue("code"));
-                    return res;
-                }
+                res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
+                res.append("message", "invalid request: url = " + serviceUrl
+                        + ", not found currentClient, customerName = " + CacheObjects.getMemberId());
+                long duration = System.currentTimeMillis() - start;
+                log(service, client, duration, clientIp, res.getIntValue("code"));
+                return res;
             }
         }
         return null;
@@ -453,8 +447,7 @@ public class ServiceService {
         JObject res = check(service, data, serviceUrl, input, clientIp);
         if (res == null) {
             res = JObject.create();
-            ClientMysqlModel currentClient = clientService.queryByClientName(CacheObjects.getMemberId());
-            ClientMysqlModel client = clientService.queryByCode(input.getCustomerId());
+            PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
             try {
                 if (serviceType == ServiceTypeEnum.PIR.getCode()) {
                     res = pir(data, service);
@@ -466,39 +459,37 @@ public class ServiceService {
                     res = JObject.create(result);
                 } else if (serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
                     Double result = -999.0;
-                    result = sa_query(data, service, currentClient);
+                    result = sa_query(data, service);
                     res = JObject.create("result", result);
                 } else if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
-                    List<String> result = multi_psi(data, service, currentClient);
+                    List<String> result = multi_psi(data, service);
                     res = JObject.create("result", result);
                 } else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
-                    List<JObject> results = multi_pir(data, service, currentClient);
+                    List<JObject> results = multi_pir(data, service);
                     res = JObject.create("result", results);
                 }
             } catch (Exception e) {
                 res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
                 res.append("message", "service error: url = " + serviceUrl + ", message= " + e.getMessage());
-                long duration = System.currentTimeMillis() - start;
-                log(service, client, duration, clientIp, res.getIntValue("code"));
+                log(service, client, start, clientIp, res.getIntValue("code"));
                 return res;
             }
             res.append("code", ServiceResultEnum.SUCCESS.getCode());
-            long duration = System.currentTimeMillis() - start;
-            log(service, client, duration, clientIp, res.getIntValue("code"));
+            log(service, client, start, clientIp, res.getIntValue("code"));
         }
         return res;
     }
 	
-	private void log(ServiceMySqlModel service, ClientMysqlModel client, long duration, String clientIp, int code) {
+	private void log(ServiceMySqlModel service, PartnerMysqlModel client, long start, String clientIp, int code) {
 		CommonThreadPool.run(() -> apiRequestRecordService.save(service.getId(), service.getName(),
-				service.getServiceType(), client.getName(), client.getId(), duration, clientIp, code));
+				service.getServiceType(), client.getName(), client.getId(), System.currentTimeMillis() - start, clientIp, code));
 	}
 
 	/**
 	 * 0.参考 SecureAggregation.query 返回结果
 	 * @throws Exception 
 	 */
-	private Double sa_query(JObject data, ServiceMySqlModel model, ClientMysqlModel currentClient) throws Exception {
+	private Double sa_query(JObject data, ServiceMySqlModel model) throws Exception {
 		JObject userParams = data.getJObject("query_params");
 		JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
 		int size = serviceConfigs.size();
@@ -509,18 +500,22 @@ public class ServiceService {
 			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
 //			String supplieId = serviceConfig.getString("member_id");
 			String apiName = serviceConfig.getString("api_name");
-			String base_url = serviceConfig.getString("base_url");
+			String baseUrl = serviceConfig.getString("base_url");
+			String url = baseUrl + apiName;
+			ClientServiceMysqlModel activateModel = clientServiceService.findActivateClientServiceByUrl(url);
+			if(activateModel == null) {
+			    throw new Exception("尚未激活服务:" + url);
+			}
 			ServerConfig config = new ServerConfig();
 			config.setServerName(apiName);
-			config.setServerUrl(base_url);
+			config.setServerUrl(baseUrl);
 			config.setQueryParams(userParams);
-
 			CommunicationConfig communicationConfig = new CommunicationConfig();
 			communicationConfig.setApiName(apiName);
-			communicationConfig.setServerUrl(base_url);
-			communicationConfig.setCommercialId(currentClient.getCode());
+			communicationConfig.setServerUrl(baseUrl);
+			communicationConfig.setCommercialId(activateModel.getCode());
 			communicationConfig.setNeedSign(true);
-			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());
+			communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
 			config.setCommunicationConfig(communicationConfig);
 			HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
 			transferVariables.add(httpTransferVariable);
@@ -617,7 +612,7 @@ public class ServiceService {
 		return response;
 	}
 	
-	private List<String> multi_psi(JObject data, ServiceMySqlModel model, ClientMysqlModel currentClient) throws Exception {
+	private List<String> multi_psi(JObject data, ServiceMySqlModel model) throws Exception {
 	    List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
         if (CollectionUtils.isEmpty(clientIds)) {
             clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
@@ -629,13 +624,20 @@ public class ServiceService {
 			JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
 //			String supplieId = serviceConfig.getString("member_id");
 			String apiName = serviceConfig.getString("api_name");
-			String base_url = serviceConfig.getString("base_url");
+			String baseUrl = serviceConfig.getString("base_url");
+			
+			String url = baseUrl + apiName;
+            ClientServiceMysqlModel activateModel = clientServiceService.findActivateClientServiceByUrl(url);
+            if(activateModel == null) {
+                throw new Exception("尚未激活服务:" + url);
+            }
+            
 			CommunicationConfig communicationConfig = new CommunicationConfig();
 			communicationConfig.setApiName(apiName);
-			communicationConfig.setServerUrl(base_url);
-			communicationConfig.setCommercialId(currentClient.getCode());
+			communicationConfig.setServerUrl(baseUrl);
+			communicationConfig.setCommercialId(activateModel.getCode());
 			communicationConfig.setNeedSign(true);
-			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());
+			communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
 			communicationConfigs.add(communicationConfig);
 		}
 
@@ -644,8 +646,7 @@ public class ServiceService {
 		return result;
 	}
 
-    private List<JObject> multi_pir(JObject data, ServiceMySqlModel model,
-            ClientMysqlModel currentClient) throws Exception {
+    private List<JObject> multi_pir(JObject data, ServiceMySqlModel model) throws Exception {
         
         List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
         int idx = data.getIntValue("index");
@@ -662,13 +663,19 @@ public class ServiceService {
 			String memberId = serviceConfig.getString("member_id");
 			String memberName = serviceConfig.getString("member_name");
 			String apiName = serviceConfig.getString("api_name");
-			String base_url = serviceConfig.getString("base_url");
+			String baseUrl = serviceConfig.getString("base_url");
 
+			String url = baseUrl + apiName;
+            ClientServiceMysqlModel activateModel = clientServiceService.findActivateClientServiceByUrl(url);
+            if(activateModel == null) {
+                throw new Exception("尚未激活服务:" + url);
+            }
+            
 			communicationConfig.setApiName(apiName);
 			communicationConfig.setNeedSign(true);
-			communicationConfig.setCommercialId(currentClient.getCode());
-			communicationConfig.setSignPrivateKey(CacheObjects.getRsaPrivateKey());
-			communicationConfig.setServerUrl(base_url);
+			communicationConfig.setCommercialId(activateModel.getCode());
+			communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
+			communicationConfig.setServerUrl(baseUrl);
 
 			PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, 0, 10, null);
 			PrivateInformationRetrievalQuery privateInformationRetrievalQuery = new PrivateInformationRetrievalQuery();
