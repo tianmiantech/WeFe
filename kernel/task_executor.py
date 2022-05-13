@@ -97,7 +97,9 @@ class TaskExecutor(object):
                 'federated_learning_type': job_config['federated_learning_type'],
                 'project': {
                     'project_id': job_config['project']['project_id']
-                }
+                },
+                'members': job_config['members'],
+                'data_sets': job_config['data_sets']
             }
 
             project_id = task_config['job']['project']['project_id']
