@@ -94,44 +94,44 @@ cd $IMAGE_WORK_DIR/app/wefe_python_gpu_service
 sudo docker build -t wefe_python_gpu_service:$WEFE_VERSION .
 echo 'DONE'
 
-echo 'WEFE_FUSION_SERVICE BUILDING'
-cd $IMAGE_WORK_DIR/app/wefe_fusion_service
-sudo docker build -t wefe_fusion_service:$WEFE_VERSION .
-echo 'DONE'
-
-echo 'WEFE_FUSION_WEBSITE BUILDING'
-cd $IMAGE_WORK_DIR/app/wefe_fusion_website
-sudo docker build -t wefe_fusion_website:$WEFE_VERSION .
-echo 'DONE'
-
-echo 'WEFE_MANAGER_SERVICE BUILDING'
-cd $IMAGE_WORK_DIR/app/wefe_manager_service
-sudo docker build -t wefe_manager_service:$WEFE_VERSION .
-echo 'DONE'
-
-echo 'WEFE_MANAGER_WEBSITE BUILDING'
-cd $IMAGE_WORK_DIR/app/wefe_manager_website
-sudo docker build -t wefe_manager_website:$WEFE_VERSION .
-echo 'DONE'
-
-echo 'WEFE_SERVING_SERVICE BUILDING'
-cd $IMAGE_WORK_DIR/app/wefe_serving_service
-sudo docker build -t wefe_serving_service:$WEFE_VERSION .
-echo 'DONE'
-
-echo 'WEFE_SERVING_WEBSITE BUILDING'
-cd $IMAGE_WORK_DIR/app/wefe_serving_website
-sudo docker build -t wefe_serving_website:$WEFE_VERSION .
-echo 'DONE'
-
-echo 'WEFE_BLOCKCHAIN_DATA_SYNC BUILDING'
-cd $IMAGE_WORK_DIR/app/wefe_blockchain_data_sync
-sudo docker build -t wefe_blockchain_data_sync:$WEFE_VERSION .
-echo 'DONE'
-
-echo 'WEFE_UNION_SERVICE BUILDING'
-cd $IMAGE_WORK_DIR/app/wefe_union_service
-sudo docker build -t wefe_union_service:$WEFE_VERSION .
-echo 'DONE'
+#echo 'WEFE_FUSION_SERVICE BUILDING'
+#cd $IMAGE_WORK_DIR/app/wefe_fusion_service
+#sudo docker build -t wefe_fusion_service:$WEFE_VERSION .
+#echo 'DONE'
+#
+#echo 'WEFE_FUSION_WEBSITE BUILDING'
+#cd $IMAGE_WORK_DIR/app/wefe_fusion_website
+#sudo docker build -t wefe_fusion_website:$WEFE_VERSION .
+#echo 'DONE'
+#
+#echo 'WEFE_MANAGER_SERVICE BUILDING'
+#cd $IMAGE_WORK_DIR/app/wefe_manager_service
+#sudo docker build -t wefe_manager_service:$WEFE_VERSION .
+#echo 'DONE'
+#
+#echo 'WEFE_MANAGER_WEBSITE BUILDING'
+#cd $IMAGE_WORK_DIR/app/wefe_manager_website
+#sudo docker build -t wefe_manager_website:$WEFE_VERSION .
+#echo 'DONE'
+#
+#echo 'WEFE_SERVING_SERVICE BUILDING'
+#cd $IMAGE_WORK_DIR/app/wefe_serving_service
+#sudo docker build -t wefe_serving_service:$WEFE_VERSION .
+#echo 'DONE'
+#
+#echo 'WEFE_SERVING_WEBSITE BUILDING'
+#cd $IMAGE_WORK_DIR/app/wefe_serving_website
+#sudo docker build -t wefe_serving_website:$WEFE_VERSION .
+#echo 'DONE'
+#
+#echo 'WEFE_BLOCKCHAIN_DATA_SYNC BUILDING'
+#cd $IMAGE_WORK_DIR/app/wefe_blockchain_data_sync
+#sudo docker build -t wefe_blockchain_data_sync:$WEFE_VERSION .
+#echo 'DONE'
+#
+#echo 'WEFE_UNION_SERVICE BUILDING'
+#cd $IMAGE_WORK_DIR/app/wefe_union_service
+#sudo docker build -t wefe_union_service:$WEFE_VERSION .
+#echo 'DONE'
 
 # 覆盖挂载文件

@@ -31,53 +31,53 @@ rm -f wefe_gateway_service_$WEFE_VERSION.tar
 sudo docker save -o wefe_gateway_service_$WEFE_VERSION.tar wefe_gateway_service:$WEFE_VERSION
 echo "GATEWAY SERVICE SAVED"
 
-echo "SAVING FUSION SERVICE"
-cd $SERVICE_WORK_DIR/wefe_fusion_service/resources
-rm -f wefe_fusion_service_$WEFE_VERSION.tar
-sudo docker save -o wefe_fusion_service_$WEFE_VERSION.tar wefe_fusion_service:$WEFE_VERSION
-echo "FUSION SERVICE SAVED"
-
-echo "SAVING FUSION WEBSITE"
-cd $SERVICE_WORK_DIR/wefe_fusion_website/resources
-rm -f wefe_fusion_website_$WEFE_VERSION.tar
-sudo docker save -o wefe_fusion_website_$WEFE_VERSION.tar wefe_fusion_website:$WEFE_VERSION
-echo "FUSION WEBSITE SAVED"
-
-echo "SAVING MANAGER SERVICE"
-cd $SERVICE_WORK_DIR/wefe_manager_service/resources
-rm -f wefe_manager_service_$WEFE_VERSION.tar
-sudo docker save -o wefe_manager_service_$WEFE_VERSION.tar wefe_manager_service:$WEFE_VERSION
-echo "MANAGER SERVICE SAVED"
-
-echo "SAVING MANAGER WEBSITE"
-cd $SERVICE_WORK_DIR/wefe_manager_website/resources
-rm -f wefe_manager_website_$WEFE_VERSION.tar
-sudo docker save -o wefe_manager_website_$WEFE_VERSION.tar wefe_manager_website:$WEFE_VERSION
-echo "MANAGER WEBSITE SAVED"
-
-echo "SAVING SERVING SERVICE"
-cd $SERVICE_WORK_DIR/wefe_serving_service/resources
-rm -f wefe_serving_service_$WEFE_VERSION.tar
-sudo docker save -o wefe_serving_service_$WEFE_VERSION.tar wefe_serving_service:$WEFE_VERSION
-echo "SERVING SERVICE SAVED"
-
-echo "SAVING SERVING WEBSITE"
-cd $SERVICE_WORK_DIR/wefe_serving_website/resources
-rm -f wefe_serving_website_$WEFE_VERSION.tar
-sudo docker save -o wefe_serving_website_$WEFE_VERSION.tar wefe_serving_website:$WEFE_VERSION
-echo "SERVING WEBSITE SAVED"
-
-echo "SAVING BLOCKCHAIN_DATA_SYNC"
-cd $SERVICE_WORK_DIR/wefe_blockchain_data_sync/resources
-rm -f wefe_blockchain_data_sync_$WEFE_VERSION.tar
-sudo docker save -o wefe_blockchain_data_sync_$WEFE_VERSION.tar wefe_blockchain_data_sync:$WEFE_VERSION
-echo "BLOCKCHAIN_DATA_SYNC SAVED"
-
-echo "SAVING UNION SERVICE"
-cd $SERVICE_WORK_DIR/wefe_union_service/resources
-rm -f wefe_union_service_$WEFE_VERSION.tar
-sudo docker save -o wefe_union_service_$WEFE_VERSION.tar wefe_union_service:$WEFE_VERSION
-echo "UNION SERVICE SAVED"
+#echo "SAVING FUSION SERVICE"
+#cd $SERVICE_WORK_DIR/wefe_fusion_service/resources
+#rm -f wefe_fusion_service_$WEFE_VERSION.tar
+#sudo docker save -o wefe_fusion_service_$WEFE_VERSION.tar wefe_fusion_service:$WEFE_VERSION
+#echo "FUSION SERVICE SAVED"
+#
+#echo "SAVING FUSION WEBSITE"
+#cd $SERVICE_WORK_DIR/wefe_fusion_website/resources
+#rm -f wefe_fusion_website_$WEFE_VERSION.tar
+#sudo docker save -o wefe_fusion_website_$WEFE_VERSION.tar wefe_fusion_website:$WEFE_VERSION
+#echo "FUSION WEBSITE SAVED"
+#
+#echo "SAVING MANAGER SERVICE"
+#cd $SERVICE_WORK_DIR/wefe_manager_service/resources
+#rm -f wefe_manager_service_$WEFE_VERSION.tar
+#sudo docker save -o wefe_manager_service_$WEFE_VERSION.tar wefe_manager_service:$WEFE_VERSION
+#echo "MANAGER SERVICE SAVED"
+#
+#echo "SAVING MANAGER WEBSITE"
+#cd $SERVICE_WORK_DIR/wefe_manager_website/resources
+#rm -f wefe_manager_website_$WEFE_VERSION.tar
+#sudo docker save -o wefe_manager_website_$WEFE_VERSION.tar wefe_manager_website:$WEFE_VERSION
+#echo "MANAGER WEBSITE SAVED"
+#
+#echo "SAVING SERVING SERVICE"
+#cd $SERVICE_WORK_DIR/wefe_serving_service/resources
+#rm -f wefe_serving_service_$WEFE_VERSION.tar
+#sudo docker save -o wefe_serving_service_$WEFE_VERSION.tar wefe_serving_service:$WEFE_VERSION
+#echo "SERVING SERVICE SAVED"
+#
+#echo "SAVING SERVING WEBSITE"
+#cd $SERVICE_WORK_DIR/wefe_serving_website/resources
+#rm -f wefe_serving_website_$WEFE_VERSION.tar
+#sudo docker save -o wefe_serving_website_$WEFE_VERSION.tar wefe_serving_website:$WEFE_VERSION
+#echo "SERVING WEBSITE SAVED"
+#
+#echo "SAVING BLOCKCHAIN_DATA_SYNC"
+#cd $SERVICE_WORK_DIR/wefe_blockchain_data_sync/resources
+#rm -f wefe_blockchain_data_sync_$WEFE_VERSION.tar
+#sudo docker save -o wefe_blockchain_data_sync_$WEFE_VERSION.tar wefe_blockchain_data_sync:$WEFE_VERSION
+#echo "BLOCKCHAIN_DATA_SYNC SAVED"
+#
+#echo "SAVING UNION SERVICE"
+#cd $SERVICE_WORK_DIR/wefe_union_service/resources
+#rm -f wefe_union_service_$WEFE_VERSION.tar
+#sudo docker save -o wefe_union_service_$WEFE_VERSION.tar wefe_union_service:$WEFE_VERSION
+#echo "UNION SERVICE SAVED"
 
 echo "packing welab_wefe tar "
 cd $SERVICE_WORK_DIR
