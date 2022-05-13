@@ -78,6 +78,7 @@ class TaskExecutor(object):
             member_id = args.member_id
             global_config.ENV = args.environment
             task_config = load_config(args)
+            print(f'task_config： {task_config}')
             params = task_config.get('params', {})
 
             # 改为从 job_config 中获取
