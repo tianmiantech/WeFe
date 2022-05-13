@@ -44,8 +44,6 @@ build/
 *.properties
 venv/
 /docker/
-/assembly/*
-assembly/
 
 # 排除环境配置文件
 .env.local
