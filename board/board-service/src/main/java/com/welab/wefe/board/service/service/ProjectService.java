@@ -35,6 +35,7 @@ import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResou
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
+import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
@@ -1226,11 +1227,15 @@ public class ProjectService extends AbstractService {
                 .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
     }
 
+    @Autowired
+    private AccountService accountService;
 
     /**
      * close project
+     *
+     * @param byScheduledJob 是否来自定时任务
      */
-    public void closeProject(CloseProjectApi.Input input) throws StatusCodeWithException {
+    public void closeProject(CloseProjectApi.Input input, boolean byScheduledJob) throws StatusCodeWithException {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
@@ -1243,11 +1248,18 @@ public class ProjectService extends AbstractService {
             }
         }
 
-        OnlineDemoBranchStrategy.hackOnDelete(input, project, "只能关闭自己创建的项目。");
-
         project.setClosed(true);
         project.setClosedTime(new Date());
-        project.setClosedBy(project.getOperatorId(input));
+
+        // 如果是定时任务触发的关闭，操作者设置为超级管理员。
+        if (byScheduledJob) {
+            project.setClosedBy(accountService.getSuperAdmin().id);
+        } else {
+            project.setClosedBy(project.getOperatorId(input));
+
+            OnlineDemoBranchStrategy.hackOnDelete(input, project, "只能关闭自己创建的项目。");
+        }
+
 
         projectRepo.save(project);
 

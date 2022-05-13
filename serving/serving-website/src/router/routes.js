@@ -240,7 +240,7 @@ const baseRoutes = [
         meta: {
             title:            '用户中心',
             icon:             'el-icon-user-solid',
-            normalUserCanSee: false,
+            normalUserCanSee: true,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -250,7 +250,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh:  true,
                     title:            '用户列表',
-                    normalUserCanSee: false,
+                    normalUserCanSee: true,
                 },
                 component: () => import('../views/account/account-list'),
             },

@@ -76,7 +76,7 @@ public class PirClient {
 		PrivateInformationRetrievalQuery privateInformationRetrievalQuery = new PrivateInformationRetrievalQuery();
 		try {
 			config.setTargetIndex(targetIndex);
-			String result = privateInformationRetrievalQuery.query(config, communicationConfig, NAORPINKAS_OT);;
+			String result = privateInformationRetrievalQuery.query(config, communicationConfig);
 			System.out.println("result = " + result); // get result
 		} catch (Exception e) {
 			e.printStackTrace();

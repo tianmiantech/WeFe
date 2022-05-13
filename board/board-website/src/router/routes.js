@@ -357,7 +357,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh:  true,
                     title:            '用户列表',
-                    normalUserCanSee: false,
+                    normalUserCanSee: true,
                 },
                 component: () => import('../views/account/account-list'),
             },
@@ -438,6 +438,16 @@ const baseRoutes = [
                     title:           '计算引擎设置',
                 },
                 component: () => import('../views/system-config/calculation-engine-config'),
+            },
+            {
+                path: `${prefixPath}dev-tools`,
+                name: 'dev-tools',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '运维人员工具',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/dev/dev-tools'),
             },
         ],
     },

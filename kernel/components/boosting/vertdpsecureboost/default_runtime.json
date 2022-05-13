@@ -6,8 +6,10 @@
   "n_iter_no_change": false,
   "tol": 0.0001,
   "bin_num": 50,
-  "sparse_optimization": false,
-  "epsilon": 2,
+  "run_goss": true,
+  "top_rate": 0.2,
+  "other_rate": 0.1,
+  "epsilon": 3,
   "work_mode": "dp",
   "tree_param": {
     "criterion_method": "xgboost",

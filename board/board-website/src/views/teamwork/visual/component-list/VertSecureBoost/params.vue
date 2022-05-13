@@ -404,7 +404,12 @@
                     });
 
                     if (code === 0 && data && data.params && data.params.tree_param.criterion_params) {
-                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params;
+                        vData.form.cv_param = data.params.cv_param;
+                        vData.form.encrypt_param = data.params.encrypt_param;
+                        vData.form.objective_param = data.params.objective_param;
+                        vData.form.other_param = data.params.other_param;
+                        vData.form.tree_param = data.params.tree_param;
+                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params.join(',');
                     }
                 },
                 async getNodeData() {

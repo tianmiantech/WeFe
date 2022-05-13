@@ -31,7 +31,7 @@
                 >
                     <el-form
                         :class="['p20', { 'readonly-form': myRole !== 'promoter' || !isCreator }]"
-                        :disabled="myRole !== 'promoter' || !isCreator"
+                        :disabled="myRole !== 'promoter' || !isCreator || isProjectAdmin === 'false'"
                         @submit.prevent
                     >
                         <div v-if="!isCreator" class="mb10">
@@ -141,7 +141,7 @@
                                     </el-popover>
 
                                     <div
-                                        v-if="!jobGraphShow && isCreator"
+                                        v-if="!jobGraphShow && isCreator && (isProjectAdmin === 'true' || isProjectAdmin === '1')"
                                         class="mt20"
                                     >
                                         <el-button
@@ -225,6 +225,7 @@
             oldLearningType:    String,
             ootModelFlowNodeId: String,
             ootJobId:           String,
+            isProjectAdmin:     String,
         },
         emits: ['component-panel-change-size', 'getComponents', 'resetGraphState', 'update-currentObj', 'changeHeaderTitle', 'updateFlowInfo', 'remove-params-node', 'update-empty-params-node'],
         data() {

@@ -26,18 +26,24 @@ export default _ => {
     const TAGSLIST = `${baseUrl}_tagsList`;
     const SYSTEM_INITED = `${baseUrl}_system_inited`;
     const UI_CONFIG = `${baseUrl}_uiConfig`;
+    const IS_DEMO = `${baseUrl}_isDemo`;
+    const ADMIN_USER_LIST = `${baseUrl}_admin_user_list`;
 
     let keepAlive = localStorage.getItem(KEEPALIVE),
         userInfo = localStorage.getItem(USERINFO),
         tagsList = localStorage.getItem(TAGSLIST),
         systemInited = localStorage.getItem(SYSTEM_INITED),
-        uiConfig = localStorage.getItem(UI_CONFIG);
+        uiConfig = localStorage.getItem(UI_CONFIG),
+        isDemo = localStorage.getItem(IS_DEMO),
+        adminUserList = localStorage.getItem(ADMIN_USER_LIST);
 
     keepAlive = keepAlive ? parseKey(keepAlive, false) : false;
     userInfo = userInfo ? parseKey(userInfo, {}) : {};
     tagsList = tagsList ? parseKey(tagsList, []) : [];
     systemInited = systemInited ? parseKey(systemInited, false) : false;
     uiConfig = uiConfig ? parseKey(uiConfig, {}) : {};
+    isDemo = isDemo ? parseKey(isDemo, false) : false;
+    adminUserList = adminUserList ? parseKey(adminUserList, []) : [];
 
     const state = {
         keepAlive,
@@ -45,14 +51,18 @@ export default _ => {
         tagsList,
         systemInited,
         uiConfig,
+        isDemo,
+        adminUserList,
     };
 
     const getters = {
-        keepAlive:    state => state.keepAlive,
-        tagsList:     state => state.tagsList,
-        userInfo:     state => state.userInfo,
-        systemInited: state => state.systemInited,
-        uiConfig:     state => state.uiConfig,
+        keepAlive:     state => state.keepAlive,
+        tagsList:      state => state.tagsList,
+        userInfo:      state => state.userInfo,
+        systemInited:  state => state.systemInited,
+        uiConfig:      state => state.uiConfig,
+        isDemo:        state => state.isDemo,
+        adminUserList: state => state.adminUserList,
     };
 
     const mutations = {
@@ -76,6 +86,14 @@ export default _ => {
         'UI_CONFIG' (state, data) {
             state.uiConfig = data;
             setStorage().setItem(UI_CONFIG, JSON.stringify(data));
+        },
+        'IS_DEMO' (state, data) {
+            state.isDemo = data;
+            setStorage().setItem(IS_DEMO, JSON.stringify(data));
+        },
+        'ADMIN_USER_LIST' (state, data) {
+            state.adminUserList = data;
+            setStorage().setItem(ADMIN_USER_LIST, JSON.stringify(data));
         },
     };
 
