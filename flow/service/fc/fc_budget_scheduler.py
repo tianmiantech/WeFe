@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import traceback
-from common.python.common.consts import TaskStatus
+from common.python.common.consts import TaskStatus, JobStatus
 from flow.utils.budget_utils import BudgetUtils
 from common.python.db.global_config_dao import GlobalConfigDao
 import threading
@@ -38,10 +38,15 @@ class FcBudgetScheduler(threading.Thread):
 
     def get_running_task(self):
         with DB.connection_context():
-            task_list = Task.select().where(
-                (Task.status == TaskStatus.RUNNING) &
-                (Task.task_conf % '%FC%')
-            ).execute()
+            # backend = FC 标志已放置于 job
+            where_condition = [Job.status == JobStatus.RUNNING,
+                               json.loads(Job.job_config)['env']['calculation_engine_config']['backend'] == 'FC']
+            job_list = Job.select().where(*tuple(where_condition)).execute()
+
+            task_list = []
+            for job in job_list:
+                where = [Task.status == TaskStatus.RUNNING, Task.job_id == job.job_id]
+                task_list = Task.select().where(*tuple(where)).execute()
             return task_list
 
     def get_month_budget(self):
@@ -59,20 +64,20 @@ class FcBudgetScheduler(threading.Thread):
             for task in task_list:
                 if task.task_type == 'PaddleClassify' or task.task_type == 'PaddleDetection' or task.task_type == 'ImageDataIO':
                     continue
-                if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
-                    killed = self.kill_task(task)
-                    if killed:
-                        self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
-                        task.status = TaskStatus.ERROR
-                        if is_month:
-                            task.message = '函数计算当月已使用(￥): ' + ("%.2f" % cost) + ',已超最大月限额(￥): ' + \
-                                           ("%.2f" % budget) + ',随即停止所有任务！'
-                        else:
-                            task.message = '函数计算当日已使用(￥): ' + ("%.2f" % cost) + ',已超最大日限额(￥): ' + \
-                                           ("%.2f" % budget) + ',随即停止所有任务！'
-                        task.save()
+                # if json.loads(task.task_conf)['job']['env']['backend'] == 'FC':
+                killed = self.kill_task(task)
+                if killed:
+                    self.logger.info(f"kill task {task.name}({task.task_id}) process pid: {task.pid} success!")
+                    task.status = TaskStatus.ERROR
+                    if is_month:
+                        task.message = '函数计算当月已使用(￥): ' + ("%.2f" % cost) + ',已超最大月限额(￥): ' + \
+                                       ("%.2f" % budget) + ',随即停止所有任务！'
                     else:
-                        self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
+                        task.message = '函数计算当日已使用(￥): ' + ("%.2f" % cost) + ',已超最大日限额(￥): ' + \
+                                       ("%.2f" % budget) + ',随即停止所有任务！'
+                    task.save()
+                else:
+                    self.logger.error(f"failed to kill task {task.name}({task.task_id}) process pid: {task.pid}")
 
     def kill_task(self, task: Task):
         """"

@@ -335,7 +335,7 @@ class Job(ModelBase):
     updated_by = CharField(null=True)
     updated_time = DateTimeField(null=True)
     job_middle_data_is_clear = IntegerField(constraints=[SQL("DEFAULT 0")])
-    job_config = TextField(null=True)
+    job_config = TextField()
 
     class Meta:
         db_table = 'job'
