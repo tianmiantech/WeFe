@@ -84,14 +84,13 @@ class TaskExecutor(object):
 
             # 改为从 job_config 中获取
             with DB.connection_context():
-                job = Job.get(Job.job_id == job_id)
-
-                print(f'job: {job}')
+                job = Job.select().where(Job.job_id == job_id)
             job_env = json.loads(job.job_config)['env']
+            print(f'job_env: {job_env}')
             task_input_dsl = task_config['input']
             task_output_dsl = task_config['output']
             module_name = task_config['module']
-            project_id = task_config['job']['project']['project_id']
+            project_id = json.loads(job.job_config)['project']['project_id']
 
             parameters = TaskExecutor.get_parameters(role, member_id, module_name, component_name, task_config)
 
