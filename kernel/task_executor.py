@@ -84,7 +84,8 @@ class TaskExecutor(object):
             # 改为从 job_config 中获取
             with DB.connection_context():
                 job = Job.select().where(Job.job_id == job_id)
-            job_env = job['env']
+                print(f'job: {job}')
+            job_env = job.job_config['env']
             task_input_dsl = task_config['input']
             task_output_dsl = task_config['output']
             module_name = task_config['module']
