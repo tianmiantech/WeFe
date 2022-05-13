@@ -126,10 +126,14 @@ class TaskExecutor(object):
             # )
             backend = job_env['calculation_engine_config'].get('backend')
             # backend = 0
+            print(f'job_env: {job_env}')
             options = TaskExecutor.session_options(task_config)
             RuntimeConfig.init_config(WORK_MODE=job_env['work_mode'],
                                       BACKEND=backend,
                                       DB_TYPE=job_env['storage_config'].get('db_type', DBTypes.CLICKHOUSE))
+
+            print(
+                f'word_mode: {RuntimeConfig.WORK_MODE}, backend: {RuntimeConfig.BACKEND}, db_type: {RuntimeConfig.DB_TYPE}')
             session.init(job_id='{}_{}_{}'.format(task_id, role, member_id), mode=RuntimeConfig.WORK_MODE,
                          backend=RuntimeConfig.BACKEND, db_type=RuntimeConfig.DB_TYPE,
                          options=options)
