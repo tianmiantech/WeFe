@@ -54,6 +54,7 @@ from kernel.tracker.runtime_config import RuntimeConfig
 from kernel.tracker.tracking import Tracking
 from kernel.utils.decorator_utils import load_config, update_task_status_env
 
+
 class TaskExecutor(object):
 
     @staticmethod
@@ -85,12 +86,21 @@ class TaskExecutor(object):
             # 改为从 job_config 中获取
             with DB.connection_context():
                 job = Job.get(Job.job_id == job_id)
-            job_env = json.loads(job.job_config)['env']
-            print(f'job_env: {job_env}')
+            job_config = json.loads(job.job_config)
+            job_env = job_config['env']
             task_input_dsl = task_config['input']
             task_output_dsl = task_config['output']
             module_name = task_config['module']
-            project_id = json.loads(job.job_config)['project']['project_id']
+
+            # 从 job_config 中获取信息
+            task_config['job'] = {
+                'federated_learning_type': job_config['federated_learning_type'],
+                'project': {
+                    'project_id': job_config['project']['project_id']
+                }
+            }
+
+            project_id = task_config['job']['project']['project_id']
 
             parameters = TaskExecutor.get_parameters(role, member_id, module_name, component_name, task_config)
 
@@ -195,7 +205,7 @@ class TaskExecutor(object):
     @staticmethod
     def get_parameters(role, member_id, module_name, component_name, runtime_conf):
         component_root = os.path.join(file_utils.get_project_base_directory(), 'kernel', 'components')
-        module_name_dir = TaskExecutor.generate_module_name_dir(module_name,runtime_conf)
+        module_name_dir = TaskExecutor.generate_module_name_dir(module_name, runtime_conf)
 
         component_full_path = None
         if os.path.exists(os.path.join(component_root, module_name_dir)):
