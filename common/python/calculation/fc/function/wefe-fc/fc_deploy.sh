@@ -33,7 +33,7 @@ nas_upload(){
   rm -rf $nas_env
 
   # copy root, python, config.properties
-  has_python=`s nas command ls  -l nas:///mnt/auto/dev | grep "python$"`
+  has_python=`s nas command ls  -l nas:///mnt/auto/$nas_env | grep "python$"`
   if [[ $has_python =~ 'python' ]]
   then
     echo "has python, root environment."
@@ -41,7 +41,7 @@ nas_upload(){
     root_dir="/data/environment/.s/python"
     if [ ! -d $root_dir ]; then
       echo "local dir has no python, root environment, now run 's build --use-docker' command to download ..."
-      s build --use-docker --debug
+      s fc-wefe-fc-index build --use-docker --debug
       echo 'copy new python, root to path: /data/environment/.s/ '
       cp -rf .s/build/artifacts/wefe-fc/index/.s/python /data/environment/.s/
       cp -rf .s/build/artifacts/wefe-fc/index/.s/root /data/environment/.s/
