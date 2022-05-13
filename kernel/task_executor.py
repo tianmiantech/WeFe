@@ -87,7 +87,7 @@ class TaskExecutor(object):
                 job = Job.get(Job.job_id == job_id)
 
                 print(f'job: {job}')
-            job_env = json.load(job.job_config)['env']
+            job_env = json.loads(job.job_config)['env']
             task_input_dsl = task_config['input']
             task_output_dsl = task_config['output']
             module_name = task_config['module']
