@@ -35,7 +35,7 @@ import java.util.Date;
 /**
  * @author hunter.zhao
  */
-@Api(path = "model/query", name = "Get model", login = false)
+@Api(path = "model/query", name = "Get model")
 public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.Output>> {
     @Autowired
     ModelService modelService;
