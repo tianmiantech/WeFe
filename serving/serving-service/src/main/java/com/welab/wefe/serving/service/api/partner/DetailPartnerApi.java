@@ -25,8 +25,8 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.PartnerService;
 
-@Api(path = "partner/query-one", name = "get partner")
-public class QueryPartnerApi extends AbstractApi<QueryPartnerApi.Input, QueryPartnerApi.Output> {
+@Api(path = "partner/detail", name = "get partner")
+public class DetailPartnerApi extends AbstractApi<DetailPartnerApi.Input, DetailPartnerApi.Output> {
 
     @Autowired
     private PartnerService partnerService;

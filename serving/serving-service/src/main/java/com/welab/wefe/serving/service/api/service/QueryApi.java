@@ -44,6 +44,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 	public static class Output extends AbstractApiOutput {
 		private String id;
 		private String name;
+		private String url;
 		private int serviceType;
 		private int status;
 		private String createdBy;
@@ -58,8 +59,16 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 		public void setId(String id) {
 			this.id = id;
 		}
+		
+        public String getUrl() {
+            return url;
+        }
 
-		public String getName() {
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getName() {
 			return name;
 		}
 

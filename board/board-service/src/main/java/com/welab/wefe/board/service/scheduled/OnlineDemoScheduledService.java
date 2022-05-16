@@ -15,16 +15,15 @@
  */
 package com.welab.wefe.board.service.scheduled;
 
+import com.welab.wefe.board.service.api.project.project.CloseProjectApi;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.OperationLogMysqlModel;
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
-import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
-import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
-import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
-import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
-import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
+import com.welab.wefe.board.service.database.repository.ProjectRepository;
+import com.welab.wefe.board.service.service.ProjectService;
+import com.welab.wefe.common.TimeSpan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * Demo 环境的定时任务
@@ -51,109 +51,90 @@ public class OnlineDemoScheduledService {
     private Config config;
     @Autowired
     private GlobalConfigRepository globalConfigRepository;
-
-    /**
-     * 临时清理数据
-     */
-    private void temporaryClean() {
-        String commonWhere = "where project_id not in ('0a509f5004c54534b81a1cb7a1b2a0d5','7b7666c87387414db32a572236e583ee')";
-        delete(
-                JobMySqlModel.class,
-                commonWhere
-        );
-        delete(
-                ProjectMySqlModel.class,
-                commonWhere
-        );
-    }
+    @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
+    private ProjectService projectService;
 
     /**
      * 清理体验者产生的过多无效数据
      */
     @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
-    //@Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
+//    @Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
     public void clean() {
-        if (true) {
-            return;
-        }
         if (!config.isOnlineDemo()) {
             return;
         }
         LOG.info("开始 demo 环境数据清理...");
-        /**
-         * 公共前提：
-         * 1. 太久没使用（编辑、启动）的数据要删掉
-         * 2. 管理员创建的数据不删
-         */
-        String commonWhere = "where DATEDIFF(now(), created_time)>20 and"
-                + "(updated_time is null or DATEDIFF(now(), updated_time)>20) and "
-                + "created_by not in (select id from account where admin_role=true or super_admin_role=true)";
-
-        /**
-         * 清理 job
-         * 无条件删除所有满足公共前提的 job 记录
-         */
-        delete(
-                JobMySqlModel.class,
-                commonWhere
-        );
 
         /**
          * 清理 project
-         * 1. 无流程或已关闭的项目删掉
+         * 1. 查询出我方非管理员创建的项目
+         * 2. 检查 project 下的最后 job 启动时间，如果超过10天，则关闭。
+         */
+        for (ProjectMySqlModel project : projectRepository.findCreatedByThisMemberButNotAdminAccountBefore10DaysAgo()) {
+            Date jobLastStartTime = projectRepository.getJobLastStartTime(project.getProjectId());
+            if (jobLastStartTime != null) {
+                long days = TimeSpan.fromMs(System.currentTimeMillis() - jobLastStartTime.getTime()).toDays();
+                // 如果活动时间小于10天，则不关闭。
+                if (days < 10) {
+                    continue;
+                }
+            }
+
+            CloseProjectApi.Input input = new CloseProjectApi.Input();
+            input.setProjectId(project.getProjectId());
+            try {
+                projectService.closeProject(input, true);
+            } catch (Exception e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            }
+
+        }
+
+        /**
+         * 清理 project
+         * 1. 太久没使用
+         * 2. 无流程或已关闭的项目删掉
+         *
+         * 注意：这里不管项目是否是管理员创建的，都删。
          */
         delete(
                 ProjectMySqlModel.class,
-                commonWhere
+                "where DATEDIFF(now(), created_time)>10 "
+                        + "and (updated_time is null or DATEDIFF(now(), updated_time)>10) "
                         + "and (project_id not in (select project_id from project_flow) or closed=true)"
         );
 
 
         /**
-         * 清理 project_flow
-         * 1. 从来没启动过的流程删掉(无关联 job)
-         * 2. project 已被删的删掉
+         * 公共前提：
+         * 1. 太久没使用（编辑、启动）的数据要删掉
+         * 2. 管理员创建的数据不删
          */
-        delete(
-                ProjectFlowMySqlModel.class,
-                commonWhere
-                        + "and flow_id not in (select flow_id from job)"
-        );
-        delete(
-                ProjectFlowMySqlModel.class,
-                commonWhere
-                        + "and project_id not in (select project_id from project)"
-        );
+        String commonWhere = "where DATEDIFF(now(), created_time)>10 and"
+                + "(updated_time is null or DATEDIFF(now(), updated_time)>10) and "
+                + "created_by not in (select id from account where admin_role=true or super_admin_role=true)";
 
-        /**
-         * 清理 project_data_set
-         * 1. project 已被删的删掉
-         */
-        delete(
-                ProjectDataSetMySqlModel.class,
-                commonWhere
-                        + "and project_id not in (select project_id from project)"
-        );
-
-        /**
-         * 清理 table_data_set
-         * 1. 无项目引用的删掉
-         */
-        delete(
-                TableDataSetMysqlModel.class,
-                commonWhere
-                        + "and id not in (select data_set_id from project_data_set)"
-        );
-
-        /**
-         * 清理 image_data_set
-         * 1. 无项目引用的删掉
-         */
-        delete(
-                ImageDataSetMysqlModel.class,
-                commonWhere
-                        + "and id not in (select data_set_id from project_data_set)"
-        );
+//        /**
+//         * 清理 table_data_set
+//         * 1. 无项目引用的删掉
+//         */
+//        delete(
+//                TableDataSetMysqlModel.class,
+//                commonWhere
+//                        + "and id not in (select data_set_id from project_data_set)"
+//        );
+//
+//        /**
+//         * 清理 image_data_set
+//         * 1. 无项目引用的删掉
+//         */
+//        delete(
+//                ImageDataSetMysqlModel.class,
+//                commonWhere
+//                        + "and id not in (select data_set_id from project_data_set)"
+//        );
 
         /**
          * 清理 operator_log

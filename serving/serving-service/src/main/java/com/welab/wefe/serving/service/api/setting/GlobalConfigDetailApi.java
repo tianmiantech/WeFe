@@ -25,6 +25,8 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.serving.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -51,8 +53,11 @@ public class GlobalConfigDetailApi extends AbstractApi<GlobalConfigDetailApi.Inp
             JSONObject json = new JSONObject();
             list.forEach(x ->
             {
-                if (!x.getName().equals("rsa_private_key")) {
-                    json.put(x.getName(), x.getValue());
+                if(!x.getName().equals("rsa_public_key") && !x.getName().equals("rsa_private_key")) {
+                    json.put(x.getName(), x.getValue());   
+                }
+                else {
+                    json.put(x.getName(), ServiceUtil.around(x.getValue(), 10, 10));
                 }
             });
             output.put(group, json);

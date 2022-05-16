@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -99,6 +100,8 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
         private String operator;
         @Check(name = "查询参数配置")
         private List<String> queryParams;
+        @Check(name="查询参数配置描述")
+        private List<JSONObject> queryParamsConfig;
         @Check(name = "SQL配置")
         private String dataSource;// json
         @Check(name = "服务配置")
@@ -191,5 +194,12 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
             this.serviceConfig = serviceConfig;
         }
 
+        public List<JSONObject> getQueryParamsConfig() {
+            return queryParamsConfig;
+        }
+
+        public void setQueryParamsConfig(List<JSONObject> queryParamsConfig) {
+            this.queryParamsConfig = queryParamsConfig;
+        }
     }
 }

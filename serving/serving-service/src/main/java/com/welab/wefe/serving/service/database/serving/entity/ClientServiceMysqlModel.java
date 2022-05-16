@@ -58,6 +58,12 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
 
     @Column(name = "public_key")
     private String publicKey;
+    
+    @Column(name = "private_key")
+    private String privateKey;
+    
+    @Column(name = "code")
+    private String code;
 
     @Column(name = "type")
     private int type = ServiceClientTypeEnum.OPEN.getValue();
@@ -156,5 +162,21 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

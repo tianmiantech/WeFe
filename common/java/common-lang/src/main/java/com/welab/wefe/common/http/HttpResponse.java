@@ -18,7 +18,7 @@ package com.welab.wefe.common.http;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
+import com.welab.wefe.common.fastjson.LoggerValueFilter;
 import com.welab.wefe.common.util.StringUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -201,7 +201,7 @@ public class HttpResponse {
         if (contentType != null && contentType.toLowerCase().contains("json")) {
             try {
                 JSONObject json = getBodyAsJson();
-                content = JSON.toJSONString(json.getInnerMap(), LoggerSerializeConfig.instance());
+                content = JSON.toJSONString(json.getInnerMap(), new LoggerValueFilter());
             } catch (Exception e) {
             }
         }

@@ -54,74 +54,96 @@ const baseRoutes = [
         ],
     },
     {
-        path: `${prefixPath}client`,
+        path: `${prefixPath}partner`,
         meta: {
-            title: '客户中心',
+            title: '合作者管理',
             icon:  'el-icon-s-custom',
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
             {
-                path: `${prefixPath}client-list`,
-                name: 'client-list',
+                path: `${prefixPath}partner-list`,
+                name: 'partner-list',
                 meta: {
-                    title:           '客户列表',
+                    title:           '合作者列表',
                     loginAndRefresh: true,
-                    active:          `${prefixPath}client-list`,
+                    active:          `${prefixPath}partner-list`,
                 },
-                component: () => import('@views/client/client-list.vue'),
+                component: () => import('@views/partner/partner-list.vue'),
             },
             {
-                path: `${prefixPath}client-add`,
-                name: 'client-add',
+                path: `${prefixPath}partner-add`,
+                name: 'partner-add',
                 meta: {
-                    title:  '新增客户',
+                    title:  '新增合作者',
                     hidden: true,
                 },
-                component: () => import('@views/client/client-add.vue'),
+                component: () => import('@views/partner/partner-add.vue'),
             },
 
             {
-                path: `${prefixPath}client-service-list`,
-                name: 'client-service-list',
+                path: `${prefixPath}partner-service-list`,
+                name: 'partner-service-list',
                 meta: {
-                    title:           '客户服务列表',
+                    title:           '合作者服务列表',
                     loginAndRefresh: true,
                 },
-                component: () => import('@views/client/client-service-list.vue'),
+                component: () => import('@views/partner/partner-service-list.vue'),
             },
             {
-                path: `${prefixPath}client-service-add`,
-                name: 'client-service-add',
+                path: `${prefixPath}partner-service-add`,
+                name: 'partner-service-add',
                 meta: {
-                    title:           '新增客户服务',
-                    loginAndRefresh: true,
-                    hidden:          true,
-                },
-
-                component: () => import('@views/client/client-service-add.vue'),
-            },
-            {
-                path: `${prefixPath}client-service-edit`,
-                name: 'client-service-edit',
-                meta: {
-                    title:           '编辑客户服务',
+                    title:           '新增合作者服务',
                     loginAndRefresh: true,
                     hidden:          true,
                 },
 
-                component: () => import('@views/client/client-service-edit.vue'),
+                component: () => import('@views/partner/partner-service-add.vue'),
             },
             {
-                path: `${prefixPath}client-edit`,
-                name: 'client-edit',
+                path: `${prefixPath}partner-service-edit`,
+                name: 'partner-service-edit',
                 meta: {
-                    title:           '修改客户',
+                    title:           '编辑合作者服务',
                     loginAndRefresh: true,
                     hidden:          true,
                 },
 
-                component: () => import('@views/client/client-edit.vue'),
+                component: () => import('@views/partner/partner-service-edit.vue'),
+            },
+            {
+                path: `${prefixPath}partner-edit`,
+                name: 'partner-edit',
+                meta: {
+                    title:           '修改合作者',
+                    loginAndRefresh: true,
+                    hidden:          true,
+                },
+
+                component: () => import('@views/partner/partner-edit.vue'),
+            },
+            {
+                path: `${prefixPath}activate-service-add`,
+                name: 'activate-service-add',
+                meta: {
+                    title:           '激活服务',
+                    loginAndRefresh: true,
+                    hidden:          true,
+                },
+
+                component: () => import('@views/partner/activate-service-add.vue'),
+            },
+            {
+                path: `${prefixPath}activate-service-edit`,
+                name: 'activate-service-edit',
+                meta: {
+                    title:           '激活服务',
+                    loginAndRefresh: true,
+                    hidden:          true,
+                },
+
+                component: () => import('@views/partner/activate-service-edit.vue'),
             },
         ],
     },
@@ -218,7 +240,7 @@ const baseRoutes = [
         meta: {
             title:            '用户中心',
             icon:             'el-icon-user-solid',
-            normalUserCanSee: false,
+            normalUserCanSee: true,
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
@@ -228,7 +250,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh:  true,
                     title:            '用户列表',
-                    normalUserCanSee: false,
+                    normalUserCanSee: true,
                 },
                 component: () => import('../views/account/account-list'),
             },

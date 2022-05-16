@@ -40,9 +40,9 @@
 
    - [Paillier算法](../docs/同态加密算法.md)
 
-   - [RSA算法](../docs/RSA密码算法和DH密码算法.md.md)
+   - [RSA算法](../docs/RSA密码算法和DH密码算法.md)
 
-2. [Diffie-Hellman密钥协商算法](../docs/RSA密码算法和DH密码算法.md.md)
+2. [Diffie-Hellman密钥协商算法](../docs/RSA密码算法和DH密码算法.md)
 
 3. [SecretShare MPC 协议（SPDZ）](../docs/SPDZ.md)
 

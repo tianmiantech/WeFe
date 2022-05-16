@@ -9,7 +9,7 @@
         <template #header>
             <div class="clearfix mb10 flex-row">
                 <h3 class="card-title">衍生数据资源</h3>
-                <div class="right-sort-area">
+                <div v-if="form.is_project_admin" class="right-sort-area">
                     <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
                     <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
                     <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
@@ -137,6 +137,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="form.is_project_admin"
                 label="操作"
                 width="100"
             >
@@ -173,6 +174,7 @@
             projectType: String,
             sortIndex:   Number,
             maxIndex:    Number,
+            form:        Object,
         },
         emits: ['move-up', 'move-down', 'to-top', 'to-bottom'],
         data() {

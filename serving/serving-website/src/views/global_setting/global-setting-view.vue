@@ -7,14 +7,14 @@
             <el-row :gutter="100">
                 <el-col :span="12">
                     <el-form-item label="Member Id：">
-                        {{ form.member_id }}
+                        {{ form.identity_info.member_id }}
                     </el-form-item>
                     <el-form-item
                         :rules="[{required: true, message: '名称必填!'}]"
                         label="成员名称："
                     >
                         <el-input
-                            v-model="form.member_name"
+                            v-model="form.identity_info.member_name"
                             placeholder="仅支持中文名称"
                             :disabled="is_update"
                         />
@@ -25,7 +25,7 @@
                         label="公钥："
                     >
                         <el-input
-                            v-model="form.rsa_public_key"
+                            v-model="form.identity_info.rsa_public_key"
                             type="textarea"
                             :disabled="is_update"
                             autosize
@@ -36,7 +36,7 @@
                         label="Serving服务地址："
                     >
                         <el-input
-                            v-model="form.serving_base_url"
+                            v-model="form.identity_info.serving_base_url"
                             placeholder=""
                             :disabled="is_update"
                         />
@@ -72,12 +72,12 @@
                 is_display: false,
                 // model
                 form:       {
-                    member_id:       '',
-                    member_name:     '',
-                    rsa_private_key: '',
-                    rsa_public_key:  '',
-                    gateway_uri:     '',
-                    serving_base_url:'',
+                    identity_info:{
+                        member_id:       '',
+                        member_name:     '',
+                        rsa_public_key:  '',
+                        serving_base_url:'',
+                    }
                 },
 
             };
@@ -91,8 +91,11 @@
         methods: {
             async getData() {
                 this.loading = true;
-                const { code, data } = await this.$http.get({
-                    url: '/global_setting/detail',
+                const { code, data } = await this.$http.post({
+                    url: '/global_config/detail',
+                    data:{
+                        "groups":['identity_info']
+                    }
                 });
 
                 this.is_update = !this.userInfo.admin_role;
@@ -106,8 +109,10 @@
             async update() {
                 this.loading = true;
                 const { code } = await this.$http.post({
-                    url:  '/global_setting/update',
-                    data: this.form,
+                    url:  '/global_config/update',
+                    data: {
+                        "groups":this.form
+                    },
                 });
 
                 if (code === 0) {

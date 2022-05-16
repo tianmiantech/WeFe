@@ -50,12 +50,18 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         @Check(name = "备注")
         private String remark;
-
+        
         @Check(name = "修改人")
         private String updatedBy;
 
-        @Check(name = "合作者状态")
+        @Check(name = "合作者状态", require = true)
         private Integer status;
+        
+        @Check(name = "是否是联邦成员", require = true)
+        private boolean isUnionMember;
+        
+        @Check(name = "Serving服务地址")
+        private String servingBaseUrl;
 
         public Integer getStatus() {
             return status;
@@ -88,6 +94,14 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         public void setName(String name) {
             this.name = name;
         }
+        
+        public String getRemark() {
+            return remark;
+        }
+
+        public void setRemark(String remark) {
+            this.remark = remark;
+        }
 
         public String getEmail() {
             return email;
@@ -97,14 +111,22 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
             this.email = email;
         }
 
-        public String getRemark() {
-            return remark;
+        public boolean getIsUnionMember() {
+            return isUnionMember;
         }
 
-        public void setRemark(String remark) {
-            this.remark = remark;
+        public void setIsUnionMember(boolean isUnionMember) {
+            this.isUnionMember = isUnionMember;
         }
 
+        public String getServingBaseUrl() {
+            return servingBaseUrl;
+        }
+
+        public void setServingBaseUrl(String servingBaseUrl) {
+            this.servingBaseUrl = servingBaseUrl;
+        }
+        
     }
 
 }

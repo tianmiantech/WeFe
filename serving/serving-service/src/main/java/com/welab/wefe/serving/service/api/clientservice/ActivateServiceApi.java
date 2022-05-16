@@ -22,7 +22,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.api.clientservice.SaveApi.Input;
+import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 
 @Api(path = "clientservice/activate", name = "save client service model")
@@ -32,8 +32,9 @@ public class ActivateServiceApi extends AbstractNoneOutputApi<SaveApi.Input> {
     private ClientServiceService clientServiceService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        clientServiceService.save(input);
+    protected ApiResult<?> handler(SaveApi.Input input) throws StatusCodeWithException {
+        input.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
+        clientServiceService.add(input);
         return success();
     }
 }

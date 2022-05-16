@@ -154,10 +154,16 @@ public class UnionServiceService {
         JSONObject response = request("member/query", params);
         LOG.info("union member query response = " + JSONObject.toJSONString(response));
         if (response != null && response.getIntValue("code") == 0) {
-            JSONArray list = response.getJSONArray("list");
-            if (!list.isEmpty()) {
+            JSONArray list = response.getJSONObject("data").getJSONArray("list");
+            if (list != null && !list.isEmpty()) {
                 JSONObject jo = list.getJSONObject(0);
-                CACHE_MAP.put(memberId, jo);
+                JSONObject memberInfo = new JSONObject();
+                memberInfo.put("name", jo.getString("name"));
+                memberInfo.put("mobile", jo.getString("mobile"));
+                memberInfo.put("email", jo.getString("email"));
+                memberInfo.put("id", jo.getString("id"));
+                memberInfo.put("serving_base_url", jo.getJSONObject("ext_json").getString("serving_base_url"));
+                CACHE_MAP.put(memberId, memberInfo);
             }
         }
         return (JSONObject) CACHE_MAP.get(memberId);

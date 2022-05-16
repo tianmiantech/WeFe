@@ -114,7 +114,6 @@ public class ServiceUtil {
 		String resultfields = parseReturnFields(dataSource);
 		String where = parseWhere(dataSource, JObject.create(params));
 		String sql = "SELECT " + resultfields + " FROM " + tableName + " WHERE " + where + " limit 1";
-		System.out.println(sql);
 		return sql;
 	}
 
@@ -146,11 +145,18 @@ public class ServiceUtil {
                                 ? (tmp.getString("condition").equalsIgnoreCase("gt") ? ">"
                                         : (tmp.getString("condition").equalsIgnoreCase("lt") ? "<" : "="))
                                 : "=")
-                        + "\"" + params.getString(tmp.getString("field_on_param")) + "\" " + " "
+                        + "\"" + parseValue(tmp.getString("field_on_param"), params) + "\" " + " "
                         + (size - 1 == i ? "" : tmp.getString("operator")));
             }
             return where;
         }
+    }
+
+    private static String parseValue(String key, JObject params) {
+        if (params == null || params.isEmpty()) {
+            return "#" + key;
+        }
+        return params.getString(key);
     }
 	
 	/**

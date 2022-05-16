@@ -16,17 +16,28 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.member.QueryApi;
-import com.welab.wefe.serving.service.api.partner.QueryPartnerApi;
+import com.welab.wefe.serving.service.api.partner.DetailPartnerApi;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Input;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Output;
 import com.welab.wefe.serving.service.api.partner.SavePartnerApi;
-import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
@@ -38,16 +49,6 @@ import com.welab.wefe.serving.service.database.serving.repository.PartnerReposit
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class PartnerService {
@@ -63,9 +64,6 @@ public class PartnerService {
     @Autowired
     private ClientServiceRepository clientServiceRepository;
 
-    @Autowired
-    private Config config;
-
     @Transactional(rollbackFor = Exception.class)
     public void init() {
         partnerRepository.deleteAll();
@@ -76,7 +74,7 @@ public class PartnerService {
             PartnerMysqlModel model = ModelMapper.map(m, PartnerMysqlModel.class);
             model.setServingBaseUrl(m.getApi());
             model.setPartnerId(m.getMemberId());
-            model.setUnionMember(true);
+            model.setIsUnionMember(true);
             model.setStatus(ClientStatusEnum.NORMAL.getValue());
             partnerRepository.save(model);
         }
@@ -84,7 +82,7 @@ public class PartnerService {
         for (ClientMysqlModel c : clients) {
             PartnerMysqlModel model = ModelMapper.map(c, PartnerMysqlModel.class);
             model.setStatus(c.getStatus());
-            model.setServingBaseUrl(config.getSERVING_BASE_URL());
+//            model.setServingBaseUrl(config.getSERVING_BASE_URL());
             model.setPartnerId(UUID.randomUUID().toString().replaceAll("-", ""));
             partnerRepository.save(model);
         }
@@ -104,22 +102,24 @@ public class PartnerService {
         if (null != partnerMysqlModel) {
             throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
         }
-
-        PartnerMysqlModel model = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
-        if (model == null) {
-            model = partnerRepository.findOne("partnerId", input.getPartnerId(), PartnerMysqlModel.class);
+        
+        if (StringUtils.isNotBlank(input.getPartnerId())) {
+            partnerMysqlModel = partnerRepository.findOne("partnerId", input.getPartnerId(), PartnerMysqlModel.class);
         }
-        if (null == model) {
-            model = new PartnerMysqlModel();
+        else {
+            input.setPartnerId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
-        model.setName(input.getName());
-        model.setEmail(input.getEmail());
-        model.setRemark(input.getRemark());
-        model.setServingBaseUrl(input.getServingBaseUrl());
-        model.setCreatedBy(input.getCreatedBy());
-        model.setCode(input.getCode());
-        model.setPartnerId(input.getPartnerId());
-        partnerRepository.save(model);
+        if (null == partnerMysqlModel) {
+            partnerMysqlModel = new PartnerMysqlModel();
+        }
+        partnerMysqlModel.setName(input.getName());
+        partnerMysqlModel.setEmail(input.getEmail());
+        partnerMysqlModel.setRemark(input.getRemark());
+        partnerMysqlModel.setServingBaseUrl(input.getServingBaseUrl());
+        partnerMysqlModel.setCreatedBy(input.getCreatedBy());
+        partnerMysqlModel.setCode(input.getCode());
+        partnerMysqlModel.setPartnerId(input.getPartnerId());
+        partnerRepository.save(partnerMysqlModel);
     }
 
     public PartnerMysqlModel findOne(String partnerId) {
@@ -146,19 +146,19 @@ public class PartnerService {
         return partnerRepository.findOne("name", name, PartnerMysqlModel.class);
     }
 
-    public QueryPartnerApi.Output queryById(String id) {
+    public DetailPartnerApi.Output queryById(String id) {
         PartnerMysqlModel model = partnerRepository.findOne("id", id, PartnerMysqlModel.class);
-        return ModelMapper.map(model, QueryPartnerApi.Output.class);
+        return ModelMapper.map(model, DetailPartnerApi.Output.class);
     }
 
-    public QueryPartnerApi.Output queryByPartnerId(String partnerId) {
+    public DetailPartnerApi.Output queryByPartnerId(String partnerId) {
         PartnerMysqlModel model = partnerRepository.findOne("partnerId", partnerId, PartnerMysqlModel.class);
-        return ModelMapper.map(model, QueryPartnerApi.Output.class);
+        return ModelMapper.map(model, DetailPartnerApi.Output.class);
     }
 
-    public QueryPartnerApi.Output queryByName(String name) {
+    public DetailPartnerApi.Output queryByName(String name) {
         PartnerMysqlModel model = queryByPartnerName(name);
-        return ModelMapper.map(model, QueryPartnerApi.Output.class);
+        return ModelMapper.map(model, DetailPartnerApi.Output.class);
     }
 
     public void detele(String id) {
@@ -175,8 +175,6 @@ public class PartnerService {
 
     public PagingOutput<Output> queryList(Input input) {
         Specification<PartnerMysqlModel> where = Where.create().contains("name", input.getPartnerName())
-                .betweenAndDate("createdTime", input.getStartTime() == null ? null : input.getStartTime(),
-                        input.getEndTime() == null ? null : input.getEndTime())
                 .build(PartnerMysqlModel.class);
 
         PagingOutput<PartnerMysqlModel> page = partnerRepository.paging(where, input);
@@ -195,21 +193,26 @@ public class PartnerService {
         }
         model.setName(input.getName());
         model.setEmail(input.getEmail());
-        model.setRemark(input.getRemark());
         model.setUpdatedBy(input.getUpdatedBy());
+        model.setUpdatedTime(new Date());
         model.setStatus(input.getStatus());
+        model.setIsUnionMember(input.getIsUnionMember());
+        model.setServingBaseUrl(input.getServingBaseUrl());
+        model.setRemark(input.getRemark());
         partnerRepository.save(model);
         // 客户信息变动时，客户服务表中的字段也更新
         Specification<ClientServiceMysqlModel> where = Where.create().equal("clientId", input.getId())
                 .build(ClientServiceMysqlModel.class);
 
         List<ClientServiceMysqlModel> all = clientServiceRepository.findAll(where);
-        List<ClientServiceMysqlModel> collect = all.stream().map(x -> {
-            x.setClientName(input.getName());
-            return x;
-        }).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(all)) {
+            List<ClientServiceMysqlModel> collect = all.stream().map(x -> {
+                x.setClientName(input.getName());
+                return x;
+            }).collect(Collectors.toList());
 
-        clientServiceRepository.saveAll(collect);
+            clientServiceRepository.saveAll(collect);
+        }
     }
 
     public ClientServiceMysqlModel queryByServiceIdAndClientId(String serviceId, String clientId) {

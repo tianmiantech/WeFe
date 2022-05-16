@@ -679,11 +679,11 @@ public class ProjectFlowService extends AbstractService {
     /**
      * 设置项目的置顶状态
      */
-    public void top(String projectId, boolean top) {
+    public void top(String flowId, boolean top) {
         if (top) {
-            projectFlowRepo.top(projectId);
+            projectFlowRepo.top(flowId);
         } else {
-            projectFlowRepo.cancelTop(projectId);
+            projectFlowRepo.cancelTop(flowId);
         }
     }
 }

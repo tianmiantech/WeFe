@@ -42,6 +42,12 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	 */
 	@Column(name = "query_params")
 	private String queryParams;
+	
+	/**
+	 * 查询配置参数描述
+	 * */
+	@Column(name = "query_params_config")
+	private String queryParamsConfig;
 
 	/**
 	 * SQL配置
@@ -138,5 +144,13 @@ public class ServiceMySqlModel extends AbstractBaseMySqlModel {
 	public void setServiceConfig(String serviceConfig) {
 		this.serviceConfig = serviceConfig;
 	}
+
+    public String getQueryParamsConfig() {
+        return queryParamsConfig;
+    }
+
+    public void setQueryParamsConfig(String queryParamsConfig) {
+        this.queryParamsConfig = queryParamsConfig;
+    }
 
 }

@@ -28,6 +28,8 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.serving.service.database.serving.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.GlobalConfigRepository;
 import com.welab.wefe.serving.service.dto.GlobalConfigInput;
+import com.welab.wefe.serving.service.service.UnionServiceService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -47,6 +49,9 @@ public class BaseGlobalConfigService{
 
     @Autowired
     protected GlobalConfigRepository globalConfigRepository;
+    
+    @Autowired
+    private UnionServiceService unionServiceService;
 
     /**
      * Add or update multiple records
@@ -88,7 +93,7 @@ public class BaseGlobalConfigService{
             one.setCreatedBy(CurrentAccount.id());
         } else {
             if (one.getValue() != null && value == null) {
-                StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非控值");
+                StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非空值");
             }
 
             // If there is no need to update, jump out
@@ -105,7 +110,13 @@ public class BaseGlobalConfigService{
         if (comment != null) {
             one.setComment(comment);
         }
-
+        if (name.equalsIgnoreCase("serving_base_url")) {
+            try {
+                unionServiceService.updateServingBaseUrlOnUnion(value);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         globalConfigRepository.save(one);
     }
 

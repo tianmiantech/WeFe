@@ -88,11 +88,11 @@ public class PartnerMysqlModel extends AbstractBaseMySqlModel {
         this.partnerId = partnerId;
     }
 
-    public boolean isUnionMember() {
+    public boolean getIsUnionMember() {
         return isUnionMember;
     }
 
-    public void setUnionMember(boolean isUnionMember) {
+    public void setIsUnionMember(boolean isUnionMember) {
         this.isUnionMember = isUnionMember;
     }
 

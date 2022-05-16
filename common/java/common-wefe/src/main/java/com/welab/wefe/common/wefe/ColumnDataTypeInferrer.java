@@ -122,8 +122,8 @@ public class ColumnDataTypeInferrer implements Consumer<LinkedHashMap<String, Ob
             }
 
             columnInferredCount.increment();
-            // 已推理过10行，则认为该字段的类型已经确定，不再继续推理。
-            if (columnInferredCount.sum() >= 10) {
+            // 已推理过100行，则认为该字段的类型已经确定，不再继续推理。
+            if (columnInferredCount.sum() >= 100) {
                 iterator.remove();
             }
         }
