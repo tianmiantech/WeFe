@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.api.setting;
+package com.welab.wefe.serving.service.api.system;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;

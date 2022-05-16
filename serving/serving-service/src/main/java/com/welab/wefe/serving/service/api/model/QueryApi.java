@@ -58,7 +58,6 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
         @Check(name = "任务创建者")
         private String creator;
 
-
         @Check(name = "模型名称")
         private String name;
 

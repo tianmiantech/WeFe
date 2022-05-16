@@ -75,21 +75,28 @@ public class ModelService {
     @Transactional(rollbackFor = Exception.class)
     public void save(SaveModelApi.Input input) {
 
-        modelMemberService.save(input.getModelId(), input.getMemberParams());
+        saveModelMembers(input);
 
-        //Add partner
-        partnerService.save(input.getMemberParams());
+        addPartners(input);
 
         //open or activate
         openService(input);
 
         //save model
-        upsert(input);
+        upsertModel(input);
 
         //TODO 考虑模型是否放到service表
     }
 
-    private void upsert(SaveModelApi.Input input) {
+    private void addPartners(SaveModelApi.Input input) {
+        partnerService.save(input.getMemberParams());
+    }
+
+    private void saveModelMembers(SaveModelApi.Input input) {
+        modelMemberService.save(input.getModelId(), input.getMemberParams());
+    }
+
+    private void upsertModel(SaveModelApi.Input input) {
         ModelMySqlModel model = findOne(input.getModelId());
         if (model == null) {
             model = new ModelMySqlModel();
@@ -121,23 +128,23 @@ public class ModelService {
      * @param memberParams
      */
     private void activatePartnerService(String modelId, List<MemberParams> memberParams) {
-        memberParams.forEach(
-                x -> {
-                    if (JobMemberRole.provider.equals(x.getRole())) {
-                        try {
-                            clientServiceService.save(
-                                    modelId,
-                                    x.getMemberId(),
-                                    x.getPublicKey(),
-                                    ServiceClientTypeEnum.ACTIVATE,
-                                    ServiceStatusEnum.UNUSED
-                            );
-                        } catch (StatusCodeWithException e) {
-                            LOG.error("模型服务激活失败: {]", e.getMessage());
-                        }
-                    }
-                }
-        );
+        memberParams.stream()
+                .filter(x -> JobMemberRole.provider.equals(x.getRole()))
+                .forEach(x -> activate(modelId, x));
+    }
+
+    private void activate(String modelId, MemberParams x) {
+        try {
+            clientServiceService.save(
+                    modelId,
+                    x.getMemberId(),
+                    x.getPublicKey(),
+                    ServiceClientTypeEnum.ACTIVATE,
+                    ServiceStatusEnum.UNUSED
+            );
+        } catch (StatusCodeWithException e) {
+            LOG.error("模型服务激活失败: {]", e.getMessage());
+        }
     }
 
     /**
@@ -147,23 +154,23 @@ public class ModelService {
      * @param memberParams
      */
     private void openPartnerService(String modelId, List<MemberParams> memberParams) {
-        memberParams.forEach(
-                x -> {
-                    if (JobMemberRole.promoter.equals(x.getRole())) {
-                        try {
-                            clientServiceService.save(
-                                    modelId,
-                                    x.getMemberId(),
-                                    x.getPublicKey(),
-                                    ServiceClientTypeEnum.OPEN,
-                                    ServiceStatusEnum.UNUSED
-                            );
-                        } catch (StatusCodeWithException e) {
-                            LOG.error("开通模型服务失败：{}", e.getMessage());
-                        }
-                    }
-                }
-        );
+        memberParams.stream()
+                .filter(x -> JobMemberRole.promoter.equals(x.getRole()))
+                .forEach(x -> openService(modelId, x));
+    }
+
+    private void openService(String modelId, MemberParams x) {
+        try {
+            clientServiceService.save(
+                    modelId,
+                    x.getMemberId(),
+                    x.getPublicKey(),
+                    ServiceClientTypeEnum.OPEN,
+                    ServiceStatusEnum.UNUSED
+            );
+        } catch (StatusCodeWithException e) {
+            LOG.error("开通模型服务失败：{}", e.getMessage());
+        }
     }
 
     public ModelMySqlModel findOne(String modelId) {
@@ -186,9 +193,60 @@ public class ModelService {
      * @return PagingOutput<QueryApi.Output>
      */
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
-        /**
-         * Restrict queries to models that are initiators only
-         */
+
+        PagingOutput<ModelMySqlModel> page = queryModels(input);
+
+        PagingOutput<ModelMemberMySqlModel> memberPage = queryModelMembers(input);
+
+        List<QueryApi.Output> list = bulidOutputs(page, memberPage);
+
+        return PagingOutput.of(
+                page.getTotal(),
+                list
+        );
+    }
+
+    private List<QueryApi.Output> bulidOutputs(PagingOutput<ModelMySqlModel> page, PagingOutput<ModelMemberMySqlModel> memberPage) {
+        List<QueryApi.Output> list = page
+                .getList()
+                .stream()
+                .map(x -> setRole(memberPage, x))
+                .collect(Collectors.toList());
+        return list;
+    }
+
+    private QueryApi.Output setRole(PagingOutput<ModelMemberMySqlModel> memberPage, ModelMySqlModel modelMySqlModel) {
+        QueryApi.Output output = ModelMapper.map(modelMySqlModel, QueryApi.Output.class);
+
+        memberPage.getList()
+                .stream()
+                .filter(model -> model.getModelId().equals(modelMySqlModel.getModelId()))
+                .forEach(x -> output.setMyRole(x.getRole()));
+
+        return output;
+    }
+
+    private PagingOutput<ModelMemberMySqlModel> queryModelMembers(QueryApi.Input input) {
+        Specification<ModelMemberMySqlModel> where = buildQueryMemberParam();
+        PagingOutput<ModelMemberMySqlModel> memberPage = modelMemberRepository.paging(where, input);
+        return memberPage;
+    }
+
+    private Specification<ModelMemberMySqlModel> buildQueryMemberParam() {
+        Specification<ModelMemberMySqlModel> where = Where
+                .create()
+                .contains("memberId", CacheObjects.getMemberId())
+                .build(ModelMemberMySqlModel.class);
+        return where;
+    }
+
+    private PagingOutput<ModelMySqlModel> queryModels(QueryApi.Input input) {
+        Specification<ModelMySqlModel> jobWhere = buildQueryModelParam(input);
+        PagingOutput<ModelMySqlModel> page = modelRepository.paging(jobWhere, input);
+        return page;
+    }
+
+    private Specification<ModelMySqlModel> buildQueryModelParam(QueryApi.Input input) {
         Specification<ModelMySqlModel> jobWhere = Where
                 .create()
                 .contains("modelId", input.getModelId())
@@ -197,37 +255,7 @@ public class ModelService {
                 .equal("flType", input.getFlType())
                 .equal("createdBy", input.getCreator())
                 .build(ModelMySqlModel.class);
-
-        PagingOutput<ModelMySqlModel> page = modelRepository.paging(jobWhere, input);
-
-        Specification<ModelMemberMySqlModel> where = Where
-                .create()
-                .contains("memberId", CacheObjects.getMemberId())
-                //.equal("role", JobMemberRole.promoterPredictByHorz)
-                .build(ModelMemberMySqlModel.class);
-
-        PagingOutput<ModelMemberMySqlModel> memberPage = modelMemberRepository.paging(where, input);
-
-        List<QueryApi.Output> list = page
-                .getList()
-                .stream()
-                // .filter(x -> member.contains(x.getModelId()))
-                .map(x -> ModelMapper.map(x, QueryApi.Output.class))
-                .collect(Collectors.toList());
-
-        list.forEach(x -> {
-            for (ModelMemberMySqlModel model : memberPage.getList()) {
-                if (model.getModelId().equals(x.getModelId())) {
-                    x.setMyRole(model.getRole());
-                }
-            }
-        });
-
-
-        return PagingOutput.of(
-                page.getTotal(),
-                list
-        );
+        return jobWhere;
     }
 
     /**
