@@ -16,6 +16,7 @@
 
 package com.welab.wefe.common.data.storage.repo;
 
+import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,11 +29,9 @@ import java.util.Map;
 /**
  * @author yuxin.zhang
  */
-public abstract class AbstractStorage extends Storage {
+public abstract class AbstractJdbcStorage extends Storage {
 
-    @Qualifier("storageDataSource")
-    @Autowired
-    protected DataSource dataSource;
+    protected DataSource storageDataSource = StorageManager.getInstance().getRepo("storageDataSource");
 
 
     @Override
@@ -46,7 +45,7 @@ public abstract class AbstractStorage extends Storage {
     protected Connection getConnection() {
         Connection conn = null;
         try {
-            conn = dataSource.getConnection();
+            conn = storageDataSource.getConnection();
         } catch (SQLException e) {
             log.error(e.getMessage(),e);
         }
