@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.serving.service.api.clientservice;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -80,6 +81,14 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         @Check(name = "服务地址")
         private String url;
 
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            if (unitPrice < 0) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + unitPrice);
+            }
+        }
+        
         public String getUpdatedBy() {
             return updatedBy;
         }

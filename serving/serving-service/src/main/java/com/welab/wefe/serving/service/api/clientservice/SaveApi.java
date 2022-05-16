@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.api.clientservice;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -88,6 +89,14 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "created by")
         private String createdBy;
 
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            if (unitPrice < 0) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + unitPrice);
+            }
+        }
+        
         public String getCreatedBy() {
             return createdBy;
         }
