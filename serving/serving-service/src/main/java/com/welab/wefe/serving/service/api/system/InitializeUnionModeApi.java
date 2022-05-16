@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.api.setting;
+package com.welab.wefe.serving.service.api.system;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -23,6 +23,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,9 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
         //校验账号密码 check方法。
 
         //initialize
-        IdentityInfoModel model = input.convertToIdentityInfoModel();
-        globalConfigService.initialize(model);
+        IdentityInfoModel identityInfoModel = input.convertToIdentityInfoModel();
+        UnionInfoModel unionInfoModel = input.convertToUnionInfoModel();
+        globalConfigService.initializeToUnion(identityInfoModel, unionInfoModel);
         return success();
     }
 
@@ -65,26 +67,36 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
         )
         private String memberName;
 
-        @Check(name = "公钥")
+        @Check(name = "公钥", require = true)
         private String rsaPublicKey;
 
-        @Check(name = "私钥")
+        @Check(name = "私钥", require = true)
         private String rsaPrivateKey;
 
-        @Check(require = true)
+        @Check(name = "union地址", require = true)
+        private String unionBaseUrl;
+
+        @Check(name = "serving超级管理员账号", require = true)
         private String phoneNumber;
 
-        @Check(require = true)
+        @Check(name = "serving超级管理员密码", require = true)
         private String password;
+
 
         public IdentityInfoModel convertToIdentityInfoModel() {
             IdentityInfoModel model = new IdentityInfoModel();
-            model.setId(memberId);
-            model.setName(memberName);
+            model.setMemberId(memberId);
+            model.setMemberName(memberName);
             model.setAvatar("");
             model.setRsaPrivateKey(rsaPrivateKey);
             model.setRsaPublicKey(rsaPublicKey);
             model.setMode(ServingModeEnum.union.name());
+            return model;
+        }
+
+        public UnionInfoModel convertToUnionInfoModel() {
+            UnionInfoModel model = new UnionInfoModel();
+            model.setIntranetBaseUri(unionBaseUrl);
             return model;
         }
 
@@ -136,6 +148,14 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getUnionBaseUrl() {
+            return unionBaseUrl;
+        }
+
+        public void setUnionBaseUrl(String unionBaseUrl) {
+            this.unionBaseUrl = unionBaseUrl;
         }
 
         //endregion
