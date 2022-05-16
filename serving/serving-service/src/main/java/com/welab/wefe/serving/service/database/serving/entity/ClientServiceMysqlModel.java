@@ -66,7 +66,7 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
     private String code;
 
     @Column(name = "type")
-    private int type = ServiceClientTypeEnum.OPEN.getValue();
+    private Integer type = ServiceClientTypeEnum.OPEN.getValue();
 
     public Integer getPayType() {
         return payType;
@@ -156,11 +156,11 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
         this.publicKey = publicKey;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
