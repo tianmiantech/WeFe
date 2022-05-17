@@ -78,7 +78,7 @@
                                                     label="Histogram"
                                                     name="histogram"
                                                 >
-                                                    <BarChart ref="BarChart" :config="props.row.distributionChart"/>
+                                                    <BarChart ref="BarChart" v-if="vData.isBarChart" :config="props.row.distributionChart"/>
                                                 </el-tab-pane>
                                                 <!--Discrete type-->
                                                 <el-tab-pane v-else label="Categories" name="categories">
@@ -88,7 +88,7 @@
                                                             <el-table-column prop="count" label="count" width="180"></el-table-column>
                                                             <el-table-column prop="frequency" label="frequency"></el-table-column>
                                                         </el-table>
-                                                        <PieChart ref="PieChart" style="flex: 1" :config="props.row.pieChartData"/>
+                                                        <PieChart ref="PieChart" v-if="`${member.member_id}-${member.member_role}` === vData.tabName" style="flex: 1" :config="props.row.pieChartData"/>
                                                     </div>
                                                 </el-tab-pane>
                                             </template>
@@ -140,6 +140,7 @@
                 members:     [],
                 resultTypes: [],
                 activeTab:   'overview',
+                isBarChart:  false,
             }), BarChart = {};
             const PieChart = ref();
             const { appContext, ctx } = getCurrentInstance();
@@ -275,12 +276,11 @@
                             PieChart.value.chartResize();
                             break;
                         case 'histogram':
-                            console.log(ctx.$refs);
-                            setTimeout(()=> {
-                                console.log(ctx.$refs);
+                            vData.isBarChart = true;
+                            setTimeout(()=>{
                                 BarChart = ctx.$refs.BarChart[0];
                                 BarChart.chartResize();
-                            }, 1000);
+                            }, 200);
                             break;
                         }
                     });
