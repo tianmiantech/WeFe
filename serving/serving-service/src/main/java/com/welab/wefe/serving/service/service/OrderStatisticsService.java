@@ -27,6 +27,8 @@ import com.welab.wefe.serving.service.api.orderstatistics.SaveApi;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.serving.entity.OrderStatisticsMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.OrderStatisticsRepository;
+import com.welab.wefe.serving.service.database.entity.OrderStatisticsMysqlModel;
+import com.welab.wefe.serving.service.database.repository.OrderStatisticsRepository;
 import com.welab.wefe.serving.service.dto.OrderStatisticsInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;

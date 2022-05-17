@@ -42,7 +42,7 @@ import com.welab.wefe.serving.service.api.service.UnionServiceApi;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Input;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Output;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 

@@ -30,11 +30,11 @@ import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelSqlConfigMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ModelMemberRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;
+import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelSqlConfigMySqlModel;
+import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
+import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.TreeNode;
@@ -70,7 +70,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         ModelMySqlModel model = modelRepository.findOne("id",input.getId(),ModelMySqlModel.class);
         if (model == null) {
-            return fail("No model was found");
+            return fail("未查询到模型！");
         }
 
         DetailApi.Output output = ModelMapper.map(model, DetailApi.Output.class);

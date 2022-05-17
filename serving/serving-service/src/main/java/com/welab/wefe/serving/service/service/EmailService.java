@@ -39,9 +39,9 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.MessageLevel;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.MessageMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.MessageMysqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.MailServerModel;
 
 /**

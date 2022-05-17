@@ -57,8 +57,6 @@ import java.util.stream.Collectors;
 @Service
 public class ServingService extends AbstractService {
 
-    private static final String SEPARATOR = "_";
-
     @Autowired
     JobRepository jobRepository;
 
@@ -104,6 +102,20 @@ public class ServingService extends AbstractService {
 
         request("global_setting/refresh", params);
     }
+
+
+    /**
+     * Update serving global configuration
+     */
+    public void pushRsaKeyToServing() throws StatusCodeWithException {
+
+        TreeMap<String, Object> params = new TreeMap<>();
+        params.put("rsaPrivateKey", CacheObjects.getRsaPrivateKey());
+        params.put("rsaPublicKey", CacheObjects.getRsaPublicKey());
+
+        request("system/update_rsa_key_by_board", params);
+    }
+
 
     private JSONObject request(String api, TreeMap<String, Object> params) throws StatusCodeWithException {
         return request(api, params, true);
@@ -175,14 +187,14 @@ public class ServingService extends AbstractService {
 
         if (input.getRole().equals(JobMemberRole.promoter)) {
             //call member
-            return callMemberPushToServing(input.getTaskId(), input.getRole());
+            return callMembersPushToServing(input.getTaskId(), input.getRole());
         }
 
         return "同步成功";
     }
 
     private void pushToServing(PushModelToServingApi.Input input) throws StatusCodeWithException {
-        TreeMap<String, Object> params = setContent(input.getTaskId(), input.getRole());
+        TreeMap<String, Object> params = buildModelParams(input.getTaskId(), input.getRole());
         request("model_save", params, true);
     }
 
@@ -194,30 +206,36 @@ public class ServingService extends AbstractService {
      * @return
      * @throws StatusCodeWithException
      */
-    private List<Object> callMemberPushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
-        TaskResultMySqlModel taskResult = getTaskResult(taskId, role);
-        List<JobMemberOutputModel> memberList = getMemberListByJobId(taskResult.getJobId());
+    private List<Object> callMembersPushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
+        String modelId = getModelIdByTaskIdAndRole(taskId, role);
+        List<JobMemberOutputModel> memberList = getMemberListByTaskIdAndRole(taskId, role);
 
-        //call other member
         return memberList
                 .stream()
                 .filter(x -> !x.getMemberId().equals(CacheObjects.getMemberId()))
                 .filter(x -> x.getJobRole().equals(JobMemberRole.provider))
-                .map(x -> {
-                    try {
-                        callOtherMemberPushServing(x.getMemberId(), taskResult.getModelId(), x.getJobRole());
-
-                        Map map = Maps.newHashMap();
-                        map.put(x.getMemberId(), true);
-                        return map;
-                    } catch (Exception e) {
-                        LOG.info("call member {} fail: {}", x.getMemberName(), e);
-                        Map map = Maps.newHashMap();
-                        map.put(x.getMemberId(), false);
-                        return map;
-                    }
-                })
+                .map(member -> callSingleMemberPushToServing(modelId, member))
                 .collect(Collectors.toList());
+    }
+
+    private Map callSingleMemberPushToServing(String modelId, JobMemberOutputModel member) {
+        try {
+            callOtherMemberPushServing(member.getMemberId(), modelId, member.getJobRole());
+
+            Map map = Maps.newHashMap();
+            map.put(member.getMemberId(), true);
+            return map;
+        } catch (Exception e) {
+            LOG.info("call member {} fail: {}", member.getMemberName(), e);
+            Map map = Maps.newHashMap();
+            map.put(member.getMemberId(), false);
+            return map;
+        }
+    }
+
+    private List<JobMemberOutputModel> getMemberListByTaskIdAndRole(String taskId, JobMemberRole role) {
+        TaskResultMySqlModel taskResult = getTaskResult(taskId, role);
+        return jobMemberService.list(taskResult.getJobId(), false);
     }
 
     private List<JobMemberOutputModel> getMemberListByJobId(String jobId) {
@@ -238,18 +256,14 @@ public class ServingService extends AbstractService {
         );
     }
 
-    public TreeMap<String, Object> setContent(String taskId, JobMemberRole role) throws StatusCodeWithException {
+    public TreeMap<String, Object> buildModelParams(String taskId, JobMemberRole role) throws StatusCodeWithException {
 
-        //get task result
         TaskResultMySqlModel taskResult = getTaskResult(taskId, role);
 
-        //get members
         List<JSONObject> members = getMembersByJobId(taskResult.getJobId());
 
-        //get job
         JobMySqlModel job = getByJobId(taskResult.getJobId(), role);
 
-        // Feature engineering
         Map<Integer, Object> featureEngineerMap = getFeatureEngineerMap(taskId, role);
 
 
@@ -312,6 +326,10 @@ public class ServingService extends AbstractService {
             members.add(member);
         });
         return members;
+    }
+
+    private String getModelIdByTaskIdAndRole(String taskId, JobMemberRole role) {
+        return getTaskResult(taskId, role).getModelId();
     }
 
     private TaskResultMySqlModel getTaskResult(String taskId, JobMemberRole role) {

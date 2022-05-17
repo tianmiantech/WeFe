@@ -46,8 +46,8 @@ import com.welab.wefe.serving.service.api.datasource.QueryTableFieldsApi.FieldOu
 import com.welab.wefe.serving.service.api.datasource.QueryTablesApi.Output;
 import com.welab.wefe.serving.service.api.datasource.TestDBConnectApi;
 import com.welab.wefe.serving.service.api.datasource.UpdateApi;
-import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.DataSourceRepository;
+import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.serving.service.database.repository.DataSourceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.DatabaseType;
 import com.welab.wefe.serving.service.manager.JdbcManager;

@@ -16,14 +16,6 @@
 
 package com.welab.wefe.serving.service;
 
-import org.springframework.beans.BeansException;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -32,15 +24,27 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
-import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
 import com.welab.wefe.serving.service.operation.ServingApiLogger;
 import com.welab.wefe.serving.service.service.CacheObjects;
-import com.welab.wefe.serving.service.service.ClientService;
+import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.MemberService;
+import com.welab.wefe.serving.service.service.PartnerService;
+import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author hunter.zhao
@@ -58,7 +62,7 @@ public class ServingService implements ApplicationContextAware {
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
-                .apiPermissionPolicy((api, annotation, params) -> {
+                .apiPermissionPolicy((request, annotation, params) -> {
 
                     if (!annotation.rsaVerify()) {
                         return;
@@ -72,8 +76,8 @@ public class ServingService implements ApplicationContextAware {
                             rsaVerifyBoard(params);
                             break;
                         case Customer:
-                        	rsaVerifyCustomer(params);
-                        	break;
+                            rsaVerifyCustomer(request, params);
+                            break;
                         default:
                             throw new RuntimeException("Unexpected enumeration value");
                     }
@@ -85,40 +89,51 @@ public class ServingService implements ApplicationContextAware {
 
         //Initialize feature processor
         CodeFeatureDataHandle.init();
-
-        //Initialize verification code memory
-        CaptchaService.init();
     }
 
-	/**
-	 * rsa Signature check
-	 * <p>
-	 * customer
-	 * </p>
-	 */
-	private static void rsaVerifyCustomer(JSONObject params) throws Exception {
-		SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
-		/**
-		 * Find signature information
-		 */
-		ClientService clientService = Launcher.CONTEXT.getBean(ClientService.class);
-		ClientMysqlModel clientMysqlModel = clientService.queryByCode(signedApiInput.getCustomerId());
+    /**
+     * rsa Signature check
+     * <p>
+     * customer
+     * </p>
+     */
+    private static void rsaVerifyCustomer(HttpServletRequest request, JSONObject params) throws Exception {
+        String uri = request.getRequestURI();
+        String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
+        ServiceRepository serviceRepository = Launcher.CONTEXT.getBean(ServiceRepository.class);
+        ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
+        if (service == null) {
+            throw new StatusCodeWithException("Invalid request：", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+        /**
+         * Find signature information
+         */
+        PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
+        PartnerMysqlModel partnerMysqlModel = partnerService.queryByCode(signedApiInput.getCustomerId());
 
-		if (clientMysqlModel == null) {
-			throw new StatusCodeWithException("Invalid customer_id：" + signedApiInput.getCustomerId(),
-					StatusCode.PARAMETER_VALUE_INVALID);
-		}
-		boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
-				RSAUtil.getPublicKey(clientMysqlModel.getPubKey()), signedApiInput.getSign());
-		if (!verified) {
-			throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
-		}
-		params.putAll(JSONObject.parseObject(signedApiInput.getData()));
-		// params.putAll(JSONObject.parseObject(RSAUtil.decryptByPublicKey(signedApiInput.getData(), clientMysqlModel.getPubKey())));
-		params.put("customer_id", signedApiInput.getCustomerId());
-	}
+        if (partnerMysqlModel == null) {
+            throw new StatusCodeWithException("Invalid customer_id：" + signedApiInput.getCustomerId(),
+                    StatusCode.PARAMETER_VALUE_INVALID);
+        }
 
-	/**
+        ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
+
+        ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService.queryByIdAndServiceId(partnerMysqlModel.getId(), service.getId());
+        if (clientServiceMysqlModel == null) {
+            throw new StatusCodeWithException("Invalid request", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
+                RSAUtil.getPublicKey(clientServiceMysqlModel.getPublicKey()), signedApiInput.getSign());
+        if (!verified) {
+            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        params.putAll(JSONObject.parseObject(signedApiInput.getData()));
+        // params.putAll(JSONObject.parseObject(RSAUtil.decryptByPublicKey(signedApiInput.getData(), clientMysqlModel.getPubKey())));
+        params.put("customer_id", signedApiInput.getCustomerId());
+    }
+
+    /**
      * rsa Signature check
      * <p>
      * Federal member

@@ -29,9 +29,9 @@ import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForRand
 import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForRandomLegalApi;
 import com.welab.wefe.serving.service.api.pir.PrivateInformationRetrievalForResultsApi;
 import com.welab.wefe.serving.service.api.sa.SecureAggregationForResultApi;
-import com.welab.wefe.serving.service.database.serving.entity.OperationLogMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
-import com.welab.wefe.serving.service.database.serving.repository.OperationLogRepository;
+import com.welab.wefe.serving.service.database.entity.OperationLogMysqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.OperationLogRepository;
 
 public class ServingApiLogger extends AbstractApiLogger {
 

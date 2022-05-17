@@ -83,11 +83,12 @@ CREATE TABLE `model`
 
 CREATE TABLE `model_member`
 (
-    `id`           varchar(32)  NOT NULL COMMENT '全局唯一标识',
-    `model_id`     varchar(256) NOT NULL COMMENT '模型id',
+    `id`           varchar(32)                    NOT NULL COMMENT '全局唯一标识',
+    `model_id`     varchar(256)                   NOT NULL COMMENT '模型id',
     `member_id`    varchar(256) DEFAULT NULL COMMENT '成员id',
     `role`         varchar(64)  DEFAULT NULL COMMENT '角色',
-    `created_time` datetime     NOT NULL COMMENT '创建时间',
+    `status`       varchar(64)  DEFAULT 'offline' NOT NULL COMMENT '成员模型状态 offline-成员失联 unavailable-模型不可用 available-模型可用',
+    `created_time` datetime                       NOT NULL COMMENT '创建时间',
     `updated_time` datetime     DEFAULT NULL COMMENT '最后更新时间',
     `created_by`   varchar(32)  DEFAULT NULL COMMENT '创建人',
     `updated_by`   varchar(32)  DEFAULT NULL COMMENT '更新人',

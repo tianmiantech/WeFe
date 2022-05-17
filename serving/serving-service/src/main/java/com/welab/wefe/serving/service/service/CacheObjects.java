@@ -17,8 +17,8 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.data.domain.Sort;
@@ -37,13 +37,13 @@ import java.util.List;
  */
 public class CacheObjects {
 
-    private static String ID;
-    //    private static String MEMBER_ID;
+    private static String MEMBER_ID;
     private static String RSA_PRIVATE_KEY;
     private static String RSA_PUBLIC_KEY;
     private static String BASE_URL;
-    //    private static String MEMBER_NAME;
-    private static String NAME;
+//    private static String MEMBER_NAME;
+    private static String MEMBER_NAME;
+    private static String MODE;
 
     /**
      * accountId : nickname
@@ -51,10 +51,10 @@ public class CacheObjects {
     private static LinkedHashMap<String, String> ACCOUNT_MAP = new LinkedHashMap<>();
 
     public static String getMemberId() {
-        if (ID == null) {
+        if (MEMBER_ID == null) {
             refreshIdentityInfo();
         }
-        return ID;
+        return MEMBER_ID;
     }
 
     public static String getRsaPrivateKey() {
@@ -78,11 +78,18 @@ public class CacheObjects {
         return BASE_URL;
     }
 
-    public static String getName() {
-        if (NAME == null) {
+    public static String getMemberName() {
+        if (MEMBER_NAME == null) {
             refreshIdentityInfo();
         }
-        return NAME;
+        return MEMBER_NAME;
+    }
+
+    public static String getMODE() {
+        if (MODE == null) {
+            refreshIdentityInfo();
+        }
+        return MODE;
     }
 
 
@@ -97,10 +104,11 @@ public class CacheObjects {
             return;
         }
 
-        ID = model.getId();
+        MEMBER_ID = model.getMemberId();
         RSA_PUBLIC_KEY = model.getRsaPublicKey();
         RSA_PRIVATE_KEY = model.getRsaPrivateKey();
-        NAME = model.getName();
+        MEMBER_NAME = model.getMemberName();
+        MODE = model.getMode();
     }
 
 

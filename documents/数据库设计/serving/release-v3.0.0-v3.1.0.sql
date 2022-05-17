@@ -107,6 +107,8 @@ values (replace(uuid(),'-',''), 'identity_info', 'id', '系统身份 Id 全局�
 (replace(uuid(),'-',''),'identity_info','name','系统名称',(select member_name from global_setting limit 1)),
 (replace(uuid(),'-',''),'identity_info','rsa_private_key','私钥',(select rsa_private_key from global_setting limit 1)),
 (replace(uuid(),'-',''),'identity_info','rsa_public_key','公钥',(select rsa_public_key from global_setting limit 1))
+(replace(uuid(),'-',''),'identity_info','serving_base_url','系统url地址',(select serving_base_url from global_setting limit 1))
+(replace(uuid(),'-',''),'identity_info','mode','模式 standalone-独立模式 union-联邦模式','union')
 
 -- 合作者
 -- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085243
@@ -126,7 +128,7 @@ CREATE TABLE `partner` (
   `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`id`),
   UNIQUE KEY `partner_id` (`partner_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='合作者';
 
 
 -- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085582    
@@ -135,9 +137,6 @@ alter table `client_service` add column `private_key` text COMMENT '调用者私
 alter table `client_service` add column `type` tinyint(1) COMMENT '服务类型 0开通，1激活 ' after `client_name`
 alter table `client_service` add column `code` varchar(255) COMMENT '调用者code' after `private_key`;
 
--- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085636
-INSERT INTO `global_config` (`id`, `created_by`, `created_time`, `updated_by`, `updated_time`, `group`, `name`, `value`, `comment`)
-VALUES
-    ('52b587eecde211ec8b2c00163e0a7897', NULL, '2022-05-07 16:47:27.556824', '06198105b8c647289177cf057a15bdbb', NULL, 'identity_info', 'serving_base_url', 'http://localhost:8080/serving-service-01/', '地址');
-
+ALTER TABLE model_member
+    ADD `status` varchar(64) DEFAULT 'offline' NOT NULL COMMENT '成员模型状态 offline-成员失联 unavailable-模型不可用 available-模型可用';
 

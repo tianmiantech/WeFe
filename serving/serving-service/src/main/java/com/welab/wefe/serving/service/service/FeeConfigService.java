@@ -26,8 +26,8 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.service.api.feeconfig.SaveApi;
-import com.welab.wefe.serving.service.database.serving.entity.FeeConfigMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.FeeConfigRepository;
+import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
+import com.welab.wefe.serving.service.database.repository.FeeConfigRepository;
 
 /**
  * @author ivenn.zheng
