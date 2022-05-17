@@ -38,6 +38,9 @@ public class CommonConfig {
     @Value("${env.name:prod}")
     private EnvName envName;
 
+    @Value("${cors.allowed.origins:*}")
+    private String[] corsAllowedOrigins;
+
     /**
      * The branch of the environment, different branches will have different functions.
      * <p>
@@ -83,6 +86,14 @@ public class CommonConfig {
 
     public void setEnvBranch(EnvBranch envBranch) {
         this.envBranch = envBranch;
+    }
+
+    public String[] getCorsAllowedOrigins() {
+        return corsAllowedOrigins;
+    }
+
+    public void setCorsAllowedOrigins(String[] corsAllowedOrigins) {
+        this.corsAllowedOrigins = corsAllowedOrigins;
     }
 
 
