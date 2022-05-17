@@ -78,7 +78,7 @@
                                                     label="Histogram"
                                                     name="histogram"
                                                 >
-                                                    <BarChart ref="BarChart" v-if="`${member.member_id}-${member.member_role}` === vData.tabName"  :config="props.row.distributionChart"/>
+                                                    <BarChart ref="BarChart" :config="props.row.distributionChart"/>
                                                 </el-tab-pane>
                                                 <!--Discrete type-->
                                                 <el-tab-pane v-else label="Categories" name="categories">
@@ -88,7 +88,7 @@
                                                             <el-table-column prop="count" label="count" width="180"></el-table-column>
                                                             <el-table-column prop="frequency" label="frequency"></el-table-column>
                                                         </el-table>
-                                                        <PieChart ref="PieChart" style="flex: 1" v-if="`${member.member_id}-${member.member_role}` === vData.tabName" :config="props.row.pieChartData"/>
+                                                        <PieChart ref="PieChart" style="flex: 1" :config="props.row.pieChartData"/>
                                                     </div>
                                                 </el-tab-pane>
                                             </template>
@@ -276,11 +276,8 @@
                             break;
                         case 'histogram':
                             console.log(ctx.$refs);
-                            setTimeout(()=> {
-                                console.log(ctx.$refs);
-                                BarChart = ctx.$refs.BarChart[0];
-                                BarChart.chartResize();
-                            }, 500);
+                            BarChart = ctx.$refs.BarChart[0];
+                            BarChart.chartResize();
                             break;
                         }
                     });
