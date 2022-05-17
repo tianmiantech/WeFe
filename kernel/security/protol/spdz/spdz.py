@@ -81,7 +81,7 @@ class SPDZ(object):
         raise PermissionError("it's unsafe to transfer this")
 
     def partial_reconstruct(self):
-        # todo: partial parties gets rescontructed tensor
+        # todo: partial parties gets reconstructed tensor
         pass
 
     @classmethod

@@ -139,7 +139,7 @@ class FixedPointTensor(TensorBase):
 
     def get(self, tensor_name=None, broadcast=True):
         """
-        rescontruct and decode
+        reconstruct and decode
         """
         return self.endec.decode(self.reconstruct(tensor_name, broadcast))
 
