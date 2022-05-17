@@ -46,4 +46,14 @@ public interface ModelMemberRepository extends BaseRepository<ModelMemberMySqlMo
      * @return ModelMemberMySqlModel
      */
     ModelMemberMySqlModel findByModelIdAndMemberIdAndRole(String modelId, String memberId, JobMemberRole myRole);
+
+
+
+    /**
+     * Find data based on criteria
+     *
+     * @param modelId
+     * @return ModelMemberMySqlModel
+     */
+    List<ModelMemberMySqlModel> findByModelId(String modelId);
 }

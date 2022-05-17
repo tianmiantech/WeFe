@@ -21,7 +21,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.service.api.model.EnableApi;
-import com.welab.wefe.serving.service.api.model.ProviderModelStatusCheckApi;
 import com.welab.wefe.serving.service.api.model.QueryApi;
 import com.welab.wefe.serving.service.api.model.SaveModelApi;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
@@ -29,7 +28,9 @@ import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
+import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,10 +93,11 @@ public class ModelService {
     }
 
     private void saveModelMembers(SaveModelApi.Input input) {
-        if (input.getMyRole().equals(JobMemberRole.provider)) {
-            return;
+        if (JobMemberRole.provider.equals(input.getMyRole())) {
+            modelMemberService.save(input.getModelId(), CacheObjects.getMemberId(), input.getMyRole());
+        } else {
+            modelMemberService.save(input.getModelId(), input.getMemberParams());
         }
-        modelMemberService.save(input.getModelId(), input.getMemberParams());
     }
 
     private void upsertModel(SaveModelApi.Input input) {
@@ -270,9 +272,27 @@ public class ModelService {
     }
 
 
-    public ProviderModelStatusCheckApi.Output checkAvailable(String modelId) {
-        ModelMemberMySqlModel modelMember = modelMemberRepository.findOne("modelId", modelId, ModelMemberMySqlModel.class);
+    public ModelStatusOutput checkAvailable(String modelId) {
+        try {
+            if (ModelManager.getModelEnable(modelId)) {
+                return ModelStatusOutput.of(
+                        CacheObjects.getMemberId(),
+                        CacheObjects.getMemberName(),
+                        MemberModelStatusEnum.available
+                );
+            }
 
-        return ProviderModelStatusCheckApi.Output.of(modelId, modelMember.getStatus());
+            return ModelStatusOutput.of(
+                    CacheObjects.getMemberId(),
+                    CacheObjects.getMemberName(),
+                    MemberModelStatusEnum.unavailable
+            );
+        } catch (StatusCodeWithException e) {
+            return ModelStatusOutput.of(
+                    CacheObjects.getMemberId(),
+                    CacheObjects.getMemberName(),
+                    MemberModelStatusEnum.unavailable
+            );
+        }
     }
 }
