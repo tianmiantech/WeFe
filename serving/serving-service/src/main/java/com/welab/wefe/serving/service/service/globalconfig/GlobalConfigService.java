@@ -19,7 +19,8 @@ package com.welab.wefe.serving.service.service.globalconfig;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.serving.service.api.setting.GlobalConfigUpdateApi;
+import com.welab.wefe.serving.service.api.system.GlobalConfigUpdateApi;
+import com.welab.wefe.serving.service.api.system.UpdateRsaKeyApi;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
 import com.welab.wefe.serving.service.service.CacheObjects;
@@ -52,7 +53,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     /**
      * Initialize system
      */
-    public void initialize(IdentityInfoModel model) throws StatusCodeWithException {
+    public void initializeToStandalone(IdentityInfoModel model) throws StatusCodeWithException {
 
         checkInitialized();
 
@@ -61,6 +62,19 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         CacheObjects.refreshIdentityInfo();
     }
 
+    /**
+     * Initialize system by union
+     */
+    public void initializeToUnion(IdentityInfoModel identityInfoModel, UnionInfoModel unionInfoModel) throws StatusCodeWithException {
+
+        checkInitialized();
+
+        setIdentityInfo(identityInfoModel);
+
+        setUnionInfo(unionInfoModel);
+
+        CacheObjects.refreshIdentityInfo();
+    }
 
     public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
         if (!CurrentAccount.isAdmin()) {
@@ -74,8 +88,8 @@ public class GlobalConfigService extends BaseGlobalConfigService {
                 if (item.getKey().equals("id")) {
                     continue;
                 }
-                if(item.getKey().equalsIgnoreCase("rsa_public_key")) {
-                    if(item.getValue().contains("****")) {
+                if (item.getKey().equalsIgnoreCase("rsa_public_key")) {
+                    if (item.getValue().contains("****")) {
                         continue;
                     }
                 }
@@ -86,33 +100,22 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         }
     }
 
-//    @Transactional(rollbackFor = Exception.class)
-//    public void updateMemberRsaKey() throws StatusCodeWithException {
-//
-//        AccountMysqlModel account = accountRepository.findByPhoneNumber(FusionSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
-//        if (!account.getSuperAdminRole()) {
-//            throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
-//        }
-//
-//        MemberInfoModel model = getMemberInfo();
-//
-//        try {
-//            SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
-//            model.setRsaPrivateKey(keyPair.privateKey);
-//            model.setRsaPublicKey(keyPair.publicKey);
-//        } catch (NoSuchAlgorithmException e) {
-//            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-//        }
-//
-//        // notify union
-//        setMemberInfo(model);
-//
-//        CacheObjects.refreshMemberInfo();
-//    }
+
+    public void updateRsaKeyByBoard(UpdateRsaKeyApi.Input input) throws StatusCodeWithException {
+        IdentityInfoModel model = new IdentityInfoModel();
+        model.setRsaPrivateKey(input.getRsaPrivateKey());
+        model.setRsaPublicKey(input.getRsaPublicKey());
+
+        setIdentityInfo(model);
+    }
 
 
     public IdentityInfoModel getIdentityInfo() {
         return getModel(Group.IDENTITY_INFO, IdentityInfoModel.class);
+    }
+
+    public void setIdentityInfo(IdentityInfoModel model) throws StatusCodeWithException {
+        put(Group.IDENTITY_INFO, model);
     }
 
     public UnionInfoModel getUnionInfoModel() {
@@ -120,9 +123,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     }
 
 
-    public void setIdentityInfo(IdentityInfoModel model) throws StatusCodeWithException {
-        put(Group.IDENTITY_INFO, model);
+    public void setUnionInfo(UnionInfoModel model) throws StatusCodeWithException {
+        put(Group.WEFE_UNION, model);
     }
-
-
 }

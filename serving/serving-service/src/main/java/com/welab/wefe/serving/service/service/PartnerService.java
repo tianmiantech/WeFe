@@ -73,7 +73,7 @@ public class PartnerService {
         for (MemberMySqlModel m : members) {
             PartnerMysqlModel model = ModelMapper.map(m, PartnerMysqlModel.class);
             model.setServingBaseUrl(m.getApi());
-            model.setPartnerId(m.getMemberId());
+            model.setId(m.getMemberId());
             model.setIsUnionMember(true);
             model.setStatus(ClientStatusEnum.NORMAL.getValue());
             partnerRepository.save(model);
@@ -83,7 +83,7 @@ public class PartnerService {
             PartnerMysqlModel model = ModelMapper.map(c, PartnerMysqlModel.class);
             model.setStatus(c.getStatus());
 //            model.setServingBaseUrl(config.getSERVING_BASE_URL());
-            model.setPartnerId(UUID.randomUUID().toString().replaceAll("-", ""));
+            model.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             partnerRepository.save(model);
         }
     }
@@ -103,11 +103,11 @@ public class PartnerService {
             throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
         }
         
-        if (StringUtils.isNotBlank(input.getPartnerId())) {
-            partnerMysqlModel = partnerRepository.findOne("partnerId", input.getPartnerId(), PartnerMysqlModel.class);
+        if (StringUtils.isNotBlank(input.getId())) {
+            partnerMysqlModel = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
         }
         else {
-            input.setPartnerId(UUID.randomUUID().toString().replaceAll("-", ""));
+            input.setId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
         if (null == partnerMysqlModel) {
             partnerMysqlModel = new PartnerMysqlModel();
@@ -118,7 +118,7 @@ public class PartnerService {
         partnerMysqlModel.setServingBaseUrl(input.getServingBaseUrl());
         partnerMysqlModel.setCreatedBy(input.getCreatedBy());
         partnerMysqlModel.setCode(input.getCode());
-        partnerMysqlModel.setPartnerId(input.getPartnerId());
+        partnerMysqlModel.setId(input.getId());
         partnerRepository.save(partnerMysqlModel);
     }
 
@@ -148,11 +148,6 @@ public class PartnerService {
 
     public DetailPartnerApi.Output queryById(String id) {
         PartnerMysqlModel model = partnerRepository.findOne("id", id, PartnerMysqlModel.class);
-        return ModelMapper.map(model, DetailPartnerApi.Output.class);
-    }
-
-    public DetailPartnerApi.Output queryByPartnerId(String partnerId) {
-        PartnerMysqlModel model = partnerRepository.findOne("partnerId", partnerId, PartnerMysqlModel.class);
         return ModelMapper.map(model, DetailPartnerApi.Output.class);
     }
 
@@ -230,7 +225,7 @@ public class PartnerService {
         memberParams.forEach(x -> {
             SavePartnerApi.Input partner = new SavePartnerApi.Input();
             partner.setIsUnionMember(true);
-            partner.setPartnerId(x.getMemberId());
+            partner.setId(x.getMemberId());
             partner.setName(x.getName());
             partner.setServingBaseUrl("");
             partner.setEmail("");

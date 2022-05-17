@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.api.setting;
+package com.welab.wefe.serving.service.api.system;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -39,7 +39,7 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
         IdentityInfoModel model = input.convertToIdentityInfoModel();
-        globalConfigService.initialize(model);
+        globalConfigService.initializeToStandalone(model);
         return success();
     }
 
@@ -65,8 +65,8 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
 
         public IdentityInfoModel convertToIdentityInfoModel() {
             IdentityInfoModel model = new IdentityInfoModel();
-            model.setId(memberId);
-            model.setName(memberName);
+            model.setMemberId(memberId);
+            model.setMemberName(memberName);
             model.setAvatar("");
             model.setRsaPrivateKey(rsaPrivateKey);
             model.setRsaPublicKey(rsaPublicKey);

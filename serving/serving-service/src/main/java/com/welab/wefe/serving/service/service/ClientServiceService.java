@@ -180,6 +180,16 @@ public class ClientServiceService {
         }
         return null;
     }
+
+    public ClientServiceMysqlModel queryByIdAndServiceId(String partnerId, String serviceId) {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)
+                .equal("clientId", partnerId).build(ClientServiceMysqlModel.class);
+        Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
+    }
     
     public ClientServiceOutputModel detail(DetailApi.Input input) {
         Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
