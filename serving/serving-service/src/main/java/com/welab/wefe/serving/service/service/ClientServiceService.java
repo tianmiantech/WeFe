@@ -35,6 +35,7 @@ import com.welab.wefe.serving.service.api.clientservice.DetailApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryListApi;
 import com.welab.wefe.serving.service.api.clientservice.SaveApi;
+import com.welab.wefe.serving.service.api.clientservice.ServiceUrlTestApi.Input;
 import com.welab.wefe.serving.service.api.clientservice.UpdateApi;
 import com.welab.wefe.serving.service.api.clientservice.UpdateStatusApi;
 import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
@@ -335,5 +336,10 @@ public class ClientServiceService {
         clientService.setPublicKey(publicKey);
         clientService.setType(type.getValue());
         add(clientService);
+    }
+
+    public void serviceUrlTest(Input input) {
+        String url = input.getUrl();
+        
     }
 }
