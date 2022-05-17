@@ -494,6 +494,8 @@
                 },
 
                 async readData(model) {
+                    vData.promoterList = [];
+                    vData.providerList = [];
                     vData.loading = true;
                     await methods.getNodeData();
                     await methods.getNodeDetail(model);

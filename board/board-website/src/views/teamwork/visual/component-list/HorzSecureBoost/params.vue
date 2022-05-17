@@ -87,6 +87,7 @@
                         <el-input
                             v-model="vData.form.tree_param.criterion_params"
                             placeholder="criterion_params"
+                            @input="methods.replaceComma"
                         />
                     </el-form-item>
                     <el-form-item label="分裂一个内部节点(非叶子节点)需要的最小样本">
@@ -275,6 +276,12 @@
             });
 
             let methods = {
+                replaceComma(val) {
+                    if (val.indexOf('，') !== -1) {
+                        val = val.replace(/，/ig, ',');
+                    }
+                    vData.form.tree_param.criterion_params = val;
+                },
                 formatter(params) {
                     vData.form = {
                         ...params,
