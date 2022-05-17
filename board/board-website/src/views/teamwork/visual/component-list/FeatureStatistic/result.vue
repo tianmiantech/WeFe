@@ -275,8 +275,11 @@
                             PieChart.value.chartResize();
                             break;
                         case 'histogram':
-                            BarChart = ctx.$refs.BarChart[0];
-                            BarChart.chartResize();
+                            console.log(ctx.$refs);
+                            setTimeout(()=> {
+                                BarChart = ctx.$refs.BarChart[0];
+                                BarChart.chartResize();
+                            }, 200);
                             break;
                         }
                     });
