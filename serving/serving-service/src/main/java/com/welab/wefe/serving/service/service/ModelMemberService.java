@@ -19,14 +19,16 @@ package com.welab.wefe.serving.service.service;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.service.api.model.ModelStatusCheckApi;
 import com.welab.wefe.serving.service.database.entity.ModelMemberBaseModel;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelMemberBaseRepository;
 import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
+import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ModelMemberService {
+    protected final Logger LOG = LoggerFactory.getLogger(getClass());
+
     @Autowired
     private ModelMemberRepository modelMemberRepository;
 
@@ -73,11 +77,10 @@ public class ModelMemberService {
 
         memberParams
                 .stream()
-                .filter(x -> x.equals(JobMemberRole.provider))
                 .forEach(x -> save(modelId, x.getMemberId(), x.getRole()));
     }
 
-    private void save(String modelId, String memberId, JobMemberRole role) {
+    public void save(String modelId, String memberId, JobMemberRole role) {
         ModelMemberMySqlModel member = new ModelMemberMySqlModel();
         member.setModelId(modelId);
         member.setMemberId(memberId);
@@ -85,7 +88,7 @@ public class ModelMemberService {
         modelMemberRepository.save(member);
     }
 
-    public List<ModelStatusCheckApi.Output> checkAvailableByModelIdAndMemberId(String modelId, String memberId) {
+    public List<ModelStatusOutput> checkAvailableByModelIdAndMemberId(String modelId, String memberId) {
         List<ModelMemberMySqlModel> list = findListByModelIdAndMemberId(modelId, memberId);
 
         return list
@@ -94,10 +97,9 @@ public class ModelMemberService {
                 .collect(Collectors.toList());
     }
 
-    private ModelStatusCheckApi.Output checkAvailable(String modelId, ModelMemberMySqlModel model) {
-        String servingBaseUrl = findServingBaseUrl(model.getMemberId());
+    private ModelStatusOutput checkAvailable(String modelId, ModelMemberMySqlModel model) {
 
-        ModelStatusCheckApi.Output output = callProvider(modelId, servingBaseUrl);
+        ModelStatusOutput output = callProvider(modelId, model.getMemberId());
 
         updateModelStatus(model, output.getStatus());
 
@@ -111,7 +113,9 @@ public class ModelMemberService {
         modelMemberRepository.save(model);
     }
 
-    private ModelStatusCheckApi.Output callProvider(String modelId, String servingBaseUrl) {
+    private ModelStatusOutput callProvider(String modelId, String memberId) {
+        String servingBaseUrl = findServingBaseUrl(memberId);
+
         TreeMap<String, Object> param = new TreeMap<>();
         param.put("modelId", modelId);
         try {
@@ -119,12 +123,16 @@ public class ModelMemberService {
                     servingBaseUrl,
                     "model/provider/status/check",
                     param,
-                    ModelStatusCheckApi.Output.class
+                    ModelStatusOutput.class
             );
         } catch (StatusCodeWithException e) {
-            e.printStackTrace();
+            LOG.error("合作方 {} 服务失联", CacheObjects.getPartnerName(memberId));
+            return ModelStatusOutput.of(
+                    memberId,
+                    CacheObjects.getPartnerName(memberId),
+                    MemberModelStatusEnum.offline
+            );
         }
-        return null;
     }
 
     private String findServingBaseUrl(String partnerId) {
