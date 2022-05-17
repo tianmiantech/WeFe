@@ -21,7 +21,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.service.database.serving.entity.ModelSqlConfigMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelSqlConfigMySqlModel;
 import com.welab.wefe.serving.service.feature.sql.AbstractTemplate;
 import com.welab.wefe.serving.service.feature.sql.hive.HiveTemplate;
 import com.welab.wefe.serving.service.feature.sql.impala.ImpalaTemplate;

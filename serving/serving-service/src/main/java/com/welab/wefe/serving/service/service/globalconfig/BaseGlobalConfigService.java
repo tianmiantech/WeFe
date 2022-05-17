@@ -25,8 +25,8 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.serving.service.database.serving.entity.GlobalConfigMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.GlobalConfigRepository;
+import com.welab.wefe.serving.service.database.entity.GlobalConfigMysqlModel;
+import com.welab.wefe.serving.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.serving.service.dto.GlobalConfigInput;
 import com.welab.wefe.serving.service.service.UnionServiceService;
 

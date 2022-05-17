@@ -34,8 +34,8 @@ import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
 import com.welab.wefe.serving.service.operation.ServingApiLogger;
 import com.welab.wefe.serving.service.service.CacheObjects;
@@ -86,8 +86,6 @@ public class ServingService implements ApplicationContextAware {
         //Initialize feature processor
         CodeFeatureDataHandle.init();
 
-        //Initialize verification code memory
-        CaptchaService.init();
     }
 
 	/**

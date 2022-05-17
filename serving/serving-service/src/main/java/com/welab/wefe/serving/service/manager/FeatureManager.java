@@ -23,7 +23,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.feature.ApiFeatureDataHandle;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
 import com.welab.wefe.serving.service.feature.SqlFeatureDataHandle;

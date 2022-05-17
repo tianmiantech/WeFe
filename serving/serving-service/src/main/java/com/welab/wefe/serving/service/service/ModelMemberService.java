@@ -17,17 +17,24 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMemberBaseModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ModelMemberBaseRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ModelMemberRepository;
+import com.welab.wefe.serving.service.api.model.ModelStatusCheckApi;
+import com.welab.wefe.serving.service.database.entity.ModelMemberBaseModel;
+import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.repository.ModelMemberBaseRepository;
+import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
+import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -39,6 +46,12 @@ public class ModelMemberService {
 
     @Autowired
     private ModelMemberBaseRepository modelMemberBaseRepository;
+
+    @Autowired
+    private PartnerService partnerService;
+
+    @Autowired
+    private ServiceService serviceService;
 
     public List<ModelMemberBaseModel> findModelMemberBase(String modelId, String role) {
         return modelMemberBaseRepository.findAllByModelIdAndRole(modelId, role);
@@ -58,7 +71,10 @@ public class ModelMemberService {
         List<ModelMemberMySqlModel> modelList = modelMemberRepository.findAll(where);
         modelMemberRepository.deleteAll(modelList);
 
-        memberParams.forEach(x -> save(modelId, x.getMemberId(), x.getRole()));
+        memberParams
+                .stream()
+                .filter(x -> x.equals(JobMemberRole.provider))
+                .forEach(x -> save(modelId, x.getMemberId(), x.getRole()));
     }
 
     private void save(String modelId, String memberId, JobMemberRole role) {
@@ -68,4 +84,61 @@ public class ModelMemberService {
         member.setRole(role);
         modelMemberRepository.save(member);
     }
+
+    public List<ModelStatusCheckApi.Output> checkAvailableByModelIdAndMemberId(String modelId, String memberId) {
+        List<ModelMemberMySqlModel> list = findListByModelIdAndMemberId(modelId, memberId);
+
+        return list
+                .stream()
+                .map(x -> checkAvailable(modelId, x))
+                .collect(Collectors.toList());
+    }
+
+    private ModelStatusCheckApi.Output checkAvailable(String modelId, ModelMemberMySqlModel model) {
+        String servingBaseUrl = findServingBaseUrl(model.getMemberId());
+
+        ModelStatusCheckApi.Output output = callProvider(modelId, servingBaseUrl);
+
+        updateModelStatus(model, output.getStatus());
+
+        return output;
+    }
+
+
+    private void updateModelStatus(ModelMemberMySqlModel model, MemberModelStatusEnum status) {
+        model.setStatus(status);
+        model.setUpdatedTime(new Date());
+        modelMemberRepository.save(model);
+    }
+
+    private ModelStatusCheckApi.Output callProvider(String modelId, String servingBaseUrl) {
+        TreeMap<String, Object> param = new TreeMap<>();
+        param.put("modelId", modelId);
+        try {
+            return serviceService.callOtherPartnerServing(
+                    servingBaseUrl,
+                    "model/provider/status/check",
+                    param,
+                    ModelStatusCheckApi.Output.class
+            );
+        } catch (StatusCodeWithException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String findServingBaseUrl(String partnerId) {
+        PartnerMysqlModel partner = partnerService.findOne(partnerId);
+        return partner.getServingBaseUrl();
+    }
+
+    private List<ModelMemberMySqlModel> findListByModelIdAndMemberId(String modelId, String memberId) {
+        Specification<ModelMemberMySqlModel> where = Where.
+                create()
+                .equal("modelId", modelId)
+                .equal("memberId", memberId)
+                .build(ModelMemberMySqlModel.class);
+        return modelMemberRepository.findAll(where);
+    }
+
 }

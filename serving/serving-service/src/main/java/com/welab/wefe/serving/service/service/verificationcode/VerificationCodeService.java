@@ -32,10 +32,10 @@ import com.welab.wefe.common.verification.code.AbstractResponse;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import com.welab.wefe.common.wefe.enums.VerificationCodeSendChannel;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.VerificationCodeMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
-import com.welab.wefe.serving.service.database.serving.repository.VerificationCodeRepository;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.VerificationCodeMysqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.VerificationCodeRepository;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
 
 import net.jodah.expiringmap.ExpiringMap;

@@ -26,8 +26,8 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.serving.service.api.operation.LogQueryApi;
-import com.welab.wefe.serving.service.database.serving.entity.OperationLogMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.OperationLogRepository;
+import com.welab.wefe.serving.service.database.entity.OperationLogMysqlModel;
+import com.welab.wefe.serving.service.database.repository.OperationLogRepository;
 import com.welab.wefe.serving.service.dto.OperationLogOutputModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 

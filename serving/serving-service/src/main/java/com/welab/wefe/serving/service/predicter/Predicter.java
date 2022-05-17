@@ -26,7 +26,7 @@ import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMemberBaseModel;
+import com.welab.wefe.serving.service.database.entity.ModelMemberBaseModel;
 import com.welab.wefe.serving.service.predicter.batch.BatchPromoterPredicter;
 import com.welab.wefe.serving.service.predicter.batch.BatchProviderPredicter;
 import com.welab.wefe.serving.service.predicter.single.DebugPredicter;
