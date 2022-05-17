@@ -103,11 +103,11 @@ CREATE TABLE `global_config`
 
 
 insert into global_config(`id`, `group`, `name`, `comment`, `value`)
-values (replace(uuid(),'-',''), 'identity_info', 'id', '系统身份 Id 全局唯一，联邦模式为memberId,独立模式为uuid。', (select member_id from global_setting limit 1)),
-(replace(uuid(),'-',''),'identity_info','name','系统名称',(select member_name from global_setting limit 1)),
+values (replace(uuid(),'-',''), 'identity_info', 'member_id', '系统身份 Id 全局唯一，联邦模式为memberId,独立模式为uuid。', (select member_id from global_setting limit 1)),
+(replace(uuid(),'-',''),'identity_info','member_name','系统名称',(select member_name from global_setting limit 1)),
 (replace(uuid(),'-',''),'identity_info','rsa_private_key','私钥',(select rsa_private_key from global_setting limit 1)),
-(replace(uuid(),'-',''),'identity_info','rsa_public_key','公钥',(select rsa_public_key from global_setting limit 1))
-(replace(uuid(),'-',''),'identity_info','serving_base_url','系统url地址',(select serving_base_url from global_setting limit 1))
+(replace(uuid(),'-',''),'identity_info','rsa_public_key','公钥',(select rsa_public_key from global_setting limit 1)),
+(replace(uuid(),'-',''),'identity_info','serving_base_url','系统url地址',(select serving_base_url from global_setting limit 1)),
 (replace(uuid(),'-',''),'identity_info','mode','模式 standalone-独立模式 union-联邦模式','union')
 
 -- 合作者
