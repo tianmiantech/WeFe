@@ -17,8 +17,8 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.data.domain.Sort;
