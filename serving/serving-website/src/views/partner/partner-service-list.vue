@@ -60,7 +60,7 @@
                     :to="{name: 'partner-service-add'}"
                 >
                     <el-button>
-                        添加合作者服务
+                        添加服务
                     </el-button>
                 </router-link>
 
@@ -113,7 +113,7 @@
                 width="100"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.service_type }}</p>
+                    <p>{{ scope.row.type === 0 ? scope.row.service_type : '激活服务' }}</p>
                 </template>
             </el-table-column>
 
