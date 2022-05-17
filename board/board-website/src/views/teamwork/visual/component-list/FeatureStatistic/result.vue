@@ -277,9 +277,10 @@
                         case 'histogram':
                             console.log(ctx.$refs);
                             setTimeout(()=> {
+                                console.log(ctx.$refs);
                                 BarChart = ctx.$refs.BarChart[0];
                                 BarChart.chartResize();
-                            }, 200);
+                            }, 500);
                             break;
                         }
                     });
