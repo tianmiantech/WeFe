@@ -19,8 +19,8 @@ package com.welab.wefe.serving.service.service;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.member.QueryApi;
-import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.MemberRepository;
+import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
+import com.welab.wefe.serving.service.database.repository.MemberRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 
 import org.apache.commons.lang3.StringUtils;

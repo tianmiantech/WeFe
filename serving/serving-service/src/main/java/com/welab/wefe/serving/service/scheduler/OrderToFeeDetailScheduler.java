@@ -17,7 +17,10 @@ package com.welab.wefe.serving.service.scheduler;
 
 
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.serving.service.database.serving.entity.*;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeDetailMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
@@ -25,8 +28,6 @@ import com.welab.wefe.serving.service.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Calendar;

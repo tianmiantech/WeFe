@@ -21,7 +21,7 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.repository.MemberRepository;
+import com.welab.wefe.serving.service.database.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

@@ -21,16 +21,15 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.service.api.model.EnableApi;
+import com.welab.wefe.serving.service.api.model.ProviderModelStatusCheckApi;
 import com.welab.wefe.serving.service.api.model.QueryApi;
 import com.welab.wefe.serving.service.api.model.SaveModelApi;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ModelMemberRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;
+import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
+import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
-import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +92,9 @@ public class ModelService {
     }
 
     private void saveModelMembers(SaveModelApi.Input input) {
+        if (input.getMyRole().equals(JobMemberRole.provider)) {
+            return;
+        }
         modelMemberService.save(input.getModelId(), input.getMemberParams());
     }
 
@@ -135,12 +137,11 @@ public class ModelService {
 
     private void activate(String modelId, MemberParams x) {
         try {
-            clientServiceService.save(
+            clientServiceService.activateService(
                     modelId,
                     x.getMemberId(),
-                    x.getPublicKey(),
-                    ServiceClientTypeEnum.ACTIVATE,
-                    ServiceStatusEnum.UNUSED
+                    CacheObjects.getRsaPrivateKey(),
+                    CacheObjects.getRsaPublicKey()
             );
         } catch (StatusCodeWithException e) {
             LOG.error("模型服务激活失败: {]", e.getMessage());
@@ -161,12 +162,10 @@ public class ModelService {
 
     private void openService(String modelId, MemberParams x) {
         try {
-            clientServiceService.save(
+            clientServiceService.openService(
                     modelId,
                     x.getMemberId(),
-                    x.getPublicKey(),
-                    ServiceClientTypeEnum.OPEN,
-                    ServiceStatusEnum.UNUSED
+                    x.getPublicKey()
             );
         } catch (StatusCodeWithException e) {
             LOG.error("开通模型服务失败：{}", e.getMessage());
@@ -268,5 +267,12 @@ public class ModelService {
         ModelMySqlModel modelMySqlModel = modelRepository.findOne("id", input.getId(), ModelMySqlModel.class);
 
         ModelManager.refreshModelEnable(modelMySqlModel.getModelId(), input.isEnable());
+    }
+
+
+    public ProviderModelStatusCheckApi.Output checkAvailable(String modelId) {
+        ModelMemberMySqlModel modelMember = modelMemberRepository.findOne("modelId", modelId, ModelMemberMySqlModel.class);
+
+        return ProviderModelStatusCheckApi.Output.of(modelId, modelMember.getStatus());
     }
 }
