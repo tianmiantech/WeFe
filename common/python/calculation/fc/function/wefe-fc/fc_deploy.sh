@@ -59,12 +59,19 @@ nas_upload(){
   find ./kernel/ -name "*.py" | cpio -pdm ./build
 
   cd common/python/calculation/fc/function/wefe-fc
-  s nas upload -r -o ../../../../../../config.properties nas:///mnt/auto/$nas_env/pythonCode/  --debug
+  s nas upload -r -o ./config.properties nas:///mnt/auto/$nas_env/pythonCode/  --debug
   s nas upload -r -o ../../../../../../build/ /mnt/auto/$nas_env/pythonCode  --debug
 
   rm -rf ../../../../../../build
 
 }
+
+get_config_from_db(){
+  source /data/environment/miniconda3/envs/wefe-python37/bin/activate
+
+
+}
+
 
 fc_deploy(){
 
@@ -79,25 +86,25 @@ fc_deploy(){
   nas_env=$(grep -v "^#" ../../../../../../config.properties | grep "env.name=*")
   nas_env=${nas_env##*=}
 
-  access_key_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.access_key_id=*")
+  access_key_id=$(grep -v "^#" ./config.properties | grep "fc.access_key_id=*")
   access_key_id=${access_key_id##*=}
 
-  access_key_secret=$(grep -v "^#" ../../../../../../config.properties | grep "fc.access_key_secret=*")
+  access_key_secret=$(grep -v "^#" ./config.properties | grep "fc.access_key_secret=*")
   access_key_secret=${access_key_secret##*=}
 
-  account_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.account_id=*")
+  account_id=$(grep -v "^#" ./config.properties | grep "fc.account_id=*")
   account_id=${account_id##*=}
 
-  vpc_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.vpc_id=*")
+  vpc_id=$(grep -v "^#" ./config.properties | grep "fc.vpc_id=*")
   vpc_id=${vpc_id##*=}
 
-  v_switch_ids=$(grep -v "^#" ../../../../../../config.properties | grep "fc.v_switch_ids=*")
+  v_switch_ids=$(grep -v "^#" ./config.properties | grep "fc.v_switch_ids=*")
   v_switch_ids=${v_switch_ids##*=}
 
-  security_group_id=$(grep -v "^#" ../../../../../../config.properties | grep "fc.security_group_id=*")
+  security_group_id=$(grep -v "^#" ./config.properties | grep "fc.security_group_id=*")
   security_group_id=${security_group_id##*=}
 
-  account_type=$(grep -v "^#" ../../../../../../config.properties | grep "fc.account_type=*")
+  account_type=$(grep -v "^#" ./config.properties | grep "fc.account_type=*")
   account_type=${account_type##*=}
 
   if [ ! ${account_id} ]; then
@@ -106,11 +113,6 @@ fc_deploy(){
     sed -i "s|acs:ram::.*:role|acs:ram::${account_id}:role|" s.yaml
   fi
 
-#  if [ ! ${nas_env} ]; then
-#    echo "nas env is null"
-#  else
-#    sed -i "s|fc-env:.*|fc-env: ${nas_env}|" s.yaml
-#  fi
   sed -i "s/fc-env/${nas_env}/g" s.yaml
 
   if [[ ${account_type,,} == "admin" ]]; then
