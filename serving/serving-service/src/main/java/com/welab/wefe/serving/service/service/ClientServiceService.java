@@ -30,6 +30,8 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.http.HttpRequest;
+import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.clientservice.DetailApi;
 import com.welab.wefe.serving.service.api.clientservice.QueryApi;
@@ -355,8 +357,12 @@ public class ClientServiceService {
         add(clientService);
     }
 
-    public void serviceUrlTest(Input input) {
+    public int serviceUrlTest(Input input) throws Exception {
         String url = input.getUrl();
-        
+        HttpResponse response = HttpRequest.create(url).get();
+        if (response.getCode() == -1) {
+            throw response.getError();
+        }
+        return response.getCode();
     }
 }

@@ -1,11 +1,13 @@
 package com.welab.wefe.serving.service.api.clientservice;
 
+import org.apache.http.client.ClientProtocolException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 
@@ -16,9 +18,17 @@ public class ServiceUrlTestApi extends AbstractApi<ServiceUrlTestApi.Input, Serv
     private ClientServiceService clientServiceService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws Exception {
-        clientServiceService.serviceUrlTest(input);
-        return success();
+    protected ApiResult<Output> handle(Input input) {
+        try {
+            int code = clientServiceService.serviceUrlTest(input);
+            Output output = new Output();
+            output.setCode(code);
+            return success(output);
+        } catch (ClientProtocolException e) {
+            return fail(-1, "url非法");
+        } catch (Exception e) {
+            return fail(e);
+        }
     }
 
     public static class Input extends AbstractApiInput {
@@ -35,7 +45,16 @@ public class ServiceUrlTestApi extends AbstractApi<ServiceUrlTestApi.Input, Serv
 
     }
 
-    public static class Output {
+    public static class Output extends AbstractApiOutput {
+        private int code;
+
+        public int getCode() {
+            return code;
+        }
+
+        public void setCode(int code) {
+            this.code = code;
+        }
 
     }
 
