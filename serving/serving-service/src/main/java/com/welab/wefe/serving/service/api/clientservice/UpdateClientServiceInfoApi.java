@@ -1,20 +1,19 @@
 package com.welab.wefe.serving.service.api.clientservice;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
+import com.welab.wefe.serving.service.database.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.repository.ClientServiceRepository;
 import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.service.ClientService;
 import com.welab.wefe.serving.service.service.ClientServiceService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 @Api(path = "clientservice/update_client_service_info", name = "update client service info")
 public class UpdateClientServiceInfoApi extends AbstractNoneInputApi<UpdateClientServiceInfoApi.Output> {
