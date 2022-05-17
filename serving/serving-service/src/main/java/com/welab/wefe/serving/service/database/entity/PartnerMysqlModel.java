@@ -35,11 +35,6 @@ public class PartnerMysqlModel extends AbstractBaseMySqlModel {
      */
     private String email;
     /**
-     * partner_id
-     */
-    @Column(name = "partner_id")
-    private String partnerId;
-    /**
      * is_union_member
      */
     @Column(name = "is_union_member")
@@ -78,14 +73,6 @@ public class PartnerMysqlModel extends AbstractBaseMySqlModel {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPartnerId() {
-        return partnerId;
-    }
-
-    public void setPartnerId(String partnerId) {
-        this.partnerId = partnerId;
     }
 
     public boolean getIsUnionMember() {

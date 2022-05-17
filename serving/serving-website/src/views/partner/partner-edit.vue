@@ -198,7 +198,7 @@ export default {
 
         async getPartnerById(id) {
             const { code, data } = await this.$http.post({
-                url:  '/partner/query-one',
+                url:  '/partner/detail',
                 data: {
                     id,
                 },

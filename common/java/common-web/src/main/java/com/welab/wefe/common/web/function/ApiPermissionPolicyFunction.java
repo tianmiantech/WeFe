@@ -16,8 +16,9 @@
 
 package com.welab.wefe.common.web.function;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 
 /**
@@ -31,5 +32,5 @@ public interface ApiPermissionPolicyFunction {
      * @param api
      * @param params
      */
-    void check(AbstractApi api, Api annotation, JSONObject params) throws Exception;
+    void check(HttpServletRequest request, Api annotation, JSONObject params) throws Exception;
 }

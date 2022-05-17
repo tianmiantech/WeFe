@@ -128,7 +128,7 @@ CREATE TABLE `partner` (
   `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`id`),
   UNIQUE KEY `partner_id` (`partner_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='合作者';
 
 
 -- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085582    

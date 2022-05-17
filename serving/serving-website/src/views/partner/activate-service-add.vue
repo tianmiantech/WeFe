@@ -43,10 +43,10 @@
                           :minlength="0"
                           show-word-limit>
                 </el-input>
+                <a @click="getRsaKey">填充系统公私钥</a>
             </el-form-item>
 
             <el-form-item>
-                <el-button type="primary" @click="getRsaKey">填充系统公私钥</el-button>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
                     :to="{
@@ -136,6 +136,8 @@ export default {
 
     methods: {
         async getRsaKey(){
+            this.clientService.privateKey='';
+            this.clientService.publicKey='';
             const { code, data } = await this.$http.post({
                 url: '/global_config/detail',
                 data:{
@@ -146,6 +148,9 @@ export default {
             if (code === 0) {
                 this.clientService.privateKey=data.identity_info.rsa_private_key;
                 this.clientService.publicKey=data.identity_info.rsa_public_key;
+                setTimeout(() => {
+                    this.$message('填充成功!');
+                }, 1000)
             }
         },
         onSubmit() {
