@@ -16,10 +16,21 @@
 
 package com.welab.wefe.serving.service;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
@@ -35,15 +46,6 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.MemberService;
 import com.welab.wefe.serving.service.service.PartnerService;
-import org.springframework.beans.BeansException;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author hunter.zhao
@@ -60,27 +62,27 @@ public class ServingService implements ApplicationContextAware {
                 .apiPackageClass(ServingService.class)
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
-//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
-//                .apiPermissionPolicy((request, annotation, params) -> {
-//
-//                    if (!annotation.rsaVerify()) {
-//                        return;
-//                    }
-//
-//                    switch (annotation.domain()) {
-//                        case Member:
-//                            rsaVerifyMember(params);
-//                            break;
-//                        case Board:
-//                            rsaVerifyBoard(params);
-//                            break;
-//                        case Customer:
-//                            rsaVerifyCustomer(request, params);
-//                            break;
-//                        default:
-//                            throw new RuntimeException("Unexpected enumeration value");
-//                    }
-//                })
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                .apiPermissionPolicy((request, annotation, params) -> {
+
+                    if (!annotation.rsaVerify()) {
+                        return;
+                    }
+
+                    switch (annotation.domain()) {
+                        case Member:
+                            rsaVerifyMember(params);
+                            break;
+                        case Board:
+                            rsaVerifyBoard(params);
+                            break;
+                        case Customer:
+                            rsaVerifyCustomer(request, params);
+                            break;
+                        default:
+                            throw new RuntimeException("Unexpected enumeration value");
+                    }
+                })
                 .launch(ServingService.class, args);
 
         //Initialize model processor
