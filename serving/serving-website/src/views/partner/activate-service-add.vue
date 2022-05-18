@@ -22,7 +22,7 @@
             </el-form-item>
             <el-form-item label="服务访问URL：" prop="url" class = "url flex_box">
                 <el-input v-model="clientService.url" clearable/>
-                <el-link @click="testUrl" type="primary">测试连通性</el-link>
+                <el-link @click="testUrl" type="primary" :underline="false">测试连通性</el-link>
             </el-form-item>
             <el-form-item label="code：" prop="code" class = "url">
                 <el-input v-model="clientService.code"></el-input>
