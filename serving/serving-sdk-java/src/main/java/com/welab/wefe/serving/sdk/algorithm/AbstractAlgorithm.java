@@ -127,8 +127,8 @@ public abstract class AbstractAlgorithm<T, R> {
             JSONObject json = response.getBodyAsJson();
             Integer code = json.getInteger("code");
             if (code == null || !code.equals(0) || !json.containsKey("data")) {
-                LOG.error("provider response failed，code: {} error: {}", code, json.getString("message"));
-                throw new StatusCodeWithException("provider response failed，error：" + json.getString("message"), StatusCode.REMOTE_SERVICE_ERROR);
+                LOG.error("协作方响应失败({}),{}", code, json.getString("message"));
+                throw new StatusCodeWithException("协作方" + obj.getMemberId() + "响应失败," + json.getString("message"), StatusCode.REMOTE_SERVICE_ERROR);
             }
 
             JObject resultData = JObject.create(json.getJSONObject("data"));

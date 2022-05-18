@@ -16,10 +16,12 @@
 
 package com.welab.wefe.serving.service.service;
 
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.service.api.model.EnableApi;
 import com.welab.wefe.serving.service.api.model.QueryApi;
 import com.welab.wefe.serving.service.api.model.SaveModelApi;
@@ -70,7 +72,7 @@ public class ModelService {
     private ModelMemberRepository modelMemberRepository;
 
     @Autowired
-    private ServiceService serviceService;
+    private ModelSqlConfigService modelSqlConfigService;
 
     @Transactional(rollbackFor = Exception.class)
     public void save(SaveModelApi.Input input) {
@@ -293,6 +295,28 @@ public class ModelService {
                     CacheObjects.getMemberName(),
                     MemberModelStatusEnum.unavailable
             );
+        }
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateConfig(String modelId,
+                             PredictFeatureDataSource featureSource,
+                             String dataSourceId,
+                             String sqlContext) throws StatusCodeWithException {
+
+        ModelMySqlModel model = findOne(modelId);
+        if (model == null) {
+            throw new StatusCodeWithException("未查找到模型！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        model.setFeatureSource(featureSource);
+        modelRepository.save(model);
+
+        if (featureSource.equals(PredictFeatureDataSource.sql)) {
+            modelSqlConfigService.saveSqlConfig(modelId, dataSourceId, sqlContext);
+        } else {
+            modelSqlConfigService.clearSqlConfig(modelId);
         }
     }
 }

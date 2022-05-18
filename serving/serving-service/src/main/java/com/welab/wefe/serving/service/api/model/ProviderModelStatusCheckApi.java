@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.api.model;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.dto.ModelStatusOutput;
@@ -31,9 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(
         path = "model/provider/status/check",
         name = "检查模型状态（协作方提供接口）",
-        login = false
-//        ,
-//        rsaVerify = true
+        login = false,
+        rsaVerify = true,
+        domain = Caller.Member
 )
 public class ProviderModelStatusCheckApi extends AbstractApi<ProviderModelStatusCheckApi.Input, ModelStatusOutput> {
 

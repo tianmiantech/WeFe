@@ -83,7 +83,7 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
             );
             return success(result);
         } catch (Exception e) {
-            return fail("predict error : " + e.getMessage());
+            return fail("协作方 " + CacheObjects.getMemberName() + "错误" + e.getMessage());
         }
     }
 

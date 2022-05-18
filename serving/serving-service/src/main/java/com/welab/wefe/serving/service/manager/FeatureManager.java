@@ -24,9 +24,8 @@ import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.feature.ApiFeatureDataHandle;
-import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
-import com.welab.wefe.serving.service.feature.SqlFeatureDataHandle;
+import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
+import com.welab.wefe.serving.service.feature.SqlFeatureDataHandler;
 import com.welab.wefe.serving.service.service.ModelService;
 
 import java.util.HashMap;
@@ -83,12 +82,12 @@ public class FeatureManager {
          * -Through SQL query
          */
         switch (featureSource) {
-            case api:
-                return new ApiFeatureDataHandle().handle(modelId, predictParams);
+//            case api:
+//                return new ApiFeatureDataHandler().handle(modelId, predictParams);
             case code:
-                return new CodeFeatureDataHandle().handle(modelId, predictParams);
+                return new CodeFeatureDataHandler().handle(modelId, predictParams);
             case sql:
-                return new SqlFeatureDataHandle().handle(modelId, predictParams);
+                return new SqlFeatureDataHandler().handle(modelId, predictParams);
             default:
                 throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
         }
@@ -104,12 +103,12 @@ public class FeatureManager {
          * -Through SQL query
          */
         switch (featureSource) {
-            case api:
-                return new ApiFeatureDataHandle().batch(modelId, predictParams);
+//            case api:
+//                return new ApiFeatureDataHandler().batch(modelId, predictParams);
             case code:
-                return new CodeFeatureDataHandle().batch(modelId, predictParams);
+                return new CodeFeatureDataHandler().batch(modelId, predictParams);
             case sql:
-                return new SqlFeatureDataHandle().batch(modelId, predictParams);
+                return new SqlFeatureDataHandler().batch(modelId, predictParams);
             default:
                 throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
         }
@@ -127,13 +126,13 @@ public class FeatureManager {
         String userId = sqlConfig.get("user_id").toString();
 
         //Fill in corresponding feature information
-        return SqlFeatureDataHandle.get(type, url, username, password, sqlContext, userId);
+        return SqlFeatureDataHandler.get(type, url, username, password, sqlContext, userId);
     }
 
     /**
      * Process name
      */
     public static String getProcessor(String modelId) {
-        return CodeFeatureDataHandle.getSimpleName(modelId);
+        return CodeFeatureDataHandler.getSimpleName(modelId);
     }
 }

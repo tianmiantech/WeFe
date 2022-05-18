@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractFeatureDataHandle {
+public abstract class AbstractFeatureDataHandler {
 
     /**
      *
