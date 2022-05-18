@@ -20,7 +20,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
@@ -30,7 +29,7 @@ import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
 import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.repository.ServiceRepository;
-import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
+import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.operation.ServingApiLogger;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientServiceService;
@@ -62,33 +61,33 @@ public class ServingService implements ApplicationContextAware {
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
 //                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
-                .apiPermissionPolicy((request, annotation, params) -> {
-
-                    if (!annotation.rsaVerify()) {
-                        return;
-                    }
-
-                    switch (annotation.domain()) {
-                        case Member:
-                            rsaVerifyMember(params);
-                            break;
-                        case Board:
-                            rsaVerifyBoard(params);
-                            break;
-                        case Customer:
-                            rsaVerifyCustomer(request, params);
-                            break;
-                        default:
-                            throw new RuntimeException("Unexpected enumeration value");
-                    }
-                })
+//                .apiPermissionPolicy((request, annotation, params) -> {
+//
+//                    if (!annotation.rsaVerify()) {
+//                        return;
+//                    }
+//
+//                    switch (annotation.domain()) {
+//                        case Member:
+//                            rsaVerifyMember(params);
+//                            break;
+//                        case Board:
+//                            rsaVerifyBoard(params);
+//                            break;
+//                        case Customer:
+//                            rsaVerifyCustomer(request, params);
+//                            break;
+//                        default:
+//                            throw new RuntimeException("Unexpected enumeration value");
+//                    }
+//                })
                 .launch(ServingService.class, args);
 
         //Initialize model processor
         ModelProcessorManager.init();
 
         //Initialize feature processor
-        CodeFeatureDataHandle.init();
+        CodeFeatureDataHandler.init();
     }
 
     /**

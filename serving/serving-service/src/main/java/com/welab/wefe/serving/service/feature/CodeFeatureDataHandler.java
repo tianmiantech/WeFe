@@ -33,9 +33,9 @@ import java.util.Map;
 /**
  * @author hunter.zhao
  */
-public class CodeFeatureDataHandle extends AbstractFeatureDataHandle {
+public class CodeFeatureDataHandler extends AbstractFeatureDataHandler {
 
-    private static Logger LOG = LoggerFactory.getLogger(CodeFeatureDataHandle.class);
+    private static Logger LOG = LoggerFactory.getLogger(CodeFeatureDataHandler.class);
 
     /**
      * modelId : Class
