@@ -383,7 +383,8 @@ public class TaskResultService extends AbstractService {
         // Find the FeatureStatistic node in the parent node
         FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node,
                 x -> x.getComponentType() == ComponentType.FeatureStatistic
-                        || x.getComponentType() == ComponentType.MixStatistic);
+                        || x.getComponentType() == ComponentType.MixStatistic
+                        || x.getComponentType() == ComponentType.HorzStatistic);
 
         if (featureStatisticNode == null) {
             throw new FlowNodeException(node, "请添加特征统计组件。");
