@@ -432,7 +432,7 @@ public class TaskResultService extends AbstractService {
             }
             List<MemberModel> currentMembers = new ArrayList<>();
             if(featureStatisticNode.getComponentType() == ComponentType.HorzStatistic) {
-             // Get the feature column of the current member
+                // Get the feature column of the current member
                 currentMembers = input.getMembers().stream().collect(Collectors.toList());
             }
             else {
