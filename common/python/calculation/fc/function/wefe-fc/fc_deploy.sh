@@ -67,8 +67,11 @@ nas_upload(){
 }
 
 get_config_from_db(){
-  source /data/environment/miniconda3/envs/wefe-python37/bin/activate
-
+  echo 'remove old config.properties'
+  rm -f ./config.properties
+  echo 'get config from database...'
+  python ./config_util.py
+  echo 'generate new config.properties done!'
 
 }
 
@@ -81,7 +84,8 @@ fc_deploy(){
   export PYTHONPATH=$wefe_code_path
   source /data/environment/miniconda3/envs/wefe-python37/bin/activate
 
-  echo "reading configure from config.properties"
+  # 读取数据库的配置，生成配置文件，用于上传函数
+  get_config_from_db
 
   nas_env=$(grep -v "^#" ../../../../../../config.properties | grep "env.name=*")
   nas_env=${nas_env##*=}

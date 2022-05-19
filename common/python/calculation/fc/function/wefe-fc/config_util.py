@@ -15,18 +15,6 @@ from common.python.common import consts
 from common.python.utils.conf_utils import get_comm_config
 
 
-# access_key_id = 'fc.access_key_id'
-# access_key_secret = 'fc.access_key_secret'
-# account_id = 'fc.account_id'
-# vpc_id = 'fc.vpc_id'
-# v_switch_ids = 'fc.v_switch_ids'
-# security_group_id = 'fc.security_group_id'
-# account_type = 'fc.account_type'
-# bucket_name = 'fc.oss.bucket_name'
-# oss_endpoint = 'fc.oss.endpoint'
-# oss_internal_endpoint = 'fc.oss.internal_endpoint'
-
-
 def gen_config_file():
     file_name = 'config.properties'
     access_key_id = get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
