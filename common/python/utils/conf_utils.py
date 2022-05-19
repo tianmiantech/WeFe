@@ -136,6 +136,6 @@ def set_env(key, value):
 #         return BACKEND.__dict__.get(backend_string)
 #     except ValueError:
 #         schedule_logger().error("BackType is Wrong")
-
-if __name__ == '__main__':
-    get_comm_config(consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT)
+#
+# if __name__ == '__main__':
+#     get_comm_config(consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT)

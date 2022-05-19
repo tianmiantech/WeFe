@@ -28,39 +28,41 @@ from common.python.utils.conf_utils import get_comm_config, get_env_config
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
 # Database Connectivity
-host = get_comm_config(consts.COMM_CONF_KEY_MYSQL_HOST)
-password = get_comm_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
-port = int(get_comm_config(consts.COMM_CONF_KEY_MYSQL_PORT))
-user = get_comm_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
-database = get_comm_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
+fc_env = os.environ['IN_FC_ENV']
+if fc_env is None or fc_env != 1:
+    host = get_comm_config(consts.COMM_CONF_KEY_MYSQL_HOST)
+    password = get_comm_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
+    port = int(get_comm_config(consts.COMM_CONF_KEY_MYSQL_PORT))
+    user = get_comm_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
+    database = get_comm_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
 
-# Environment variable
-env_host = get_env_config(consts.COMM_CONF_KEY_MYSQL_HOST)
-env_password = get_env_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
-env_port = get_env_config(consts.COMM_CONF_KEY_MYSQL_PORT)
-if env_port:
-    env_port = int(env_port)
-env_user = get_env_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
-env_database = get_env_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
+    # Environment variable
+    env_host = get_env_config(consts.COMM_CONF_KEY_MYSQL_HOST)
+    env_password = get_env_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
+    env_port = get_env_config(consts.COMM_CONF_KEY_MYSQL_PORT)
+    if env_port:
+        env_port = int(env_port)
+    env_user = get_env_config(consts.COMM_CONF_KEY_MYSQL_USERNAME)
+    env_database = get_env_config(consts.COMM_CONF_KEY_MYSQL_DATABASE)
 
-settings = {'host': env_host or host,
-            'password': env_password or password,
-            'port': env_port or port,
-            'user': env_user or user,
-            'max_connections': 100
-            }
+    settings = {'host': env_host or host,
+                'password': env_password or password,
+                'port': env_port or port,
+                'user': env_user or user,
+                'max_connections': 100
+                }
 
-# 改为读取数据库配置, 且该配置已放入 job config 中
-work_mode = get_comm_config(consts.COMM_CONF_KEY_EXAMPLE_RUN)
+    # 改为读取数据库配置, 且该配置已放入 job config 中
+    work_mode = get_comm_config(consts.COMM_CONF_KEY_EXAMPLE_RUN)
 
-DB = None
+    DB = None
 
-if int(work_mode) == 0:
-    stat_logger.debug("Use SQLite")
-    DB = sqlite_utils.get_sqlite_db()
-else:
-    stat_logger.debug("Use Mysql")
-    DB = PooledMySQLDatabase(env_database or database, **settings)
+    if int(work_mode) == 0:
+        stat_logger.debug("Use SQLite")
+        DB = sqlite_utils.get_sqlite_db()
+    else:
+        stat_logger.debug("Use Mysql")
+        DB = PooledMySQLDatabase(env_database or database, **settings)
 
 
 class ModelBase(Model):
@@ -600,7 +602,6 @@ if int(work_mode) == 0:
         if obj != ModelBase and issubclass(obj, ModelBase):
             table_objs.append(obj)
     sqlite_utils.create_table(table_objs, DB)
-
 
 if __name__ == '__main__':
     pass
