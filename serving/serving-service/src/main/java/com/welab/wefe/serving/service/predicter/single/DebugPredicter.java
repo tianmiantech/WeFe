@@ -24,9 +24,10 @@ import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractPromoterPredicter;
-import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
+import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -64,11 +65,15 @@ public class DebugPredicter extends AbstractPromoterPredicter {
 
     @Override
     public Map<String, Object> fillFeatureData() throws StatusCodeWithException {
+        if (MapUtils.isNotEmpty(predictParams.getFeatureData())) {
+            return predictParams.getFeatureData();
+        }
+
         switch (featureSource) {
             case api:
                 return predictParams.getFeatureData();
             case code:
-                return new CodeFeatureDataHandle().handle(modelId, predictParams);
+                return new CodeFeatureDataHandler().handle(modelId, predictParams);
             case sql:
                 return FeatureManager.getFeatureData(params);
             default:

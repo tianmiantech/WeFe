@@ -88,7 +88,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     }
 
     private ModelSqlConfigOutput querySqlConfig(String modelId) {
-        ModelSqlConfigMySqlModel sqlConfig = modelSqlConfigService.findOne(modelId);
+        ModelSqlConfigMySqlModel sqlConfig = modelSqlConfigService.findById(modelId);
 
         return ModelMapper.map(sqlConfig, ModelSqlConfigOutput.class);
     }

@@ -103,7 +103,8 @@ CREATE TABLE `global_config`
 
 
 insert into global_config(`id`, `group`, `name`, `comment`, `value`)
-values (replace(uuid(),'-',''), 'identity_info', 'member_id', '系统身份 Id 全局唯一，联邦模式为memberId,独立模式为uuid。', (select member_id from global_setting limit 1)),
+values (replace(uuid(), '-', ''), 'identity_info', 'member_id', '系统身份 Id 全局唯一，联邦模式为memberId,独立模式为uuid。',
+        (select member_id from global_setting limit 1)),
 (replace(uuid(),'-',''),'identity_info','member_name','系统名称',(select member_name from global_setting limit 1)),
 (replace(uuid(),'-',''),'identity_info','rsa_private_key','私钥',(select rsa_private_key from global_setting limit 1)),
 (replace(uuid(),'-',''),'identity_info','rsa_public_key','公钥',(select rsa_public_key from global_setting limit 1)),
@@ -112,31 +113,40 @@ values (replace(uuid(),'-',''), 'identity_info', 'member_id', '系统身份 Id �
 
 -- 合作者
 -- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085243
-CREATE TABLE `partner` (
-  `id` varchar(32) NOT NULL,
-  `partner_id` varchar(256) NOT NULL COMMENT '合作者id',
-  `name` varchar(64) DEFAULT NULL COMMENT '合作者名称',
-  `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
-  `serving_base_url` varchar(255) DEFAULT NULL COMMENT 'Serving服务地址',
-  `code` varchar(255) DEFAULT '' COMMENT '客户 code',
-  `remark` text COMMENT '备注',
-  `is_union_member` tinyint(1) NOT NULL COMMENT '是否是联邦成员',
-  `status` int(11) NOT NULL DEFAULT '1' COMMENT '合作者状态;1正常、0删除',
-  `created_time` datetime NOT NULL,
-  `updated_time` datetime DEFAULT NULL,
-  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
-  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `partner_id` (`partner_id`)
+CREATE TABLE `partner`
+(
+    `id`               varchar(32)  NOT NULL,
+    `partner_id`       varchar(256) NOT NULL COMMENT '合作者id',
+    `name`             varchar(64)  DEFAULT NULL COMMENT '合作者名称',
+    `email`            varchar(255) DEFAULT NULL COMMENT '邮箱',
+    `serving_base_url` varchar(255) DEFAULT NULL COMMENT 'Serving服务地址',
+    `code`             varchar(255) DEFAULT '' COMMENT '客户 code',
+    `remark`           text COMMENT '备注',
+    `is_union_member`  tinyint(1) NOT NULL COMMENT '是否是联邦成员',
+    `status`           int(11) NOT NULL DEFAULT '1' COMMENT '合作者状态;1正常、0删除',
+    `created_time`     datetime     NOT NULL,
+    `updated_time`     datetime     DEFAULT NULL,
+    `created_by`       varchar(32)  DEFAULT NULL COMMENT '创建人',
+    `updated_by`       varchar(32)  DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `partner_id` (`partner_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='合作者';
 
 
 -- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085582    
-alter table `client_service` add column `public_key` text COMMENT '调用者公钥' after `client_name`
-alter table `client_service` add column `private_key` text COMMENT '调用者私钥' after `public_key`;
-alter table `client_service` add column `type` tinyint(1) COMMENT '服务类型 0开通，1激活 ' after `client_name`
-alter table `client_service` add column `code` varchar(255) COMMENT '调用者code' after `private_key`;
+alter table `client_service`
+    add column `public_key` text COMMENT '调用者公钥' after `client_name`
+alter table `client_service`
+    add column `private_key` text COMMENT '调用者私钥' after `public_key`;
+alter table `client_service`
+    add column `type` tinyint(1) COMMENT '服务类型 0开通，1激活 ' after `client_name`
+alter table `client_service`
+    add column `code` varchar(255) COMMENT '调用者code' after `private_key`;
 
 ALTER TABLE model_member
     ADD `status` varchar(64) DEFAULT 'offline' NOT NULL COMMENT '成员模型状态 offline-成员失联 unavailable-模型不可用 available-模型可用';
+
+
+ALTER TABLE model_sql_config
+    ADD `data_source_id` varchar(64) NOT NULL COMMENT '数据源id';
 
