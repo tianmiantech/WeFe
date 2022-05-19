@@ -7,36 +7,6 @@
             :model="form"
             :rules="rules"
         >
-            <el-form-item
-                prop="name"
-                label="服务名称:"
-                class="maxlength"
-            >
-                <el-input
-                    v-model="form.name"
-                    :maxlength="30"
-                    :minlength="4"
-                    size="medium"
-                />
-            </el-form-item>
-
-            <el-form-item
-                prop="url"
-                label="服务地址:"
-                class="maxlength"
-            >
-                <el-input
-                    v-model="form.url"
-                    :maxlength="100"
-                    :minlength="4"
-                    size="medium"
-                >
-                    <template #prepend>
-                        /api/
-                    </template>
-                </el-input>
-            </el-form-item>
-
             <div style="display: flex; margin-bottom: -10px;">
                 <el-form-item
                     prop="service_type"
@@ -86,6 +56,36 @@
                 </div>
             </div>
 
+            <el-form-item
+                prop="name"
+                label="服务名称:"
+                class="maxlength"
+            >
+                <el-input
+                    v-model="form.name"
+                    :maxlength="30"
+                    :minlength="4"
+                    size="medium"
+                />
+            </el-form-item>
+
+            <el-form-item
+                prop="url"
+                label="服务地址:"
+                class="maxlength"
+            >
+                <el-input
+                    v-model="form.url"
+                    :maxlength="100"
+                    :minlength="4"
+                    size="medium"
+                >
+                    <template #prepend>
+                        /api/
+                    </template>
+                </el-input>
+            </el-form-item>
+
             <template v-if="form.service_type">
                 <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
                     <el-divider />
@@ -123,7 +123,7 @@
                         </el-button>
                     </el-form-item>
                 </template>
-                <template v-if="form.service_type !== 2 && form.service_type !== 5">
+                <template v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8">
                     <el-divider />
                     <p class="mb10">查询参数配置：</p>
                     <el-form-item
@@ -164,7 +164,7 @@
                     </el-form-item>
                 </template>
 
-                <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6">
+                <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8">
                     <el-divider />
                     <p class="mb10">SQL 配置：</p>
                     <el-form-item label="数据源:">
@@ -339,6 +339,35 @@
                         </div>
                     </template>
                 </template>
+                <template v-if="form.service_type === 7 || form.service_type === 8">
+                    <el-divider />
+                    <el-form-item
+                        label="选择文件："
+                        required
+                    >
+                        <uploader
+                            ref="uploaderRef"
+                            :options="file_upload_options"
+                            :list="file_upload_options.files"
+                            :file-status-text="fileStatusText"
+                            @file-complete="fileUploadComplete"
+                            @file-removed="fileRemoved"
+                            @file-added="fileAdded"
+                        >
+                            <uploader-unsupport />
+                            <uploader-drop v-if="file_upload_options.files.length === 0">
+                                <p class="mb10">将文件（.json）拖到此处</p>或
+                                <uploader-btn
+                                    :attrs="{accept: '.json'}"
+                                    :single="true"
+                                >
+                                    点击上传
+                                </uploader-btn>
+                            </uploader-drop>
+                            <uploader-list :file-list="file_upload_options.files.length" />
+                        </uploader>
+                    </el-form-item>
+                </template>
             </template>
             <el-button
                 class="mt10"
@@ -346,7 +375,7 @@
                 size="medium"
                 @click="save"
             >
-                保存并生成 API
+                保存
             </el-button>
 
             <div class="api-preview">
@@ -509,6 +538,7 @@ export default {
             loading: false,
             form:    {
                 name:         '',
+                filename: '',
                 url:          '',
                 service_type: '',
                 operator:     'sum',
@@ -531,6 +561,26 @@ export default {
                 }],
                 key_calc_rules: [],
                 stringResult:   '',
+            },
+            file_upload_options: {
+                files:               [],
+                target:              window.api.baseUrl + '/file/upload',
+                singleFile:          true,
+                // chunks check
+                testChunks:          true,
+                chunkSize:           8 * 1024 * 1024,
+                simultaneousUploads: 4,
+                headers:             {
+                    token: '',
+                },
+                parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
+                    return parsedTimeRemaining
+                        .replace(/\syears?/, '年')
+                        .replace(/\days?/, '天')
+                        .replace(/\shours?/, '小时')
+                        .replace(/\sminutes?/, '分钟')
+                        .replace(/\sseconds?/, '秒');
+                },
             },
             keyMaps: {
                 visible:        false,
@@ -575,6 +625,14 @@ export default {
                     name:  '多方匿踪查询',
                     value: 6,
                 },
+                {
+                    name: '深度学习模型',
+                    value: 7,
+                },
+                {
+                    name: '机器学习模型',
+                    value: 8,
+                }
             ],
             data_sources:   [],
             data_tables:    [],
@@ -609,13 +667,60 @@ export default {
         }
     },
     methods: {
+        fileAdded(file) {
+            this.file_upload_options.files = [file];
+        },
+        fileRemoved() {
+            this.file_upload_options.files = [];
+        },
+        async fileUploadComplete(e) {
+            this.loading = true;
+
+            const { code, data } = await this.$http.get({
+                url:     '/file/merge',
+                timeout: 1000 * 60 * 2,
+                params:  {
+                    filename:         e.file.name,
+                    uniqueIdentifier: e.uniqueIdentifier,
+                    fileType:         this.form.service_type === 8 ? 'MachineLearning' : 'DeepLearning',
+                },
+            });
+
+            this.loading = false;
+            if (code === 0) {
+                this.form.filename = data.filename;
+            } else {
+                this.fileRemoved();
+                this.$refs.uploaderRef.uploader.cancel();
+            }
+        },
+        async submit(ev) {
+            const { code } = await this.$http.post({
+                url:  '/model/import',
+                data: {
+                    name:       this.form.name,
+                    filename:   this.form.filename,
+                    service_type: this.form.service_type,
+                },
+                btnState: {
+                    target: ev,
+                },
+            });
+
+            if (code === 0) {
+                this.$message.success('模型导入成功!');
+                this.$router.replace({ name: 'index' });
+            }
+        },
         setServiceDesc() {
             const descList = ['两方匿踪查询是指查询方隐藏被查询对象关键词或客户ID信息，数据服务方提供匹配的查询结果却无法获知具体对应哪个查询对象。数据不出门且能计算，杜绝数据缓存、数据泄漏、数据贩卖的可能性。匿踪查询协议基于对称加密、不经意传输等密码学技术，数据服务方保持数据资源控制权，数据请求方不再使用明文查询，查询入参增加随机密钥比明文哈希后撞库查询安全性大大提高，确保仅仅得到匹配的查询结果却不留查询痕迹',
                 '两方交集查询是指持有数据的两方能够计算得到双方数据集合的交集部分，而不暴露交集以外的任何数据集合信息。比如黑名单的查询：当A金融机构有一份完整的黑名单用户，而这个用户准备要去B银行借款，银行希望知道这位新客户是否在A机构有过不良记录。通过隐私保护集合求交技术，B银行发现这位用户在A机构并无不良记录，而且A机构并不知道银行前来查询的这位有着借钱需求的用户是谁。',
                 '多方安全统计(被查询方)是协调方只能拿到最终的统计结果，但不能获取到特定参与方的统计结果。例如A公司想统计某个用户的信用卡数量，已知B，C两家公司有信用卡数据，但是为了安全起见，A只能获取信用卡总和而不能知道B，C两家公司的信用卡具体数据（用户在B，C各有几张信用卡），此时便可以使用多方安全统计算法，BC为被查询方，A为查询方',
                 '多方安全统计(查询方)是协调方只能拿到最终的统计结果，但不能获取到特定参与方的统计结果。例如A公司想统计某个用户的信用卡数量，已知B，C两家公司有信用卡数据，但是为了安全起见，A只能获取信用卡总和而不能知道B，C两家公司的信用卡具体数据（用户在B，C各有几张信用卡），此时便可以使用多方安全统计算法，BC为被查询方，A为查询方',
                 '多方交集查询是两方交集查询的再次封装',
-                '多方匿踪查询是两方交集查询的再次封装'];
+                '多方匿踪查询是两方交集查询的再次封装',
+                '深度学习模型--描述',
+                '机器学习模型--描述'];
             this.currentDesc = descList[this.form.service_type - 1];
         },
         async getSqlConfigDetail() {
@@ -706,6 +811,12 @@ export default {
             this.form.data_source.return_fields = [];
             if (this.form.service_type <= 3) {
                 this.getDataResources();
+            }
+            if(this.form.service_type === 7 || this.form.service_type === 8){
+                this.form.url = 'predict/promoter';
+            }
+            else{
+                this.form.url = '';
             }
         },
         add_params() {
@@ -978,6 +1089,32 @@ export default {
             return true;
         },
         async save(event) {
+            if(this.form.service_type <7){
+                await this.saveService(event);
+            }
+            else{
+                await this.submitModel()
+            }
+        },
+        async submitModel(event){
+            const { code } = await this.$http.post({
+                url:  '/model/import',
+                data: {
+                    name:       this.form.name,
+                    filename:   this.form.filename,
+                    model_type: this.form.service_type === 8 ? 'MachineLearning' : 'DeepLearning',
+                },
+                btnState: {
+                    target: event,
+                },
+            });
+
+            if (code === 0) {
+                this.$message.success('模型导入成功!');
+                this.$router.replace({ name: 'index' });
+            }
+        },
+        async saveService(event){
             if (!this.form.name || !this.form.url || !this.form.service_type) {
                 this.$message.error('请将必填项填写完整！');
                 return;
