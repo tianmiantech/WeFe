@@ -46,7 +46,11 @@ public class XgboostVertProviderBatchAlgorithm extends AbstractXgBoostBatchAlgor
         fidValueMapping.forEach((k, v) ->
                 AlgorithmThreadPool.run(() -> {
                     try {
-                        predictModelList.add(XgboostAlgorithmHelper.providerPredict(modelParam.getModelParam(), k, v));
+                        predictModelList.add(XgboostAlgorithmHelper.providerPredict(
+                                modelParam.getModelMeta().getWorkMode(),
+                                modelParam.getModelParam(),
+                                k,
+                                v));
                     } finally {
                         latch.countDown();
                     }
