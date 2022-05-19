@@ -59,7 +59,6 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -432,7 +431,7 @@ public class TaskResultService extends AbstractService {
             }
             List<MemberModel> currentMembers = new ArrayList<>();
             if(featureStatisticNode.getComponentType() == ComponentType.HorzStatistic) {
-                // Get the feature column of the current member
+                // Get the feature column of the members
                 currentMembers = input.getMembers().stream().collect(Collectors.toList());
             }
             else {
