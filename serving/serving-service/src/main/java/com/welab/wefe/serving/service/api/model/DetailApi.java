@@ -35,10 +35,7 @@ import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ModelSqlConfigMySqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.database.repository.ModelRepository;
-import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
-import com.welab.wefe.serving.service.dto.PagingInput;
-import com.welab.wefe.serving.service.dto.TreeNode;
-import com.welab.wefe.serving.service.dto.TreeNodeData;
+import com.welab.wefe.serving.service.dto.*;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
@@ -68,49 +65,64 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     @Override
     protected ApiResult<DetailApi.Output> handle(Input input) {
 
-        ModelMySqlModel model = modelRepository.findOne("id",input.getId(),ModelMySqlModel.class);
+        ModelMySqlModel model = modelRepository.findOne("id", input.getId(), ModelMySqlModel.class);
         if (model == null) {
             return fail("未查询到模型！");
         }
 
         DetailApi.Output output = ModelMapper.map(model, DetailApi.Output.class);
-
         output.setModelParam(JObject.create(model.getModelParam()).getJObject("model_param"));
-
-        /**
-         * Query role
-         */
-        List<ModelMemberMySqlModel> memberBaseInfo = modelMemberRepository.findByModelIdAndMemberId(model.getModelId(), CacheObjects.getMemberId());
-        output.setMyRole(memberBaseInfo.stream().map(ModelMemberMySqlModel::getRole).collect(Collectors.toList()));
-
-        /**
-         * Query configuration
-         */
-        ModelSqlConfigMySqlModel sqlConfig = modelSqlConfigService.findOne(model.getModelId());
-        if (sqlConfig != null) {
-            output.setModelSqlConfig(ModelMapper.map(sqlConfig, ModelSqlConfigOutput.class));
-        }
-
-        /**
-         * Query processor
-         */
+        output.setMyRole(findMyRoles(model.getModelId()));
+        output.setModelSqlConfig(querySqlConfig(model.getModelId()));
         output.setProcessor(FeatureManager.getProcessor(model.getModelId()));
-
-        if (output.getAlgorithm() == Algorithm.XGBoost) {
-            xgboost(output);
-        }
-
+        output.setXgboostTree(
+                output.getAlgorithm() == Algorithm.XGBoost ?
+                        xgboost(output.getModelParam(), output.getFlType()) : null
+        );
+        output.setModelStatus(
+                output.getMyRole().contains(JobMemberRole.promoter) ?
+                        findModelStatus(model.getModelId()) : null
+        );
 
         return success(output);
     }
 
-    private void xgboost(Output output) {
-        /**
-         * feature
-         */
-        JObject feature = output.getModelParam().getJObject("featureNameFidMapping");
+    private ModelSqlConfigOutput querySqlConfig(String modelId) {
+        ModelSqlConfigMySqlModel sqlConfig = modelSqlConfigService.findById(modelId);
 
-        XgboostModel model = output.getModelParam().toJavaObject(XgboostModel.class);
+        return ModelMapper.map(sqlConfig, ModelSqlConfigOutput.class);
+    }
+
+    private List<JobMemberRole> findMyRoles(String modelId) {
+        List<ModelMemberMySqlModel> memberBaseInfo = modelMemberRepository.findByModelIdAndMemberId(modelId, CacheObjects.getMemberId());
+
+        return memberBaseInfo
+                .stream()
+                .map(ModelMemberMySqlModel::getRole)
+                .collect(Collectors.toList());
+    }
+
+    private List<ModelStatusOutput> findModelStatus(String modelId) {
+        List<ModelMemberMySqlModel> modelMemberMySqlModels = modelMemberRepository.findByModelId(modelId);
+
+        return modelMemberMySqlModels
+                .stream()
+                .filter(x -> JobMemberRole.provider.equals(x.getRole()))
+                .map(x -> ModelStatusOutput.of
+                        (
+                                x.getMemberId(),
+                                CacheObjects.getPartnerName(x.getMemberId()),
+                                x.getStatus()
+                        )
+                )
+                .collect(Collectors.toList());
+    }
+
+    private List<TreeNode> xgboost(JObject modelParam, FederatedLearningType flType) {
+
+        JObject feature = modelParam.getJObject("featureNameFidMapping");
+
+        XgboostModel model = modelParam.toJavaObject(XgboostModel.class);
 
         /**
          * xgboost Tree structure settings
@@ -136,7 +148,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
          * </p>
          */
         List<TreeNode> xgboost = new ArrayList<>();
-        output.setXgboostTree(xgboost);
 
         List<XgboostDecisionTreeModel> trees = model.getTrees();
         for (int i = 0; i < trees.size(); i++) {
@@ -160,7 +171,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
                 data.setThreshold(
-                        output.flType == FederatedLearningType.vertical ?
+                        flType == FederatedLearningType.vertical ?
                                 splitMaskdict.get(xgboostNodeModel.getId()) : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
@@ -172,6 +183,8 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
             xgboost.add(root);
         }
+
+        return xgboost;
     }
 
     /**
@@ -243,6 +256,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         private List<TreeNode> xgboostTree;
 
+        private List<ModelStatusOutput> modelStatus;
 
         //region getter/setter
 
@@ -340,6 +354,14 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public List<ModelStatusOutput> getModelStatus() {
+            return modelStatus;
+        }
+
+        public void setModelStatus(List<ModelStatusOutput> modelStatus) {
+            this.modelStatus = modelStatus;
         }
 
         //endregion

@@ -267,34 +267,6 @@ const baseRoutes = [
         ],
     },
     {
-        path: `${prefixPath}member`,
-        meta: {
-            title: 'member管理',
-            icon:  'el-icon-user',
-        },
-        component: () => import('@comp/LayoutBase.vue'),
-        children:  [
-            {
-                path: `${prefixPath}member-list`,
-                name: 'member-list',
-                meta: {
-                    title: '成员列表',
-                },
-                component: () => import('@views/member/member-list.vue'),
-            },
-            {
-                path: `${prefixPath}member-view`,
-                name: 'member-view',
-                meta: {
-                    title:  '模型详情',
-                    hidden: true,
-                    active: `${prefixPath}member-view`,
-                },
-                component: () => import('@views/member/member-view.vue'),
-            },
-        ],
-    },
-    {
         path: `${prefixPath}logger`,
         meta: {
             title: '日志管理',

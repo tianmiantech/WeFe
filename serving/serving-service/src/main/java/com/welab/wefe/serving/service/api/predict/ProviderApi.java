@@ -53,7 +53,7 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
         try {
 
             if (!ModelManager.getModelEnable(input.getModelId())) {
-                return fail("模型成员 " + CacheObjects.getMemberName() + " 未上线该模型");
+                return fail(CacheObjects.getMemberName() + " 未上线该模型");
             }
 
             /**
@@ -83,7 +83,7 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
             );
             return success(result);
         } catch (Exception e) {
-            return fail("predict error : " + e.getMessage());
+            return fail("协作方 " + CacheObjects.getMemberName() + "错误" + e.getMessage());
         }
     }
 

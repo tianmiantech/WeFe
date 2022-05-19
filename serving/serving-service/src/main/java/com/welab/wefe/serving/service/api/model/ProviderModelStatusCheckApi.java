@@ -18,10 +18,10 @@ package com.welab.wefe.serving.service.api.model;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
+import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.service.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,17 +32,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(
         path = "model/provider/status/check",
         name = "检查模型状态（协作方提供接口）",
-        login = false
-//        ,
-//        rsaVerify = true
+        login = false,
+        rsaVerify = true,
+        domain = Caller.Member
 )
-public class ProviderModelStatusCheckApi extends AbstractApi<ProviderModelStatusCheckApi.Input, ProviderModelStatusCheckApi.Output> {
+public class ProviderModelStatusCheckApi extends AbstractApi<ProviderModelStatusCheckApi.Input, ModelStatusOutput> {
 
     @Autowired
     ModelService modelService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws Exception {
+    protected ApiResult<ModelStatusOutput> handle(Input input) throws Exception {
         return success(modelService.checkAvailable(input.getModelId()));
     }
 
@@ -60,36 +60,4 @@ public class ProviderModelStatusCheckApi extends AbstractApi<ProviderModelStatus
         }
     }
 
-
-    public static class Output extends AbstractApiOutput {
-
-        @Check(name = "modelId")
-        private String modelId;
-
-        @Check(name = "status")
-        private MemberModelStatusEnum status;
-
-        public static Output of(String modelId, MemberModelStatusEnum status) {
-            Output output = new Output();
-            output.modelId = modelId;
-            output.status = status;
-            return output;
-        }
-
-        public String getModelId() {
-            return modelId;
-        }
-
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
-        }
-
-        public MemberModelStatusEnum getStatus() {
-            return status;
-        }
-
-        public void setStatus(MemberModelStatusEnum status) {
-            this.status = status;
-        }
-    }
 }

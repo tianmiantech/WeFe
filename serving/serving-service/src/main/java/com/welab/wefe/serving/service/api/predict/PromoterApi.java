@@ -79,7 +79,7 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
 
             return success(result);
         } catch (Exception e) {
-            return fail("predict error : " + e.getMessage());
+            return fail(e.getMessage());
         }
     }
 

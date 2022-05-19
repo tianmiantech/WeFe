@@ -16,12 +16,8 @@
 
 package com.welab.wefe.serving.service.database.entity;
 
-import com.welab.wefe.common.wefe.enums.DatabaseType;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * @author hunter.zhao
@@ -32,14 +28,8 @@ public class ModelSqlConfigMySqlModel extends AbstractBaseMySqlModel {
     @Column(name = "model_id")
     private String modelId;
 
-    @Enumerated(EnumType.STRING)
-    private DatabaseType type;
-
-    private String url;
-
-    private String username;
-
-    private String password;
+    @Column(name = "data_source_id")
+    private String dataSourceId;
 
     @Column(name = "sql_context")
     private String sqlContext;
@@ -52,36 +42,12 @@ public class ModelSqlConfigMySqlModel extends AbstractBaseMySqlModel {
         this.modelId = modelId;
     }
 
-    public DatabaseType getType() {
-        return type;
+    public String getDataSourceId() {
+        return dataSourceId;
     }
 
-    public void setType(DatabaseType type) {
-        this.type = type;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setDataSourceId(String dataSourceId) {
+        this.dataSourceId = dataSourceId;
     }
 
     public String getSqlContext() {

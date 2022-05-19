@@ -18,7 +18,9 @@ package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.PartnerRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.data.domain.Sort;
@@ -41,7 +43,7 @@ public class CacheObjects {
     private static String RSA_PRIVATE_KEY;
     private static String RSA_PUBLIC_KEY;
     private static String BASE_URL;
-//    private static String MEMBER_NAME;
+    //    private static String MEMBER_NAME;
     private static String MEMBER_NAME;
     private static String MODE;
 
@@ -49,6 +51,12 @@ public class CacheObjects {
      * accountId : nickname
      */
     private static LinkedHashMap<String, String> ACCOUNT_MAP = new LinkedHashMap<>();
+
+
+    /**
+     * partnerId : partnerName
+     */
+    private static LinkedHashMap<String, String> PARTNER_MAP = new LinkedHashMap<>();
 
     public static String getMemberId() {
         if (MEMBER_ID == null) {
@@ -141,5 +149,37 @@ public class CacheObjects {
             return null;
         }
         return getAccountMap().get(accountId) == null ? "未知" : getAccountMap().get(accountId);
+    }
+
+
+    /**
+     * Reload account list
+     */
+    public static void refreshPartnerMap() {
+        PartnerRepository repo = Launcher.CONTEXT.getBean(PartnerRepository.class);
+        List<PartnerMysqlModel> list = repo.findAll(Sort.by("name"));
+
+        PARTNER_MAP.clear();
+
+        for (PartnerMysqlModel item : list) {
+            PARTNER_MAP.put(item.getId(), item.getName());
+        }
+    }
+
+    public static LinkedHashMap<String, String> getPartnerMap() {
+        if (PARTNER_MAP.isEmpty()) {
+            refreshPartnerMap();
+        }
+        return PARTNER_MAP;
+    }
+
+    /**
+     * Get the account's nickname
+     */
+    public static String getPartnerName(String partnerId) {
+        if (partnerId == null) {
+            return null;
+        }
+        return getPartnerMap().get(partnerId) == null ? "未知" : getPartnerMap().get(partnerId);
     }
 }

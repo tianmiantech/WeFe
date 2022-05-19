@@ -21,6 +21,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
 import com.welab.wefe.serving.service.service.ModelMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +33,13 @@ import java.util.List;
  * @date 2022/5/17
  */
 @Api(path = "model/status/check", name = "检查模型状态")
-public class ModelStatusCheckApi extends AbstractApi<ModelStatusCheckApi.Input, List<ModelStatusCheckApi.Output>> {
+public class ModelStatusCheckApi extends AbstractApi<ModelStatusCheckApi.Input, List<ModelStatusOutput>> {
 
     @Autowired
     ModelMemberService modelMemberService;
 
     @Override
-    protected ApiResult<List<Output>> handle(Input input) throws Exception {
+    protected ApiResult<List<ModelStatusOutput>> handle(Input input) throws Exception {
         return success(
                 modelMemberService.checkAvailableByModelIdAndMemberId(input.getModelId(), input.getMemberId())
         );
@@ -67,33 +68,6 @@ public class ModelStatusCheckApi extends AbstractApi<ModelStatusCheckApi.Input, 
 
         public void setMemberId(String memberId) {
             this.memberId = memberId;
-        }
-    }
-
-
-    public static class Output extends AbstractApiOutput {
-
-        @Check(name = "modelId")
-        private String modelId;
-
-        @Check(name = "status")
-        private MemberModelStatusEnum status;
-
-
-        public String getModelId() {
-            return modelId;
-        }
-
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
-        }
-
-        public MemberModelStatusEnum getStatus() {
-            return status;
-        }
-
-        public void setStatus(MemberModelStatusEnum status) {
-            this.status = status;
         }
     }
 }

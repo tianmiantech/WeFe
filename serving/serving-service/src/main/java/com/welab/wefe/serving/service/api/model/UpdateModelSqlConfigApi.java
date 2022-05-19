@@ -22,9 +22,8 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.service.service.ModelSqlConfigService;
+import com.welab.wefe.serving.service.service.ModelService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -34,17 +33,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class UpdateModelSqlConfigApi extends AbstractNoneOutputApi<UpdateModelSqlConfigApi.Input> {
 
     @Autowired
-    private ModelSqlConfigService modelSqlConfigService;
+    private ModelService modelService;
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        modelSqlConfigService.updateConfig(
+        modelService.updateConfig(
                 input.getModelId(),
                 input.getFeatureSource(),
-                input.getType(),
-                input.getUrl(),
-                input.getUsername(),
-                input.getPassword(),
+                input.getDataSourceId(),
                 input.getSqlContext()
         );
         return success();
@@ -57,18 +53,8 @@ public class UpdateModelSqlConfigApi extends AbstractNoneOutputApi<UpdateModelSq
         @Check(require = true, name = "配置来源")
         private PredictFeatureDataSource featureSource;
 
-
-        @Check(name = "db类型")
-        private DatabaseType type;
-
-        @Check(name = "路径")
-        private String url;
-
-        @Check(name = "用户名")
-        private String username;
-
-        @Check(name = "密码")
-        private String password;
+        @Check(name = "数据源ID")
+        private String dataSourceId;
 
         @Check(name = "sql语句")
         private String sqlContext;
@@ -91,36 +77,12 @@ public class UpdateModelSqlConfigApi extends AbstractNoneOutputApi<UpdateModelSq
             this.featureSource = featureSource;
         }
 
-        public DatabaseType getType() {
-            return type;
+        public String getDataSourceId() {
+            return dataSourceId;
         }
 
-        public void setType(DatabaseType type) {
-            this.type = type;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
+        public void setDataSourceId(String dataSourceId) {
+            this.dataSourceId = dataSourceId;
         }
 
         public String getSqlContext() {

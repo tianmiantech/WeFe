@@ -56,7 +56,7 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
             return success(result);
         } catch (Exception e) {
             e.printStackTrace();
-            return fail("predict error : " + e.getMessage());
+            return fail(e.getMessage());
         }
     }
 

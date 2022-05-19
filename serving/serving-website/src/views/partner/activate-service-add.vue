@@ -20,8 +20,9 @@
             <el-form-item label="服务提供商名称：" prop="clientName" class = "url">
                 <el-input v-model="clientService.clientName"></el-input>
             </el-form-item>
-            <el-form-item label="服务访问URL：" prop="url" class = "url">
-                <el-input v-model="clientService.url"></el-input>
+            <el-form-item label="服务访问URL：" prop="url" class = "url flex_box">
+                <el-input v-model="clientService.url" clearable/>
+                <el-link @click="testUrl" type="primary" :underline="false">测试连通性</el-link>
             </el-form-item>
             <el-form-item label="code：" prop="code" class = "url">
                 <el-input v-model="clientService.code"></el-input>
@@ -130,8 +131,7 @@ export default {
             mapGetters(['userInfo']),
     }
     ,
-    async created() {
-        await this.getRsaKey();
+    created() {
     },
 
     methods: {
@@ -151,6 +151,17 @@ export default {
                 setTimeout(() => {
                     this.$message('填充成功!');
                 }, 1000)
+            }
+        },
+        async testUrl(){
+            const { code, data } = await this.$http.post({
+                url: '/clientservice/service_url_test',
+                data:{
+                    "url":this.clientService.url
+                }
+            });
+            if (code === 0) {
+                this.$message('连通成功,code=' + data.code);
             }
         },
         onSubmit() {
@@ -257,5 +268,13 @@ export default {
 }
 .public_key{
     width: 800px;
+}
+.flex_box {
+    .el-form-item__content {
+        .el-input {
+            width: 80%;
+            margin-right: 10px;
+        }
+    }
 }
 </style>
