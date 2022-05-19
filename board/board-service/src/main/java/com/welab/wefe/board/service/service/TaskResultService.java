@@ -430,10 +430,16 @@ public class TaskResultService extends AbstractService {
 
                 missingValueMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
             }
-
-            // Get the feature column of the current member
-            List<MemberModel> currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
-                    .collect(Collectors.toList());
+            List<MemberModel> currentMembers = new ArrayList<>();
+            if(featureStatisticNode.getComponentType() == ComponentType.HorzStatistic) {
+             // Get the feature column of the current member
+                currentMembers = input.getMembers().stream().collect(Collectors.toList());
+            }
+            else {
+                // Get the feature column of the current member
+                currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
+                        .collect(Collectors.toList());
+            }
 
             // Assign values to features with missing values
             for (MemberModel model : currentMembers) {
