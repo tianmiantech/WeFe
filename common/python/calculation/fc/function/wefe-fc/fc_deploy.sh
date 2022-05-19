@@ -59,7 +59,7 @@ nas_upload(){
   find ./kernel/ -name "*.py" | cpio -pdm ./build
 
   cd common/python/calculation/fc/function/wefe-fc
-  s nas upload -r -o ./config.properties nas:///mnt/auto/$nas_env/pythonCode/  --debug
+  s nas upload -r -o ./config.properties nas:///mnt/auto/$nas_env/pythonCode  --debug
   s nas upload -r -o ../../../../../../build/ /mnt/auto/$nas_env/pythonCode  --debug
 
   rm -rf ../../../../../../build
