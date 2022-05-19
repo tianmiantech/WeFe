@@ -495,7 +495,6 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     public List<KernelTask> getMixTaskMembers(FlowGraph graph, FlowGraphNode node) {
         List<KernelTask> kernelTasks = new ArrayList<>();
         List<Member> allMembers = Member.forMachineLearning(graph.getMembers());
-        LOG.info("allMembers = " + JSONObject.toJSONString(allMembers));
         List<Member> promoters = allMembers.stream().filter(s -> s.getMemberRole() == JobMemberRole.promoter)
                 .collect(Collectors.toList());
         List<Member> providers = allMembers.stream().filter(s -> s.getMemberRole() == JobMemberRole.provider)
@@ -517,7 +516,6 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                         .findFirst().orElse(null);
                 if (promoter != null) {
                     arbiter = Member.forMachineLearning(promoter.getMemberId(), JobMemberRole.arbiter);
-                    LOG.info("arbiter = " + JSONObject.toJSONString(arbiter));
                     allMembers.add(arbiter);
                 }
             }
