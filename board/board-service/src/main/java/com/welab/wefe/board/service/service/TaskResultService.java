@@ -434,6 +434,11 @@ public class TaskResultService extends AbstractService {
                 // Get the feature column of the members
                 currentMembers = input.getMembers().stream().collect(Collectors.toList());
             }
+            else if(featureStatisticNode.getComponentType() == ComponentType.MixStatistic && JobMemberRole.promoter.name().equalsIgnoreCase(memberObj.getString("role"))) {
+                // Get the feature column of the current member
+                currentMembers = input.getMembers().stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
+                        .collect(Collectors.toList());
+            }
             else {
                 // Get the feature column of the current member
                 currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
