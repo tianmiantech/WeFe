@@ -112,7 +112,6 @@ public class ProjectFlowJobService extends AbstractService {
         if (flow == null) {
             throw new StatusCodeWithException("未找到相应的流程！", StatusCode.ILLEGAL_REQUEST);
         }
-
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
         if (!input.fromGateway() && (!isCreator(flow, project))) {
@@ -160,7 +159,7 @@ public class ProjectFlowJobService extends AbstractService {
             JobMySqlModel job = createJob(flow, input.getJobId(), jobMember.getJobRole());
 
             // create Graph
-            FlowGraph graph = new FlowGraph(job, lastJob, jobMembers, projectFlowNodeService.findNodesByFlowId(job.getFlowId()));
+            FlowGraph graph = new FlowGraph(job, lastJob, jobMembers, projectFlowNodeService.findNodesByFlowId(job.getFlowId()), flow.getCreatorMemberId());
 
             // check
             if (jobMember.getJobRole() == JobMemberRole.promoter) {
