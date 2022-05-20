@@ -28,7 +28,11 @@ from common.python.utils.conf_utils import get_comm_config, get_env_config
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
 # Database Connectivity
-fc_env = os.environ['IN_FC_ENV']
+env = os.environ
+fc_env = None
+if 'IN_FC_ENV' in env.keys():
+    fc_env = env.get('IN_FC_ENV')
+
 if fc_env is None or fc_env != 1:
     host = get_comm_config(consts.COMM_CONF_KEY_MYSQL_HOST)
     password = get_comm_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
