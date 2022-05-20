@@ -48,14 +48,12 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor imple
      * predict
      */
     @Override
-    public PredictResult predict() throws Exception {
+    public PredictResult predict() throws StatusCodeWithException {
 
         BaseModel model = getModel();
 
         //Fill in corresponding feature information
         predictParams.setFeatureDataMap(batchFillFeatureData());
-
-        featureEngineering();
 
         AbstractModelProcessor processor = getProcessor();
 

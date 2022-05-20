@@ -46,8 +46,4 @@ public class PromoterPredictor extends AbstractSinglePredictor {
     public Map<String, Object> fillFeatureData() throws StatusCodeWithException {
         return FeatureManager.getFeatureData(modelId, predictParams);
     }
-
-    @Override
-    public void featureEngineering() {
-    }
 }

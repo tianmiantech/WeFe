@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.sdk.predicter;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
@@ -52,5 +53,12 @@ public abstract class AbstractBasePredictor {
     }
 
 
-    public abstract PredictResult predict() throws Exception;
+    public abstract PredictResult predict() throws StatusCodeWithException;
+
+    /**
+     * Feature engineering treatment
+     */
+    protected void featureEngineering() {
+
+    }
 }

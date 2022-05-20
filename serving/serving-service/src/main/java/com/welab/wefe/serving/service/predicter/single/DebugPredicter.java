@@ -85,8 +85,4 @@ public class DebugPredicter extends AbstractSinglePredictor {
                 throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
         }
     }
-
-    @Override
-    public void featureEngineering() {
-    }
 }
