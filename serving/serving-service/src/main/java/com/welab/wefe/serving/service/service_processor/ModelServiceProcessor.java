@@ -32,6 +32,7 @@ import com.welab.wefe.serving.service.service.CacheObjects;
  */
 public class ModelServiceProcessor extends AbstractServiceProcessor<PredictResult> {
 
+
     @Override
     public PredictResult process(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {
 
@@ -46,14 +47,14 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<PredictResul
         /**
          * batch prediction
          */
-            if (input.getBatch()) {
+        if (input.getBatch()) {
 //                PredictResult result = Predictor.batchPromoterPredict(
 //                        input.getModelId(),
 //                        input.get()
 //                );
 //
 //                return success(result);
-            }
+        }
 
         /**
          * Single prediction
@@ -66,6 +67,4 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<PredictResul
 
         return result;
     }
-
-
 }

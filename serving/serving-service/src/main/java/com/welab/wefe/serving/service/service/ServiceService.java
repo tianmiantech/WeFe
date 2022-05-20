@@ -396,8 +396,11 @@ public class ServiceService {
         return null;
     }
 
-    public JObject executeService(RouteApi.Input input) {
+    public ServiceMySqlModel findById(String serviceId) {
+        return serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
+    }
 
+    public JObject executeService(RouteApi.Input input) {
         long start = System.currentTimeMillis();
 
         String clientIp = ServiceUtil.getIpAddr(input.request);

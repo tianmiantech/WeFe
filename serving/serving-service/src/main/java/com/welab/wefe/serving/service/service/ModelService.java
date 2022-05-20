@@ -19,21 +19,27 @@ package com.welab.wefe.serving.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
+import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.api.model.EnableApi;
 import com.welab.wefe.serving.service.api.model.QueryApi;
 import com.welab.wefe.serving.service.api.model.SaveModelApi;
+import com.welab.wefe.serving.service.api.service.RouteApi;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.dto.ServiceResultOutput;
 import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
+import com.welab.wefe.serving.service.service_processor.ModelServiceProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -318,5 +324,18 @@ public class ModelService {
         } else {
             modelSqlConfigService.clearSqlConfig(modelId);
         }
+    }
+
+   public ServiceResultOutput predict(ServiceMySqlModel serviceMySqlModel, RouteApi.Input input) throws StatusCodeWithException {
+        JObject data = JObject.create(input.getData())
+                .append("requestId", input.getRequestId());
+
+        String responseId = ServiceResultOutput.buildId();
+        return ServiceResultOutput.of(input.getRequestId(), responseId, forward(serviceMySqlModel, data));
+    }
+
+   private PredictResult forward(ServiceMySqlModel serviceMySqlModel, JObject data) throws StatusCodeWithException {
+        ModelServiceProcessor processor = new ModelServiceProcessor();
+        return processor.process(data, serviceMySqlModel);
     }
 }
