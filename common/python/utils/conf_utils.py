@@ -60,6 +60,19 @@ def get_db_config(key: tuple):
 
 
 def get_local_config(key):
+    root_path = os.environ.get('PYTHONPATH')
+    comm_file_path = root_path + '/config.properties'
+    if os.path.exists(comm_file_path):
+        with open(comm_file_path, encoding="utf8") as fp:
+            lines = fp.readlines()
+            for line in lines:
+                if line and not line.startswith("#"):
+                    split_arr = line.split('=')
+                    if split_arr[0].strip() == key:
+                        return split_arr[1].strip()
+
+
+def get_db_config(key):
     comm_file_path = os.path.join(file_utils.get_project_base_directory(),
                                   get_env_config(consts.ENV_CONF_KEY_CONFIG) or "config.properties")
     if os.path.exists(comm_file_path):
@@ -106,7 +119,7 @@ def get_comm_config(key, default=None):
             return result
     else:
 
-        result = get_local_config(key)
+        result = get_db_config(key)
         if result is not None:
             return result
     return default
