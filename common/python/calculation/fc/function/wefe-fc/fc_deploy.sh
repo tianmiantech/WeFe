@@ -21,14 +21,14 @@ nas_upload(){
 
   # create env dir
   mkdir -p $nas_env/pythonCode
-  has_env=`s nas command ls  -l nas:///mnt/auto`
+  has_env=`s nas command ls  -l /mnt/auto`
   if [[ $has_env =~ $nas_env ]]
   then
     echo 'has env dir, upload pythonCode ...'
-    s nas upload -r -o ./$nas_env/pythonCode /mnt/auto/$nas_env/ --debug
+    s nas upload -ro ./$nas_env/pythonCode /mnt/auto/$nas_env/pythonCode --debug
   else
     echo 'has not env dir, upload env dir ...'
-    s nas upload -r -o ./$nas_env /mnt/auto/ --debug
+    s nas upload -ro ./$nas_env /mnt/auto/$nas_env --debug
   fi
   rm -rf $nas_env
 
@@ -48,8 +48,8 @@ nas_upload(){
     fi
 
     echo 'upload new python to NAS ...'
-    s nas upload -r -o /data/environment/.s/python /mnt/auto/$nas_env --debug
-    s nas upload -r -o /data/environment/.s/root /mnt/auto/$nas_env --debug
+    s nas upload -ro /data/environment/.s/python /mnt/auto/$nas_env/python --debug
+    s nas upload -ro /data/environment/.s/root /mnt/auto/$nas_env/root --debug
   fi
 
   # cp common, kernel to build dir
@@ -59,8 +59,8 @@ nas_upload(){
   find ./kernel/ -name "*.py" | cpio -pdm ./build
 
   cd common/python/calculation/fc/function/wefe-fc
-  s nas upload -r -o ./config.properties /mnt/auto/$nas_env/pythonCode/  --debug
-  s nas upload -r -o ../../../../../../build/ /mnt/auto/$nas_env/pythonCode/  --debug
+  s nas upload -o ./config.properties /mnt/auto/$nas_env/pythonCode/  --debug
+  s nas upload -ro ../../../../../../build/ /mnt/auto/$nas_env/pythonCode/  --debug
 
   rm -rf ../../../../../../build
 
