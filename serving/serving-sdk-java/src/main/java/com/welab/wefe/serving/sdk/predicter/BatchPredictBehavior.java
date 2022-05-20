@@ -17,38 +17,23 @@
 package com.welab.wefe.serving.sdk.predicter;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.sdk.dto.PredictResult;
-import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
+
+import java.util.Map;
 
 /**
  * @author hunter.zhao
  */
-public interface Predicter {
+public interface BatchPredictBehavior extends PredictBehavior {
 
     /**
-     * Predict interface
-     * @return PredictResult
-     * @throws Exception Exception
-     */
-    PredictResult predict() throws Exception;
-
-    /**
-     *  get Model
-     * @return BaseModel
+     * Batch feature acquisition
+     * <p>
+     * The generated format must be ：
+     * {"15911111111":{"x0":"0.12231","x1":"2.056412"},"15922222222":{"x0":"0.12231","x1":"2.056412"},...}
+     * </>
+     *
+     * @return featureDataMap
      * @throws StatusCodeWithException
      */
-    BaseModel getModel() throws StatusCodeWithException;
-
-
-    /**
-     * Feature engineering treatment
-     */
-    void featureEngineering();
-
-    /**
-     * processor
-     * @return Model Processor
-     */
-    AbstractModelProcessor getProcessor();
+    Map<String, Map<String, Object>> batchFillFeatureData() throws StatusCodeWithException;
 }

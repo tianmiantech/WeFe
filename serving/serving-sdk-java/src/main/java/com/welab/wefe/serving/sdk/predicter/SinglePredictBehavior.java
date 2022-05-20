@@ -23,13 +23,14 @@ import java.util.Map;
 /**
  * @author hunter.zhao
  */
-public interface SinglePredicter extends Predicter {
+public interface SinglePredictBehavior extends PredictBehavior {
 
     /**
      * Find features(single)
      * <p>
      * Build format must be{"x0":"0.12231","x1":"2.056412",...}
      * </p>
+     *
      * @return featureMap
      * @throws StatusCodeWithException
      */

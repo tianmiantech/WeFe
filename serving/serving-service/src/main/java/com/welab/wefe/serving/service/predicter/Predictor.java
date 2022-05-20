@@ -19,40 +19,43 @@ package com.welab.wefe.serving.service.predicter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
-import com.welab.wefe.serving.service.database.entity.ModelMemberBaseModel;
+import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
+import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.predicter.batch.BatchPromoterPredicter;
 import com.welab.wefe.serving.service.predicter.batch.BatchProviderPredicter;
 import com.welab.wefe.serving.service.predicter.single.DebugPredicter;
-import com.welab.wefe.serving.service.predicter.single.PromoterPredicter;
-import com.welab.wefe.serving.service.predicter.single.ProviderPredicter;
+import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
+import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
+import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.PredictLogService;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 /**
  * @author Zane
  */
-public class Predicter {
+public class Predictor {
 
     private static PredictLogService predictLogService;
 
     private static ModelMemberService modelMemberService;
 
+    private static ModelService modelService;
+
     static {
         predictLogService = Launcher.CONTEXT.getBean(PredictLogService.class);
         modelMemberService = Launcher.CONTEXT.getBean(ModelMemberService.class);
+        modelService = Launcher.CONTEXT.getBean(ModelService.class);
     }
 
     /**
@@ -71,15 +74,46 @@ public class Predicter {
     }
 
 
+    public static PredictResult predict(String modelId, PredictParams predictParams, FederatedParams federatedParams) throws Exception {
+
+        long start = System.currentTimeMillis();
+        PredictResult result;
+
+        try {
+            AbstractBasePredictor predictor = constructPredictor(modelId, predictParams, federatedParams);
+            result = predictor.predict();
+
+        } finally {
+            //TODO 加日志
+//            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
+        }
+
+        return result;
+    }
+
+    private static AbstractBasePredictor constructPredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
+        ModelMySqlModel model = modelService.findOne(modelId);
+        if (model.isEnable()) {
+            return new PromoterPredictor()
+                    .setPredictParams(predictParams)
+                    .setFederatedParams(federatedParams.setRequestId("").setProviders(findProviders(modelId)))
+                    .setModelId(modelId);
+        } else {
+            return new ProviderPredictor()
+                    .setPredictParams(predictParams)
+                    .setFederatedParams(federatedParams.setResponseId(""))
+                    .setModelId(modelId);
+        }
+    }
+
     /**
      * Initiator batch call logic
      */
-    public static PredictResult batchPromoterPredict(String modelId, Map<String, Map<String, Object>> featureDataMap) throws Exception {
-
+    public static PredictResult batchPromoterPredict(String modelId, String memberId, Map<String, Map<String, Object>> featureDataMap) throws Exception {
 
         long start = System.currentTimeMillis();
 
-        String seqNo = "", memberId = "";
+        String seqNo = "";
         PredictResult result;
 
         boolean requestResult = false;
@@ -87,9 +121,9 @@ public class Predicter {
 
         try {
             //Generation predicter
-            BatchPromoterPredicter promoterPredict = new BatchPromoterPredicter(modelId, predictParams, null, providers(modelId), CacheObjects.getMemberId());
-            seqNo = promoterPredict.seqNo;
-            memberId = promoterPredict.memberId;
+            AbstractBasePredictor promoterPredict = new BatchPromoterPredicter()
+                    .setPredictParams(predictParams)
+                    .setFederatedParams(FederatedParams.of("", modelId, CacheObjects.getMemberId(), findProviders(modelId)));
 
             //start predict
             result = promoterPredict.predict();
@@ -122,7 +156,9 @@ public class Predicter {
         try {
             //Generate predicter
             FederatedParams federatedParams = FederatedParams.of(seqNo, modelId, memberId);
-            BatchProviderPredicter providerPredicter = new BatchProviderPredicter(federatedParams, predictParams, null);
+            AbstractBasePredictor providerPredicter = new BatchProviderPredicter()
+                    .setFederatedParams(federatedParams)
+                    .setPredictParams(predictParams);
 
             //Start prediction
             result = providerPredicter.predict();
@@ -140,73 +176,72 @@ public class Predicter {
     /**
      * promoter batch call logic
      */
-    public static PredictResult promoter(String modelId,
-                                         String userId,
-                                         Map<String, Object> featureData,
-                                         JSONObject params) throws Exception {
-
-        long start = System.currentTimeMillis();
-
-        String seqNo = "", memberId = "";
-        PredictResult result = null;
-
-        PredictParams predictParams = PredictParams.of(userId, featureData);
-        boolean requestResult = false;
-
-        try {
-
-            //Generate predicter
-            PromoterPredicter promoter = new PromoterPredicter(modelId, predictParams, params, providers(modelId), CacheObjects.getMemberId());
-            seqNo = promoter.seqNo;
-            memberId = promoter.memberId;
-
-            //start predict
-            result = promoter.predict();
-
-
-            //Call succeeded
-            requestResult = true;
-
-        } finally {
-            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
-        }
-
-        return result;
-    }
+//    public static PredictResult promoter(String modelId,
+//                                         String userId,
+//                                         Map<String, Object> featureData,
+//                                         JSONObject params) throws Exception {
+//
+//        long start = System.currentTimeMillis();
+//
+//        String seqNo = "", memberId = "";
+//        PredictResult result = null;
+//
+//        PredictParams predictParams = PredictParams.of(userId, featureData);
+//        boolean requestResult = false;
+//
+//        try {
+//
+//            //Generate predicter
+//            PromoterPredictor promoter = new PromoterPredictor(modelId, predictParams, params, findProviders(modelId), CacheObjects.getMemberId());
+//            seqNo = promoter.seqNo;
+//            memberId = promoter.memberId;
+//
+//            //start predict
+//            result = promoter.predict();
+//
+//
+//            //Call succeeded
+//            requestResult = true;
+//
+//        } finally {
+//            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
+//        }
+//
+//        return result;
+//    }
 
 
     /**
      * provider predict
      */
-    public static PredictResult provider(String seqNo,
-                                         String modelId,
-                                         String memberId,
-                                         String userId,
-                                         Map<String, Object> featureData,
-                                         JSONObject params) throws Exception {
-
-        long start = System.currentTimeMillis();
-
-        PredictResult result = null;
-        PredictParams predictParams = PredictParams.of(userId, featureData);
-        FederatedParams federatedParams = FederatedParams.of(seqNo, modelId, memberId);
-        boolean requestResult = false;
-
-        try {
-
-            ProviderPredicter provider = new ProviderPredicter(federatedParams, predictParams, params);
-            result = provider.predict();
-
-
-            //Call succeeded
-            requestResult = true;
-
-        } finally {
-            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
-        }
-
-        return result;
-    }
+//    public static PredictResult provider(String seqNo,
+//                                         String modelId,
+//                                         String memberId,
+//                                         String userId,
+//                                         Map<String, Object> featureData,
+//                                         JSONObject params) throws Exception {
+//
+//        long start = System.currentTimeMillis();
+//
+//        PredictResult result = null;
+//        PredictParams predictParams = PredictParams.of(userId, featureData);
+//        FederatedParams federatedParams = FederatedParams.of(seqNo, modelId, memberId);
+//        boolean requestResult = false;
+//
+//        try {
+//
+//            ProviderPredictor provider = new ProviderPredictor(federatedParams, predictParams, params);
+//            result = provider.predict();
+//
+//            //Call succeeded
+//            requestResult = true;
+//
+//        } finally {
+//            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
+//        }
+//
+//        return result;
+//    }
 
     /**
      * predict Interface
@@ -228,22 +263,25 @@ public class Predicter {
         PredictResult result = null;
 
         PredictParams predictParams = PredictParams.of(userId, featureData);
+        FederatedParams federatedParams = FederatedParams.of(seqNo, modelId, memberId, findProviders(modelId));
         boolean requestResult = false;
 
         try {
+            AbstractBasePredictor debug = new DebugPredicter()
+                    .setFeatureSource(featureSource)
+                    .setMyRole(myRole)
+                    .setPredictParams(predictParams)
+                    .setFederatedParams(federatedParams)
+                    .setModelId(modelId);
 
-
-            DebugPredicter debug = new DebugPredicter(modelId, predictParams, params, providers(modelId), featureSource, myRole, CacheObjects.getMemberId());
-            seqNo = debug.seqNo;
-            memberId = debug.memberId;
             result = debug.predict();
 
 
             //Call succeeded
-            requestResult = true;
+//            requestResult = true;
 
         } finally {
-            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
+//            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
         }
 
         return result;
@@ -315,17 +353,7 @@ public class Predicter {
     /**
      * Get partner information
      */
-    private static List<ProviderParams> providers(String modelId) {
-        /*---↓↓↓↓↓ Get partner information↓↓↓↓↓---*/
-
-        List<ModelMemberBaseModel> modelMember = modelMemberService.findModelMemberBase(modelId, JobMemberRole.provider.name());
-
-        return modelMember
-                .stream()
-                .map(x -> ModelMapper.map(x, ProviderParams.class))
-                .collect(Collectors.toList());
-
-        /*---↑↑↑↑↑Get partner information↑↑↑↑↑---*/
-
+    private static List<ProviderParams> findProviders(String modelId) {
+        return modelMemberService.findProviders(modelId);
     }
 }

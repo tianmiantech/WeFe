@@ -23,7 +23,9 @@ import java.util.List;
  */
 public class FederatedParams {
 
-    private String seqNo;
+    private String requestId;
+
+    private String responseId;
 
     private String modelId;
 
@@ -34,58 +36,79 @@ public class FederatedParams {
     private FederatedParams() {
     }
 
-    public FederatedParams(String seqNo, String modelId, String memberId) {
-        this.seqNo = seqNo;
+    public FederatedParams(String requestId, String modelId, String memberId) {
+        this.requestId = requestId;
         this.modelId = modelId;
         this.memberId = memberId;
     }
 
-    public static FederatedParams of(String seqNo, String modelId, String memberId) {
+    public static FederatedParams of(String modelId, String memberId) {
         FederatedParams federatedParams = new FederatedParams();
-        federatedParams.seqNo = seqNo;
         federatedParams.modelId = modelId;
         federatedParams.memberId = memberId;
         return federatedParams;
     }
 
-    public static FederatedParams of(String seqNo, String modelId, String memberId, List<ProviderParams> providers) {
+    public static FederatedParams of(String requestId, String modelId, String memberId) {
         FederatedParams federatedParams = new FederatedParams();
-        federatedParams.seqNo = seqNo;
+        federatedParams.requestId = requestId;
+        federatedParams.modelId = modelId;
+        federatedParams.memberId = memberId;
+        return federatedParams;
+    }
+
+    public static FederatedParams of(String requestId, String modelId, String memberId, List<ProviderParams> providers) {
+        FederatedParams federatedParams = new FederatedParams();
+        federatedParams.requestId = requestId;
         federatedParams.modelId = modelId;
         federatedParams.memberId = memberId;
         federatedParams.providers = providers;
         return federatedParams;
     }
 
-    public String getSeqNo() {
-        return seqNo;
-    }
-
-    public void setSeqNo(String seqNo) {
-        this.seqNo = seqNo;
-    }
 
     public String getModelId() {
         return modelId;
     }
 
-    public void setModelId(String modelId) {
+    public FederatedParams setModelId(String modelId) {
         this.modelId = modelId;
+        return this;
     }
 
     public String getMemberId() {
         return memberId;
     }
 
-    public void setMemberId(String memberId) {
+    public FederatedParams setMemberId(String memberId) {
         this.memberId = memberId;
+        return this;
+    }
+
+    public FederatedParams setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+
+    public FederatedParams setResponseId(String responseId) {
+        this.responseId = responseId;
+        return this;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public String getResponseId() {
+        return responseId;
     }
 
     public List<ProviderParams> getProviders() {
         return providers;
     }
 
-    public void setProviders(List<ProviderParams> providers) {
+    public FederatedParams setProviders(List<ProviderParams> providers) {
         this.providers = providers;
+        return this;
     }
 }

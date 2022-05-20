@@ -150,7 +150,7 @@ public abstract class AbstractAlgorithm<T, R> {
          * <p>predictParams will be sent to the provider. You need to be cautious about sensitive data</p>
          */
         TreeMap<String, Object> params = new TreeMap<>();
-        params.put("seqNo", federatedParams.getSeqNo());
+//        params.put("seqNo", federatedParams.getSeqNo());
         params.put("modelId", federatedParams.getModelId());
         params.put("memberId", federatedParams.getMemberId());
         params.put("userId", userId);
@@ -190,7 +190,7 @@ public abstract class AbstractAlgorithm<T, R> {
          * <p>predictParams will be sent to the provider. You need to be cautious about sensitive data</p>
          */
         TreeMap<String, Object> params = new TreeMap<>();
-        params.put("seqNo", federatedParams.getSeqNo());
+//        params.put("seqNo", federatedParams.getSeqNo());
         params.put("modelId", federatedParams.getModelId());
         params.put("memberId", federatedParams.getMemberId());
         params.put("isBatch", true);

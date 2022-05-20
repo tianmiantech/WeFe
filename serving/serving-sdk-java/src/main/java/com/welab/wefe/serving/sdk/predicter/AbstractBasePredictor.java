@@ -14,26 +14,43 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter.batch;
+package com.welab.wefe.serving.sdk.predicter;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.PredictResult;
 
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractBatchProviderPredicter extends AbstractBatchPredicter {
+public abstract class AbstractBasePredictor {
 
+    public FederatedParams federatedParams;
+    public PredictParams predictParams;
+    public JSONObject params;
+    public String modelId;
 
-    public AbstractBatchProviderPredicter(FederatedParams federatedParams,
-                                          PredictParams predictParams,
-                                          JSONObject params) {
-
-        this.modelId = federatedParams.getModelId();
-
+    public AbstractBasePredictor setFederatedParams(FederatedParams federatedParams) {
         this.federatedParams = federatedParams;
-        this.predictParams = predictParams;
-        this.params = params;
+        return this;
     }
+
+    public AbstractBasePredictor setPredictParams(PredictParams predictParams) {
+        this.predictParams = predictParams;
+        return this;
+    }
+
+    public AbstractBasePredictor setParams(JSONObject params) {
+        this.params = params;
+        return this;
+    }
+
+    public AbstractBasePredictor setModelId(String modelId) {
+        this.modelId = modelId;
+        return this;
+    }
+
+
+    public abstract PredictResult predict() throws Exception;
 }

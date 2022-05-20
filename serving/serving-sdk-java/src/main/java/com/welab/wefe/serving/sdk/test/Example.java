@@ -17,12 +17,12 @@
 package com.welab.wefe.serving.sdk.test;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.serving.sdk.config.Launcher;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
+import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.HashMap;
@@ -64,7 +64,9 @@ public class Example {
             /**
              * promoter
              */
-            ExamplePromoterPredicter promoter = new ExamplePromoterPredicter("modelId", predictParams, new JSONObject(), providers, "memberId");
+            AbstractBasePredictor promoter = new ExamplePromoterPredicter()
+                    .setPredictParams(predictParams)
+                    .setModelId("modelId");
             PredictResult promoterResult = promoter.predict();
             System.err.println(JSON.toJSONString(promoterResult));
 
@@ -72,10 +74,9 @@ public class Example {
             /**
              * provider
              */
-            ExampleProviderPredicter provider = new ExampleProviderPredicter(
-                    FederatedParams.of("", "modelId-02", "memberId"),
-                    predictParams,
-                    new JSONObject());
+            AbstractBasePredictor provider = new ExampleProviderPredicter()
+                    .setPredictParams(predictParams)
+                    .setFederatedParams(FederatedParams.of("", "modelId-02", "memberId"));
             PredictResult providerResult = provider.predict();
             System.err.println(JSON.toJSONString(providerResult));
 
