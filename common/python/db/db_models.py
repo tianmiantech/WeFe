@@ -31,6 +31,8 @@ stat_logger = log_utils.get_logger("wefe_flow_stat")
 env = os.environ
 fc_env = os.getenv('IN_FC_ENV')
 print(type(fc_env))
+work_mode = None
+DB = None
 
 if fc_env is None or int(fc_env) != 1:
     host = get_comm_config(consts.COMM_CONF_KEY_MYSQL_HOST)
@@ -57,8 +59,6 @@ if fc_env is None or int(fc_env) != 1:
 
     # 改为读取数据库配置, 且该配置已放入 job config 中
     work_mode = get_comm_config(consts.COMM_CONF_KEY_EXAMPLE_RUN)
-
-    DB = None
 
     if int(work_mode) == 0:
         stat_logger.debug("Use SQLite")
@@ -598,13 +598,10 @@ class TaskProgress(ModelBase):
         )
 
 
-if int(work_mode) == 0:
+if fc_env != 1 and int(work_mode) == 0:
     members = inspect.getmembers(sys.modules[__name__], inspect.isclass)
     table_objs = []
     for name, obj in members:
         if obj != ModelBase and issubclass(obj, ModelBase):
             table_objs.append(obj)
     sqlite_utils.create_table(table_objs, DB)
-
-if __name__ == '__main__':
-    print(os.getenv('ENV_PORT'))
