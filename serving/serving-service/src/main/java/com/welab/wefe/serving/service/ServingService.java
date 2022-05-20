@@ -99,39 +99,67 @@ public class ServingService implements ApplicationContextAware {
      * </p>
      */
     private static void rsaVerifyCustomer(HttpServletRequest request, JSONObject params) throws Exception {
-        String uri = request.getRequestURI();
-        String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
-        ServiceRepository serviceRepository = Launcher.CONTEXT.getBean(ServiceRepository.class);
-        ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
-        if (service == null) {
-            throw new StatusCodeWithException("Invalid request：", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
-        /**
-         * Find signature information
-         */
-        PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
-        PartnerMysqlModel partnerMysqlModel = partnerService.queryByCode(signedApiInput.getCustomerId());
 
-        if (partnerMysqlModel == null) {
-            throw new StatusCodeWithException("Invalid customer_id：" + signedApiInput.getCustomerId(),
-                    StatusCode.PARAMETER_VALUE_INVALID);
-        }
+        String serviceId = verificationServiceApi(request);
 
-        ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
+        String partnerId = findPartner(signedApiInput.getCustomerId());
 
-        ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService.queryByIdAndServiceId(partnerMysqlModel.getId(), service.getId());
-        if (clientServiceMysqlModel == null) {
-            throw new StatusCodeWithException("Invalid request", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+        String partnerRsaKey = findPartnerRsaKey(partnerId, serviceId);
+
+        verify(signedApiInput, partnerRsaKey);
+
+        buildParams(params, signedApiInput, serviceId);
+    }
+
+    private static void buildParams(JSONObject params, SignedApiInput signedApiInput, String serviceId) {
+        params.putAll(JSONObject.parseObject(signedApiInput.getData()));
+        params.put("customer_id", signedApiInput.getCustomerId());
+        params.put("service_id", serviceId);
+    }
+
+    private static void verify(SignedApiInput signedApiInput, String partnerRsaKey) throws Exception {
         boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(),
-                RSAUtil.getPublicKey(clientServiceMysqlModel.getPublicKey()), signedApiInput.getSign());
+                RSAUtil.getPublicKey(partnerRsaKey), signedApiInput.getSign());
         if (!verified) {
             throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
         }
-        params.putAll(JSONObject.parseObject(signedApiInput.getData()));
-        // params.putAll(JSONObject.parseObject(RSAUtil.decryptByPublicKey(signedApiInput.getData(), clientMysqlModel.getPubKey())));
-        params.put("customer_id", signedApiInput.getCustomerId());
+    }
+
+    private static String findPartnerRsaKey(String partnerId, String serviceId) throws StatusCodeWithException {
+
+        ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
+        ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService.queryByIdAndServiceId(partnerId, serviceId);
+        if (clientServiceMysqlModel == null) {
+            throw new StatusCodeWithException("未查询到该合作方到开通记录", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        return clientServiceMysqlModel.getPublicKey();
+    }
+
+    private static String findPartner(String customerId) throws StatusCodeWithException {
+        PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
+        PartnerMysqlModel partnerMysqlModel = partnerService.queryByCode(customerId);
+        if (partnerMysqlModel == null) {
+            throw new StatusCodeWithException("未查询到该合作方：" + customerId,
+                    StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        return partnerMysqlModel.getId();
+    }
+
+    private static String verificationServiceApi(HttpServletRequest request) throws StatusCodeWithException {
+        String serviceUrl = extractServiceUrl(request);
+        ServiceRepository serviceRepository = Launcher.CONTEXT.getBean(ServiceRepository.class);
+        ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
+        if (service == null) {
+            throw new StatusCodeWithException("未查找到该服务！", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        return service.getId();
+    }
+
+    private static String extractServiceUrl(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.substring(uri.lastIndexOf("api/") + 4);
     }
 
     /**
@@ -162,7 +190,6 @@ public class ServingService implements ApplicationContextAware {
         }
 
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
-        //params.put("memberId", signedApiInput.getMemberId());
     }
 
     /**
@@ -175,17 +202,16 @@ public class ServingService implements ApplicationContextAware {
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
 
         if (!CacheObjects.getMemberId().equals(signedApiInput.getMemberId())) {
-            throw new StatusCodeWithException("Invalid member_id：" + signedApiInput.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("用户检验失败：" + signedApiInput.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 
         boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(), RSAUtil.getPublicKey(CacheObjects.getRsaPublicKey()), signedApiInput.getSign());
         if (!verified) {
-            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
-        //params.put("memberId", signedApiInput.getMemberId());
     }
 
     @Override

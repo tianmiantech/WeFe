@@ -18,7 +18,9 @@ package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.database.entity.ModelMemberBaseModel;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
@@ -59,6 +61,20 @@ public class ModelMemberService {
 
     public List<ModelMemberBaseModel> findModelMemberBase(String modelId, String role) {
         return modelMemberBaseRepository.findAllByModelIdAndRole(modelId, role);
+    }
+
+
+    /**
+     * Get partner information
+     */
+    public List<ProviderParams> findProviders(String modelId) {
+
+        List<ModelMemberBaseModel> modelMember = findModelMemberBase(modelId, JobMemberRole.provider.name());
+
+        return modelMember
+                .stream()
+                .map(x -> ModelMapper.map(x, ProviderParams.class))
+                .collect(Collectors.toList());
     }
 
     /**

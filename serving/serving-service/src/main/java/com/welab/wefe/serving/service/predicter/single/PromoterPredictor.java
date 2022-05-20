@@ -16,27 +16,25 @@
 
 package com.welab.wefe.serving.service.predicter.single;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractProviderPredicter;
+import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 
 import java.util.Map;
 
 /**
- *  model call provider
+ * Model call initiator
  *
  * @author hunter.zhao
  */
-public class ProviderPredicter extends AbstractProviderPredicter {
+public class PromoterPredictor extends AbstractSinglePredictor {
 
-    public ProviderPredicter(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-        super(federatedParams, predictParams, params);
-    }
+//    public PromoterPredicter(String modelId, PredictParams predictParams, JSONObject params, List<ProviderParams> providers, String memberId) {
+//        super(modelId, predictParams, params, providers, memberId);
+//    }
+
 
     @Override
     public BaseModel getModel() throws StatusCodeWithException {

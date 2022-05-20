@@ -21,7 +21,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPromoterPredicter;
+import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 
@@ -33,11 +33,11 @@ import java.util.Map;
  *
  * @author hunter.zhao
  */
-public class BatchPromoterPredicter extends AbstractBatchPromoterPredicter {
-
-    public BatchPromoterPredicter(String modelId, PredictParams predictParam, JSONObject params, List<ProviderParams> providers, String memberId) {
-        super(modelId, predictParam, params, providers, memberId);
-    }
+public class BatchPromoterPredicter extends AbstractBatchPredictor {
+//
+//    public BatchPromoterPredicter(String modelId, PredictParams predictParam, JSONObject params, List<ProviderParams> providers, String memberId) {
+//        super(modelId, predictParam, params, providers, memberId);
+//    }
 
 
     @Override

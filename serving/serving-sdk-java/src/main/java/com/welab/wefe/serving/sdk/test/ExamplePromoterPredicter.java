@@ -16,16 +16,12 @@
 
 package com.welab.wefe.serving.sdk.test;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractPromoterPredicter;
+import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,11 +29,7 @@ import java.util.Map;
  *
  * @author hunter.zhao
  */
-public class ExamplePromoterPredicter extends AbstractPromoterPredicter {
-
-    public ExamplePromoterPredicter(String modelId, PredictParams predictParams, JSONObject params, List<ProviderParams> providers, String memberId) {
-        super(modelId, predictParams, params, providers, memberId);
-    }
+public class ExamplePromoterPredicter extends AbstractSinglePredictor {
 
     @Override
     public BaseModel getModel() {

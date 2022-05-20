@@ -25,7 +25,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
-import com.welab.wefe.serving.service.predicter.Predicter;
+import com.welab.wefe.serving.service.predicter.Predictor;
 
 import java.util.Map;
 
@@ -44,7 +44,7 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
     protected ApiResult<PredictResult> handle(Input input) {
 
         try {
-            PredictResult result = Predicter.debug(
+            PredictResult result = Predictor.debug(
                     input.getModelId(),
                     input.getUserId(),
                     input.getFeatureData(),

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.serving.service.api.predict;
 
 import com.welab.wefe.common.StatusCode;
@@ -35,57 +34,54 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.Map;
 
-
 /**
  * @author hunter.zhao
  */
 @Api(
-        path = "predict/promoter",
+        path = "api/predict",
         name = "模型预测",
         login = false,
         rsaVerify = true,
-        domain = Caller.Member
+        domain = Caller.Customer
 )
-public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
+public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
+
 
     @Override
-    protected ApiResult<PredictResult> handle(Input input) {
-        try {
-
-            if (!ModelManager.getModelEnable(input.getModelId())) {
-                return fail("模型成员 " + CacheObjects.getMemberName() + " 未上线该模型");
-            }
-
-            /**
-             * batch prediction
-             */
-//            if (input.getBatch()) {
-//                PredictResult result = Predictor.batchPromoterPredict(
-//                        input.getModelId(),
-//                        input.getFeatureDataMap()
-//                );
-//
-//                return success(result);
-//            }
-
-            /**
-             * Single prediction
-             */
-            PredictResult result = Predictor.predict(
-                    input.getModelId(),
-                    PredictParams.of(input.getUserId(), input.getFeatureData()),
-                    FederatedParams.of(input.getModelId(), CacheObjects.getMemberId())
-            );
-
-            return success(result);
-        } catch (Exception e) {
-            return fail(e.getMessage());
+    protected ApiResult<PredictResult> handle(Input input) throws Exception {
+        if (!ModelManager.getModelEnable(input.getModelId())) {
+            return fail(CacheObjects.getMemberName() + " 未上线该模型");
         }
+
+        /**
+         * batch prediction
+         */
+//        if (input.getBatch()) {
+//            PredictResult result = Predictor.batchPromoterPredict(
+//                    input.getModelId(),
+//                    input.getFeatureDataMap()
+//            );
+//            return success(result);
+//        }
+
+        /**
+         * Single prediction
+         */
+        PredictResult result = Predictor.predict(
+                input.getModelId(),
+                PredictParams.of(input.getUserId(), input.getFeatureData()),
+                FederatedParams.of(input.getModelId(), input.getMemberId())
+        );
+
+        return success(result);
     }
 
     public static class Input extends AbstractApiInput {
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
+
+        @Check(require = true, name = "合作方标识")
+        private String memberId;
 
         @Check(name = "用户 id")
         private String userId;
@@ -128,6 +124,14 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
 
         public void setModelId(String modelId) {
             this.modelId = modelId;
+        }
+
+        public String getMemberId() {
+            return memberId;
+        }
+
+        public void setMemberId(String memberId) {
+            this.memberId = memberId;
         }
 
         public String getUserId() {
