@@ -598,10 +598,11 @@ class TaskProgress(ModelBase):
         )
 
 
-if fc_env != 1 and int(work_mode) == 0:
-    members = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-    table_objs = []
-    for name, obj in members:
-        if obj != ModelBase and issubclass(obj, ModelBase):
-            table_objs.append(obj)
-    sqlite_utils.create_table(table_objs, DB)
+if fc_env != 1:
+    if int(work_mode) == 0:
+        members = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+        table_objs = []
+        for name, obj in members:
+            if obj != ModelBase and issubclass(obj, ModelBase):
+                table_objs.append(obj)
+        sqlite_utils.create_table(table_objs, DB)
