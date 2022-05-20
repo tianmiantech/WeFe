@@ -29,9 +29,8 @@ stat_logger = log_utils.get_logger("wefe_flow_stat")
 
 # Database Connectivity
 env = os.environ
-fc_env = None
-if 'IN_FC_ENV' in env.keys():
-    fc_env = env.get('IN_FC_ENV')
+fc_env = os.getenv('IN_FC_ENV')
+print(fc_env)
 
 if fc_env is None or fc_env != 1:
     host = get_comm_config(consts.COMM_CONF_KEY_MYSQL_HOST)
@@ -608,4 +607,4 @@ if int(work_mode) == 0:
     sqlite_utils.create_table(table_objs, DB)
 
 if __name__ == '__main__':
-    pass
+    print(os.getenv('ENV_PORT'))
