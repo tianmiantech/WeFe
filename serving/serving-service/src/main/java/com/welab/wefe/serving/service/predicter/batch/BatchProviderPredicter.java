@@ -21,7 +21,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchProviderPredicter;
+import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 
@@ -32,11 +32,11 @@ import java.util.Map;
  *
  * @author hunter.zhao
  */
-public class BatchProviderPredicter extends AbstractBatchProviderPredicter {
+public class BatchProviderPredicter extends AbstractBatchPredictor {
 
-    public BatchProviderPredicter(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-        super(federatedParams, predictParams, params);
-    }
+//    public BatchProviderPredicter(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
+//        super(federatedParams, predictParams, params);
+//    }
 
     @Override
     public BaseModel getModel() throws StatusCodeWithException {

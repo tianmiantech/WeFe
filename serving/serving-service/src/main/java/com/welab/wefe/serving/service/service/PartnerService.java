@@ -226,6 +226,7 @@ public class PartnerService {
             partner.setIsUnionMember(true);
             partner.setId(x.getMemberId());
             partner.setName(x.getName());
+            partner.setCode(x.getMemberId());
             partner.setServingBaseUrl("");
             partner.setEmail("");
             try {

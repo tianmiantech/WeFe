@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter.batch;
+package com.welab.wefe.serving.sdk.predicter.single;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -23,16 +23,16 @@ import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.manager.AlgorithmManager;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.AbstractBasePredicter;
-import com.welab.wefe.serving.sdk.predicter.BatchPredicter;
+import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
+import com.welab.wefe.serving.sdk.predicter.SinglePredictBehavior;
 import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
 
 /**
- * Batch prediction
+ * Single prediction
  *
  * @author hunter.zhao
  */
-public abstract class AbstractBatchPredicter extends AbstractBasePredicter implements BatchPredicter {
+public abstract class AbstractSinglePredictor extends AbstractBasePredictor implements SinglePredictBehavior {
 
 
     /**
@@ -40,9 +40,8 @@ public abstract class AbstractBatchPredicter extends AbstractBasePredicter imple
      */
     @Override
     public AbstractModelProcessor getProcessor() {
-        return ModelProcessorManager.getBatchProcessor(modelId);
+        return ModelProcessorManager.getProcessor(modelId);
     }
-
 
     /**
      * predict
@@ -52,8 +51,7 @@ public abstract class AbstractBatchPredicter extends AbstractBasePredicter imple
 
         BaseModel model = getModel();
 
-        //Fill in corresponding feature information
-        predictParams.setFeatureDataMap(batchFillFeatureData());
+        predictParams.setFeatureData(fillFeatureData());
 
         featureEngineering();
 
@@ -61,7 +59,7 @@ public abstract class AbstractBatchPredicter extends AbstractBasePredicter imple
 
         processor.preprocess(model, federatedParams, predictParams, params);
 
-        AbstractAlgorithm algorithm = AlgorithmManager.getBatch(model);
+        AbstractAlgorithm algorithm = AlgorithmManager.get(model);
         if(algorithm == null){
             throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID,"The corresponding model is not found. Please check whether the parameters are incorrect");
         }
@@ -71,4 +69,5 @@ public abstract class AbstractBatchPredicter extends AbstractBasePredicter imple
 
         return result;
     }
+
 }

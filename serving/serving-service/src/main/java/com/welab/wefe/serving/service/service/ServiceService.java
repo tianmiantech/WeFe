@@ -29,28 +29,6 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
-import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
-import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
-import com.welab.wefe.mpc.commom.Constants;
-import com.welab.wefe.mpc.config.CommunicationConfig;
-import com.welab.wefe.mpc.pir.request.QueryKeysRequest;
-import com.welab.wefe.mpc.pir.request.QueryKeysResponse;
-import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
-import com.welab.wefe.mpc.pir.sdk.PrivateInformationRetrievalQuery;
-import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
-import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
-import com.welab.wefe.mpc.pir.server.service.naor.NaorPinkasRandomService;
-import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
-import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
-import com.welab.wefe.mpc.psi.sdk.PrivateSetIntersection;
-import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
-import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
-import com.welab.wefe.mpc.sa.sdk.SecureAggregation;
-import com.welab.wefe.mpc.sa.sdk.config.ServerConfig;
-import com.welab.wefe.mpc.sa.sdk.transfer.SecureAggregationTransferVariable;
-import com.welab.wefe.mpc.sa.sdk.transfer.impl.HttpTransferVariable;
-import com.welab.wefe.mpc.sa.server.service.QueryDiffieHellmanKeyService;
-import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
 import com.welab.wefe.serving.service.api.service.QueryOneApi;
@@ -63,6 +41,7 @@ import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import com.welab.wefe.serving.service.service_processor.*;
 import com.welab.wefe.serving.service.utils.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -78,7 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -421,44 +399,25 @@ public class ServiceService {
             throws StatusCodeWithException {
         long start = System.currentTimeMillis();
         String clientIp = ServiceUtil.getIpAddr(input.request);
-        String uri = input.request.getRequestURI();
-        String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
-        ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
+        ServiceMySqlModel service = serviceRepository.findOne("id", input.getServiceId(), ServiceMySqlModel.class);
         JObject data = JObject.create(input.getData());
         int serviceType = service.getServiceType();
         // check params
-        JObject res = check(service, data, serviceUrl, input, clientIp);
+        JObject res = check(service, data, service.getUrl(), input, clientIp);
         if (res == null) {
             res = JObject.create();
-            PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
             try {
-                if (serviceType == ServiceTypeEnum.PIR.getCode()) {
-                    res = pir(data, service);
-                } else if (serviceType == ServiceTypeEnum.PSI.getCode()) {
-                    QueryPrivateSetIntersectionResponse result = psi(data, service);
-                    res = JObject.create(result);
-                } else if (serviceType == ServiceTypeEnum.SA.getCode()) {
-                    QueryDiffieHellmanKeyResponse result = sa(data, service);
-                    res = JObject.create(result);
-                } else if (serviceType == ServiceTypeEnum.MULTI_SA.getCode()) {
-                    Double result = -999.0;
-                    result = sa_query(data, service);
-                    res = JObject.create("result", result);
-                } else if (serviceType == ServiceTypeEnum.MULTI_PSI.getCode()) {
-                    List<String> result = multi_psi(data, service);
-                    res = JObject.create("result", result);
-                } else if (serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
-                    List<JObject> results = multi_pir(data, service);
-                    res = JObject.create("result", results);
-                }
+                AbstractServiceProcessor serviceProcessor = ServiceProcessorUtils.get(serviceType);
+                res = (JObject) serviceProcessor.process(data, service);
+                res.append("code", ServiceResultEnum.SUCCESS.getCode());
             } catch (Exception e) {
                 res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
-                res.append("message", "service error: url = " + serviceUrl + ", message= " + e.getMessage());
-                log(service, client, start, clientIp, res.getIntValue("code"));
+                res.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
                 return res;
+            } finally {
+                PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
+                log(service, client, start, clientIp, res.getIntValue("code"));
             }
-            res.append("code", ServiceResultEnum.SUCCESS.getCode());
-            log(service, client, start, clientIp, res.getIntValue("code"));
         }
         return res;
     }
@@ -473,45 +432,9 @@ public class ServiceService {
      *
      * @throws Exception
      */
-    private Double sa_query(JObject data, ServiceMySqlModel model) throws Exception {
-        JObject userParams = data.getJObject("query_params");
-        JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
-        int size = serviceConfigs.size();
-        List<ServerConfig> serverConfigs = new LinkedList<>();
-        List<SecureAggregationTransferVariable> transferVariables = new LinkedList<>();
-
-        for (int i = 0; i < size; i++) {
-            JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
-//			String supplieId = serviceConfig.getString("member_id");
-            String apiName = serviceConfig.getString("api_name");
-            String baseUrl = serviceConfig.getString("base_url");
-            String url = baseUrl + apiName;
-            ClientServiceMysqlModel activateModel = clientServiceService.findActivateClientServiceByUrl(url);
-            if (activateModel == null) {
-                throw new Exception("尚未激活服务:" + url);
-            }
-            ServerConfig config = new ServerConfig();
-            config.setServerName(apiName);
-            config.setServerUrl(baseUrl);
-            config.setQueryParams(userParams);
-            CommunicationConfig communicationConfig = new CommunicationConfig();
-            communicationConfig.setApiName(apiName);
-            communicationConfig.setServerUrl(baseUrl);
-            communicationConfig.setCommercialId(activateModel.getCode());
-            communicationConfig.setNeedSign(true);
-            communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
-            config.setCommunicationConfig(communicationConfig);
-            HttpTransferVariable httpTransferVariable = new HttpTransferVariable(config);
-            transferVariables.add(httpTransferVariable);
-            serverConfigs.add(config);
-        }
-
-        SecureAggregation secureAggregation = new SecureAggregation();
-        if (model.getOperator().equalsIgnoreCase("sum")) {
-            return secureAggregation.query(serverConfigs, transferVariables);
-        } else {
-            return secureAggregation.query(serverConfigs, transferVariables) / size;
-        }
+    private JSONObject sa_query(JObject data, ServiceMySqlModel model) throws Exception {
+        SAQueryServiceProcessor processor = new SAQueryServiceProcessor();
+        return processor.process(data, model);
     }
 
     /**
@@ -520,237 +443,31 @@ public class ServiceService {
      * QueryDiffieHellmanKeyService.handle 2.生成一个接口，参数为 QuerySAResultRequest ，然后去调用
      * QueryResultService.handle ，然后返回结果
      */
-    private QueryDiffieHellmanKeyResponse sa(JObject data, ServiceMySqlModel model)
+    private JObject sa(JObject data, ServiceMySqlModel model)
             throws StatusCodeWithException {
-        QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
-        request.setP(data.getString("p"));
-        request.setG(data.getString("g"));
-        request.setUuid(data.getString("uuid"));
-        request.setQueryParams(data.getJSONObject("query_params"));
-
-        QueryDiffieHellmanKeyService service = new QueryDiffieHellmanKeyService();
-        JSONObject queryParams = request.getQueryParams();
-        JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        String dataSourceId = dataSource.getString("id");
-        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-        String sql = ServiceUtil.generateSQL(queryParams.toJSONString(), dataSource, dataSourceModel.getDatabaseName());
-        String resultfields = ServiceUtil.parseReturnFields(dataSource);
-        String resultStr = "";
-        try {
-            Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
-                    Arrays.asList(resultfields.split(",")));
-            if (resultMap == null || resultMap.isEmpty()) {
-                resultMap = new HashMap<>();
-            }
-            resultStr = resultMap.get(resultfields);// 目前只支持一个返回值
-            LOG.info(queryParams.toJSONString() + "\t " + resultStr);
-        } catch (StatusCodeWithException e) {
-            throw e;
-        }
-        QueryDiffieHellmanKeyResponse response = service.handle(request);
-        // 将 0 步骤查询的数据 保存到 CacheOperation
-        CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
-        queryResult.save(request.getUuid(), Constants.RESULT, Double.valueOf(resultStr));
-        return response;
+        SAServiceProcessor processor = new SAServiceProcessor();
+        return processor.process(data, model);
     }
 
-    private QueryPrivateSetIntersectionResponse psi(JObject data, ServiceMySqlModel model)
+    private JObject psi(JObject data, ServiceMySqlModel model)
             throws StatusCodeWithException {
-        String p = data.getString("p");
-        List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
-        if (CollectionUtils.isEmpty(clientIds)) {
-            clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-        }
-
-        QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
-        request.setClientIds(clientIds);
-        request.setP(p);
-        QueryPrivateSetIntersectionResponse response = new QueryPrivateSetIntersectionResponse();
-        BigInteger mod = new BigInteger(request.getP(), 16);
-        int keySize = 1024;
-        BigInteger serverKey = new BigInteger(keySize, new Random());
-        JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        String sql = "select id from " + model.getIdsTableName();
-        List<String> needFields = new ArrayList<>();
-        needFields.add("id");
-
-        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (dataSourceModel == null) {
-            return response;
-        }
-
-        List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
-        List<String> serverIds = new ArrayList<>();
-        for (Map<String, String> item : result) {
-            serverIds.add(item.get("id"));
-        }
-        List<String> encryptServerIds = new ArrayList<>(serverIds.size());
-        serverIds.forEach(
-                serverId -> encryptServerIds.add(DiffieHellmanUtil.encrypt(serverId, serverKey, mod).toString(16)));
-        response.setServerEncryptIds(encryptServerIds);
-
-        List<String> encryptClientIds = new ArrayList<>(request.getClientIds().size());
-        request.getClientIds()
-                .forEach(id -> encryptClientIds.add(DiffieHellmanUtil.encrypt(id, serverKey, mod, false).toString(16)));
-        response.setClientIdByServerKeys(encryptClientIds);
-        return response;
+        PsiServiceProcessor psiServiceProcessor = new PsiServiceProcessor();
+        return psiServiceProcessor.process(data, model);
     }
 
-    private List<String> multi_psi(JObject data, ServiceMySqlModel model) throws Exception {
-        List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
-        if (CollectionUtils.isEmpty(clientIds)) {
-            clientIds = JObject.parseArray(data.getString("clientIds"), String.class);
-        }
-        JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
-        int size = serviceConfigs.size();
-        List<CommunicationConfig> communicationConfigs = new LinkedList<>();
-        for (int i = 0; i < size; i++) {
-            JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
-//			String supplieId = serviceConfig.getString("member_id");
-            String apiName = serviceConfig.getString("api_name");
-            String baseUrl = serviceConfig.getString("base_url");
-
-            String url = baseUrl + apiName;
-            ClientServiceMysqlModel activateModel = clientServiceService.findActivateClientServiceByUrl(url);
-            if (activateModel == null) {
-                throw new Exception("尚未激活服务:" + url);
-            }
-
-            CommunicationConfig communicationConfig = new CommunicationConfig();
-            communicationConfig.setApiName(apiName);
-            communicationConfig.setServerUrl(baseUrl);
-            communicationConfig.setCommercialId(activateModel.getCode());
-            communicationConfig.setNeedSign(true);
-            communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
-            communicationConfigs.add(communicationConfig);
-        }
-
-        PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
-        List<String> result = privateSetIntersection.query(communicationConfigs, clientIds);
-        return result;
+    private JObject multi_psi(JObject data, ServiceMySqlModel model) throws Exception {
+        MultiPsiServiceProcessor processor = new MultiPsiServiceProcessor();
+        return processor.process(data, model);
     }
 
-    private List<JObject> multi_pir(JObject data, ServiceMySqlModel model) throws Exception {
-
-        List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
-        int idx = data.getIntValue("index");
-        String otMethod = data.getString("otMethod");
-        if (StringUtils.isBlank(otMethod)) {
-            otMethod = data.getString("ot_method", Constants.PIR.NAORPINKAS_OT);
-        }
-        JSONArray serviceConfigs = JObject.parseArray(model.getServiceConfig());
-        int size = serviceConfigs.size();
-        List<JObject> results = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            JSONObject serviceConfig = serviceConfigs.getJSONObject(i);
-            CommunicationConfig communicationConfig = new CommunicationConfig();
-            String memberId = serviceConfig.getString("member_id");
-            String memberName = serviceConfig.getString("member_name");
-            String apiName = serviceConfig.getString("api_name");
-            String baseUrl = serviceConfig.getString("base_url");
-
-            String url = baseUrl + apiName;
-            ClientServiceMysqlModel activateModel = clientServiceService.findActivateClientServiceByUrl(url);
-            if (activateModel == null) {
-                throw new Exception("尚未激活服务:" + url);
-            }
-
-            communicationConfig.setApiName(apiName);
-            communicationConfig.setNeedSign(true);
-            communicationConfig.setCommercialId(activateModel.getCode());
-            communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
-            communicationConfig.setServerUrl(baseUrl);
-
-            PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, 0, 10, null);
-            PrivateInformationRetrievalQuery privateInformationRetrievalQuery = new PrivateInformationRetrievalQuery();
-            String result = null;
-            try {
-                config.setTargetIndex(idx); // right index
-                result = privateInformationRetrievalQuery.query(config, communicationConfig, otMethod);
-                JObject tmp = JObject.create("memberId", memberId).append("memberName", memberName)
-                        .append("index", idx).append("result", result);
-                results.add(tmp);
-            } catch (Exception e) {
-                throw e;
-            }
-        }
-        return results;
+    private JObject multi_pir(JObject data, ServiceMySqlModel model) throws Exception {
+        MultiPirServiceProcessor processor = new MultiPirServiceProcessor();
+        return processor.process(data, model);
     }
 
     private JObject pir(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {
-
-        List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
-        String otMethod = data.getString("otMethod");
-        if (StringUtils.isBlank(otMethod)) {
-            otMethod = data.getString("ot_method", Constants.PIR.NAORPINKAS_OT);
-        }
-
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        JObject response = JObject.create();
-        if (Constants.PIR.HUACK_OT.equalsIgnoreCase(otMethod)) {
-            QueryKeysRequest request = new QueryKeysRequest();
-            request.setIds((List) ids);
-            request.setMethod("plain");
-            request.setOtMethod(Constants.PIR.HUACK_OT);
-            HuackKeyService service = new HuackKeyService();
-            QueryKeysResponse resp = null;
-            try {
-                resp = service.handle(request);
-                // 3 取出 QueryKeysResponse 的uuid 将uuid传入QueryResult
-                response = JObject.create(resp);
-            } catch (Exception e) {
-                LOG.error("HUACK_OT handle error", e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员, " + e.getMessage());
-            }
-        } else {
-            NaorPinkasRandomService service = new NaorPinkasRandomService();
-            QueryKeysRequest request = new QueryKeysRequest();
-            request.setIds((List) ids);
-            request.setMethod("plain");
-            request.setOtMethod(Constants.PIR.NAORPINKAS_OT);
-            QueryNaorPinkasRandomResponse resp = null;
-            try {
-                LOG.info("begin NAORPINKAS_OT service handle");
-                resp = service.handle(request, uuid);
-                // 3 取出 QueryKeysResponse 的uuid
-                // 将uuid传入QueryResult
-                response = JObject.create(resp);
-            } catch (Exception e) {
-                LOG.error("NAORPINKAS_OT service handle error", e);
-                throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "系统异常，请联系管理员");
-            }
-        }
-        LOG.info("begin query data from datasource");
-        CommonThreadPool.run(() -> {
-            Map<String, String> result = new HashMap<>();
-            // 0 根据ID查询对应的数据
-            for (String id : ids) {// params
-                JSONObject dataSource = JObject.parseObject(model.getDataSource());
-                String dataSourceId = dataSource.getString("id");
-                DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSourceId);
-                String sql = ServiceUtil.generateSQL(id, dataSource, dataSourceModel.getDatabaseName());
-                String resultfields = ServiceUtil.parseReturnFields(dataSource);
-                try {
-                    Map<String, String> resultMap = dataSourceService.queryOne(dataSourceModel, sql,
-                            Arrays.asList(resultfields.split(",")));
-                    if (resultMap == null || resultMap.isEmpty()) {
-                        resultMap = new HashMap<>();
-                        resultMap.put("rand", "thisisemptyresult");
-                    }
-                    String resultStr = JObject.toJSONString(resultMap);
-                    LOG.info("pir datasource result : " + id + "\t " + resultStr);
-                    result.put(id, resultStr);
-                } catch (StatusCodeWithException e) {
-                    LOG.error("pir query data error", e);
-                }
-            }
-            // 将 0 步骤查询的数据 保存到 CacheOperation
-            CacheOperation<Map<String, String>> queryResult = CacheOperationFactory.getCacheOperation();
-            LOG.info("save service handle result");
-            queryResult.save(uuid, Constants.RESULT, result);
-        });
-        LOG.info("finished query data from datasource");
-        return response;
+        PirServiceProcessor processor = new PirServiceProcessor();
+        return processor.process(data, model);
     }
 
     public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
