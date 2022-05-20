@@ -43,6 +43,7 @@ def gen_config_file():
 
     with open(file_name, 'w') as f:
         for k, v in json_obj.items():
+            v = v if v is not None else ''
             f.write(str(k + '=' + v + '\n'))
         f.close()
 
