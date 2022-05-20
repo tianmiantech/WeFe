@@ -30,9 +30,9 @@ stat_logger = log_utils.get_logger("wefe_flow_stat")
 # Database Connectivity
 env = os.environ
 fc_env = os.getenv('IN_FC_ENV')
-print(fc_env)
+print(type(fc_env))
 
-if fc_env is None or fc_env != 1:
+if fc_env is None or int(fc_env) != 1:
     host = get_comm_config(consts.COMM_CONF_KEY_MYSQL_HOST)
     password = get_comm_config(consts.COMM_CONF_KEY_MYSQL_PASSWORD)
     port = int(get_comm_config(consts.COMM_CONF_KEY_MYSQL_PORT))
