@@ -47,21 +47,19 @@ public abstract class AbstractSinglePredictor extends AbstractBasePredictor impl
      * predict
      */
     @Override
-    public PredictResult predict() throws Exception {
+    public PredictResult predict() throws StatusCodeWithException {
 
         BaseModel model = getModel();
 
         predictParams.setFeatureData(fillFeatureData());
-
-        featureEngineering();
 
         AbstractModelProcessor processor = getProcessor();
 
         processor.preprocess(model, federatedParams, predictParams, params);
 
         AbstractAlgorithm algorithm = AlgorithmManager.get(model);
-        if(algorithm == null){
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID,"The corresponding model is not found. Please check whether the parameters are incorrect");
+        if (algorithm == null) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "The corresponding model is not found. Please check whether the parameters are incorrect");
         }
         PredictResult result = algorithm.execute(model, federatedParams, predictParams, params);
 

@@ -16,10 +16,7 @@
 
 package com.welab.wefe.serving.service.predicter.batch;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
@@ -28,15 +25,16 @@ import com.welab.wefe.serving.service.manager.ModelManager;
 import java.util.Map;
 
 /**
- * Batch model call provider
+ * Batch model call promoter
  *
  * @author hunter.zhao
  */
-public class BatchProviderPredicter extends AbstractBatchPredictor {
-
-//    public BatchProviderPredicter(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-//        super(federatedParams, predictParams, params);
+public class BatchPredicter extends AbstractBatchPredictor {
+//
+//    public BatchPromoterPredicter(String modelId, PredictParams predictParam, JSONObject params, List<ProviderParams> providers, String memberId) {
+//        super(modelId, predictParam, params, providers, memberId);
 //    }
+
 
     @Override
     public BaseModel getModel() throws StatusCodeWithException {
@@ -44,15 +42,7 @@ public class BatchProviderPredicter extends AbstractBatchPredictor {
     }
 
     @Override
-    public void featureEngineering() {
-
-    }
-
-
-    @Override
     public Map<String, Map<String, Object>> batchFillFeatureData() throws StatusCodeWithException {
         return FeatureManager.getFeatureDataByBatch(modelId, predictParams);
     }
-
-
 }

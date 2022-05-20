@@ -25,7 +25,7 @@ import com.welab.wefe.serving.service.manager.ModelManager;
 import java.util.Map;
 
 /**
- *  model call provider
+ * model call provider
  *
  * @author hunter.zhao
  */
@@ -40,9 +40,5 @@ public class ProviderPredictor extends AbstractSinglePredictor {
     @Override
     public Map<String, Object> fillFeatureData() throws StatusCodeWithException {
         return FeatureManager.getFeatureData(modelId, predictParams);
-    }
-
-    @Override
-    public void featureEngineering() {
     }
 }

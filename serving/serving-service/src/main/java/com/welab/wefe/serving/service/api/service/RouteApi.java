@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.api.service;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -23,7 +24,11 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.dto.ServiceResultOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,10 +38,19 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
     @Autowired
     private ServiceService service;
 
+    @Autowired
+    private ModelService modelService;
+
     @Override
     protected ApiResult<JObject> handle(Input input) {
         LOG.info("request =" + JObject.toJSONString(input));
         try {
+            ServiceMySqlModel serviceModel = service.findById(input.getServiceId());
+            if (ServiceTypeEnum.MachineLearning.getCode() == serviceModel.getServiceType()) {
+                ServiceResultOutput output = modelService.predict(serviceModel, input);
+                return success(JObject.create(JSON.toJSONString(output)));
+            }
+
             JObject result = service.executeService(input);
             LOG.info("response =" + JObject.toJSONString(result));
             return success(result);
@@ -59,6 +73,9 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
         @Check(name = "服务ID")
         private String serviceId;
+
+        @Check(name = "请求ID")
+        private String requestId;
 
         public String getCustomerId() {
             return customerId;
@@ -83,6 +100,15 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
         public void setServiceId(String serviceId) {
             this.serviceId = serviceId;
         }
+
+        public String getRequestId() {
+            return requestId;
+        }
+
+        public void setRequestId(String requestId) {
+            this.requestId = requestId;
+        }
+
     }
 
 }

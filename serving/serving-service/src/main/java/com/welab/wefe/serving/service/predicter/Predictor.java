@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.predicter;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
@@ -27,8 +28,7 @@ import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.predicter.batch.BatchPromoterPredicter;
-import com.welab.wefe.serving.service.predicter.batch.BatchProviderPredicter;
+import com.welab.wefe.serving.service.predicter.batch.BatchPredicter;
 import com.welab.wefe.serving.service.predicter.single.DebugPredicter;
 import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
@@ -42,7 +42,7 @@ import java.util.Map;
 
 
 /**
- * @author Zane
+ * @author hunter.zhao
  */
 public class Predictor {
 
@@ -74,7 +74,7 @@ public class Predictor {
     }
 
 
-    public static PredictResult predict(String modelId, PredictParams predictParams, FederatedParams federatedParams) throws Exception {
+    public static PredictResult predict(String modelId, PredictParams predictParams, FederatedParams federatedParams) throws StatusCodeWithException {
 
         long start = System.currentTimeMillis();
         PredictResult result;
@@ -121,7 +121,7 @@ public class Predictor {
 
         try {
             //Generation predicter
-            AbstractBasePredictor promoterPredict = new BatchPromoterPredicter()
+            AbstractBasePredictor promoterPredict = new BatchPredicter()
                     .setPredictParams(predictParams)
                     .setFederatedParams(FederatedParams.of("", modelId, CacheObjects.getMemberId(), findProviders(modelId)));
 
@@ -156,7 +156,7 @@ public class Predictor {
         try {
             //Generate predicter
             FederatedParams federatedParams = FederatedParams.of(seqNo, modelId, memberId);
-            AbstractBasePredictor providerPredicter = new BatchProviderPredicter()
+            AbstractBasePredictor providerPredicter = new BatchPredicter()
                     .setFederatedParams(federatedParams)
                     .setPredictParams(predictParams);
 

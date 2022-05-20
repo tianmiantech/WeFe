@@ -35,11 +35,6 @@ public interface PredictBehavior {
 
 
     /**
-     * Feature engineering treatment
-     */
-    void featureEngineering();
-
-    /**
      * processor
      *
      * @return Model Processor
