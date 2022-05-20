@@ -33,7 +33,7 @@ from common.python.common import consts
 from common.python.utils import file_utils
 
 
-def get_config(key: tuple):
+def get_db_config(key: tuple):
     from common.python.db.global_config_dao import GlobalConfigDao
     group_name, var_name = key
     group_config = GlobalConfigDao.list(group_name)
@@ -59,6 +59,19 @@ def get_config(key: tuple):
         return group_config[var_name]
 
 
+def get_local_config(key):
+    comm_file_path = os.path.join(file_utils.get_project_base_directory(),
+                                  get_env_config(consts.ENV_CONF_KEY_CONFIG) or "config.properties")
+    if os.path.exists(comm_file_path):
+        with open(comm_file_path, encoding="utf8") as fp:
+            lines = fp.readlines()
+            for line in lines:
+                if line and not line.startswith("#"):
+                    split_arr = line.split('=')
+                    if split_arr[0].strip() == key:
+                        return split_arr[1].strip()
+
+
 @cached(cache=LRUCache(maxsize=64))
 def get_comm_config(key, default=None):
     """
@@ -73,26 +86,26 @@ def get_comm_config(key, default=None):
     -------
 
     """
+    db_local_dict = {
+        consts.COMM_CONF_KEY_FC_OSS_ENDPOINT: 'fc.oss.endpoint',
+        consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT: 'fc.oss.internal_endpoint',
+        consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME: 'fc.oss.bucket_name',
+    }
 
+    fc_env = os.getenv('IN_FC_ENV')
     if isinstance(key, tuple) and key is not None:
         # 需从数据库读取
-        result = get_config(key)
-        if result is None:
-            return default
+        if fc_env is None:
+            result = get_db_config(key)
         else:
+            result = get_local_config(db_local_dict[key])
+        if result is not None:
             return result
     else:
 
-        comm_file_path = os.path.join(file_utils.get_project_base_directory(),
-                                      get_env_config(consts.ENV_CONF_KEY_CONFIG) or "config.properties")
-        if os.path.exists(comm_file_path):
-            with open(comm_file_path, encoding="utf8") as fp:
-                lines = fp.readlines()
-                for line in lines:
-                    if line and not line.startswith("#"):
-                        split_arr = line.split('=')
-                        if split_arr[0].strip() == key:
-                            return split_arr[1].strip()
+        result = get_local_config(key)
+        if result is not None:
+            return result
     return default
 
 
@@ -129,7 +142,6 @@ def set_env(key, value):
 
     """
     os.environ[key] = value
-
 
 # def get_backend_from_string(backend_string):
 #     try:
