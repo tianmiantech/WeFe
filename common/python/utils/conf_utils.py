@@ -59,7 +59,7 @@ def get_db_config(key: tuple):
         return group_config[var_name]
 
 
-def get_local_config(key):
+def get_fc_local_config(key):
     root_path = os.environ.get('PYTHONPATH')
     comm_file_path = root_path + '/config.properties'
     if os.path.exists(comm_file_path):
@@ -72,7 +72,7 @@ def get_local_config(key):
                         return split_arr[1].strip()
 
 
-def get_db_config(key):
+def get_local_config(key):
     comm_file_path = os.path.join(file_utils.get_project_base_directory(),
                                   get_env_config(consts.ENV_CONF_KEY_CONFIG) or "config.properties")
     if os.path.exists(comm_file_path):
@@ -114,12 +114,12 @@ def get_comm_config(key, default=None):
         if fc_env is None:
             result = get_db_config(key)
         else:
-            result = get_local_config(db_local_dict[key])
+            result = get_fc_local_config(db_local_dict[key])
         if result is not None:
             return result
     else:
 
-        result = get_db_config(key)
+        result = get_local_config(key)
         if result is not None:
             return result
     return default
