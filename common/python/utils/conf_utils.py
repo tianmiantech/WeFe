@@ -106,7 +106,8 @@ def get_comm_config(key, default=None):
         consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME: 'fc.oss.bucket_name',
         consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID: 'fc.access_key_id',
         consts.COMM_CONF_KEY_FC_KEY_SECRET: 'fc.access_key_secret',
-        consts.COMM_CONF_KEY_FC_ACCOUNT_ID: 'fc.account_id'
+        consts.COMM_CONF_KEY_FC_ACCOUNT_ID: 'fc.account_id',
+        consts.COMM_CONF_KEY_LOG_ROOT: 'flow.log.root.path'
     }
 
     fc_env = os.getenv('IN_FC_ENV')
