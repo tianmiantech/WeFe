@@ -78,14 +78,15 @@ public class StorageManager {
     }
 
 
-    public synchronized void refreshJdbcConfig(@NotNull DBType dbType, @NotNull JdbcConfig jdbcConfig) {
+    public synchronized void refreshJdbcConfig(@NotNull JdbcConfig jdbcConfig) {
         LOG.info("start refreshJdbcConfig...");
-        Assert.notNull(dbType, "dbType == null");
-        Assert.notNull(jdbcConfig, "jdbcConfig == null");
-        StorageConfig storageConfig = (StorageConfig) context.getBean("storageConfig");
-        storageConfig.setJdbcConfig(jdbcConfig);
 
-        DruidDataSource dataSource = (DruidDataSource) context.getBean("storageDataSource");
+        Assert.notNull(jdbcConfig, "jdbcConfig == null");
+        StorageConfig storageConfig = context.getBean(StorageConfig.class);
+        storageConfig.setJdbcConfig(jdbcConfig);
+        storageConfig.setDbType(jdbcConfig.getDbType());
+
+        DruidDataSource dataSource = (DruidDataSource) context.getBean(DataSource.class);
         dataSource.setUrl(jdbcConfig.getUrl());
         dataSource.setDriverClassName(jdbcConfig.getDriverClassName());
         dataSource.setPassword(jdbcConfig.getPassword());
@@ -104,19 +105,19 @@ public class StorageManager {
         LOG.info("refreshJdbcConfig success...");
     }
 
-    public synchronized void refreshLmdbConfig(@NotNull DBType dbType, @NotNull LmdbConfig lmdbConfig) {
+    public synchronized void refreshLmdbConfig(@NotNull LmdbConfig lmdbConfig) {
         LOG.info("start refreshLmdbConfig...");
-        Assert.notNull(dbType, "dbType == null");
         Assert.notNull(lmdbConfig, "lmdbConfig == null");
-        StorageConfig storageConfig = (StorageConfig) context.getBean("storageConfig");
+        StorageConfig storageConfig = context.getBean(StorageConfig.class);
         storageConfig.setLmdbConfig(lmdbConfig);
+        storageConfig.setDbType(DBType.LMDB);
         LOG.info("refreshLmdbConfig success...");
     }
 
     public synchronized void refreshFcStorageConfig(@NotNull FcStorageConfig fcStorageConfig) {
         LOG.info("start refreshFcStorageConfig...");
         Assert.notNull(fcStorageConfig, "fcStorageConfig == null");
-        StorageConfig storageConfig = (StorageConfig) context.getBean("storageConfig");
+        StorageConfig storageConfig = context.getBean(StorageConfig.class);
         storageConfig.setFcStorageConfig(fcStorageConfig);
         LOG.info("refreshFcStorageConfig success...");
 

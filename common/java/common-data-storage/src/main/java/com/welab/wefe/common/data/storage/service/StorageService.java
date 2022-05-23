@@ -49,7 +49,7 @@ public class StorageService {
     @Autowired
     private FcStorage fcStorage;
 
-    private StorageConfig storageConfig = StorageManager.getInstance().getBean("storageConfig");
+    private StorageConfig storageConfig = StorageManager.getInstance().getRepo(StorageConfig.class);
 
     public Storage getStorage() {
         Storage result = null;

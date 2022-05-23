@@ -37,20 +37,6 @@ public class AppListener implements ApplicationListener<ApplicationEnvironmentPr
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent applicationEnvironmentPreparedEvent) {
         LOG.info("start ApplicationEnvironmentPreparedEvent");
-        try {
-
-            JdbcConfig jdbcConfig = new JdbcConfig(
-                    "host",
-                    8123,
-                    "user",
-                    "pwd",
-                    DBType.CLICKHOUSE
-            );
-            StorageConfig storageConfig = new StorageConfig(DBType.CLICKHOUSE, jdbcConfig);
-            StorageManager.getInstance().init(storageConfig);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
         LOG.info("end ApplicationEnvironmentPreparedEvent");
     }
 

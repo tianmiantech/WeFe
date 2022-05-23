@@ -57,7 +57,6 @@ import java.nio.charset.StandardCharsets;
         basePackageClasses = {
                 BoardService.class,
                 Launcher.class,
-                StorageManager.class,
                 CheckpointManager.class
         }
 )

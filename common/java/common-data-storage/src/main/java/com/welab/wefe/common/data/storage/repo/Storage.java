@@ -38,7 +38,7 @@ public abstract class Storage {
     // =================================  AbstractStorage  start ================================
 
 
-    protected StorageConfig storageConfig = StorageManager.getInstance().getBean("storageConfig");
+    protected StorageConfig storageConfig = StorageManager.getInstance().getRepo(StorageConfig.class);
 
     /**
      * put the single DataItemModel Object

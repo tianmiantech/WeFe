@@ -50,7 +50,7 @@ public class JdbcConfig {
      */
     private double optimalInsertByteSize = 1;
 
-    public JdbcConfig(String host, Integer port, String username, String password, DBType dbType) throws Exception {
+    public JdbcConfig(DBType dbType,String host, Integer port, String username, String password) throws Exception {
         Assert.notNull(host, "host == null");
         Assert.notNull(port, "port == null");
         Assert.notNull(username, "username == null");

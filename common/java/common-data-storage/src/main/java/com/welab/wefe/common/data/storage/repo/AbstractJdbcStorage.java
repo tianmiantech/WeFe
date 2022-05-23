@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public abstract class AbstractJdbcStorage extends Storage {
 
-    protected DataSource storageDataSource = StorageManager.getInstance().getRepo("storageDataSource");
+    protected DataSource storageDataSource = StorageManager.getInstance().getRepo(DataSource.class);
 
 
     @Override

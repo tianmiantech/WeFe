@@ -19,9 +19,8 @@ package com.welab.wefe.board.service.service.checkpoint;
 import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.data.storage.StorageManager;
-import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
-import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.common.data.storage.config.JdbcConfig;
+import com.welab.wefe.common.data.storage.config.StorageConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.repo.Storage;
 import com.welab.wefe.common.data.storage.service.StorageService;
@@ -54,9 +53,8 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     public String getConfigValue() {
-        JdbcConfig storageConfig = Launcher.getBean(JdbcConfig.class);
-//        JdbcConfig storageConfig = StorageManager.getInstance().getBean(JdbcConfig.class);
-        return storageConfig.getUrl();
+        StorageConfig storageConfig = StorageManager.getInstance().getRepo(StorageConfig.class);
+        return storageConfig.getJdbcConfig().getUrl();
     }
 
     @Override

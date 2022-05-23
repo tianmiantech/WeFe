@@ -1,6 +1,5 @@
 package com.welab.wefe.common.data.storage.config;
 
-import com.sun.istack.internal.NotNull;
 import com.welab.wefe.common.data.storage.common.DBType;
 import org.springframework.util.Assert;
 
@@ -10,26 +9,26 @@ public class StorageConfig {
     private LmdbConfig lmdbConfig;
     private FcStorageConfig fcStorageConfig;
 
-    public StorageConfig(DBType dbType,JdbcConfig jdbcConfig){
-        this(dbType,jdbcConfig,null);
+    public StorageConfig(JdbcConfig jdbcConfig) {
+        this(jdbcConfig, null);
     }
-    public StorageConfig(DBType dbType,JdbcConfig jdbcConfig,FcStorageConfig fcStorageConfig){
-        Assert.notNull(dbType, "dbType == null");
+
+    public StorageConfig(JdbcConfig jdbcConfig, FcStorageConfig fcStorageConfig) {
         Assert.notNull(jdbcConfig, "jdbcConfig == null");
-        this.dbType = dbType;
+
+        this.dbType = jdbcConfig.getDbType();
         this.jdbcConfig = jdbcConfig;
         this.fcStorageConfig = fcStorageConfig;
 
     }
 
-    public StorageConfig(DBType dbType,LmdbConfig lmdbConfig){
-        this(dbType,lmdbConfig,null);
+    public StorageConfig(LmdbConfig lmdbConfig) {
+        this(lmdbConfig, null);
     }
 
-    public StorageConfig(DBType dbType,LmdbConfig lmdbConfig,FcStorageConfig fcStorageConfig){
-        Assert.notNull(dbType, "dbType == null");
+    public StorageConfig(LmdbConfig lmdbConfig, FcStorageConfig fcStorageConfig) {
         Assert.notNull(lmdbConfig, "lmdbConfig == null");
-        this.dbType = dbType;
+        this.dbType = DBType.LMDB;
         this.lmdbConfig = lmdbConfig;
         this.fcStorageConfig = fcStorageConfig;
     }
