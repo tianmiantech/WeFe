@@ -261,7 +261,7 @@ export default {
     methods: {
         downloadPaymentsRecords() {
 
-            const api = `${window.api.baseUrl}/paymentsrecords/download?serviceName=${this.search.serviceName}&clientName=${this.search.clientName}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&payType=${this.search.payType}&serviceType=${this.search.serviceType}&token=${this.userInfo.token}`;
+            const api = `${window.api.baseUrl}/paymentsrecords/download?serviceName=${this.search.serviceName}&clientName=${this.search.clientName}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&payType=${this.search.payType}&serviceType=${this.search.serviceType}&token=${this.userInfo.token}&version=${Math.random()}`;
             const link = document.createElement('a');
 
             link.href = api;

@@ -29,6 +29,7 @@ import java.util.Date;
 /**
  * @author ivenn.zheng
  * @date 2022/1/6
+ * 废弃
  */
 @Api(path = "apirequestrecord/query-list", name = "query api request records")
 public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<QueryListApi.Output>> {
