@@ -16,18 +16,18 @@
 
 package com.welab.wefe.common.data.storage.repo.impl;
 
-import com.welab.wefe.common.data.storage.config.LmdbParamConfig;
+import com.welab.wefe.common.data.storage.StorageManager;
+import com.welab.wefe.common.data.storage.config.LmdbConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.data.storage.repo.AbstractStorage;
+import com.welab.wefe.common.data.storage.repo.Storage;
 import net.razorvine.pickle.Pickler;
 import net.razorvine.pickle.Unpickler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.lmdbjava.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.lmdbjava.DbiFlags.MDB_CREATE;
@@ -45,18 +46,16 @@ import static org.lmdbjava.Env.create;
  * @author lonnie
  */
 @Component
-public class LmdbStorage extends AbstractStorage {
+public class LmdbStorage extends Storage {
     Pickler pickler = new Pickler();
     Unpickler unpickler = new Unpickler();
 
     private Logger log = LoggerFactory.getLogger(LmdbStorage.class);
 
-    @Autowired
-    private LmdbParamConfig lmdbParamConfig;
 
     @Override
     public void put(String dbName, String tbName, DataItemModel model) throws Exception {
-        int p = hashKeyToPartition(model.getK().toString(), lmdbParamConfig.getPartitions());
+        int p = hashKeyToPartition(model.getK().toString(), storageConfig.getLmdbConfig().getPartitions());
         Env<byte[]> env = getEnv(dbName, tbName, p);
 
         Dbi<byte[]> db = env.openDbi(dbName, MDB_CREATE);
@@ -82,7 +81,7 @@ public class LmdbStorage extends AbstractStorage {
 
     @Override
     public DataItemModel get(String dbName, String tbName, String key) throws Exception {
-        int p = hashKeyToPartition(key, lmdbParamConfig.getPartitions());
+        int p = hashKeyToPartition(key, storageConfig.getLmdbConfig().getPartitions());
         Env<byte[]> env = getEnv(dbName, tbName, p);
 
         Dbi<byte[]> db = env.openDbi(dbName, MDB_CREATE);
@@ -131,7 +130,7 @@ public class LmdbStorage extends AbstractStorage {
     public List<DataItemModel> collect(String dbName, String tbName) throws Exception {
         List<DataItemModel> list = new ArrayList<>();
 
-        for (int i = 0; i < lmdbParamConfig.getPartitions(); i++) {
+        for (int i = 0; i < storageConfig.getLmdbConfig().getPartitions(); i++) {
             list.addAll(getPartitionData(dbName, tbName, i));
         }
         return list;
@@ -140,7 +139,7 @@ public class LmdbStorage extends AbstractStorage {
     @Override
     public List<DataItemModel<byte[], byte[]>> collectBytes(String dbName, String tbName) throws Exception {
         List<DataItemModel<byte[], byte[]>> list = new ArrayList<>();
-        for (int i = 0; i < lmdbParamConfig.getPartitions(); i++) {
+        for (int i = 0; i < storageConfig.getLmdbConfig().getPartitions(); i++) {
             Env<byte[]> env = getEnvNotMkDirs(dbName, tbName, i);
             if (env == null) {
                 continue;
@@ -167,7 +166,7 @@ public class LmdbStorage extends AbstractStorage {
 
     @Override
     public void delete(String dbName, String tbName, String key) throws Exception {
-        int p = hashKeyToPartition(key, lmdbParamConfig.getPartitions());
+        int p = hashKeyToPartition(key, storageConfig.getLmdbConfig().getPartitions());
         Env<byte[]> env = getEnvNotMkDirs(dbName, tbName, p);
         if (env == null) {
             return;
@@ -226,7 +225,7 @@ public class LmdbStorage extends AbstractStorage {
         pageOutputModel.setTotalPages((total + pageInputModel.getPageSize() - 1) / pageInputModel.getPageSize());
         int start = pageInputModel.getPageNum() == 0 ? 0 : pageInputModel.getPageNum() * pageInputModel.getPageSize();
 
-        for (int i = 0; i < lmdbParamConfig.getPartitions(); i++) {
+        for (int i = 0; i < storageConfig.getLmdbConfig().getPartitions(); i++) {
 
             List<DataItemModel> partitionList = getPartitionData(dbName, tbName, i);
 
@@ -282,7 +281,7 @@ public class LmdbStorage extends AbstractStorage {
         pageOutputModel.setTotalPages((total + pageInputModel.getPageSize() - 1) / pageInputModel.getPageSize());
         int start = pageInputModel.getPageNum() == 0 ? 0 : pageInputModel.getPageNum() * pageInputModel.getPageSize();
 
-        for (int i = 0; i < lmdbParamConfig.getPartitions(); i++) {
+        for (int i = 0; i < storageConfig.getLmdbConfig().getPartitions(); i++) {
             List<DataItemModel> partitionList = getPartitionData(dbName, tbName, i);
             if (list.size() == pageInputModel.getPageSize()) {
                 break;
@@ -329,7 +328,7 @@ public class LmdbStorage extends AbstractStorage {
     @Override
     public void dropTB(String dbName, String tbName) throws Exception {
 
-        String path = lmdbParamConfig.getLmdbPath() + File.separator + dbName;
+        String path = storageConfig.getLmdbConfig().getLmdbPath() + File.separator + dbName;
         File file = new File(path);
         deleteDir(file);
     }
@@ -342,6 +341,16 @@ public class LmdbStorage extends AbstractStorage {
     @Override
     public int getAddBatchSize(int columnCount) {
         return 10000;
+    }
+
+    @Override
+    public int getCountByByteSize(String dbName, String tbName, long byteSize) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public <K, V> void putAll(List<DataItemModel<K, V>> list, Map<String, Object> args) throws Exception {
+
     }
 
     @Override
@@ -384,7 +393,7 @@ public class LmdbStorage extends AbstractStorage {
     }
 
     public Env<byte[]> getEnv(String dbName, String tableName, int p) {
-        String path = lmdbParamConfig.getLmdbPath() + File.separator + dbName + File.separator + tableName + File.separator + p;
+        String path = storageConfig.getLmdbConfig().getLmdbPath() + File.separator + dbName + File.separator + tableName + File.separator + p;
         File file = new File(path);
         if (!file.exists()) {
             file.mkdirs();
@@ -398,7 +407,7 @@ public class LmdbStorage extends AbstractStorage {
     }
 
     public Env<byte[]> getEnvNotMkDirs(String dbName, String tableName, int p) {
-        String path = lmdbParamConfig.getLmdbPath() + File.separator + dbName + File.separator + tableName + File.separator + p;
+        String path = storageConfig.getLmdbConfig().getLmdbPath() + File.separator + dbName + File.separator + tableName + File.separator + p;
         File file = new File(path);
         if (!file.exists()) {
             return null;
@@ -415,7 +424,7 @@ public class LmdbStorage extends AbstractStorage {
      * obtain the fragments in the file directory through the file path
      */
     public List<String> getPartitions(String dbName, String tbName) {
-        String path = lmdbParamConfig.getLmdbPath() + File.separator + dbName + File.separator + tbName;
+        String path = storageConfig.getLmdbConfig().getLmdbPath() + File.separator + dbName + File.separator + tbName;
         File file = new File(path);
         String[] strs = file.list();
         List<String> list = new ArrayList<>();

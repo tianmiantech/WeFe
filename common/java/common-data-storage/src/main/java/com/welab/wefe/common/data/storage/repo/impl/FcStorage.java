@@ -23,8 +23,9 @@ import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.google.protobuf.ByteString;
-import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.common.IntermediateDataFlag;
+import com.welab.wefe.common.data.storage.config.FcStorageConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.repo.MiddleStorage;
 import com.welab.wefe.common.proto.IntermediateDataOuterClass;
@@ -33,7 +34,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -53,31 +54,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class FcStorage extends MiddleStorage {
     private static Logger log = LoggerFactory.getLogger(LmdbStorage.class);
-
-    @Value(value = "${fc.ots.instance_name}")
-    private String instanceName;
-
-    @Value(value = "${fc.access_key_id}")
-    private String accessKeyId;
-
-    @Value(value = "${fc.access_key_secret}")
-    private String accessKeySecret;
-
-
-    /**
-     * OTS internal end point
-     */
-    @Value(value = "${fc.ots.internal_end_point}")
-    private String otsInternalEndPoint;
-
-    /**
-     * OSS internal end point
-     */
-    @Value(value = "${fc.oss.internal_end_point:https://oss-cn-shenzhen-internal.aliyuncs.com}")
-    private String ossInternalEndPoint;
-
-    @Value(value = "${fc.oss.bucket_name:wefe-fc}")
-    private String bucketName;
 
     private final static String SPLIT_MAX_FREFIX = "MAX_";
 
@@ -103,17 +79,7 @@ public class FcStorage extends MiddleStorage {
 
     @Override
     public <K, V> void putAll(List<DataItemModel<K, V>> list, Map<String, Object> args) throws Exception {
-        String storageType = args.get("storage_type").toString();
-        switch (DBType.valueOf(storageType.toUpperCase())) {
-            case OTS:
-                otsPutAll(list, args);
-                break;
-            case OSS:
-                ossPutAll(list, args);
-                break;
-            default:
-                break;
-        }
+        ossPutAll(list, args);
     }
 
     @Override
@@ -130,9 +96,9 @@ public class FcStorage extends MiddleStorage {
         ClientBuilderConfiguration conf = new ClientBuilderConfiguration();
         // retry request when error occur, default 3 times
         conf.setMaxErrorRetry(5);
-        log.info("ossInternalEndPoint: " + ossInternalEndPoint + " accessKeyId: " + accessKeyId + " accessKeySecret: " + accessKeySecret);
-        OSS ossClient = new OSSClientBuilder().build(ossInternalEndPoint, accessKeyId, accessKeySecret, conf);
-        ossPutAll(list, bucketName, dstNamespace, dstName, partitions, ossClient);
+        log.info("ossInternalEndPoint: " + storageConfig.getFcStorageConfig().getOssInternalEndPoint() + " accessKeyId: " + storageConfig.getFcStorageConfig().getAccessKeyId() + " accessKeySecret: " + storageConfig.getFcStorageConfig().getAccessKeySecret());
+        OSS ossClient = new OSSClientBuilder().build(storageConfig.getFcStorageConfig().getOssInternalEndPoint(), storageConfig.getFcStorageConfig().getAccessKeyId(), storageConfig.getFcStorageConfig().getAccessKeySecret(), conf);
+        ossPutAll(list, storageConfig.getFcStorageConfig().getBucketName(), dstNamespace, dstName, partitions, ossClient);
     }
 
 
@@ -145,7 +111,7 @@ public class FcStorage extends MiddleStorage {
         // set retry strategy
         cc.setRetryStrategy(new DefaultRetryStrategy());
         cc.setConnectionTimeoutInMillisecond(60 * 1000);
-        AsyncClient asyncClient = new AsyncClient(otsInternalEndPoint, accessKeyId, accessKeySecret, instanceName, cc);
+        AsyncClient asyncClient = new AsyncClient(storageConfig.getFcStorageConfig().getOssInternalEndPoint(), storageConfig.getFcStorageConfig().getAccessKeyId(), storageConfig.getFcStorageConfig().getAccessKeySecret(), storageConfig.getFcStorageConfig().getInstanceName(), cc);
 
         // init writer config
         WriterConfig config = new WriterConfig();
@@ -309,7 +275,7 @@ public class FcStorage extends MiddleStorage {
             executor.shutdown();
             ossClient.shutdown();
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
         }
 
     }
@@ -369,9 +335,9 @@ public class FcStorage extends MiddleStorage {
                     tablestoreWriter.addRowChange(rowChange);
                 }
             } catch (IOException e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             } catch (Exception e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         }
         tablestoreWriter.flush();

@@ -16,55 +16,84 @@
 
 package com.welab.wefe.common.data.storage.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
+import com.welab.wefe.common.data.storage.common.Constant;
+import com.welab.wefe.common.data.storage.common.DBType;
+import org.springframework.util.Assert;
 
 
 /**
  * @author yuxin.zhang
  */
-@Component
-@PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
-public class JdbcParamConfig {
-    @Value("${db.storage.clickhouse.username:null}")
+public class JdbcConfig {
+    private String host = "127.0.0.1";
+    private Integer port = 8123;
+    private DBType dbType = DBType.CLICKHOUSE;
     private String username;
-    @Value("${db.storage.clickhouse.password:null}")
     private String password;
-    @Value("${db.storage.clickhouse.driverClassName:null}")
-    private String driverClassName;
-    @Value("${db.storage.clickhouse.url:null}")
-    private String url;
-    @Value("${db.storage.clickhouse.initialSize:1}")
-    private Integer initialSize;
-    @Value("${db.storage.clickhouse.maxActive:50}")
-    private Integer maxActive;
-    @Value("${db.storage.clickhouse.minIdle:1}")
-    private Integer minIdle;
-    @Value("${db.storage.clickhouse.maxWait:60000}")
-    private Integer maxWait;
-    @Value("${db.storage.clickhouse.testWhileIdle:false}")
-    private boolean testWhileIdle;
-    @Value("${db.storage.clickhouse.validationQuery:null}")
-    private String validationQuery;
+    private String driverClassName = Constant.DataBaseDriverClassName.CLICKHOUSE;
+    private String url = "jdbc:clickhouse//127.0.0.1:8123";
+    private Integer initialSize = 1;
+    private Integer maxActive = 50;
+    private Integer minIdle = 1;
+    private Integer maxWait = 60000;
+    private boolean testWhileIdle = false;
+    private String validationQuery = "SELECT 1";
 
 
-    @Value("${db.storage.clickhouse.timeBetweenEvictionRunsMillis:15000}")
-    private Integer timeBetweenEvictionRunsMillis;
-    @Value("${db.storage.clickhouse.minEvictableIdleTimeMillis:60000}")
-    private Integer minEvictableIdleTimeMillis;
-    @Value("${db.storage.clickhouse.removeAbandoned:true}")
-    private boolean removeAbandoned;
-    @Value("${db.storage.clickhouse.removeAbandonedTimeout:60}")
-    private Integer removeAbandonedTimeout;
-    @Value("${db.storage.clickhouse.logAbandoned:true}")
-    private boolean logAbandoned;
+    private Integer timeBetweenEvictionRunsMillis = 15000;
+    private Integer minEvictableIdleTimeMillis = 60000;
+    private boolean removeAbandoned = true;
+    private Integer removeAbandonedTimeout = 60;
+    private boolean logAbandoned = true;
     /**
      * The optimal batch insertion byte size of clickhouse, unit: M (support decimal)
      */
-    @Value("${db.storage.clickhouse.optimal.insert.byte.size:1}")
-    private double optimalInsertByteSize;
+    private double optimalInsertByteSize = 1;
 
+    public JdbcConfig(String host, Integer port, String username, String password, DBType dbType) throws Exception {
+        Assert.notNull(host, "host == null");
+        Assert.notNull(port, "port == null");
+        Assert.notNull(username, "username == null");
+        Assert.notNull(password, "password == null");
+        Assert.notNull(dbType, "dbType == null");
+        this.host = host;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+        this.dbType = dbType;
+        if (dbType == DBType.CLICKHOUSE) {
+            this.driverClassName = Constant.DataBaseDriverClassName.CLICKHOUSE;
+        } else {
+            throw new Exception("Invalid storage type");
+        }
+
+        url = String.format("jdbc:%s://%s:%s", dbType.name().toLowerCase(), host, port);
+    }
+
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public DBType getDbType() {
+        return dbType;
+    }
+
+    public void setDbType(DBType dbType) {
+        this.dbType = dbType;
+    }
 
     public String getValidationQuery() {
         return validationQuery;

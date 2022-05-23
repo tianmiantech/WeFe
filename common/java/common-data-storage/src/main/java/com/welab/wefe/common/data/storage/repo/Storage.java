@@ -16,6 +16,8 @@
 
 package com.welab.wefe.common.data.storage.repo;
 
+import com.welab.wefe.common.data.storage.StorageManager;
+import com.welab.wefe.common.data.storage.config.StorageConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
@@ -30,9 +32,13 @@ import java.util.Map;
  * @author ivenn.zheng
  */
 public abstract class Storage {
+
     protected static Logger log = LoggerFactory.getLogger(Storage.class);
 
     // =================================  AbstractStorage  start ================================
+
+
+    protected StorageConfig storageConfig = StorageManager.getInstance().getBean("storageConfig");
 
     /**
      * put the single DataItemModel Object

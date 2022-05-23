@@ -19,7 +19,7 @@ package com.welab.wefe.common.data.storage.repo.impl;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.data.storage.repo.AbstractStorage;
+import com.welab.wefe.common.data.storage.repo.AbstractJdbcStorage;
 import net.razorvine.pickle.Pickler;
 import net.razorvine.pickle.Unpickler;
 import org.springframework.stereotype.Component;
@@ -35,7 +35,7 @@ import java.util.UUID;
  * @author yuxin.zhang
  */
 @Component
-public class ClickhouseStorage extends AbstractStorage {
+public class ClickhouseStorage extends AbstractJdbcStorage {
 
     @Override
     public void put(String dbName, String tbName, DataItemModel model) throws Exception {

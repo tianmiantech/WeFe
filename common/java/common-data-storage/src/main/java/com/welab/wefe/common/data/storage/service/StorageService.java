@@ -17,7 +17,7 @@
 package com.welab.wefe.common.data.storage.service;
 
 import com.welab.wefe.common.data.storage.StorageManager;
-import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.config.StorageConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
@@ -28,7 +28,6 @@ import com.welab.wefe.common.data.storage.repo.impl.LmdbStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.yandex.clickhouse.except.ClickHouseException;
 
@@ -50,12 +49,11 @@ public class StorageService {
     @Autowired
     private FcStorage fcStorage;
 
-    @Value(value = "${db.storage.type}")
-    private DBType dbType;
+    private StorageConfig storageConfig = StorageManager.getInstance().getBean("storageConfig");
 
     public Storage getStorage() {
         Storage result = null;
-        switch (dbType) {
+        switch (storageConfig.getDbType()) {
             case CLICKHOUSE:
                 result = clickhouseStorage;
                 break;
@@ -64,10 +62,6 @@ public class StorageService {
                 break;
             case LMDB:
                 result = lmdbStorage;
-                break;
-            case OSS:
-            case OTS:
-                result = fcStorage;
                 break;
             default:
         }

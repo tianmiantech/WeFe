@@ -16,32 +16,30 @@
 
 package com.welab.wefe.common.data.storage.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 
 /**
  * @author lonnie
  */
-@Component
-@PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
-public class LmdbParamConfig {
+public class LmdbConfig {
 
-    @Value(value = "${lmdb.database.name:lmdbtest}")
-    private String dbName;
+    private String dbName = "lmdbtest";
 
-    @Value(value = "${lmdb.max.size:256}")
-    private int lmdbMaxSize;
+    private int lmdbMaxSize = 256;
 
-    @Value(value = "${lmdb.database.count:10}")
-    private int lmdbDatabaseCount;
+    private int lmdbDatabaseCount = 10;
 
-    @Value(value = "${lmdb.path:null}")
-    private String lmdbPath;
+    private String lmdbPath = "/data/wefe/lmdb/";
 
-    @Value(value = "${lmdb.partitions:1}")
-    private int partitions;
+    private int partitions = 1;
+
+    public LmdbConfig(){};
+
+    public LmdbConfig(String lmdbPath){
+        Assert.notNull(lmdbPath, "lmdbPath == null");
+        this.lmdbPath = lmdbPath;
+    };
 
     public int getLmdbMaxSize() {
         return lmdbMaxSize;
