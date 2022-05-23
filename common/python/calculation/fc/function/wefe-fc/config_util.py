@@ -46,7 +46,7 @@ def gen_config_file():
             v = v if v is not None else ''
             f.write(str(k + '=' + v + '\n'))
 
-        f.write('flow.log.root.path.=/logs' + '\n')
+        f.write('flow.log.root.path=./logs' + '\n')
         f.close()
 
 
