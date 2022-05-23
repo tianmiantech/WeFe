@@ -1,5 +1,5 @@
 #使用说明
-如果引用方springboot项目请不要扫描storage模块的下面的bean
+如果引用方是springboot项目请不要扫描storage模块的下面的bean
 ## 1. 添加依赖
 ```bash
 <dependency>

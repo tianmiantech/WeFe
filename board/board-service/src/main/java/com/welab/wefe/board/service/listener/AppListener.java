@@ -16,10 +16,6 @@
 
 package com.welab.wefe.board.service.listener;
 
-import com.welab.wefe.common.data.storage.StorageManager;
-import com.welab.wefe.common.data.storage.common.DBType;
-import com.welab.wefe.common.data.storage.config.JdbcConfig;
-import com.welab.wefe.common.data.storage.config.StorageConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;

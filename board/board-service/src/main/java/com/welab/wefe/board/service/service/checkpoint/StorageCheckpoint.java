@@ -19,7 +19,6 @@ package com.welab.wefe.board.service.service.checkpoint;
 import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.data.storage.StorageManager;
-import com.welab.wefe.common.data.storage.config.JdbcConfig;
 import com.welab.wefe.common.data.storage.config.StorageConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.repo.Storage;
