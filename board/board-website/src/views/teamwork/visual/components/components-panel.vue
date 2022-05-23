@@ -298,7 +298,7 @@
 
                     if(type) {
                         this.tabName = type;
-                        if(type === 'result' && !cfg.result) {
+                        if(type === 'result' && cfg.result) {
                             this.tabName = 'params';
                         }
                     } else if (cfg.params) {
