@@ -60,7 +60,8 @@ def get_db_config(key: tuple):
 
 
 def get_fc_local_config(key):
-    root_path = os.environ.get('PYTHONPATH')
+    root_path = os.getenv('PYTHONPATH')
+    print(f'root_path: {root_path}/config.properties')
     comm_file_path = root_path + '/config.properties'
     if os.path.exists(comm_file_path):
         with open(comm_file_path, encoding="utf8") as fp:
@@ -105,7 +106,8 @@ def get_comm_config(key, default=None):
         consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME: 'fc.oss.bucket_name',
         consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID: 'fc.access_key_id',
         consts.COMM_CONF_KEY_FC_KEY_SECRET: 'fc.access_key_secret',
-        consts.COMM_CONF_KEY_FC_ACCOUNT_ID: 'fc.account_id'
+        consts.COMM_CONF_KEY_FC_ACCOUNT_ID: 'fc.account_id',
+        consts.COMM_CONF_KEY_LOG_ROOT: 'flow.log.root.path'
     }
 
     fc_env = os.getenv('IN_FC_ENV')

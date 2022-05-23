@@ -28,7 +28,6 @@ from common.python.utils.conf_utils import get_comm_config, get_env_config
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
 # Database Connectivity
-env = os.environ
 fc_env = os.getenv('IN_FC_ENV')
 work_mode = None
 DB = None

@@ -45,6 +45,8 @@ def gen_config_file():
         for k, v in json_obj.items():
             v = v if v is not None else ''
             f.write(str(k + '=' + v + '\n'))
+
+        f.write('flow.log.root.path=./logs' + '\n')
         f.close()
 
 
