@@ -78,7 +78,7 @@ public class StorageManager {
     }
 
 
-    public synchronized void refreshJdbcConfig(@NotNull JdbcConfig jdbcConfig) {
+    public synchronized void refreshJdbcConfig(JdbcConfig jdbcConfig) {
         LOG.info("start refreshJdbcConfig...");
 
         Assert.notNull(jdbcConfig, "jdbcConfig == null");
@@ -105,7 +105,7 @@ public class StorageManager {
         LOG.info("refreshJdbcConfig success...");
     }
 
-    public synchronized void refreshLmdbConfig(@NotNull LmdbConfig lmdbConfig) {
+    public synchronized void refreshLmdbConfig(LmdbConfig lmdbConfig) {
         LOG.info("start refreshLmdbConfig...");
         Assert.notNull(lmdbConfig, "lmdbConfig == null");
         StorageConfig storageConfig = context.getBean(StorageConfig.class);
@@ -114,7 +114,7 @@ public class StorageManager {
         LOG.info("refreshLmdbConfig success...");
     }
 
-    public synchronized void refreshFcStorageConfig(@NotNull FcStorageConfig fcStorageConfig) {
+    public synchronized void refreshFcStorageConfig(FcStorageConfig fcStorageConfig) {
         LOG.info("start refreshFcStorageConfig...");
         Assert.notNull(fcStorageConfig, "fcStorageConfig == null");
         StorageConfig storageConfig = context.getBean(StorageConfig.class);
