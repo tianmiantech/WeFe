@@ -43,14 +43,16 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
     protected ApiResult<PredictResult> handle(Input input) {
 
         try {
-            PredictResult result = Predictor.debug(
-                    input.getModelId(),
-                    input.getUserId(),
-                    input.getFeatureData(),
-                    input.getParams() == null ? null : new JSONObject(input.getParams()),
-                    input.getFeatureSource(),
-                    input.getMyRole()
-            );
+
+            PredictResult result =null;
+//            PredictResult result = Predictor.debug(
+//                    input.getModelId(),
+//                    input.getUserId(),
+//                    input.getFeatureData(),
+//                    input.getParams() == null ? null : new JSONObject(input.getParams()),
+//                    input.getFeatureSource(),
+//                    input.getMyRole()
+//            );
 
             return success(result);
         } catch (Exception e) {

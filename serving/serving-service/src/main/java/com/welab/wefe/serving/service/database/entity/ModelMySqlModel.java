@@ -51,6 +51,11 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
 
     private String name;
 
+    private String url;
+
+    @Column(name = "service_type")
+    private int serviceType;
+
     public String getModelId() {
         return modelId;
     }
@@ -105,5 +110,21 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public int getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(int serviceType) {
+        this.serviceType = serviceType;
     }
 }

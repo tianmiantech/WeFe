@@ -18,6 +18,8 @@ package com.welab.wefe.serving.sdk.predicter.batch;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
+import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.manager.AlgorithmManager;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
@@ -33,6 +35,10 @@ import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
  */
 public abstract class AbstractBatchPredictor extends AbstractBasePredictor implements BatchPredictBehavior {
 
+
+    public AbstractBatchPredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
+        super(modelId, predictParams, federatedParams);
+    }
 
     /**
      * Get the processor of the corresponding model

@@ -16,11 +16,9 @@
 
 package com.welab.wefe.serving.sdk.predicter.single;
 
-import com.welab.wefe.serving.sdk.dto.ProviderParams;
-import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
+import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.predicter.SinglePredictBehavior;
-
-import java.util.List;
 
 /**
  * Single prediction
@@ -28,5 +26,8 @@ import java.util.List;
  * @author hunter.zhao
  */
 public abstract class AbstractSinglePromoterPredictor extends AbstractSinglePredictor implements SinglePredictBehavior {
-    public abstract List<ProviderParams> findProviders();
+
+    public AbstractSinglePromoterPredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
+        super(modelId, predictParams, federatedParams);
+    }
 }

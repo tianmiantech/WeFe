@@ -16,22 +16,14 @@
 
 package com.welab.wefe.serving.sdk.dto;
 
-import java.util.List;
-
 /**
  * @author hunter.zhao
  */
 public class FederatedParams {
 
-//    private String requestId;
-//
-//    private String responseId;
-
     private String modelId;
 
     private String memberId;
-
-    private List<ProviderParams> providers;
 
     private FederatedParams() {
     }
@@ -47,15 +39,6 @@ public class FederatedParams {
         federatedParams.memberId = memberId;
         return federatedParams;
     }
-
-    public static FederatedParams of(String modelId, String memberId, List<ProviderParams> providers) {
-        FederatedParams federatedParams = new FederatedParams();
-        federatedParams.modelId = modelId;
-        federatedParams.memberId = memberId;
-        federatedParams.providers = providers;
-        return federatedParams;
-    }
-
 
     public String getModelId() {
         return modelId;
@@ -75,12 +58,4 @@ public class FederatedParams {
         return this;
     }
 
-    public List<ProviderParams> getProviders() {
-        return providers;
-    }
-
-    public FederatedParams setProviders(List<ProviderParams> providers) {
-        this.providers = providers;
-        return this;
-    }
 }

@@ -27,7 +27,7 @@ public enum ServiceTypeEnum {
 
     MULTI_PSI(5, "多方交集查询"), MULTI_PIR(6, "多方匿踪查询"),
 
-    MachineLearning(7, "机器学习模型"), DeepLearning(6, "深度学习模型"),
+    MachineLearning(7, "机器学习模型"), DeepLearning(8, "深度学习模型"),
     ;
 
     private int code;

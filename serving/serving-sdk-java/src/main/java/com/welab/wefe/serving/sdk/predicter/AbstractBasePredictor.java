@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.sdk.predicter;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
@@ -33,7 +32,12 @@ public abstract class AbstractBasePredictor {
     public FederatedParams federatedParams;
     public PredictParams predictParams;
     public String modelId;
-    public JSONObject extendParams;
+
+    public AbstractBasePredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
+        this.modelId = modelId;
+        this.predictParams = predictParams;
+        this.federatedParams = federatedParams;
+    }
 
     public AbstractBasePredictor setFederatedParams(FederatedParams federatedParams) {
         this.federatedParams = federatedParams;
@@ -47,11 +51,6 @@ public abstract class AbstractBasePredictor {
 
     public AbstractBasePredictor setModelId(String modelId) {
         this.modelId = modelId;
-        return this;
-    }
-
-    public AbstractBasePredictor setExtendParams(JSONObject extendParams) {
-        this.extendParams = extendParams;
         return this;
     }
 

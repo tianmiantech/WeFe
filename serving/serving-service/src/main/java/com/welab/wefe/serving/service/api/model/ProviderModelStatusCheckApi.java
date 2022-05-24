@@ -33,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
         path = "model/provider/status/check",
         name = "检查模型状态（协作方提供接口）",
         login = false,
-        rsaVerify = true,
-        domain = Caller.Member
+        rsaVerify = true
+//        domain = Caller.Member
 )
 public class ProviderModelStatusCheckApi extends AbstractApi<ProviderModelStatusCheckApi.Input, ModelStatusOutput> {
 

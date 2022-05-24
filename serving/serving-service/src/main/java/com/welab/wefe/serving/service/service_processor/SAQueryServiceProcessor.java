@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public class SAQueryServiceProcessor extends AbstractServiceProcessor<JObject> {
+public class SAQueryServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 

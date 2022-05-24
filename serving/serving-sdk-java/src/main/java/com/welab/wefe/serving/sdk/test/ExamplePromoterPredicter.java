@@ -23,6 +23,7 @@ import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
@@ -39,6 +40,10 @@ import java.util.Map;
  * @author hunter.zhao
  */
 public class ExamplePromoterPredicter extends AbstractSinglePredictor {
+
+    public ExamplePromoterPredicter(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
+        super(modelId, predictParams, federatedParams);
+    }
 
     @Override
     public BaseModel getModel() {
@@ -80,13 +85,13 @@ public class ExamplePromoterPredicter extends AbstractSinglePredictor {
 
         List<JObject> federatedResult = new ArrayList<>();
 
-        for (ProviderParams obj : federatedParams.getProviders()) {
-            AbstractBasePredictor provider = new ExampleProviderPredicter()
-                    .setPredictParams(predictParams)
-                    .setFederatedParams(FederatedParams.of("modelId-02", obj.getMemberId()));
-            PredictResult providerResult = provider.predict();
-            federatedResult.add(JObject.create(JSON.toJSONString(providerResult)));
-        }
+//        for (ProviderParams obj : ) {
+//            AbstractBasePredictor provider = new ExampleProviderPredicter()
+//                    .setPredictParams(predictParams)
+//                    .setFederatedParams(FederatedParams.of("modelId-02", obj.getMemberId()));
+//            PredictResult providerResult = provider.predict();
+//            federatedResult.add(JObject.create(JSON.toJSONString(providerResult)));
+//        }
 
         return federatedResult;
     }
