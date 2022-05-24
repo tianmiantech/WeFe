@@ -405,7 +405,7 @@ export default {
 
         downloadStatistics() {
 
-            const api = `${window.api.baseUrl}/serviceorder/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&orderType=${this.search.orderType}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
+            const api = `${window.api.baseUrl}/serviceorder/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&orderType=${this.search.orderType}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}&version=${Math.random()}`;
             const link = document.createElement('a');
 
             link.href = api;

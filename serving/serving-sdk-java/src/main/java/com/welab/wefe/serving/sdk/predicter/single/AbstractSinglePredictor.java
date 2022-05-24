@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.sdk.predicter.single;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
@@ -47,25 +46,21 @@ public abstract class AbstractSinglePredictor extends AbstractBasePredictor impl
      * predict
      */
     @Override
-    public PredictResult predict() throws Exception {
+    public PredictResult predict() throws StatusCodeWithException {
 
         BaseModel model = getModel();
 
-        predictParams.setFeatureData(fillFeatureData());
-
-        featureEngineering();
+        predictParams.setFeatureData(findFeatureData());
 
         AbstractModelProcessor processor = getProcessor();
 
-        processor.preprocess(model, federatedParams, predictParams, params);
+        processor.preprocess(model, federatedParams, predictParams);
 
         AbstractAlgorithm algorithm = AlgorithmManager.get(model);
-        if(algorithm == null){
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID,"The corresponding model is not found. Please check whether the parameters are incorrect");
-        }
-        PredictResult result = algorithm.execute(model, federatedParams, predictParams, params);
 
-        processor.postprocess(result, model, federatedParams, predictParams, params);
+        PredictResult result = algorithm.execute(model, predictParams, federatedResultByProviders());
+
+        processor.postprocess(result, model, federatedParams, predictParams);
 
         return result;
     }

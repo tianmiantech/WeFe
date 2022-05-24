@@ -36,9 +36,8 @@ public abstract class AbstractModelProcessor {
      * @param model
      * @param federatedParams
      * @param predictParams
-     * @param params
      */
-    public abstract void preprocess(BaseModel model, FederatedParams federatedParams, PredictParams predictParams, JSONObject params);
+    public abstract void preprocess(BaseModel model, FederatedParams federatedParams, PredictParams predictParams);
 
     /**
      * Actions performed after model prediction
@@ -46,7 +45,6 @@ public abstract class AbstractModelProcessor {
      * @param model
      * @param federatedParams
      * @param predictParams
-     * @param params
      */
-    public abstract void postprocess(PredictResult result, BaseModel model, FederatedParams federatedParams, PredictParams predictParams, JSONObject params);
+    public abstract void postprocess(PredictResult result, BaseModel model, FederatedParams federatedParams, PredictParams predictParams);
 }

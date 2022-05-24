@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
@@ -38,7 +39,7 @@ public class XgboostVertProviderBatchAlgorithm extends AbstractXgBoostBatchAlgor
     private CopyOnWriteArrayList<PredictModel> predictModelList = new CopyOnWriteArrayList<>();
 
     @Override
-    protected List<PredictModel> handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
+    protected List<PredictModel> handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
 
         CountDownLatch latch = new CountDownLatch(fidValueMapping.size());
 

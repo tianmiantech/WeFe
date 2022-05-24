@@ -81,7 +81,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
 
             <el-table-column
@@ -274,47 +274,47 @@
 
 <script>
 import table from '@src/mixins/table';
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
-    name: 'OrderStatistics',
+    name:   'OrderStatistics',
     mixins: [table],
     data() {
         return {
-            loading: false,
-            list: [],
-            services: [],
-            clients: [],
+            loading:    false,
+            list:       [],
+            services:   [],
+            clients:    [],
             getListApi: '/orderstatistics/query-list',
-            search: {
-                serviceName: '',
-                requestPartnerName: '',
-                responsePartnerName: '',
+            search:     {
+                serviceName:            '',
+                requestPartnerName:     '',
+                responsePartnerName:    '',
                 statisticalGranularity: 'minute',
-                startTime: '',
-                endTime: '',
+                startTime:              '',
+                endTime:                '',
             },
-            defaultTime: [],
+            defaultTime:      [],
             dialogPagination: {
-                total: '',
-                page_size: 10,
-                page_index: 1,
-                serviceId: '',
-                clientId: '',
+                total:       '',
+                page_size:   10,
+                page_index:  1,
+                serviceId:   '',
+                clientId:    '',
                 change_flag: false,
             },
 
             statistical_granularity: [
-                {value: 'month', label: 'month'},
-                {value: 'day', label: 'day'},
-                {value: 'hour', label: 'hour'},
-                {value: 'minute', label: 'minute'},
+                { value: 'month', label: 'month' },
+                { value: 'day', label: 'day' },
+                { value: 'hour', label: 'hour' },
+                { value: 'minute', label: 'minute' },
             ],
 
             apiCallDetails: [],
 
             dialogTableVisible: false,
-            defaultSearch: false,
+            defaultSearch:      false,
         };
     },
 
@@ -345,7 +345,7 @@ export default {
 
         downloadStatistics() {
 
-            const api = `${window.api.baseUrl}/apirequestrecord/download?serviceId=${this.search.serviceId}&clientId=${this.search.clientId}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
+            const api = `${window.api.baseUrl}/orderstatistics/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&statisticalGranularity=${this.search.statisticalGranularity}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}&version=${Math.random()}`;
             const link = document.createElement('a');
 
             link.href = api;
@@ -386,8 +386,8 @@ export default {
         },
 
         async getServices() {
-            const {code, data} = await this.$http.post({
-                url: '/service/query',
+            const { code, data } = await this.$http.post({
+                url:  '/service/query',
                 data: {
                     status: 1,
                 },
@@ -399,7 +399,7 @@ export default {
         },
 
         async getClients() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/client/query-list',
             });
 
@@ -415,15 +415,15 @@ export default {
             this.dialogPagination.clientId = clientId;
 
             this.apiCallDetails = [];
-            const {code, data} = await this.$http.post({
-                url: '/orderstatistics/query-list',
+            const { code, data } = await this.$http.post({
+                url:  '/orderstatistics/query-list',
                 data: {
-                    serviceId: this.dialogPagination.serviceId,
-                    clientId: this.dialogPagination.clientId,
+                    serviceId:  this.dialogPagination.serviceId,
+                    clientId:   this.dialogPagination.clientId,
                     page_index: change_flag ? this.dialogPagination.page_index - 1 : 0,
-                    page_size: change_flag ? this.dialogPagination.page_size : 10,
-                    startTime: this.search.startTime,
-                    endTime: this.search.endTime,
+                    page_size:  change_flag ? this.dialogPagination.page_size : 10,
+                    startTime:  this.search.startTime,
+                    endTime:    this.search.endTime,
                 },
             });
 

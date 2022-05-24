@@ -32,6 +32,7 @@ import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.serving.service.api.service.AddApi;
 import com.welab.wefe.serving.service.api.service.QueryApi;
 import com.welab.wefe.serving.service.api.service.QueryOneApi;
+import com.welab.wefe.serving.service.api.service.RouteApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
@@ -395,31 +396,36 @@ public class ServiceService {
         return null;
     }
 
-    public JObject executeService(com.welab.wefe.serving.service.api.service.RouteApi.Input input)
-            throws StatusCodeWithException {
+    public ServiceMySqlModel findById(String serviceId) {
+        return serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
+    }
+
+    public JObject executeService(RouteApi.Input input) {
         long start = System.currentTimeMillis();
+
         String clientIp = ServiceUtil.getIpAddr(input.request);
         ServiceMySqlModel service = serviceRepository.findOne("id", input.getServiceId(), ServiceMySqlModel.class);
         JObject data = JObject.create(input.getData());
-        int serviceType = service.getServiceType();
+
         // check params
         JObject res = check(service, data, service.getUrl(), input, clientIp);
-        if (res == null) {
-            res = JObject.create();
-            try {
-                AbstractServiceProcessor serviceProcessor = ServiceProcessorUtils.get(serviceType);
-                res = (JObject) serviceProcessor.process(data, service);
-                res.append("code", ServiceResultEnum.SUCCESS.getCode());
-            } catch (Exception e) {
-                res.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
-                res.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
-                return res;
-            } finally {
-                PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
-                log(service, client, start, clientIp, res.getIntValue("code"));
-            }
+        if (res != null) {
+            return res;
         }
-        return res;
+
+        JObject result = JObject.create();
+        try {
+            AbstractServiceProcessor serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
+            result = (JObject) serviceProcessor.process(data, service);
+            return result.append("code", ServiceResultEnum.SUCCESS.getCode());
+        } catch (Exception e) {
+            result.append("code", ServiceResultEnum.SERVICE_FAIL.getCode());
+            result.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
+            return result;
+        } finally {
+            PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
+            log(service, client, start, clientIp, res.getIntValue("code"));
+        }
     }
 
     private void log(ServiceMySqlModel service, PartnerMysqlModel client, long start, String clientIp, int code) {

@@ -16,12 +16,10 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
@@ -68,16 +66,10 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
      * }
      * </>
      */
-    private void getFederatedPredict(FederatedParams federatedParams, PredictParams predictParams) throws StatusCodeWithException {
-
-        //Calling provider
-        List<JObject> federatedResult = federatedPredict(
-                federatedParams.getProviders(),
-                setFederatedBatchPredictBody(federatedParams, predictParams.getUserIds())
-        );
+    private void getFederatedPredict(List<JObject> federatedResult) throws StatusCodeWithException {
 
         if (CollectionUtils.isEmpty(federatedResult)) {
-            throw new StatusCodeWithException("No result is returned from the provider", StatusCode.REMOTE_SERVICE_ERROR);
+            throw new StatusCodeWithException("协作方结果有误！", StatusCode.REMOTE_SERVICE_ERROR);
         }
 
         /**
@@ -113,9 +105,9 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
     }
 
     @Override
-    protected List<PredictModel> handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException {
+    protected List<PredictModel> handlePredict(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
-        getFederatedPredict(federatedParams, predictParams);
+        getFederatedPredict(federatedResult);
 
         CountDownLatch latch = new CountDownLatch(fidValueMapping.size());
 
@@ -140,7 +132,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
         try {
             latch.await();
         } catch (InterruptedException e) {
-            LOG.error("Execution prediction error：{}", e.getMessage());
+            LOG.error("执行预测失败：{}", e.getMessage());
             e.printStackTrace();
         }
 

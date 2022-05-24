@@ -76,7 +76,7 @@ public class Example {
              */
             AbstractBasePredictor provider = new ExampleProviderPredicter()
                     .setPredictParams(predictParams)
-                    .setFederatedParams(FederatedParams.of("", "modelId-02", "memberId"));
+                    .setFederatedParams(FederatedParams.of("modelId-02", "memberId"));
             PredictResult providerResult = provider.predict();
             System.err.println(JSON.toJSONString(providerResult));
 

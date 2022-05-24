@@ -20,7 +20,7 @@ import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
+import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredictor;
 
 import java.util.Map;
 
@@ -29,15 +29,7 @@ import java.util.Map;
  *
  * @author hunter.zhao
  */
-public class ExampleProviderPredicter extends AbstractSinglePredictor {
-
-//
-//    public ExampleProviderPredicter(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-//        super();
-//        this.federatedParams = federatedParams;
-//        this.predictParams = predictParams;
-//        this.params = params;
-//    }
+public class ExampleProviderPredicter extends AbstractSingleProviderPredictor {
 
     @Override
     public BaseModel getModel() {
@@ -76,17 +68,10 @@ public class ExampleProviderPredicter extends AbstractSinglePredictor {
 
 
     @Override
-    public Map<String, Object> fillFeatureData() {
+    public Map<String, Object> findFeatureData() {
         /**
          * Custom example
          */
         return predictParams.getFeatureData();
-    }
-
-    @Override
-    public void featureEngineering() {
-        /**
-         * Custom example
-         */
     }
 }

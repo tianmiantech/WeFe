@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.predicter.single;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.model.BaseModel;
@@ -26,6 +27,7 @@ import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import org.apache.commons.collections4.MapUtils;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.welab.wefe.common.StatusCode.UNEXPECTED_ENUM_CASE;
@@ -35,30 +37,18 @@ import static com.welab.wefe.common.StatusCode.UNEXPECTED_ENUM_CASE;
  *
  * @author hunter.zhao
  */
-public class DebugPredicter extends AbstractSinglePredictor {
-
-//    public DebugPredicter(String modelId,
-//                          PredictParams predictParams,
-//                          JSONObject params,
-//                          List<ProviderParams> providers,
-//                          PredictFeatureDataSource featureSource,
-//                          JobMemberRole myRole,
-//                          String memberId) {
-//        super(modelId, predictParams, params, providers, memberId);
-////        this.featureSource = featureSource;
-//        this.myRole = myRole;
-//    }
+public class DebugPredictor extends AbstractSinglePredictor {
 
     protected PredictFeatureDataSource featureSource;
 
     protected JobMemberRole myRole;
 
-    public DebugPredicter setFeatureSource(PredictFeatureDataSource featureSource) {
+    public DebugPredictor setFeatureSource(PredictFeatureDataSource featureSource) {
         this.featureSource = featureSource;
         return this;
     }
 
-    public DebugPredicter setMyRole(JobMemberRole myRole) {
+    public DebugPredictor setMyRole(JobMemberRole myRole) {
         this.myRole = myRole;
         return this;
     }
@@ -69,7 +59,12 @@ public class DebugPredicter extends AbstractSinglePredictor {
     }
 
     @Override
-    public Map<String, Object> fillFeatureData() throws StatusCodeWithException {
+    public List<JObject> federatedResultByProviders() throws StatusCodeWithException {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> findFeatureData() throws StatusCodeWithException {
         if (MapUtils.isNotEmpty(predictParams.getFeatureData())) {
             return predictParams.getFeatureData();
         }
@@ -80,13 +75,9 @@ public class DebugPredicter extends AbstractSinglePredictor {
             case code:
                 return new CodeFeatureDataHandler().handle(modelId, predictParams);
             case sql:
-                return FeatureManager.getFeatureData(params);
+                return FeatureManager.getFeatureData(extendParams);
             default:
                 throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
         }
-    }
-
-    @Override
-    public void featureEngineering() {
     }
 }

@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter;
+package com.welab.wefe.serving.sdk.predicter.single;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.serving.sdk.predicter.SinglePredictBehavior;
 
-import java.util.Map;
+import java.util.List;
 
 /**
+ * Single prediction
+ *
  * @author hunter.zhao
  */
-public interface SinglePredictBehavior extends PredictBehavior {
+public abstract class AbstractSingleProviderPredictor extends AbstractSinglePredictor implements SinglePredictBehavior {
 
-    /**
-     * Find features(single)
-     * <p>
-     * Build format must be{"x0":"0.12231","x1":"2.056412",...}
-     * </p>
-     *
-     * @return featureMap
-     * @throws StatusCodeWithException
-     */
-    Map<String, Object> findFeatureData() throws StatusCodeWithException;
-
+    @Override
+    public List<JObject> federatedResultByProviders() throws StatusCodeWithException {
+        return null;
+    }
 }

@@ -113,6 +113,7 @@
                                 代码配置
                             </el-radio>
                             <el-radio
+
                                 v-model="form.feature_source"
                                 label="sql"
                             >
@@ -123,7 +124,7 @@
                 </el-col>
 
                 <el-col :span="12">
-                    <form v-if="form.feature_source=='api'">
+                    <form v-if="form.feature_source==='api'">
                         <fieldset>
                             <legend>调试</legend>
                             <el-form-item label="特征值：">
@@ -186,7 +187,7 @@
                 </el-col>
 
                 <el-col :span="12">
-                    <form v-if="form.feature_source=='code'">
+                    <form v-if="form.feature_source==='code'">
                         <fieldset>
                             <legend>调试</legend>
                             <el-row>
@@ -245,16 +246,16 @@
                 </el-col>
 
                 <el-col :span="12">
-                    <form v-if="form.feature_source=='sql'">
+                    <form v-if="form.feature_source==='sql'">
                         <fieldset>
                             <legend>sql配置</legend>
                             <el-form-item
-                                label="DB类型："
-                                :rules="[{required: true, message: 'DB类型必填!'}]"
+                                label="数据源："
+                                :rules="[{required: true, message: '数据源必填!'}]"
                             >
                                 <el-select
                                     v-model="model_sql_config.type"
-                                    placeholder="请选择DB类型"
+                                    placeholder="请选择数据源"
                                     clearable
                                 >
                                     <el-option
@@ -265,24 +266,7 @@
                                     />
                                 </el-select>
                             </el-form-item>
-                            <el-form-item
-                                label="链接地址："
-                                :rules="[{required: true, message: '链接地址必填!'}]"
-                            >
-                                <el-input v-model="model_sql_config.url" />
-                            </el-form-item>
-                            <el-form-item label="用户名：">
-                                <el-input v-model="model_sql_config.username" />
-                            </el-form-item>
-                            <el-form-item label="密码：">
-                                <el-input
-                                    v-model="model_sql_config.password"
-                                    show-password
-                                    @paste.native.prevent
-                                    @copy.native.prevent
-                                    @contextmenu.native.prevent
-                                />
-                            </el-form-item>
+
                             <el-form-item
                                 label="SQL："
                                 :rules="[{required: true, message: 'SQL必填!'}]"
@@ -367,6 +351,7 @@
         inject: ['refresh'],
         data () {
             return {
+                databaseOptions: [],
                 modelingResult: [],
 
                 my_role: '',
@@ -402,13 +387,14 @@
 
                 featureNameFidMapping: {},
 
-                databaseOptions: [
-                    { value: 'MySql', label: 'MySql' },
-                    { value: 'PgSql', label: 'PgSql' },
-                    { value: 'Impala', label: 'Impala' },
-                    { value: 'Hive', label: 'Hive' },
-                    { value: 'Cassandra', label: 'Cassandra' },
-                ],
+                // databaseOptions: [
+                //     { value: 'MySql', label: 'MySql' },
+                //     { value: 'PgSql', label: 'PgSql' },
+                //     { value: 'Impala', label: 'Impala' },
+                //     { value: 'Hive', label: 'Hive' },
+                //     { value: 'Cassandra', label: 'Cassandra' },
+                // ],
+                dataSource: [],
 
                 apiPredictResult: {
                     data:      '',
@@ -441,7 +427,29 @@
             this.my_role = my_role;
         },
         methods: {
-            async getData () {
+            async getDataSource(){
+                const { code, data } = await this.$http.get({
+                    url:    '/data_source/query',
+                    params: {
+                        id: '',
+                        name: '',
+                        page_index: '',
+                        page_size: ''
+                    },
+                });
+
+                if (code === 0) {
+                    const data_list = data.list
+                    for (let i = 0; i < data_list.length; i++) {
+                        this.databaseOptions.push({
+                            label: data_list[i].name,
+                            value: data_list[i].id
+                        })
+                    }
+                }
+            },
+
+            async getData (){
                 this.loading = true;
                 const { code, data } = await this.$http.get({
                     url:    '/model/detail',

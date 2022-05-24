@@ -72,6 +72,7 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
              * Single prediction
              */
             PredictResult result = Predictor.predict(
+                    input.getRequestId(),
                     input.getModelId(),
                     PredictParams.of(input.getUserId(), input.getFeatureData()),
                     FederatedParams.of(input.getModelId(), CacheObjects.getMemberId())
@@ -84,6 +85,10 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
     }
 
     public static class Input extends AbstractApiInput {
+
+        @Check(require = true, name = "请求ID")
+        private String requestId;
+
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
 
@@ -121,6 +126,15 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
 
 
         //region getter/setter
+
+
+        public String getRequestId() {
+            return requestId;
+        }
+
+        public void setRequestId(String requestId) {
+            this.requestId = requestId;
+        }
 
         public String getModelId() {
             return modelId;

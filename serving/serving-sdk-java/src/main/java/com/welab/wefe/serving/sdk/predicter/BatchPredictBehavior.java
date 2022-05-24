@@ -35,5 +35,5 @@ public interface BatchPredictBehavior extends PredictBehavior {
      * @return featureDataMap
      * @throws StatusCodeWithException
      */
-    Map<String, Map<String, Object>> batchFillFeatureData() throws StatusCodeWithException;
+    Map<String, Map<String, Object>> batchFindFeatureData() throws StatusCodeWithException;
 }

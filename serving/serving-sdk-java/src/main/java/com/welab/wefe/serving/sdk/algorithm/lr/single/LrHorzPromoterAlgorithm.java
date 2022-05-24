@@ -16,11 +16,12 @@
 
 package com.welab.wefe.serving.sdk.algorithm.lr.single;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+
+import java.util.List;
 
 /**
  * Transverse federal
@@ -30,7 +31,7 @@ import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 public class LrHorzPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, PredictModel> {
 
     @Override
-    protected PredictModel handle(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
+    protected PredictModel handle(PredictParams predictParams, List<JObject> federatedResult) {
         return sigmod(compute(predictParams));
     }
 }

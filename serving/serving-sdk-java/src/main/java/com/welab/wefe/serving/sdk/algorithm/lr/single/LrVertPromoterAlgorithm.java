@@ -16,11 +16,9 @@
 
 package com.welab.wefe.serving.sdk.algorithm.lr.single;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
@@ -36,13 +34,13 @@ import java.util.List;
 public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, PredictModel> {
 
     @Override
-    protected PredictModel handle(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException {
+    protected PredictModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         //Calculation results
         PredictModel result = compute(predictParams);
 
-        //Call predicter
-        List<JObject> federatedResult = federatedPredict(federatedParams.getProviders(), setFederatedPredictBody(federatedParams, predictParams.getUserId()));
+//        //Call predicter
+//        List<JObject> federatedResult = federatedPredict(federatedParams.getProviders(), setFederatedPredictBody(federatedParams, predictParams.getUserId()));
 
         if (CollectionUtils.isEmpty(federatedResult)) {
             return sigmod(result);
