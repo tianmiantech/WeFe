@@ -15,8 +15,9 @@
  */
 package com.welab.wefe.gateway.service.processors.available.checkpoint;
 
+import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.common.Constant;
-import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
+import com.welab.wefe.common.data.storage.config.StorageConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.repo.Storage;
 import com.welab.wefe.common.data.storage.service.StorageService;
@@ -33,10 +34,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class StorageCheckpoint extends AbstractCheckpoint {
 
-    @Autowired
-    private StorageService storageService;
-    @Autowired
-    private JdbcParamConfig jdbcParamConfig;
+    private StorageService storageService = StorageManager.getInstance().getRepo(StorageService.class);
+
+    private StorageConfig storageConfig = StorageManager.getInstance().getRepo(StorageConfig.class);
 
     @Override
     protected ServiceType service() {
@@ -50,7 +50,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected String getConfigValue() {
-        return jdbcParamConfig.getUrl();
+        return storageConfig.getJdbcConfig().getUrl();
     }
 
     @Override

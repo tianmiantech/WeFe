@@ -17,6 +17,7 @@
 package com.welab.wefe.gateway.service;
 
 import com.google.common.util.concurrent.SettableFuture;
+import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
@@ -80,8 +81,8 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     @Autowired
     private ConfigProperties configProperties;
 
-    @Autowired
-    private StorageService storageService;
+    private StorageService storageService = StorageManager.getInstance().getRepo(StorageService.class);
+
 
     @Override
     public BasicMetaProto.ReturnStatus getDataAndPushToRemote(GatewayMetaProto.TransferMeta transferMeta) {

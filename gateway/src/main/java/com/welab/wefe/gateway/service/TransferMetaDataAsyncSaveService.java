@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service;
 
+import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.service.StorageService;
 import com.welab.wefe.common.util.FileUtil;
@@ -44,8 +45,8 @@ import java.util.Map;
 public class TransferMetaDataAsyncSaveService {
     private final Logger LOG = LoggerFactory.getLogger(TransferMetaDataAsyncSaveService.class);
 
-    @Autowired
-    private StorageService storageService;
+    private StorageService storageService = StorageManager.getInstance().getRepo(StorageService.class);
+
 
     @Autowired
     private MessageService messageService;

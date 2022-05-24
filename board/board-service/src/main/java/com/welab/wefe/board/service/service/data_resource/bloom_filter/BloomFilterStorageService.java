@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service.data_resource.bloom_filter;
 
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.AbstractService;
+import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
@@ -42,8 +43,10 @@ import java.util.stream.Collectors;
 public class BloomFilterStorageService extends AbstractService {
     public static final String DATABASE_NAME = Constant.DBName.WEFE_DATA;
 
-    @Autowired
-    StorageService storageService;
+
+    StorageService storageService = StorageManager.getInstance().getRepo(StorageService.class);
+
+
 
     /**
      * Determine whether the specified key exists
