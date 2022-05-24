@@ -1,10 +1,10 @@
 package com.welab.wefe.common.data.storage.config;
 
-import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.common.DataResourceStorageType;
 import org.springframework.util.Assert;
 
 public class StorageConfig {
-    private DBType dbType;
+    private DataResourceStorageType storageType;
     private JdbcConfig jdbcConfig;
     private LmdbConfig lmdbConfig;
     private FcStorageConfig fcStorageConfig;
@@ -16,7 +16,7 @@ public class StorageConfig {
     public StorageConfig(JdbcConfig jdbcConfig, FcStorageConfig fcStorageConfig) {
         Assert.notNull(jdbcConfig, "jdbcConfig == null");
 
-        this.dbType = jdbcConfig.getDbType();
+        this.storageType = jdbcConfig.getDbType();
         this.jdbcConfig = jdbcConfig;
         this.fcStorageConfig = fcStorageConfig;
 
@@ -28,18 +28,18 @@ public class StorageConfig {
 
     public StorageConfig(LmdbConfig lmdbConfig, FcStorageConfig fcStorageConfig) {
         Assert.notNull(lmdbConfig, "lmdbConfig == null");
-        this.dbType = DBType.LMDB;
+        this.storageType = DataResourceStorageType.LMDB;
         this.lmdbConfig = lmdbConfig;
         this.fcStorageConfig = fcStorageConfig;
     }
 
 
-    public DBType getDbType() {
-        return dbType;
+    public DataResourceStorageType getDbType() {
+        return storageType;
     }
 
-    public void setDbType(DBType dbType) {
-        this.dbType = dbType;
+    public void setDbType(DataResourceStorageType storageType) {
+        this.storageType = storageType;
     }
 
     public JdbcConfig getJdbcConfig() {

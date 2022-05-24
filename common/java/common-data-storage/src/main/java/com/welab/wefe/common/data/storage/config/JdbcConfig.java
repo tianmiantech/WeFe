@@ -17,7 +17,7 @@
 package com.welab.wefe.common.data.storage.config;
 
 import com.welab.wefe.common.data.storage.common.Constant;
-import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.common.DataResourceStorageType;
 import org.springframework.util.Assert;
 
 
@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
 public class JdbcConfig {
     private String host = "127.0.0.1";
     private Integer port = 8123;
-    private DBType dbType = DBType.CLICKHOUSE;
+    private DataResourceStorageType storageType = DataResourceStorageType.CLICKHOUSE;
     private String username;
     private String password;
     private String driverClassName = Constant.DataBaseDriverClassName.CLICKHOUSE;
@@ -50,24 +50,24 @@ public class JdbcConfig {
      */
     private double optimalInsertByteSize = 1;
 
-    public JdbcConfig(DBType dbType,String host, Integer port, String username, String password) throws Exception {
+    public JdbcConfig(DataResourceStorageType storageType, String host, Integer port, String username, String password) throws Exception {
         Assert.notNull(host, "host == null");
         Assert.notNull(port, "port == null");
         Assert.notNull(username, "username == null");
         Assert.notNull(password, "password == null");
-        Assert.notNull(dbType, "dbType == null");
+        Assert.notNull(storageType, "storageType == null");
         this.host = host;
         this.port = port;
         this.username = username;
         this.password = password;
-        this.dbType = dbType;
-        if (dbType == DBType.CLICKHOUSE) {
+        this.storageType = storageType;
+        if (storageType == DataResourceStorageType.CLICKHOUSE) {
             this.driverClassName = Constant.DataBaseDriverClassName.CLICKHOUSE;
         } else {
             throw new Exception("Invalid storage type");
         }
 
-        url = String.format("jdbc:%s://%s:%s", dbType.name().toLowerCase(), host, port);
+        url = String.format("jdbc:%s://%s:%s", storageType.name().toLowerCase(), host, port);
     }
 
 
@@ -87,12 +87,12 @@ public class JdbcConfig {
         this.port = port;
     }
 
-    public DBType getDbType() {
-        return dbType;
+    public DataResourceStorageType getDbType() {
+        return storageType;
     }
 
-    public void setDbType(DBType dbType) {
-        this.dbType = dbType;
+    public void setDbType(DataResourceStorageType storageType) {
+        this.storageType = storageType;
     }
 
     public String getValidationQuery() {

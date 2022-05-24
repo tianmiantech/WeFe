@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.globalconfig.storage;
-
-import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
-import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
-import com.welab.wefe.common.data.storage.common.DataResourceStorageType;
+package com.welab.wefe.common.data.storage.zane.persistent.clickhouse;
 
 /**
  * @author zane
- * @date 2022/5/6
+ * @date 2022/5/24
  */
-@ConfigModel(group = ConfigGroupConstant.STORAGE)
-public class StorageBaseConfigModel {
-    public DataResourceStorageType storageType = DataResourceStorageType.CLICKHOUSE;
+public class ClickhouseConfig {
+
+
 }

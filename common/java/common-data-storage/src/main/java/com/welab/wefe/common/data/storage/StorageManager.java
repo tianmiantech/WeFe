@@ -17,15 +17,13 @@
 package com.welab.wefe.common.data.storage;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.sun.istack.internal.NotNull;
-import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.common.DataResourceStorageType;
 import com.welab.wefe.common.data.storage.config.FcStorageConfig;
 import com.welab.wefe.common.data.storage.config.JdbcConfig;
 import com.welab.wefe.common.data.storage.config.LmdbConfig;
 import com.welab.wefe.common.data.storage.config.StorageConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.Assert;
@@ -113,7 +111,7 @@ public class StorageManager {
         Assert.notNull(lmdbConfig, "lmdbConfig == null");
         StorageConfig storageConfig = context.getBean(StorageConfig.class);
         storageConfig.setLmdbConfig(lmdbConfig);
-        storageConfig.setDbType(DBType.LMDB);
+        storageConfig.setDbType(DataResourceStorageType.LMDB);
         LOG.info("refreshLmdbConfig success...");
     }
 
