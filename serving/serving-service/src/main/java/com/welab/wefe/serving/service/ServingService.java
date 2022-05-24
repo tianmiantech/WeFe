@@ -66,21 +66,17 @@ public class ServingService implements ApplicationContextAware {
                         return;
                     }
 
-                    rsaVerifyCustomer(request, params);
-//
-//                    switch (annotation.domain()) {
-//                        case Member:
-//                            rsaVerifyMember(params);
-//                            break;
-//                        case Board:
-//                            rsaVerifyBoard(params);
-//                            break;
-//                        case Customer:
-//                            rsaVerifyCustomer(request, params);
-//                            break;
-//                        default:
-//                            throw new RuntimeException("Unexpected enumeration value");
-//                    }
+                    switch (annotation.domain()) {
+                        case Member:
+                        case Board:
+                            rsaVerifyBoard(params);
+                            break;
+                        case Customer:
+                            rsaVerifyCustomer(request, params);
+                            break;
+                        default:
+                            throw new RuntimeException("Unexpected enumeration value");
+                    }
                 })
                 .launch(ServingService.class, args);
 
@@ -216,7 +212,7 @@ public class ServingService implements ApplicationContextAware {
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
 
         if (!CacheObjects.getMemberId().equals(signedApiInput.getMemberId())) {
-            throw new StatusCodeWithException("用户检验失败：" + signedApiInput.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("board校验失败：" + signedApiInput.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
         }
 
 
