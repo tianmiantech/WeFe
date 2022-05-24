@@ -149,4 +149,12 @@ ALTER TABLE model_member
 
 ALTER TABLE model_sql_config
     ADD `data_source_id` varchar(64) NOT NULL COMMENT '数据源id';
-
+    
+alter table model add column  `source_path` varchar(255) COMMENT '文件路径' after `model_param`;
+alter table model add column  `filename` varchar(255) NULL COMMENT '文件名' after `source_path`;
+alter table model add column  `use_count` int(11) NULL DEFAULT '0' COMMENT '使用计数' after `filename`;
+alter table model add column  `service_type` tinyint(2)  NOT NULL COMMENT '服务类型' after `use_count`;
+alter table model add column  `url` varchar(256)  COMMENT '服务地址' after `service_type`;
+alter table model modify column `model_id` varchar(256) COMMENT '模型id';
+alter table model modify column `algorithm` varchar(64) COMMENT '算法';
+alter table client_service modify column `service_id` varchar(256) NOT NULL DEFAULT '' COMMENT '服务id';

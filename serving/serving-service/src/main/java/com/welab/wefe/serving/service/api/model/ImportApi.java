@@ -40,10 +40,10 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
     protected ApiResult handler(Input input) throws StatusCodeWithException {
         switch (input.getModelType()) {
             case MachineLearning:
-                modelImportService.saveMachineLearningModel(input.getName(), input.getFilename());
+                modelImportService.saveMachineLearningModel(input.getName(), input.getFilename(), input.getUrl());
                 break;
             case DeepLearning:
-                modelImportService.saveDeepLearningModel(input.getName(), input.getFilename());
+                modelImportService.saveDeepLearningModel(input.getName(), input.getFilename(), input.getUrl());
                 break;
         }
 
@@ -59,8 +59,11 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
         @Check(name = "主键id", require = true)
         private ModelTypeEnum modelType;
 
-        @Check(name = "模型名称")
+        @Check(name = "模型名称 / 服务名称")
         private String name;
+        
+        @Check(name="服务地址")
+        private String url;
 
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
@@ -93,6 +96,14 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 }

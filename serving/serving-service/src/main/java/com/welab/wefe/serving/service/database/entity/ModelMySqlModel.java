@@ -30,9 +30,13 @@ import javax.persistence.Enumerated;
  */
 @Entity(name = "model")
 public class ModelMySqlModel extends AbstractBaseMySqlModel {
+
+    private static final long serialVersionUID = -9177967935224674890L;
+
     @Column(name = "model_id")
     private String modelId;
 
+    // 机器学习模型字段
     @Enumerated(EnumType.STRING)
     private Algorithm algorithm;
 
@@ -46,10 +50,26 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
     @Enumerated(EnumType.STRING)
     @Column(name = "feature_source")
     private PredictFeatureDataSource featureSource = PredictFeatureDataSource.api;
-
+    
+    // 深度学习模型字段
+    
+    @Column(name="source_path")// 文件路径
+    String sourcePath;
+    
+    String filename;// 文件名
+    
+    @Column(name="use_count")// 使用计数
+    int useCount;
+    
+    // 通用字段
     private boolean enable;
 
     private String name;
+    
+    private String url;
+    
+    @Column(name="service_type")
+    private Integer serviceType;
 
     public String getModelId() {
         return modelId;
@@ -106,4 +126,45 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Integer getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(Integer serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getSourcePath() {
+        return sourcePath;
+    }
+
+    public void setSourcePath(String sourcePath) {
+        this.sourcePath = sourcePath;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public int getUseCount() {
+        return useCount;
+    }
+
+    public void setUseCount(int useCount) {
+        this.useCount = useCount;
+    }
+    
 }

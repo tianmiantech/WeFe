@@ -15,6 +15,13 @@
  */
 package com.welab.wefe.serving.service.service.model;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.AESUtil;
@@ -26,8 +33,7 @@ import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.service.api.model.SaveModelApi;
-import com.welab.wefe.serving.service.database.entity.DeepLearningModelMySqlModel;
-import com.welab.wefe.serving.service.database.repository.DeepLearningModelRepository;
+import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.repository.MemberRepository;
 import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
@@ -36,12 +42,6 @@ import com.welab.wefe.serving.service.service.ModelMemberService;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.PartnerService;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -62,17 +62,13 @@ public class ModelImportService {
     private ModelRepository modelRepository;
 
     @Autowired
-    private DeepLearningModelRepository deepLearningModelRepository;
-
-
-    @Autowired
     private MemberRepository memberRepository;
 
     @Autowired
     private PartnerService partnerService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void saveMachineLearningModel(String name, String filename) throws StatusCodeWithException {
+    public void saveMachineLearningModel(String name, String filename, String url) throws StatusCodeWithException {
         try {
             List<String> jsonStr = parseFileToList(filename);
             String aesKeyCiphertext = jsonStr.get(0);
@@ -81,7 +77,7 @@ public class ModelImportService {
             String aesKey = decryptAesKey(aesKeyCiphertext);
             JObject jObject = decryptModel(modelCiphertext, aesKey).append("name", name);
 
-            SaveModelApi.Input modelContent = buildModelParam(jObject);
+            SaveModelApi.Input modelContent = buildModelParam(jObject, url);
             modelService.save(modelContent);
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +85,7 @@ public class ModelImportService {
         }
     }
 
-    private SaveModelApi.Input buildModelParam(JObject jObject) {
+    private SaveModelApi.Input buildModelParam(JObject jObject, String url) {
 
         SaveModelApi.Input modelContent = new SaveModelApi.Input();
         modelContent.setModelId(jObject.getString("modelId"));
@@ -99,12 +95,13 @@ public class ModelImportService {
         modelContent.setAlgorithm(extractAlgorithm(jObject));
         modelContent.setModelParam(jObject.getString("modelParam"));
         modelContent.setMemberParams(extractMemberParams(jObject));
-
+        modelContent.setServiceType(8);
+        modelContent.setUrl(url);
         return modelContent;
     }
 
     private JobMemberRole extractMyRole(JObject jObject) {
-        return JobMemberRole.valueOf(jObject.getString("myRole"));
+        return JobMemberRole.promoter;
     }
 
     private JObject decryptModel(String modelCiphertext, String aesKey) {
@@ -140,24 +137,26 @@ public class ModelImportService {
     }
 
 
-    public void saveDeepLearningModel(String name, String filename) throws StatusCodeWithException {
+    public void saveDeepLearningModel(String name, String filename, String url) throws StatusCodeWithException {
 
-        DeepLearningModelMySqlModel model = deepLearningModelRepository.findOne("name", name, DeepLearningModelMySqlModel.class);
+        ModelMySqlModel model = modelRepository.findOne("name", name, ModelMySqlModel.class);
         if (model != null) {
             throw new StatusCodeWithException("该模型名称已存在，请更改后再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
         String path = ServingFileUtil
                 .getBaseDir(ServingFileUtil.FileType.DeepLearningModelFile).toString();
 
-        model = new DeepLearningModelMySqlModel();
+        model = new ModelMySqlModel();
         ServingFileUtil.DeepLearningModelFile.renameZipFile(filename, model.getId());
 
         model.setSourcePath(path);
         model.setFilename(model.getId() + ".zip");
         model.setUseCount(0);
         model.setName(name);
+        model.setServiceType(7);
+        model.setUrl(url);
 
-        deepLearningModelRepository.save(model);
+        modelRepository.save(model);
     }
 
 }

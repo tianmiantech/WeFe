@@ -71,6 +71,10 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
         private List<MemberParams> memberParams;
         @Check(name = "特征工程参数")
         Map<Integer, Object> featureEngineerMap;
+        @Check(name = "服务类型")
+        private Integer serviceType;
+        @Check(name = "服务地址")
+        private String url;
 
 
         //region getter/setter
@@ -139,6 +143,21 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
             this.myRole = myRole;
         }
 
+        public Integer getServiceType() {
+            return serviceType;
+        }
+
+        public void setServiceType(Integer serviceType) {
+            this.serviceType = serviceType;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
 
         //endregion
     }
