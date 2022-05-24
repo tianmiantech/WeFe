@@ -15,6 +15,10 @@
  */
 package com.welab.wefe.board.service.api.data_output_info;
 
+import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.service.ServingService;
+import com.welab.wefe.board.service.service.TaskResultService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -22,6 +26,8 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
@@ -34,9 +40,30 @@ import com.welab.wefe.common.wefe.enums.JobMemberRole;
         rsaVerify = true
 )
 public class PushModelToServingByProviderApi extends AbstractNoneOutputApi<PushModelToServingByProviderApi.Input> {
+
+    @Autowired
+    private ServingService servingService;
+
+    @Autowired
+    private TaskResultService taskResultService;
+
+
     @Override
     protected ApiResult handler(PushModelToServingByProviderApi.Input input) throws StatusCodeWithException {
+        extractTaskId(input);
+
+        servingService.syncModelToServing(input.getModelId(), input.getRole());
         return success();
+    }
+
+    private String extractTaskId(Input input) throws StatusCodeWithException {
+        String[] taskStr = input.getModelId().split("_");
+
+        TaskResultMySqlModel model = taskResultService.findOne(taskStr[0], taskStr[2], input.getRole(), TaskResultType.model_train.name());
+        if (model == null) {
+            StatusCode.DATA_NOT_FOUND.throwException("未查找到模型数据！");
+        }
+        return model.getTaskId();
     }
 
 

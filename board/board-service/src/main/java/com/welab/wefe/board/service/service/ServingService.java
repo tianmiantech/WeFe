@@ -19,7 +19,6 @@ package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.beust.jcommander.internal.Maps;
-import com.welab.wefe.board.service.api.data_output_info.PushModelToServingApi;
 import com.welab.wefe.board.service.api.data_output_info.PushModelToServingByProviderApi;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
@@ -177,24 +176,23 @@ public class ServingService extends AbstractService {
         return json;
     }
 
-
     /**
      * Modeling synchronization to serving
      */
-    public Object syncModelToServing(PushModelToServingApi.Input input) throws StatusCodeWithException {
+    public Object syncModelToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
         //push to serving
-        pushToServing(input);
+        pushToServing(taskId, role);
 
-        if (input.getRole().equals(JobMemberRole.promoter)) {
+        if (role.equals(JobMemberRole.promoter)) {
             //call member
-            return callMembersPushToServing(input.getTaskId(), input.getRole());
+            return callMembersPushToServing(taskId, role);
         }
 
         return "同步成功";
     }
 
-    private void pushToServing(PushModelToServingApi.Input input) throws StatusCodeWithException {
-        TreeMap<String, Object> params = buildModelParams(input.getTaskId(), input.getRole());
+    private void pushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
+        TreeMap<String, Object> params = buildModelParams(taskId, role);
         request("model_save", params, true);
     }
 
