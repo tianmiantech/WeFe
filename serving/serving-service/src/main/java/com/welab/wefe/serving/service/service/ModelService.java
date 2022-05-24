@@ -67,6 +67,7 @@ public class ModelService {
 
     Logger LOG = LoggerFactory.getLogger(getClass());
 
+    private final String API_PREFIX = "predict/";
     @Autowired
     private ModelRepository modelRepository;
 
@@ -90,6 +91,7 @@ public class ModelService {
 
     @Autowired
     private ServiceCallLogService serviceCallLogService;
+
 
     @Transactional(rollbackFor = Exception.class)
     public void save(SaveModelApi.Input input) {
@@ -133,6 +135,8 @@ public class ModelService {
 
     private ModelMySqlModel convertTo(SaveModelApi.Input input, ModelMySqlModel model) {
         BeanUtils.copyProperties(input, model);
+        model.setUrl(API_PREFIX + model.getModelId());
+        model.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         return model;
     }
 
