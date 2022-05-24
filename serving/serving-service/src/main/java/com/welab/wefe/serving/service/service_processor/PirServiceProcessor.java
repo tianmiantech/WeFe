@@ -41,7 +41,7 @@ import java.util.*;
  * @author hunter.zhao
  * @date 2022/5/19
  */
-public class PirServiceProcessor extends AbstractServiceProcessor<JObject> {
+public class PirServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
 
     @Override
     public JObject process(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {

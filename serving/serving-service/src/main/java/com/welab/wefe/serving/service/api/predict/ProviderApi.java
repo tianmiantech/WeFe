@@ -43,8 +43,8 @@ import java.util.Map;
         path = "predict/provider",
         name = "Model to predict",
         login = false,
-        rsaVerify = true,
-        domain = Caller.Member
+        rsaVerify = true
+//        domain = Caller.Member
 )
 public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
 
@@ -59,16 +59,16 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
             /**
              * Batch prediction
              */
-            if (input.getBatch()) {
-                PredictResult result = Predictor.batchProviderPredict(
-                        input.getRequestId(),
-                        input.getModelId(),
-                        input.getMemberId(),
-                        input.getPredictParams()
-                );
-
-                return success(result);
-            }
+//            if (input.getBatch()) {
+//                PredictResult result = Predictor.batchProviderPredict(
+//                        input.getRequestId(),
+//                        input.getModelId(),
+//                        input.getMemberId(),
+//                        input.getPredictParams()
+//                );
+//
+//                return success(result);
+//            }
 
             /**
              * Single prediction

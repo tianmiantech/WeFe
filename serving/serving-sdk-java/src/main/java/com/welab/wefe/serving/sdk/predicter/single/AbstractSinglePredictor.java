@@ -18,6 +18,8 @@ package com.welab.wefe.serving.sdk.predicter.single;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
+import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.manager.AlgorithmManager;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
@@ -33,6 +35,10 @@ import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
  */
 public abstract class AbstractSinglePredictor extends AbstractBasePredictor implements SinglePredictBehavior {
 
+
+    public AbstractSinglePredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
+        super(modelId, predictParams, federatedParams);
+    }
 
     /**
      * Get the processor of the corresponding model

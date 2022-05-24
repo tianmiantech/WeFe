@@ -32,8 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(path = "system/update_rsa_key_by_board",
         name = "更新配置信息",
         login = false,
-        rsaVerify = true,
-        domain = Caller.Board
+        rsaVerify = true
+//        domain = Caller.Board
 )
 public class UpdateRsaKeyApi extends AbstractNoneOutputApi<UpdateRsaKeyApi.Input> {
 

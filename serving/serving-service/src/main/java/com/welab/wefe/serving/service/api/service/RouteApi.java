@@ -21,18 +21,15 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.ServiceResultOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = true, domain = Caller.Customer)
+@Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = true)
 public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
     @Autowired
@@ -45,9 +42,9 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
     protected ApiResult<JObject> handle(Input input) {
         LOG.info("request =" + JObject.toJSONString(input));
         try {
-            ServiceMySqlModel serviceModel = service.findById(input.getServiceId());
-            if (ServiceTypeEnum.MachineLearning.getCode() == serviceModel.getServiceType()) {
-                ServiceResultOutput output = modelService.predict(serviceModel, input);
+
+            if (input.isModelService()) {
+                ServiceResultOutput output = modelService.predict(input);
                 return success(JObject.create(JSON.toJSONString(output)));
             }
 
@@ -74,8 +71,11 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
         @Check(name = "服务ID")
         private String serviceId;
 
-        @Check(name = "请求ID")
+        @Check(name = "请求ID", require = true)
         private String requestId;
+
+        @Check(name = "请求ID", require = true)
+        private boolean isModelService;
 
         public String getCustomerId() {
             return customerId;
@@ -109,6 +109,13 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
             this.requestId = requestId;
         }
 
+        public boolean isModelService() {
+            return isModelService;
+        }
+
+        public void setModelService(boolean modelService) {
+            isModelService = modelService;
+        }
     }
 
 }
