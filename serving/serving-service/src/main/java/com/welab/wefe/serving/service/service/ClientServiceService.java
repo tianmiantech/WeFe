@@ -346,13 +346,15 @@ public class ClientServiceService {
     public void activateService(String serviceId,
                                 String clientId,
                                 String privateKey,
-                                String publicKey) throws StatusCodeWithException {
+                                String publicKey,
+                                String url) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setClientId(clientId);
         clientService.setServiceId(serviceId);
         clientService.setPrivateKey(privateKey);
         clientService.setPublicKey(publicKey);
-        clientService.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
+        clientService.setUrl(url);
+        clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         add(clientService);
     }

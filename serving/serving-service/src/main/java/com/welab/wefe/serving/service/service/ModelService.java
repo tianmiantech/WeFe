@@ -135,7 +135,7 @@ public class ModelService {
 
     private ModelMySqlModel convertTo(SaveModelApi.Input input, ModelMySqlModel model) {
         BeanUtils.copyProperties(input, model);
-        model.setUrl(API_PREFIX + model.getModelId());
+        model.setUrl(setModelServiceUrl(model.getModelId()));
         model.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         return model;
     }
@@ -166,11 +166,16 @@ public class ModelService {
                     modelId,
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
-                    CacheObjects.getRsaPublicKey()
+                    CacheObjects.getRsaPublicKey(),
+                    setModelServiceUrl(modelId)
             );
         } catch (StatusCodeWithException e) {
             LOG.error("模型服务激活失败: {]", e.getMessage());
         }
+    }
+
+    private String setModelServiceUrl(String modelId) {
+        return API_PREFIX + modelId;
     }
 
     /**
