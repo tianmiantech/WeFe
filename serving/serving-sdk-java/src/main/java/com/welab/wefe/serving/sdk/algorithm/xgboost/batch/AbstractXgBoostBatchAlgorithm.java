@@ -16,16 +16,16 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 import org.apache.commons.collections4.MapUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,20 +73,18 @@ public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, 
     }
 
     @Override
-    protected R handle(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException {
+    protected R handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
         setFidValueMapping(predictParams);
 
-        return handlePredict(federatedParams, predictParams, params);
+        return handlePredict(predictParams, federatedResult);
     }
 
     /**
      * Model execution method
      *
-     * @param federatedParams
      * @param predictParams
-     * @param params
      * @return predict result
      * @throws StatusCodeWithException
      */
-    protected abstract R handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException;
+    protected abstract R handlePredict(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException;
 }

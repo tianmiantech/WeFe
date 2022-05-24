@@ -16,8 +16,7 @@
 
 package com.welab.wefe.serving.sdk.algorithm.lr.batch;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
@@ -32,7 +31,7 @@ import java.util.List;
 public class LrHorzPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseLrModel, List<PredictModel>> {
 
     @Override
-    protected List<PredictModel> handle(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
+    protected List<PredictModel> handle(PredictParams predictParams, List<JObject> federatedResult) {
         return sigmod(compute(predictParams));
     }
 }

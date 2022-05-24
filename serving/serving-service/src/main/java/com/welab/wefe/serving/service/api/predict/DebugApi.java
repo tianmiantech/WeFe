@@ -36,7 +36,6 @@ import java.util.Map;
 @Api(
         path = "predict/debug",
         name = "模型预测"
-        , login = false
 )
 public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
 

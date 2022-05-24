@@ -60,6 +60,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<PredictResul
          * Single prediction
          */
         PredictResult result = Predictor.predict(
+                input.getRequestId(),
                 input.getModelId(),
                 PredictParams.of(input.getUserId(), input.getFeatureData()),
                 FederatedParams.of(input.getModelId(), CacheObjects.getMemberId())

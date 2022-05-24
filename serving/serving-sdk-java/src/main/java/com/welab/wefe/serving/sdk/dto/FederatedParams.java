@@ -23,9 +23,9 @@ import java.util.List;
  */
 public class FederatedParams {
 
-    private String requestId;
-
-    private String responseId;
+//    private String requestId;
+//
+//    private String responseId;
 
     private String modelId;
 
@@ -36,8 +36,7 @@ public class FederatedParams {
     private FederatedParams() {
     }
 
-    public FederatedParams(String requestId, String modelId, String memberId) {
-        this.requestId = requestId;
+    public FederatedParams(String modelId, String memberId) {
         this.modelId = modelId;
         this.memberId = memberId;
     }
@@ -49,17 +48,8 @@ public class FederatedParams {
         return federatedParams;
     }
 
-    public static FederatedParams of(String requestId, String modelId, String memberId) {
+    public static FederatedParams of(String modelId, String memberId, List<ProviderParams> providers) {
         FederatedParams federatedParams = new FederatedParams();
-        federatedParams.requestId = requestId;
-        federatedParams.modelId = modelId;
-        federatedParams.memberId = memberId;
-        return federatedParams;
-    }
-
-    public static FederatedParams of(String requestId, String modelId, String memberId, List<ProviderParams> providers) {
-        FederatedParams federatedParams = new FederatedParams();
-        federatedParams.requestId = requestId;
         federatedParams.modelId = modelId;
         federatedParams.memberId = memberId;
         federatedParams.providers = providers;
@@ -83,24 +73,6 @@ public class FederatedParams {
     public FederatedParams setMemberId(String memberId) {
         this.memberId = memberId;
         return this;
-    }
-
-    public FederatedParams setRequestId(String requestId) {
-        this.requestId = requestId;
-        return this;
-    }
-
-    public FederatedParams setResponseId(String responseId) {
-        this.responseId = responseId;
-        return this;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public String getResponseId() {
-        return responseId;
     }
 
     public List<ProviderParams> getProviders() {

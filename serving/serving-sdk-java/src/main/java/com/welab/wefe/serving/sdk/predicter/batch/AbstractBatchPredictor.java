@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.sdk.predicter.batch;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
@@ -53,19 +52,17 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor imple
         BaseModel model = getModel();
 
         //Fill in corresponding feature information
-        predictParams.setFeatureDataMap(batchFillFeatureData());
+        predictParams.setFeatureDataMap(batchFindFeatureData());
 
         AbstractModelProcessor processor = getProcessor();
 
-        processor.preprocess(model, federatedParams, predictParams, params);
+        processor.preprocess(model, federatedParams, predictParams);
 
         AbstractAlgorithm algorithm = AlgorithmManager.getBatch(model);
-        if(algorithm == null){
-            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID,"The corresponding model is not found. Please check whether the parameters are incorrect");
-        }
-        PredictResult result = algorithm.execute(model, federatedParams, predictParams, params);
 
-        processor.postprocess(result, model, federatedParams, predictParams, params);
+        PredictResult result = algorithm.execute(model, predictParams, federatedResultByProviders());
+
+        processor.postprocess(result, model, federatedParams, predictParams);
 
         return result;
     }

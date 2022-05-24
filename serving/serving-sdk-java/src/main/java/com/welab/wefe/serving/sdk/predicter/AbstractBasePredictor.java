@@ -21,16 +21,19 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author hunter.zhao
  */
 public abstract class AbstractBasePredictor {
+    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     public FederatedParams federatedParams;
     public PredictParams predictParams;
-    public JSONObject params;
     public String modelId;
+    public JSONObject extendParams;
 
     public AbstractBasePredictor setFederatedParams(FederatedParams federatedParams) {
         this.federatedParams = federatedParams;
@@ -42,16 +45,15 @@ public abstract class AbstractBasePredictor {
         return this;
     }
 
-    public AbstractBasePredictor setParams(JSONObject params) {
-        this.params = params;
-        return this;
-    }
-
     public AbstractBasePredictor setModelId(String modelId) {
         this.modelId = modelId;
         return this;
     }
 
+    public AbstractBasePredictor setExtendParams(JSONObject extendParams) {
+        this.extendParams = extendParams;
+        return this;
+    }
 
     public abstract PredictResult predict() throws StatusCodeWithException;
 

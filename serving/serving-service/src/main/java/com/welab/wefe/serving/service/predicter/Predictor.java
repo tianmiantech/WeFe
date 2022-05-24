@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.service.predicter;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
@@ -29,13 +28,12 @@ import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.predicter.batch.BatchPredicter;
-import com.welab.wefe.serving.service.predicter.single.DebugPredicter;
+import com.welab.wefe.serving.service.predicter.single.DebugPredictor;
 import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
 import com.welab.wefe.serving.service.service.ModelService;
-import com.welab.wefe.serving.service.service.PredictLogService;
 
 import java.util.List;
 import java.util.Map;
@@ -46,14 +44,11 @@ import java.util.Map;
  */
 public class Predictor {
 
-    private static PredictLogService predictLogService;
-
     private static ModelMemberService modelMemberService;
 
     private static ModelService modelService;
 
     static {
-        predictLogService = Launcher.CONTEXT.getBean(PredictLogService.class);
         modelMemberService = Launcher.CONTEXT.getBean(ModelMemberService.class);
         modelService = Launcher.CONTEXT.getBean(ModelService.class);
     }
@@ -74,8 +69,11 @@ public class Predictor {
     }
 
 
-    public static PredictResult predict(String modelId, PredictParams predictParams, FederatedParams federatedParams) throws StatusCodeWithException {
+    public static PredictResult predict(String requestId, String modelId, PredictParams predictParams, FederatedParams federatedParams) throws StatusCodeWithException {
 
+        //TODO 生成订单
+
+        //TODO 生成callLog
         long start = System.currentTimeMillis();
         PredictResult result;
 
@@ -84,8 +82,7 @@ public class Predictor {
             result = predictor.predict();
 
         } finally {
-            //TODO 加日志
-//            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
+            //TODO 更新calllog
         }
 
         return result;
@@ -96,12 +93,12 @@ public class Predictor {
         if (model.isEnable()) {
             return new PromoterPredictor()
                     .setPredictParams(predictParams)
-                    .setFederatedParams(federatedParams.setRequestId("").setProviders(findProviders(modelId)))
+                    .setFederatedParams(federatedParams.setProviders(findProviders(modelId)))
                     .setModelId(modelId);
         } else {
             return new ProviderPredictor()
                     .setPredictParams(predictParams)
-                    .setFederatedParams(federatedParams.setResponseId(""))
+                    .setFederatedParams(federatedParams)
                     .setModelId(modelId);
         }
     }
@@ -123,7 +120,7 @@ public class Predictor {
             //Generation predicter
             AbstractBasePredictor promoterPredict = new BatchPredicter()
                     .setPredictParams(predictParams)
-                    .setFederatedParams(FederatedParams.of("", modelId, CacheObjects.getMemberId(), findProviders(modelId)));
+                    .setFederatedParams(FederatedParams.of(modelId, CacheObjects.getMemberId(), findProviders(modelId)));
 
             //start predict
             result = promoterPredict.predict();
@@ -132,7 +129,7 @@ public class Predictor {
             requestResult = true;
 
         } finally {
-            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
+//            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
         }
 
         return result;
@@ -155,7 +152,7 @@ public class Predictor {
 
         try {
             //Generate predicter
-            FederatedParams federatedParams = FederatedParams.of(seqNo, modelId, memberId);
+            FederatedParams federatedParams = FederatedParams.of(modelId, memberId);
             AbstractBasePredictor providerPredicter = new BatchPredicter()
                     .setFederatedParams(federatedParams)
                     .setPredictParams(predictParams);
@@ -167,81 +164,11 @@ public class Predictor {
             requestResult = true;
 
         } finally {
-            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
+//            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
         }
 
         return result;
     }
-
-    /**
-     * promoter batch call logic
-     */
-//    public static PredictResult promoter(String modelId,
-//                                         String userId,
-//                                         Map<String, Object> featureData,
-//                                         JSONObject params) throws Exception {
-//
-//        long start = System.currentTimeMillis();
-//
-//        String seqNo = "", memberId = "";
-//        PredictResult result = null;
-//
-//        PredictParams predictParams = PredictParams.of(userId, featureData);
-//        boolean requestResult = false;
-//
-//        try {
-//
-//            //Generate predicter
-//            PromoterPredictor promoter = new PromoterPredictor(modelId, predictParams, params, findProviders(modelId), CacheObjects.getMemberId());
-//            seqNo = promoter.seqNo;
-//            memberId = promoter.memberId;
-//
-//            //start predict
-//            result = promoter.predict();
-//
-//
-//            //Call succeeded
-//            requestResult = true;
-//
-//        } finally {
-//            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
-//        }
-//
-//        return result;
-//    }
-
-
-    /**
-     * provider predict
-     */
-//    public static PredictResult provider(String seqNo,
-//                                         String modelId,
-//                                         String memberId,
-//                                         String userId,
-//                                         Map<String, Object> featureData,
-//                                         JSONObject params) throws Exception {
-//
-//        long start = System.currentTimeMillis();
-//
-//        PredictResult result = null;
-//        PredictParams predictParams = PredictParams.of(userId, featureData);
-//        FederatedParams federatedParams = FederatedParams.of(seqNo, modelId, memberId);
-//        boolean requestResult = false;
-//
-//        try {
-//
-//            ProviderPredictor provider = new ProviderPredictor(federatedParams, predictParams, params);
-//            result = provider.predict();
-//
-//            //Call succeeded
-//            requestResult = true;
-//
-//        } finally {
-//            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
-//        }
-//
-//        return result;
-//    }
 
     /**
      * predict Interface
@@ -263,11 +190,11 @@ public class Predictor {
         PredictResult result = null;
 
         PredictParams predictParams = PredictParams.of(userId, featureData);
-        FederatedParams federatedParams = FederatedParams.of(seqNo, modelId, memberId, findProviders(modelId));
+        FederatedParams federatedParams = FederatedParams.of(modelId, memberId, findProviders(modelId));
         boolean requestResult = false;
 
         try {
-            AbstractBasePredictor debug = new DebugPredicter()
+            AbstractBasePredictor debug = new DebugPredictor()
                     .setFeatureSource(featureSource)
                     .setMyRole(myRole)
                     .setPredictParams(predictParams)
@@ -285,69 +212,6 @@ public class Predictor {
         }
 
         return result;
-    }
-
-
-    private static void log(String seqNo,
-                            String modelId,
-                            String memberId,
-                            String userId,
-                            Map<String, Object> featureData,
-                            JSONObject params,
-                            PredictResult result,
-                            long spend,
-                            boolean requestResult) {
-
-        JSONObject request = new JSONObject();
-        request.put("seqNo", seqNo);
-        request.put("modelId", modelId);
-        request.put("memberId", memberId);
-        request.put("userId", userId);
-        request.put("featureData", featureData);
-        request.put("params", params);
-
-        //Call record warehousing
-        predictLogService.save(
-                seqNo,
-                modelId,
-                memberId,
-                result == null ? null : result.getAlgorithm(),
-                result == null ? null : result.getType(),
-                result == null ? null : result.getMyRole(),
-                JSON.toJSONString(request),
-                JSON.toJSONString(result),
-                spend,
-                requestResult
-        );
-    }
-
-    private static void log(String seqNo,
-                            String modelId,
-                            String memberId,
-                            PredictParams predictParams,
-                            PredictResult result,
-                            long spend,
-                            boolean requestResult) {
-
-        JSONObject request = new JSONObject();
-        request.put("seqNo", seqNo);
-        request.put("modelId", modelId);
-        request.put("memberId", memberId);
-        request.put("predictParams", predictParams);
-
-        //Call record warehousing
-        predictLogService.save(
-                seqNo,
-                modelId,
-                memberId,
-                result == null ? null : result.getAlgorithm(),
-                result == null ? null : result.getType(),
-                result == null ? null : result.getMyRole(),
-                JSON.toJSONString(request),
-                JSON.toJSONString(result),
-                spend,
-                requestResult
-        );
     }
 
     /**

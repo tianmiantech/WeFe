@@ -17,8 +17,11 @@
 package com.welab.wefe.serving.sdk.predicter;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
+
+import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -40,4 +43,12 @@ public interface PredictBehavior {
      * @return Model Processor
      */
     AbstractModelProcessor getProcessor();
+
+
+    /**
+     * processor
+     *
+     * @return Model Processor
+     */
+    List<JObject> federatedResultByProviders() throws StatusCodeWithException;
 }

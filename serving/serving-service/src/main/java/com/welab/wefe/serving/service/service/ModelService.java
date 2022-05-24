@@ -28,6 +28,7 @@ import com.welab.wefe.serving.service.api.model.EnableApi;
 import com.welab.wefe.serving.service.api.model.QueryApi;
 import com.welab.wefe.serving.service.api.model.SaveModelApi;
 import com.welab.wefe.serving.service.api.service.RouteApi;
+import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
@@ -38,6 +39,7 @@ import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceResultOutput;
 import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.ModelServiceProcessor;
 import org.slf4j.Logger;
@@ -79,6 +81,9 @@ public class ModelService {
 
     @Autowired
     private ModelSqlConfigService modelSqlConfigService;
+
+    @Autowired
+    private ServiceOrderService serviceOrderService;
 
     @Transactional(rollbackFor = Exception.class)
     public void save(SaveModelApi.Input input) {
@@ -326,7 +331,20 @@ public class ModelService {
         }
     }
 
-   public ServiceResultOutput predict(ServiceMySqlModel serviceMySqlModel, RouteApi.Input input) throws StatusCodeWithException {
+    public ServiceResultOutput predict(ServiceMySqlModel serviceMySqlModel, RouteApi.Input input) throws StatusCodeWithException {
+        //生成订单
+        SaveApi.Input order = new SaveApi.Input();
+        order.setId("");
+        order.setServiceId(input.getServiceId());
+        order.setServiceName("");
+        order.setServiceType(ServiceTypeEnum.DeepLearning.name());
+        order.setRequestPartnerId(input.getCustomerId());
+        order.setRequestPartnerName(CacheObjects.getPartnerName(input.getCustomerId()));
+        order.setResponsePartnerId(CacheObjects.getPartnerName(input.getCustomerId()));
+        order.setResponsePartnerId(CacheObjects.getPartnerName(input.getCustomerId()));
+//        serviceOrderService.save();
+
+
         JObject data = JObject.create(input.getData())
                 .append("requestId", input.getRequestId());
 
@@ -334,7 +352,7 @@ public class ModelService {
         return ServiceResultOutput.of(input.getRequestId(), responseId, forward(serviceMySqlModel, data));
     }
 
-   private PredictResult forward(ServiceMySqlModel serviceMySqlModel, JObject data) throws StatusCodeWithException {
+    private PredictResult forward(ServiceMySqlModel serviceMySqlModel, JObject data) throws StatusCodeWithException {
         ModelServiceProcessor processor = new ModelServiceProcessor();
         return processor.process(data, serviceMySqlModel);
     }

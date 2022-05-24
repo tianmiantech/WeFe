@@ -63,10 +63,7 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
      * }
      * </>
      */
-    private void getFederatedPredict(FederatedParams federatedParams, PredictParams predictParams) throws StatusCodeWithException {
-
-
-        List<JObject> federatedResult = federatedPredict(federatedParams.getProviders(), setFederatedPredictBody(federatedParams, predictParams.getUserId()));
+    private void getFederatedPredict( List<JObject> federatedResult) throws StatusCodeWithException {
 
         if (CollectionUtils.isEmpty(federatedResult)) {
             throw new StatusCodeWithException("federatedResult is null", StatusCode.REMOTE_SERVICE_ERROR);
@@ -90,10 +87,10 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
     }
 
     @Override
-    protected PredictModel handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException {
+    protected PredictModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         //Get partner decision tree structure
-        getFederatedPredict(federatedParams, predictParams);
+        getFederatedPredict(federatedResult);
 
         return XgboostAlgorithmHelper
                 .promoterPredictByVert(

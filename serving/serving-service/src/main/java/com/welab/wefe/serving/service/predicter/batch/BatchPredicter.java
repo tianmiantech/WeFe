@@ -17,11 +17,13 @@
 package com.welab.wefe.serving.service.predicter.batch;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,11 +32,6 @@ import java.util.Map;
  * @author hunter.zhao
  */
 public class BatchPredicter extends AbstractBatchPredictor {
-//
-//    public BatchPromoterPredicter(String modelId, PredictParams predictParam, JSONObject params, List<ProviderParams> providers, String memberId) {
-//        super(modelId, predictParam, params, providers, memberId);
-//    }
-
 
     @Override
     public BaseModel getModel() throws StatusCodeWithException {
@@ -42,7 +39,12 @@ public class BatchPredicter extends AbstractBatchPredictor {
     }
 
     @Override
-    public Map<String, Map<String, Object>> batchFillFeatureData() throws StatusCodeWithException {
+    public List<JObject> federatedResultByProviders() throws StatusCodeWithException {
+        return null;
+    }
+
+    @Override
+    public Map<String, Map<String, Object>> batchFindFeatureData() throws StatusCodeWithException {
         return FeatureManager.getFeatureDataByBatch(modelId, predictParams);
     }
 }

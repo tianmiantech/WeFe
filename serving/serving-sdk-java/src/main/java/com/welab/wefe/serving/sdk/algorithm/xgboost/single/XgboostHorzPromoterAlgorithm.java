@@ -16,12 +16,13 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+
+import java.util.List;
 
 /**
  * Horizontal federal projection(xgboost)
@@ -31,7 +32,7 @@ import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 public class XgboostHorzPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, PredictModel> {
 
     @Override
-    protected PredictModel handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
+    protected PredictModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
         return XgboostAlgorithmHelper.promoterPredictByHorz(modelParam.getModelParam(), predictParams.getUserId(), fidValueMapping);
     }
 }

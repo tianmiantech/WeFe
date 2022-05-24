@@ -18,7 +18,7 @@ package com.welab.wefe.serving.service.predicter.single;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
+import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 
@@ -29,16 +29,15 @@ import java.util.Map;
  *
  * @author hunter.zhao
  */
-public class ProviderPredictor extends AbstractSinglePredictor {
+public class ProviderPredictor extends AbstractSingleProviderPredictor {
 
     @Override
     public BaseModel getModel() throws StatusCodeWithException {
         return ModelManager.getModelParam(modelId);
     }
 
-
     @Override
-    public Map<String, Object> fillFeatureData() throws StatusCodeWithException {
+    public Map<String, Object> findFeatureData() throws StatusCodeWithException {
         return FeatureManager.getFeatureData(modelId, predictParams);
     }
 }

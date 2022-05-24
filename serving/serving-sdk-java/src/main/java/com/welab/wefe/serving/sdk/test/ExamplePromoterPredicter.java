@@ -16,12 +16,21 @@
 
 package com.welab.wefe.serving.sdk.test;
 
+import com.alibaba.fastjson.JSON;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.PredictResult;
+import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
+import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,19 +75,28 @@ public class ExamplePromoterPredicter extends AbstractSinglePredictor {
         return model;
     }
 
-
     @Override
-    public Map<String, Object> fillFeatureData() {
-        /**
-         * custom
-         */
-        return predictParams.getFeatureData();
+    public List<JObject> federatedResultByProviders() throws StatusCodeWithException {
+
+        List<JObject> federatedResult = new ArrayList<>();
+
+        for (ProviderParams obj : federatedParams.getProviders()) {
+            AbstractBasePredictor provider = new ExampleProviderPredicter()
+                    .setPredictParams(predictParams)
+                    .setFederatedParams(FederatedParams.of("modelId-02", obj.getMemberId()));
+            PredictResult providerResult = provider.predict();
+            federatedResult.add(JObject.create(JSON.toJSONString(providerResult)));
+        }
+
+        return federatedResult;
     }
 
+
     @Override
-    public void featureEngineering() {
+    public Map<String, Object> findFeatureData() {
         /**
-         * custom
+         * 用户自定义
          */
+        return predictParams.getFeatureData();
     }
 }
