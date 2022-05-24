@@ -68,7 +68,7 @@ public class ModelImportService {
     private PartnerService partnerService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void saveMachineLearningModel(String name, String filename, String url) throws StatusCodeWithException {
+    public String saveMachineLearningModel(String name, String filename, String url) throws StatusCodeWithException {
         try {
             List<String> jsonStr = parseFileToList(filename);
             String aesKeyCiphertext = jsonStr.get(0);
@@ -78,7 +78,7 @@ public class ModelImportService {
             JObject jObject = decryptModel(modelCiphertext, aesKey).append("name", name);
 
             SaveModelApi.Input modelContent = buildModelParam(jObject, url);
-            modelService.save(modelContent);
+            return modelService.save(modelContent);
         } catch (Exception e) {
             e.printStackTrace();
             throw new StatusCodeWithException("导入模型失败！error: " + e.getMessage(), StatusCode.FILE_IO_ERROR);
@@ -137,7 +137,7 @@ public class ModelImportService {
     }
 
 
-    public void saveDeepLearningModel(String name, String filename, String url) throws StatusCodeWithException {
+    public String saveDeepLearningModel(String name, String filename, String url) throws StatusCodeWithException {
 
         ModelMySqlModel model = modelRepository.findOne("name", name, ModelMySqlModel.class);
         if (model != null) {
@@ -157,6 +157,7 @@ public class ModelImportService {
         model.setUrl(url);
 
         modelRepository.save(model);
+        return model.getId();
     }
 
 }

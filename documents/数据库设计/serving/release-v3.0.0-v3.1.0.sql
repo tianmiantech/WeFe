@@ -135,7 +135,7 @@ CREATE TABLE `partner`
 
 -- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085582    
 alter table `client_service`
-    add column `public_key` text COMMENT '调用者公钥' after `client_name`
+    add column `public_key` text COMMENT '调用者公钥' after `client_name`;
 alter table `client_service`
     add column `private_key` text COMMENT '调用者私钥' after `public_key`;
 alter table `client_service`
@@ -158,3 +158,4 @@ alter table model add column  `url` varchar(256)  COMMENT '服务地址' after `
 alter table model modify column `model_id` varchar(256) COMMENT '模型id';
 alter table model modify column `algorithm` varchar(64) COMMENT '算法';
 alter table client_service modify column `service_id` varchar(256) NOT NULL DEFAULT '' COMMENT '服务id';
+alter table client_service modify column `url` varchar(128) DEFAULT '' COMMENT '服务地址';
