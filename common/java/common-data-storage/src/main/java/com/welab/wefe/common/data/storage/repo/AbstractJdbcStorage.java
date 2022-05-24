@@ -18,8 +18,6 @@ package com.welab.wefe.common.data.storage.repo;
 
 import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -45,9 +43,11 @@ public abstract class AbstractJdbcStorage extends Storage {
     protected Connection getConnection() {
         Connection conn = null;
         try {
-            conn = storageDataSource.getConnection();
+            if (!StorageManager.getInstance().restarting) {
+                conn = storageDataSource.getConnection();
+            }
         } catch (SQLException e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
         }
         return conn;
     }
@@ -67,21 +67,21 @@ public abstract class AbstractJdbcStorage extends Storage {
             try {
                 rs.close();
             } catch (SQLException e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         }
         if (stat != null) {
             try {
                 stat.close();
             } catch (SQLException e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         }
         if (conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         }
     }

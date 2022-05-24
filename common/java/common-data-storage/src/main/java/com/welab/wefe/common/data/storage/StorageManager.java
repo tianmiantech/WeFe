@@ -44,6 +44,7 @@ public class StorageManager {
 
 
     private volatile boolean inited = false;
+    public volatile boolean restarting = false;
 
     private static class SingletonClassInstance {
         private static final StorageManager INSTANCE = new StorageManager();
@@ -70,11 +71,11 @@ public class StorageManager {
         }
     }
 
-    private void registerBean(StorageConfig storageConfig){
+    private void registerBean(StorageConfig storageConfig) {
         DefaultListableBeanFactory defaultListableBeanFactory =
                 (DefaultListableBeanFactory) context.getBeanFactory();
         defaultListableBeanFactory.registerSingleton("storageConfig", storageConfig);
-        defaultListableBeanFactory.registerSingleton("storageDataSource",buildDruidDataSource(storageConfig.getJdbcConfig()));
+        defaultListableBeanFactory.registerSingleton("storageDataSource", buildDruidDataSource(storageConfig.getJdbcConfig()));
     }
 
 
@@ -93,13 +94,15 @@ public class StorageManager {
         dataSource.setUsername(jdbcConfig.getUsername());
 
         boolean restarted = false;
+        restarting = true;
         do {
             try {
                 dataSource.restart();
             } catch (SQLException e) {
-                LOG.error(e.getMessage(),e);
+                LOG.error(e.getMessage(), e);
                 continue;
             }
+            restarting = false;
             restarted = true;
         } while (!restarted);
         LOG.info("refreshJdbcConfig success...");
@@ -123,7 +126,7 @@ public class StorageManager {
 
     }
 
-    private DataSource buildDruidDataSource(JdbcConfig jdbcConfig){
+    private DataSource buildDruidDataSource(JdbcConfig jdbcConfig) {
         DruidDataSource datasource = new DruidDataSource();
         datasource.setUrl(jdbcConfig.getUrl());
         datasource.setDriverClassName(jdbcConfig.getDriverClassName());
