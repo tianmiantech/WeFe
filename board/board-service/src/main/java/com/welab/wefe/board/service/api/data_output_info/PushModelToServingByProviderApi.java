@@ -50,9 +50,7 @@ public class PushModelToServingByProviderApi extends AbstractNoneOutputApi<PushM
 
     @Override
     protected ApiResult handler(PushModelToServingByProviderApi.Input input) throws StatusCodeWithException {
-        extractTaskId(input);
-
-        servingService.syncModelToServing(input.getModelId(), input.getRole());
+        servingService.syncModelToServing(extractTaskId(input), input.getRole());
         return success();
     }
 
