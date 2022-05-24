@@ -50,8 +50,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 /**
- * @author wenshao [szujobs@hotmail.com]
- * @author ljw [ljw2083@alibaba-inc.com]
+ * @author yuxin.zhang
  */
 public abstract class DruidAbstractDataSource extends WrapperAdapter implements DruidAbstractDataSourceMBean, DataSource, DataSourceProxy, Serializable {
     private static final long serialVersionUID = 1L;
