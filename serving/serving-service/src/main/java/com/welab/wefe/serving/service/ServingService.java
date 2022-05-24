@@ -16,16 +16,6 @@
 
 package com.welab.wefe.serving.service;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.BeansException;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -35,10 +25,8 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
-import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.*;
+import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.operation.ServingApiLogger;
@@ -46,6 +34,15 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.MemberService;
 import com.welab.wefe.serving.service.service.PartnerService;
+import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author hunter.zhao
@@ -69,19 +66,21 @@ public class ServingService implements ApplicationContextAware {
                         return;
                     }
 
-                    switch (annotation.domain()) {
-                        case Member:
-                            rsaVerifyMember(params);
-                            break;
-                        case Board:
-                            rsaVerifyBoard(params);
-                            break;
-                        case Customer:
-                            rsaVerifyCustomer(request, params);
-                            break;
-                        default:
-                            throw new RuntimeException("Unexpected enumeration value");
-                    }
+                    rsaVerifyCustomer(request, params);
+//
+//                    switch (annotation.domain()) {
+//                        case Member:
+//                            rsaVerifyMember(params);
+//                            break;
+//                        case Board:
+//                            rsaVerifyBoard(params);
+//                            break;
+//                        case Customer:
+//                            rsaVerifyCustomer(request, params);
+//                            break;
+//                        default:
+//                            throw new RuntimeException("Unexpected enumeration value");
+//                    }
                 })
                 .launch(ServingService.class, args);
 
@@ -149,6 +148,15 @@ public class ServingService implements ApplicationContextAware {
 
     private static String verificationServiceApi(HttpServletRequest request) throws StatusCodeWithException {
         String serviceUrl = extractServiceUrl(request);
+        if (isModelService(request)) {
+            ModelRepository modelRepository = Launcher.CONTEXT.getBean(ModelRepository.class);
+            ModelMySqlModel model = modelRepository.findOne("url", serviceUrl, ModelMySqlModel.class);
+            if (model == null) {
+                throw new StatusCodeWithException("未查找到该模型服务！", StatusCode.PARAMETER_VALUE_INVALID);
+            }
+            return model.getModelId();
+        }
+
         ServiceRepository serviceRepository = Launcher.CONTEXT.getBean(ServiceRepository.class);
         ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
         if (service == null) {
@@ -160,6 +168,12 @@ public class ServingService implements ApplicationContextAware {
     private static String extractServiceUrl(HttpServletRequest request) {
         String uri = request.getRequestURI();
         return uri.substring(uri.lastIndexOf("api/") + 4);
+    }
+
+    private static boolean isModelService(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
+        return serviceUrl.contains("predict");
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.service;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -31,7 +32,7 @@ import com.welab.wefe.serving.service.api.service.RouteApi;
 import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
@@ -39,9 +40,11 @@ import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceResultOutput;
 import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.ModelServiceProcessor;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -84,6 +87,9 @@ public class ModelService {
 
     @Autowired
     private ServiceOrderService serviceOrderService;
+
+    @Autowired
+    private ServiceCallLogService serviceCallLogService;
 
     @Transactional(rollbackFor = Exception.class)
     public String save(SaveModelApi.Input input) {
@@ -332,29 +338,67 @@ public class ModelService {
         }
     }
 
-    public ServiceResultOutput predict(ServiceMySqlModel serviceMySqlModel, RouteApi.Input input) throws StatusCodeWithException {
-        //生成订单
+    public ServiceResultOutput predict(RouteApi.Input input) throws StatusCodeWithException {
+
+
+        SaveApi.Input order = createOrder(input);
+
+        String responseId = ServiceResultOutput.buildId();
+        PredictResult result = null;
+        Integer responseCode = 0;
+        try {
+            JObject data = JObject.create(input.getData())
+                    .append("requestId", input.getRequestId());
+            result = forward(data);
+
+            //更新订单信息
+            order.setStatus(ServiceOrderEnum.SUCCESS.getValue());
+            serviceOrderService.save(order);
+
+            return ServiceResultOutput.of(input.getRequestId(), responseId, result);
+        } catch (StatusCodeWithException e) {
+            //更新订单信息
+            order.setStatus(ServiceOrderEnum.FAILED.getValue());
+            serviceOrderService.save(order);
+            responseCode = StatusCode.SYSTEM_ERROR.getCode();
+            throw e;
+        } finally {
+            callLog(input, order.getId(), responseId, result, responseCode);
+        }
+    }
+
+    private void callLog(RouteApi.Input input, String orderId, String responseId, PredictResult result, Integer responseCode) {
+        ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
+        callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
+        callLog.setOrderId(orderId);
+        callLog.setServiceId(input.getServiceId());
+        callLog.setRequestData(input.getData());
+        callLog.setRequestPartnerId(input.getCustomerId());
+        callLog.setRequestId(input.getRequestId());
+        callLog.setRequestIp(ServiceUtil.getIpAddr(input.request));
+        callLog.setResponseCode(responseCode);
+        callLog.setResponseId(responseId);
+        callLog.setResponseData(JSON.toJSONString(result));
+        serviceCallLogService.save(callLog);
+    }
+
+    private SaveApi.Input createOrder(RouteApi.Input input) {
         SaveApi.Input order = new SaveApi.Input();
         order.setId("");
         order.setServiceId(input.getServiceId());
         order.setServiceName("");
-        order.setServiceType(ServiceTypeEnum.DeepLearning.name());
+        order.setServiceType(ServiceTypeEnum.MachineLearning.name());
         order.setRequestPartnerId(input.getCustomerId());
         order.setRequestPartnerName(CacheObjects.getPartnerName(input.getCustomerId()));
-        order.setResponsePartnerId(CacheObjects.getPartnerName(input.getCustomerId()));
-        order.setResponsePartnerId(CacheObjects.getPartnerName(input.getCustomerId()));
-//        serviceOrderService.save();
-
-
-        JObject data = JObject.create(input.getData())
-                .append("requestId", input.getRequestId());
-
-        String responseId = ServiceResultOutput.buildId();
-        return ServiceResultOutput.of(input.getRequestId(), responseId, forward(serviceMySqlModel, data));
+        order.setResponsePartnerId(CacheObjects.getMemberId());
+        order.setRequestPartnerName(CacheObjects.getMemberName());
+//        order.setOrderType();
+        serviceOrderService.save(order);
+        return order;
     }
 
-    private PredictResult forward(ServiceMySqlModel serviceMySqlModel, JObject data) throws StatusCodeWithException {
+    private PredictResult forward(JObject data) throws StatusCodeWithException {
         ModelServiceProcessor processor = new ModelServiceProcessor();
-        return processor.process(data, serviceMySqlModel);
+        return processor.process(data, new ModelMySqlModel());
     }
 }

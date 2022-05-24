@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public class MultiPirServiceProcessor extends AbstractServiceProcessor<JObject> {
+public class MultiPirServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 

@@ -22,7 +22,7 @@ import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.api.predict.ProviderApi;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
@@ -30,11 +30,11 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 /**
  * @author hunter.zhao
  */
-public class ModelServiceProcessor extends AbstractServiceProcessor<PredictResult> {
+public class ModelServiceProcessor extends AbstractServiceProcessor<ModelMySqlModel, PredictResult> {
 
 
     @Override
-    public PredictResult process(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {
+    public PredictResult process(JObject data, ModelMySqlModel model) throws StatusCodeWithException {
 
         ProviderApi.Input input = data.toJavaObject(ProviderApi.Input.class);
         input.checkAndStandardize();

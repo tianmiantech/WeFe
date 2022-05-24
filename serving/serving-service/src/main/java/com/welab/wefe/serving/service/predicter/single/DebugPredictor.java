@@ -16,10 +16,13 @@
 
 package com.welab.wefe.serving.service.predicter.single;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
+import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
@@ -42,6 +45,18 @@ public class DebugPredictor extends AbstractSinglePredictor {
     protected PredictFeatureDataSource featureSource;
 
     protected JobMemberRole myRole;
+
+    public JSONObject extendParams;
+
+    public DebugPredictor(String modelId,
+                          PredictParams predictParams,
+                          FederatedParams federatedParams,
+                          PredictFeatureDataSource featureSource,
+                          JobMemberRole myRole) {
+        super(modelId, predictParams, federatedParams);
+        this.featureSource = featureSource;
+        this.myRole = myRole;
+    }
 
     public DebugPredictor setFeatureSource(PredictFeatureDataSource featureSource) {
         this.featureSource = featureSource;

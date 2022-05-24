@@ -15,10 +15,8 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.service.DataSourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +24,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractServiceProcessor<T> {
+public abstract class AbstractServiceProcessor<T, R> {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     protected final DataSourceService dataSourceService = Launcher.getBean(DataSourceService.class);
 
-    public abstract T process(JObject data, ServiceMySqlModel model) throws Exception;
+    public abstract R process(JObject data, T input) throws Exception;
 }

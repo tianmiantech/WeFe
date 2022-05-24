@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * @author hunter.zhao
  */
-public class SAServiceProcessor extends AbstractServiceProcessor<JObject> {
+public class SAServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
 
     @Override
     public JObject process(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {

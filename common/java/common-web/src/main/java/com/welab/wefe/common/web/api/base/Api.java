@@ -59,11 +59,11 @@ public @interface Api {
      * Whether to perform SM2 verification
      */
     boolean sm2Verify() default false;
-
-    /**
-     * The caller
-     */
-    Caller domain() default Caller.Member;
+//
+//    /**
+//     * The caller
+//     */
+//    Caller domain() default Caller.Member;
 
     /**
      * The level of logging

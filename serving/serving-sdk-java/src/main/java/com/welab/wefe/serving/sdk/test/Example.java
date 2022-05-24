@@ -64,9 +64,7 @@ public class Example {
             /**
              * promoter
              */
-            AbstractBasePredictor promoter = new ExamplePromoterPredicter()
-                    .setPredictParams(predictParams)
-                    .setModelId("modelId");
+            ExamplePromoterPredicter promoter = new ExamplePromoterPredicter("modelId", predictParams, FederatedParams.of("modelId-02", "memberId"));
             PredictResult promoterResult = promoter.predict();
             System.err.println(JSON.toJSONString(promoterResult));
 
@@ -74,9 +72,7 @@ public class Example {
             /**
              * provider
              */
-            AbstractBasePredictor provider = new ExampleProviderPredicter()
-                    .setPredictParams(predictParams)
-                    .setFederatedParams(FederatedParams.of("modelId-02", "memberId"));
+            AbstractBasePredictor provider = new ExampleProviderPredicter("modelId-02", predictParams, FederatedParams.of("modelId-02", "memberId"));
             PredictResult providerResult = provider.predict();
             System.err.println(JSON.toJSONString(providerResult));
 

@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public class MultiPsiServiceProcessor extends AbstractServiceProcessor<JObject> {
+public class MultiPsiServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject>{
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 

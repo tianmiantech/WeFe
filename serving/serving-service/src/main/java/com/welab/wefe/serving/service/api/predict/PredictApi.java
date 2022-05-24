@@ -38,11 +38,11 @@ import java.util.Map;
  * @author hunter.zhao
  */
 @Api(
-        path = "api/predict",
+        path = "predict",
         name = "模型预测",
         login = false,
-        rsaVerify = true,
-        domain = Caller.Customer
+        rsaVerify = true
+//        domain = Caller.Customer
 )
 public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
 

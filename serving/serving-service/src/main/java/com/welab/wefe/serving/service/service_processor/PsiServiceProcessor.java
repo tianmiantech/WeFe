@@ -34,7 +34,7 @@ import java.util.Random;
 /**
  * @author hunter.zhao
  */
-public class PsiServiceProcessor extends AbstractServiceProcessor<JObject> {
+public class PsiServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
 
     @Override
     public JObject process(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {
