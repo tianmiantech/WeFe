@@ -20,6 +20,8 @@ import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.zane.persistent.clickhouse.ClickhouseConfig;
 import com.welab.wefe.common.data.storage.zane.persistent.clickhouse.ClickhouseStorage;
+import com.welab.wefe.common.data.storage.zane.persistent.mysql.MysqlConfig;
+import com.welab.wefe.common.data.storage.zane.persistent.mysql.MysqlStorage;
 
 import java.util.List;
 import java.util.Map;
@@ -74,8 +76,12 @@ public abstract class PersistentStorage {
      * <p>
      * 当配置信息变化时，重新初始化即可刷新对象。
      */
-    public synchronized static void initWithClickhouse(ClickhouseConfig config) {
+    public synchronized static void init(ClickhouseConfig config) {
         storage = new ClickhouseStorage(config);
+    }
+
+    public synchronized static void init(MysqlConfig config) {
+        storage = new MysqlStorage(config);
     }
 
     public static PersistentStorage getInstance() {
@@ -83,10 +89,9 @@ public abstract class PersistentStorage {
     }
 
     public static void main(String[] args) {
-        PersistentStorage.initWithClickhouse(new ClickhouseConfig());
+        PersistentStorage.init(new ClickhouseConfig());
         PersistentStorage storage = PersistentStorage.getInstance();
-        PersistentStorage.initWithClickhouse(new ClickhouseConfig());
-        PersistentStorage.initWithClickhouse(new ClickhouseConfig());
+        PersistentStorage.init(new MysqlConfig());
         storage.getList("", "");
     }
 }
