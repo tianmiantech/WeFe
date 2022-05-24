@@ -94,7 +94,7 @@ public class ModelService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void save(SaveModelApi.Input input) {
+    public String save(SaveModelApi.Input input) {
 
         saveModelMembers(input);
 
@@ -104,8 +104,8 @@ public class ModelService {
         openService(input);
 
         //save model
-        upsertModel(input);
-
+        ModelMySqlModel model = upsertModel(input);
+        return model.getId();
         //TODO 考虑模型是否放到service表
     }
 
@@ -121,7 +121,7 @@ public class ModelService {
         }
     }
 
-    private void upsertModel(SaveModelApi.Input input) {
+    private ModelMySqlModel upsertModel(SaveModelApi.Input input) {
         ModelMySqlModel model = findOne(input.getModelId());
         if (model == null) {
             model = new ModelMySqlModel();
@@ -131,6 +131,7 @@ public class ModelService {
 
         model.setUpdatedTime(new Date());
         modelRepository.save(model);
+        return model;
     }
 
     private ModelMySqlModel convertTo(SaveModelApi.Input input, ModelMySqlModel model) {

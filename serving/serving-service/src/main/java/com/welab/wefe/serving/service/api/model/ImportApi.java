@@ -15,41 +15,56 @@
  */
 package com.welab.wefe.serving.service.api.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
+import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.enums.ModelTypeEnum;
 import com.welab.wefe.serving.service.service.model.ModelImportService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
  * @date 2022/3/8
  */
-@Api(path = "model/import", name = "导入模型文件", desc = "导入模型文件",login = false)
-public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
+@Api(path = "model/import", name = "导入模型文件", desc = "导入模型文件", login = false)
+public class ImportApi extends AbstractApi<ImportApi.Input, ImportApi.Output> {
     @Autowired
     private ModelImportService modelImportService;
 
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
+        String id = "";
         switch (input.getModelType()) {
-            case MachineLearning:
-                modelImportService.saveMachineLearningModel(input.getName(), input.getFilename(), input.getUrl());
-                break;
-            case DeepLearning:
-                modelImportService.saveDeepLearningModel(input.getName(), input.getFilename(), input.getUrl());
-                break;
+        case MachineLearning:
+            id = modelImportService.saveMachineLearningModel(input.getName(), input.getFilename(), input.getUrl());
+            break;
+        case DeepLearning:
+            id = modelImportService.saveDeepLearningModel(input.getName(), input.getFilename(), input.getUrl());
+            break;
         }
-
-        return success();
+        Output output = new Output();
+        output.setId(id);
+        return success(output);
     }
 
+    public static class Output {
+        private String id;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+    }
 
     public static class Input extends AbstractApiInput {
 
@@ -61,8 +76,8 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
 
         @Check(name = "模型名称 / 服务名称")
         private String name;
-        
-        @Check(name="服务地址")
+
+        @Check(name = "服务地址")
         private String url;
 
         @Override
@@ -106,4 +121,5 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
             this.url = url;
         }
     }
+
 }

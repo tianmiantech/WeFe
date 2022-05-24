@@ -356,9 +356,9 @@
                         >
                             <uploader-unsupport />
                             <uploader-drop v-if="file_upload_options.files.length === 0">
-                                <p class="mb10">将文件（.json）拖到此处</p>或
+                                <p class="mb10">将文件（.txt/.zip）拖到此处</p>或
                                 <uploader-btn
-                                    :attrs="{accept: '.json'}"
+                                    :attrs="{accept: ['.txt','.zip']}"
                                     :single="true"
                                 >
                                     点击上传
@@ -573,6 +573,9 @@ export default {
                 headers:             {
                     token: '',
                 },
+                query: {
+                    fileType: 'MachineLearningModelFile',
+                },
                 parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
                     return parsedTimeRemaining
                         .replace(/\syears?/, '年')
@@ -682,7 +685,7 @@ export default {
                 params:  {
                     filename:         e.file.name,
                     uniqueIdentifier: e.uniqueIdentifier,
-                    fileType:         this.form.service_type === 8 ? 'MachineLearning' : 'DeepLearning',
+                    fileType:         this.form.service_type === 8? 'MachineLearningModelFile' : 'DeepLearningModelFile',
                 },
             });
 
@@ -692,24 +695,6 @@ export default {
             } else {
                 this.fileRemoved();
                 this.$refs.uploaderRef.uploader.cancel();
-            }
-        },
-        async submit(ev) {
-            const { code } = await this.$http.post({
-                url:  '/model/import',
-                data: {
-                    name:       this.form.name,
-                    filename:   this.form.filename,
-                    service_type: this.form.service_type,
-                },
-                btnState: {
-                    target: ev,
-                },
-            });
-
-            if (code === 0) {
-                this.$message.success('模型导入成功!');
-                this.$router.replace({ name: 'index' });
             }
         },
         setServiceDesc() {
@@ -814,6 +799,7 @@ export default {
             }
             if(this.form.service_type === 7 || this.form.service_type === 8){
                 this.form.url = 'predict/promoter';
+                this.file_upload_options.query.fileType = this.form.service_type === 8? 'MachineLearningModelFile' : 'DeepLearningModelFile';
             }
             else{
                 this.form.url = '';
@@ -1089,15 +1075,23 @@ export default {
             return true;
         },
         async save(event) {
-            if(this.form.service_type <7){
+            if(this.form.service_type < 7){
                 await this.saveService(event);
             }
             else{
-                await this.submitModel()
+                if(this.form.service_type === 7 && !this.form.filename.endsWith(".zip")){
+                    this.$message.error('深度学习只能传zip格式文件');
+                    return;
+                }
+                else if(this.form.service_type === 8 && !this.form.filename.endsWith(".txt")){
+                    this.$message.error('机器学习只能传txt格式文件');
+                    return;
+                }
+                await this.saveModel(event)
             }
         },
-        async submitModel(event){
-            const { code } = await this.$http.post({
+        async saveModel(event){
+            const { code, data } = await this.$http.post({
                 url:  '/model/import',
                 data: {
                     name:       this.form.name,
@@ -1111,7 +1105,11 @@ export default {
 
             if (code === 0) {
                 this.$message.success('模型导入成功!');
-                this.$router.replace({ name: 'index' });
+                this.$router.push({
+                    name:  'service-view',
+                    query: { id: data.id },
+                });
+                this.$router.go(0);
             }
         },
         async saveService(event){
