@@ -158,3 +158,4 @@ alter table model modify column `model_id` varchar(256) COMMENT '模型id';
 alter table model modify column `algorithm` varchar(64) COMMENT '算法';
 alter table client_service modify column `service_id` varchar(256) NOT NULL DEFAULT '' COMMENT '服务id';
 alter table client_service modify column `url` varchar(128) DEFAULT '' COMMENT '服务地址';
+alter table `service` add column `query_params_config` varchar(255) DEFAULT NULL comment "服务配置" after `query_params`;
