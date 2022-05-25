@@ -122,7 +122,7 @@ public class PartnerService {
     }
 
     public PartnerMysqlModel findOne(String partnerId) {
-        return partnerRepository.findOne("partnerId", partnerId, PartnerMysqlModel.class);
+        return partnerRepository.findOne("id", partnerId, PartnerMysqlModel.class);
     }
 
     /**
