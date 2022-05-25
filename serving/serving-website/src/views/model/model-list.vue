@@ -247,7 +247,7 @@
                const my_role = row.my_role;
 
                 localStorage.setItem('my_role', my_role);
-                this.$router.push({ name: 'model-view', query: { id: row.id } });
+                this.$router.push({ name: 'service-view', query: { id: row.id } });
             },
             changeEnable(row) {
                 const str = row.enable ? '下线' : '上线';
