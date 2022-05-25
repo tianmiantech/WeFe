@@ -96,19 +96,25 @@ public class ClientServiceService {
             ClientServiceMysqlModel model = ModelMapper.map(input, ClientServiceMysqlModel.class);
             model.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                // 保存服务类型
-                ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
-                        ServiceMySqlModel.class);
-                model.setServiceType(serviceMySqlModel.getServiceType());
                 // 客户相关信息
                 PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
                         PartnerMysqlModel.class);
+                
+                // 保存服务类型
+                ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
+                        ServiceMySqlModel.class);
+                if(serviceMySqlModel != null) {
+                    model.setServiceType(serviceMySqlModel.getServiceType());  
+                    model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
+                            ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
+                            : (partnerMysqlModel.getServingBaseUrl() + "/"))
+                            : "") + "api/" + serviceMySqlModel.getUrl());
+                    model.setServiceName(serviceMySqlModel.getName());
+                }
+                else {
+                    model.setServiceType(input.getServiceType());  
+                }
                 model.setClientName(partnerMysqlModel.getName());
-                model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
-                        ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
-                        : (partnerMysqlModel.getServingBaseUrl() + "/"))
-                        : "") + "api/" + serviceMySqlModel.getUrl());
-                model.setServiceName(serviceMySqlModel.getName());
             } else {// 激活
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
@@ -326,6 +332,7 @@ public class ClientServiceService {
                             String clientId,
                             String publicKey) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
+        clientService.setServiceType(0);// TODO
         clientService.setClientId(clientId);
         clientService.setServiceId(serviceId);
         clientService.setPublicKey(publicKey);
