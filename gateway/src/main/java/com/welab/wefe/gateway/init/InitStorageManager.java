@@ -16,6 +16,14 @@
 
 package com.welab.wefe.gateway.init;
 
+import com.welab.wefe.common.data.storage.StorageManager;
+import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.common.FunctionComputeType;
+import com.welab.wefe.common.data.storage.config.FcStorageConfig;
+import com.welab.wefe.common.data.storage.config.JdbcConfig;
+import com.welab.wefe.common.data.storage.config.StorageConfig;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.dto.AliyunFunctionComputeConfigModel;
 import com.welab.wefe.gateway.dto.ClickhouseStorageConfigModel;
@@ -30,12 +38,74 @@ import org.slf4j.LoggerFactory;
 public class InitStorageManager {
     private final static Logger LOG = LoggerFactory.getLogger(InitStorageManager.class);
 
-    public static void init() {
+    public static void init() throws Exception {
         LOG.info("Start init storage manager.....");
-        GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-        StorageConfigModel storageConfigModel = globalConfigService.getStorageConfig();
-        ClickhouseStorageConfigModel clickhouseStorageConfigModel = globalConfigService.getClickhouseStorageConfig();
-        AliyunFunctionComputeConfigModel aliyunFunctionComputeConfigModel = globalConfigService.getAliyunFunctionComputeConfig();
+        StorageConfigModel storageConfigModel = waitForLoadStorageConfig();
+        ClickhouseStorageConfigModel clickhouseStorageConfigModel = waitForLoadClickhouseStorageConfig();
+        AliyunFunctionComputeConfigModel aliyunFunctionComputeConfigModel = waitForLoadAliyunFunctionComputeConfig(storageConfigModel.getStorageType());
+        StorageConfig storageConfig = new StorageConfig(buildJdbcConfig(clickhouseStorageConfigModel), buildFcStorageConfig(storageConfigModel.getStorageType(), aliyunFunctionComputeConfigModel));
+        StorageManager.getInstance().init(storageConfig);
+        LOG.info("Storage manager init success.....");
+    }
 
+    private static JdbcConfig buildJdbcConfig(ClickhouseStorageConfigModel clickhouseStorageConfigModel) throws Exception {
+        return new JdbcConfig(DBType.CLICKHOUSE, clickhouseStorageConfigModel.getHost(), clickhouseStorageConfigModel.getHttpPort(),
+                clickhouseStorageConfigModel.getUsername(), clickhouseStorageConfigModel.getPassword());
+    }
+
+    private static FcStorageConfig buildFcStorageConfig(String storageType, AliyunFunctionComputeConfigModel fcModel) {
+        FcStorageConfig fcStorageConfig = new FcStorageConfig();
+        if (DBType.OSS.name().equals(storageType) || DBType.OTS.name().equals(storageType)) {
+            fcStorageConfig.setAccessKeyId(fcModel.getAccessKeyId());
+            fcStorageConfig.setAccessKeySecret(fcModel.getAccessKeySecret());
+            fcStorageConfig.setBucketName(fcModel.getOssBucketName());
+            fcStorageConfig.setRegion(fcModel.getRegion());
+            fcStorageConfig.setOssInternalEndPoint("https://oss-" + fcModel.getRegion() + "-internal.aliyuncs.com");
+            fcStorageConfig.setFunctionComputeType(FunctionComputeType.Aliyun);
+        }
+        return fcStorageConfig;
+    }
+
+
+    private static StorageConfigModel waitForLoadStorageConfig() {
+        GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
+        while (true) {
+            StorageConfigModel storageConfigModel = globalConfigService.getStorageConfig();
+            if (null == storageConfigModel || StringUtil.isEmpty(storageConfigModel.getStorageType())) {
+                LOG.info("Please set storage type configuration.......................");
+                ThreadUtil.sleepSeconds(3);
+                continue;
+            }
+            return storageConfigModel;
+        }
+    }
+
+    private static ClickhouseStorageConfigModel waitForLoadClickhouseStorageConfig() {
+        GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
+        while (true) {
+            ClickhouseStorageConfigModel clickhouseStorageConfigModel = globalConfigService.getClickhouseStorageConfig();
+            if (null == clickhouseStorageConfigModel) {
+                LOG.info("Please set clickhouse configuration.......................");
+                ThreadUtil.sleepSeconds(3);
+                continue;
+            }
+            return clickhouseStorageConfigModel;
+        }
+    }
+
+    private static AliyunFunctionComputeConfigModel waitForLoadAliyunFunctionComputeConfig(String storageType) {
+        if (!DBType.OSS.name().equals(storageType) && !DBType.OTS.name().equals(storageType)) {
+            return new AliyunFunctionComputeConfigModel();
+        }
+        GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
+        while (true) {
+            AliyunFunctionComputeConfigModel aliyunFunctionComputeConfigModel = globalConfigService.getAliyunFunctionComputeConfig();
+            if (null == aliyunFunctionComputeConfigModel) {
+                LOG.info("Please set aliyun function compute configuration.......................");
+                ThreadUtil.sleepSeconds(3);
+                continue;
+            }
+            return aliyunFunctionComputeConfigModel;
+        }
     }
 }
