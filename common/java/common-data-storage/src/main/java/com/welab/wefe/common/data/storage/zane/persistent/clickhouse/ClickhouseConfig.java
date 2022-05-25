@@ -15,11 +15,28 @@
  */
 package com.welab.wefe.common.data.storage.zane.persistent.clickhouse;
 
+import com.welab.wefe.common.data.storage.common.Constant;
+import com.welab.wefe.common.data.storage.zane.persistent.DataSourceConfig;
+
 /**
  * @author zane
  * @date 2022/5/24
  */
-public class ClickhouseConfig {
+public class ClickhouseConfig extends DataSourceConfig {
+
+    public ClickhouseConfig(String host, Integer port, String username, String password) {
+        super(host, port, username, password);
+    }
+
+    @Override
+    protected void buildUrl() {
+        this.url = String.format("jdbc:clickhouse://%s:%s", host, port);
+    }
+
+    @Override
+    public String getDriverClassName() {
+        return Constant.DataBaseDriverClassName.CLICKHOUSE;
+    }
 
 
 }

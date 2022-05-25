@@ -20,8 +20,8 @@ import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
 
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author zane
@@ -35,58 +35,64 @@ public class MysqlStorage extends PersistentStorage {
         this.config = config;
     }
 
+
     @Override
-    public void save(String dbName, String tbName, DataItemModel model) {
+    public void put(String dbName, String tbName, DataItemModel model) throws Exception {
 
     }
 
     @Override
-    public <K, V> void saveList(String dbName, String tbName, List<DataItemModel<K, V>> data) {
+    public <K, V> void putAll(String dbName, String tbName, List<DataItemModel<K, V>> data) throws Exception {
 
     }
 
     @Override
-    public <K, V> void saveList(List<DataItemModel<K, V>> data, Map<String, Object> args) {
-
-    }
-
-    @Override
-    public DataItemModel getByKey(String dbName, String tbName, String key) {
+    public DataItemModel get(String dbName, String tbName, String key) throws Exception {
         return null;
     }
 
     @Override
-    public List<DataItemModel> getList(String dbName, String tbName) {
+    public List<DataItemModel> collect(String dbName, String tbName) throws Exception {
         return null;
     }
 
     @Override
-    public List<DataItemModel<byte[], byte[]>> getListBytes(String dbName, String tbName) {
+    public void delete(String dbName, String tbName, String key) throws Exception {
+
+    }
+
+    @Override
+    public List<DataItemModel<byte[], byte[]>> collectBytes(String dbName, String tbName) throws Exception {
         return null;
     }
 
     @Override
-    public PageOutputModel getPage(String dbName, String tbName, PageInputModel pageInputModel) {
+    public List<DataItemModel> take(String dbName, String tbName, int size) throws Exception {
         return null;
     }
 
     @Override
-    public PageOutputModel<byte[], byte[]> getPageBytes(String dbName, String tbName, PageInputModel pageInputModel) {
+    public PageOutputModel getPage(String dbName, String tbName, PageInputModel pageInputModel) throws Exception {
         return null;
     }
 
     @Override
-    public int count(String dbName, String tbName) {
+    public PageOutputModel<byte[], byte[]> getPageBytes(String dbName, String tbName, PageInputModel pageInputModel) throws Exception {
+        return null;
+    }
+
+    @Override
+    public int count(String dbName, String tbName) throws Exception {
         return 0;
     }
 
     @Override
-    public void dropTB(String dbName, String tbName) {
+    public void dropTB(String dbName, String tbName) throws Exception {
 
     }
 
     @Override
-    public void dropDB(String dbName) {
+    public void dropDB(String dbName) throws Exception {
 
     }
 
@@ -96,12 +102,7 @@ public class MysqlStorage extends PersistentStorage {
     }
 
     @Override
-    public int getCountByByteSize(String dbName, String tbName, long byteSize) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public boolean isExists(String dbName, String tbName) {
+    public boolean isExists(String dbName, String tbName) throws SQLException {
         return false;
     }
 }
