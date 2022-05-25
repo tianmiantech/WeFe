@@ -116,7 +116,6 @@ values (replace(uuid(), '-', ''), 'identity_info', 'member_id', '系统身份 Id
 CREATE TABLE `partner`
 (
     `id`               varchar(32)  NOT NULL,
-    `partner_id`       varchar(256) NOT NULL COMMENT '合作者id',
     `name`             varchar(64)  DEFAULT NULL COMMENT '合作者名称',
     `email`            varchar(255) DEFAULT NULL COMMENT '邮箱',
     `serving_base_url` varchar(255) DEFAULT NULL COMMENT 'Serving服务地址',
