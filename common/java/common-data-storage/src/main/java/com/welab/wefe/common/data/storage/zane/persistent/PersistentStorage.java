@@ -75,6 +75,7 @@ public abstract class PersistentStorage {
 
     public abstract boolean isExists(String dbName, String tbName) throws SQLException;
 
+    protected abstract String validationQuery();
     // endregion
 
     private static PersistentStorage storage;
@@ -89,20 +90,22 @@ public abstract class PersistentStorage {
      * <p>
      * 当配置信息变化时，重新初始化即可刷新对象。
      */
-    public synchronized static void init(ClickhouseConfig config) {
+    public synchronized static void init(ClickhouseConfig config) throws SQLException {
         if (storage != null && storage.dataSource != null) {
             storage.dataSource.close();
         }
         storage = new ClickhouseStorage(config);
         storage.dataSource = buildDruidDataSource(config);
+        storage.checkConnection();
     }
 
-    public synchronized static void init(MysqlConfig config) {
+    public synchronized static void init(MysqlConfig config) throws SQLException {
         if (storage != null && storage.dataSource != null) {
             storage.dataSource.close();
         }
         storage = new MysqlStorage(config);
         storage.dataSource = buildDruidDataSource(config);
+        storage.checkConnection();
     }
 
     public static PersistentStorage getInstance() {
@@ -110,10 +113,9 @@ public abstract class PersistentStorage {
     }
 
     public static void main(String[] args) throws Exception {
-        PersistentStorage.init(new ClickhouseConfig("127.0.0.1",8123,"user","pasdword"));
-        PersistentStorage storage = PersistentStorage.getInstance();
-        storage.put("wefe","test",new DataItemModel("a","123"));
-        List<DataItemModel> list = storage.collect("wefe","test");
+        PersistentStorage.init(new ClickhouseConfig("127.0.0.1", 8123, "user", "pasdword"));
+        PersistentStorage.getInstance().put("wefe", "test", new DataItemModel("a", "123"));
+        List<DataItemModel> list = PersistentStorage.getInstance().collect("wefe", "test");
     }
 
 
@@ -145,9 +147,7 @@ public abstract class PersistentStorage {
     protected Connection getConnection() {
         Connection conn = null;
         try {
-            if (!StorageManager.getInstance().restarting) {
-                conn = dataSource.getConnection();
-            }
+            conn = dataSource.getConnection();
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
         }
@@ -201,6 +201,20 @@ public abstract class PersistentStorage {
         try {
             conn = getConnection();
             String sql = "CREATE TABLE IF NOT EXISTS " + formatTableName(dbName, tbName) + "(`eventDate` Date, `k` String, `v` String, `id` String) ENGINE = MergeTree() PARTITION BY toDate(eventDate) ORDER BY (id) SETTINGS index_granularity = 8192";
+            statement = conn.prepareStatement(sql);
+            statement.execute();
+        } finally {
+            close(statement, conn);
+        }
+    }
+
+
+    protected void checkConnection() throws SQLException {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        try {
+            conn = getConnection();
+            String sql = validationQuery();
             statement = conn.prepareStatement(sql);
             statement.execute();
         } finally {
