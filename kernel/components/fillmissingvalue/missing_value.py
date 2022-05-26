@@ -142,7 +142,7 @@ class FillMissingValue(ModelBase):
                 percentiles = statistics.get_percentile(percentage_list=[50])
                 medians = {}
                 for feature, value in percentiles.items():
-                    medians[feature] = value.get('50')
+                    medians[feature] = value.get(50)
                 self.statistics[consts.MEDIAN] = medians
             elif method == consts.MODE:
                 self.statistics[consts.MODE] = statistics.get_mode()
