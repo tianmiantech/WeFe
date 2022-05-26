@@ -10,7 +10,7 @@ pycryptodome==3.14.1
 pycryptodomex==3.14.1
 PyMySQL==0.10.0
 Deprecated==1.2.10
-gmpy2==2.0.8
+gmpy2==2.1.2
 grpcio~=1.32.0
 grpcio-tools==1.29.0
 scipy==1.5.1
