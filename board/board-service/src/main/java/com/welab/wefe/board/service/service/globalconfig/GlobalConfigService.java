@@ -25,7 +25,9 @@ import com.welab.wefe.board.service.api.global_config.GlobalConfigUpdateApi;
 import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigFlag;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
+import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.IpAddressUtil;
@@ -45,12 +47,21 @@ import java.util.Map;
 public class GlobalConfigService extends BaseGlobalConfigService {
     @Autowired
     private GatewayService gatewayService;
-
+    @Autowired
+    private JobService jobService;
+    @Autowired
+    private DataSetStorageService dataSetStorageService;
 
     public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
         if (!CurrentAccount.isAdmin()) {
             StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
         }
+
+        int runningJobCount = jobService.runningJobCount();
+        if (runningJobCount > 0) {
+            StatusCode.ILLEGAL_REQUEST.throwException("当前有" + runningJobCount + "个任务正在运行，暂时不允许修改配置项，请在任务结束后重试。");
+        }
+
 
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
             String groupName = group.getKey();
@@ -61,6 +72,8 @@ public class GlobalConfigService extends BaseGlobalConfigService {
                 put(groupName, key, value, null);
             }
         }
+
+        dataSetStorageService.initStorage();
 
         // Notify the gateway to update the system configuration cache
         gatewayService.refreshSystemConfigCache();

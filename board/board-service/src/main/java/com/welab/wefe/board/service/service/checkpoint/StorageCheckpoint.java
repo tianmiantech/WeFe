@@ -60,18 +60,16 @@ public class StorageCheckpoint extends AbstractCheckpoint {
     protected void doCheck(String value) throws Exception {
         StorageBaseConfigModel config = configService.getModel(StorageBaseConfigModel.class);
 
-        PersistentStorage storage = PersistentStorage.getInstance();
-
         String name = RandomStringUtils.randomAlphabetic(6);
         try {
-            storage.put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
+            PersistentStorage.getInstance().put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
         } catch (Exception e) {
             super.log(e);
             throw new Exception(config.storageType.name() + " put 异常，请检查相关配置是否正确：" + e.getMessage());
         }
 
         try {
-            storage.dropTB(DATABASE_NAME, name);
+            PersistentStorage.getInstance().dropTB(DATABASE_NAME, name);
         } catch (Exception e) {
             super.log(e);
             throw new Exception(config.storageType.name() + " drop 异常，请检查相关配置是否正确：" + e.getMessage());
