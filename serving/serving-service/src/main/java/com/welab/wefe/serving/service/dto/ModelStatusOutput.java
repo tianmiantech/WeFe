@@ -27,12 +27,24 @@ public class ModelStatusOutput {
 
     private String memberName;
 
+    private String url;
+
     private MemberModelStatusEnum status;
 
     public static ModelStatusOutput of(String memberId, String memberName, MemberModelStatusEnum status) {
         ModelStatusOutput output = new ModelStatusOutput();
         output.memberId = memberId;
         output.memberName = memberName;
+        output.status = status;
+        return output;
+    }
+
+
+    public static ModelStatusOutput of(String memberId, String memberName, String url, MemberModelStatusEnum status) {
+        ModelStatusOutput output = new ModelStatusOutput();
+        output.memberId = memberId;
+        output.memberName = memberName;
+        output.url = url;
         output.status = status;
         return output;
     }
@@ -59,5 +71,13 @@ public class ModelStatusOutput {
 
     public void setStatus(MemberModelStatusEnum status) {
         this.status = status;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

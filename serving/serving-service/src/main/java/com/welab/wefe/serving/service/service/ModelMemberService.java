@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service.service;
 
+import com.google.common.collect.Lists;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
@@ -107,19 +108,37 @@ public class ModelMemberService {
     public List<ModelStatusOutput> checkAvailableByModelIdAndMemberId(String modelId, String memberId) {
         List<ModelMemberMySqlModel> list = findListByModelIdAndMemberId(modelId, memberId);
 
-        return list
+        return isProvider(list) ?
+                Lists.newArrayList()
+                : list
                 .stream()
+                .filter(x -> !CacheObjects.getMemberId().equals(x.getMemberId()))
                 .map(x -> checkAvailable(modelId, x))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isProvider(List<ModelMemberMySqlModel> list) {
+        for (ModelMemberMySqlModel model : list) {
+            if (model.getMemberId().equals(CacheObjects.getMemberId())
+                    && model.getRole().equals(JobMemberRole.provider)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ModelStatusOutput checkAvailable(String modelId, ModelMemberMySqlModel model) {
 
         ModelStatusOutput output = callProvider(modelId, model.getMemberId());
-
+        output.setUrl(findPartnerUrl(model.getMemberId()));
         updateModelStatus(model, output.getStatus());
 
         return output;
+    }
+
+    private String findPartnerUrl(String partnerId) {
+        PartnerMysqlModel partnerMysqlModel = partnerService.findOne(partnerId);
+        return partnerMysqlModel == null ? "" : partnerMysqlModel.getServingBaseUrl();
     }
 
 

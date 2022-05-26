@@ -40,6 +40,7 @@ import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceResultOutput;
 import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceCallStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
@@ -393,8 +394,12 @@ public class ModelService {
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
         callLog.setCallByMe(0);
-        callLog.setResponseStatus(result == null ? "" : "");
+        callLog.setResponseStatus(getResponseStatus(result));
         serviceCallLogService.save(callLog);
+    }
+
+    private String getResponseStatus(PredictResult result) {
+        return result == null ? ServiceCallStatusEnum.RESPONSE_ERROR.name() : ServiceCallStatusEnum.SUCCESS.name();
     }
 
     private SaveApi.Input createOrder(RouteApi.Input input) {
