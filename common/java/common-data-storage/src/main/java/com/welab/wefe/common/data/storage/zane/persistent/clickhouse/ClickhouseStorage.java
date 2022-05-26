@@ -384,4 +384,9 @@ public class ClickhouseStorage extends PersistentStorage {
             close(statement, conn);
         }
     }
+
+    @Override
+    protected String validationQuery() {
+        return config.getValidationQuery();
+    }
 }

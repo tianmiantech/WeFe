@@ -105,4 +105,9 @@ public class MysqlStorage extends PersistentStorage {
     public boolean isExists(String dbName, String tbName) throws SQLException {
         return false;
     }
+
+    @Override
+    protected String validationQuery() {
+        return config.getValidationQuery();
+    }
 }
