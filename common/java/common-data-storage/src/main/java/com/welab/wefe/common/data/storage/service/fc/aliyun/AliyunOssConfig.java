@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.data.storage.zane.fc.aliyun;
+package com.welab.wefe.common.data.storage.service.fc.aliyun;
 
-import com.welab.wefe.common.data.storage.common.FunctionComputeType;
 import org.springframework.util.Assert;
 
 /**
@@ -30,12 +29,7 @@ public class AliyunOssConfig {
     public String bucketName;
     public String region;
 
-    public AliyunOssConfig() {
-
-    }
-
     public AliyunOssConfig(
-            FunctionComputeType functionComputeType,
             String accessKeyId,
             String accessKeySecret,
             String bucketName,
@@ -47,7 +41,6 @@ public class AliyunOssConfig {
         Assert.notNull(bucketName, "bucketName == null");
         Assert.notNull(instanceName, "instanceName == null");
         Assert.notNull(region, "region == null");
-        Assert.notNull(functionComputeType, "functionComputeType == null");
 
         this.accessKeyId = accessKeyId;
         this.accessKeySecret = accessKeySecret;

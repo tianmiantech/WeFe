@@ -17,7 +17,7 @@ package com.welab.wefe.board.service.dto.globalconfig.storage;
 
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
-import com.welab.wefe.common.data.storage.zane.persistent.clickhouse.ClickhouseConfig;
+import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
 
 /**
  * @author zane

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.data.storage.zane.persistent.clickhouse;
+package com.welab.wefe.common.data.storage.service.persistent.clickhouse;
 
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import net.razorvine.pickle.Pickler;
 import net.razorvine.pickle.Unpickler;
 

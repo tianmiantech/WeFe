@@ -1,4 +1,4 @@
-package com.welab.wefe.common.data.storage.zane.persistent;
+package com.welab.wefe.common.data.storage.service.persistent.base;
 
 import org.springframework.util.Assert;
 

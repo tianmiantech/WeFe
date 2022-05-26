@@ -17,8 +17,8 @@
 package com.welab.wefe.gateway.service;
 
 import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.zane.fc.FcStorage;
-import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
+import com.welab.wefe.common.data.storage.service.fc.FcStorage;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;

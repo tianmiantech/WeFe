@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.data.storage.zane.persistent.clickhouse;
+package com.welab.wefe.common.data.storage.service.persistent.clickhouse;
 
 import com.welab.wefe.common.data.storage.common.Constant;
-import com.welab.wefe.common.data.storage.zane.persistent.DataSourceConfig;
+import com.welab.wefe.common.data.storage.service.persistent.base.DataSourceConfig;
 
 /**
  * @author zane

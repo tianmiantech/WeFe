@@ -16,11 +16,10 @@
 
 package com.welab.wefe.gateway.init;
 
-import com.welab.wefe.common.data.storage.common.FunctionComputeType;
-import com.welab.wefe.common.data.storage.zane.fc.FcStorage;
-import com.welab.wefe.common.data.storage.zane.fc.aliyun.AliyunOssConfig;
-import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
-import com.welab.wefe.common.data.storage.zane.persistent.clickhouse.ClickhouseConfig;
+import com.welab.wefe.common.data.storage.service.fc.FcStorage;
+import com.welab.wefe.common.data.storage.service.fc.aliyun.AliyunOssConfig;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
+import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.dto.AliyunFunctionComputeConfigModel;
 import com.welab.wefe.gateway.dto.ClickhouseStorageConfigModel;
@@ -108,7 +107,7 @@ public class InitStorageManager {
             if (null == configModel) {
                 return false;
             }
-            AliyunOssConfig aliyunOssConfig = new AliyunOssConfig(FunctionComputeType.Aliyun, configModel.getAccessKeyId(),
+            AliyunOssConfig aliyunOssConfig = new AliyunOssConfig(configModel.getAccessKeyId(),
                     configModel.getAccessKeySecret(), configModel.getOssBucketName(), "wefe-fc", configModel.getRegion());
             FcStorage.initWithAliyun(aliyunOssConfig);
             return true;

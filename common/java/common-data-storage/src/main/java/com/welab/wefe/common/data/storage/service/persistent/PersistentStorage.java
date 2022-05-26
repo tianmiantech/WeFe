@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.data.storage.zane.persistent;
+package com.welab.wefe.common.data.storage.service.persistent;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.data.storage.zane.persistent.clickhouse.ClickhouseConfig;
-import com.welab.wefe.common.data.storage.zane.persistent.clickhouse.ClickhouseStorage;
-import com.welab.wefe.common.data.storage.zane.persistent.mysql.MysqlConfig;
-import com.welab.wefe.common.data.storage.zane.persistent.mysql.MysqlStorage;
+import com.welab.wefe.common.data.storage.service.persistent.base.DataSourceConfig;
+import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
+import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseStorage;
+import com.welab.wefe.common.data.storage.service.persistent.mysql.MysqlConfig;
+import com.welab.wefe.common.data.storage.service.persistent.mysql.MysqlStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

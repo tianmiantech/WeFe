@@ -13,13 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.data.storage.common;
+package com.welab.wefe.common.data.storage.service.persistent.mysql;
+
+import com.welab.wefe.common.data.storage.common.Constant;
+import com.welab.wefe.common.data.storage.service.persistent.base.DataSourceConfig;
 
 /**
  * @author zane
  * @date 2022/5/24
  */
-public enum FcType {
-    aliyun,
-    tencentcloud
+public class MysqlConfig extends DataSourceConfig {
+    public MysqlConfig(String host, Integer port, String username, String password) {
+        super(host, port, username, password);
+    }
+
+    @Override
+    protected void buildUrl() {
+        this.url = String.format("jdbc:mysql://%s:%s", host, port);
+    }
+
+    @Override
+    public String getDriverClassName() {
+        return Constant.DataBaseDriverClassName.MYSQL;
+    }
+
+
 }

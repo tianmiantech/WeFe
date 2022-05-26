@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.data.storage.zane.fc;
+package com.welab.wefe.common.data.storage.service.fc;
 
 import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.zane.fc.aliyun.AliyunOssConfig;
-import com.welab.wefe.common.data.storage.zane.fc.aliyun.AliyunOssStorage;
+import com.welab.wefe.common.data.storage.service.fc.aliyun.AliyunOssConfig;
+import com.welab.wefe.common.data.storage.service.fc.aliyun.AliyunOssStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,14 +51,4 @@ public abstract class FcStorage {
         return storage;
     }
 
-    public static void main(String[] args) throws Exception {
-        FcStorage.initWithAliyun(new AliyunOssConfig());
-
-        FcStorage storage = FcStorage.getInstance();
-
-        FcStorage.initWithAliyun(new AliyunOssConfig());
-        FcStorage.initWithAliyun(new AliyunOssConfig());
-
-        storage.putAll(null, null);
-    }
 }
