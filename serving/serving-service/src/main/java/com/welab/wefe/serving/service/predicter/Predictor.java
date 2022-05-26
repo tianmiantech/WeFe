@@ -16,26 +16,24 @@
 
 package com.welab.wefe.serving.service.predicter;
 
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.predicter.batch.BatchPredicter;
-import com.welab.wefe.serving.service.predicter.single.DebugPredictor;
+import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ServiceOrderService;
+import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.Map;
+import java.util.List;
 
 
 /**
@@ -80,13 +78,20 @@ public class Predictor {
         return predictor.predict();
     }
 
-    private static AbstractBasePredictor constructPredictor(String requestId, String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        ModelMySqlModel model = modelService.findOne(modelId);
-        if (model.isEnable()) {
-            return new PromoterPredictor(requestId, modelId, predictParams, federatedParams);
-        } else {
-            return new ProviderPredictor(modelId, predictParams, federatedParams);
+    private static AbstractBasePredictor constructPredictor(String requestId, String modelId, PredictParams predictParams, FederatedParams federatedParams) throws StatusCodeWithException {
+        JobMemberRole myRole = findMyRole(modelId);
+
+        return myRole.equals(JobMemberRole.promoter) ?
+                new PromoterPredictor(requestId, modelId, predictParams, federatedParams)
+                : new ProviderPredictor(modelId, predictParams, federatedParams);
+    }
+
+    private static JobMemberRole findMyRole(String modelId) throws StatusCodeWithException {
+        List<ModelMemberMySqlModel> model = modelMemberService.findListByModelIdAndMemberId(modelId, CacheObjects.getMemberId());
+        if (CollectionUtils.isEmpty(model)) {
+            StatusCode.DATA_NOT_FOUND.throwException("未查找到模型数据！");
         }
+        return model.get(0).getRole();
     }
 
 //    /**

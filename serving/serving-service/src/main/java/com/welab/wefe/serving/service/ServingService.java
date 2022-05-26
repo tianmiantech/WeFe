@@ -20,7 +20,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
@@ -59,7 +58,7 @@ public class ServingService implements ApplicationContextAware {
                 .apiPackageClass(ServingService.class)
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((request, annotation, params) -> {
 
                     if (!annotation.rsaVerify()) {
@@ -105,13 +104,14 @@ public class ServingService implements ApplicationContextAware {
 
         verify(signedApiInput, partnerRsaKey);
 
-        buildParams(params, signedApiInput, serviceId);
+        buildParams(request, params, signedApiInput, serviceId);
     }
 
-    private static void buildParams(JSONObject params, SignedApiInput signedApiInput, String serviceId) {
+    private static void buildParams(HttpServletRequest request, JSONObject params, SignedApiInput signedApiInput, String serviceId) {
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("customer_id", signedApiInput.getCustomerId());
         params.put("service_id", serviceId);
+        params.put("isModelService", isModelService(request));
     }
 
     private static void verify(SignedApiInput signedApiInput, String partnerRsaKey) throws Exception {
@@ -214,7 +214,6 @@ public class ServingService implements ApplicationContextAware {
         if (!CacheObjects.getMemberId().equals(signedApiInput.getMemberId())) {
             throw new StatusCodeWithException("board校验失败：" + signedApiInput.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
         }
-
 
         boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(), RSAUtil.getPublicKey(CacheObjects.getRsaPublicKey()), signedApiInput.getSign());
         if (!verified) {

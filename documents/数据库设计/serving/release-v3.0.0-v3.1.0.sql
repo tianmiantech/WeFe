@@ -35,7 +35,7 @@ DROP TABLE IF EXISTS service_order;
 CREATE TABLE service_order
 (
     id                    VARCHAR(32) NOT NULL COMMENT '订单号',
-    service_id            VARCHAR(32) COMMENT '服务id',
+    service_id            VARCHAR(255) COMMENT '服务id',
     service_name          VARCHAR(32) COMMENT '服务名称',
     service_type          VARCHAR(32) COMMENT '服务类型',
     order_type            BOOL        NOT NULL DEFAULT 1 COMMENT '是否为己方生成的订单;1 是, 0否',
@@ -64,7 +64,7 @@ CREATE TABLE order_statistics
     hour                  VARCHAR(255) COMMENT '每小时统计',
     day                   VARCHAR(255) COMMENT '每天统计',
     month                 VARCHAR(255) COMMENT '每月统计',
-    service_id            VARCHAR(32) NOT NULL COMMENT '服务id',
+    service_id            VARCHAR(255) NOT NULL COMMENT '服务id',
     service_name          VARCHAR(32) NOT NULL COMMENT '服务名称',
     request_partner_id    VARCHAR(32) NOT NULL COMMENT '请求方id',
     request_partner_name  VARCHAR(32) NOT NULL COMMENT '请求方名称',
@@ -158,3 +158,6 @@ alter table model modify column `model_id` varchar(256) COMMENT '模型id';
 alter table model modify column `algorithm` varchar(64) COMMENT '算法';
 alter table client_service modify column `service_id` varchar(256) NOT NULL DEFAULT '' COMMENT '服务id';
 alter table client_service modify column `url` varchar(128) DEFAULT '' COMMENT '服务地址';
+alter table `service` add column `query_params_config` varchar(255) DEFAULT NULL comment "服务配置" after `query_params`;
+
+alter table fee_config modify column `service_id` varchar(255) COMMENT '服务Id';

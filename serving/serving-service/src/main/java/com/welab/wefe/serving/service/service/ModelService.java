@@ -349,7 +349,6 @@ public class ModelService {
 
     public ServiceResultOutput predict(RouteApi.Input input) throws StatusCodeWithException {
 
-
         SaveApi.Input order = createOrder(input);
 
         String responseId = ServiceResultOutput.buildId();
@@ -357,7 +356,8 @@ public class ModelService {
         Integer responseCode = 0;
         try {
             JObject data = JObject.create(input.getData())
-                    .append("requestId", input.getRequestId());
+                    .append("requestId", input.getRequestId())
+                    .append("memberId", input.getCustomerId());
             result = forward(data);
 
             //更新订单信息
@@ -381,13 +381,19 @@ public class ModelService {
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
         callLog.setOrderId(orderId);
         callLog.setServiceId(input.getServiceId());
+        callLog.setServiceName(getModelName(input.getServiceId()));
         callLog.setRequestData(input.getData());
         callLog.setRequestPartnerId(input.getCustomerId());
+        callLog.setRequestPartnerName(CacheObjects.getPartnerName(input.getCustomerId()));
         callLog.setRequestId(input.getRequestId());
         callLog.setRequestIp(ServiceUtil.getIpAddr(input.request));
         callLog.setResponseCode(responseCode);
         callLog.setResponseId(responseId);
+        callLog.setResponsePartnerId(CacheObjects.getMemberId());
+        callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
+        callLog.setCallByMe(0);
+        callLog.setResponseStatus(result == null ? "" : "");
         serviceCallLogService.save(callLog);
     }
 
@@ -395,15 +401,21 @@ public class ModelService {
         SaveApi.Input order = new SaveApi.Input();
         order.setId("");
         order.setServiceId(input.getServiceId());
-        order.setServiceName("");
+        order.setServiceName(getModelName(input.getServiceId()));
         order.setServiceType(ServiceTypeEnum.MachineLearning.name());
         order.setRequestPartnerId(input.getCustomerId());
         order.setRequestPartnerName(CacheObjects.getPartnerName(input.getCustomerId()));
         order.setResponsePartnerId(CacheObjects.getMemberId());
-        order.setRequestPartnerName(CacheObjects.getMemberName());
-//        order.setOrderType();
+        order.setResponsePartnerName(CacheObjects.getMemberName());
+        //是否自己发起的订单
+        order.setOrderType(0);
         serviceOrderService.save(order);
         return order;
+    }
+
+    private String getModelName(String serviceId) {
+        //TODO 需要修改
+        return "测试";
     }
 
     private PredictResult forward(JObject data) throws StatusCodeWithException {

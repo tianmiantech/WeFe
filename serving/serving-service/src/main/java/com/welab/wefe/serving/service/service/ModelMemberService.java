@@ -156,7 +156,7 @@ public class ModelMemberService {
         return partner.getServingBaseUrl();
     }
 
-    private List<ModelMemberMySqlModel> findListByModelIdAndMemberId(String modelId, String memberId) {
+    public List<ModelMemberMySqlModel> findListByModelIdAndMemberId(String modelId, String memberId) {
         Specification<ModelMemberMySqlModel> where = Where.
                 create()
                 .equal("modelId", modelId)

@@ -27,6 +27,7 @@ import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.feature.SqlFeatureDataHandler;
 import com.welab.wefe.serving.service.service.ModelService;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,6 +75,10 @@ public class FeatureManager {
 
     public static Map<String, Object> getFeatureData(String modelId, PredictParams predictParams) throws StatusCodeWithException {
 
+        if (MapUtils.isNotEmpty(predictParams.getFeatureData())) {
+            return predictParams.getFeatureData();
+        }
+
         PredictFeatureDataSource featureSource = getFeatureSource(modelId);
         /**
          * Judge the source of feature acquisition
@@ -82,8 +87,6 @@ public class FeatureManager {
          * -Through SQL query
          */
         switch (featureSource) {
-//            case api:
-//                return new ApiFeatureDataHandler().handle(modelId, predictParams);
             case code:
                 return new CodeFeatureDataHandler().handle(modelId, predictParams);
             case sql:
