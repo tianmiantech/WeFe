@@ -42,7 +42,6 @@ import com.welab.wefe.common.wefe.enums.JobBackendType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -84,15 +83,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
         // 刷新持久化存储对象
         if (input.groups.containsKey(ConfigGroupConstant.STORAGE)) {
-            try {
-                dataSetStorageService.initStorage();
-            } catch (SQLException e) {
-                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-
-                StatusCode
-                        .PARAMETER_VALUE_INVALID
-                        .throwException("数据集存储配置应用失败(" + e.getClass().getSimpleName() + ")：" + e.getMessage());
-            }
+            dataSetStorageService.initStorage();
         }
         
         // 刷新函数计算存储
