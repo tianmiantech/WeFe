@@ -21,6 +21,7 @@ import com.welab.wefe.common.data.storage.zane.fc.FcStorage;
 import com.welab.wefe.common.data.storage.zane.fc.aliyun.AliyunOssConfig;
 import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
 import com.welab.wefe.common.data.storage.zane.persistent.clickhouse.ClickhouseConfig;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.dto.AliyunFunctionComputeConfigModel;
 import com.welab.wefe.gateway.dto.ClickhouseStorageConfigModel;
@@ -105,7 +106,7 @@ public class InitStorageManager {
         try {
             GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
             AliyunFunctionComputeConfigModel configModel = globalConfigService.getAliyunFunctionComputeConfig();
-            if (null == configModel) {
+            if (null == configModel || StringUtil.isEmpty(configModel.getAccessKeyId()) || StringUtil.isEmpty(configModel.getAccessKeySecret())) {
                 return false;
             }
             AliyunOssConfig aliyunOssConfig = new AliyunOssConfig(FunctionComputeType.Aliyun, configModel.getAccessKeyId(),
