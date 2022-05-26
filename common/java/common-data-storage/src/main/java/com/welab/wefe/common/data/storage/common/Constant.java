@@ -23,6 +23,7 @@ package com.welab.wefe.common.data.storage.common;
 public class Constant {
     public final static class DataBaseDriverClassName {
         public final static String CLICKHOUSE = "ru.yandex.clickhouse.ClickHouseDriver";
+        public final static String MYSQL = "com.mysql.jdbc.Driver";
     }
 
     public final static class DBName {

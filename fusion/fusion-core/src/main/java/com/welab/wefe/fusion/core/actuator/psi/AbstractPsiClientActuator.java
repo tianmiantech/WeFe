@@ -61,7 +61,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator {
      *
      * @return
      */
-    public abstract Boolean hasNext();
+    public abstract Boolean hasNext() throws Exception;
 
     /**
      * Determine whether there is still data

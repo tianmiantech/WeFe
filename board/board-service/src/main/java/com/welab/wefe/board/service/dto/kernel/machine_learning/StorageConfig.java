@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.dto.kernel.machine_learning;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.data.storage.common.DBType;
+import com.welab.wefe.common.data.storage.common.DataResourceStorageType;
 import com.welab.wefe.common.web.Launcher;
 
 /**
@@ -28,7 +28,7 @@ import com.welab.wefe.common.web.Launcher;
 public class StorageConfig {
     private static GlobalConfigService CONFIG_SERVICE = Launcher.getBean(GlobalConfigService.class);
 
-    public DBType dbType;
+    public DataResourceStorageType dbType;
 
 
     @JSONField(serialize = false)

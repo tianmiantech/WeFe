@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.api.data_resource.bloom_filter;
 
 
 import com.welab.wefe.board.service.service.data_resource.bloom_filter.BloomFilterService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -36,7 +35,7 @@ public class BloomFilterDeleteApi extends AbstractNoneOutputApi<BloomFilterDelet
     private BloomFilterService bloomfilterService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<?> handler(Input input) throws Exception {
         bloomfilterService.delete(input);
         return success();
     }

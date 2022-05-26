@@ -17,6 +17,7 @@ package com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc;
 
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.common.wefe.enums.FcCloudProvider;
 
 /**
  * 函数计算基础配置项
@@ -30,7 +31,7 @@ public class FunctionComputeBaseConfigModel {
     /**
      * 函数计算的提供商：aliyun/tencentcloud
      */
-    public String cloudProvider = "aliyun";
+    public FcCloudProvider cloudProvider = FcCloudProvider.aliyun;
     /**
      * 日费用上限
      */

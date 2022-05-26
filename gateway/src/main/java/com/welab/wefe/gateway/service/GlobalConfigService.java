@@ -39,7 +39,6 @@ public class GlobalConfigService extends AbstractService {
         public static String ALERT_CONFIG = "alert_config";
         public static String WEFE_GATEWAY = "wefe_gateway";
         public static String WEFE_BOARD = "wefe_board";
-        public static String STORAGE_CONFIG = "storage_config";
         public static String CLICKHOUSE_STORAGE_CONFIG = "clickhouse_storage_config";
         public static String ALIYUN_FUNCTION_COMPUTE_CONFIG = "aliyun_function_compute_config";
     }
@@ -63,20 +62,6 @@ public class GlobalConfigService extends AbstractService {
     }
 
     /**
-     * Query list by group
-     */
-    public List<GlobalConfigEntity> list(String group) {
-        return globalConfigRepository.findByGroup(group);
-    }
-
-    /**
-     * Get storage config
-     */
-    public StorageConfigModel getStorageConfig() {
-        return getModel(Group.STORAGE_CONFIG, StorageConfigModel.class);
-    }
-
-    /**
      * Get clickhouse storage config
      */
     public ClickhouseStorageConfigModel getClickhouseStorageConfig() {
@@ -88,6 +73,13 @@ public class GlobalConfigService extends AbstractService {
      */
     public AliyunFunctionComputeConfigModel getAliyunFunctionComputeConfig() {
         return getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
+    }
+
+    /**
+     * Query list by group
+     */
+    public List<GlobalConfigEntity> list(String group) {
+        return globalConfigRepository.findByGroup(group);
     }
 
     /**

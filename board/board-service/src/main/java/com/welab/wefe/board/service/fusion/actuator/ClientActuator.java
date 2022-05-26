@@ -70,7 +70,7 @@ public class ClientActuator extends AbstractPsiClientActuator {
     }
 
     @Override
-    public void init() throws StatusCodeWithException {
+    public void init() throws Exception {
         FieldInfoService service = Launcher.getBean(FieldInfoService.class);
 
         columnList = service.columnList(businessId);
@@ -198,6 +198,9 @@ public class ClientActuator extends AbstractPsiClientActuator {
 
             return curList;
 
+        } catch (Exception e) {
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            return null;
         } finally {
             lock.unlock();
         }
@@ -208,13 +211,17 @@ public class ClientActuator extends AbstractPsiClientActuator {
     public void dump(List<JObject> fruit) {
         LOG.info("fruit insert ready...");
 
-        PsiDumpHelper.dump(businessId, columnList, fruit);
+        try {
+            PsiDumpHelper.dump(businessId, columnList, fruit);
+        } catch (Exception e) {
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+        }
 
         LOG.info("fruit insert end...");
     }
 
     @Override
-    public Boolean hasNext() {
+    public Boolean hasNext() throws Exception {
         try {
             lock.lock();
             PageOutputModel model = dataSetStorageService.getListByPage(

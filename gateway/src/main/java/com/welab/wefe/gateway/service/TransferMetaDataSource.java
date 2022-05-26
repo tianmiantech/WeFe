@@ -17,11 +17,10 @@
 package com.welab.wefe.gateway.service;
 
 import com.google.common.util.concurrent.SettableFuture;
-import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.data.storage.service.StorageService;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
@@ -81,9 +80,6 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     @Autowired
     private ConfigProperties configProperties;
 
-    private StorageService storageService = StorageManager.getInstance().getRepo(StorageService.class);
-
-
     @Override
     public BasicMetaProto.ReturnStatus getDataAndPushToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         long startTime = System.currentTimeMillis();
@@ -139,7 +135,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
      * @param block Block (or page)
      * @return Send failed sub block list
      */
-    private List<GatewayMetaProto.TransferMeta> sendBlock(GatewayMetaProto.TransferMeta block) {
+    private List<GatewayMetaProto.TransferMeta> sendBlock(GatewayMetaProto.TransferMeta block) throws Exception {
         // List of metadata blocks to be sent
         List<GatewayMetaProto.TransferMeta> transferMetaDataList = blockSplitToTransferMetaList(block);
         if (CollectionUtils.isEmpty(transferMetaDataList)) {
@@ -187,7 +183,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
      * @param block Block (or page) to be cut
      * @return List of metadata sub blocks that can be sent
      */
-    private List<GatewayMetaProto.TransferMeta> blockSplitToTransferMetaList(GatewayMetaProto.TransferMeta block) {
+    private List<GatewayMetaProto.TransferMeta> blockSplitToTransferMetaList(GatewayMetaProto.TransferMeta block) throws Exception {
         PageInputModel inputModel = new PageInputModel();
         inputModel.setPageNum(block.getSequenceNo());
         inputModel.setPageSize(PAGE_SIZE_THREAD_LOCAL.get());
@@ -313,7 +309,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     /**
      * Send data submission completion request flag
      */
-    private boolean sendCompleteRequest(GatewayMetaProto.TransferMeta transferMeta) throws ExecutionException, InterruptedException {
+    private boolean sendCompleteRequest(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
         // Failed retries count
         int failRetryCount = 4;
         for (int i = 0; i <= failRetryCount; i++) {
@@ -368,7 +364,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
      * @param transferMeta Data coordinate metadata
      * @return Total number of request blocks
      */
-    private List<GatewayMetaProto.TransferMeta> getTotalTransferMetaBlocks(GatewayMetaProto.TransferMeta transferMeta) {
+    private List<GatewayMetaProto.TransferMeta> getTotalTransferMetaBlocks(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
         int totalPage = getTotalPage(transferMeta);
         List<GatewayMetaProto.TransferMeta> blocks = new ArrayList<>();
         for (int i = 0; i < totalPage; i++) {
@@ -390,13 +386,14 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
      * @param transferMeta Data coordinate metadata
      * @return total pages
      */
-    private int getTotalPage(GatewayMetaProto.TransferMeta transferMeta) {
+    private int getTotalPage(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
         String dbName = TransferMetaUtil.getDbName(transferMeta);
         String tableName = TransferMetaUtil.getTableName(transferMeta);
         int failRetryCount = 3;
         int totalCount = 0;
+        PersistentStorage storage = PersistentStorage.getInstance();
         for (int i = 0; i < failRetryCount; i++) {
-            totalCount = storageService.count(dbName, tableName);
+            totalCount = storage.count(dbName, tableName);
             if (totalCount > 0) {
                 break;
             }
@@ -410,13 +407,14 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     /**
      * Get entity data
      */
-    private PageOutputModel<byte[], byte[]> getData(GatewayMetaProto.TransferMeta transferMeta, PageInputModel inputModel) {
+    private PageOutputModel<byte[], byte[]> getData(GatewayMetaProto.TransferMeta transferMeta, PageInputModel inputModel) throws Exception {
         // databaseName,tableName
         String dbName = TransferMetaUtil.getDbName(transferMeta);
         String tableName = TransferMetaUtil.getTableName(transferMeta);
         int failTryCount = 3;
+        PersistentStorage storage = PersistentStorage.getInstance();
         for (int i = 0; i < failTryCount; i++) {
-            PageOutputModel<byte[], byte[]> outputModel = storageService.getPageBytes(dbName, tableName, inputModel);
+            PageOutputModel<byte[], byte[]> outputModel = storage.getPageBytes(dbName, tableName, inputModel);
             // success
             if (null != outputModel && CollectionUtils.isNotEmpty(outputModel.getData())) {
                 return outputModel;
@@ -506,9 +504,10 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
      * Set paging parameters
      */
     private void setPagingParams(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
+        PersistentStorage storage = PersistentStorage.getInstance();
         // Calculate the optimal size of each page
         long byteSize = (long) (configProperties.getSendActionConfigBlockSize() * 1024 * 1024d);
-        int sendBlockSize = storageService.getCountByByteSize(TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), byteSize);
+        int sendBlockSize = storage.getCountByByteSize(TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), byteSize);
         OPTIMAL_SUB_BLOCK_SIZE_THREAD_LOCAL.set(sendBlockSize);
         PAGE_SIZE_THREAD_LOCAL.set(sendBlockSize * 3);
     }

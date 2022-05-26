@@ -51,7 +51,7 @@ public class PreviewDataSetApi extends AbstractApi<PreviewDataSetApi.Input, Prev
     private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Output> handle(Input input) throws Exception {
         TableDataSetMysqlModel model = dataSetRepository.findById(input.getId()).orElse(null);
         if (model == null) {
             return success();

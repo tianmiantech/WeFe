@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.listener;
 import cn.hutool.core.thread.ThreadUtil;
 import com.welab.wefe.board.service.database.entity.chat.MessageQueueMySqlModel;
 import com.welab.wefe.board.service.database.repository.ChatUnreadMessageRepository;
+import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.MemberChatService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import org.slf4j.Logger;
@@ -47,11 +48,15 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     ChatUnreadMessageRepository statUnreadMessageRepository;
     @Autowired
     private GlobalConfigService globalConfigService;
+    @Autowired
+    private DataSetStorageService dataSetStorageService;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         try {
             globalConfigService.init();
+
+            dataSetStorageService.initStorage();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

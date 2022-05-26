@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.common.data.storage.repo.impl;
+package com.welab.wefe.common.data.storage.service.persistent.clickhouse;
 
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
-import com.welab.wefe.common.data.storage.repo.AbstractJdbcStorage;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import net.razorvine.pickle.Pickler;
 import net.razorvine.pickle.Unpickler;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,10 +30,17 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * @author yuxin.zhang
+ * @author zane
+ * @date 2022/5/24
  */
-@Component
-public class ClickhouseStorage extends AbstractJdbcStorage {
+public class ClickhouseStorage extends PersistentStorage {
+
+    private ClickhouseConfig config;
+
+    public ClickhouseStorage(ClickhouseConfig config) {
+        this.config = config;
+    }
+
 
     @Override
     public void put(String dbName, String tbName, DataItemModel model) throws Exception {
@@ -370,15 +375,18 @@ public class ClickhouseStorage extends AbstractJdbcStorage {
             String sql = String.format("SELECT  count(*) from system.parts p  where active  and database = '%s' and table ='%s'", dbName, tbName);
             statement = conn.prepareStatement(sql);
             ResultSet rs = statement.executeQuery();
-            if(rs.next()) {
+            if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
 
             return false;
-//            System.out.println();
         } finally {
             close(statement, conn);
         }
-//        return false;
+    }
+
+    @Override
+    protected String validationQuery() {
+        return config.getValidationQuery();
     }
 }

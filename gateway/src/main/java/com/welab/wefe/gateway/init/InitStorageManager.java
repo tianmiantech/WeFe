@@ -16,96 +16,105 @@
 
 package com.welab.wefe.gateway.init;
 
-import com.welab.wefe.common.data.storage.StorageManager;
-import com.welab.wefe.common.data.storage.common.DBType;
-import com.welab.wefe.common.data.storage.common.FunctionComputeType;
-import com.welab.wefe.common.data.storage.config.FcStorageConfig;
-import com.welab.wefe.common.data.storage.config.JdbcConfig;
-import com.welab.wefe.common.data.storage.config.StorageConfig;
+import com.welab.wefe.common.data.storage.service.fc.FcStorage;
+import com.welab.wefe.common.data.storage.service.fc.aliyun.AliyunOssConfig;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
+import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.dto.AliyunFunctionComputeConfigModel;
 import com.welab.wefe.gateway.dto.ClickhouseStorageConfigModel;
-import com.welab.wefe.gateway.dto.StorageConfigModel;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
- * Initialize the intermediate result storage module of the modeling
+ * Initialize persistent storage services and FC storage services
  */
 public class InitStorageManager {
     private final static Logger LOG = LoggerFactory.getLogger(InitStorageManager.class);
+    public static AtomicBoolean PERSISTENT_INIT = new AtomicBoolean(false);
+    public static AtomicBoolean FC_INIT = new AtomicBoolean(false);
 
-    public static void init() throws Exception {
-        LOG.info("Start init storage manager.....");
-        StorageConfigModel storageConfigModel = waitForLoadStorageConfig();
-        ClickhouseStorageConfigModel clickhouseStorageConfigModel = waitForLoadClickhouseStorageConfig();
-        AliyunFunctionComputeConfigModel aliyunFunctionComputeConfigModel = waitForLoadAliyunFunctionComputeConfig(storageConfigModel.getStorageType());
-        StorageConfig storageConfig = new StorageConfig(buildJdbcConfig(clickhouseStorageConfigModel), buildFcStorageConfig(storageConfigModel.getStorageType(), aliyunFunctionComputeConfigModel));
-        StorageManager.getInstance().init(storageConfig);
-        LOG.info("Storage manager init success.....");
+    /**
+     * Initialize
+     */
+    public static void init() {
+        initPersistent(false);
+        initFC(false);
     }
 
-    private static JdbcConfig buildJdbcConfig(ClickhouseStorageConfigModel clickhouseStorageConfigModel) throws Exception {
-        return new JdbcConfig(DBType.CLICKHOUSE, clickhouseStorageConfigModel.getHost(), clickhouseStorageConfigModel.getHttpPort(),
-                clickhouseStorageConfigModel.getUsername(), clickhouseStorageConfigModel.getPassword());
-    }
-
-    private static FcStorageConfig buildFcStorageConfig(String storageType, AliyunFunctionComputeConfigModel fcModel) {
-        FcStorageConfig fcStorageConfig = new FcStorageConfig();
-        if (DBType.OSS.name().equals(storageType) || DBType.OTS.name().equals(storageType)) {
-            fcStorageConfig.setAccessKeyId(fcModel.getAccessKeyId());
-            fcStorageConfig.setAccessKeySecret(fcModel.getAccessKeySecret());
-            fcStorageConfig.setBucketName(fcModel.getOssBucketName());
-            fcStorageConfig.setRegion(fcModel.getRegion());
-            fcStorageConfig.setOssInternalEndPoint("https://oss-" + fcModel.getRegion() + "-internal.aliyuncs.com");
-            fcStorageConfig.setFunctionComputeType(FunctionComputeType.Aliyun);
+    /**
+     * Initialize persistent storage services
+     *
+     * @param force If true, force reinitialization
+     */
+    public static boolean initPersistent(boolean force) {
+        LOG.info("Start init persistent storage.....");
+        if (force) {
+            PERSISTENT_INIT.set(initPersistentStorage());
+        } else if (!PERSISTENT_INIT.get()) {
+            PERSISTENT_INIT.set(initPersistentStorage());
         }
-        return fcStorageConfig;
+        if (!PERSISTENT_INIT.get()) {
+            LOG.error("Init persistent storage fail, Please check whether the configuration is correct!!!!!!!!!!!!(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)!!!!!!!!!!!");
+        } else {
+            LOG.error("Init persistent storage success.");
+        }
+        return PERSISTENT_INIT.get();
     }
 
+    /**
+     * Initialize FC storage services
+     *
+     * @param force If true, force reinitialization
+     */
+    public static boolean initFC(boolean force) {
+        LOG.info("Start init FC storage.....");
+        if (force) {
+            FC_INIT.set(initFcStorage());
+        } else if (!FC_INIT.get()) {
+            FC_INIT.set(initFcStorage());
+        }
+        if (!FC_INIT.get()) {
+            LOG.error("Init FC storage fail, Please check whether the configuration is correct!!!!!!!!!!!!(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)(＞﹏＜)");
+        } else {
+            LOG.error("Init FC storage success.");
+        }
+        return FC_INIT.get();
+    }
 
-    private static StorageConfigModel waitForLoadStorageConfig() {
-        GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-        while (true) {
-            StorageConfigModel storageConfigModel = globalConfigService.getStorageConfig();
-            if (null == storageConfigModel || StringUtil.isEmpty(storageConfigModel.getStorageType())) {
-                LOG.info("Please set storage type configuration.......................");
-                ThreadUtil.sleepSeconds(3);
-                continue;
+    private static boolean initPersistentStorage() {
+        try {
+            GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
+            ClickhouseStorageConfigModel configModel = globalConfigService.getClickhouseStorageConfig();
+            if (null == configModel) {
+                return false;
             }
-            return storageConfigModel;
+            PersistentStorage.init(new ClickhouseConfig(configModel.getHost(), configModel.getHttpPort(), configModel.getUsername(), configModel.getPassword()));
+            return true;
+        } catch (Exception e) {
+            LOG.error("Init persistent storage fail, exception: ", e);
         }
+        return false;
     }
 
-    private static ClickhouseStorageConfigModel waitForLoadClickhouseStorageConfig() {
-        GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-        while (true) {
-            ClickhouseStorageConfigModel clickhouseStorageConfigModel = globalConfigService.getClickhouseStorageConfig();
-            if (null == clickhouseStorageConfigModel) {
-                LOG.info("Please set clickhouse configuration.......................");
-                ThreadUtil.sleepSeconds(3);
-                continue;
+    private static boolean initFcStorage() {
+        try {
+            GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
+            AliyunFunctionComputeConfigModel configModel = globalConfigService.getAliyunFunctionComputeConfig();
+            if (null == configModel || StringUtil.isEmpty(configModel.getAccessKeyId()) || StringUtil.isEmpty(configModel.getAccessKeySecret())) {
+                return false;
             }
-            return clickhouseStorageConfigModel;
+            AliyunOssConfig aliyunOssConfig = new AliyunOssConfig(configModel.getAccessKeyId(),
+                    configModel.getAccessKeySecret(), configModel.getOssBucketName(), "wefe-fc", configModel.getRegion());
+            FcStorage.initWithAliyun(aliyunOssConfig);
+            return true;
+        } catch (Exception e) {
+            LOG.error("Init FC storage fail, exception: ", e);
         }
-    }
-
-    private static AliyunFunctionComputeConfigModel waitForLoadAliyunFunctionComputeConfig(String storageType) {
-        if (!DBType.OSS.name().equals(storageType) && !DBType.OTS.name().equals(storageType)) {
-            return new AliyunFunctionComputeConfigModel();
-        }
-        GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-        while (true) {
-            AliyunFunctionComputeConfigModel aliyunFunctionComputeConfigModel = globalConfigService.getAliyunFunctionComputeConfig();
-            if (null == aliyunFunctionComputeConfigModel) {
-                LOG.info("Please set aliyun function compute configuration.......................");
-                ThreadUtil.sleepSeconds(3);
-                continue;
-            }
-            return aliyunFunctionComputeConfigModel;
-        }
+        return false;
     }
 }

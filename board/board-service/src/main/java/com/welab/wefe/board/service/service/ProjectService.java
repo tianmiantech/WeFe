@@ -515,7 +515,7 @@ public class ProjectService extends AbstractService {
      * Remove the data set in the project
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void removeDataSet(RemoveDataSetApi.Input input) throws StatusCodeWithException {
+    public synchronized void removeDataSet(RemoveDataSetApi.Input input) throws Exception {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {

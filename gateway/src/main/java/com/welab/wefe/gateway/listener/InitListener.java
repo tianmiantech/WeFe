@@ -42,6 +42,8 @@ public class InitListener implements ApplicationListener<ApplicationStartedEvent
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
+        // Initialize persistent storage services and FC storage services
+        InitStorageManager.init();
         // Load member information to cache
         LoadMemberToCache.load();
         // Load IP whitelist to cache

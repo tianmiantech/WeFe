@@ -56,5 +56,7 @@ public enum GatewayProcessorType {
      */
     gatewayAliveProcessor,
     dSourceProcessor,
-    residentMemoryProcessor
+    residentMemoryProcessor,
+    refreshPersistentStorageProcessor,
+    refreshFcStorageProcessor
 }
