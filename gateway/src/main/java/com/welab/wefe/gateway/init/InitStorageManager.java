@@ -35,8 +35,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class InitStorageManager {
     private final static Logger LOG = LoggerFactory.getLogger(InitStorageManager.class);
-    private static AtomicBoolean PERSISTENT_INIT = new AtomicBoolean(false);
-    private static AtomicBoolean FC_INIT = new AtomicBoolean(false);
+    public static AtomicBoolean PERSISTENT_INIT = new AtomicBoolean(false);
+    public static AtomicBoolean FC_INIT = new AtomicBoolean(false);
 
     /**
      * Initialize
