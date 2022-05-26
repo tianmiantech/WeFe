@@ -27,6 +27,7 @@ import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
 import com.welab.wefe.common.util.StringUtil;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
 public class DataSetStorageService extends AbstractService {
     public static final String DATABASE_NAME = Constant.DBName.WEFE_DATA;
 
-    public synchronized void initStorage() {
+    public synchronized void initStorage() throws SQLException {
         StorageBaseConfigModel storageConfig = globalConfigService.getModel(StorageBaseConfigModel.class);
         switch (storageConfig.storageType) {
             case CLICKHOUSE:

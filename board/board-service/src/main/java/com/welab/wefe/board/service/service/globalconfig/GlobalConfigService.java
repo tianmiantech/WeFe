@@ -37,6 +37,7 @@ import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -73,10 +74,18 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             }
         }
 
-        dataSetStorageService.initStorage();
-
         // Notify the gateway to update the system configuration cache
         gatewayService.refreshSystemConfigCache();
+
+        try {
+            dataSetStorageService.initStorage();
+        } catch (SQLException e) {
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("数据集存储配置应用失败(" + e.getClass().getSimpleName() + ")：" + e.getMessage());
+        }
     }
 
 
