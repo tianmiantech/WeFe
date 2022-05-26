@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.web.api.base;
+package com.welab.wefe.gateway.dto;
 
-import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.NoneApiOutput;
-
-/**
- * API with no arguments
- *
- * @author Zane
- */
-public abstract class AbstractNoneOutputApi<In extends AbstractApiInput> extends AbstractApi<In, NoneApiOutput> {
-
+public class StorageConfigModel {
     /**
-     * Interface implementation
+     * Storage type of modeling intermediate results
      */
-    protected abstract ApiResult handler(In input) throws Exception;
+    private String storageType;
 
-    @Override
-    protected ApiResult<NoneApiOutput> handle(In input) throws Exception {
-        return handler(input);
+    public String getStorageType() {
+        return storageType;
+    }
+
+    public void setStorageType(String storageType) {
+        this.storageType = storageType;
     }
 }

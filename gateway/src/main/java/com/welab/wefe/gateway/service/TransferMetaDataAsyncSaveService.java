@@ -17,10 +17,10 @@
 package com.welab.wefe.gateway.service;
 
 import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.service.StorageService;
+import com.welab.wefe.common.data.storage.service.fc.FcStorage;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.ThreadUtil;
-import com.welab.wefe.common.wefe.enums.JobBackendType;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.util.SerializeUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;
@@ -28,7 +28,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -43,9 +42,6 @@ import java.util.Map;
 @Service
 public class TransferMetaDataAsyncSaveService {
     private final Logger LOG = LoggerFactory.getLogger(TransferMetaDataAsyncSaveService.class);
-
-    @Autowired
-    private StorageService storageService;
 
     @Autowired
     private MessageService messageService;
@@ -114,15 +110,18 @@ public class TransferMetaDataAsyncSaveService {
                 if ("ots".equalsIgnoreCase(storageType)) {
                     LOG.info("The data has been received and is now uploaded to OTS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
                     args.put("storage_type", "ots");
-                    storageService.saveList(dateItemModelList, args);
+                    //storageService.saveList(dateItemModelList, args);
+                    FcStorage.getInstance().putAll(dateItemModelList, args);
 
                 } else if ("oss".equalsIgnoreCase(storageType)) {
                     LOG.info("The data has been received and is now uploaded to OSS, fc_namespace: " + fcDbName + ", fc_name: " + fcTableName + ", fc_partitions: " + fcPartitions);
                     args.put("storage_type", "oss");
-                    storageService.saveList(dateItemModelList, args);
+                    //storageService.saveList(dateItemModelList, args);
+                    FcStorage.getInstance().putAll(dateItemModelList, args);
                 } else if ("clickhouse".equalsIgnoreCase(storageType)) {
                     // Own use Ck
-                    storageService.saveList(dstDbName, dstTableName, dateItemModelList);
+                    //storageService.saveList(dstDbName, dstTableName, dateItemModelList);
+                    PersistentStorage.getInstance().putAll(dstDbName, dstTableName, dateItemModelList);
                     LOG.info("Data sink finish, session id: {}, sequence no: {}, db name: {}, table name: {}, dst db name: {}, dst table name: {}, data size: {}, time spent: {}", transferMeta.getSessionId(), transferMeta.getSequenceNo(), srcDbName, srcTableName, dstDbName, dstTableName, dataList.size(), (System.currentTimeMillis() - startTime));
 
                 } else {

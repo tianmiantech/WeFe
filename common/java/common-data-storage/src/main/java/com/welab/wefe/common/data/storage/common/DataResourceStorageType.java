@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.web.api.base;
-
-import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.dto.NoneApiOutput;
+package com.welab.wefe.common.data.storage.common;
 
 /**
- * API with no arguments
- *
- * @author Zane
+ * @author yuxin.zhang
  */
-public abstract class AbstractNoneOutputApi<In extends AbstractApiInput> extends AbstractApi<In, NoneApiOutput> {
-
+public enum DataResourceStorageType {
     /**
-     * Interface implementation
+     * Supported databases
      */
-    protected abstract ApiResult handler(In input) throws Exception;
-
-    @Override
-    protected ApiResult<NoneApiOutput> handle(In input) throws Exception {
-        return handler(input);
-    }
+    CLICKHOUSE,
+    MYSQL,
+    LMDB
 }

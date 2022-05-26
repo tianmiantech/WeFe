@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.common.data.storage.common;
+package com.welab.wefe.common.wefe.enums;
 
 /**
- * @author yuxin.zhang
+ * 函数计算服务供应商
+ *
+ * @author zane
+ * @date 2022/5/26
  */
-public enum DBType {
+public enum FcCloudProvider {
     /**
-     * Supported databases
+     * 阿里云
      */
-    CLICKHOUSE,
-    MYSQL,
-    LMDB,
-    OTS,
-    OSS
+    aliyun,
+    /**
+     * 腾讯云
+     */
+    tencentcloud
 }

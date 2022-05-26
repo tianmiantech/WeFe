@@ -49,7 +49,7 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Send a message to your own gateway service
      */
-    protected JSONObject sendToMyselfGateway(GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+    public JSONObject sendToMyselfGateway(GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
         return sendToMyselfGateway(null, action, data, processorType);
     }
 

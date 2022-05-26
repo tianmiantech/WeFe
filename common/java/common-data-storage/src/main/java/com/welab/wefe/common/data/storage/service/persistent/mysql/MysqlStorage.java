@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,27 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.common.data.storage.repo;
+package com.welab.wefe.common.data.storage.service.persistent.mysql;
 
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
- * @author ivenn.zheng
+ * @author zane
+ * @date 2022/5/24
  */
-public abstract class MiddleStorage extends Storage {
+public class MysqlStorage extends PersistentStorage {
+
+    private MysqlConfig config;
+
+    public MysqlStorage(MysqlConfig config) {
+        this.config = config;
+    }
+
 
     @Override
-    public void put(String dbName, String tbName, DataItemModel model) {
+    public void put(String dbName, String tbName, DataItemModel model) throws Exception {
 
     }
 
     @Override
-    public <K, V> void putAll(String dbName, String tbName, List<DataItemModel<K, V>> list) throws Exception {
+    public <K, V> void putAll(String dbName, String tbName, List<DataItemModel<K, V>> data) throws Exception {
 
     }
 
@@ -48,18 +57,13 @@ public abstract class MiddleStorage extends Storage {
     }
 
     @Override
-    public List<DataItemModel<byte[], byte[]>> collectBytes(String dbName, String tbName) throws Exception {
-        return null;
-    }
-
-    @Override
     public void delete(String dbName, String tbName, String key) throws Exception {
 
     }
 
     @Override
-    public int count(String dbName, String tbName) throws Exception {
-        return 0;
+    public List<DataItemModel<byte[], byte[]>> collectBytes(String dbName, String tbName) throws Exception {
+        return null;
     }
 
     @Override
@@ -78,6 +82,11 @@ public abstract class MiddleStorage extends Storage {
     }
 
     @Override
+    public int count(String dbName, String tbName) throws Exception {
+        return 0;
+    }
+
+    @Override
     public void dropTB(String dbName, String tbName) throws Exception {
 
     }
@@ -93,7 +102,12 @@ public abstract class MiddleStorage extends Storage {
     }
 
     @Override
-    public int getCountByByteSize(String dbName, String tbName, long byteSize) throws Exception {
-        return 0;
+    public boolean isExists(String dbName, String tbName) throws SQLException {
+        return false;
+    }
+
+    @Override
+    protected String validationQuery() {
+        return config.getValidationQuery();
     }
 }

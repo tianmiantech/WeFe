@@ -1,74 +1,52 @@
-/*
- * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.welab.wefe.common.data.storage.service.persistent.base;
 
-package com.welab.wefe.common.data.storage.config;
-
-import com.welab.wefe.common.data.storage.common.Constant;
-import com.welab.wefe.common.data.storage.common.DBType;
 import org.springframework.util.Assert;
-
 
 /**
  * @author yuxin.zhang
  */
-public class JdbcConfig {
-    private String host = "127.0.0.1";
-    private Integer port = 8123;
-    private DBType dbType = DBType.CLICKHOUSE;
-    private String username;
-    private String password;
-    private String driverClassName = Constant.DataBaseDriverClassName.CLICKHOUSE;
-    private String url = "jdbc:clickhouse//127.0.0.1:8123";
-    private Integer initialSize = 1;
-    private Integer maxActive = 50;
-    private Integer minIdle = 1;
-    private Integer maxWait = 60000;
+public abstract class DataSourceConfig {
+    protected String host = "127.0.0.1";
+    protected Integer port = 8123;
+    protected String username;
+    protected String password;
+    protected String driverClassName;
+    protected String url = "jdbc:clickhouse//127.0.0.1:8123";
+    protected Integer initialSize = 1;
+    protected Integer maxActive = 50;
+    protected Integer minIdle = 1;
+    protected Integer maxWait = 60000;
     private boolean testWhileIdle = false;
-    private String validationQuery = "SELECT 1";
+    protected String validationQuery = "SELECT 1";
 
 
-    private Integer timeBetweenEvictionRunsMillis = 15000;
-    private Integer minEvictableIdleTimeMillis = 60000;
-    private boolean removeAbandoned = true;
-    private Integer removeAbandonedTimeout = 60;
-    private boolean logAbandoned = true;
+    protected Integer timeBetweenEvictionRunsMillis = 15000;
+    protected Integer minEvictableIdleTimeMillis = 60000;
+    protected boolean removeAbandoned = true;
+    protected Integer removeAbandonedTimeout = 60;
+    protected boolean logAbandoned = true;
     /**
      * The optimal batch insertion byte size of clickhouse, unit: M (support decimal)
      */
-    private double optimalInsertByteSize = 1;
+    protected double optimalInsertByteSize = 1;
 
-    public JdbcConfig(DBType dbType,String host, Integer port, String username, String password) throws Exception {
+
+    public DataSourceConfig(String host, Integer port, String username, String password) {
         Assert.notNull(host, "host == null");
         Assert.notNull(port, "port == null");
         Assert.notNull(username, "username == null");
         Assert.notNull(password, "password == null");
-        Assert.notNull(dbType, "dbType == null");
+
         this.host = host;
         this.port = port;
         this.username = username;
         this.password = password;
-        this.dbType = dbType;
-        if (dbType == DBType.CLICKHOUSE) {
-            this.driverClassName = Constant.DataBaseDriverClassName.CLICKHOUSE;
-        } else {
-            throw new Exception("Invalid storage type");
-        }
-
-        url = String.format("jdbc:%s://%s:%s", dbType.name().toLowerCase(), host, port);
+        buildUrl();
     }
+
+    protected abstract void buildUrl();
+
+    public abstract String getDriverClassName();
 
 
     public String getHost() {
@@ -87,30 +65,6 @@ public class JdbcConfig {
         this.port = port;
     }
 
-    public DBType getDbType() {
-        return dbType;
-    }
-
-    public void setDbType(DBType dbType) {
-        this.dbType = dbType;
-    }
-
-    public String getValidationQuery() {
-        return validationQuery;
-    }
-
-    public void setValidationQuery(String validationQuery) {
-        this.validationQuery = validationQuery;
-    }
-
-    public boolean isTestWhileIdle() {
-        return testWhileIdle;
-    }
-
-    public void setTestWhileIdle(boolean testWhileIdle) {
-        this.testWhileIdle = testWhileIdle;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -125,14 +79,6 @@ public class JdbcConfig {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getDriverClassName() {
-        return driverClassName;
-    }
-
-    public void setDriverClassName(String driverClassName) {
-        this.driverClassName = driverClassName;
     }
 
     public String getUrl() {
@@ -175,6 +121,21 @@ public class JdbcConfig {
         this.maxWait = maxWait;
     }
 
+    public boolean isTestWhileIdle() {
+        return testWhileIdle;
+    }
+
+    public void setTestWhileIdle(boolean testWhileIdle) {
+        this.testWhileIdle = testWhileIdle;
+    }
+
+    public String getValidationQuery() {
+        return validationQuery;
+    }
+
+    public void setValidationQuery(String validationQuery) {
+        this.validationQuery = validationQuery;
+    }
 
     public Integer getTimeBetweenEvictionRunsMillis() {
         return timeBetweenEvictionRunsMillis;

@@ -65,7 +65,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
 
 
     @Override
-    public void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException {
+    public void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws Exception {
         TableDataSetAddInputModel input = (TableDataSetAddInputModel) in;
         TableDataSetMysqlModel model = (TableDataSetMysqlModel) m;
 
@@ -181,7 +181,7 @@ public class TableDataSetAddService extends AbstractDataResourceAddService {
      *
      * @param deduplication Do you need to de-duplicate the data set
      */
-    private void readAllToStorage(TableDataSetMysqlModel model, AbstractTableDataSetReader dataSetReader, boolean deduplication) throws StatusCodeWithException {
+    private void readAllToStorage(TableDataSetMysqlModel model, AbstractTableDataSetReader dataSetReader, boolean deduplication) throws Exception {
         long start = System.currentTimeMillis();
         LOG.info("开始解析数据集：" + model.getId());
 
