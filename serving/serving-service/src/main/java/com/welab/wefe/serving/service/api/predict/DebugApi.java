@@ -24,8 +24,11 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
+import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.predicter.Predictor;
+import com.welab.wefe.serving.service.service.CacheObjects;
 
 import java.util.Map;
 
@@ -43,16 +46,13 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
     protected ApiResult<PredictResult> handle(Input input) {
 
         try {
-
-            PredictResult result =null;
-//            PredictResult result = Predictor.debug(
-//                    input.getModelId(),
-//                    input.getUserId(),
-//                    input.getFeatureData(),
-//                    input.getParams() == null ? null : new JSONObject(input.getParams()),
-//                    input.getFeatureSource(),
-//                    input.getMyRole()
-//            );
+            PredictResult result = Predictor.debug(
+                    input.getModelId(),
+                    PredictParams.of(input.getUserId(), input.getFeatureData()),
+                    FederatedParams.of(input.getModelId(), CacheObjects.getMemberId()),
+                    input.getFeatureSource(),
+                    input.getParams() == null ? null : new JSONObject(input.getParams())
+            );
 
             return success(result);
         } catch (Exception e) {

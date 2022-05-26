@@ -16,15 +16,20 @@
 
 package com.welab.wefe.serving.service.predicter;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.dto.ServiceResultOutput;
+import com.welab.wefe.serving.service.predicter.single.DebugPromoterPredictor;
+import com.welab.wefe.serving.service.predicter.single.DebugProviderPredictor;
 import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
@@ -164,44 +169,27 @@ public class Predictor {
     /**
      * predict Interface
      *
-     * @param modelId     model id
-     * @param userId      Predict the ID of the matching sample, such as device number or mobile phone number
-     * @param featureData Characteristic data
-     * @param params      Additional parameters
+     * @param modelId model id
      */
-//    public static PredictResult debug(String modelId,
-//                                      String userId,
-//                                      Map<String, Object> featureData,
-//                                      JSONObject params,
-//                                      PredictFeatureDataSource featureSource,
-//                                      JobMemberRole myRole) throws Exception {
-//
-//        long start = System.currentTimeMillis();
-//        String seqNo = "", memberId = "";
-//        PredictResult result = null;
-//
-//        PredictParams predictParams = PredictParams.of(userId, featureData);
-//        FederatedParams federatedParams = FederatedParams.of(modelId, memberId, findProviders(modelId));
-//        boolean requestResult = false;
-//
-//        try {
-//            AbstractBasePredictor debug = new DebugPredictor()
-//                    .setFeatureSource(featureSource)
-//                    .setMyRole(myRole)
-//                    .setPredictParams(predictParams)
-//                    .setFederatedParams(federatedParams)
-//                    .setModelId(modelId);
-//
-//            result = debug.predict();
-//
-//
-//            //Call succeeded
-////            requestResult = true;
-//
-//        } finally {
-////            log(seqNo, modelId, memberId, userId, featureData, params, result, System.currentTimeMillis() - start, requestResult);
-//        }
-//
-//        return result;
-//    }
+    public static PredictResult debug(String modelId,
+                                      PredictParams predictParams,
+                                      FederatedParams federatedParams,
+                                      PredictFeatureDataSource featureSource,
+                                      JSONObject extendParams) throws Exception {
+
+        AbstractBasePredictor predictor = constructDebugPredictor(modelId, predictParams, federatedParams, featureSource, extendParams);
+        return predictor.predict();
+    }
+
+    private static AbstractBasePredictor constructDebugPredictor(String modelId,
+                                                                 PredictParams predictParams,
+                                                                 FederatedParams federatedParams,
+                                                                 PredictFeatureDataSource featureDataSource,
+                                                                 JSONObject extendParams) throws StatusCodeWithException {
+        JobMemberRole myRole = findMyRole(modelId);
+
+        return myRole.equals(JobMemberRole.promoter) ?
+                new DebugPromoterPredictor(ServiceResultOutput.buildId(), modelId, predictParams, federatedParams, featureDataSource, extendParams)
+                : new DebugProviderPredictor(modelId, predictParams, federatedParams, featureDataSource, extendParams);
+    }
 }
