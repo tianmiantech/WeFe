@@ -17,9 +17,7 @@
 package com.welab.wefe.gateway.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.gateway.dto.BoardConfigModel;
-import com.welab.wefe.gateway.dto.GatewayConfigModel;
-import com.welab.wefe.gateway.dto.MemberInfoModel;
+import com.welab.wefe.gateway.dto.*;
 import com.welab.wefe.gateway.entity.GlobalConfigEntity;
 import com.welab.wefe.gateway.repository.GlobalConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +39,8 @@ public class GlobalConfigService extends AbstractService {
         public static String ALERT_CONFIG = "alert_config";
         public static String WEFE_GATEWAY = "wefe_gateway";
         public static String WEFE_BOARD = "wefe_board";
+        public static String CLICKHOUSE_STORAGE_CONFIG = "clickhouse_storage_config";
+        public static String ALIYUN_FUNCTION_COMPUTE_CONFIG = "aliyun_function_compute_config";
     }
 
     public GatewayConfigModel getGatewayConfig() {
@@ -59,6 +59,20 @@ public class GlobalConfigService extends AbstractService {
      */
     public MemberInfoModel getMemberInfo() {
         return getModel(Group.MEMBER_INFO, MemberInfoModel.class);
+    }
+
+    /**
+     * Get clickhouse storage config
+     */
+    public ClickhouseStorageConfigModel getClickhouseStorageConfig() {
+        return getModel(Group.CLICKHOUSE_STORAGE_CONFIG, ClickhouseStorageConfigModel.class);
+    }
+
+    /**
+     * Get aliyun function compute config
+     */
+    public AliyunFunctionComputeConfigModel getAliyunFunctionComputeConfig() {
+        return getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
     }
 
     /**

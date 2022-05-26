@@ -15,16 +15,12 @@
  */
 package com.welab.wefe.gateway.service.processors.available.checkpoint;
 
-import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.data.storage.common.Constant;
-import com.welab.wefe.common.data.storage.config.StorageConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.repo.Storage;
-import com.welab.wefe.common.data.storage.service.StorageService;
+import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,10 +29,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StorageCheckpoint extends AbstractCheckpoint {
-
-    private StorageService storageService = StorageManager.getInstance().getRepo(StorageService.class);
-
-    private StorageConfig storageConfig = StorageManager.getInstance().getRepo(StorageConfig.class);
 
     @Override
     protected ServiceType service() {
@@ -50,7 +42,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected String getConfigValue() {
-        return storageConfig.getJdbcConfig().getUrl();
+        return null;
     }
 
     @Override
@@ -61,7 +53,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
     @Override
     protected void doCheck(String value) throws Exception {
         String name = RandomStringUtils.randomAlphabetic(6);
-        Storage storage = storageService.getStorage();
+        PersistentStorage storage = PersistentStorage.getInstance();
         storage.put(Constant.DBName.WEFE_DATA, name, new DataItemModel<>(name, "test"));
         storage.dropTB(Constant.DBName.WEFE_DATA, name);
     }

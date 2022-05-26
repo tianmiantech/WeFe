@@ -54,5 +54,6 @@ public class AliyunOssConfig {
         this.bucketName = bucketName;
         this.region = region;
         this.instanceName = instanceName;
+        this.ossInternalEndPoint = "https://oss-" + region + "-internal.aliyuncs.com";
     }
 }
