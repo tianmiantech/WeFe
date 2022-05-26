@@ -80,11 +80,14 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         @Check(name = "IP白名单")
         private String ipAdd;
 
-        @Check(name = "服务类型")
+        @Check(name = "类型")
         private int type = ServiceClientTypeEnum.OPEN.getValue();
         
         @Check(name = "服务地址") // 激活服务使用
         private String url;
+        
+        @Check(name = "服务类型")
+        private int serviceType;
         
         @Check(name = "created by")
         private String createdBy;
@@ -215,6 +218,14 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
 
         public void setCode(String code) {
             this.code = code;
+        }
+
+        public int getServiceType() {
+            return serviceType;
+        }
+
+        public void setServiceType(int serviceType) {
+            this.serviceType = serviceType;
         }
     }
 

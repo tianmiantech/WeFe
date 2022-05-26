@@ -89,9 +89,10 @@ public class GlobalConfigService extends BaseGlobalConfigService {
                     continue;
                 }
                 if (item.getKey().equalsIgnoreCase("rsa_public_key")) {
-                    if (item.getValue().contains("****")) {
-                        continue;
-                    }
+                    continue;
+                }
+                if (item.getKey().equalsIgnoreCase("rsa_private_key")) {
+                    continue;
                 }
                 String key = item.getKey();
                 String value = item.getValue();

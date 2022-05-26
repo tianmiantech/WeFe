@@ -20,17 +20,17 @@
                         />
                     </el-form-item>
 
-                    <el-form-item
-                        v-if="is_display"
-                        label="公钥："
-                    >
-                        <el-input
-                            v-model="form.identity_info.rsa_public_key"
-                            type="textarea"
-                            :disabled="is_update"
-                            autosize
-                        />
-                    </el-form-item>
+<!--                    <el-form-item-->
+<!--                        v-if="is_display"-->
+<!--                        label="公钥："-->
+<!--                    >-->
+<!--                        <el-input-->
+<!--                            v-model="form.identity_info.rsa_public_key"-->
+<!--                            type="textarea"-->
+<!--                            :disabled="is_update"-->
+<!--                            autosize-->
+<!--                        />-->
+<!--                    </el-form-item>-->
 
                     <el-form-item
                         label="Serving服务地址："
@@ -75,7 +75,7 @@
                     identity_info:{
                         member_id:       '',
                         member_name:     '',
-                        rsa_public_key:  '',
+                        // rsa_public_key:  '',
                         serving_base_url:'',
                     }
                 },
