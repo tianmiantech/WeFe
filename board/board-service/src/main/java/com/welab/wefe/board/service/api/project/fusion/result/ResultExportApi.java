@@ -17,7 +17,6 @@ package com.welab.wefe.board.service.api.project.fusion.result;
 
 
 import com.welab.wefe.board.service.service.fusion.FusionResultService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -37,7 +36,7 @@ public class ResultExportApi extends AbstractApi<ResultExportApi.Input, String> 
 
 
     @Override
-    protected ApiResult<String> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<String> handle(Input input) throws Exception {
         return success(fusionResultService.export(input));
     }
 

@@ -17,6 +17,7 @@ package com.welab.wefe.board.service.dto.globalconfig.storage;
 
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.common.data.storage.zane.persistent.clickhouse.ClickhouseConfig;
 
 /**
  * @author zane
@@ -29,4 +30,8 @@ public class ClickHouseStorageConfigModel {
     public int tcpPort = 9000;
     public String username;
     public String password;
+
+    public ClickhouseConfig toStorageConfig() {
+        return new ClickhouseConfig(host, http_port, username, password);
+    }
 }

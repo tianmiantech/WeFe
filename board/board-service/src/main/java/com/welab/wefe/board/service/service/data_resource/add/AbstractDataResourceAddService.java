@@ -55,7 +55,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
 
     // region abstract method
 
-    protected abstract void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException;
+    protected abstract void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws Exception;
 
     protected abstract Class<? extends DataResourceMysqlModel> getMysqlModelClass();
 

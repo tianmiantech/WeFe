@@ -160,7 +160,7 @@ public abstract class AbstractActuator implements AutoCloseable {
      *
      * @throws StatusCodeWithException
      */
-    public abstract void init() throws StatusCodeWithException;
+    public abstract void init() throws Exception;
 
     /**
      * Executor execution method

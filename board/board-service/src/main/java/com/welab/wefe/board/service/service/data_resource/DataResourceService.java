@@ -300,7 +300,7 @@ public class DataResourceService extends AbstractDataResourceService {
     }
 
 
-    public void delete(String dataResourceId, DataResourceType dataResourceType) throws StatusCodeWithException {
+    public void delete(String dataResourceId, DataResourceType dataResourceType) throws Exception {
         switch (dataResourceType) {
             case ImageDataSet:
                 imageDataSetService.delete(dataResourceId);

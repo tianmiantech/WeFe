@@ -18,12 +18,8 @@ package com.welab.wefe.board.service.service.checkpoint;
 
 import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.data.storage.StorageManager;
-import com.welab.wefe.common.data.storage.config.StorageConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.repo.Storage;
-import com.welab.wefe.common.data.storage.service.StorageService;
-import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -52,8 +48,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     public String getConfigValue() {
-        StorageConfig storageConfig = StorageManager.getInstance().getRepo(StorageConfig.class);
-        return storageConfig.getJdbcConfig().getUrl();
+        return null;
     }
 
     @Override
@@ -65,8 +60,8 @@ public class StorageCheckpoint extends AbstractCheckpoint {
     protected void doCheck(String value) throws Exception {
         StorageBaseConfigModel config = configService.getModel(StorageBaseConfigModel.class);
 
-        StorageService service = Launcher.getBean(StorageService.class);
-        Storage storage = service.getStorage();
+        PersistentStorage storage = PersistentStorage.getInstance();
+
         String name = RandomStringUtils.randomAlphabetic(6);
         try {
             storage.put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
