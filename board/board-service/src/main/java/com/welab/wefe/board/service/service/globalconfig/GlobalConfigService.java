@@ -24,7 +24,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.board.service.api.global_config.GlobalConfigUpdateApi;
 import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigFlag;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.JobService;
@@ -34,6 +36,9 @@ import com.welab.wefe.common.util.IpAddressUtil;
 import com.welab.wefe.common.util.ReflectionsUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.enums.GatewayActionType;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+import com.welab.wefe.common.wefe.enums.JobBackendType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,15 +82,30 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         // Notify the gateway to update the system configuration cache
         gatewayService.refreshSystemConfigCache();
 
-        try {
-            dataSetStorageService.initStorage();
-        } catch (SQLException e) {
-            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+        // 刷新持久化存储对象
+        if (input.groups.containsKey(ConfigGroupConstant.STORAGE)) {
+            try {
+                dataSetStorageService.initStorage();
+            } catch (SQLException e) {
+                LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
 
-            StatusCode
-                    .PARAMETER_VALUE_INVALID
-                    .throwException("数据集存储配置应用失败(" + e.getClass().getSimpleName() + ")：" + e.getMessage());
+                StatusCode
+                        .PARAMETER_VALUE_INVALID
+                        .throwException("数据集存储配置应用失败(" + e.getClass().getSimpleName() + ")：" + e.getMessage());
+            }
         }
+        
+        // 刷新函数计算存储
+        if (input.groups.containsKey(ConfigGroupConstant.FC_CONFIG)) {
+            if (Env.get().getCalculationEngineConfig().backend == JobBackendType.FC) {
+                gatewayService.sendToMyselfGateway(
+                        GatewayActionType.none,
+                        "",
+                        GatewayProcessorType.refreshFcStorageProcessor
+                );
+            }
+        }
+
     }
 
 

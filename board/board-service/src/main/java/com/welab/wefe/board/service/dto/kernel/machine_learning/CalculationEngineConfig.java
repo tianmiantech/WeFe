@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.dto.globalconfig.calculation_engine.Calculat
 import com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc.FunctionComputeBaseConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.FcCloudProvider;
 import com.welab.wefe.common.wefe.enums.JobBackendType;
 
 /**
@@ -33,7 +34,7 @@ public class CalculationEngineConfig {
     /**
      * 函数计算服务提供商
      */
-    public String fcCloudProvider;
+    public FcCloudProvider fcCloudProvider;
 
     @JSONField(serialize = false)
     public static CalculationEngineConfig get() {

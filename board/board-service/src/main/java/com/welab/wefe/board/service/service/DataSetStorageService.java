@@ -24,7 +24,10 @@ import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.zane.persistent.PersistentStorage;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.GatewayActionType;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -44,7 +47,7 @@ import java.util.stream.Collectors;
 public class DataSetStorageService extends AbstractService {
     public static final String DATABASE_NAME = Constant.DBName.WEFE_DATA;
 
-    public synchronized void initStorage() throws SQLException {
+    public synchronized void initStorage() throws SQLException, StatusCodeWithException {
         StorageBaseConfigModel storageConfig = globalConfigService.getModel(StorageBaseConfigModel.class);
         switch (storageConfig.storageType) {
             case CLICKHOUSE:
@@ -52,6 +55,13 @@ public class DataSetStorageService extends AbstractService {
                 PersistentStorage.init(configModel.toStorageConfig());
             default:
         }
+
+        // 通知 gateway
+        gatewayService.sendToMyselfGateway(
+                GatewayActionType.none,
+                "",
+                GatewayProcessorType.refreshPersistentStorageProcessor
+        );
     }
 
     /**
