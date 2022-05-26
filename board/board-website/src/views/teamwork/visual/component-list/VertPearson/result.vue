@@ -116,6 +116,9 @@
     import {
         ref,
         reactive,
+        nextTick,
+        getCurrentInstance,
+        onBeforeMount,
     } from 'vue';
     import checkFeatureMixin from '../common/checkFeature';
     import CheckFeatureDialog from '../common/checkFeatureDialog';
@@ -143,6 +146,8 @@
             const promoterChart = ref();
             const providerChart = ref();
             const localChart = ref();
+            const { appContext } = getCurrentInstance();
+            const { $http } = appContext.config.globalProperties;
 
             let vData = reactive({
                 hasResult:                false,
@@ -189,6 +194,55 @@
             });
 
             let methods = {
+                async getNodeDetail (model) {
+                    if (vData.loading) return;
+                    vData.loading = true;
+
+                    const { code, data } = await $http.get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId:  props.flowNodeId,
+                            flow_id: props.flowId,
+                        },
+                    });
+
+                    nextTick(_ => {
+                        vData.loading = false;
+                        if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                            const {
+                                members,
+                            } = data.params;
+
+                            vData.feature_column_count = 0;
+                            vData.total_column_count = 0;
+
+                            vData.lastSelection = [];
+                            vData.featureSelectTab = members.map(member => {
+                                vData.feature_column_count += member.$checkedColumnsArr.length;
+                                vData.total_column_count += member.features.length;
+
+                                const $feature_list = member.$checkedColumnsArr.map(item => {
+                                    return {
+                                        name: item,
+                                    };
+                                });
+
+                                vData.lastSelection.push({
+                                    member_id:   member.member_id,
+                                    member_name: member.member_name,
+                                    member_role: member.member_role,
+                                    $feature_list,
+                                });
+
+                                return {
+                                    ...member,
+                                    $checkedColumns: '',
+                                    $feature_list:   member.features,
+                                };
+                            });
+                        }
+                    });
+                },
                 showResult(data) {
                     vData.promoterConfig.totalColumnCount = 0;
                     vData.providerConfig.totalColumnCount = 0;
@@ -198,7 +252,7 @@
                     vData.localFeatureSelectTab = [];
 
                     if(data[0].result) {
-                        const maxFeatureNum = 20;
+                        // const maxFeatureNum = 20;
                         const {
                             corr,
                             features,
@@ -226,23 +280,23 @@
 
                             // promoter x,y
                             mix_feature_names.forEach((item, index) => {
-                                if(index < maxFeatureNum) {
+                                if(index < vData.feature_column_count) {
                                     vData.promoterConfig.xAxis.push(item);
                                     vData.promoterConfig.yAxis.unshift(item);
                                 }
                             });
                             vData.promoterConfig.series = [];
                             mix_corr.forEach((rows, rowIndex) => {
-                                if(rowIndex < maxFeatureNum) {
+                                if(rowIndex < vData.feature_column_count) {
                                     rows.forEach((row, index) => {
-                                        if(index < maxFeatureNum) {
-                                            vData.promoterConfig.series.push([rowIndex, maxFeatureNum - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                        if(index < vData.feature_column_count) {
+                                            vData.promoterConfig.series.push([rowIndex, vData.feature_column_count - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.promoterConfig.featureColumnCount = vData.promoterConfig.xAxis.length;
+                            vData.promoterConfig.featureColumnCount = vData.feature_column_count;
                             vData.promoterConfig.width = vData.promoterConfig.xAxis.length * (vData.promoterConfig.xAxis.length > 10 ? 60 : 100);
                             vData.promoterConfig.height = vData.promoterConfig.yAxis.length * 34 + (vData.promoterConfig.yAxis.length > 10 ? 50: 100);
 
@@ -251,7 +305,7 @@
                             const array = features.map((feature, index) => {
                                 const key = `promoter_${feature}`;
 
-                                if(index < maxFeatureNum) {
+                                if(index < vData.feature_column_count) {
                                     promoterCheckedFeatures.push(key);
                                 }
                                 return key;
@@ -268,7 +322,7 @@
 
                             if(remote_features_names) {
                                 for(const [index, feature] of remote_features_names.entries()) {
-                                    if(index < (maxFeatureNum - promoterCheckedFeatures.length)) {
+                                    if(index < (vData.feature_column_count - promoterCheckedFeatures.length)) {
                                         providerCheckedFeatures.push(feature);
                                     } else {
                                         break;
@@ -299,17 +353,17 @@
                             // <---
 
                             features.forEach((item, index) => {
-                                if(index < maxFeatureNum) {
+                                if(index < vData.feature_column_count) {
                                     vData.localConfig.xAxis.push(item);
                                     vData.localConfig.yAxis.push(item);
                                 }
                             });
                             vData.localConfig.series = [];
                             local_corr.forEach((rows, rowIndex) => {
-                                if(rowIndex < maxFeatureNum) {
+                                if(rowIndex < vData.feature_column_count) {
                                     rows.forEach((row, index) => {
-                                        if(index < maxFeatureNum) {
-                                            vData.localConfig.series.push([rowIndex, maxFeatureNum - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                        if(index < vData.feature_column_count) {
+                                            vData.localConfig.series.push([rowIndex, vData.feature_column_count - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
@@ -321,7 +375,7 @@
 
                             let providerCheckedFeatures = [];
                             const array = features.map((feature, index) => {
-                                if(index < maxFeatureNum) {
+                                if(index < vData.feature_column_count) {
                                     providerCheckedFeatures.push(feature);
                                 }
                                 return feature;
@@ -350,21 +404,21 @@
                             // <---
 
                             corr_feature_names[0].forEach((item, index) => {
-                                if(index < maxFeatureNum) {
+                                if(index < vData.feature_column_count) {
                                     vData.providerConfig.yAxis.push(item);
                                 }
                             });
                             corr_feature_names[1].forEach((item, index) => {
-                                if(index < maxFeatureNum) {
+                                if(index < vData.feature_column_count) {
                                     vData.providerConfig.xAxis.push(item);
                                 }
                             });
                             vData.providerConfig.series = [];
                             corr.forEach((rows, rowIndex) => {
-                                if(rowIndex < maxFeatureNum) {
+                                if(rowIndex < vData.feature_column_count) {
                                     rows.forEach((row, index) => {
-                                        if(index < maxFeatureNum) {
-                                            vData.providerConfig.series.push([rowIndex, maxFeatureNum - index - 1, row.toFixed(4)]);
+                                        if(index < vData.feature_column_count) {
+                                            vData.providerConfig.series.push([rowIndex, vData.feature_column_count - index - 1, row.toFixed(4)]);
                                         }
                                     });
                                 }
@@ -377,7 +431,7 @@
                             const promoterCheckedFeatures = [];
 
                             for(const [index, feature] of corr_feature_names[0].entries()) {
-                                if(index < maxFeatureNum) {
+                                if(index < vData.feature_column_count) {
                                     promoterCheckedFeatures.push(feature);
                                 } else {
                                     break;
@@ -396,7 +450,7 @@
                             if(corr_feature_names) {
                                 providerCheckedFeatures = [];
                                 for(const [index, feature] of corr_feature_names[1].entries()) {
-                                    if(index < maxFeatureNum) {
+                                    if(index < vData.feature_column_count) {
                                         providerCheckedFeatures.push(feature);
                                     } else {
                                         break;
@@ -546,6 +600,10 @@
                     }
                 },
             };
+
+            onBeforeMount(() => {
+                methods.getNodeDetail();
+            });
 
             // merge mixin
             const { $data, $methods } = checkFeatureMixins.mixin({
