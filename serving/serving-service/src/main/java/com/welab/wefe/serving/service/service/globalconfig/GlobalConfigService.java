@@ -17,15 +17,23 @@
 package com.welab.wefe.serving.service.service.globalconfig;
 
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.serving.service.api.system.GlobalConfigUpdateApi;
 import com.welab.wefe.serving.service.api.system.UpdateRsaKeyApi;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import com.welab.wefe.serving.service.utils.ServingSM4Util;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
@@ -33,6 +41,9 @@ import java.util.Map;
  */
 @Service
 public class GlobalConfigService extends BaseGlobalConfigService {
+
+    @Autowired
+    AccountRepository accountRepository;
 
     /**
      * Is the system initialized
@@ -108,6 +119,33 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         model.setRsaPublicKey(input.getRsaPublicKey());
 
         setIdentityInfo(model);
+    }
+
+
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateMemberRsaKey() throws StatusCodeWithException {
+
+        AccountMySqlModel account = accountRepository.findByPhoneNumber(ServingSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
+        if (!account.getSuperAdminRole()) {
+            throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
+        }
+
+        IdentityInfoModel model = getIdentityInfo();
+
+        try {
+            SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
+            model.setRsaPrivateKey(keyPair.privateKey);
+            model.setRsaPublicKey(keyPair.publicKey);
+        } catch (NoSuchAlgorithmException e) {
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+
+        // notify union
+        setIdentityInfo(model);
+
+        CacheObjects.refreshIdentityInfo();
     }
 
 

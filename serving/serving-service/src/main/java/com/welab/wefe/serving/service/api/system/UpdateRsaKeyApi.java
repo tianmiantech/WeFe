@@ -30,12 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @date 2022/5/7
  */
 @Api(path = "system/update_rsa_key_by_board",
-        name = "更新配置信息",
+        name = "同步board密钥",
         login = false,
-        rsaVerify = true
-//        domain = Caller.Board
+        rsaVerify = true,
+        domain = Caller.Board
 )
-public class  UpdateRsaKeyApi extends AbstractNoneOutputApi<UpdateRsaKeyApi.Input> {
+public class UpdateRsaKeyApi extends AbstractNoneOutputApi<UpdateRsaKeyApi.Input> {
 
     @Autowired
     GlobalConfigService globalConfigService;
