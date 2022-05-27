@@ -55,6 +55,16 @@
                     >
                         更新
                     </el-button>
+
+                    <el-button
+                        v-loading="is_reset"
+                        class="save-btn"
+                        type="primary"
+                        size="medium"
+                        @click="resetKey"
+                    >
+                        重置系统公私钥
+                    </el-button>
                 </el-col>
             </el-row>
         </el-form>
@@ -70,6 +80,7 @@
                 loading:    false,
                 is_update:  false,
                 is_display: false,
+                is_reset : false,
                 // model
                 form:       {
                     identity_info:{
@@ -120,6 +131,17 @@
                     this.$router.push({ name: 'global-setting-view' });
                 }
                 this.loading = false;
+            },
+            async resetKey(){
+                this.is_reset = true;
+                const { code } = await this.$http.get({
+                    url:  '/system/reset_rsa_key',
+                });
+
+                if (code === 0) {
+                    this.$message.success('操作成功!');
+                }
+                this.is_reset = false;
             },
         },
     };
