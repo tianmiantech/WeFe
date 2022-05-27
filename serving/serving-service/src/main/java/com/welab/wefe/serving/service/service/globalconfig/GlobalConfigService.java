@@ -22,7 +22,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.serving.service.api.system.GlobalConfigUpdateApi;
-import com.welab.wefe.serving.service.api.system.UpdateRsaKeyApi;
+import com.welab.wefe.serving.service.api.system.UpdateRsaKeyByBoardApi;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
@@ -114,11 +114,14 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     }
 
 
-    public void updateRsaKeyByBoard(UpdateRsaKeyApi.Input input) throws StatusCodeWithException {
-        IdentityInfoModel model = new IdentityInfoModel();
+    public void updateRsaKeyByBoard(UpdateRsaKeyByBoardApi.Input input) throws StatusCodeWithException {
+        IdentityInfoModel model = getIdentityInfo();
+        if (ServingModeEnum.standalone.name().equals(model.getMode())) {
+            StatusCode.ILLEGAL_REQUEST.throwException("当前Serving系统为独立模式，无法将board密钥同步！");
+        }
+
         model.setRsaPrivateKey(input.getRsaPrivateKey());
         model.setRsaPublicKey(input.getRsaPublicKey());
-
         setIdentityInfo(model);
     }
 

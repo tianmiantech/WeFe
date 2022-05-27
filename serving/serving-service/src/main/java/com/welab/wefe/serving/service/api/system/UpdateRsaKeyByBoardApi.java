@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
         rsaVerify = true,
         domain = Caller.Board
 )
-public class UpdateRsaKeyApi extends AbstractNoneOutputApi<UpdateRsaKeyApi.Input> {
+public class UpdateRsaKeyByBoardApi extends AbstractNoneOutputApi<UpdateRsaKeyByBoardApi.Input> {
 
     @Autowired
     GlobalConfigService globalConfigService;

@@ -16,16 +16,7 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
+import cn.hutool.core.lang.UUID;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
@@ -33,31 +24,25 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.serving.service.api.clientservice.DetailApi;
-import com.welab.wefe.serving.service.api.clientservice.QueryApi;
-import com.welab.wefe.serving.service.api.clientservice.QueryListApi;
-import com.welab.wefe.serving.service.api.clientservice.SaveApi;
+import com.welab.wefe.serving.service.api.clientservice.*;
 import com.welab.wefe.serving.service.api.clientservice.ServiceUrlTestApi.Input;
-import com.welab.wefe.serving.service.api.clientservice.UpdateApi;
-import com.welab.wefe.serving.service.api.clientservice.UpdateStatusApi;
-import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ClientServiceOutputModel;
-import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
-import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
-import com.welab.wefe.serving.service.database.repository.ClientServiceQueryRepository;
-import com.welab.wefe.serving.service.database.repository.ClientServiceRepository;
-import com.welab.wefe.serving.service.database.repository.FeeConfigRepository;
-import com.welab.wefe.serving.service.database.repository.PartnerRepository;
-import com.welab.wefe.serving.service.database.repository.ServiceRepository;
+import com.welab.wefe.serving.service.database.entity.*;
+import com.welab.wefe.serving.service.database.repository.*;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.PayTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
-import cn.hutool.core.lang.UUID;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -99,20 +84,19 @@ public class ClientServiceService {
                 // 客户相关信息
                 PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
                         PartnerMysqlModel.class);
-                
+
                 // 保存服务类型
                 ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
                         ServiceMySqlModel.class);
-                if(serviceMySqlModel != null) {
-                    model.setServiceType(serviceMySqlModel.getServiceType());  
+                if (serviceMySqlModel != null) {
+                    model.setServiceType(serviceMySqlModel.getServiceType());
                     model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
                             ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
                             : (partnerMysqlModel.getServingBaseUrl() + "/"))
                             : "") + "api/" + serviceMySqlModel.getUrl());
                     model.setServiceName(serviceMySqlModel.getName());
-                }
-                else {
-                    model.setServiceType(input.getServiceType());  
+                } else {
+                    model.setServiceType(input.getServiceType());
                 }
                 model.setClientName(partnerMysqlModel.getName());
             } else {// 激活
@@ -330,9 +314,10 @@ public class ClientServiceService {
      */
     public void openService(String serviceId,
                             String clientId,
-                            String publicKey) throws StatusCodeWithException {
+                            String publicKey,
+                            ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
-        clientService.setServiceType(0);// TODO
+        clientService.setServiceType(serviceType.getCode());
         clientService.setClientId(clientId);
         clientService.setServiceId(serviceId);
         clientService.setPublicKey(publicKey);
@@ -354,14 +339,16 @@ public class ClientServiceService {
                                 String clientId,
                                 String privateKey,
                                 String publicKey,
-                                String url) throws StatusCodeWithException {
+                                String url,
+                                ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setClientId(clientId);
         clientService.setServiceId(serviceId);
+        clientService.setServiceType(serviceType.getCode());
         clientService.setPrivateKey(privateKey);
         clientService.setPublicKey(publicKey);
         clientService.setUrl(url);
-        clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
+        clientService.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         add(clientService);
     }
@@ -373,5 +360,16 @@ public class ClientServiceService {
             throw response.getError();
         }
         return response.getCode();
+    }
+
+
+    public List<ClientServiceMysqlModel> queryActivateListByServiceId(String serviceId) {
+
+        Specification<ClientServiceMysqlModel> where = Where.create()
+                .equal("serviceId", serviceId)
+                .equal("type", ServiceClientTypeEnum.ACTIVATE.getValue())
+                .build(ClientServiceMysqlModel.class);
+
+        return clientServiceRepository.findAll(where);
     }
 }
