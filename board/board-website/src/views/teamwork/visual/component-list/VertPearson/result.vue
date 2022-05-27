@@ -533,7 +533,7 @@
                     if(role === 'provider') {
                         chartData.xAxis.push(...list[1].$checkedColumnsArr);
                         list[0].$checkedColumnsArr.forEach(name => {
-                            chartData.yAxis.push(name);
+                            chartData.yAxis.unshift(name);
                         });
                         chartData.featureColumnCount += list[0].$checkedColumnsArr.length + list[1].$checkedColumnsArr.length;
 
@@ -554,7 +554,7 @@
                         list.forEach(({ $checkedColumnsArr }) => {
                             chartData.xAxis.push(...$checkedColumnsArr);
                             $checkedColumnsArr.forEach(name => {
-                                chartData.yAxis.push(name);
+                                chartData.yAxis.unshift(name);
                             });
 
                             if(role !== 'local') {
