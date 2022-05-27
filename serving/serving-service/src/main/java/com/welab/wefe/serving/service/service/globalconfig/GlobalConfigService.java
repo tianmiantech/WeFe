@@ -27,6 +27,7 @@ import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
+import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,8 +123,6 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     }
 
 
-
-
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberRsaKey() throws StatusCodeWithException {
 
@@ -133,6 +132,10 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         }
 
         IdentityInfoModel model = getIdentityInfo();
+
+        if (ServingModeEnum.standalone.name().equals(model.getMode())) {
+            return;
+        }
 
         try {
             SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
