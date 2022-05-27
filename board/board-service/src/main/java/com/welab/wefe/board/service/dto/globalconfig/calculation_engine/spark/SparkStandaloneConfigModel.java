@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.calculation_engine.spark;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 
@@ -25,7 +26,7 @@ import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
  * @date 2022/04/27
  */
 @ConfigModel(group = ConfigGroupConstant.SPARK_STANDALONE_CONFIG)
-public class SparkStandaloneConfigModel {
+public class SparkStandaloneConfigModel extends AbstractConfigModel {
     /**
      * Driver内存，默认1024m：
      * 单位：m、g

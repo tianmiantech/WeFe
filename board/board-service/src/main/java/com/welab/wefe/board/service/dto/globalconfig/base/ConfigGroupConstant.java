@@ -22,8 +22,10 @@ package com.welab.wefe.board.service.dto.globalconfig.base;
 public class ConfigGroupConstant {
     /****************************** 系统设置 *************************************/
     public static final String MEMBER_INFO = "member_info";
-    public static final String MAIL_SERVER = "mail_server";
     public static final String ALERT_CONFIG = "alert_config";
+    public static final String MAIL_SERVER = "mail_server";
+    public static final String ALIYUN_SMS_CHANNEL = "aliyun_sms_channel";
+
 
     /****************************** 子系统 *************************************/
     public static final String WEFE_GATEWAY = "wefe_gateway";

@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 
@@ -23,7 +24,7 @@ import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
  * @date 2021/10/29
  */
 @ConfigModel(group = ConfigGroupConstant.ALIYUN_FC_CONFIG)
-public class AliyunFunctionComputeConfigModel {
+public class AliyunFunctionComputeConfigModel extends AbstractConfigModel {
     /**
      * 账号类型：api/admin
      */

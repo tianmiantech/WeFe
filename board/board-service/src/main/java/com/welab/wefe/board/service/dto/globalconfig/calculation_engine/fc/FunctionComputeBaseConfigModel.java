@@ -15,8 +15,10 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.wefe.enums.FcCloudProvider;
 
 /**
@@ -26,18 +28,17 @@ import com.welab.wefe.common.wefe.enums.FcCloudProvider;
  * @date 2021/10/29
  */
 @ConfigModel(group = ConfigGroupConstant.FC_CONFIG)
-public class FunctionComputeBaseConfigModel {
+public class FunctionComputeBaseConfigModel extends AbstractConfigModel {
 
-    /**
-     * 函数计算的提供商：aliyun/tencentcloud
-     */
+    @Check(
+            name = "函数计算的提供商",
+            require = true,
+            desc = "aliyun/tencentcloud"
+    )
     public FcCloudProvider cloudProvider = FcCloudProvider.aliyun;
-    /**
-     * 日费用上限
-     */
+    @Check(name = "日费用上限", require = true)
     public int maxCostInDay = 500;
-    /**
-     * 月费用上限
-     */
+
+    @Check(name = "月费用上限", require = true)
     public int maxCostInMonth = 1000;
 }

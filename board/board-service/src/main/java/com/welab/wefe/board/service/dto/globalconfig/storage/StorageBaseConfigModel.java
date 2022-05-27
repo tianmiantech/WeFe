@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.storage;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.data.storage.common.DataResourceStorageType;
@@ -24,6 +25,6 @@ import com.welab.wefe.common.data.storage.common.DataResourceStorageType;
  * @date 2022/5/6
  */
 @ConfigModel(group = ConfigGroupConstant.STORAGE)
-public class StorageBaseConfigModel {
+public class StorageBaseConfigModel extends AbstractConfigModel {
     public DataResourceStorageType storageType = DataResourceStorageType.CLICKHOUSE;
 }
