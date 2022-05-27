@@ -133,7 +133,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
         IdentityInfoModel model = getIdentityInfo();
 
-        if (ServingModeEnum.standalone.name().equals(model.getMode())) {
+        if (ServingModeEnum.union.name().equals(model.getMode())) {
             return;
         }
 
