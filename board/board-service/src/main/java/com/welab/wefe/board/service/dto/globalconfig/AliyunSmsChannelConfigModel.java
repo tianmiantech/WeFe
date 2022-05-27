@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.dto.globalconfig;
 import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * 阿里云短信通道
@@ -27,4 +28,16 @@ import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
  */
 @ConfigModel(group = ConfigGroupConstant.ALIYUN_SMS_CHANNEL)
 public class AliyunSmsChannelConfigModel extends AbstractConfigModel {
+    @Check(require = true)
+    public String accessKeyId;
+
+    @Check(require = true)
+    public String accessKeySecret;
+
+    @Check(name = "短信签名", require = true)
+    public String signName;
+
+    @Check(name = "找回密码短信模板码", require = true)
+    public String retrievePasswordTemplateCode;
+
 }

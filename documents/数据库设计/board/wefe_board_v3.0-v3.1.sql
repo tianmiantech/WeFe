@@ -42,3 +42,11 @@ ALTER TABLE `job`
 -- -------------------------------------
 ALTER TABLE `table_data_set`
     ADD COLUMN `label_distribution` text NULL COMMENT 'label 分布情况';
+
+-- -------------------------------------
+-- global_config 表字段扩容
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `global_config`
+    MODIFY COLUMN `name` varchar (128) COMMENT '配置项名称',
+    MODIFY COLUMN `group` varchar (128) COMMENT '配置项名称';
