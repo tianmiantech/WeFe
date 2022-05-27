@@ -49,9 +49,9 @@ public abstract class AbstractVerificationCodeService {
 
     public abstract void check(String mobile) throws StatusCodeWithException;
 
-    public abstract Map<String, Object> buildExtendParams(String mobile);
+    public abstract Map<String, Object> buildExtendParams(String mobile, String verificationCode, VerificationCodeBusinessType businessType) throws StatusCodeWithException;
 
-    public abstract void saveSendRecord(String mobile, String verificationCode, AbstractResponse response);
+    public abstract void saveSendRecord(String mobile, String verificationCode, VerificationCodeBusinessType businessType, AbstractResponse response);
 
 
     /**
@@ -67,11 +67,11 @@ public abstract class AbstractVerificationCodeService {
         String verificationCode = generateVerificationCode();
         try {
             // Get Client
-            AbstractClient client = ClientFactory.getClient(getVerificationCodeSendChannel(), buildExtendParams(mobile));
+            AbstractClient client = ClientFactory.getClient(getVerificationCodeSendChannel(), buildExtendParams(mobile, verificationCode, businessType));
             // send
             AbstractResponse response = client.send(mobile, verificationCode);
             // Persistence send record
-            saveSendRecord(mobile, verificationCode, response);
+            saveSendRecord(mobile, verificationCode, businessType, response);
             if (!response.success()) {
                 throw new StatusCodeWithException("发送验证码异常:" + response.getMessage(), StatusCode.SYSTEM_ERROR);
             }
