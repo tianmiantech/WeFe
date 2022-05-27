@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,33 +14,21 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.verificationcode;
-
-import com.welab.wefe.common.verification.code.AbstractResponse;
+package com.welab.wefe.common.verification.code.common;
 
 /**
- *  Response object of email send channel
+ * verification code business type
  *
  * @author aaron.li
- * @date 2022/1/19 16:39
+ * @date 2022/1/19 11:22
  **/
-public class EmailResponse extends AbstractResponse<EmailSendResult> {
+public enum VerificationCodeBusinessType {
     /**
-     * Success response code
+     * Member register verification code
      */
-    private final static int RESP_STATUS_OK = 0;
-
-    public EmailResponse(EmailSendResult data) {
-        super(data);
-    }
-
-    @Override
-    public boolean success() {
-        return RESP_STATUS_OK == getData().getCode();
-    }
-
-    @Override
-    public String getRespBody() {
-        return getData().getMessage();
-    }
+    memberRegister,
+    /**
+     * Account forget password verification code
+     */
+    accountForgetPassword
 }

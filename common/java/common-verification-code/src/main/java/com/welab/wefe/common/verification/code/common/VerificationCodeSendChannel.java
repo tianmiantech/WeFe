@@ -14,31 +14,21 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.service.verificationcode;
+package com.welab.wefe.common.verification.code.common;
 
 /**
- * Email send result message
+ * Verification code send type
  *
  * @author aaron.li
- * @date 2022/1/19 16:47
+ * @date 2022/1/19 11:25
  **/
-public class EmailSendResult {
-    private int code;
-    private String message;
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
+public enum VerificationCodeSendChannel {
+    /**
+     * Sms send type
+     */
+    sms,
+    /**
+     * Email send type
+     */
+    email
 }

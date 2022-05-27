@@ -14,43 +14,33 @@
  * limitations under the License.
  */
 
+package com.welab.wefe.common.verification.code.email;
 
-package com.welab.wefe.board.service.service.verificationcode;
-
-import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.verification.code.AbstractResponse;
 
 /**
- * Aliyun sms response
+ *  Response object of email send channel
  *
  * @author aaron.li
- * @Date 2021/10/20
+ * @date 2022/1/19 16:39
  **/
-public class AliyunSmsResponse extends AbstractResponse<SendSmsResponse> {
-    private final static String RESP_STATUS_OK = "OK";
+public class EmailResponse extends AbstractResponse<EmailSendResult> {
+    /**
+     * Success response code
+     */
+    private final static int RESP_STATUS_OK = 0;
 
-    public AliyunSmsResponse(SendSmsResponse data) {
+    public EmailResponse(EmailSendResult data) {
         super(data);
     }
 
     @Override
-    public String getReqId() {
-        return data.getBody().getRequestId();
-    }
-
-    @Override
     public boolean success() {
-        return RESP_STATUS_OK.equals(data.getBody().code);
+        return RESP_STATUS_OK == getData().getCode();
     }
 
     @Override
     public String getRespBody() {
-        return JObject.create(data.getBody()).toString();
-    }
-
-    @Override
-    public String getMessage() {
-        return data.getBody().getMessage();
+        return getData().getMessage();
     }
 }
