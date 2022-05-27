@@ -87,8 +87,9 @@ public class VerificationCodeService extends AbstractVerificationCodeService {
         VerificationCodeSendChannel sendChannel = getVerificationCodeSendChannel();
         if (VerificationCodeSendChannel.email.equals(sendChannel)) {
             checkEmailConfig();
+        } else {
+            checkSmsConfig();
         }
-        checkSmsConfig();
     }
 
     @Override
