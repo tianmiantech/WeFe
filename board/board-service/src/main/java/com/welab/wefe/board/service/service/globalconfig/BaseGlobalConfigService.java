@@ -24,6 +24,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigInput;
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.StatusCode;
@@ -128,7 +129,7 @@ public class BaseGlobalConfigService extends AbstractService {
     /**
      * Get the entity corresponding to the specified group
      */
-    public <T> T getModel(Class<T> clazz) {
+    public <T extends AbstractConfigModel> T getModel(Class<T> clazz) {
         ConfigModel annotation = clazz.getAnnotation(ConfigModel.class);
         List<GlobalConfigMysqlModel> list = list(annotation.group());
         return toModel(list, clazz);

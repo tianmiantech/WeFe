@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 
@@ -23,7 +24,7 @@ import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
  * @date 2021/10/29
  */
 @ConfigModel(group = ConfigGroupConstant.DEEP_LEARNING_CONFIG)
-public class DeepLearningConfigModel {
+public class DeepLearningConfigModel extends AbstractConfigModel {
     public String device = "cpu";
     public String paddleVisualDlBaseUrl;
 }

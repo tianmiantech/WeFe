@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.storage;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
@@ -24,7 +25,7 @@ import com.welab.wefe.common.data.storage.service.persistent.clickhouse.Clickhou
  * @date 2022/5/6
  */
 @ConfigModel(group = ConfigGroupConstant.CLICKHOUSE_STORAGE)
-public class ClickHouseStorageConfigModel {
+public class ClickHouseStorageConfigModel extends AbstractConfigModel {
     public String host;
     public int http_port = 8123;
     public int tcpPort = 9000;

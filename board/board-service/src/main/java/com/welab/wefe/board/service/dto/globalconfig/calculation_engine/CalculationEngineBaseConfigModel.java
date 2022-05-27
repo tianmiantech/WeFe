@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.calculation_engine;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.wefe.enums.JobBackendType;
@@ -26,7 +27,7 @@ import com.welab.wefe.common.wefe.enums.JobBackendType;
  * @date 2021/12/3
  */
 @ConfigModel(group = ConfigGroupConstant.CALCULATION_ENGINE_CONFIG)
-public class CalculationEngineBaseConfigModel {
+public class CalculationEngineBaseConfigModel extends AbstractConfigModel {
     /**
      * SPARK、FC
      */

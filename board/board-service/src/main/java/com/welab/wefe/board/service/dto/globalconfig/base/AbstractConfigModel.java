@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.globalconfig.storage;
+package com.welab.wefe.board.service.dto.globalconfig.base;
 
-import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
-import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
-import com.welab.wefe.common.data.storage.common.DataResourceStorageType;
+import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 
 /**
  * @author zane
- * @date 2022/5/6
+ * @date 2022/5/27
  */
-@ConfigModel(group = ConfigGroupConstant.STORAGE)
-public class StorageBaseConfigModel extends AbstractConfigModel {
-    public DataResourceStorageType storageType = DataResourceStorageType.CLICKHOUSE;
+public abstract class AbstractConfigModel extends AbstractCheckModel {
 }
