@@ -183,7 +183,9 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
             return "";
         }
         JSONObject json = response.getBodyAsJson();
-        return json.getJSONObject("data").getString("responseId");
+        return json.getJSONObject("data").containsKey("responseId") ?
+                json.getJSONObject("data").getString("responseId")
+                : "";
     }
 
     private String getResponseStatus(JObject result) {
