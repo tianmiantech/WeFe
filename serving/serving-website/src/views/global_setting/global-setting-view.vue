@@ -63,7 +63,7 @@
                         size="medium"
                         @click="resetKey"
                     >
-                        重置系统公私钥
+                        重置公私钥
                     </el-button>
                 </el-col>
             </el-row>
