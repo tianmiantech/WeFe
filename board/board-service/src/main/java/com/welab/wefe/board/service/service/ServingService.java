@@ -77,29 +77,31 @@ public class ServingService extends AbstractService {
     /**
      * Update serving global configuration
      */
-    public void asynRefreshMemberInfo(MemberInfoModel model) throws StatusCodeWithException {
-
-        CommonThreadPool.run(() -> {
-            try {
-                refreshMemberInfo(model);
-            } catch (StatusCodeWithException e) {
-                LOG.error("serving 响应失败：" + e.getMessage(), StatusCode.REMOTE_SERVICE_ERROR);
-            }
-        });
-    }
+//    public void asynRefreshMemberInfo(MemberInfoModel model) throws StatusCodeWithException {
+//
+//        CommonThreadPool.run(() -> {
+//            try {
+//                refreshMemberInfo(model);
+//            } catch (StatusCodeWithException e) {
+//                LOG.error("serving 响应失败：" + e.getMessage(), StatusCode.REMOTE_SERVICE_ERROR);
+//            }
+//        });
+//    }
 
     /**
      * Update serving global configuration
      */
-    public void refreshMemberInfo(MemberInfoModel model) throws StatusCodeWithException {
+    public void refreshMemberInfo(MemberInfoModel model, String phoneNumber, String password) throws StatusCodeWithException {
 
         TreeMap<String, Object> params = new TreeMap<>();
         params.put("member_id", model.getMemberId());
         params.put("member_name", model.getMemberName());
         params.put("rsa_private_key", model.getRsaPrivateKey());
         params.put("rsa_public_key", model.getRsaPublicKey());
+        params.put("phoneNumber", phoneNumber);
+        params.put("password", password);
 
-        request("global_setting/refresh", params);
+        request("global_config/initialize/union", params);
     }
 
 

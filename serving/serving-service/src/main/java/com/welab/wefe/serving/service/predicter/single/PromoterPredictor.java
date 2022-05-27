@@ -32,20 +32,20 @@ import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePromoterPredictor;
 import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
 import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.enums.ServiceCallStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.service.CacheObjects;
-import com.welab.wefe.serving.service.service.ModelMemberService;
-import com.welab.wefe.serving.service.service.ServiceCallLogService;
-import com.welab.wefe.serving.service.service.ServiceOrderService;
+import com.welab.wefe.serving.service.service.*;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Model call initiator
@@ -101,7 +101,7 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
         }
 
         JSONObject body = new JSONObject();
-        body.put("memberId", Config.MEMBER_ID);
+        body.put("customerId", Config.MEMBER_ID);
         body.put("sign", sign);
         body.put("data", data);
 
@@ -124,6 +124,7 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
         return federatedResult;
     }
 
+
     private JObject callProviders(ProviderParams obj) throws StatusCodeWithException {
 
         HttpResponse response = null;
@@ -145,7 +146,7 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
 
             return extractData(response);
         } finally {
-            callLog(order.getId(), buildFederatedPredictParam(), extractData(response), extractCode(response), extractResponseId(response));
+            callLog(obj.getMemberId(), order.getId(), buildFederatedPredictParam(), extractData(response), extractCode(response), extractResponseId(response));
         }
     }
 
@@ -162,12 +163,13 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
         Integer code = extractCode(response);
         if (!response.success() || code == null || !code.equals(0) || !json.containsKey("data")) {
             LOG.error("协作方响应失败({}),{}", code, json.getString("message"));
-            throw new StatusCodeWithException("协作方" + memberId + "响应失败," + json.getString("message"), StatusCode.REMOTE_SERVICE_ERROR);
+            String message = "协作方 " + memberId + " 响应失败(" + code + ")," + json.getString("message");
+            StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
         }
     }
 
     private Integer extractCode(HttpResponse response) {
-        if (response == null || response.getBodyAsJson() == null) {
+        if (!response.success()) {
             return StatusCode.SYSTEM_ERROR.getCode();
         }
         JSONObject json = response.getBodyAsJson();
@@ -175,11 +177,19 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
     }
 
     private String extractResponseId(HttpResponse response) {
-        if (response == null || response.getBodyAsJson() == null) {
+        if (response == null
+                || !response.success()
+                || response.getBodyAsJson().getInteger("code") != 0) {
             return "";
         }
         JSONObject json = response.getBodyAsJson();
-        return json.getJSONObject("data").getString("responseId");
+        return json.getJSONObject("data").containsKey("responseId") ?
+                json.getJSONObject("data").getString("responseId")
+                : "";
+    }
+
+    private String getResponseStatus(JObject result) {
+        return result == null ? ServiceCallStatusEnum.RESPONSE_ERROR.name() : ServiceCallStatusEnum.SUCCESS.name();
     }
 
     @Override
@@ -192,24 +202,38 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
      * Get partner information
      */
     private List<ProviderParams> findProviders() {
-        ModelMemberService modelMemberService = Launcher.CONTEXT.getBean(ModelMemberService.class);
-        return modelMemberService.findProviders(modelId);
+        ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
+        return clientServiceService.queryActivateListByServiceId(modelId)
+                .stream()
+                .map(x -> ProviderParams.of(x.getClientId(), findModelServiceUrl(x.getClientId()) + x.getUrl()))
+                .collect(Collectors.toList());
     }
 
+    private String findModelServiceUrl(String partnerId) {
+        PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
+        PartnerMysqlModel partner = partnerService.findOne(partnerId);
+        return partnerService.findOne(partnerId) == null ? "" : partner.getServingBaseUrl();
+    }
 
-    private void callLog(String orderId, String requestData, JObject result, Integer responseCode, String responseId) {
+    private void callLog(String memberId, String orderId, String requestData, JObject result, Integer responseCode, String responseId) {
         ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
         callLog.setOrderId(orderId);
         callLog.setServiceId(modelId);
+        //TODO 加服务名
+        callLog.setServiceName("");
         callLog.setRequestData(requestData);
         callLog.setRequestPartnerId(CacheObjects.getMemberId());
+        callLog.setRequestPartnerName(CacheObjects.getMemberName());
         callLog.setRequestId(requestId);
-//        callLog.setRequestIp(ServiceUtil.getIpAddr(input.request));
-        callLog.setCallByMe(0);
+        callLog.setRequestIp("");
         callLog.setResponseCode(responseCode);
         callLog.setResponseId(responseId);
+        callLog.setResponsePartnerId(memberId);
+        callLog.setResponsePartnerName(CacheObjects.getPartnerName(memberId));
         callLog.setResponseData(result.toJSONString());
+        callLog.setResponseStatus(getResponseStatus(result));
+        callLog.setCallByMe(0);
 
         ServiceCallLogService serviceCallLogService = Launcher.CONTEXT.getBean(ServiceCallLogService.class);
         serviceCallLogService.save(callLog);
@@ -225,7 +249,7 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
         order.setRequestPartnerName(CacheObjects.getMemberName());
         order.setResponsePartnerId(partnerId);
         order.setRequestPartnerName(CacheObjects.getPartnerName(partnerId));
-//        order.setOrderType();
+        order.setOrderType(1);
 
         ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
         serviceOrderService.save(order);

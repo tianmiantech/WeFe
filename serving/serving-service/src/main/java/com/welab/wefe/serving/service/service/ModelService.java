@@ -169,10 +169,11 @@ public class ModelService {
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
-                    setModelServiceUrl(modelId)
+                    setModelServiceUrl(modelId),
+                    ServiceTypeEnum.MachineLearning
             );
         } catch (StatusCodeWithException e) {
-            LOG.error("模型服务激活失败: {]", e.getMessage());
+            LOG.error("模型服务激活失败: {}", e.getMessage());
         }
     }
 
@@ -197,7 +198,8 @@ public class ModelService {
             clientServiceService.openService(
                     modelId,
                     x.getMemberId(),
-                    x.getPublicKey()
+                    x.getPublicKey(),
+                    ServiceTypeEnum.MachineLearning
             );
         } catch (StatusCodeWithException e) {
             LOG.error("开通模型服务失败：{}", e.getMessage());

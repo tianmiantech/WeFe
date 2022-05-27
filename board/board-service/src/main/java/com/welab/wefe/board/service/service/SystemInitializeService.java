@@ -33,7 +33,6 @@ import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +86,13 @@ public class SystemInitializeService extends AbstractService {
         }
     }
 
+
+    /**
+     * Synchronize member information to union for the recovery of membership after union data is lost.
+     */
+    public synchronized void syncMemberToServing(String phoneNumber, String password) throws StatusCodeWithException {
+        servingService.refreshMemberInfo(globalConfigService.getMemberInfo(), phoneNumber, password);
+    }
 
     /**
      * Is the system initialized
@@ -184,7 +190,7 @@ public class SystemInitializeService extends AbstractService {
         globalConfigService.setMemberInfo(model);
 
         // Update serving global settings
-        servingService.asynRefreshMemberInfo(model);
+//        servingService.asynRefreshMemberInfo(model);
 
         CacheObjects.refreshMemberInfo();
 
