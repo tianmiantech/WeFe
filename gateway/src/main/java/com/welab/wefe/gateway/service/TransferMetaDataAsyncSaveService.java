@@ -20,21 +20,29 @@ import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.service.fc.FcStorage;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.util.FileUtil;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
+import com.welab.wefe.common.wefe.enums.GatewayActionType;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
+import com.welab.wefe.gateway.api.service.proto.TransferServiceGrpc;
+import com.welab.wefe.gateway.cache.MemberCache;
+import com.welab.wefe.gateway.init.InitStorageManager;
+import com.welab.wefe.gateway.util.GrpcUtil;
 import com.welab.wefe.gateway.util.SerializeUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;
+import io.grpc.ManagedChannel;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author aaron.li
@@ -45,6 +53,8 @@ public class TransferMetaDataAsyncSaveService {
 
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private GlobalConfigService globalConfigService;
 
     /**
      * Save entity data to database
@@ -78,6 +88,7 @@ public class TransferMetaDataAsyncSaveService {
             LOG.info("data is none, session id: {}, dstDbName: {}, dstTableName: {}, data size: {}", sessionId, dstDbName, dstTableName, CollectionUtils.isEmpty(dataList) ? 0 : dataList.size());
             return;
         }
+        checkStorageAndCallback(transferMeta);
 
         // Failed retries count
         int failTryCount = 3;
@@ -144,5 +155,60 @@ public class TransferMetaDataAsyncSaveService {
             processingTransferMetaData.status = TransferMetaDataSink.PROCESS_STATUS_FAIL;
         }
         FileUtil.deleteFileOrDir(processingTransferMetaData.serializePath);
+    }
+
+    private void checkStorageAndCallback(GatewayMetaProto.TransferMeta transferMeta) {
+        if (0 != transferMeta.getSequenceNo()) {
+            return;
+        }
+
+        String storageType = TransferMetaUtil.getStorageType(transferMeta);
+        String errorMsg = "";
+        if ("clickhouse".equalsIgnoreCase(storageType)) {
+            if (!InitStorageManager.PERSISTENT_INIT.get()) {
+                errorMsg = "Clickhouse未初始化完成";
+            }
+        } else if ("ots".equalsIgnoreCase(storageType) || "oss".equalsIgnoreCase(storageType)) {
+            if (!InitStorageManager.FC_INIT.get()) {
+                errorMsg = "FC未初始化完成";
+            }
+        }
+        if (StringUtil.isEmpty(errorMsg)) {
+            return;
+        }
+        ManagedChannel channel = null;
+        try {
+            String dstMemberId = transferMeta.getSrc().getMemberId();
+            String dstMemberName = MemberCache.getInstance().get(dstMemberId).getName();
+            GatewayMetaProto.Member dstMember = GatewayMetaProto.Member.newBuilder().setMemberId(dstMemberId)
+                    .setMemberName(dstMemberName).build();
+
+            GatewayMetaProto.Content content = GatewayMetaProto.Content.newBuilder()
+                    .setObjectData(errorMsg)
+                    .build();
+            GatewayMetaProto.TransferMeta callbackTransferMeta = GatewayMetaProto.TransferMeta.newBuilder()
+                    .setDst(dstMember)
+                    .setContent(content)
+                    .setAction(GatewayActionType.none.name())
+                    .setSessionId(UUID.randomUUID().toString().replaceAll("-", ""))
+                    .setProcessor(GatewayProcessorType.remoteCallbackProcessor.name())
+                    .build();
+
+            String uri = globalConfigService.getGatewayConfig().intranetBaseUri;
+            channel = GrpcUtil.getManagedChannel(uri.split(":")[0], NumberUtils.toInt(uri.split(":")[1]));
+            TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(channel);
+            BasicMetaProto.ReturnStatus result = clientStub.send(callbackTransferMeta);
+            LOG.info("Check storage and Callback response: " + result.getMessage());
+        } catch (Exception e) {
+            LOG.error("Check storage exception: ", e);
+        } finally {
+            if (null != channel) {
+                try {
+                    channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
