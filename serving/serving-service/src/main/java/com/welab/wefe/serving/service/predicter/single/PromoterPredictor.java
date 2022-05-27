@@ -101,7 +101,7 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
         }
 
         JSONObject body = new JSONObject();
-        body.put("memberId", Config.MEMBER_ID);
+        body.put("customerId", Config.MEMBER_ID);
         body.put("sign", sign);
         body.put("data", data);
 
@@ -200,7 +200,6 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
      * Get partner information
      */
     private List<ProviderParams> findProviders() {
-//        ModelMemberService modelMemberService = Launcher.CONTEXT.getBean(ModelMemberService.class);
         ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
         return clientServiceService.queryActivateListByServiceId(modelId)
                 .stream()
