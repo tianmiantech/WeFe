@@ -100,7 +100,6 @@ public class ClientServiceService {
                 }
                 model.setClientName(partnerMysqlModel.getName());
             } else {// 激活
-                model.setUnitPrice(0.0);
                 model.setIpAdd("-");
                 model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);

@@ -169,7 +169,7 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
     }
 
     private Integer extractCode(HttpResponse response) {
-        if (response == null || response.getBodyAsJson() == null) {
+        if (!response.success()) {
             return StatusCode.SYSTEM_ERROR.getCode();
         }
         JSONObject json = response.getBodyAsJson();
