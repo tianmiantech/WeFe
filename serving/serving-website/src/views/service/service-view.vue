@@ -6,6 +6,7 @@
         <el-form
             :model="form"
             :rules="rules"
+            class="form-box"
         >
             <div style="display: flex; margin-bottom: -10px;">
                 <el-form-item
@@ -88,7 +89,7 @@
 
             <template v-if="form.service_type">
                 <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
-                    <el-divider />
+                    <el-divider/>
                     <p class="mb10">服务配置：</p>
                     <el-form-item
                         v-for="(item, index) in service_config"
@@ -123,8 +124,9 @@
                         </el-button>
                     </el-form-item>
                 </template>
-                <template v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8">
-                    <el-divider />
+                <template
+                    v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8">
+                    <el-divider/>
                     <p class="mb10">查询参数配置：</p>
                     <el-form-item
                         v-for="(item, index) in form.paramsArr"
@@ -164,8 +166,9 @@
                     </el-form-item>
                 </template>
 
-                <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8">
-                    <el-divider />
+                <template
+                    v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8">
+                    <el-divider/>
                     <p class="mb10">SQL 配置：</p>
                     <el-form-item label="数据源:">
                         <el-select
@@ -324,7 +327,7 @@
                                 Or
                             </el-radio>
                         </el-form-item>
-                        <el-divider />
+                        <el-divider/>
                         <div
                             v-if="form.service_type !== 3"
                             class="mt5 mb20"
@@ -340,10 +343,10 @@
                     </template>
                 </template>
                 <template v-if="form.service_type === 7 || form.service_type === 8">
-                    <el-divider />
-                    <el-form-item
-                        label="选择文件："
-                        required
+
+                    <el-form-item v-if="!form.model_data.model_id"
+                                  label="选择文件："
+                                  required
                     >
                         <uploader
                             ref="uploaderRef"
@@ -354,7 +357,7 @@
                             @file-removed="fileRemoved"
                             @file-added="fileAdded"
                         >
-                            <uploader-unsupport />
+                            <uploader-unsupport/>
                             <uploader-drop v-if="file_upload_options.files.length === 0">
                                 <p class="mb10">将文件（.txt/.zip）拖到此处</p>或
                                 <uploader-btn
@@ -364,9 +367,269 @@
                                     点击上传
                                 </uploader-btn>
                             </uploader-drop>
-                            <uploader-list :file-list="file_upload_options.files.length" />
+                            <uploader-list :file-list="file_upload_options.files.length"/>
                         </uploader>
                     </el-form-item>
+
+                    <el-divider/>
+                    <p class="mb10">模型概览：</p>
+                    <el-form-item
+                        class="service-list"
+                    >
+                        <p><strong>Id: </strong> {{ form.model_data.model_id }}</p>
+                        <p><strong>算法: </strong> {{ form.model_data.model_algorithm }}</p>
+                        <p><strong>训练类型: </strong> {{ form.model_data.model_fl_type }}</p>
+                        <p><strong>我的角色: </strong>
+                            <el-tag v-for="each in form.model_data.model_roles"
+                                    :key="each"
+                            >{{ each }}
+                            </el-tag>
+                        </p>
+                        <p><strong>模型结构: </strong>
+                            <el-button size="mini"
+                                       round
+                                       @click="show_model_overview"
+                            >
+                                展示
+                            </el-button>
+                        </p>
+                    </el-form-item>
+
+                    <p class="mb10">合作方模型状态：
+                        <el-button
+                            size="medium"
+                            icon="el-icon-refresh"
+                            type="text"
+                            :loading="checkLoading"
+                            @click="refreshPartnerStatus"></el-button>
+                    </p>
+                    <el-form-item
+                        class="service-list"
+                        style="width: 60%"
+                    >
+                        <el-table
+                            :loading="partnerTableLoading"
+                            :data="partnerData"
+                            style="width: 100%">
+                            <el-table-column
+                                :min-width="150"
+                                label="合作者ID"
+                                prop="member_id">
+                            </el-table-column>
+                            <el-table-column
+                                :min-width="60"
+                                label="合作者名称"
+                                prop="member_name">
+                            </el-table-column>
+                            <el-table-column
+                                label="URL"
+                                :min-width="100"
+                            >
+                                <template slot-scope="scope">
+                                    {{ scope.row.url }}
+                                    <el-popover
+                                        v-if="scope.row.status === 'online'"
+                                        placement="top-start"
+                                        width="100"
+                                        trigger="hover"
+                                        content="合作者已联通">
+                                        <el-button slot="reference"
+                                                   type="text"
+                                                   icon="el-icon-check"></el-button>
+                                    </el-popover>
+                                    <el-popover
+                                        v-if="scope.row.status === 'offline'"
+                                        placement="top-start"
+                                        title="警告"
+                                        width="200"
+                                        trigger="hover"
+                                        content="该合作者模型失联">
+                                        <el-button slot="reference" type="text" icon="el-icon-warning"></el-button>
+                                    </el-popover>
+
+
+                                </template>
+
+                            </el-table-column>
+                            <el-table-column
+                                label="操作"
+                                align="right">
+                                <template slot-scope="scope">
+                                    <el-button
+                                        size="mini"
+                                        icon="el-icon-refresh"
+                                        type="text"
+                                        :loading="checkLoading"
+                                        @click="refreshPartnerStatus( scope.row.member_id)"></el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-form-item>
+
+
+                    <el-dialog title="模型结构"
+                               :visible.sync="model_show_flag"
+                               :destroy-on-close="true"
+                               :width="'70%'"
+                    >
+                        <div
+                            v-if="form.model_data.model_algorithm === 'XGBoost'"
+                            id="canvas"
+                            ref="canvas"
+                            class="mb20"
+                            style="background: #f9f9f9;"
+                        />
+                    </el-dialog>
+
+                    <p class="mb10">特征配置：</p>
+
+                    <el-form-item>
+                        <el-tabs type="border-card">
+                            <el-tab-pane label="代码配置">
+                                <el-row :span="24">
+                                    <el-col :span="2">
+                                        <p class="mb10"><strong>处理器：</strong></p>
+                                    </el-col>
+                                    <el-col :span="6" style="margin-right: 10px;">
+                                        <el-input :disabled="true" v-model="form.processor"></el-input>
+                                        <p></p>
+                                    </el-col>
+
+                                </el-row>
+                                <el-row :span="24">
+                                    <el-col :span="2">
+                                        <p class="mb10"><strong>样本ID：</strong></p>
+                                    </el-col>
+                                    <el-col :span="6" style="margin-right: 10px;">
+                                        <el-input v-model="form.model_data.model_sql_config.pk" type="text"></el-input>
+                                    </el-col>
+                                    <el-col :span="8">
+                                        <el-button type="primary"
+                                                   :disabled="form.model_data.model_sql_config.pk === ''"
+                                                   @click="testModel('api')"
+                                                   style="margin-right: 10px;"
+                                        >
+                                            可用性校验
+                                        </el-button>
+                                        <el-tooltip>
+                                            <div slot="content">输入样本ID后才可进行预测</div>
+                                            <i class="el-icon-info"/>
+                                        </el-tooltip>
+                                    </el-col>
+
+                                </el-row>
+                            </el-tab-pane>
+
+                            <el-tab-pane label="SQL配置">
+                                <el-form-item
+                                    label="数据源："
+                                    :rules="[{required: true, message: '数据源必填!'}]"
+                                >
+                                    <el-select
+                                        v-model="form.model_data.model_sql_config.data_source_id"
+                                        placeholder="请选择数据源"
+                                        clearable
+                                    >
+                                        <el-option
+                                            v-for="(item) in dataBaseOptions"
+                                            :key="item.value"
+                                            :value="item.value"
+                                            :label="item.label"
+                                        />
+                                    </el-select>
+                                </el-form-item>
+
+                                <el-form-item
+                                    label="SQL："
+                                    :rules="[{required: true, message: 'SQL必填!'}]"
+                                >
+                                    <el-input
+                                        v-model="form.model_data.model_sql_config.sql_context"
+                                        type="textarea"
+                                        placeholder="如：select x0,x1,x2 form table where user_id = ?"
+                                        clearable
+                                        rows="4"
+                                    />
+                                </el-form-item>
+
+                                <el-form-item label="主键字段：">
+                                    <el-input
+                                        v-model="form.model_data.model_sql_config.pk"
+                                        type="text"
+                                        placeholder="例如：id"
+                                        class="user-tips"
+                                        clearable
+                                    />
+
+                                </el-form-item>
+
+                                <el-form-item label="用户标识：">
+                                    <el-input
+                                        v-model="form.model_data.model_sql_config.pk"
+                                        placeholder="如：15555555555"
+                                        clearable
+                                        class="user-tips"
+                                    />
+                                    <el-button
+                                        :disabled="form.model_data.model_sql_config.pk === ''"
+                                        type="primary"
+                                        @click="testModel('sql')"
+                                        style="margin-right: 10px;"
+                                    >
+                                        可用性校验
+                                    </el-button>
+                                    <el-tooltip>
+                                        <div slot="content">输入用户标识后才可进行预测</div>
+                                        <i class="el-icon-info"/>
+                                    </el-tooltip>
+                                </el-form-item>
+
+                                <el-row :span="24">
+                                    <el-col :span="12">
+
+                                    </el-col>
+                                    <el-col :span="6">
+
+
+                                    </el-col>
+                                </el-row>
+
+                            </el-tab-pane>
+
+                        </el-tabs>
+
+                    </el-form-item>
+
+
+                    <el-card class="model-test-result-card" v-if="predictResult !== ''">
+                        <p class="mb10">结果：</p>
+                        <p>
+                            {{
+                                predictResult.length > 150 ? predictResult.substring(0, 151) + '...' : predictResult
+                            }}</p>
+                        <br/>
+                        <el-button
+                            v-if="predictResult.length > 150"
+                            type="text"
+                            @click="showRequest(predictResult)"
+                        >
+                            查看更多
+                        </el-button>
+
+                        <el-dialog
+                            :title="title"
+                            :visible.sync="requestDataDialog"
+                        >
+                            <JsonViewer
+                                :value="jsonData"
+                                :expand-depth="5"
+                                copyable
+                            />
+                        </el-dialog>
+
+                    </el-card>
+
+
                 </template>
             </template>
             <el-button
@@ -379,7 +642,7 @@
             </el-button>
 
             <div class="api-preview">
-                <el-divider />
+                <el-divider/>
                 <p class="color-danger mb20 f16">API 预览:</p>
                 <el-form-item
                     v-if="api.params"
@@ -426,7 +689,7 @@
                     :label="`${item.label}:`"
                     required
                 >
-                    <el-input v-model="item.value" />
+                    <el-input v-model="item.value"/>
                 </el-form-item>
                 <p class="mb10">返回字段 :</p>
                 <el-form-item
@@ -524,9 +787,10 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import {mapGetters} from 'vuex';
 import ServiceConfigs from './service_config';
 import DataSourceEditor from '../data_source/data-source-edit';
+import {Grid, Minimap, Tooltip, TreeGraph} from "@antv/g6";
 
 export default {
     components: {
@@ -535,20 +799,47 @@ export default {
     },
     data() {
         return {
+            dataBaseOptions: [],
+            predictResult: '{\n' +
+                '  "featureData": {\n' +
+                '    "x": 1\n' +
+                '  },\n' +
+                '  "seqNo": "2022031712375334784734",\n' +
+                '  "modelId": "0527f9011007422b847d205d6aeb85d6_VertSecureBoost_16294251366419513",\n' +
+                '  "userId": "1",\n' +
+                '  "memberId": "d0f47307804844898ecfc65b875abe87"\n' +
+                '}',
+            requestDataDialog: false,
+            jsonData: '',
+            title: '',
+            sqlPredictResult: {
+                data: '',
+                algorithm: '',
+                my_role: '',
+                type: '',
+            },
             loading: false,
-            form:    {
-                name:         '',
+            service_overview: {},
+            fileStatusText: {
+                success: '成功',
+                error: '错误',
+                uploading: '上传中',
+                paused: '已暂停',
+                waiting: '等待中',
+            },
+            form: {
+                name: '',
                 filename: '',
-                url:          '',
+                url: '',
                 service_type: '',
-                operator:     'sum',
-                data_source:  {
-                    id:               '',
-                    table:            '',
-                    return_fields:    [],
+                operator: 'sum',
+                data_source: {
+                    id: '',
+                    table: '',
+                    return_fields: [],
                     condition_fields: [
                         {
-                            condition:      '=',
+                            condition: '=',
                             field_on_param: '',
                             field_on_table: '',
                         },
@@ -557,26 +848,46 @@ export default {
                 paramsArr: [{
                     label: '',
                     value: '',
-                    desc:  '',
+                    desc: '',
                 }],
                 key_calc_rules: [],
-                stringResult:   '',
+                stringResult: '',
+                model_data: {
+                    model_id: '',
+                    model_param: '',
+                    model_sql_config: {
+                        feature_source: '',
+                        data_source_id: '',
+                        sql_context: '',
+                        model_id: '',
+                        pk: '',
+                    },
+                    model_member_status: [],
+                    model_overview: '',
+                    // 可能自己跟自己建模
+                    model_roles: [],
+                    model_algorithm: '',
+                    model_fl_type: '',
+                },
+                processor: '',
             },
+            partnerData: [],
+            partnerTableLoading: false,
             file_upload_options: {
-                files:               [],
-                target:              window.api.baseUrl + '/file/upload',
-                singleFile:          true,
+                files: [],
+                target: window.api.baseUrl + '/file/upload',
+                singleFile: true,
                 // chunks check
-                testChunks:          true,
-                chunkSize:           8 * 1024 * 1024,
+                testChunks: true,
+                chunkSize: 8 * 1024 * 1024,
                 simultaneousUploads: 4,
-                headers:             {
+                headers: {
                     token: '',
                 },
                 query: {
                     fileType: 'MachineLearningModelFile',
                 },
-                parseTimeRemaining (timeRemaining, parsedTimeRemaining) {
+                parseTimeRemaining(timeRemaining, parsedTimeRemaining) {
                     return parsedTimeRemaining
                         .replace(/\syears?/, '年')
                         .replace(/\days?/, '天')
@@ -586,46 +897,46 @@ export default {
                 },
             },
             keyMaps: {
-                visible:        false,
-                encrypts:       ['md5', 'sha256'],
+                visible: false,
+                encrypts: ['md5', 'sha256'],
                 key_calc_rules: [],
-                stringResult:   '',
+                stringResult: '',
             },
             api: {
-                id:     '',
+                id: '',
                 params: '',
                 method: '',
-                url:    '',
+                url: '',
             },
             rules: {
-                name:         [{ required: true, message: '服务名称必填!' }],
-                url:          [{ required: true, message: '服务地址必填!' }],
-                service_type: [{ required: true, message: '服务类型必选!' }],
+                name: [{required: true, message: '服务名称必填!'}],
+                url: [{required: true, message: '服务地址必填!'}],
+                service_type: [{required: true, message: '服务类型必选!'}],
             },
-            serviceId:       '',
+            serviceId: '',
             serviceTypeList: [
                 {
-                    name:  '两方匿踪查询',
+                    name: '两方匿踪查询',
                     value: 1,
                 },
                 {
-                    name:  '两方交集查询',
+                    name: '两方交集查询',
                     value: 2,
                 },
                 {
-                    name:  '多方安全统计(被查询方)',
+                    name: '多方安全统计(被查询方)',
                     value: 3,
                 },
                 {
-                    name:  '多方安全统计(查询方)',
+                    name: '多方安全统计(查询方)',
                     value: 4,
                 },
                 {
-                    name:  '多方交集查询',
+                    name: '多方交集查询',
                     value: 5,
                 },
                 {
-                    name:  '多方匿踪查询',
+                    name: '多方匿踪查询',
                     value: 6,
                 },
                 {
@@ -637,19 +948,22 @@ export default {
                     value: 8,
                 }
             ],
-            data_sources:   [],
-            data_tables:    [],
-            data_fields:    [],
+            data_sources: [],
+            data_tables: [],
+            data_fields: [],
             service_config: [],
-            sql_test:       {
-                visible:       false,
-                params:        [],
-                params_json:   {},
+            sql_test: {
+                visible: false,
+                params: [],
+                params_json: {},
                 return_fields: [],
             },
-            sqlOperator:     'and',
+            sqlOperator: 'and',
             show_sql_result: '',
-            currentDesc:     '',
+            currentDesc: '',
+            model_show_flag: false,
+            graphData: {},
+            checkLoading: false,
         };
     },
     computed: {
@@ -662,7 +976,7 @@ export default {
     },
     created() {
         this.serviceId = this.$route.query.id;
-
+        this.getDataSource();
         this.getDataResources();
 
         if (this.serviceId) {
@@ -670,6 +984,165 @@ export default {
         }
     },
     methods: {
+
+        showRequest(data) {
+            this.requestDataDialog = true;
+            this.title = '请求体';
+            setTimeout(() => {
+                this.jsonData = JSON.parse(data);
+            });
+        },
+
+        async testModel(feature_source) {
+
+            if (feature_source === 'sql') {
+                const {code, data} = await this.$http.post({
+                    url: 'predict/debug',
+                    data: {
+                        model_id: this.form.model_data.model_sql_config.model_id,
+                        user_id: this.form.model_data.model_sql_config.pk,
+                        feature_source: feature_source,
+                        params: this.form.model_data.model_sql_config,
+                        my_role: this.form.model_data.model_roles,
+                        feature_data: this.form
+                    },
+                });
+
+                if (code === 0) {
+                    this.sqlPredictResult = data;
+                }
+            }
+
+        },
+
+        async getDataSource() {
+            const {code, data} = await this.$http.get({
+                url: '/data_source/query',
+                params: {
+                    id: '',
+                    name: '',
+                    page_index: '',
+                    page_size: ''
+                },
+            });
+
+            if (code === 0) {
+                const data_list = data.list
+                for (let i = 0; i < data_list.length; i++) {
+                    this.dataBaseOptions.push({
+                        label: data_list[i].name,
+                        value: data_list[i].id
+                    })
+                }
+            }
+        },
+
+        async refreshPartnerStatus(partner_id) {
+            this.checkLoading = true
+            const {code, data} = await this.$http.get({
+                url: '/model/status/check',
+                // timeout: 1000 * 60 * 2,
+                params: {
+                    member_id: partner_id,
+                    model_id: this.form.model_data.model_id,
+                },
+            });
+            if (code === 0) {
+                this.partnerData = data
+                // console.log(data)
+            }
+            this.checkLoading = false
+        },
+
+
+        show_model_overview() {
+            this.model_show_flag = true
+            // let that = this;
+            setTimeout(() => {
+                this.createGraph(this.graphData);
+            }, 200)
+
+        },
+
+        createGraph(data) {
+            const canvas = this.$refs['canvas'];
+            const grid = new Grid();
+            const minimap = new Minimap();
+            const tooltip = new Tooltip({
+                getContent(e) {
+                    const {data} = e.item.getModel();
+
+                    if (data) {
+                        if (data.leaf === true) {
+                            return `                                <div>weight: ${data.weight}</div>`;
+                        } else if (data.feature) {
+                            return `<div>${data.feature} <= ${data.threshold}</div>`;
+                        } else {
+                            return `<div>${data.sitename}</div>`;
+                        }
+                    } else {
+                        return '';
+                    }
+                },
+                itemTypes: ['node'],
+            });
+            const treeGraph = new TreeGraph({
+                container: 'canvas',
+                width: canvas.offsetWidth,
+                height: 420,
+                modes: {
+                    default: [{
+                        type: 'collapse-expand',
+                        onChange(item, collapsed) {
+                            const data = item.get('model');
+
+                            data.collapsed = collapsed;
+                            return true;
+                        },
+                    },
+                        'drag-canvas',
+                        'zoom-canvas'],
+                },
+                defaultEdge: {
+                    type: 'cubic-vertical',
+                },
+                layout: {
+                    type: 'dendrogram',
+                    direction: 'TB', // H / V / LR / RL / TB / BT
+                    nodeSep: 40,
+                    rankSep: 100,
+                },
+                plugins: [grid, tooltip, minimap],
+            });
+
+            // treeGraph.clear();
+            treeGraph.node(node => {
+                let position = 'right';
+
+                let rotate = 0;
+
+                if (!node.children) {
+                    position = 'bottom';
+                    rotate = Math.PI / 2;
+                }
+
+                return {
+                    label: node.id,
+                    labelCfg: {
+                        position,
+                        offset: 5,
+                        style: {
+                            rotate,
+                            textAlign: 'start',
+                        },
+                    },
+                };
+            });
+
+            treeGraph.read(data);
+            treeGraph.fitView();
+        },
+
         fileAdded(file) {
             this.file_upload_options.files = [file];
         },
@@ -679,13 +1152,13 @@ export default {
         async fileUploadComplete(e) {
             this.loading = true;
 
-            const { code, data } = await this.$http.get({
-                url:     '/file/merge',
+            const {code, data} = await this.$http.get({
+                url: '/file/merge',
                 timeout: 1000 * 60 * 2,
-                params:  {
-                    filename:         e.file.name,
+                params: {
+                    filename: e.file.name,
                     uniqueIdentifier: e.uniqueIdentifier,
-                    fileType:         this.form.service_type === 8? 'MachineLearningModelFile' : 'DeepLearningModelFile',
+                    fileType: this.form.service_type === 8 ? 'MachineLearningModelFile' : 'DeepLearningModelFile',
                 },
             });
 
@@ -709,9 +1182,9 @@ export default {
             this.currentDesc = descList[this.form.service_type - 1];
         },
         async getSqlConfigDetail() {
-            const { code, data } = await this.$http.post({
-                url:  '/service/detail',
-                data: { id: this.serviceId },
+            const {code, data} = await this.$http.post({
+                url: '/service/detail',
+                data: {id: this.serviceId},
             });
 
             if (code === 0) {
@@ -727,13 +1200,40 @@ export default {
                     this.form.name = data.name;
                     this.form.url = data.url;
                     this.form.service_type = type;
+                    this.form.processor = data.processor
+
+                    if (data.model_id) {
+                        this.form.model_data.model_sql_config.model_id = data.model_id
+                        this.form.model_data.model_id = data.model_id
+                        this.form.model_data.model_overview = data.xgboost_tree
+                        this.form.model_data.model_member_status = data.model_status
+                        if (data.model_sql_config) {
+                            this.form.model_data.model_sql_config = data.model_sql_config
+                        }
+                        this.form.model_data.model_roles = data.my_role
+                        this.form.model_data.model_param = data.model_param
+                        this.form.model_data.model_algorithm = data.algorithm
+                        this.form.model_data.model_fl_type = data.fl_type
+                    }
+
+                    if (data.algorithm === 'XGBoost') {
+                        if (data.xgboost_tree && data.xgboost_tree.length) {
+                            this.$nextTick(() => {
+                                this.graphData = {
+                                    id: 'root',
+                                    label: 'XGBoost',
+                                    children: data.xgboost_tree,
+                                }
+                            });
+                        }
+                    }
 
                     if (params) {
                         this.form.paramsArr = params.map(x => {
                             return {
                                 label: x.name ? x.name : x,
                                 value: x.name ? x.name : x,
-                                desc:  x.desc ? x.desc : '',
+                                desc: x.desc ? x.desc : '',
                             };
                         });
                     }
@@ -778,13 +1278,18 @@ export default {
                         this.service_config = service_config.map(x => {
                             return {
                                 ...x,
-                                supplier_id:   x.member_id,
+                                supplier_id: x.member_id,
                                 supplier_name: x.member_name,
-                                params:        x.params ? x.params.split(',') : [],
+                                params: x.params ? x.params.split(',') : [],
                             };
                         });
                     }
-                    if(this.show_sql_result === '' && (this.form.service_type === 1 || this.form.service_type === 3)){
+
+                    if (data.model_status) {
+                        this.partnerData = data.model_status
+                    }
+
+                    if (this.show_sql_result === '' && (this.form.service_type === 1 || this.form.service_type === 3)) {
                         await this.sqlShow();
                     }
                     this.api = preview || {};
@@ -797,11 +1302,10 @@ export default {
             if (this.form.service_type <= 3) {
                 this.getDataResources();
             }
-            if(this.form.service_type === 7 || this.form.service_type === 8){
+            if (this.form.service_type === 7 || this.form.service_type === 8) {
                 this.form.url = 'predict/promoter';
-                this.file_upload_options.query.fileType = this.form.service_type === 8? 'MachineLearningModelFile' : 'DeepLearningModelFile';
-            }
-            else{
+                this.file_upload_options.query.fileType = this.form.service_type === 8 ? 'MachineLearningModelFile' : 'DeepLearningModelFile';
+            } else {
                 this.form.url = '';
             }
         },
@@ -809,11 +1313,11 @@ export default {
             this.form.paramsArr.push({
                 label: '',
                 value: '',
-                desc:  '',
+                desc: '',
             });
         },
         paramsValidate(index) {
-            const { value } = this.form.paramsArr[index];
+            const {value} = this.form.paramsArr[index];
 
             if (!value) return;
             for (const i in this.form.paramsArr) {
@@ -829,7 +1333,7 @@ export default {
             this.$refs['DataSourceEditor'].show();
         },
         async getDataResources() {
-            const { code, data } = await this.$http.post({
+            const {code, data} = await this.$http.post({
                 url: '/data_source/query',
             });
 
@@ -852,8 +1356,8 @@ export default {
             this.getDataTable();
         },
         async getDataTable() {
-            const { code, data } = await this.$http.post({
-                url:  '/data_source/query_tables',
+            const {code, data} = await this.$http.post({
+                url: '/data_source/query_tables',
                 data: {
                     id: this.form.data_source.id,
                 },
@@ -867,9 +1371,9 @@ export default {
             this.getTablesFields();
         },
         async getTablesFields() {
-            const { code, data } = await this.$http.post({
-                url:  '/data_source/query_table_fields',
-                data: { id: this.form.data_source.id, table_name: this.form.data_source.table },
+            const {code, data} = await this.$http.post({
+                url: '/data_source/query_table_fields',
+                data: {id: this.form.data_source.id, table_name: this.form.data_source.table},
             });
 
             if (code === 0) {
@@ -883,7 +1387,7 @@ export default {
             this.form.data_source.condition_fields.push({
                 field_on_param: '',
                 field_on_table: '',
-                condition:      '=',
+                condition: '=',
             });
         },
         addService() {
@@ -898,27 +1402,27 @@ export default {
                 this.service_config.push(...rows);
             }
         },
-        async sqlShow(){
-            const { data_source: obj } = this.form;
+        async sqlShow() {
+            const {data_source: obj} = this.form;
             const $params = {
                 data_source: {
-                    id:    obj.id,
+                    id: obj.id,
                     table: obj.table,
                 },
             };
 
-            if(this.form.service_type === 1){
+            if (this.form.service_type === 1) {
                 $params.data_source.return_fields = obj.return_fields.map(x => {
                     return {
-                        name:  x,
+                        name: x,
                         value: '',
                     };
                 });
             }
-            if(this.form.service_type === 3 && obj.return_fields.length){
+            if (this.form.service_type === 3 && obj.return_fields.length) {
                 obj.return_fields.forEach(x => {
-                    $params.data_source.return_fields.push( {
-                        name:  x,
+                    $params.data_source.return_fields.push({
+                        name: x,
                         value: '',
                     });
                 });
@@ -927,10 +1431,10 @@ export default {
                 x.operator = this.sqlOperator;
                 return x;
             });
-            const { code, data } = await this.$http.post({
-                url:     '/service/show_sql',
+            const {code, data} = await this.$http.post({
+                url: '/service/show_sql',
                 timeout: 1000 * 60 * 24 * 30,
-                data:    $params,
+                data: $params,
             });
 
             if (code === 0 && data) {
@@ -946,7 +1450,7 @@ export default {
                 }
             }
 
-            const { data_source: obj } = this.form;
+            const {data_source: obj} = this.form;
 
             this.sql_test.params = [];
             for (const i in obj.condition_fields) {
@@ -977,7 +1481,7 @@ export default {
                 service_type: type,
                 data_source: obj,
             } = this.form;
-            const { params } = this.sql_test;
+            const {params} = this.sql_test;
 
             for (let i = 0; i < params.length; i++) {
                 paramsJson[params[i].label] = params[i].value;
@@ -985,7 +1489,7 @@ export default {
 
             const $params = {
                 data_source: {
-                    id:    obj.id,
+                    id: obj.id,
                     table: obj.table,
                 },
             };
@@ -1010,10 +1514,10 @@ export default {
                 });
             }
 
-            const { code, data } = await this.$http.post({
-                url:      '/service/sql_test',
-                timeout:  1000 * 60 * 24 * 30,
-                data:     $params,
+            const {code, data} = await this.$http.post({
+                url: '/service/sql_test',
+                timeout: 1000 * 60 * 24 * 30,
+                data: $params,
                 btnState: {
                     target: event,
                 },
@@ -1032,7 +1536,7 @@ export default {
             if (array.length === 0) {
                 this.keyMaps.key_calc_rules.push({
                     operator: '',
-                    field:    [],
+                    field: [],
                 });
             } else {
                 this.keyMaps.key_calc_rules = [...array];
@@ -1052,7 +1556,7 @@ export default {
             this.keyMaps.stringResult = '';
             this.keyMaps.visible = false;
         },
-        calcKeyMaps(event, opt = { action: '' }) {
+        calcKeyMaps(event, opt = {action: ''}) {
             const array = this.keyMaps.key_calc_rules;
 
             this.keyMaps.stringResult = '';
@@ -1075,27 +1579,54 @@ export default {
             return true;
         },
         async save(event) {
-            if(this.form.service_type < 7){
+            if (this.form.service_type < 7) {
                 await this.saveService(event);
-            }
-            else{
-                if(this.form.service_type === 7 && !this.form.filename.endsWith(".zip")){
-                    this.$message.error('深度学习只能传zip格式文件');
-                    return;
+            } else {
+                if (this.serviceId) {
+                    if (this.form.service_type === 7) {
+                        await this.saveModelConfig();
+                    }
+
+                } else {
+                    if (this.form.service_type === 7 && !this.form.filename.endsWith(".zip")) {
+                        this.$message.error('深度学习只能传zip格式文件');
+                        return;
+                    } else if (this.form.service_type === 8 && !this.form.filename.endsWith(".txt")) {
+                        this.$message.error('机器学习只能传txt格式文件');
+                        return;
+                    }
+                    // this.form.model_data.model_sql_config = this.model_sql_config
+                    await this.saveModel(event)
                 }
-                else if(this.form.service_type === 8 && !this.form.filename.endsWith(".txt")){
-                    this.$message.error('机器学习只能传txt格式文件');
-                    return;
-                }
-                await this.saveModel(event)
             }
+
         },
-        async saveModel(event){
-            const { code, data } = await this.$http.post({
-                url:  '/model/import',
+
+        async saveModelConfig() {
+            const {code, data, message} = await this.$http.post({
+                url: 'model/update_sql_config',
                 data: {
-                    name:       this.form.name,
-                    filename:   this.form.filename,
+                    feature_source: 'sql',
+                    sql_context: this.form.model_data.model_sql_config.sql_context,
+                    data_source_id: this.form.model_data.model_sql_config.data_source_id,
+                    model_id: this.form.model_data.model_sql_config.model_id,
+                }
+            });
+
+            if (code === 0) {
+                this.$message.success('模型配置保存成功!');
+            } else {
+                this.$message.error('模型配置保存失败: ' + message);
+            }
+
+        },
+
+        async saveModel(event) {
+            const {code, data} = await this.$http.post({
+                url: '/model/import',
+                data: {
+                    name: this.form.name,
+                    filename: this.form.filename,
                     model_type: this.form.service_type === 8 ? 'MachineLearning' : 'DeepLearning',
                 },
                 btnState: {
@@ -1106,23 +1637,23 @@ export default {
             if (code === 0) {
                 this.$message.success('模型导入成功!');
                 this.$router.push({
-                    name:  'service-view',
-                    query: { id: data.id },
+                    name: 'service-view',
+                    query: {id: data.id},
                 });
                 this.$router.go(0);
             }
         },
-        async saveService(event){
+        async saveService(event) {
             if (!this.form.name || !this.form.url || !this.form.service_type) {
                 this.$message.error('请将必填项填写完整！');
                 return;
             }
 
-            const { data_source: obj, operator } = this.form;
+            const {data_source: obj, operator} = this.form;
             const type = this.form.service_type;
             const $params = {
-                name:         this.form.name,
-                url:          this.form.url,
+                name: this.form.name,
+                url: this.form.url,
                 service_type: type,
             };
 
@@ -1133,8 +1664,8 @@ export default {
             if (type === 2) {
                 if (!this.calcKeyMaps()) return;
                 $params.data_source = {
-                    id:             obj.id,
-                    table:          obj.table,
+                    id: obj.id,
+                    table: obj.table,
                     key_calc_rules: this.form.key_calc_rules.map(x => {
                         return {
                             ...x,
@@ -1166,14 +1697,14 @@ export default {
                 if (type === 4 || type === 5 || type === 6) {
                     $params.service_config = this.service_config.map(x => {
                         return {
-                            id:            x.id,
-                            name:          x.name,
-                            member_id:     x.supplier_id,
-                            member_name:   x.supplier_name,
-                            url:           x.base_url + x.api_name,
-                            base_url:      x.base_url,
-                            api_name:      x.api_name,
-                            params:        x.params ? x.params.join(',') : '',
+                            id: x.id,
+                            name: x.name,
+                            member_id: x.supplier_id,
+                            member_name: x.supplier_name,
+                            url: x.base_url + x.api_name,
+                            base_url: x.base_url,
+                            api_name: x.api_name,
+                            params: x.params ? x.params.join(',') : '',
                             key_calc_rule: x.key_calc_rule,
                         };
                     });
@@ -1211,8 +1742,8 @@ export default {
                     }
 
                     $params.data_source = {
-                        id:               obj.id,
-                        table:            obj.table,
+                        id: obj.id,
+                        table: obj.table,
                         condition_fields: obj.condition_fields.map(x => {
                             x.operator = this.sqlOperator;
                             return x;
@@ -1222,10 +1753,10 @@ export default {
                 }
             }
 
-            const { code, data } = await this.$http.post({
-                url:      this.serviceId ? '/service/update' : '/service/add',
-                timeout:  1000 * 60 * 24 * 30,
-                data:     $params,
+            const {code, data} = await this.$http.post({
+                url: this.serviceId ? '/service/update' : '/service/add',
+                timeout: 1000 * 60 * 24 * 30,
+                data: $params,
                 btnState: {
                     target: event,
                 },
@@ -1276,12 +1807,16 @@ export default {
         background: #fff;
     }
 }
-.no-arrow{
-    ::v-deep .el-input__inner{
+
+.no-arrow {
+    ::v-deep .el-input__inner {
         padding: 0;
         text-align: center;
     }
-    ::v-deep .el-input__suffix{display: none;}
+
+    ::v-deep .el-input__suffix {
+        display: none;
+    }
 }
 
 .flex-form {
@@ -1308,5 +1843,21 @@ export default {
     .el-form-item {
         margin-bottom: 5px;
     }
+}
+
+.form-box {
+    .el-textarea {
+        width: 70%;
+    }
+
+    .user-tips {
+        width: 30%;
+        margin-right: 10px;
+    }
+}
+
+.model-test-result-card {
+    width: 620px;
+    height: 145px;
 }
 </style>
