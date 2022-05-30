@@ -254,7 +254,7 @@
                                 :rules="[{required: true, message: '数据源必填!'}]"
                             >
                                 <el-select
-                                    v-model="model_sql_config.type"
+                                    v-model="model_sql_config.data_source_id"
                                     placeholder="请选择数据源"
                                     clearable
                                 >
@@ -335,7 +335,7 @@
             class="save-btn"
             type="primary"
             size="medium"
-            :disabled="form.feature_source==='sql' && (!model_sql_config.type || !model_sql_config.url || !model_sql_config.sql_context)"
+            :disabled="form.feature_source==='sql' && (!model_sql_config.sql_context)"
             @click="saveConfig"
         >
             保存
@@ -377,12 +377,11 @@
                 },
 
                 model_sql_config: {
-                    type:        '',
-                    url:         '',
-                    username:    '',
-                    password:    '',
+                    feature_source: '',
+                    data_source_id: '',
                     sql_context: '',
-                    user_id:     '',
+                    model_id:     '',
+                    user_id: '',
                 },
 
                 featureNameFidMapping: {},
@@ -421,7 +420,7 @@
         },
         created () {
             this.getData();
-
+            this.getDataSource();
             const my_role = localStorage.getItem('my_role');
 
             this.my_role = my_role;
@@ -584,11 +583,8 @@
                     data: {
                         model_id:       this.form.model_id,
                         feature_source: this.form.feature_source,
-                        type:           this.model_sql_config.type,
-                        url:            this.model_sql_config.url,
-                        username:       this.model_sql_config.username,
-                        password:       this.model_sql_config.password,
                         sql_context:    this.model_sql_config.sql_context,
+                        data_source_id: this.model_sql_config.data_source_id,
                     },
                 });
 
