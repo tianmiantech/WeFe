@@ -261,6 +261,7 @@
                             mix_feature_names,
                             corr_feature_names,
                             remote_features_names,
+                            num_local_features,
                         } = data[0].result.statistics_pearson.data.corr.value;
 
                         if(props.myRole === 'promoter') {
@@ -355,7 +356,7 @@
                             features.forEach((item, index) => {
                                 if(index < vData.feature_column_count) {
                                     vData.localConfig.xAxis.push(item);
-                                    vData.localConfig.yAxis.push(item);
+                                    vData.localConfig.yAxis.unshift(item);
                                 }
                             });
                             vData.localConfig.series = [];
@@ -363,13 +364,13 @@
                                 if(rowIndex < vData.feature_column_count) {
                                     rows.forEach((row, index) => {
                                         if(index < vData.feature_column_count) {
-                                            vData.localConfig.series.push([rowIndex, vData.feature_column_count - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                            vData.localConfig.series.push([rowIndex, vData.localConfig.yAxis.length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.localConfig.featureColumnCount = vData.localConfig.xAxis.length;
+                            vData.localConfig.featureColumnCount = num_local_features;
                             vData.localConfig.width = vData.localConfig.xAxis.length * (vData.localConfig.xAxis.length > 10 ? 60: 100);
                             vData.localConfig.height = vData.localConfig.yAxis.length * 34 + (vData.localConfig.yAxis.length > 10 ? 50 : 100);
 
@@ -418,13 +419,13 @@
                                 if(rowIndex < vData.feature_column_count) {
                                     rows.forEach((row, index) => {
                                         if(index < vData.feature_column_count) {
-                                            vData.providerConfig.series.push([rowIndex, vData.feature_column_count - index - 1, row.toFixed(4)]);
+                                            vData.providerConfig.series.push([rowIndex, vData.providerConfig.yAxis.length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.providerConfig.featureColumnCount = vData.providerConfig.xAxis.length + vData.providerConfig.yAxis.length;
+                            vData.providerConfig.featureColumnCount = vData.feature_column_count;
                             vData.providerConfig.width = vData.providerConfig.xAxis.length * (vData.providerConfig.xAxis.length > 10 ? 60 : 100);
                             vData.providerConfig.height = vData.providerConfig.yAxis.length * 34 + (vData.providerConfig.yAxis.length > 10 ? 50: 100);
 
@@ -531,9 +532,9 @@
                     chartData.featureColumnCount = 0;
 
                     if(role === 'provider') {
-                        chartData.xAxis.push(...list[1].$checkedColumnsArr);
+                        chartData.xAxis.unshift(...list[1].$checkedColumnsArr);
                         list[0].$checkedColumnsArr.forEach(name => {
-                            chartData.yAxis.unshift(name);
+                            chartData.yAxis.push(name);
                         });
                         chartData.featureColumnCount += list[0].$checkedColumnsArr.length + list[1].$checkedColumnsArr.length;
 
@@ -541,9 +542,8 @@
                         const { length } = chartData.yAxis;
 
                         chartData.series = [];
-                        chartData.xAxis.forEach(($row, rowIndex) => {
-
-                            chartData.yAxis.forEach((column, columnIndex) => {
+                        chartData.yAxis.forEach(($row, rowIndex) => {
+                            chartData.xAxis.forEach((column, columnIndex) => {
                                 const row = chartData.mixCorr[$row][column];
 
                                 chartData.series.push([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
@@ -571,11 +571,10 @@
 
                         chartData.series = [];
                         chartData.xAxis.forEach(($row, rowIndex) => {
-
-                            chartData.yAxis.forEach((column, columnIndex) => {
+                            chartData.xAxis.forEach((column, columnIndex) => {
                                 const row = chartData.mixCorr[$row][column];
 
-                                chartData.series.push([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                chartData.series.unshift([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                             });
                         });
                     }
