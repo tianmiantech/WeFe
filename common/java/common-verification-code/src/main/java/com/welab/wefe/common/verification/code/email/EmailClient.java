@@ -50,7 +50,7 @@ public class EmailClient extends AbstractClient {
     public AbstractResponse send(String mobile, String verificationCode) throws Exception {
         JObject extendParams = JObject.create(getExtendParams());
         JavaMailSender javaMailSender = new JavaMailSender(extendParams.getString(MAIL_HOST),
-                extendParams.getInteger(extendParams.getString(MAIL_PORT)),
+                extendParams.getInteger(MAIL_PORT),
                 extendParams.getString(MAIL_USERNAME), extendParams.getString(MAIL_PASSWORD));
         EmailSendResult emailSendResult = new EmailSendResult();
         emailSendResult.setMessage("发送成功");
