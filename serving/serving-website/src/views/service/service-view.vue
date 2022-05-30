@@ -19,6 +19,7 @@
                         size="medium"
                         clearable
                         @change="serviceTypeChange"
+                        :disabled="serviceId !== null"
                     >
                         <el-option
                             v-for="item in serviceTypeList"
