@@ -75,12 +75,6 @@ public class Config extends CommonConfig {
     @Value("${email.account.forget.password.content:您正在执行忘记密码操作。您的验证码是#code#，2分钟内有效，请勿泄漏于他人!}")
     private String emailAccountForgetPasswordContent;
 
-    @Value("${sm4.secret.key:}")
-    private String sm4SecretKey;
-
-    @Value("${encrypt.phone.number.open:false}")
-    private boolean encryptPhoneNumberOpen;
-
     // region getter/setter
 
     public String getVerificationCodeSendChannel() {
@@ -145,22 +139,6 @@ public class Config extends CommonConfig {
 
     public void setFcAccessKeySecret(String fcAccessKeySecret) {
         this.fcAccessKeySecret = fcAccessKeySecret;
-    }
-
-    public String getSm4SecretKey() {
-        return sm4SecretKey;
-    }
-
-    public void setSm4SecretKey(String sm4SecretKey) {
-        this.sm4SecretKey = sm4SecretKey;
-    }
-
-    public boolean isEncryptPhoneNumberOpen() {
-        return encryptPhoneNumberOpen;
-    }
-
-    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
-        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
     }
 
     // endregion

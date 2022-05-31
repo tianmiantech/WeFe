@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
@@ -35,7 +36,9 @@ public class GlobalConfigMysqlModelListener {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
             if (ConfigGroupConstant.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
-                model.setValue(BoardSM4Util.encryptCommonText(model.getValue()));
+                if (StringUtil.isNotEmpty(model.getValue()) && !BoardSM4Util.isEncryptText(model.getValue())) {
+                    model.setValue(BoardSM4Util.encryptCommonText(model.getValue()));
+                }
             }
         }
     }
@@ -57,7 +60,7 @@ public class GlobalConfigMysqlModelListener {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
             if (ConfigGroupConstant.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
-                if (BoardSM4Util.isEncryptText(model.getValue())) {
+                if (StringUtil.isNotEmpty(model.getValue()) && BoardSM4Util.isEncryptText(model.getValue())) {
                     model.setValue(BoardSM4Util.decryptCommonText(model.getValue()));
                 }
             }
