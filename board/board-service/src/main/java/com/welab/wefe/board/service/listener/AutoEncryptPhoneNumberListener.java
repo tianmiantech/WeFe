@@ -17,15 +17,14 @@
 package com.welab.wefe.board.service.listener;
 
 import com.welab.wefe.board.service.constant.Config;
+import com.welab.wefe.board.service.dto.globalconfig.PrivacyConfigModel;
 import com.welab.wefe.board.service.service.EncryptPhoneNumberService;
-import com.welab.wefe.common.util.CommentedProperties;
-import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,33 +35,33 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
     private static final Logger LOG = LoggerFactory.getLogger(AutoEncryptPhoneNumberListener.class);
 
     @Autowired
-    private ConfigurableEnvironment configurableEnvironment;
-    @Autowired
     private EncryptPhoneNumberService encryptPhoneNumberService;
 
     @Autowired
     private Config config;
 
+    @Autowired
+    private GlobalConfigService globalConfigService;
+
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
-        String configPath = configurableEnvironment.getProperty("config.path");
-        if (StringUtil.isEmpty(configPath) || !config.isEncryptPhoneNumberOpen()) {
+        if (!config.isDatabaseEncryptEnable()) {
             return;
         }
-        String key = "has.auto.encrypt.phone.number";
+
         try {
-            CommentedProperties properties = new CommentedProperties();
-            properties.load(configPath);
-            if (properties.containsKey(key)) {
+            PrivacyConfigModel config = globalConfigService.getModel(PrivacyConfigModel.class);
+            if (config.databaseEncryptCompleted) {
                 return;
             }
-            LOG.info("Start auto encrypt phone number........");
+            LOG.info("Start auto encrypt database phone number........");
             encryptPhoneNumberService.encrypt();
-            properties.append(key, "true", "Whether the mobile phone number has been automatically encrypted. The presence of this field indicates that it has been encrypted");
-            properties.store(configPath);
-            LOG.info("End auto encrypt phone number!!!");
+            config.databaseEncryptCompleted = true;
+            globalConfigService.put(config);
+
+            LOG.info("End auto encrypt database phone number!!!");
         } catch (Exception e) {
-            LOG.error("Auto encrypt phone number exception: ", e);
+            LOG.error("Auto encrypt database phone number exception: ", e);
         }
     }
 }
