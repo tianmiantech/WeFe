@@ -158,7 +158,7 @@ class FixedPointTensor(TensorBase):
                                   communicator=spdz.communicator, name=target_name)
 
         x_add_a = (self + a).reconstruct(f"{target_name}_confuse_x")
-        y_add_b = (self + b).reconstruct(f"{target_name}_confuse_y")
+        y_add_b = (other + b).reconstruct(f"{target_name}_confuse_y")
         cross = c - table_dot_mod(a, y_add_b, self.q_field) - table_dot_mod(x_add_a, b, self.q_field)
         if spdz.party_idx == 0:
             cross += table_dot_mod(x_add_a, y_add_b, self.q_field)
@@ -216,17 +216,15 @@ class FixedPointTensor(TensorBase):
             encoder = kwargs['encoder']
         else:
             base = kwargs['base'] if 'base' in kwargs else 10
-            frac = kwargs['frac'] if 'frac' in kwargs else 6
-            q_field = kwargs['q_field'] if 'q_field' in kwargs else spdz.q_field
-            encoder = FixedPointEndec(field=q_field, base=base, precision_fractional=frac)
-        max_rand = kwargs['max_rand'] if 'max_rand' in kwargs else q_field
+            frac = kwargs['frac'] if 'frac' in kwargs else 4
+            encoder = FixedPointEndec(n=q_field, field=q_field, base=base, precision_fractional=frac)
         if is_table(source):
             source = encoder.encode(source)
-            _pre = urand_tensor(max_rand, source, use_mix=spdz.use_mix_rand)
+            _pre = urand_tensor(q_field, source, use_mix=spdz.use_mix_rand)
             LOGGER.info(f"send_share:{_pre.count()},source:{source.count()}")
             spdz.communicator.remote_share(share=_pre, tensor_name=tensor_name, party=spdz.other_parties[0])
             for _party in spdz.other_parties[1:]:
-                r = urand_tensor(max_rand, source, use_mix=spdz.use_mix_rand)
+                r = urand_tensor(q_field, source, use_mix=spdz.use_mix_rand)
                 spdz.communicator.remote_share(share=_table_binary_mod_op(r, _pre, q_field, operator.sub),
                                                tensor_name=tensor_name, party=_party)
                 _pre = r
@@ -252,11 +250,11 @@ class FixedPointTensor(TensorBase):
 
         # remote share to other parties
         if broadcast:
-            spdz.communicator.broadcast_rescontruct_share(share_val, name)
+            spdz.communicator.broadcast_reconstruct_share(share_val, name)
 
         # get shares from other parties
-        for other_share in spdz.communicator.get_rescontruct_shares(name):
-            share_val = _table_binary_op(share_val, other_share, self.q_field, operator.add)
+        for other_share in spdz.communicator.get_reconstruct_shares(name):
+            share_val = _table_binary_mod_op(share_val, other_share, self.q_field, operator.add)
 
         return share_val
 
@@ -268,7 +266,7 @@ class FixedPointTensor(TensorBase):
         if name is None:
             raise ValueError("name not specified")
         # remote share to other parties
-        spdz.communicator.broadcast_rescontruct_share(share_val, name)
+        spdz.communicator.broadcast_reconstruct_share(share_val, name)
 
         return share_val
 

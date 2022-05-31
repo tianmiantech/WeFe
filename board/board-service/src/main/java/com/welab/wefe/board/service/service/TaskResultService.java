@@ -59,7 +59,6 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -383,7 +382,8 @@ public class TaskResultService extends AbstractService {
         // Find the FeatureStatistic node in the parent node
         FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node,
                 x -> x.getComponentType() == ComponentType.FeatureStatistic
-                        || x.getComponentType() == ComponentType.MixStatistic);
+                        || x.getComponentType() == ComponentType.MixStatistic
+                        || x.getComponentType() == ComponentType.HorzStatistic);
 
         if (featureStatisticNode == null) {
             throw new FlowNodeException(node, "请添加特征统计组件。");
@@ -429,10 +429,21 @@ public class TaskResultService extends AbstractService {
 
                 missingValueMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
             }
-
-            // Get the feature column of the current member
-            List<MemberModel> currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
-                    .collect(Collectors.toList());
+            List<MemberModel> currentMembers = new ArrayList<>();
+            if(featureStatisticNode.getComponentType() == ComponentType.HorzStatistic) {
+                // Get the feature column of the members
+                currentMembers = input.getMembers().stream().collect(Collectors.toList());
+            }
+            else if(featureStatisticNode.getComponentType() == ComponentType.MixStatistic && JobMemberRole.promoter.name().equalsIgnoreCase(memberObj.getString("role"))) {
+                // Get the feature column of the current member
+                currentMembers = input.getMembers().stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
+                        .collect(Collectors.toList());
+            }
+            else {
+                // Get the feature column of the current member
+                currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
+                        .collect(Collectors.toList());
+            }
 
             // Assign values to features with missing values
             for (MemberModel model : currentMembers) {
