@@ -474,9 +474,6 @@ public class XgboostAlgorithmHelper {
                 for (int j = 0; j < decisionTree.getTree().size(); j++) {
 
                     XgboostNodeModel tree = decisionTree.getTree().get(j);
-                    if (!PROVIDER.equals(getSite(model, i, j))) {
-                        continue;
-                    }
 
                     int fid = tree.getFid();
 
