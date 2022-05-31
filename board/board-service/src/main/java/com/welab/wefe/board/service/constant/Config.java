@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
                 "file:${config.common.path}",
                 "file:${config.member-base.path}"
         },
+        ignoreResourceNotFound = true,
         encoding = "utf-8"
 )
 @ConfigurationProperties
