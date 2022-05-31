@@ -7,7 +7,6 @@
     >
         <span
             v-if="ootModelFlowNodeId"
-            style="margin-top:-10px;"
             class="el-button el-button--text el-button--small mb10"
             @click="methods.checkJobDetail"
         >
