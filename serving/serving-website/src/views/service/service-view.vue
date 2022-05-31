@@ -227,8 +227,8 @@
                     >
                         <el-select
                             v-model="form.data_source.return_fields"
-                            :placeholder="form.service_type === 3 ? '' : '支持多选'"
-                            :multiple="form.service_type !== 3"
+                            :placeholder="form.service_type !== 1 ? '单选' : '支持多选'"
+                            :multiple="form.service_type === 1"
                             value-key="value"
                             clearable
                             @change="sqlShow"
@@ -312,6 +312,7 @@
                         >
                             添加查询字段
                         </el-button>
+                        <span style="font-size:12px;padding-left: 5px">{{ show_sql_result }}</span>
                         <el-form-item label="参数逻辑符:">
                             <el-radio
                                 v-model="sqlOperator"
@@ -339,7 +340,6 @@
                             >
                                 SQL测试
                             </el-button>
-                            <span style="font-size:12px;padding-left: 5px">{{ show_sql_result }}</span>
                         </div>
                     </template>
                 </template>
@@ -1050,7 +1050,6 @@ export default {
             });
             if (code === 0) {
                 this.partnerData = data
-                // console.log(data)
             }
             this.checkLoading = false
         },
@@ -1242,8 +1241,8 @@ export default {
                     if (data_source) {
                         this.form.data_source.id = data.data_source.id;
                         this.form.data_source.table = data.data_source.table;
-                        this.getDataTable();
-                        this.getTablesFields();
+                        await this.getDataTable();
+                        await this.getTablesFields();
 
                         if (type === 2) {
                             const rules = data_source.key_calc_rules;
@@ -1260,11 +1259,7 @@ export default {
                                 });
                             }
                         } else if (type === 1 || type === 3) {
-                            if (type === 1) {
-                                this.form.data_source.return_fields = data_source.return_fields.map(x => x.name);
-                            } else {
-                                this.form.data_source.return_fields = data_source.return_fields.length ? data_source.return_fields[0].name : '';
-                            }
+                            this.form.data_source.return_fields = data_source.return_fields.map(x => x.name);
                             this.form.data_source.condition_fields = data_source.condition_fields.map(x => {
                                 this.sqlOperator = x.operator;
                                 return {
@@ -1274,7 +1269,6 @@ export default {
                             });
                         }
                     }
-
                     if (service_config) {
                         this.service_config = service_config.map(x => {
                             return {
@@ -1352,8 +1346,6 @@ export default {
             this.keyMaps.stringResult = '';
             this.form.key_calc_rules = [];
             this.form.data_source.condition_fields = [];
-            this.form.data_source.return_fields = [];
-            this.form.data_source.table = '';
             this.getDataTable();
         },
         async getDataTable() {
@@ -1409,25 +1401,15 @@ export default {
                 data_source: {
                     id: obj.id,
                     table: obj.table,
+                    return_fields:[],
                 },
             };
-
-            if (this.form.service_type === 1) {
-                $params.data_source.return_fields = obj.return_fields.map(x => {
-                    return {
-                        name: x,
-                        value: '',
-                    };
-                });
-            }
-            if (this.form.service_type === 3 && obj.return_fields.length) {
-                obj.return_fields.forEach(x => {
-                    $params.data_source.return_fields.push({
-                        name: x,
-                        value: '',
-                    });
-                });
-            }
+            $params.data_source.return_fields = obj.return_fields.map(x => {
+                return {
+                    name: x,
+                    value: '',
+                };
+            });
             $params.data_source.condition_fields = obj.condition_fields.map(x => {
                 x.operator = this.sqlOperator;
                 return x;
@@ -1437,7 +1419,6 @@ export default {
                 timeout: 1000 * 60 * 24 * 30,
                 data: $params,
             });
-
             if (code === 0 && data) {
                 this.show_sql_result = '预览:' + data.result['sql'];
             }
