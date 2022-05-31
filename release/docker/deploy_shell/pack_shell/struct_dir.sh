@@ -31,6 +31,7 @@ echo 'UPDATE MOUNT FILE'
 
 # SQL 文件
 cp -f $MYSQL_FILE_LASTED $MYSQL_MOUNT_FILE
+cp -f $WORKSPACE/deploy_package_resource/wefe_board.sql $MYSQL_MOUNT_FILE
 # board index.html 文件
 # cp -f $INDEX_FILE_LASTED_BOARD $INDEX_MOUNT_FILE_BOARD
 

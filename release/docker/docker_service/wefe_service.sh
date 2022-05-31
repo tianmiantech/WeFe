@@ -30,13 +30,32 @@ edit_wefe_config(){
     sed -i "/clickhouse.username/s/=.*/=$CLICKHOUSE_USERNAME/g" ./config.properties
     sed -i "/clickhouse.password/s/=.*/=$CLICKHOUSE_PASSWORD/g" ./config.properties
 
+    mysql_ip=$INTRANET_IP
+    mysql_port=$MYSQL_PORT
+    mysql_database=$MYSQL_DATABASE
+    mysql_username=$MYSQL_USERNAME
+    mysql_password=$MYSQL_PASSWORD
+    case $INPUT_SERVICE in
+        fusion)
+            mysql_ip=$MYSQL_PORT_FUSION
+            mysql_database=$MYSQL_DATABASE_FUSION
+            mysql_username=$MYSQL_USERNAME_FUSION
+            mysql_password=$MYSQL_PASSWORD_FUSION
+            ;;
+        serving)
+            mysql_ip=$MYSQL_PORT_SERVING
+            mysql_database=$MYSQL_DATABASE_SERVING
+            mysql_username=$MYSQL_USERNAME_SERVING
+            mysql_password=$MYSQL_PASSWORD_SERVING
+            ;;
+    esac
     # mysql
-    sed -i "/mysql.url/s/:\/\/.*?/:\/\/$INTRANET_IP:$MYSQL_PORT\/$MYSQL_DATABASE?/g" ./config.properties
+    sed -i "/mysql.url/s/:\/\/.*?/:\/\/$INTRANET_IP:$mysql_port\/$mysql_database?/g" ./config.properties
     sed -i "/mysql.host/s/=.*/=$INTRANET_IP/g" ./config.properties
-    sed -i "/mysql.port/s/=.*/=$MYSQL_PORT/g" ./config.properties
-    sed -i "/mysql.database/s/=.*/=$MYSQL_DATABASE/g" ./config.properties
-    sed -i "/mysql.username/s/=.*/=$MYSQL_USERNAME/g" ./config.properties
-    sed -i "/mysql.password/s/=.*/=$MYSQL_PASSWORD/g" ./config.properties
+    sed -i "/mysql.port/s/=.*/=$mysql_port/g" ./config.properties
+    sed -i "/mysql.database/s/=.*/=$mysql_database/g" ./config.properties
+    sed -i "/mysql.username/s/=.*/=$mysql_username/g" ./config.properties
+    sed -i "/mysql.password/s/=.*/=$mysql_password/g" ./config.properties
 
     # ************
     # 计算引擎相关配置
@@ -81,11 +100,18 @@ edit_wefe_config(){
 }
 
 send_wefe_config(){
-    cp -f ./config.properties wefe_board_service/resources/mount/
-    cp -f ./config.properties wefe_gateway_service/resources/mount/
-    cp -f ./config.properties wefe_python_service/resources/mount/
-    cp -f ./config.properties wefe_fusion_service/resources/mount/
-    cp -f ./config.properties wefe_serving_service/resources/mount/
+    case $INPUT_SERVICE in
+        fusion)
+            cp -f ./config.properties wefe_fusion_service/resources/mount/
+            ;;
+        serving)
+            cp -f ./config.properties wefe_serving_service/resources/mount/
+            ;;
+          *)
+            cp -f ./config.properties wefe_board_service/resources/mount/
+            cp -f ./config.properties wefe_gateway_service/resources/mount/
+            cp -f ./config.properties wefe_python_service/resources/mount/
+    esac
 }
 
 init(){
