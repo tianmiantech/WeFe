@@ -252,7 +252,9 @@
                     vData.localFeatureSelectTab = [];
 
                     if(data[0].result) {
-                        // const maxFeatureNum = 20;
+                        const maxFeatureNum = vData.feature_column_count > 30 ? 30 : vData.feature_column_count;
+
+                        console.log(maxFeatureNum);
                         const {
                             corr,
                             features,
@@ -281,23 +283,23 @@
 
                             // promoter x,y
                             mix_feature_names.forEach((item, index) => {
-                                if(index < vData.feature_column_count) {
+                                if(index < maxFeatureNum) {
                                     vData.promoterConfig.xAxis.push(item);
                                     vData.promoterConfig.yAxis.unshift(item);
                                 }
                             });
                             vData.promoterConfig.series = [];
                             mix_corr.forEach((rows, rowIndex) => {
-                                if(rowIndex < vData.feature_column_count) {
+                                if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
-                                        if(index < vData.feature_column_count) {
-                                            vData.promoterConfig.series.push([rowIndex, vData.feature_column_count - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
+                                        if(index < maxFeatureNum) {
+                                            vData.promoterConfig.series.push([rowIndex, maxFeatureNum - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.promoterConfig.featureColumnCount = vData.feature_column_count;
+                            vData.promoterConfig.featureColumnCount = maxFeatureNum;
                             vData.promoterConfig.width = vData.promoterConfig.xAxis.length * (vData.promoterConfig.xAxis.length > 10 ? 60 : 100);
                             vData.promoterConfig.height = vData.promoterConfig.yAxis.length * 34 + (vData.promoterConfig.yAxis.length > 10 ? 50: 100);
 
@@ -306,7 +308,7 @@
                             const array = features.map((feature, index) => {
                                 const key = `promoter_${feature}`;
 
-                                if(index < vData.feature_column_count) {
+                                if(index < maxFeatureNum) {
                                     promoterCheckedFeatures.push(key);
                                 }
                                 return key;
@@ -323,7 +325,7 @@
 
                             if(remote_features_names) {
                                 for(const [index, feature] of remote_features_names.entries()) {
-                                    if(index < (vData.feature_column_count - promoterCheckedFeatures.length)) {
+                                    if(index < (maxFeatureNum - promoterCheckedFeatures.length)) {
                                         providerCheckedFeatures.push(feature);
                                     } else {
                                         break;
@@ -354,16 +356,16 @@
                             // <---
 
                             features.forEach((item, index) => {
-                                if(index < vData.feature_column_count) {
+                                if(index < maxFeatureNum) {
                                     vData.localConfig.xAxis.push(item);
                                     vData.localConfig.yAxis.unshift(item);
                                 }
                             });
                             vData.localConfig.series = [];
                             local_corr.forEach((rows, rowIndex) => {
-                                if(rowIndex < vData.feature_column_count) {
+                                if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
-                                        if(index < vData.feature_column_count) {
+                                        if(index < maxFeatureNum) {
                                             vData.localConfig.series.push([rowIndex, vData.localConfig.yAxis.length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
@@ -376,7 +378,7 @@
 
                             let providerCheckedFeatures = [];
                             const array = features.map((feature, index) => {
-                                if(index < vData.feature_column_count) {
+                                if(index < maxFeatureNum) {
                                     providerCheckedFeatures.push(feature);
                                 }
                                 return feature;
@@ -405,34 +407,34 @@
                             // <---
 
                             corr_feature_names[0].forEach((item, index) => {
-                                if(index < vData.feature_column_count) {
+                                if(index < maxFeatureNum) {
                                     vData.providerConfig.yAxis.push(item);
                                 }
                             });
                             corr_feature_names[1].forEach((item, index) => {
-                                if(index < vData.feature_column_count) {
+                                if(index < maxFeatureNum) {
                                     vData.providerConfig.xAxis.push(item);
                                 }
                             });
                             vData.providerConfig.series = [];
                             corr.forEach((rows, rowIndex) => {
-                                if(rowIndex < vData.feature_column_count) {
+                                if(rowIndex < maxFeatureNum) {
                                     rows.forEach((row, index) => {
-                                        if(index < vData.feature_column_count) {
+                                        if(index < maxFeatureNum) {
                                             vData.providerConfig.series.push([rowIndex, vData.providerConfig.yAxis.length - index - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                                         }
                                     });
                                 }
                             });
 
-                            vData.providerConfig.featureColumnCount = vData.feature_column_count;
+                            vData.providerConfig.featureColumnCount = maxFeatureNum;
                             vData.providerConfig.width = vData.providerConfig.xAxis.length * (vData.providerConfig.xAxis.length > 10 ? 60 : 100);
                             vData.providerConfig.height = vData.providerConfig.yAxis.length * 34 + (vData.providerConfig.yAxis.length > 10 ? 50: 100);
 
                             const promoterCheckedFeatures = [];
 
                             for(const [index, feature] of corr_feature_names[0].entries()) {
-                                if(index < vData.feature_column_count) {
+                                if(index < maxFeatureNum) {
                                     promoterCheckedFeatures.push(feature);
                                 } else {
                                     break;
@@ -451,7 +453,7 @@
                             if(corr_feature_names) {
                                 providerCheckedFeatures = [];
                                 for(const [index, feature] of corr_feature_names[1].entries()) {
-                                    if(index < vData.feature_column_count) {
+                                    if(index < maxFeatureNum) {
                                         providerCheckedFeatures.push(feature);
                                     } else {
                                         break;
