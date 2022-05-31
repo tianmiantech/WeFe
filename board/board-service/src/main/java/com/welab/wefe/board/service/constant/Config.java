@@ -28,9 +28,28 @@ import org.springframework.stereotype.Component;
  * @author lonnie
  */
 @Component
-@PropertySource(value = {"file:${config.path}"}, encoding = "utf-8")
+@PropertySource(
+        value = {
+                "file:${config.common.path}",
+                "file:${config.member-base.path}",
+                "file:${config.encryptor.path:}"
+        },
+        encoding = "utf-8"
+)
 @ConfigurationProperties
 public class Config extends CommonConfig {
+
+
+    @Value("${hello.world:123}")
+    private String test;
+
+    public String getTest() {
+        return test;
+    }
+
+    public void setTest(String test) {
+        this.test = test;
+    }
 
     @Value("${fc.access_key_id:xxx}")
     private String fcAccessKeyId;

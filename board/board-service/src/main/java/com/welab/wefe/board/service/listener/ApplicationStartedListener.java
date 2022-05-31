@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.listener;
 
 import cn.hutool.core.thread.ThreadUtil;
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.chat.MessageQueueMySqlModel;
 import com.welab.wefe.board.service.database.repository.ChatUnreadMessageRepository;
 import com.welab.wefe.board.service.service.DataSetStorageService;
@@ -42,6 +43,9 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationStartedListener.class);
 
     @Autowired
+    private Config config;
+
+    @Autowired
     MemberChatService memberChatService;
 
     @Autowired
@@ -53,6 +57,8 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
+        System.out.println(config.getTest());
+
         try {
             globalConfigService.init();
 

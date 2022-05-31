@@ -25,6 +25,7 @@ public class ConfigGroupConstant {
     public static final String ALERT_CONFIG = "alert_config";
     public static final String MAIL_SERVER = "mail_server";
     public static final String ALIYUN_SMS_CHANNEL = "aliyun_sms_channel";
+    public static final String PRIVACY_CONFIG = "privacy_config";
 
 
     /****************************** 子系统 *************************************/
