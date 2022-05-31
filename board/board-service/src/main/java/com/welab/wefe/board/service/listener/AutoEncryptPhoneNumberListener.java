@@ -20,14 +20,11 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.dto.globalconfig.PrivacyConfigModel;
 import com.welab.wefe.board.service.service.EncryptPhoneNumberService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.util.CommentedProperties;
-import com.welab.wefe.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,8 +34,6 @@ import org.springframework.stereotype.Component;
 public class AutoEncryptPhoneNumberListener implements ApplicationListener<ApplicationStartedEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(AutoEncryptPhoneNumberListener.class);
 
-    @Autowired
-    private ConfigurableEnvironment configurableEnvironment;
     @Autowired
     private EncryptPhoneNumberService encryptPhoneNumberService;
 
