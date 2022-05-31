@@ -39,8 +39,8 @@ import java.util.function.Function;
 public class FlowGraph extends BaseFlowGraph {
 
 
-    public FlowGraph(JobMySqlModel job, JobMySqlModel lastJob, List<JobMemberMySqlModel> members, List<ProjectFlowNodeMySqlModel> mysqlNodes) throws StatusCodeWithException {
-        super(job, lastJob, members, mysqlNodes);
+    public FlowGraph(JobMySqlModel job, JobMySqlModel lastJob, List<JobMemberMySqlModel> members, List<ProjectFlowNodeMySqlModel> mysqlNodes, String creatorMemberId) throws StatusCodeWithException {
+        super(job, lastJob, members, mysqlNodes, creatorMemberId);
     }
 
     public FlowGraph(FederatedLearningType federatedLearningType, List<ProjectFlowNodeMySqlModel> mysqlNodes) throws StatusCodeWithException {
