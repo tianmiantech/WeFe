@@ -31,8 +31,7 @@ import org.springframework.stereotype.Component;
 @PropertySource(
         value = {
                 "file:${config.common.path}",
-                "file:${config.member-base.path}",
-                "file:${config.encryptor.path:}"
+                "file:${config.member-base.path}"
         },
         encoding = "utf-8"
 )
