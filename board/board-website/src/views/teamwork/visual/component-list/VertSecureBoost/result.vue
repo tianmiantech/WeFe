@@ -83,9 +83,14 @@
 
             let methods = {
                 showResult(data) {
+                    vData.loss = {
+                        xAxis:  [],
+                        series: [[]],
+                    };
                     if(data[0].result && data[0].result.model_param) {
                         vData.result = true;
-                        const { losses, isConverged } = data[0].result.model_param;
+                        const { isConverged } = data[0].result.model_param;
+                        const losses = data[0].result.train_loss.data;
 
                         losses.forEach((item, index) => {
                             vData.loss.xAxis.push(index);
