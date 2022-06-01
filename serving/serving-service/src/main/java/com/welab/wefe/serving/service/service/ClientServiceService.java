@@ -202,13 +202,11 @@ public class ClientServiceService {
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
-            model.setStatus(input.getStatus());
             model.setUpdatedBy(input.getUpdatedBy());
             model.setUpdatedTime(new Date());
             model.setUnitPrice(input.getUnitPrice());
             model.setPayType(input.getPayType());
             model.setIpAdd(input.getIpAdd());
-            model.setPublicKey(input.getPublicKey());
             // 客户相关信息
             PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
                     PartnerMysqlModel.class);
@@ -216,25 +214,28 @@ public class ClientServiceService {
             ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
                     ServiceMySqlModel.class);
 
+            // 开通
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
                 model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
                         ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
                         : (partnerMysqlModel.getServingBaseUrl() + "/"))
                         : "") + "api/" + serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
-            } else {
+                if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
+                    model.setPublicKey(input.getPublicKey());
+                }
+            } else { // 激活
                 model.setServiceName(input.getServiceName());
                 model.setClientName(input.getClientName());
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
                 model.setUrl(input.getUrl());
-                model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
-                if (StringUtils.isBlank(input.getPrivateKey()) || !input.getPrivateKey().contains("******")) {
+                if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
-                } else if (input.getPrivateKey().contains("******")) {
+                } else if (input.getPublicKey().contains("******")) {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
                 }

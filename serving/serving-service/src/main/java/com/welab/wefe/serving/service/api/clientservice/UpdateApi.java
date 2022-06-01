@@ -54,9 +54,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         @Check(name = "合作者名称")
         private String clientName;
 
-        @Check(name = "use status")
-        private int status;
-
         @Check(name = "pay type")
         private int payType;
 
@@ -111,14 +108,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         public void setClientId(String clientId) {
             this.clientId = clientId;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
         }
 
         public int getPayType() {
