@@ -29,7 +29,6 @@
 from common.python.utils import log_utils
 from kernel.components.feature.onehot.onehot import OneHotEncoder
 from kernel.components.feature.onehot.vertonehot.param import OneHotEncoderParam
-from kernel.utils import abnormal_detection
 
 LOGGER = log_utils.get_logger()
 

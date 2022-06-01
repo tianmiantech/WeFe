@@ -30,7 +30,7 @@
                             placeholder="0.1"
                         />
                     </el-form-item>
-                    <el-form-item v-if="vData.form.other_param.work_mode !== 'layered'" label="最大树数量">
+                    <el-form-item label="最大树数量">
                         <el-input
                             v-model="vData.form.other_param.num_trees"
                             placeholder="num_trees"
@@ -40,6 +40,7 @@
                         <el-input
                             v-model.trim="vData.form.tree_param.max_depth"
                             placeholder="5"
+                            :disabled="vData.form.other_param.work_mode === 'layered'"
                         />
                     </el-form-item>
                     <el-form-item label="特征随机采样比率">
@@ -149,10 +150,10 @@
                     </el-form-item>
                     <template v-if="vData.form.other_param.work_mode === 'layered'">
                         <el-form-item label="promoter深度">
-                            <el-input v-model="vData.promoter_depth" />
+                            <el-input v-model="vData.promoter_depth" @change="methods.depthChange" />
                         </el-form-item>
                         <el-form-item label="provider深度">
-                            <el-input v-model="vData.provider_depth" />
+                            <el-input v-model="vData.provider_depth" @change="methods.depthChange" />
                         </el-form-item>
                     </template>
                 </el-collapse-item>
@@ -161,6 +162,7 @@
                         <el-input
                             v-model="vData.form.tree_param.criterion_params"
                             placeholder="支持 0.1,0.2 区间范围"
+                            @input="methods.replaceComma"
                         />
                     </el-form-item>
                     <el-form-item label="分裂一个内部节点(非叶子节点)需要的最小样本">
@@ -381,6 +383,15 @@
             });
 
             let methods = {
+                replaceComma(val) {
+                    if (val.indexOf('，') !== -1) {
+                        val = val.replace(/，/ig, ',');
+                    }
+                    vData.form.tree_param.criterion_params = val;
+                },
+                depthChange() {
+                    vData.form.tree_param.max_depth =  Number(vData.promoter_depth) + Number(vData.provider_depth);
+                },
                 formatter(params) {
                     vData.form = params;
                     vData.tree_num_per_member = params.other_param.tree_num_per_member || 1;
@@ -404,7 +415,12 @@
                     });
 
                     if (code === 0 && data && data.params && data.params.tree_param.criterion_params) {
-                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params;
+                        vData.form.cv_param = data.params.cv_param;
+                        vData.form.encrypt_param = data.params.encrypt_param;
+                        vData.form.objective_param = data.params.objective_param;
+                        vData.form.other_param = data.params.other_param;
+                        vData.form.tree_param = data.params.tree_param;
+                        vData.form.tree_param.criterion_params = data.params.tree_param.criterion_params.join(',');
                     }
                 },
                 async getNodeData() {
@@ -436,8 +452,7 @@
                             params,
                         },
                     } = vData.form;
-
-                    if(criterion_params.toString().includes(',')) {
+                    if(String(criterion_params).includes(',')) {
                         $params.tree_param.criterion_params = criterion_params.split(',').map(str => +str);
                     } else {
                         $params.tree_param.criterion_params = [+criterion_params];

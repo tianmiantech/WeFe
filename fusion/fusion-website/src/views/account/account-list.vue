@@ -71,6 +71,7 @@
             :data="list"
             stripe
             border
+            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
         >
             <template #empty>
                 <TableEmptyData />
@@ -135,6 +136,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="userInfo.admin_role"
                 label="已注销"
                 align="center"
                 width="70"
@@ -161,6 +163,7 @@
                 </template>
             </el-table-column>
             <el-table-column
+                v-if="userInfo.admin_role"
                 min-width="340"
                 label="操作"
             >
@@ -225,6 +228,7 @@
         <div
             v-if="pagination.total"
             class="mt20 text-r"
+            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
         >
             <el-pagination
                 :total="pagination.total"

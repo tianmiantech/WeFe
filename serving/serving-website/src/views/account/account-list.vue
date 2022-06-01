@@ -64,6 +64,7 @@
             :data="list"
             stripe
             border
+            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
         >
             <template #empty>
                 <TableEmptyData />
@@ -192,6 +193,7 @@
         <div
             v-if="pagination.total"
             class="mt20 text-r"
+            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
         >
             <el-pagination
                 :total="pagination.total"

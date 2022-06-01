@@ -88,6 +88,9 @@
                     <div v-if="scope.row.fl_type === 'horizontal'">
                         横向
                     </div>
+                    <div v-if="scope.row.fl_type === 'mix'">
+                        混合
+                    </div>
                     <div v-else>
                         纵向
                     </div>

@@ -158,7 +158,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
 
         TableDataSetMysqlModel myDataSet = tableDataSetService.findOneById(myDataSetConfig.dataSetId);
         if (myDataSet == null) {
-            throw new FlowNodeException(node, "找不到自己的数据集。");
+            throw new FlowNodeException(node, "找不到己方数据集，请检查数据集是否已删除。");
         }
 
         JObject output = JObject

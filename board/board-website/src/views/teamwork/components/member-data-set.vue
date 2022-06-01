@@ -182,7 +182,7 @@
                 3. auding is agree
              -->
             <el-button
-                v-if="!form.closed && !member.exited && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
+                v-if="!form.closed && !member.exited && form.is_project_admin && ((member.member_id === userInfo.member_id && member.audit_status === 'agree') || (form.isPromoter && member.audit_status === 'agree'))"
                 type="primary"
                 @click="methods.addDataSet(role, memberIndex, member.member_id, member.$data_set)"
             >
@@ -222,11 +222,6 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column label="数据类型" min-width="100">
-                    <template v-slot="scope">
-                        {{ vData.sourceTypeMap[scope.row.data_resource_type] }}
-                    </template>
-                </el-table-column>
                 <el-table-column label="关键词">
                     <template v-slot="scope">
                         <template v-if="scope.row.data_resource && scope.row.data_resource.tags">
@@ -262,7 +257,7 @@
                     v-if="form.project_type === 'DeepLearning'"
                     label="样本分类"
                     prop="for_job_type"
-                    width="100"
+                    min-width="100"
                 >
                     <template v-slot="scope">
                         <template v-if="scope.row.data_resource">
@@ -273,48 +268,26 @@
 
                 <el-table-column
                     v-if="form.project_type === 'DeepLearning'"
-                    label="数据总量"
-                    width="80"
-                >
-                    <template v-slot="scope">
-                        {{ scope.row.data_resource ? scope.row.data_resource.total_data_count : 0 }}
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    v-if="form.project_type === 'DeepLearning'"
-                    label="已标注"
-                    prop="labeled_count"
-                    width="100"
+                    label="已标注/样本量"
+                    min-width="120"
                 >
                     <template v-slot="scope">
                         <template v-if="scope.row.data_resource">
-                            {{scope.row.data_resource ? scope.row.data_resource.labeled_count   : scope.row.labeled_count}}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    v-if="form.project_type === 'DeepLearning'"
-                    label="标注状态"
-                    prop="label_completed"
-                    width="100"
-                >
-                    <template v-slot="scope">
-                        <template v-if="scope.row.data_resource">
-                            {{scope.row.data_resource.label_completed ? '已完成' : '标注中'}}
+                            {{scope.row.data_resource.labeled_count}}/{{ scope.row.data_resource.total_data_count }}
                         </template>
                     </template>
                 </el-table-column>
 
                 <el-table-column
                     label="使用次数"
-                    width="80"
+                    min-width="90"
                 >
                     <template v-slot="scope">
                         {{ scope.row.data_resource ? scope.row.data_resource.usage_count_in_job : 0 }}
                     </template>
                 </el-table-column>
 
-                <el-table-column v-if="form.project_type === 'MachineLearning'" label="是否包含 Y">
+                <el-table-column v-if="form.project_type === 'MachineLearning'" label="是否包含 Y" min-width="100">
                     <template v-slot="scope">
                         {{ scope.row.data_resource && scope.row.data_resource.contains_y ? '是' : '否' }}
                     </template>
@@ -396,7 +369,7 @@
                             2. member is promoter || member is myself
                          -->
                         <el-button
-                            v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
+                            v-if="(scope.row.data_resource && !scope.row.data_resource.deleted) && form.is_project_admin && (form.isPromoter || scope.row.member_id === userInfo.member_id)"
                             circle
                             type="danger"
                             class="mr10"

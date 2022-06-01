@@ -431,7 +431,7 @@
 
                             if(~datasetIndex) {
                                 const item = dataset_list[datasetIndex];
-                                const column_name_list = item.derived_from ? item.features : item.feature_name_list.split(',');
+                                const column_name_list = item.features ? item.features : item.feature_name_list ? item.feature_name_list.split(',') : [];
 
                                 member.$data_set_list.push({
                                     ...item,
@@ -494,6 +494,8 @@
                 },
 
                 async readData(model) {
+                    vData.promoterList = [];
+                    vData.providerList = [];
                     vData.loading = true;
                     await methods.getNodeData();
                     await methods.getNodeDetail(model);

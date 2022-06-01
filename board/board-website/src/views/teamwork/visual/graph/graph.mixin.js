@@ -349,7 +349,7 @@ export default {
 
                 // Drag release add node
                 graph.instance.on('drop', async ({ originalEvent, x, y }) => {
-                    if (vData.my_role === 'promoter' && vData.is_creator) {
+                    if (vData.my_role === 'promoter' && vData.is_creator && (vData.is_project_admin === '1' || vData.is_project_admin === 'true')) {
                         vData.dragover = false;
 
                         if (originalEvent.dataTransfer) {
@@ -402,10 +402,12 @@ export default {
                             }
                         }
                     } else if (
-                        vData.my_role === 'promoter' &&
+                        vData.my_role === 'promoter' && 
                         !vData.is_creator
                     ) {
                         $message.error('只可以编辑自己创建的流程!');
+                    } else if(vData.is_project_admin !== 'true'){
+                        $message.error('当前流程无编辑权限！');
                     } else {
                         $message.error('协作方不可以编辑流程!');
                     }
@@ -415,7 +417,7 @@ export default {
                 graph.instance.on(
                     'before-edge-add',
                     ({ source, target, sourceAnchor, targetAnchor }) => {
-                        if (vData.my_role === 'promoter' && vData.is_creator) {
+                        if (vData.my_role === 'promoter' && vData.is_creator && (vData.is_project_admin === '1' || vData.is_project_admin === 'true')) {
                             graph.instance.addItem('edge', {
                                 id:     methods.generateNodeId(),
                                 source: source.get('id'),
@@ -432,6 +434,8 @@ export default {
                             !vData.is_creator
                         ) {
                             $message.error('只可以编辑自己创建的流程!');
+                        } else if(vData.is_project_admin !== '1' || vData.is_project_admin !== 'true') {
+                            $message.error('当前流程无编辑权限！');
                         } else {
                             $message.error('协作方不可以编辑流程!');
                         }

@@ -93,7 +93,7 @@ def server_fit(self, data_inst):
 def server_is_converged(self):
     loss = self.loss_scatter.weighted_loss_mean(suffix=_suffix(self))
     LOGGER.info(f"loss at iter {self.aggregate_iteration_num}: {loss}")
-    server_callback_loss(self, self.aggregate_iteration_num, loss)
+    callback_loss(self, self.aggregate_iteration_num, loss)
     if self.loss_consumed:
         is_converged = self.converge_func(loss)
     else:
@@ -105,7 +105,7 @@ def server_is_converged(self):
     return is_converged
 
 
-def server_callback_loss(self, iter_num, loss):
+def callback_loss(self, iter_num, loss):
     metric_meta = {'abscissa_name': 'iters', 'ordinate_name': 'loss', 'metric_type': 'LOSS', 'pair_type': ''}
     self.callback_metric(metric_name='loss',
                          metric_namespace='train',
@@ -241,6 +241,7 @@ def client_is_converged(self, data, epoch_degree):
     metrics = self.nn_model.evaluate(data)
     LOGGER.info(f"metrics at iter {self.aggregate_iteration_num}: {metrics}")
     loss = metrics["loss"]
+    callback_loss(self,self.aggregate_iteration_num, loss)
     self.loss_scatter.send_loss(loss=(loss, epoch_degree), suffix=_suffix(self))
     is_converged = self.has_converged.get_converge_status(suffix=_suffix(self))
     self._summary["is_converged"] = is_converged

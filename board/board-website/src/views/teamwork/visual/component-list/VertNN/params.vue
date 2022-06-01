@@ -309,7 +309,7 @@
                     config:     {
                         units:       1,
                         input_shape: [],
-                        activation:  'relu',
+                        activation:  'sigmoid',
                     },
                 },
             ],

@@ -178,7 +178,7 @@ public class ModelImportService {
         ServingFileUtil.DeepLearningModelFile.renameZipFile(filename, model.getId());
 
         model.setSourcePath(path);
-        model.setFilename("test");
+        model.setFilename(model.getId() + ".zip");
         model.setUseCount(0);
         model.setName(name);
 

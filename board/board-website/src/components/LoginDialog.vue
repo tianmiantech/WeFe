@@ -165,10 +165,44 @@
                         this.refresh();
                         this.$bus.$emit('loginAndRefresh'); // notice other components
                     }
+                    this.checkEnv();
+                    this.getUserList();
                 } else {
                     this.getImgCode();
                 }
                 this.loading = false;
+            },
+            async checkEnv() {
+                const { code, data } = await this.$http.get('/env');
+
+                if (code === 0) {
+                    const is_demo = data.env_properties.is_demo === 'true';
+
+                    this.$store.commit('IS_DEMO', is_demo);
+                } else {
+                    this.$store.commit('IS_DEMO', false);
+                }
+            },
+            async getUserList() {
+                const { code, data } = await this.$http.post({
+                    url:  '/account/query',
+                    data: {
+                        phone_number: '',
+                        nickname:     '',
+                        audit_status: '',
+                        page_index:   '',
+                        page_size:    '',
+                    },
+                });
+
+                if (code === 0 && data) {
+                    let admin_list = [];
+
+                    if (data.list && data.list.length) {
+                        admin_list = data.list.filter(item => item.admin_role);
+                    }
+                    this.$store.commit('ADMIN_USER_LIST', admin_list);
+                }
             },
 
             register() {

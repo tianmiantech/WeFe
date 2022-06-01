@@ -239,3 +239,5 @@ def schedule_logger(job_id=None, delete=False):
 
 def audit_logger():
     return LoggerFactory.get_schedule_logger(log_type='audit')
+
+LOGGER = get_logger()

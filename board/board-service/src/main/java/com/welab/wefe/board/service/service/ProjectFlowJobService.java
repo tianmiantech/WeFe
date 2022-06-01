@@ -113,7 +113,6 @@ public class ProjectFlowJobService extends AbstractService {
         if (flow == null) {
             throw new StatusCodeWithException("未找到相应的流程！", StatusCode.ILLEGAL_REQUEST);
         }
-
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
         if (!input.fromGateway() && (!isCreator(flow, project))) {
@@ -135,6 +134,21 @@ public class ProjectFlowJobService extends AbstractService {
         // save job members
         List<JobMemberMySqlModel> jobMembers = listJobMembers(project.getProjectId(), input.getFlowId(),
                 input.getJobId(), jobArbiterInfo, isOotMode);
+
+        // 横向联邦时，不支持一方同时参与 promoter 和 provider。
+        if (flow.getFederatedLearningType() == FederatedLearningType.horizontal) {
+            if (project.getMyRole() == JobMemberRole.promoter) {
+                boolean inPromoterAndProvider = jobMembers.stream()
+                        .anyMatch(x ->
+                                x.getJobRole() == JobMemberRole.provider
+                                        && x.getMemberId().equals(CacheObjects.getMemberId())
+                        );
+                if (inPromoterAndProvider) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("横向联邦时，您不能同时作为 发起方 和 协作方！");
+                }
+            }
+        }
+
 
         if (!input.fromGateway()) {
             if (jobMembers.stream().noneMatch(x -> CacheObjects.getMemberId().equals(x.getMemberId()))) {
@@ -163,7 +177,7 @@ public class ProjectFlowJobService extends AbstractService {
             JobMySqlModel job = createJob(flow, input.getJobId(), jobMember.getJobRole());
 
             // create Graph
-            FlowGraph graph = new FlowGraph(job, lastJob, jobMembers, projectFlowNodeService.findNodesByFlowId(job.getFlowId()));
+            FlowGraph graph = new FlowGraph(job, lastJob, jobMembers, projectFlowNodeService.findNodesByFlowId(job.getFlowId()), flow.getCreatorMemberId());
 
             // check
             if (jobMember.getJobRole() == JobMemberRole.promoter) {
