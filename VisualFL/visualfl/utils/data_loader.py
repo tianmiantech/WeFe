@@ -33,7 +33,7 @@ from paddle.dataset.image import *
 from paddle.reader import *
 from six.moves import cPickle as pickle
 from visualfl.db.global_config_dao import GlobalConfigDao
-from tools import gen_sign
+from visualfl.utils.tools import gen_sign
 
 from visualfl import get_data_dir
 
