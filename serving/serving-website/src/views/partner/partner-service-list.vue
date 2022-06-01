@@ -137,8 +137,8 @@
                         :content="scope.row.url"
                         placement="left-start"
                     >
-                        <p v-if="scope.row.url.length >= 20">{{ scope.row.url.substring(0, 20) }} ...</p>
-                        <p v-if="scope.row.url.length < 20">{{ scope.row.url }} </p>
+                        <p v-if="scope.row.url && scope.row.url.length >= 20">{{ scope.row.url.substring(0, 20) }} ...</p>
+                        <p v-if="scope.row.url && scope.row.url.length < 20">{{ scope.row.url }} </p>
                     </el-tooltip>
                 </template>
             </el-table-column>
