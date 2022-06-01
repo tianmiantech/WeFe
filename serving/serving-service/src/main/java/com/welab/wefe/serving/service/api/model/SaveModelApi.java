@@ -38,7 +38,7 @@ import java.util.Map;
         path = "model_save",
         name = "保存模型信息",
         login = false,
-        rsaVerify = true,
+        allowAccessWithSign = true,
         domain = Caller.Board
 )
 public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {

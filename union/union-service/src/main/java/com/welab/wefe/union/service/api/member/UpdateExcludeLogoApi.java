@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@Api(path = "member/update_exclude_logo", name = "member_update_exclude_logo", rsaVerify = true, login = false)
+@Api(path = "member/update_exclude_logo", name = "member_update_exclude_logo", allowAccessWithSign = true, login = false)
 public class UpdateExcludeLogoApi extends AbstractApi<UpdateExcludeLogoApi.Input, MemberOutput> {
     @Autowired
     private MemberContractService memberContractService;

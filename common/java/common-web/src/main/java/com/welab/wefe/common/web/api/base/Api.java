@@ -46,14 +46,14 @@ public @interface Api {
     String desc() default "";
 
     /**
-     * Whether to log in
+     * 接口是否要求在登录的情况下访问
      */
     boolean login() default true;
 
     /**
-     * Whether to perform RSA verification
+     * 接口是否允许在签名的情况下访问
      */
-    boolean rsaVerify() default false;
+    boolean allowAccessWithSign() default false;
 
     /**
      * Whether to perform SM2 verification

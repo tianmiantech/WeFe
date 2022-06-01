@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "image_data_set_sample/delete", name = "delete image data set sample", login = false)
+@Api(path = "image_data_set_sample/delete", name = "delete image data set sample")
 public class ImageDataSetSampleDeleteApi extends AbstractNoneOutputApi<ImageDataSetSampleDeleteApi.Input> {
 
     @Autowired

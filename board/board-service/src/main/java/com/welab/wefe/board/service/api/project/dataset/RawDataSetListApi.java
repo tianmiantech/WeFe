@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * @author zane.luo
  */
-@Api(path = "project/raw_data_set/list", name = "Get the list of raw data sets in the project", login = false)
+@Api(path = "project/raw_data_set/list", name = "Get the list of raw data sets in the project")
 public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawDataSetListApi.Output> {
 
     @Autowired

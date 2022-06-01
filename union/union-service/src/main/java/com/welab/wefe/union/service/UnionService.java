@@ -33,7 +33,6 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
-import com.welab.wefe.union.service.cache.MemberActivityCache;
 import com.welab.wefe.union.service.dto.common.SM2SignedApiInput;
 import com.welab.wefe.union.service.operation.UnionApiLogger;
 import com.welab.wefe.union.service.service.MemberContractService;
@@ -51,7 +50,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Calendar;
 
 /**
  * @author Jervis
@@ -84,7 +82,7 @@ public class UnionService implements ApplicationContextAware {
                 .apiLogger(new UnionApiLogger())
                 .apiPackageClass(UnionService.class)
                 .apiPermissionPolicy((api, annotation, params) -> {
-                    if (annotation.rsaVerify()) {
+                    if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);
                     }
                     if (annotation.sm2Verify()) {
