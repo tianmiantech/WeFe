@@ -38,8 +38,7 @@ import java.util.List;
         path = "fusion/psi/crypto",
         name = "psi crypto",
         desc = "psi crypto",
-        login = false,
-        rsaVerify = true
+        allowAccessWithSign = true
 )
 public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
 

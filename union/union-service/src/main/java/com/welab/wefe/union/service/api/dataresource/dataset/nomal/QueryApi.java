@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * @author Jervis
  **/
-@Api(path = "data_set/query", name = "data_set_query", rsaVerify = true, login = false)
+@Api(path = "data_set/query", name = "data_set_query", allowAccessWithSign = true, login = false)
 public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiDataSetQueryOutput>> {
     @Autowired
     protected DataSetMongoReop dataSetMongoReop;
