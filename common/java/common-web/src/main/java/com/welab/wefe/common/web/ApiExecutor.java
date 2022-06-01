@@ -192,7 +192,7 @@ public class ApiExecutor {
 
         // Checking token Validity
         String token = CurrentAccount.token();
-        if (StringUtil.isEmpty(token) || !Launcher.CHECK_SESSION_TOKEN_FUNCTION.check(api, annotation, token)) {
+        if (!Launcher.CHECK_SESSION_TOKEN_FUNCTION.check(api, annotation, token)) {
             throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
         }
     }

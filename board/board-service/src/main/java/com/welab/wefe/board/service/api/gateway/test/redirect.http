@@ -13,3 +13,13 @@ Content-Type: application/json
   "api": "project/data_set/audit",
   "caller_member_id": "682d087e965a4c5d8a2807a772a571c1"
 }
+
+###
+POST http://localhost:8080/board-service/gateway/redirect
+Content-Type: application/json
+
+{
+  "data": "{\"caller_member_role\":\"\",\"data\":{\"member_id\":\"81051c7b7f4f4beaa581ba046f8a6048\"},\"caller_member_name\":\"fat04\",\"api\":\"member/available\",\"caller_member_id\":\"a94d7a71189c44b5a298ad4ed2668f67\"}",
+  "member_id": "81051c7b7f4f4beaa581ba046f8a6048",
+  "sign": "BUwXHp4VjdvF+xMJrZ1MiGqIteDYFOZdTLQnNR4gGWEGq/jjlcEM9OnMzM9JUwcjo7nt80QD8v9oCj6XnpX6060nhJFsyRoZV5+4E9Pfheqfs3cLXi3Mk54VsxoAVrHENRNScOjOJQq8MxWeLUvj4vHtdOQp1PdQmV9F/edJV1jdSGa7saFOGQVCxjNaUI4pbyDKwTgUFrP+8iYtLkFwBxCaOxnqR81xiD0cf4G1UX7mx7nInAs4XZVGHdvs2PWZTAMlLvGsjz2qdPyvsQ1z6+BdL5JJ03m+8DK4qTdAai00JKfcB+2bLxyK+uMdg8vP+BnLQeFV9oqVRvUqX+YOgQ=="
+}
