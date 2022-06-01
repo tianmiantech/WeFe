@@ -207,7 +207,6 @@ public class ClientServiceService {
             model.setUnitPrice(input.getUnitPrice());
             model.setPayType(input.getPayType());
             model.setIpAdd(input.getIpAdd());
-            model.setPublicKey(input.getPublicKey());
             // 客户相关信息
             PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
                     PartnerMysqlModel.class);
@@ -222,6 +221,9 @@ public class ClientServiceService {
                         : (partnerMysqlModel.getServingBaseUrl() + "/"))
                         : "") + "api/" + serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
+                if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
+                    model.setPublicKey(input.getPublicKey());
+                }
             } else { // 激活
                 model.setServiceName(input.getServiceName());
                 model.setClientName(input.getClientName());
@@ -230,10 +232,10 @@ public class ClientServiceService {
                 model.setUrl(input.getUrl());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
-                if (StringUtils.isBlank(input.getPrivateKey()) || !input.getPrivateKey().contains("******")) {
+                if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
-                } else if (input.getPrivateKey().contains("******")) {
+                } else if (input.getPublicKey().contains("******")) {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
                 }

@@ -424,7 +424,7 @@ public class ServiceService {
             return result;
         } finally {
             PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
-            log(service, client, start, clientIp, res.getIntValue("code"));
+            log(service, client, start, clientIp, result.getIntValue("code"));
         }
     }
 
