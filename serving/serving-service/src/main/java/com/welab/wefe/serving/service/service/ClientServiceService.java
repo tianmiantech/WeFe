@@ -202,7 +202,6 @@ public class ClientServiceService {
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
-            model.setStatus(input.getStatus());
             model.setUpdatedBy(input.getUpdatedBy());
             model.setUpdatedTime(new Date());
             model.setUnitPrice(input.getUnitPrice());
@@ -216,19 +215,19 @@ public class ClientServiceService {
             ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
                     ServiceMySqlModel.class);
 
+            // 开通
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
                 model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
                         ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
                         : (partnerMysqlModel.getServingBaseUrl() + "/"))
                         : "") + "api/" + serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
-            } else {
+            } else { // 激活
                 model.setServiceName(input.getServiceName());
                 model.setClientName(input.getClientName());
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
                 model.setUrl(input.getUrl());
-                model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
                 if (StringUtils.isBlank(input.getPrivateKey()) || !input.getPrivateKey().contains("******")) {
