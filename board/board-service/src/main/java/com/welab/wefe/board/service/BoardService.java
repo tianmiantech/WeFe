@@ -139,7 +139,8 @@ public class BoardService implements ApplicationContextAware {
         boolean verified = RSAUtil.verify(
                 signedApiInput.getData().getBytes(StandardCharsets.UTF_8),
                 RSAUtil.getPublicKey(publicKey),
-                signedApiInput.getSign()
+                // 在 get 请求时，即便是对参数做了转义，也不能正确处理+号，加号总是被decode为空格，所以这里将空格还原为加号。
+                signedApiInput.getSign().replace(" ", "+")
         );
         if (!verified) {
             throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);
