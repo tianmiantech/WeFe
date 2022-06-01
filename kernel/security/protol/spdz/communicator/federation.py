@@ -34,7 +34,7 @@ class Communicator(object):
     def __init__(self, local_party=None, all_parties=None):
         self._transfer_variable = SecretShareTransferVariable()
         self._share_variable = self._transfer_variable.share.disable_auto_clean()
-        self._rescontruct_variable = self._transfer_variable.reconstruct.set_preserve_num(3)
+        self._reconstruct_variable = self._transfer_variable.reconstruct.set_preserve_num(3)
         self._mul_triplets_encrypted_variable = self._transfer_variable.multiply_triplets_encrypted.set_preserve_num(3)
         self._mul_triplets_cross_variable = self._transfer_variable.multiply_triplets_cross.set_preserve_num(3)
         self._q_field_variable = self._transfer_variable.q_field.disable_auto_clean()
@@ -68,10 +68,10 @@ class Communicator(object):
         return self._q_field_variable.get_parties(party, suffix=("q_field",))
 
     def get_reconstruct_shares(self, tensor_name):
-        return self._rescontruct_variable.get_parties(self._other_parties, suffix=(tensor_name,))
+        return self._reconstruct_variable.get_parties(self._other_parties, suffix=(tensor_name,))
 
     def broadcast_reconstruct_share(self, share, tensor_name):
-        return self._rescontruct_variable.remote_parties(share, self._other_parties, suffix=(tensor_name,))
+        return self._reconstruct_variable.remote_parties(share, self._other_parties, suffix=(tensor_name,))
 
     def remote_share(self, share, tensor_name, party):
         return self._share_variable.remote_parties(share, party, suffix=(tensor_name,))
@@ -93,9 +93,9 @@ class Communicator(object):
         return self._mul_triplets_cross_variable.get_parties(parties=self._other_parties, suffix=tag)
 
     def clean(self):
-        self._rescontruct_variable.clean()
+        self._reconstruct_variable.clean()
         self._share_variable.clean()
-        self._rescontruct_variable.clean()
+        self._reconstruct_variable.clean()
         self._mul_triplets_encrypted_variable.clean()
         self._mul_triplets_cross_variable.clean()
 
