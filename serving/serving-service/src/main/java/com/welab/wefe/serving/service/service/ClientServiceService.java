@@ -90,15 +90,15 @@ public class ClientServiceService {
                         ServiceMySqlModel.class);
                 if (serviceMySqlModel != null) {
                     model.setServiceType(serviceMySqlModel.getServiceType());
-                    model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
-                            ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
-                            : (partnerMysqlModel.getServingBaseUrl() + "/"))
-                            : "") + "api/" + serviceMySqlModel.getUrl());
+                    model.setUrl("api/" + serviceMySqlModel.getUrl());
                     model.setServiceName(serviceMySqlModel.getName());
                 } else {
                     model.setServiceType(input.getServiceType());
                 }
                 model.setClientName(partnerMysqlModel.getName());
+                if (model.getUnitPrice() < 0) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
+                }
             } else {// 激活
                 model.setIpAdd("-");
                 model.setStatus(ServiceStatusEnum.USED.getCode());
@@ -111,6 +111,7 @@ public class ClientServiceService {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
                 }
+                model.setUrl(input.getUrl());
             }
             // 保存计费规则相关信息
             clientServiceRepository.save(model);
@@ -207,22 +208,18 @@ public class ClientServiceService {
             model.setUnitPrice(input.getUnitPrice());
             model.setPayType(input.getPayType());
             model.setIpAdd(input.getIpAdd());
-            // 客户相关信息
-            PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
-                    PartnerMysqlModel.class);
             // 保存服务类型
             ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
                     ServiceMySqlModel.class);
-
             // 开通
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
-                        ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
-                        : (partnerMysqlModel.getServingBaseUrl() + "/"))
-                        : "") + "api/" + serviceMySqlModel.getUrl());
+                model.setUrl("api/" + serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
                 if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
                     model.setPublicKey(input.getPublicKey());
+                }
+                if (model.getUnitPrice() < 0) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
                 }
             } else { // 激活
                 model.setServiceName(input.getServiceName());

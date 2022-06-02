@@ -81,9 +81,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
-            if (unitPrice < 0) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + unitPrice);
-            }
         }
         
         public String getUpdatedBy() {
