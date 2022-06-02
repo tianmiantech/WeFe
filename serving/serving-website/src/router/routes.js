@@ -85,10 +85,19 @@ const baseRoutes = [
                 path: `${prefixPath}partner-service-list`,
                 name: 'partner-service-list',
                 meta: {
-                    title:           '服务列表',
+                    title:           '开通服务列表',
                     loginAndRefresh: true,
                 },
                 component: () => import('@views/partner/partner-service-list.vue'),
+            },
+            {
+                path: `${prefixPath}activation-service-list`,
+                name: 'activation-service-list',
+                meta: {
+                    title:           '激活服务列表',
+                    loginAndRefresh: true,
+                },
+                component: () => import('@views/partner/activation-service-list.vue'),
             },
             {
                 path: `${prefixPath}partner-service-add`,

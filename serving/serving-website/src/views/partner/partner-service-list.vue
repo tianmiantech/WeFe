@@ -33,20 +33,20 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="类型：">
-                <el-select
-                    v-model="search.type"
-                    placeholder="请选择"
-                    clearable
-                >
-                    <el-option
-                        v-for="item in types"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
-            </el-form-item>
+<!--            <el-form-item label="类型：">-->
+<!--                <el-select-->
+<!--                    v-model="search.type"-->
+<!--                    placeholder="请选择"-->
+<!--                    clearable-->
+<!--                >-->
+<!--                    <el-option-->
+<!--                        v-for="item in types"-->
+<!--                        :key="item.value"-->
+<!--                        :label="item.label"-->
+<!--                        :value="item.value"-->
+<!--                    />-->
+<!--                </el-select>-->
+<!--            </el-form-item>-->
 
             <el-form-item>
                 <el-button
@@ -64,14 +64,14 @@
                     </el-button>
                 </router-link>
 
-                <router-link
-                    class="ml10"
-                    :to="{name: 'activate-service-add'}"
-                >
-                    <el-button>
-                        激活服务
-                    </el-button>
-                </router-link>
+<!--                <router-link-->
+<!--                    class="ml10"-->
+<!--                    :to="{name: 'activate-service-add'}"-->
+<!--                >-->
+<!--                    <el-button>-->
+<!--                        激活服务-->
+<!--                    </el-button>-->
+<!--                </router-link>-->
             </el-form-item>
         </el-form>
 
@@ -244,7 +244,7 @@ export default {
                 clientName: '',
                 status: '',
                 serviceName: '',
-                type:'',
+                type:0,
             },
             options: [{
                 value: '1',
@@ -263,8 +263,8 @@ export default {
                     label:'开通',
                 }
             ],
+            list:[],
             changeStatusType: '',
-            getListApi: '/clientservice/query-list',
         };
     },
 
@@ -272,7 +272,28 @@ export default {
         ...
             mapGetters(['userInfo']),
     },
+    async created() {
+        this.loading= true;
+        await this.getList();
+        this.loading= false;
+    },
     methods: {
+        async getList() {
+            this.loading= true;
+            const {code, data} = await this.$http.post({
+                url: '/clientservice/query-list',
+                data: {
+                    type: 0,
+                    status:this.search.status,
+                    serviceName:this.search.serviceName,
+                    clientName:this.search.clientName,
+                },
+            });
+            if (code === 0) {
+                this.list = data.list;
+            }
+            this.loading= false;
+        },
         open(row, status) {
             if(row.type === 1){
                 return;

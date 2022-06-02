@@ -164,9 +164,9 @@ export default {
 
         this.loading = true;
         if (this.$route.query.clientId && this.$route.query.serviceId) {
-            this.getPartnerById(this.$route.query.clientId)
-            this.getServiceById(this.$route.query.serviceId)
-            this.getClientService(this.$route.query.serviceId, this.$route.query.clientId)
+            await this.getPartnerById(this.$route.query.clientId)
+            await this.getServiceById(this.$route.query.serviceId)
+            await this.getClientService(this.$route.query.serviceId, this.$route.query.clientId)
         }
 
         await this.getServices()
