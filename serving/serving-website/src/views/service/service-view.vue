@@ -440,7 +440,7 @@
                                     <el-popover
                                         v-if="scope.row.status === 'offline'"
                                         placement="top-start"
-                                        title="警告"
+                                        title="⚠️警告"
                                         width="200"
                                         trigger="hover"
                                         content="该合作者模型失联">
