@@ -54,9 +54,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         @Check(name = "合作者名称")
         private String clientName;
 
-        @Check(name = "use status")
-        private int status;
-
         @Check(name = "pay type")
         private int payType;
 
@@ -84,9 +81,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
-            if (unitPrice < 0) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + unitPrice);
-            }
         }
         
         public String getUpdatedBy() {
@@ -111,14 +105,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         public void setClientId(String clientId) {
             this.clientId = clientId;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
         }
 
         public int getPayType() {

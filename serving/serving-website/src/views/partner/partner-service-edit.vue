@@ -35,7 +35,7 @@
                 <el-input v-model="clientService.publicKey"
                           type="textarea"
                           rows="5"
-                          :maxlength="300"
+                          :maxlength="1000"
                           :minlength="0"
                           show-word-limit>
                 </el-input>
@@ -263,7 +263,7 @@ export default {
 
         async getPartnerById(id) {
             const {code, data} = await this.$http.post({
-                url: '/partner/query-one',
+                url: '/partner/detail',
                 data: {
                     id: id,
                 },

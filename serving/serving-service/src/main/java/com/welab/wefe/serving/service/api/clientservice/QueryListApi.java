@@ -111,7 +111,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
 
         private String payType;
 
-        private Double unitPrice;
+        private String unitPrice;
 
         private String createdBy;
 
@@ -217,11 +217,11 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.payType = payType;
         }
 
-        public Double getUnitPrice() {
+        public String getUnitPrice() {
             return unitPrice;
         }
 
-        public void setUnitPrice(Double unitPrice) {
+        public void setUnitPrice(String unitPrice) {
             this.unitPrice = unitPrice;
         }
 

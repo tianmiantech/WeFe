@@ -61,12 +61,15 @@ public abstract class BaseFlowGraph {
      * Nodes that will be executed in the current graph
      */
     protected List<FlowGraphNode> jobSteps = new ArrayList<>();
+    
+    protected String creatorMemberId;
 
-    public BaseFlowGraph(JobMySqlModel job, JobMySqlModel lastJob, List<JobMemberMySqlModel> members, List<ProjectFlowNodeMySqlModel> mysqlNodes) throws StatusCodeWithException {
+    public BaseFlowGraph(JobMySqlModel job, JobMySqlModel lastJob, List<JobMemberMySqlModel> members, List<ProjectFlowNodeMySqlModel> mysqlNodes, String creatorMemberId) throws StatusCodeWithException {
         this(job.getFederatedLearningType(), lastJob, mysqlNodes);
 
         this.job = job;
         this.members = members;
+        this.creatorMemberId = creatorMemberId;
 
     }
 
@@ -383,5 +386,12 @@ public abstract class BaseFlowGraph {
         return federatedLearningType;
     }
 
+    public String getCreatorMemberId() {
+        return creatorMemberId;
+    }
+
+    public void setCreatorMemberId(String creatorMemberId) {
+        this.creatorMemberId = creatorMemberId;
+    }
     //endregion
 }

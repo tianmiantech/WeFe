@@ -33,7 +33,7 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="服务类型：">
+            <el-form-item label="类型：">
                 <el-select
                     v-model="search.type"
                     placeholder="请选择"
@@ -60,7 +60,7 @@
                     :to="{name: 'partner-service-add'}"
                 >
                     <el-button>
-                        添加服务
+                        为合作者开通服务
                     </el-button>
                 </router-link>
 
@@ -91,7 +91,7 @@
             />
             <el-table-column
                 label="合作者名称"
-                width="230"
+                width="220"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
@@ -110,7 +110,7 @@
 
             <el-table-column
                 label="服务类型"
-                width="100"
+                width="170"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.type === 0 ? scope.row.service_type : '激活服务' }}</p>
@@ -128,7 +128,7 @@
 
             <el-table-column
                 label="请求地址"
-                width="100"
+                width="200"
             >
                 <template slot-scope="scope">
                     <el-tooltip
@@ -137,8 +137,7 @@
                         :content="scope.row.url"
                         placement="left-start"
                     >
-                        <p v-if="scope.row.url.length >= 20">{{ scope.row.url.substring(0, 20) }} ...</p>
-                        <p v-if="scope.row.url.length < 20">{{ scope.row.url }} </p>
+                        <p>{{ scope.row.url }} </p>
                     </el-tooltip>
                 </template>
             </el-table-column>
@@ -162,15 +161,6 @@
             </el-table-column>
 
             <el-table-column
-                label="启用状态"
-                width="70"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.status }}
-                </template>
-            </el-table-column>
-
-            <el-table-column
                 label="创建时间"
                 width="120"
             >
@@ -180,20 +170,11 @@
             </el-table-column>
 
             <el-table-column
-                label="创建人"
-                width="70"
+                label="创建人/修改人"
+                width="100"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_by }}
-                </template>
-            </el-table-column>
-
-            <el-table-column
-                label="修改人"
-                width="70"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.updated_by }}
+                    {{ scope.row.created_by }} / {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
                 </template>
             </el-table-column>
 
@@ -202,23 +183,20 @@
             >
                 <template slot-scope="scope">
                     <el-button
-                        v-if="scope.row.status === '未启用'"
+                        v-if="scope.row.status === '未启用' && scope.row.type === 0"
                         type="success"
                         @click="open(scope.row,1)"
                     >
                         启用
                     </el-button>
                     <el-button
-                        v-if="scope.row.status === '已启用'"
+                        v-if="scope.row.status === '已启用' && scope.row.type === 0"
                         type="danger"
                         @click="open(scope.row,0)"
                     >
                         禁用
                     </el-button>
-                    &nbsp;
-
-
-                    <router-link
+                    <router-link style="padding-left: 3px"
                         :to="{
                             name: scope.row.type === 0 ?'partner-service-edit':'activate-service-edit',
                             query: {
@@ -296,6 +274,9 @@ export default {
     },
     methods: {
         open(row, status) {
+            if(row.type === 1){
+                return;
+            }
             this.$alert(status === 1 ? '是否启用？' : '是否禁用？', '警告', {
                 confirmButtonText: '确定',
                 callback: action => {

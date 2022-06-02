@@ -30,7 +30,7 @@ import numpy as np
 
 from common.python.session import is_table
 from kernel.security.protol.spdz.communicator import Communicator
-from kernel.security.protol.spdz.utils.random_utils import rand_tensor, urand_tensor
+from kernel.security.protol.spdz.utils import rand_tensor, urand_tensor
 
 
 def encrypt_tensor(tensor, public_key, need_send=False):
