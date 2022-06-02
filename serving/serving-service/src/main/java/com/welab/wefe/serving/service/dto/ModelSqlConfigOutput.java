@@ -32,6 +32,8 @@ public class ModelSqlConfigOutput {
 
     private String sqlContext;
 
+    private String dataSourceId;
+
     public DatabaseType getType() {
         return type;
     }
@@ -71,4 +73,13 @@ public class ModelSqlConfigOutput {
     public void setSqlContext(String sqlContext) {
         this.sqlContext = sqlContext;
     }
+
+    public String getDataSourceId() {
+        return dataSourceId;
+    }
+
+    public void setDataSourceId(String dataSourceId) {
+        this.dataSourceId = dataSourceId;
+    }
+
 }
