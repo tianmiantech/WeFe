@@ -101,6 +101,7 @@ public class ClientServiceService {
                 }
             } else {// 激活
                 model.setIpAdd("-");
+                model.setPayType(-1);
                 model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
@@ -113,6 +114,9 @@ public class ClientServiceService {
                 }
                 model.setUrl(input.getUrl());
             }
+            model.setCreatedTime(new Date());
+            model.setUpdatedBy(model.getCreatedBy());
+            model.setUpdatedTime(new Date());
             // 保存计费规则相关信息
             clientServiceRepository.save(model);
             if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
@@ -153,6 +157,10 @@ public class ClientServiceService {
             output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
             output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
             output.setStatus(ServiceStatusEnum.getValueByCode(x.getStatus()));
+            if(x.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
+                output.setPayType("-");
+                output.setUnitPrice("-");
+            }
             list.add(output);
         });
         return PagingOutput.of(list.size(), list);
@@ -226,6 +234,7 @@ public class ClientServiceService {
                 model.setClientName(input.getClientName());
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
+                model.setPayType(-1);
                 model.setUrl(input.getUrl());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
@@ -260,6 +269,9 @@ public class ClientServiceService {
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
+            if (model.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+            }
             if (model.getStatus() == input.getStatus()) {
                 throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
             }
