@@ -60,7 +60,7 @@
                     :to="{name: 'partner-service-add'}"
                 >
                     <el-button>
-                        添加服务
+                        为合作者开通服务
                     </el-button>
                 </router-link>
 
