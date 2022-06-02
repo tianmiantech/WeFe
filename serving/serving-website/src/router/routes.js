@@ -20,7 +20,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}`,
         meta: {
-            title: '模型中心',
+            title: '模型管理',
             icon:  'el-icon-monitor',
         },
         component: () => import('@comp/LayoutBase.vue'),
@@ -85,7 +85,7 @@ const baseRoutes = [
                 path: `${prefixPath}partner-service-list`,
                 name: 'partner-service-list',
                 meta: {
-                    title:           '合作者服务列表',
+                    title:           '服务列表',
                     loginAndRefresh: true,
                 },
                 component: () => import('@views/partner/partner-service-list.vue'),
@@ -150,7 +150,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}service`,
         meta: {
-            title: '服务中心',
+            title: '服务管理',
             icon:  'el-icon-service',
         },
         component: () => import('@comp/LayoutBase.vue'),
@@ -190,7 +190,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}fee`,
         meta: {
-            title: '计费中心',
+            title: '计费管理',
             icon:  'el-icon-wallet',
         },
         component: () => import('@comp/LayoutBase.vue'),
@@ -238,7 +238,7 @@ const baseRoutes = [
     {
         path: `${prefixPath}account`,
         meta: {
-            title:            '用户中心',
+            title:            '用户管理',
             icon:             'el-icon-user-solid',
             normalUserCanSee: true,
         },
