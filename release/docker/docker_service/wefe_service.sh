@@ -38,12 +38,14 @@ edit_wefe_config(){
     case $INPUT_SERVICE in
         fusion)
             mysql_ip=$MYSQL_PORT_FUSION
+            mysql_port=$MYSQL_PORT_FUSION
             mysql_database=$MYSQL_DATABASE_FUSION
             mysql_username=$MYSQL_USERNAME_FUSION
             mysql_password=$MYSQL_PASSWORD_FUSION
             ;;
         serving)
             mysql_ip=$MYSQL_PORT_SERVING
+            mysql_port=$MYSQL_PORT_SERVING
             mysql_database=$MYSQL_DATABASE_SERVING
             mysql_username=$MYSQL_USERNAME_SERVING
             mysql_password=$MYSQL_PASSWORD_SERVING
