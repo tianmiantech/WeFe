@@ -40,6 +40,7 @@ import com.welab.wefe.serving.service.database.entity.*;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service_processor.*;
@@ -87,6 +88,8 @@ public class ServiceService {
     private PartnerService partnerService;
     @Autowired
     private ClientServiceService clientServiceService;
+    @Autowired
+    private ModelService modelService;
     @Autowired
     private Config config;
 
@@ -530,13 +533,14 @@ public class ServiceService {
         }
     }
 
-    public ServiceMySqlModel queryById(QueryOneApi.Input input) {
+    public ServiceDetailOutput queryById(QueryOneApi.Input input) {
 
-        Specification<ServiceMySqlModel> where = Where.create().equal("id", input.getId())
-                .build(ServiceMySqlModel.class);
-
-        Optional<ServiceMySqlModel> one = serviceRepository.findOne(where);
-        return one.orElse(null);
+        ServiceMySqlModel service = serviceRepository.findOne("id", input.getId(), ServiceMySqlModel.class);
+        if (service == null) {
+            ModelMySqlModel model = modelService.findOne(input.getId());
+            return ServiceDetailOutput.convertByModel(model);
+        }
+        return ServiceDetailOutput.convertByService(service);
     }
 
 

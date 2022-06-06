@@ -20,6 +20,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
 import com.welab.wefe.serving.service.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @date 2022/1/19
  */
 @Api(path = "service/query-one", name = "query service by id")
-public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceMySqlModel> {
+public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceDetailOutput> {
 
 
     @Autowired
@@ -36,7 +37,7 @@ public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceMySqlMode
 
 
     @Override
-    protected ApiResult<ServiceMySqlModel> handle(Input input) throws Exception {
+    protected ApiResult<ServiceDetailOutput> handle(Input input) throws Exception {
         return success(serviceService.queryById(input));
     }
 
