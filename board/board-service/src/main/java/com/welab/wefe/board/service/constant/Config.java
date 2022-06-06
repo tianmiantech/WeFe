@@ -39,18 +39,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
-
-    @Value("${hello.world:123}")
-    private String test;
-
-    public String getTest() {
-        return test;
-    }
-
-    public void setTest(String test) {
-        this.test = test;
-    }
-
     @Value("${fc.access_key_id:xxx}")
     private String fcAccessKeyId;
 
