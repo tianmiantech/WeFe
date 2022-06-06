@@ -382,16 +382,6 @@ public class ServiceService {
                 log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
             }
-            int serviceType = service.getServiceType();
-            if (serviceType == ServiceTypeEnum.MULTI_SA.getCode() || serviceType == ServiceTypeEnum.MULTI_PSI.getCode()
-                    || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
-                res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
-                res.append("message", "invalid request: url = " + serviceUrl
-                        + ", not found currentClient, customerName = " + CacheObjects.getMemberId());
-                long duration = System.currentTimeMillis() - start;
-                log(service, client, duration, clientIp, res.getIntValue("code"));
-                return res;
-            }
         }
         return null;
     }
@@ -424,7 +414,7 @@ public class ServiceService {
             return result;
         } finally {
             PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
-            log(service, client, start, clientIp, res.getIntValue("code"));
+            log(service, client, start, clientIp, result.getIntValue("code"));
         }
     }
 

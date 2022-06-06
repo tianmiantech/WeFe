@@ -34,7 +34,7 @@
                 <el-input v-model="clientService.publicKey"
                           type="textarea"
                           rows="5"
-                          :maxlength="300"
+                          :maxlength="1000"
                           :minlength="0"
                           show-word-limit>
                 </el-input>

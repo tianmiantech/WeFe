@@ -90,17 +90,18 @@ public class ClientServiceService {
                         ServiceMySqlModel.class);
                 if (serviceMySqlModel != null) {
                     model.setServiceType(serviceMySqlModel.getServiceType());
-                    model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
-                            ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
-                            : (partnerMysqlModel.getServingBaseUrl() + "/"))
-                            : "") + "api/" + serviceMySqlModel.getUrl());
+                    model.setUrl("api/" + serviceMySqlModel.getUrl());
                     model.setServiceName(serviceMySqlModel.getName());
                 } else {
                     model.setServiceType(input.getServiceType());
                 }
                 model.setClientName(partnerMysqlModel.getName());
+                if (model.getUnitPrice() < 0) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
+                }
             } else {// 激活
                 model.setIpAdd("-");
+                model.setPayType(-1);
                 model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
@@ -111,7 +112,11 @@ public class ClientServiceService {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
                 }
+                model.setUrl(input.getUrl());
             }
+            model.setCreatedTime(new Date());
+            model.setUpdatedBy(model.getCreatedBy());
+            model.setUpdatedTime(new Date());
             // 保存计费规则相关信息
             clientServiceRepository.save(model);
             if (input.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
@@ -152,6 +157,10 @@ public class ClientServiceService {
             output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
             output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
             output.setStatus(ServiceStatusEnum.getValueByCode(x.getStatus()));
+            if(x.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
+                output.setPayType("-");
+                output.setUnitPrice("-");
+            }
             list.add(output);
         });
         return PagingOutput.of(list.size(), list);
@@ -202,39 +211,37 @@ public class ClientServiceService {
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
-            model.setStatus(input.getStatus());
             model.setUpdatedBy(input.getUpdatedBy());
             model.setUpdatedTime(new Date());
             model.setUnitPrice(input.getUnitPrice());
             model.setPayType(input.getPayType());
             model.setIpAdd(input.getIpAdd());
-            model.setPublicKey(input.getPublicKey());
-            // 客户相关信息
-            PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("id", input.getClientId(),
-                    PartnerMysqlModel.class);
             // 保存服务类型
             ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
                     ServiceMySqlModel.class);
-
+            // 开通
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                model.setUrl((StringUtils.isNotBlank(partnerMysqlModel.getServingBaseUrl())
-                        ? (partnerMysqlModel.getServingBaseUrl().endsWith("/") ? partnerMysqlModel.getServingBaseUrl()
-                        : (partnerMysqlModel.getServingBaseUrl() + "/"))
-                        : "") + "api/" + serviceMySqlModel.getUrl());
+                model.setUrl("api/" + serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
-            } else {
+                if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
+                    model.setPublicKey(input.getPublicKey());
+                }
+                if (model.getUnitPrice() < 0) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
+                }
+            } else { // 激活
                 model.setServiceName(input.getServiceName());
                 model.setClientName(input.getClientName());
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
+                model.setPayType(-1);
                 model.setUrl(input.getUrl());
-                model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
-                if (StringUtils.isBlank(input.getPrivateKey()) || !input.getPrivateKey().contains("******")) {
+                if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
-                } else if (input.getPrivateKey().contains("******")) {
+                } else if (input.getPublicKey().contains("******")) {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
                 }
@@ -262,6 +269,9 @@ public class ClientServiceService {
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
+            if (model.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+            }
             if (model.getStatus() == input.getStatus()) {
                 throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
             }

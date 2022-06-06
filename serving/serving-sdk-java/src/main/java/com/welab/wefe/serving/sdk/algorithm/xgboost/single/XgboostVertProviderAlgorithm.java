@@ -16,15 +16,13 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 
-import com.alibaba.fastjson.JSONObject;
+import java.util.List;
+
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
-
-import java.util.List;
 
 /**
  * Vertically federated Provider(xgboost)
@@ -35,6 +33,6 @@ public class XgboostVertProviderAlgorithm extends AbstractXgboostAlgorithm<BaseX
 
     @Override
     protected PredictModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
-        return XgboostAlgorithmHelper.providerPredict(modelParam.getModelParam(), predictParams.getUserId(), fidValueMapping);
+        return XgboostAlgorithmHelper.providerPredict(modelParam.getModelMeta().getWorkMode(), modelParam.getModelParam(), predictParams.getUserId(), fidValueMapping);
     }
 }

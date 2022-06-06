@@ -178,6 +178,7 @@ export default {
                             clientName: this.clientService.clientName,
                             createdBy: this.userInfo.nickname,
                             privateKey:this.clientService.privateKey,
+                            url:this.clientService.url,
                             code: this.clientService.code,
                         },
                     });

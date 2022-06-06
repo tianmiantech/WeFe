@@ -137,7 +137,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         IdentityInfoModel model = getIdentityInfo();
 
         if (ServingModeEnum.union.name().equals(model.getMode())) {
-            return;
+            throw new StatusCodeWithException("联邦模式下不能重置公私钥", StatusCode.SYSTEM_ERROR);
         }
 
         try {

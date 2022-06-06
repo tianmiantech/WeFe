@@ -16,6 +16,16 @@
 
 package com.welab.wefe.serving.service;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -25,7 +35,11 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
-import com.welab.wefe.serving.service.database.entity.*;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
@@ -34,15 +48,6 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.MemberService;
 import com.welab.wefe.serving.service.service.PartnerService;
-import org.springframework.beans.BeansException;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author hunter.zhao

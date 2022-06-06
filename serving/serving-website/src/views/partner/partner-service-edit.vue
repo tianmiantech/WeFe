@@ -35,7 +35,7 @@
                 <el-input v-model="clientService.publicKey"
                           type="textarea"
                           rows="5"
-                          :maxlength="300"
+                          :maxlength="1000"
                           :minlength="0"
                           show-word-limit>
                 </el-input>
@@ -164,9 +164,9 @@ export default {
 
         this.loading = true;
         if (this.$route.query.clientId && this.$route.query.serviceId) {
-            this.getPartnerById(this.$route.query.clientId)
-            this.getServiceById(this.$route.query.serviceId)
-            this.getClientService(this.$route.query.serviceId, this.$route.query.clientId)
+            await this.getPartnerById(this.$route.query.clientId)
+            await this.getServiceById(this.$route.query.serviceId)
+            await this.getClientService(this.$route.query.serviceId, this.$route.query.clientId)
         }
 
         await this.getServices()
@@ -263,7 +263,7 @@ export default {
 
         async getPartnerById(id) {
             const {code, data} = await this.$http.post({
-                url: '/partner/query-one',
+                url: '/partner/detail',
                 data: {
                     id: id,
                 },
