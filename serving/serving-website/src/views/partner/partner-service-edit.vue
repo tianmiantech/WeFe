@@ -179,9 +179,13 @@ export default {
                 },
 
             });
-            if (code === 0) {
+            if (code === 0 && data) {
                 this.clientService.clientId = data.id;
                 this.clientService.clientName = data.name;
+            }
+            else{
+                this.clientService.clientId = '';
+                this.clientService.clientName = '';
             }
         },
 
@@ -193,8 +197,8 @@ export default {
                 },
 
             });
-            if (code === 0) {
-                // this.clientService.serviceId = data.id;
+            if (code === 0 && data) {
+                this.clientService.serviceId = data.id;
                 this.clientService.serviceName = data.name;
             }
         },
