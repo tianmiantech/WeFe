@@ -174,7 +174,7 @@
                 width="100"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_by }} / {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
+                    {{ scope.row.created_by ? scope.row.created_by:"-" }} / {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
                 </template>
             </el-table-column>
 

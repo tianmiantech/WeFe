@@ -50,7 +50,7 @@
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
                     :to="{
-                            name: 'partner-service-list',
+                            name: 'activation-service-list',
                         }"
                 >
                     &nbsp;<el-button>返回</el-button>
@@ -190,7 +190,7 @@ export default {
                             this.$message('提交成功!');
                         }, 1000)
                         this.$router.push({
-                            name: 'partner-service-list'
+                            name: 'activation-service-list'
                         })
                     }
                 } else {
