@@ -61,15 +61,11 @@ export default {
     name: "partner-service-edit",
     data() {
         let validateUnitPrice = (rule, value, callback) => {
-            if (!this.clientService.unitPrice) {
-                return callback(new Error('请输入单价'));
+            let reg = /^\d+(\.\d+)?$/;
+            if (reg.test(this.clientService.unitPrice)) {
+                callback();
             } else {
-                let reg = /^\d+(\.\d+)?$/;
-                if (reg.test(this.clientService.unitPrice)) {
-                    callback();
-                } else {
-                    return callback(new Error('单价要求输入数值'));
-                }
+                return callback(new Error('单价要求输入数值'));
             }
         };
 
@@ -138,11 +134,6 @@ export default {
         onSubmit() {
             this.$refs.clientService.validate(async (valid) => {
                 if (valid) {
-
-                    if (!this.clientService.unitPrice) {
-                        this.$message.error('请输入单价');
-                        return false;
-                    }
                     if (this.clientService.payType === '') {
                         this.$message.error('请选择付费类型');
                         return false;
@@ -198,7 +189,6 @@ export default {
 
             });
             if (code === 0 && data) {
-                this.clientService.serviceId = data.id;
                 this.clientService.serviceName = data.name;
             }
         },
