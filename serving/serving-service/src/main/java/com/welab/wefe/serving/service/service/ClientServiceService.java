@@ -90,7 +90,7 @@ public class ClientServiceService {
                         ServiceMySqlModel.class);
                 if (serviceMySqlModel != null) {
                     model.setServiceType(serviceMySqlModel.getServiceType());
-                    model.setUrl("api/" + serviceMySqlModel.getUrl());
+                    model.setUrl(serviceMySqlModel.getUrl());
                     model.setServiceName(serviceMySqlModel.getName());
                 } else {
                     model.setServiceType(input.getServiceType());
@@ -225,7 +225,7 @@ public class ClientServiceService {
                     ServiceMySqlModel.class);
             // 开通
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
-                model.setUrl("api/" + serviceMySqlModel.getUrl());
+                model.setUrl(serviceMySqlModel.getUrl());
                 model.setServiceName(serviceMySqlModel.getName());
                 if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
                     model.setPublicKey(input.getPublicKey());
