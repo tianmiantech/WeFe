@@ -30,7 +30,7 @@ public class MessageEntityBuilder {
 
     public static MessageEntity createDefault() {
         MessageEntity entity = new MessageEntity();
-        entity.setProducer(ProducerType.gateway.name());
+        entity.setProducer(ProducerType.gateway);
         entity.setLevel(MessageLevel.info);
         entity.setUnread(true);
         entity.setUpdatedTime(null);

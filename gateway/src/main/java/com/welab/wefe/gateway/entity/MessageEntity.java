@@ -18,10 +18,9 @@ package com.welab.wefe.gateway.entity;
 
 import com.welab.wefe.common.data.mysql.entity.AbstractUniqueIDEntity;
 import com.welab.wefe.common.wefe.enums.MessageLevel;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Message body entity
@@ -48,7 +47,8 @@ public class MessageEntity extends AbstractUniqueIDEntity {
      * Message producer enumeration（board/gateway）
      */
     @Column(name = "producer")
-    private String producer;
+    @Enumerated(EnumType.STRING)
+    private ProducerType producer;
 
     /**
      * Message level enumeration（info/success/error/warning）
@@ -90,11 +90,11 @@ public class MessageEntity extends AbstractUniqueIDEntity {
         this.updatedBy = updatedBy;
     }
 
-    public String getProducer() {
+    public ProducerType getProducer() {
         return producer;
     }
 
-    public void setProducer(String producer) {
+    public void setProducer(ProducerType producer) {
         this.producer = producer;
     }
 
