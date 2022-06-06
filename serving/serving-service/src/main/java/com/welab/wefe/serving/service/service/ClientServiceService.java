@@ -157,7 +157,7 @@ public class ClientServiceService {
             output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
             output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
             output.setStatus(ServiceStatusEnum.getValueByCode(x.getStatus()));
-            if(x.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
+            if (x.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
                 output.setPayType("-");
                 output.setUnitPrice("-");
             }
@@ -352,7 +352,9 @@ public class ClientServiceService {
                                 ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setClientId(clientId);
+        clientService.setClientName(CacheObjects.getPartnerName(clientId));
         clientService.setServiceId(serviceId);
+        clientService.setServiceName(findServiceNameById(serviceId));
         clientService.setServiceType(serviceType.getCode());
         clientService.setPrivateKey(privateKey);
         clientService.setPublicKey(publicKey);
@@ -360,6 +362,14 @@ public class ClientServiceService {
         clientService.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         add(clientService);
+    }
+
+    private String findServiceNameById(String serviceId) {
+        ServiceMySqlModel service = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
+        if (service == null) {
+            return "";
+        }
+        return service.getName();
     }
 
     public int serviceUrlTest(Input input) throws Exception {
