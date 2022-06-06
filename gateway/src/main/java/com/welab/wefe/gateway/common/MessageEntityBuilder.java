@@ -31,7 +31,7 @@ public class MessageEntityBuilder {
     public static MessageEntity createDefault() {
         MessageEntity entity = new MessageEntity();
         entity.setProducer(ProducerType.gateway.name());
-        entity.setLevel(MessageLevel.info.name());
+        entity.setLevel(MessageLevel.info);
         entity.setUnread(true);
         entity.setUpdatedTime(null);
         return entity;
@@ -39,7 +39,7 @@ public class MessageEntityBuilder {
 
     public static MessageEntity create(MessageLevel messageLevel, String title, String content) {
         MessageEntity entity = createDefault();
-        entity.setLevel(messageLevel.name());
+        entity.setLevel(messageLevel);
         entity.setTitle(title);
         entity.setContent(content);
         entity.setUnread(true);
@@ -49,7 +49,7 @@ public class MessageEntityBuilder {
 
     public static MessageEntity createSuccess(String title, String content) {
         MessageEntity entity = createDefault();
-        entity.setLevel(MessageLevel.success.name());
+        entity.setLevel(MessageLevel.success);
         entity.setTitle(title);
         entity.setContent(content);
         entity.setUnread(true);
@@ -59,7 +59,7 @@ public class MessageEntityBuilder {
 
     public static MessageEntity createError(String title, String content) {
         MessageEntity entity = createSuccess(title, content);
-        entity.setLevel(MessageLevel.error.name());
+        entity.setLevel(MessageLevel.error);
         return entity;
     }
 

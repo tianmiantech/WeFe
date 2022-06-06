@@ -17,6 +17,7 @@
 package com.welab.wefe.gateway.entity;
 
 import com.welab.wefe.common.data.mysql.entity.AbstractUniqueIDEntity;
+import com.welab.wefe.common.wefe.enums.MessageLevel;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -53,7 +54,7 @@ public class MessageEntity extends AbstractUniqueIDEntity {
      * Message level enumeration（info/success/error/warning）
      */
     @Column(name = "level")
-    private String level;
+    private MessageLevel level;
 
     /**
      * title
@@ -97,11 +98,11 @@ public class MessageEntity extends AbstractUniqueIDEntity {
         this.producer = producer;
     }
 
-    public String getLevel() {
+    public MessageLevel getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
+    public void setLevel(MessageLevel level) {
         this.level = level;
     }
 
