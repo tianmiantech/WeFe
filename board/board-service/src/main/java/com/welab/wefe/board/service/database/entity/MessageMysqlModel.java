@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.database.entity;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.common.wefe.enums.MessageEvent;
 import com.welab.wefe.common.wefe.enums.MessageLevel;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 
@@ -40,6 +41,11 @@ public class MessageMysqlModel extends AbstractBaseMySqlModel {
      */
     @Enumerated(EnumType.STRING)
     private MessageLevel level;
+    /**
+     * 消息关联的事件
+     */
+    @Enumerated(EnumType.STRING)
+    private MessageEvent event;
     /**
      * 标题
      */
@@ -69,6 +75,14 @@ public class MessageMysqlModel extends AbstractBaseMySqlModel {
 
     public void setLevel(MessageLevel level) {
         this.level = level;
+    }
+
+    public MessageEvent getEvent() {
+        return event;
+    }
+
+    public void setEvent(MessageEvent event) {
+        this.event = event;
     }
 
     public String getTitle() {

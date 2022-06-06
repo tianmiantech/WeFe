@@ -292,6 +292,7 @@ CREATE TABLE `message`
     `updated_time` datetime(6) COMMENT '更新时间',
     `producer`     varchar(32) NOT NULL COMMENT '消息生产者 枚举（board/gateway）',
     `level`        varchar(32) COMMENT '消息级别 枚举（info/success/error/warning）',
+    `event`        varchar(32) NOT NULL COMMENT '消息关联的事件',
     `title`        varchar(128) COMMENT '标题',
     `content`      text COMMENT '内容',
     `unread`       tinyint(1) NOT NULL DEFAULT '0' COMMENT '未读',

@@ -39,5 +39,9 @@ public enum MessageEvent {
     /**
      * 拒绝数据资源申请
      */
-    DisagreeApplyDataResource
+    DisagreeApplyDataResource,
+    /**
+     * Gateway服务错误
+     */
+    OnGatewayError,
 }

@@ -17,6 +17,7 @@
 package com.welab.wefe.gateway.entity;
 
 import com.welab.wefe.common.data.mysql.entity.AbstractUniqueIDEntity;
+import com.welab.wefe.common.wefe.enums.MessageEvent;
 import com.welab.wefe.common.wefe.enums.MessageLevel;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 
@@ -55,7 +56,11 @@ public class MessageEntity extends AbstractUniqueIDEntity {
      */
     @Column(name = "level")
     private MessageLevel level;
-
+    /**
+     * 消息关联的事件
+     */
+    @Enumerated(EnumType.STRING)
+    private MessageEvent event;
     /**
      * title
      */
@@ -104,6 +109,14 @@ public class MessageEntity extends AbstractUniqueIDEntity {
 
     public void setLevel(MessageLevel level) {
         this.level = level;
+    }
+
+    public MessageEvent getEvent() {
+        return event;
+    }
+
+    public void setEvent(MessageEvent event) {
+        this.event = event;
     }
 
     public String getTitle() {
