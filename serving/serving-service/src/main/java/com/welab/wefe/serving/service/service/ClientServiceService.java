@@ -361,6 +361,7 @@ public class ClientServiceService {
         clientService.setUrl(url);
         clientService.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
+        clientService.setCreatedBy(CacheObjects.getMemberId());
         add(clientService);
     }
 
