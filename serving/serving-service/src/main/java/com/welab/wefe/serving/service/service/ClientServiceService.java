@@ -161,6 +161,10 @@ public class ClientServiceService {
                 output.setPayType("-");
                 output.setUnitPrice("-");
             }
+            else {
+                output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
+                output.setUnitPrice(x.getUnitPrice() + "");
+            }
             list.add(output);
         });
         return PagingOutput.of(list.size(), list);
@@ -230,14 +234,14 @@ public class ClientServiceService {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
                 }
             } else { // 激活
-                model.setServiceName(input.getServiceName());
-                model.setClientName(input.getClientName());
                 model.setUnitPrice(0.0);
                 model.setIpAdd("-");
                 model.setPayType(-1);
                 model.setUrl(input.getUrl());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
+                model.setClientName(input.getClientName());
+                model.setServiceName(input.getServiceName());
                 if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());

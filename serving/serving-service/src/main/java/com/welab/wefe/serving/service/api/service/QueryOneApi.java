@@ -15,14 +15,14 @@
  */
 package com.welab.wefe.serving.service.api.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
 import com.welab.wefe.serving.service.service.ServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author ivenn.zheng

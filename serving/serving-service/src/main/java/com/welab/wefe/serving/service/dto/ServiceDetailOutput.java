@@ -26,6 +26,7 @@ import javax.persistence.Column;
  */
 public class ServiceDetailOutput {
 
+    private String id;
     /**
      * 服务名
      */
@@ -166,4 +167,13 @@ public class ServiceDetailOutput {
     public void setQueryParamsConfig(String queryParamsConfig) {
         this.queryParamsConfig = queryParamsConfig;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    
 }
