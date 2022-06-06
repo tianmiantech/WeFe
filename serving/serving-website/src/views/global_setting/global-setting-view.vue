@@ -41,6 +41,11 @@
                             :disabled="is_update"
                         />
                     </el-form-item>
+
+                    <el-form-item label="运行模式：" prop="mode">
+                        <el-radio v-model="form.identity_info.mode" :label="1">独立模式</el-radio>
+                        <el-radio v-model="form.identity_info.mode" :label="0">联邦模式</el-radio>
+                    </el-form-item>
                 </el-col>
             </el-row>
             <el-row :gutter="100">
@@ -88,6 +93,7 @@
                         member_name:     '',
                         // rsa_public_key:  '',
                         serving_base_url:'',
+                        model:'',
                     }
                 },
 
@@ -114,6 +120,12 @@
 
                 if (code === 0) {
                     this.form = data;
+                    if(data.identity_info.model === 'union'){
+                        this.form.identity_info.model = '1';
+                    }
+                    else{
+                        this.form.identity_info.model = '0';
+                    }
                 }
                 this.loading = false;
             },

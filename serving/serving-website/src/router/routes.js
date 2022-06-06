@@ -47,7 +47,7 @@ const baseRoutes = [
                 path: `${prefixPath}model-import`,
                 name: 'model-import',
                 meta: {
-                    title: '模型导入',
+                    title: '模型部署',
                 },
                 component: () => import('@views/model/model-import.vue'),
             },
@@ -79,25 +79,6 @@ const baseRoutes = [
                     hidden: true,
                 },
                 component: () => import('@views/partner/partner-add.vue'),
-            },
-
-            {
-                path: `${prefixPath}partner-service-list`,
-                name: 'partner-service-list',
-                meta: {
-                    title:           '开通服务列表',
-                    loginAndRefresh: true,
-                },
-                component: () => import('@views/partner/partner-service-list.vue'),
-            },
-            {
-                path: `${prefixPath}activation-service-list`,
-                name: 'activation-service-list',
-                meta: {
-                    title:           '激活服务列表',
-                    loginAndRefresh: true,
-                },
-                component: () => import('@views/partner/activation-service-list.vue'),
             },
             {
                 path: `${prefixPath}partner-service-add`,
@@ -193,6 +174,24 @@ const baseRoutes = [
                     active: `${prefixPath}service-view`,
                 },
                 component: () => import('@views/service/service-view.vue'),
+            },
+            {
+                path: `${prefixPath}partner-service-list`,
+                name: 'partner-service-list',
+                meta: {
+                    title:           '开通服务列表',
+                    loginAndRefresh: true,
+                },
+                component: () => import('@views/partner/partner-service-list.vue'),
+            },
+            {
+                path: `${prefixPath}activation-service-list`,
+                name: 'activation-service-list',
+                meta: {
+                    title:           '激活服务列表',
+                    loginAndRefresh: true,
+                },
+                component: () => import('@views/partner/activation-service-list.vue'),
             },
         ],
     },
