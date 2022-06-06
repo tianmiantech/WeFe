@@ -69,7 +69,7 @@
                     :to="{name: 'activate-service-add'}"
                 >
                     <el-button>
-                        激活服务
+                        激活外部服务
                     </el-button>
                 </router-link>
             </el-form-item>
@@ -142,24 +142,6 @@
                 </template>
             </el-table-column>
 
-<!--            <el-table-column-->
-<!--                label="单价(￥)"-->
-<!--                width="65"-->
-<!--            >-->
-<!--                <template slot-scope="scope">-->
-<!--                    {{ scope.row.unit_price }}-->
-<!--                </template>-->
-<!--            </el-table-column>-->
-
-<!--            <el-table-column-->
-<!--                label="付费类型"-->
-<!--                width="70"-->
-<!--            >-->
-<!--                <template slot-scope="scope">-->
-<!--                    {{ scope.row.pay_type }}-->
-<!--                </template>-->
-<!--            </el-table-column>-->
-
             <el-table-column
                 label="创建时间"
                 width="120"
@@ -174,7 +156,7 @@
                 width="100"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_by }} / {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
+                    {{ scope.row.created_by ? scope.row.created_by:"-" }} / {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
                 </template>
             </el-table-column>
 
