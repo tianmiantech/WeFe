@@ -28,23 +28,6 @@
                             :label="item.name"
                         />
                     </el-select>
-                    <div
-                        v-if="form.service_type === 4"
-                        class="ml10"
-                    >
-                        <el-radio
-                            v-model="form.operator"
-                            label="sum"
-                        >
-                            SUM
-                        </el-radio>
-                        <el-radio
-                            v-model="form.operator"
-                            label="avg"
-                        >
-                            AVG
-                        </el-radio>
-                    </div>
                 </el-form-item>
                 <div
                     class="ml10"
@@ -124,6 +107,26 @@
                         >
                             + 添加联邦服务
                         </el-button>
+                        <div
+                            v-if="form.service_type === 4 && service_config.length > 0"
+                            style="margin-top: 10px"
+                        >
+                            <label style="color: #6C757D;">
+                                <span>服务算子:</span>
+                            </label>
+                            <el-radio
+                                v-model="form.operator"
+                                label="sum"
+                            >
+                                SUM
+                            </el-radio>
+                            <el-radio
+                                v-model="form.operator"
+                                label="avg"
+                            >
+                                AVG
+                            </el-radio>
+                        </div>
                     </el-form-item>
                 </template>
                 <template
@@ -684,6 +687,7 @@
                 type="primary"
                 size="medium"
                 @click="save"
+                :disabled="!form.service_type"
             >
                 保存
             </el-button>
