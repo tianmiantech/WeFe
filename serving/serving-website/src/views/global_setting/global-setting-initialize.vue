@@ -12,49 +12,49 @@
                 inline-message
                 @submit.native.prevent
             >
-                <el-form-item
-                    label="联邦成员id："
-                    required
-                >
-                    <el-input
-                        v-model.trim="form.member_id"
-                        maxlength="40"
-                        clearable
-                    />
-                </el-form-item>
+<!--                <el-form-item-->
+<!--                    label="联邦成员id："-->
+<!--                    required-->
+<!--                >-->
+<!--                    <el-input-->
+<!--                        v-model.trim="form.member_id"-->
+<!--                        maxlength="40"-->
+<!--                        clearable-->
+<!--                    />-->
+<!--                </el-form-item>-->
 
-                <el-form-item
-                    label="联邦成员名称："
-                    required
-                >
-                    <el-input
-                        v-model.trim="form.member_name"
-                        maxlength="12"
-                        clearable
-                    />
-                </el-form-item>
-                <el-form-item
-                    label="私钥："
-                    required
-                >
-                    <el-input
-                        v-model.trim="form.rsa_private_key"
-                        type="textarea"
-                        placeholder="请填写borad生成的秘钥，否则无法使用"
-                        clearable
-                    />
-                </el-form-item>
-                <el-form-item
-                    label="公钥："
-                    required
-                >
-                    <el-input
-                        v-model.trim="form.rsa_public_key"
-                        type="textarea"
-                        placeholder="请填写borad生成的公钥，否则无法使用"
-                        clearable
-                    />
-                </el-form-item>
+<!--                <el-form-item-->
+<!--                    label="联邦成员名称："-->
+<!--                    required-->
+<!--                >-->
+<!--                    <el-input-->
+<!--                        v-model.trim="form.member_name"-->
+<!--                        maxlength="12"-->
+<!--                        clearable-->
+<!--                    />-->
+<!--                </el-form-item>-->
+<!--                <el-form-item-->
+<!--                    label="私钥："-->
+<!--                    required-->
+<!--                >-->
+<!--                    <el-input-->
+<!--                        v-model.trim="form.rsa_private_key"-->
+<!--                        type="textarea"-->
+<!--                        placeholder="请填写borad生成的秘钥，否则无法使用"-->
+<!--                        clearable-->
+<!--                    />-->
+<!--                </el-form-item>-->
+<!--                <el-form-item-->
+<!--                    label="公钥："-->
+<!--                    required-->
+<!--                >-->
+<!--                    <el-input-->
+<!--                        v-model.trim="form.rsa_public_key"-->
+<!--                        type="textarea"-->
+<!--                        placeholder="请填写borad生成的公钥，否则无法使用"-->
+<!--                        clearable-->
+<!--                    />-->
+<!--                </el-form-item>-->
 
                 <el-divider />
                 <el-button
@@ -109,7 +109,7 @@
                 this.loading = true;
 
                 const { code, data } = await this.$http.get({
-                    url: '/global_setting/is_initialize',
+                    url: '/global_config/is_initialize',
                 });
 
                 this.loading = false;
