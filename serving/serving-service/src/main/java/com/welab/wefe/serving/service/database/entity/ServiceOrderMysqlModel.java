@@ -25,6 +25,8 @@ import javax.persistence.Entity;
 @Entity(name = "service_order")
 public class ServiceOrderMysqlModel extends AbstractBaseMySqlModel {
 
+    private static final long serialVersionUID = 5578364684919929903L;
+
     @Column(name = "service_id")
     private String serviceId;
 
