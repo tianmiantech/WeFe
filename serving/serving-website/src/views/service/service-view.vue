@@ -91,7 +91,7 @@
             <template v-if="form.service_type">
                 <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
                     <el-divider/>
-                    <p class="mb10">添加联邦服务：</p>
+                    <p class="mb10">配置联邦服务：</p>
                     <el-form-item
                         v-for="(item, index) in service_config"
                         :key="index"
@@ -120,8 +120,9 @@
                         <el-button
                             type="primary"
                             @click="addService"
+                            class="dashed-btn"
                         >
-                            添加联邦服务
+                            + 添加联邦服务
                         </el-button>
                     </el-form-item>
                 </template>
@@ -129,6 +130,12 @@
                     v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8">
                     <el-divider/>
                     <p class="mb10">查询参数配置：</p>
+                    <el-button
+                        v-if="form.paramsArr.length === 0"
+                        class="icons el-icon-circle-plus-outline"
+                        @click="add_params"
+                    >
+                    </el-button>
                     <el-form-item
                         v-for="(item, index) in form.paramsArr"
                         :key="`paramsArr-${index}`"
@@ -156,15 +163,22 @@
                             class="icons el-icon-delete color-danger"
                             @click="deleteParams(index, form.paramsArr)"
                         />
-                    </el-form-item>
-                    <el-form-item>
                         <el-button
-                            type="primary"
+                            v-if="index + 1 === form.paramsArr.length"
+                            class="icons el-icon-circle-plus-outline"
                             @click="add_params"
                         >
-                            新增参数
                         </el-button>
                     </el-form-item>
+<!--                    <el-form-item>-->
+<!--                        <el-button-->
+<!--                            type="primary"-->
+<!--                            @click="add_params"-->
+<!--                            class="dashed-btn"-->
+<!--                        >-->
+<!--                            + 新增-->
+<!--                        </el-button>-->
+<!--                    </el-form-item>-->
                 </template>
 
                 <template
@@ -249,7 +263,21 @@
                             class="condition_fields"
                             label="查询条件:"
                         >
-                            <el-tag>{{ sqlOperator === 'and' ? 'And' : 'Or' }}</el-tag>
+                            <el-select
+                                v-model="sqlOperator"
+                                class="ml10 no-arrow"
+                                style="width:40px;"
+                                @change="sqlShow"
+                            >
+                                <el-option
+                                    label="AND"
+                                    value="and"
+                                />
+                                <el-option
+                                    label="OR"
+                                    value="or"
+                                />
+                            </el-select>
                             <el-select
                                 v-model="item.field_on_table"
                                 class="ml10"
@@ -303,44 +331,26 @@
                                 class="icons el-icon-delete color-danger"
                                 @click="deleteParams($index, form.data_source.condition_fields)"
                             />
-                        </el-form-item>
-                        <el-button
-                            class="mb20"
-                            type="danger"
-                            icon="icons el-icon-circle-plus-outline"
-                            @click="addConditionFields"
-                        >
-                            添加查询字段
-                        </el-button>
-                        <span style="font-size:12px;padding-left: 5px">{{ show_sql_result }}</span>
-                        <el-form-item label="参数逻辑符:">
-                            <el-radio
-                                v-model="sqlOperator"
-                                label="and"
-                                @change="sqlShow"
+                            <el-button
+                                v-if="$index + 1 === form.data_source.condition_fields.length"
+                                class="icons el-icon-circle-plus-outline"
+                                @click="addConditionFields"
                             >
-                                And
-                            </el-radio>
-                            <el-radio
-                                v-model="sqlOperator"
-                                label="or"
-                                @change="sqlShow"
-                            >
-                                Or
-                            </el-radio>
+                            </el-button>
                         </el-form-item>
-                        <el-divider/>
                         <div
                             v-if="form.service_type !== 3"
                             class="mt5 mb20"
                         >
                             <el-button
-                                size="small"
+                                size="mt10"
                                 @click="sqlTest"
                             >
-                                SQL测试
+                                在线测试
                             </el-button>
+                            <span style="font-size:12px;padding-left: 5px">{{ show_sql_result }}</span>
                         </div>
+                        <el-divider/>
                     </template>
                 </template>
                 <template v-if="form.service_type === 7 || form.service_type === 8">
@@ -1891,5 +1901,11 @@ export default {
 .model-test-result-card {
     width: 620px;
     height: 160px;
+}
+
+.dashed-btn {
+    background: transparent;
+    border: 1px dashed #28c2d7;
+    color: #28c2d7;
 }
 </style>
