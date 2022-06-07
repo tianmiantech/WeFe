@@ -91,7 +91,7 @@
             <template v-if="form.service_type">
                 <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
                     <el-divider/>
-                    <p class="mb10">服务配置：</p>
+                    <p class="mb10">添加联邦服务：</p>
                     <el-form-item
                         v-for="(item, index) in service_config"
                         :key="index"
@@ -121,7 +121,7 @@
                             type="primary"
                             @click="addService"
                         >
-                            添加服务
+                            添加联邦服务
                         </el-button>
                     </el-form-item>
                 </template>
@@ -703,7 +703,7 @@
                     :disabled="!api.id"
                     @click="export_sdk"
                 >
-                    工具包下载
+                    下载工具包
                 </el-button>
             </div>
         </el-form>

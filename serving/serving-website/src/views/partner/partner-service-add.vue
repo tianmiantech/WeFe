@@ -26,11 +26,11 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="单价(￥)：" prop="unitPrice" class="unit_price">
+            <el-form-item label="服务调用单价(￥)：" prop="unitPrice" class="unit_price">
                 <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
             </el-form-item>
 
-            <el-form-item label="公钥：" prop="publicKey" class="public_key">
+            <el-form-item label="合作者公钥：" prop="publicKey" class="public_key">
                 <el-input v-model="clientService.publicKey"
                           type="textarea"
                           rows="5"
@@ -40,11 +40,11 @@
                 </el-input>
             </el-form-item>
 
-            <el-form-item label="IP白名单：" prop="ipAdd" class="ip_add">
+            <el-form-item label="合作者出口IP：" prop="ipAdd" class="ip_add">
                 <el-input v-model="clientService.ipAdd"></el-input>
             </el-form-item>
 
-            <el-form-item label="付费类型：" :label-width="formLabelWidth" prop="payType">
+            <el-form-item label="合作者付费类型：" :label-width="formLabelWidth" prop="payType">
                 <el-radio v-model="clientService.payType" label="0">后付费</el-radio>
                 <el-radio v-model="clientService.payType" label="1">预付费</el-radio>
             </el-form-item>
@@ -55,6 +55,7 @@
                     :to="{
                             name: 'partner-service-list',
                         }"
+                    style="margin-left: 3px"
                 >
                     <el-button>返回</el-button>
                 </router-link>
@@ -131,7 +132,7 @@ export default {
                 unitPrice: '',
                 payType: '',
             },
-            formLabelWidth: '110px',
+            formLabelWidth: '115px',
             payType: {
                 0: "后付费",
                 1: "预付费"

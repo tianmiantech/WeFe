@@ -68,7 +68,7 @@
                 :to="{name: 'service-view'}"
             >
                 <el-button>
-                    新增
+                    新增服务
                 </el-button>
             </router-link>
         </el-form>
@@ -166,7 +166,7 @@
                         type="primary"
                         @click="editService(scope.row)"
                     >
-                        编辑
+                        配置
                     </el-button>
                     <el-button
                         v-if="scope.row.status == 0"
