@@ -373,9 +373,10 @@
                     </el-form-item>
 
                     <el-divider/>
-                    <p class="mb10">模型概览：</p>
+                    <p class="mb10" v-if="form.model_data.model_id">模型概览：</p>
                     <el-form-item
                         class="service-list"
+                        v-if="form.model_data.model_id"
                     >
                         <p><strong>Id: </strong> {{ form.model_data.model_id }}</p>
                         <p><strong>算法: </strong> {{ form.model_data.model_algorithm }}</p>
@@ -396,7 +397,7 @@
                         </p>
                     </el-form-item>
 
-                    <p class="mb10" v-if="modelStatusVisible">合作方模型状态：
+                    <p class="mb10" v-if="modelStatusVisible && form.model_data.model_id">合作方模型状态：
                         <el-button
                             size="medium"
                             icon="el-icon-refresh"
@@ -404,7 +405,7 @@
                             :loading="checkLoading"
                             @click="refreshPartnerStatus"></el-button>
                     </p>
-                    <el-form-item v-if="modelStatusVisible"
+                    <el-form-item v-if="modelStatusVisible && form.model_data.model_id"
                                   class="service-list"
                                   style="width: 60%"
                     >
@@ -482,9 +483,9 @@
                         />
                     </el-dialog>
 
-                    <p class="mb10">特征配置：</p>
+                    <p class="mb10" v-if="form.model_data.model_id">特征配置：</p>
 
-                    <el-form-item>
+                    <el-form-item v-if="form.model_data.model_id">
                         <el-tabs type="border-card" @tab-click="handleTabClick" v-model="activeName">
                             <el-tab-pane label="代码配置" name="api">
                                 <el-row :span="24">
@@ -604,7 +605,7 @@
                     </el-form-item>
 
 
-                    <el-card class="model-test-result-card">
+                    <el-card class="model-test-result-card" v-if="form.model_data.model_id">
 
                         <el-row :span="24">
                             <el-col :span="4">
