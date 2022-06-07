@@ -58,6 +58,22 @@ public class MessageMysqlModel extends AbstractBaseMySqlModel {
      * 是否未读
      */
     private Boolean unread;
+    /**
+     * 是否是待办事项
+     */
+    private Boolean todo;
+    /**
+     * 待办事项是否已完成
+     */
+    private Boolean todoComplete;
+    /**
+     * 待办事项关联对象Id1
+     */
+    private String todoRelatedId1;
+    /**
+     * 待办事项关联对象Id2
+     */
+    private String todoRelatedId2;
 
     //region getter/setter
 
@@ -109,6 +125,37 @@ public class MessageMysqlModel extends AbstractBaseMySqlModel {
         this.unread = unread;
     }
 
+    public Boolean getTodo() {
+        return todo;
+    }
+
+    public void setTodo(Boolean todo) {
+        this.todo = todo;
+    }
+
+    public Boolean getTodoComplete() {
+        return todoComplete;
+    }
+
+    public void setTodoComplete(Boolean todoComplete) {
+        this.todoComplete = todoComplete;
+    }
+
+    public String getTodoRelatedId1() {
+        return todoRelatedId1;
+    }
+
+    public void setTodoRelatedId1(String todoRelatedId1) {
+        this.todoRelatedId1 = todoRelatedId1;
+    }
+
+    public String getTodoRelatedId2() {
+        return todoRelatedId2;
+    }
+
+    public void setTodoRelatedId2(String todoRelatedId2) {
+        this.todoRelatedId2 = todoRelatedId2;
+    }
 
     //endregion
 }

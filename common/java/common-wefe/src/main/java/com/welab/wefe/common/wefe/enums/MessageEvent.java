@@ -23,7 +23,7 @@ public enum MessageEvent {
     /**
      * 创建项目
      */
-    OnCreateProject,
+    CreateProject,
     /**
      * 同意加入项目
      */
@@ -32,6 +32,10 @@ public enum MessageEvent {
      * 拒绝加入项目
      */
     DisagreeJoinProject,
+    /**
+     * 申请数据资源
+     */
+    ApplyDataResource,
     /**
      * 同意数据资源申请
      */
