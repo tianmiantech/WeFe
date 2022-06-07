@@ -28,6 +28,7 @@ import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.repository.GlobalSettingRepository;
 import com.welab.wefe.serving.service.service.AccountService;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -45,6 +46,11 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     @Autowired
     private GlobalSettingRepository globalSettingRepository;
 
+
+    @Autowired
+    private GlobalConfigService globalConfigService;
+
+
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
@@ -58,7 +64,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
          *
          * An exception is thrown when it is not initialized. When the front end obtains the exception, it will jump to the initialization interface.
          */
-        if (globalSettingRepository.count() < 1) {
+        if (!globalConfigService.isInitialized()) {
             StatusCode status = StatusCode.SYSTEM_NOT_BEEN_INITIALIZED;
             return fail(status.getCode(), status.getMessage(), output);
         }
