@@ -136,6 +136,10 @@ public class BoardService implements ApplicationContextAware {
         // such as gateway and flow, so the same set of public and private keys are used for rsa signatures.
         String publicKey = CacheObjects.getRsaPublicKey();
 
+        if (signedApiInput.getData() == null) {
+            throw new StatusCodeWithException("非法请求", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
         boolean verified = RSAUtil.verify(
                 signedApiInput.getData().getBytes(StandardCharsets.UTF_8),
                 RSAUtil.getPublicKey(publicKey),
