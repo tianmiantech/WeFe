@@ -34,6 +34,7 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
+import com.welab.wefe.board.service.dto.vo.message.CreateProjectMessageContent;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
@@ -105,6 +106,8 @@ public class ProjectService extends AbstractService {
     private ProjectFlowNodeRepository projectFlowNodeRepository;
     @Autowired
     private DataResourceService dataResourceService;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * New Project
@@ -161,6 +164,14 @@ public class ProjectService extends AbstractService {
                 .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
         project.setProjectType(input.getProjectType());
         projectRepo.save(project);
+
+        if (input.fromGateway()) {
+            CreateProjectMessageContent content = new CreateProjectMessageContent();
+            content.fromMemberId = input.callerMemberInfo.getMemberId();
+            content.projectId = project.getProjectId();
+            content.projectName = project.getName();
+            messageService.add();
+        }
 
         // create and save ProjectMember to database
         for (ProjectMemberInput item : input.getMembers()) {
