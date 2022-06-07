@@ -18,20 +18,20 @@
                 />
             </el-form-item>
 
-            <el-form-item label="是否启用：">
-                <el-select
-                    v-model="search.status"
-                    placeholder="请选择"
-                    clearable
-                >
-                    <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
-            </el-form-item>
+<!--            <el-form-item label="是否启用：">-->
+<!--                <el-select-->
+<!--                    v-model="search.status"-->
+<!--                    placeholder="请选择"-->
+<!--                    clearable-->
+<!--                >-->
+<!--                    <el-option-->
+<!--                        v-for="item in options"-->
+<!--                        :key="item.value"-->
+<!--                        :label="item.label"-->
+<!--                        :value="item.value"-->
+<!--                    />-->
+<!--                </el-select>-->
+<!--            </el-form-item>-->
 
 <!--            <el-form-item label="类型：">-->
 <!--                <el-select-->
@@ -55,23 +55,23 @@
                 >
                     查询
                 </el-button>
-                <router-link
-                    class="ml10"
-                    :to="{name: 'partner-service-add'}"
-                >
-                    <el-button>
-                        为合作者开通服务
-                    </el-button>
-                </router-link>
-
 <!--                <router-link-->
 <!--                    class="ml10"-->
-<!--                    :to="{name: 'activate-service-add'}"-->
+<!--                    :to="{name: 'partner-service-add'}"-->
 <!--                >-->
 <!--                    <el-button>-->
-<!--                        激活服务-->
+<!--                        为合作者开通服务-->
 <!--                    </el-button>-->
 <!--                </router-link>-->
+
+                <router-link
+                    class="ml10"
+                    :to="{name: 'activate-service-add'}"
+                >
+                    <el-button>
+                        激活外部服务
+                    </el-button>
+                </router-link>
             </el-form-item>
         </el-form>
 
@@ -117,18 +117,18 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
-                label="调用方出口IP"
-                width="200"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.ip_add }}
-                </template>
-            </el-table-column>
+<!--            <el-table-column-->
+<!--                label="调用方出口IP"-->
+<!--                width="200"-->
+<!--            >-->
+<!--                <template slot-scope="scope">-->
+<!--                    {{ scope.row.ip_add }}-->
+<!--                </template>-->
+<!--            </el-table-column>-->
 
             <el-table-column
                 label="请求地址"
-                width="200"
+                width="400"
             >
                 <template slot-scope="scope">
                     <el-tooltip
@@ -139,24 +139,6 @@
                     >
                         <p>{{ scope.row.url }} </p>
                     </el-tooltip>
-                </template>
-            </el-table-column>
-
-            <el-table-column
-                label="单价(￥)"
-                width="65"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.unit_price }}
-                </template>
-            </el-table-column>
-
-            <el-table-column
-                label="付费类型"
-                width="70"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.pay_type }}
                 </template>
             </el-table-column>
 
@@ -197,7 +179,7 @@
                         禁用
                     </el-button>
                     <router-link style="padding-left: 3px"
-                        :to="{
+                                 :to="{
                             name: scope.row.type === 0 ?'partner-service-edit':'activate-service-edit',
                             query: {
                                 serviceId: scope.row.service_id,
@@ -244,7 +226,7 @@ export default {
                 clientName: '',
                 status: '',
                 serviceName: '',
-                type:0,
+                type:1,
             },
             options: [{
                 value: '1',
@@ -283,8 +265,7 @@ export default {
             const {code, data} = await this.$http.post({
                 url: '/clientservice/query-list',
                 data: {
-                    type: 0,
-                    status:this.search.status,
+                    type: 1,
                     serviceName:this.search.serviceName,
                     clientName:this.search.clientName,
                 },

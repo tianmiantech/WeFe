@@ -41,6 +41,11 @@
                             :disabled="is_update"
                         />
                     </el-form-item>
+
+                    <el-form-item label="运行模式：">
+                        <el-radio v-model="mode" :label="0" @change="modeChange">独立模式</el-radio>
+                        <el-radio v-model="mode" :label="1" @change="modeChange">联邦模式</el-radio>
+                    </el-form-item>
                 </el-col>
             </el-row>
             <el-row :gutter="100">
@@ -81,13 +86,14 @@
                 is_update:  false,
                 is_display: false,
                 is_reset : false,
+                mode:'',
                 // model
                 form:       {
                     identity_info:{
                         member_id:       '',
                         member_name:     '',
-                        // rsa_public_key:  '',
                         serving_base_url:'',
+                        mode:'',
                     }
                 },
 
@@ -100,6 +106,14 @@
             this.getData();
         },
         methods: {
+            async modeChange(){
+                if(this.mode === 1){
+                    this.form.identity_info.mode = 'union';
+                }
+                else{
+                    this.form.identity_info.mode = 'standalone';
+                }
+            },
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.post({
@@ -114,6 +128,12 @@
 
                 if (code === 0) {
                     this.form = data;
+                    if(data.identity_info.mode === 'union'){
+                        this.mode = 1;
+                    }
+                    else{
+                        this.mode = 0;
+                    }
                 }
                 this.loading = false;
             },
@@ -125,7 +145,6 @@
                         "groups":this.form
                     },
                 });
-
                 if (code === 0) {
                     this.$message.success('保存成功!');
                     this.$router.push({ name: 'global-setting-view' });

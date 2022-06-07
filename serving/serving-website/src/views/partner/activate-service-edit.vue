@@ -22,7 +22,7 @@
             </el-form-item>
             <el-form-item label="服务访问URL：" prop="url" class = "url flex_box">
                 <el-input v-model="clientService.url"></el-input>
-                <el-link @click="testUrl" type="primary" :underline="false">测试连通性</el-link>
+                <el-link @click="testUrl" type="primary" :underline="false" v-if="clientService.url.startsWith('http')">测试连通性</el-link>
             </el-form-item>
             <el-form-item label="code：" prop="code" class = "url">
                 <el-input v-model="clientService.code"></el-input>
@@ -50,7 +50,7 @@
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
                     :to="{
-                            name: 'partner-service-list',
+                            name: 'activation-service-list',
                         }"
                 >
                     &nbsp;<el-button>返回</el-button>
@@ -181,7 +181,7 @@ export default {
                             serviceName: this.clientService.serviceName,
                             clientName: this.clientService.clientName,
                             code:this.clientService.code,
-                            createdBy: this.userInfo.nickname,
+                            updatedBy: this.userInfo.nickname,
                         },
                     });
 
@@ -190,7 +190,7 @@ export default {
                             this.$message('提交成功!');
                         }, 1000)
                         this.$router.push({
-                            name: 'partner-service-list'
+                            name: 'activation-service-list'
                         })
                     }
                 } else {

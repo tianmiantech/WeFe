@@ -15,7 +15,8 @@
  */
 package com.welab.wefe.serving.service.api.clientservice;
 
-import com.welab.wefe.common.StatusCode;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -23,7 +24,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author ivenn.zheng
@@ -46,13 +46,13 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         private String serviceId;
 
         @Check(name = "服务名称")
-        private String serviceName;
+        private String serviceName; // 激活服务使用
 
         @Check(name = "客户 id", require = true, messageOnEmpty = "请选择客户")
         private String clientId;
 
         @Check(name = "合作者名称")
-        private String clientName;
+        private String clientName; // 激活服务使用
 
         @Check(name = "pay type")
         private int payType;
@@ -147,22 +147,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
             this.url = url;
         }
 
-        public String getServiceName() {
-            return serviceName;
-        }
-
-        public void setServiceName(String serviceName) {
-            this.serviceName = serviceName;
-        }
-
-        public String getClientName() {
-            return clientName;
-        }
-
-        public void setClientName(String clientName) {
-            this.clientName = clientName;
-        }
-
         public String getPrivateKey() {
             return privateKey;
         }
@@ -177,6 +161,22 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         public void setCode(String code) {
             this.code = code;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public String getClientName() {
+            return clientName;
+        }
+
+        public void setClientName(String clientName) {
+            this.clientName = clientName;
         }
     }
 }
