@@ -48,10 +48,7 @@ import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.common.wefe.enums.FederatedLearningType;
-import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
+import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,7 +167,7 @@ public class ProjectService extends AbstractService {
             content.fromMemberId = input.callerMemberInfo.getMemberId();
             content.projectId = project.getProjectId();
             content.projectName = project.getName();
-            messageService.add();
+            messageService.add(MessageEvent.CreateProject, content);
         }
 
         // create and save ProjectMember to database

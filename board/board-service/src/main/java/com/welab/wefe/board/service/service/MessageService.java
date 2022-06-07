@@ -23,9 +23,9 @@ import com.welab.wefe.board.service.database.repository.MessageRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.MessageOutputModel;
 import com.welab.wefe.board.service.dto.vo.message.AbstractMessageContent;
+import com.welab.wefe.board.service.dto.vo.message.TextMessageContent;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.wefe.enums.MessageEvent;
-import com.welab.wefe.common.wefe.enums.MessageLevel;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -58,13 +58,23 @@ public class MessageService extends AbstractService {
         repo.updateById(id, "unread", false, MessageMysqlModel.class);
     }
 
-    public void add(MessageEvent event, AbstractMessageContent content) {
+    public void add(MessageEvent event, String title, String content) {
+        TextMessageContent messageContent = new TextMessageContent();
+        messageContent.message = content;
+        add(event, title, content);
+    }
 
+    public void add(MessageEvent event, AbstractMessageContent content) {
+        add(event, null, content);
+    }
+
+    public void add(MessageEvent event, String title, AbstractMessageContent content) {
         MessageMysqlModel model = new MessageMysqlModel();
+        model.setEvent(event);
         model.setProducer(ProducerType.board);
-        model.setLevel(MessageLevel.error);
+        model.setLevel(event.getLevel());
         model.setTitle(title);
-        model.setContent(content);
+        model.setContent(content.toString());
         model.setUnread(true);
 
         repo.save(model);

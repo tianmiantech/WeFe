@@ -48,4 +48,24 @@ public enum MessageEvent {
      * Gateway服务错误
      */
     OnGatewayError,
+    /**
+     * 邮件发送失败
+     */
+    OnEmailSendFail;
+
+    public MessageLevel getLevel() {
+        switch (this) {
+            case AgreeJoinProject:
+            case AgreeApplyDataResource:
+                return MessageLevel.success;
+            case DisagreeJoinProject:
+            case DisagreeApplyDataResource:
+                return MessageLevel.warning;
+            case OnGatewayError:
+            case OnEmailSendFail:
+                return MessageLevel.error;
+            default:
+                return MessageLevel.info;
+        }
+    }
 }
