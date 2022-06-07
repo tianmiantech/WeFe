@@ -15,11 +15,15 @@
  */
 package com.welab.wefe.board.service.dto.vo.message;
 
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+
 /**
- * 消息体：同意数据资源申请
+ * 消息体：审核加入项目
  *
  * @author zane
  * @date 2022/6/7
  */
-public class AgreeApplyDataResourceMessageContent extends ApplyDataResourceMessageContent {
+public class AuditJoinProjectMessageContent extends CreateProjectMessageContent {
+    public AuditStatus auditStatus;
+    public String auditComment;
 }
