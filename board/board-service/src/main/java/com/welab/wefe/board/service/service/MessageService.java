@@ -40,8 +40,11 @@ public class MessageService extends AbstractService {
 
         Specification<MessageMysqlModel> where = Where
                 .create()
-                .equal("level", input.getLevel())
-                .equal("unread", input.getUnread())
+                .equal("todo", input.todo)
+                .equal("todoComplete", input.todoComplete)
+                .equal("level", input.level)
+                .equal("unread", input.unread)
+                .in("event", input.eventList)
                 .build(MessageMysqlModel.class);
 
         return repo.paging(where, input, MessageOutputModel.class);
