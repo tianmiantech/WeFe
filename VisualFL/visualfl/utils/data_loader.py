@@ -284,7 +284,7 @@ def un_zip(file_name,target_path):
         zip_file.close()
         return os.path.dirname(names[0])
     except Exception as e:
-        print(e)
+        logging.error(f"unzip error as {e} ")
         raise Exception(f"unzip file {file_name} error as {e}")
 
 
@@ -312,14 +312,15 @@ def job_download(url, job_id, base_dir, data_name=None):
         data = req.pathname2url(params_str)
         private_str = GlobalConfigDao.get_rsa_private_key()
         sign = gen_sign(params_str, private_str)
+        sign = req.pathname2url(sign)
         encode_url = f'{url_pre}?data={data}&sign={sign}'
         data_file = download(encode_url, base_dir, save_name)
         dir_name = un_zip(data_file, base_dir)
-        target_dir = os.path.join(base_dir, dir_name)
+        return os.path.join(base_dir, dir_name)
     except Exception as e:
         logging.error(f"job download with {job_id} error as {e} ")
+        return None
 
-    return target_dir
 
 def getImageList(dir, filelist):
     if os.path.isfile(dir):
