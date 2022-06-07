@@ -6,7 +6,7 @@
         <el-form :model="form">
             <el-row :gutter="100">
                 <el-col :span="12">
-                    <el-form-item label="Member Id：">
+                    <el-form-item label="系统ID：">
                         {{ form.identity_info.member_id }}
                     </el-form-item>
                     <el-form-item
