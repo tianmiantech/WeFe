@@ -22,5 +22,9 @@ package com.welab.wefe.board.service.dto.vo.message;
  * @date 2022/6/7
  */
 public class CreateProjectMessageContent extends AbstractMessageContentWithProject {
-
+    @Override
+    public String getTitle() {
+        return "成员【" + getFromMemberName() +
+                "】邀请您加入项目【" + projectName + "】";
+    }
 }

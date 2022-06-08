@@ -26,4 +26,14 @@ import com.welab.wefe.common.wefe.enums.AuditStatus;
 public class AuditJoinProjectMessageContent extends CreateProjectMessageContent {
     public AuditStatus auditStatus;
     public String auditComment;
+
+    @Override
+    public String getTitle() {
+        String status = auditStatus == AuditStatus.agree
+                ? "同意"
+                : "拒绝";
+
+        return "成员【" + getFromMemberName() +
+                "】已" + status + "加入项目【" + projectName + "】";
+    }
 }

@@ -26,4 +26,15 @@ import com.welab.wefe.common.wefe.enums.AuditStatus;
 public class AuditApplyDataResourceMessageContent extends ApplyDataResourceMessageContent {
     public AuditStatus auditStatus;
     public String auditComment;
+
+    @Override
+    public String getTitle() {
+        String status = auditStatus == AuditStatus.agree
+                ? "通过"
+                : "拒绝";
+
+        return "成员【" + getFromMemberName() +
+                "】" + status + "了你对" + dataResourceType.getLabel() +
+                "【" + dataResourceName + "】(" + sampleCount + ")的申请";
+    }
 }

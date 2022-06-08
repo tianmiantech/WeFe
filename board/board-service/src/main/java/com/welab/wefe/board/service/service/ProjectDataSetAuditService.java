@@ -24,6 +24,7 @@ import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDa
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,8 @@ public class ProjectDataSetAuditService extends AbstractService {
 
     @Autowired
     ProjectDataSetService projectDataSetService;
+    @Autowired
+    private MessageService messageService;
 
 
     /**
@@ -86,6 +89,16 @@ public class ProjectDataSetAuditService extends AbstractService {
         // Update the number of data sets used in the project
         tableDataSetService.updateUsageCountInProject(dataSet.getDataSetId());
 
+        // 如果我方是 promoter，添加一条提醒消息。
+        if (input.fromGateway() && project.getMyRole() == JobMemberRole.promoter) {
+            messageService.addAuditDataResourceMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project,
+                    dataSet,
+                    input.getAuditStatus(),
+                    input.getAuditComment()
+            );
+        }
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AuditDataSetApi.class);
 

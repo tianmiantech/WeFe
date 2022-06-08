@@ -28,4 +28,11 @@ public class ApplyDataResourceMessageContent extends AbstractMessageContentWithP
     public String dataResourceId;
     public String dataResourceName;
     public long sampleCount;
+
+    @Override
+    public String getTitle() {
+        return "成员【" + getFromMemberName() +
+                "】申请使用" + dataResourceType.getLabel() +
+                "：" + dataResourceName + "(" + sampleCount + ")";
+    }
 }

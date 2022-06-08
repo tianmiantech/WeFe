@@ -23,7 +23,7 @@ import com.welab.wefe.board.service.service.CacheObjects;
  * @author zane
  * @date 2022/6/7
  */
-public class AbstractMessageContentWithProject extends AbstractMessageContent {
+public abstract class AbstractMessageContentWithProject extends AbstractMessageContent {
     public String fromMemberId;
     public String projectId;
     public String projectName;

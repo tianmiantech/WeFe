@@ -21,8 +21,10 @@ import com.alibaba.fastjson.JSON;
  * @author zane
  * @date 2022/6/7
  */
-public class AbstractMessageContent {
-    
+public abstract class AbstractMessageContent {
+
+    public abstract String getTitle();
+
     @Override
     public String toString() {
         return JSON.toJSONString(this);

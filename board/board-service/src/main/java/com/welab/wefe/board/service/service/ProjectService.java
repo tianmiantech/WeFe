@@ -34,7 +34,6 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
-import com.welab.wefe.board.service.dto.vo.message.CreateProjectMessageContent;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
@@ -48,7 +47,10 @@ import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.*;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,11 +165,11 @@ public class ProjectService extends AbstractService {
         projectRepo.save(project);
 
         if (input.fromGateway()) {
-            CreateProjectMessageContent content = new CreateProjectMessageContent();
-            content.fromMemberId = input.callerMemberInfo.getMemberId();
-            content.projectId = project.getProjectId();
-            content.projectName = project.getName();
-            messageService.add(MessageEvent.CreateProject, content);
+            messageService.addCreateProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project.getProjectId(),
+                    project.getName()
+            );
         }
 
         // create and save ProjectMember to database
@@ -211,6 +213,15 @@ public class ProjectService extends AbstractService {
                 // Update the usage count of the dataset in the project
                 if (auditStatus == AuditStatus.agree && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
                     dataResourceService.updateUsageCountInProject(dataSet.getDataSetId());
+                }
+
+                // 如果申请使用我方数据资源，添加一条消息予以提醒。
+                if (input.fromGateway() && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
+                    messageService.addApplyDataResourceMessage(
+                            input.callerMemberInfo.getMemberId(),
+                            project,
+                            dataSetInput.getDataSetId()
+                    );
                 }
             }
 
@@ -511,6 +522,14 @@ public class ProjectService extends AbstractService {
                 dataResourceService.updateUsageCountInProject(projectDataSet.getDataSetId());
             }
 
+            // 如果申请使用我方数据资源，添加一条消息予以提醒。
+            if (input.fromGateway() && CacheObjects.isCurrentMember(item.getMemberId())) {
+                messageService.addApplyDataResourceMessage(
+                        input.callerMemberInfo.getMemberId(),
+                        project,
+                        item.getDataSetId()
+                );
+            }
         }
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AddDataSetApi.class);
@@ -916,6 +935,15 @@ public class ProjectService extends AbstractService {
             if (input.getAuditResult() == AuditStatus.agree) {
                 syncAuditProjectInfo(input.getProjectId(), input);
             }
+        }
+
+        if (input.fromGateway()) {
+            messageService.addAuditJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project,
+                    input.getAuditResult(),
+                    input.getAuditComment()
+            );
         }
 
     }

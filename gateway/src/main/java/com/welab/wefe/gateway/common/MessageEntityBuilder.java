@@ -17,6 +17,7 @@
 package com.welab.wefe.gateway.common;
 
 
+import com.welab.wefe.common.wefe.enums.MessageEvent;
 import com.welab.wefe.common.wefe.enums.MessageLevel;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 import com.welab.wefe.gateway.entity.MessageEntity;
@@ -31,6 +32,7 @@ public class MessageEntityBuilder {
     public static MessageEntity createDefault() {
         MessageEntity entity = new MessageEntity();
         entity.setProducer(ProducerType.gateway);
+        entity.setEvent(MessageEvent.OnGatewayError);
         entity.setLevel(MessageLevel.info);
         entity.setUnread(true);
         entity.setUpdatedTime(null);

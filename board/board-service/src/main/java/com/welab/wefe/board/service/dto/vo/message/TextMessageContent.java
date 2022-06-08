@@ -21,4 +21,9 @@ package com.welab.wefe.board.service.dto.vo.message;
  */
 public class TextMessageContent extends AbstractMessageContent {
     public String message;
+
+    @Override
+    public String getTitle() {
+        return null;
+    }
 }
