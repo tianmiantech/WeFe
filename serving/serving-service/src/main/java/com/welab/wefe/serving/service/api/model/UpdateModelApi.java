@@ -29,8 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "model/update_sql_config", name = "Update model SQL configuration")
-public class UpdateModelSqlConfigApi extends AbstractNoneOutputApi<UpdateModelSqlConfigApi.Input> {
+@Api(path = "model/update", name = "Update model SQL configuration")
+public class UpdateModelApi extends AbstractNoneOutputApi<UpdateModelApi.Input> {
 
     @Autowired
     private ModelService modelService;
@@ -41,7 +41,8 @@ public class UpdateModelSqlConfigApi extends AbstractNoneOutputApi<UpdateModelSq
                 input.getModelId(),
                 input.getFeatureSource(),
                 input.getDataSourceId(),
-                input.getSqlContext()
+                input.getSqlScript(),
+                input.getSqlConditionField()
         );
         return success();
     }
@@ -57,7 +58,10 @@ public class UpdateModelSqlConfigApi extends AbstractNoneOutputApi<UpdateModelSq
         private String dataSourceId;
 
         @Check(name = "sql语句")
-        private String sqlContext;
+        private String sqlScript;
+
+        @Check(name = "sql查询条件字段")
+        private String sqlConditionField;
 
         //region getter/setter
 
@@ -85,12 +89,20 @@ public class UpdateModelSqlConfigApi extends AbstractNoneOutputApi<UpdateModelSq
             this.dataSourceId = dataSourceId;
         }
 
-        public String getSqlContext() {
-            return sqlContext;
+        public String getSqlScript() {
+            return sqlScript;
         }
 
-        public void setSqlContext(String sqlContext) {
-            this.sqlContext = sqlContext;
+        public void setSqlScript(String sqlScript) {
+            this.sqlScript = sqlScript;
+        }
+
+        public String getSqlConditionField() {
+            return sqlConditionField;
+        }
+
+        public void setSqlConditionField(String sqlConditionField) {
+            this.sqlConditionField = sqlConditionField;
         }
 
         //endregion

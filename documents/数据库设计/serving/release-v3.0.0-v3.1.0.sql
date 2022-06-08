@@ -161,3 +161,7 @@ alter table client_service modify column `url` varchar(128) DEFAULT '' COMMENT '
 alter table `service` add column `query_params_config` varchar(255) DEFAULT NULL comment "服务配置" after `query_params`;
 
 alter table fee_config modify column `service_id` varchar(255) COMMENT '服务Id';
+
+ALTER TABLE model ADD sql_script varchar(1024) NULL COMMENT 'sql脚本';
+ALTER TABLE model ADD sql_condition_field varchar(100) NULL COMMENT 'sql查询条件字段';
+ALTER TABLE model ADD data_source_id varchar(100) NULL  COMMENT '数据源ID';

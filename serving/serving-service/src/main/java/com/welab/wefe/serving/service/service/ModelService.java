@@ -21,6 +21,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
@@ -338,20 +339,28 @@ public class ModelService {
     public void updateConfig(String modelId,
                              PredictFeatureDataSource featureSource,
                              String dataSourceId,
-                             String sqlContext) throws StatusCodeWithException {
+                             String sqlScript,
+                             String sqlConditionField) throws StatusCodeWithException {
 
         ModelMySqlModel model = findOne(modelId);
         if (model == null) {
             throw new StatusCodeWithException("未查找到模型！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        model.setFeatureSource(featureSource);
-        modelRepository.save(model);
-
         if (featureSource.equals(PredictFeatureDataSource.sql)) {
-            modelSqlConfigService.saveSqlConfig(modelId, dataSourceId, sqlContext);
+            model.setFeatureSource(featureSource);
+            model.setSqlScript(sqlScript);
+            model.setSqlConditionField(sqlConditionField);
+            model.setDataSourceId(dataSourceId);
+            model.setUpdatedBy(CurrentAccount.id());
+            model.setUpdatedTime(new Date());
+            modelRepository.save(model);
         } else {
-            modelSqlConfigService.clearSqlConfig(modelId);
+            model.setFeatureSource(featureSource);
+            model.setDataSourceId(null);
+            model.setSqlScript("");
+            model.setSqlConditionField("");
+            modelRepository.save(model);
         }
     }
 
