@@ -58,7 +58,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
      */
     private void checkInitialized() throws StatusCodeWithException {
         if (isInitialized()) {
-            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "The system has been initialized and cannot be repeated.");
+            throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，无法重复操作。");
         }
     }
 

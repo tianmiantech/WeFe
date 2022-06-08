@@ -21,6 +21,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
@@ -146,7 +147,7 @@ public class ModelService {
         if (JobMemberRole.provider.equals(input.getMyRole())) {
             openPartnerService(input.getModelId(), input.getMemberParams());
         } else {
-            activatePartnerService(input.getModelId(), input.getMemberParams());
+            activatePartnerService(input.getModelId(), input.getName(), input.getMemberParams());
         }
     }
 
@@ -156,16 +157,17 @@ public class ModelService {
      * @param modelId
      * @param memberParams
      */
-    private void activatePartnerService(String modelId, List<MemberParams> memberParams) {
+    private void activatePartnerService(String modelId, String modelName, List<MemberParams> memberParams) {
         memberParams.stream()
                 .filter(x -> JobMemberRole.provider.equals(x.getRole()))
-                .forEach(x -> activate(modelId, x));
+                .forEach(x -> activate(modelId, modelName, x));
     }
 
-    private void activate(String modelId, MemberParams x) {
+    private void activate(String modelId, String name, MemberParams x) {
         try {
             clientServiceService.activateService(
                     modelId,
+                    name,
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
@@ -178,6 +180,10 @@ public class ModelService {
     }
 
     private String setModelServiceUrl(String modelId) {
+        return API_PREFIX + modelId;
+    }
+
+    private String extractServiceName(String modelId) {
         return API_PREFIX + modelId;
     }
 
@@ -333,20 +339,28 @@ public class ModelService {
     public void updateConfig(String modelId,
                              PredictFeatureDataSource featureSource,
                              String dataSourceId,
-                             String sqlContext) throws StatusCodeWithException {
+                             String sqlScript,
+                             String sqlConditionField) throws StatusCodeWithException {
 
         ModelMySqlModel model = findOne(modelId);
         if (model == null) {
             throw new StatusCodeWithException("未查找到模型！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        model.setFeatureSource(featureSource);
-        modelRepository.save(model);
-
         if (featureSource.equals(PredictFeatureDataSource.sql)) {
-            modelSqlConfigService.saveSqlConfig(modelId, dataSourceId, sqlContext);
+            model.setFeatureSource(featureSource);
+            model.setSqlScript(sqlScript);
+            model.setSqlConditionField(sqlConditionField);
+            model.setDataSourceId(dataSourceId);
+            model.setUpdatedBy(CurrentAccount.id());
+            model.setUpdatedTime(new Date());
+            modelRepository.save(model);
         } else {
-            modelSqlConfigService.clearSqlConfig(modelId);
+            model.setFeatureSource(featureSource);
+            model.setDataSourceId(null);
+            model.setSqlScript("");
+            model.setSqlConditionField("");
+            modelRepository.save(model);
         }
     }
 
@@ -406,7 +420,6 @@ public class ModelService {
 
     private SaveApi.Input createOrder(RouteApi.Input input) {
         SaveApi.Input order = new SaveApi.Input();
-        order.setId("");
         order.setServiceId(input.getServiceId());
         order.setServiceName(getModelName(input.getServiceId()));
         order.setServiceType(ServiceTypeEnum.MachineLearning.name());

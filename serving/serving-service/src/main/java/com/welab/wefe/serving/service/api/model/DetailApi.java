@@ -21,6 +21,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.Algorithm;
@@ -41,7 +42,6 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -73,9 +73,10 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         }
 
         DetailApi.Output output = ModelMapper.map(model, DetailApi.Output.class);
+
         output.setModelParam(JObject.create(model.getModelParam()).getJObject("model_param"));
         output.setMyRole(findMyRoles(model.getModelId()));
-        output.setModelSqlConfig(querySqlConfig(model.getModelId()));
+//        output.setModelSqlConfig(querySqlConfig(model.getModelId()));
         output.setProcessor(FeatureManager.getProcessor(model.getModelId()));
         output.setXgboostTree(
                 output.getAlgorithm() == Algorithm.XGBoost ?
@@ -241,7 +242,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         //endregion
     }
 
-    public static class Output extends AbstractApiInput {
+    public static class Output extends AbstractApiOutput {
 
         private String modelId;
 
@@ -268,6 +269,12 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         private List<TreeNode> xgboostTree;
 
         private List<ModelStatusOutput> modelStatus;
+
+        private String sqlScript;
+
+        private String sqlConditionField;
+
+        private String dataSourceId;
 
         //region getter/setter
 
@@ -373,6 +380,30 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         public void setModelStatus(List<ModelStatusOutput> modelStatus) {
             this.modelStatus = modelStatus;
+        }
+
+        public String getSqlScript() {
+            return sqlScript;
+        }
+
+        public void setSqlScript(String sqlScript) {
+            this.sqlScript = sqlScript;
+        }
+
+        public String getSqlConditionField() {
+            return sqlConditionField;
+        }
+
+        public void setSqlConditionField(String sqlConditionField) {
+            this.sqlConditionField = sqlConditionField;
+        }
+
+        public String getDataSourceId() {
+            return dataSourceId;
+        }
+
+        public void setDataSourceId(String dataSourceId) {
+            this.dataSourceId = dataSourceId;
         }
 
         //endregion

@@ -49,27 +49,37 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "feature_source")
-    private PredictFeatureDataSource featureSource = PredictFeatureDataSource.api;
-    
+    private PredictFeatureDataSource featureSource = PredictFeatureDataSource.code;
+
     // 深度学习模型字段
-    
-    @Column(name="source_path")// 文件路径
+
+    @Column(name = "source_path")// 文件路径
     String sourcePath;
-    
+
     String filename;// 文件名
-    
-    @Column(name="use_count")// 使用计数
+
+    @Column(name = "use_count")// 使用计数
     int useCount;
-    
+
     // 通用字段
     private boolean enable;
 
     private String name;
-    
+
     private String url;
-    
-    @Column(name="service_type")
+
+    @Column(name = "service_type")
     private Integer serviceType;
+
+    @Column(name = "sql_script")
+    private String sqlScript;
+
+    @Column(name = "sql_condition_field")
+    private String sqlConditionField;
+
+    @Column(name = "data_source_id")
+    private String dataSourceId;
+
 
     public String getModelId() {
         return modelId;
@@ -166,5 +176,29 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
     public void setUseCount(int useCount) {
         this.useCount = useCount;
     }
-    
+
+
+    public String getSqlScript() {
+        return sqlScript;
+    }
+
+    public void setSqlScript(String sqlScript) {
+        this.sqlScript = sqlScript;
+    }
+
+    public String getSqlConditionField() {
+        return sqlConditionField;
+    }
+
+    public void setSqlConditionField(String sqlConditionField) {
+        this.sqlConditionField = sqlConditionField;
+    }
+
+    public String getDataSourceId() {
+        return dataSourceId;
+    }
+
+    public void setDataSourceId(String dataSourceId) {
+        this.dataSourceId = dataSourceId;
+    }
 }

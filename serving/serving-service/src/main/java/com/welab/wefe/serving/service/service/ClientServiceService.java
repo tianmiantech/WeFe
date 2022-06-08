@@ -349,6 +349,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void activateService(String serviceId,
+                                String serviceName,
                                 String clientId,
                                 String privateKey,
                                 String publicKey,
@@ -358,7 +359,7 @@ public class ClientServiceService {
         clientService.setClientId(clientId);
         clientService.setClientName(CacheObjects.getPartnerName(clientId));
         clientService.setServiceId(serviceId);
-        clientService.setServiceName(findServiceNameById(serviceId));
+        clientService.setServiceName(serviceName);
         clientService.setServiceType(serviceType.getCode());
         clientService.setPrivateKey(privateKey);
         clientService.setPublicKey(publicKey);
@@ -367,14 +368,6 @@ public class ClientServiceService {
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         clientService.setCreatedBy(CacheObjects.getMemberId());
         add(clientService);
-    }
-
-    private String findServiceNameById(String serviceId) {
-        ServiceMySqlModel service = serviceRepository.findOne("id", serviceId, ServiceMySqlModel.class);
-        if (service == null) {
-            return "";
-        }
-        return service.getName();
     }
 
     public int serviceUrlTest(Input input) throws Exception {

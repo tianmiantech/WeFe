@@ -28,7 +28,6 @@ import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.dto.globalconfig.ServingConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
@@ -98,10 +97,11 @@ public class ServingService extends AbstractService {
         params.put("member_name", model.getMemberName());
         params.put("rsa_private_key", model.getRsaPrivateKey());
         params.put("rsa_public_key", model.getRsaPublicKey());
+        params.put("union_base_url", "test.com");
         params.put("phoneNumber", phoneNumber);
         params.put("password", password);
 
-        request("global_config/initialize/union", params);
+        request("global_config/initialize/union", params, false);
     }
 
 
@@ -173,7 +173,9 @@ public class ServingService extends AbstractService {
         JSONObject json = response.getBodyAsJson();
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("serving 响应失败(" + code + ")：" + response.getMessage(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException("serving 响应失败(" + code + ")：" +
+                    (response.getMessage().isEmpty() ? json.getString("message") : response.getMessage())
+                    , StatusCode.RPC_ERROR);
         }
         return json;
     }

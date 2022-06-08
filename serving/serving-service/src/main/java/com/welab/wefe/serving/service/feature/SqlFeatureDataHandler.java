@@ -18,19 +18,18 @@ package com.welab.wefe.serving.service.feature;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelSqlConfigMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.feature.sql.AbstractTemplate;
 import com.welab.wefe.serving.service.feature.sql.hive.HiveTemplate;
 import com.welab.wefe.serving.service.feature.sql.impala.ImpalaTemplate;
 import com.welab.wefe.serving.service.feature.sql.mysql.MySqlTemplate;
 import com.welab.wefe.serving.service.feature.sql.pg.PgSqlTemplate;
 import com.welab.wefe.serving.service.service.DataSourceService;
-import com.welab.wefe.serving.service.service.ModelSqlConfigService;
+import com.welab.wefe.serving.service.service.ModelService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +39,7 @@ import java.util.Map;
  */
 public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
 
-    private static ModelSqlConfigService modelSqlConfigService;
+    private static ModelService modelService;
 
     private static DataSourceService dataSourceService;
 
@@ -78,7 +77,7 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
     }
 
     static {
-        modelSqlConfigService = Launcher.CONTEXT.getBean(ModelSqlConfigService.class);
+        modelService = Launcher.CONTEXT.getBean(ModelService.class);
         dataSourceService = Launcher.CONTEXT.getBean(DataSourceService.class);
     }
 
@@ -99,10 +98,14 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
     }
 
     private String buildSqlContext(String modelId, String userId) {
-        ModelSqlConfigMySqlModel modelConfig = modelSqlConfigService.findById(modelId);
-        return StringUtil.replace(
-                modelConfig.getSqlContext(), "?", "'" + userId + "'"
-        );
+        ModelMySqlModel modelConfig = modelService.findOne(modelId);
+        return new StringBuilder(16)
+                .append(modelConfig.getSqlScript())
+                .append(" where ")
+                .append(modelConfig.getSqlConditionField())
+                .append("='")
+                .append(userId)
+                .append("'").toString();
     }
 
     private AbstractTemplate generateTemplate(String modelId) throws StatusCodeWithException {
@@ -127,7 +130,7 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
     }
 
     private DataSourceMySqlModel findSqlConfig(String modelId) throws StatusCodeWithException {
-        ModelSqlConfigMySqlModel modelConfig = modelSqlConfigService.findById(modelId);
+        ModelMySqlModel modelConfig = modelService.findOne(modelId);
         DataSourceMySqlModel dataSource = dataSourceService.findById(modelConfig.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("模型 {} 未查找到特征sql配置！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);

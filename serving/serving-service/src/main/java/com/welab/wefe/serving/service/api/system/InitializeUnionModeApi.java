@@ -25,6 +25,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
+import com.welab.wefe.serving.service.service.AccountService;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,9 +43,13 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
     @Autowired
     private GlobalConfigService globalConfigService;
 
+    @Autowired
+    private AccountService accountService;
+
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
         //校验账号密码 check方法。
+        accountService.accountCheck(input.getPhoneNumber(), input.getPassword());
 
         //initialize
         IdentityInfoModel identityInfoModel = input.convertToIdentityInfoModel();
