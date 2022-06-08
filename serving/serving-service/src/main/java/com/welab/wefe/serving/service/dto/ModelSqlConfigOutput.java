@@ -16,62 +16,39 @@
 
 package com.welab.wefe.serving.service.dto;
 
-import com.welab.wefe.common.wefe.enums.DatabaseType;
-
 /**
  * @author hunter.zhao
  */
 public class ModelSqlConfigOutput {
-    private DatabaseType type;
 
-    private String url;
+    private String sqlScript;
 
-    private String username;
-
-    private String password;
-
-    private String sqlContext;
+    private String sqlConditionField;
 
     private String dataSourceId;
 
-    public DatabaseType getType() {
-        return type;
+    public static ModelSqlConfigOutput of(String dataSourceId, String sqlScript, String sqlConditionField) {
+        ModelSqlConfigOutput output = new ModelSqlConfigOutput();
+        output.dataSourceId = dataSourceId;
+        output.sqlScript = sqlScript;
+        output.sqlConditionField = sqlConditionField;
+        return output;
     }
 
-    public void setType(DatabaseType type) {
-        this.type = type;
+    public String getSqlScript() {
+        return sqlScript;
     }
 
-    public String getUrl() {
-        return url;
+    public void setSqlScript(String sqlScript) {
+        this.sqlScript = sqlScript;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public String getSqlConditionField() {
+        return sqlConditionField;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getSqlContext() {
-        return sqlContext;
-    }
-
-    public void setSqlContext(String sqlContext) {
-        this.sqlContext = sqlContext;
+    public void setSqlConditionField(String sqlConditionField) {
+        this.sqlConditionField = sqlConditionField;
     }
 
     public String getDataSourceId() {
