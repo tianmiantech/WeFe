@@ -19,50 +19,61 @@
                 </el-button>
             </div>
         </template>
-        <div
-            v-if="!message_list || message_list.length === 0"
-            class="empty-message-list"
-        >
-            <img
-                class="empty-data-img"
-                src="@assets/images/bangbangda.png"
-            >
-            <p class="p1">棒棒哒~</p>
-            <p class="p2">您已看完了所有系统消息</p>
-            <p class="p3">
-                <el-button
-                    type="text"
-                    @click="messageSearchChangeUnread(false)"
+        <el-tabs v-model="activeName" class="msg-tabs" type="border-card">
+            <el-tab-pane label="系统消息" name="systemMsg">
+                <div
+                    v-if="!message_list || message_list.length === 0"
+                    class="empty-message-list"
                 >
-                    查看已读
-                </el-button>
-            </p>
-        </div>
-        <el-collapse
-            v-else
-            v-infinite-scroll="loadMessageList"
-            infinite-scroll-delay="100"
-            class="message_list"
-            accordion
-            @change="handleMessageListCollapseChange"
-        >
-            <el-collapse-item
-                v-for="(item,index) in message_list"
-                :key="item.id"
-                :name="index"
-                :class="item.unread ? 'unread' : ''"
-            >
-                <template #title>
-                    <i :class="message_level_icon[item.level]" />
-                    {{ item.title }}
-                    <el-icon v-if="item.unread" class="el-icon-message unread-icon">
-                        <elicon-message />
-                    </el-icon>
-                    <span class="time">{{ dateFormat(item.created_time) }}</span>
-                </template>
-                {{ item.content }}
-            </el-collapse-item>
-        </el-collapse>
+                    <img
+                        class="empty-data-img"
+                        src="@assets/images/bangbangda.png"
+                    >
+                    <p class="p1">棒棒哒~</p>
+                    <p class="p2">您已看完了所有系统消息</p>
+                    <p class="p3">
+                        <el-button
+                            type="text"
+                            @click="messageSearchChangeUnread(false)"
+                        >
+                            查看已读
+                        </el-button>
+                    </p>
+                </div>
+                <el-collapse
+                    v-else
+                    v-infinite-scroll="loadMessageList"
+                    infinite-scroll-delay="100"
+                    class="message_list"
+                    accordion
+                    @change="handleMessageListCollapseChange"
+                >
+                    <el-collapse-item
+                        v-for="(item,index) in message_list"
+                        :key="item.id"
+                        :name="index"
+                        :class="item.unread ? 'unread' : ''"
+                    >
+                        <template #title>
+                            <i :class="message_level_icon[item.level]" />
+                            {{ item.title }}
+                            <el-icon v-if="item.unread" class="el-icon-message unread-icon">
+                                <elicon-message />
+                            </el-icon>
+                            <span class="time">{{ dateFormat(item.created_time) }}</span>
+                        </template>
+                        {{ item.content }}
+                    </el-collapse-item>
+                </el-collapse>
+            </el-tab-pane>
+            <el-tab-pane label="待办事项" name="todoList">
+                待办事项
+            </el-tab-pane>
+            <el-tab-pane label="合作通知" name="cooperateNotice">
+                合作通知
+            </el-tab-pane>
+        </el-tabs>
+        
     </el-card>
 </template>
 
@@ -95,6 +106,7 @@
                 },
 
                 message_list: [],
+                activeName:   'systemMsg',
             };
         },
         created() {
@@ -144,7 +156,7 @@
 
 <style lang="scss">
     .box-card{
-        height: 455px;
+        height: 571px;
         .empty-message-list{
             text-align: center;
             padding-top:15px;
@@ -157,7 +169,8 @@
         .message_list {
             overflow-y: auto;
             width: 100%;
-            height:335px;
+            height: 395px;
+            border: unset;
             .el-collapse-item__header{
                 color: #aaa;
             }
@@ -193,6 +206,10 @@
                 padding:8px;
                 text-indent: 30px;
             }
+        }
+        .msg-tabs {
+            margin-top: -5px;
+            overflow: auto;
         }
     }
     .success{
