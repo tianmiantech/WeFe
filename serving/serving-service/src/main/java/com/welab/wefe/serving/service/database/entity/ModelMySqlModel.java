@@ -71,6 +71,16 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
     @Column(name = "service_type")
     private Integer serviceType;
 
+    @Column(name = "sql_script")
+    private String sqlScript;
+
+    @Column(name = "sql_condition_field")
+    private String sqlConditionField;
+
+    @Column(name = "data_source_id")
+    private String dataSourceId;
+
+
     public String getModelId() {
         return modelId;
     }
@@ -167,4 +177,28 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
         this.useCount = useCount;
     }
 
+
+    public String getSqlScript() {
+        return sqlScript;
+    }
+
+    public void setSqlScript(String sqlScript) {
+        this.sqlScript = sqlScript;
+    }
+
+    public String getSqlConditionField() {
+        return sqlConditionField;
+    }
+
+    public void setSqlConditionField(String sqlConditionField) {
+        this.sqlConditionField = sqlConditionField;
+    }
+
+    public String getDataSourceId() {
+        return dataSourceId;
+    }
+
+    public void setDataSourceId(String dataSourceId) {
+        this.dataSourceId = dataSourceId;
+    }
 }
