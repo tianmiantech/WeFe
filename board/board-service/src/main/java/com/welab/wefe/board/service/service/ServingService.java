@@ -173,7 +173,9 @@ public class ServingService extends AbstractService {
         JSONObject json = response.getBodyAsJson();
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("serving 响应失败(" + code + ")：" + response.getMessage(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException("serving 响应失败(" + code + ")：" +
+                    (response.getMessage().isEmpty() ? json.getString("message") : response.getMessage())
+                    , StatusCode.RPC_ERROR);
         }
         return json;
     }
