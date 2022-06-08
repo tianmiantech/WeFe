@@ -146,7 +146,7 @@ public class ModelService {
         if (JobMemberRole.provider.equals(input.getMyRole())) {
             openPartnerService(input.getModelId(), input.getMemberParams());
         } else {
-            activatePartnerService(input.getModelId(), input.getMemberParams());
+            activatePartnerService(input.getModelId(), input.getName(), input.getMemberParams());
         }
     }
 
@@ -156,16 +156,17 @@ public class ModelService {
      * @param modelId
      * @param memberParams
      */
-    private void activatePartnerService(String modelId, List<MemberParams> memberParams) {
+    private void activatePartnerService(String modelId, String modelName, List<MemberParams> memberParams) {
         memberParams.stream()
                 .filter(x -> JobMemberRole.provider.equals(x.getRole()))
-                .forEach(x -> activate(modelId, x));
+                .forEach(x -> activate(modelId, modelName, x));
     }
 
-    private void activate(String modelId, MemberParams x) {
+    private void activate(String modelId, String name, MemberParams x) {
         try {
             clientServiceService.activateService(
                     modelId,
+                    name,
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
@@ -178,6 +179,10 @@ public class ModelService {
     }
 
     private String setModelServiceUrl(String modelId) {
+        return API_PREFIX + modelId;
+    }
+
+    private String extractServiceName(String modelId) {
         return API_PREFIX + modelId;
     }
 
@@ -406,7 +411,6 @@ public class ModelService {
 
     private SaveApi.Input createOrder(RouteApi.Input input) {
         SaveApi.Input order = new SaveApi.Input();
-        order.setId("");
         order.setServiceId(input.getServiceId());
         order.setServiceName(getModelName(input.getServiceId()));
         order.setServiceType(ServiceTypeEnum.MachineLearning.name());

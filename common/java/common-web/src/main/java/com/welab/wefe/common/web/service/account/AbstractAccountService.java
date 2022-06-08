@@ -217,4 +217,50 @@ public abstract class AbstractAccountService {
         }
         return success;
     }
+
+
+    /**
+     * @param phoneNumber 用户唯一标识（用户登录账号：通常是手机号）
+     * @param password    登录密码
+     * @return 登录成功后的 token
+     */
+    public void accountCheck(String phoneNumber, String password) throws StatusCodeWithException {
+
+        // Check if it's in the small black room
+        if (LoginSecurityPolicy.inDarkRoom(phoneNumber)) {
+            throw new StatusCodeWithException("【小黑屋】账号已被禁止登陆，请一个小时后再试。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        AccountInfo account = getAccountInfo(phoneNumber);
+        // phone number error
+        if (account == null || !verifyPassword(account.password, password, account.salt)) {
+            if (account != null) {
+                LoginSecurityPolicy.onLoginFail(phoneNumber);
+            }
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
+        }
+
+        if (account.cancelled) {
+            throw new StatusCodeWithException("账号已被注销，无法使用此账号。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (!account.enable) {
+            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
+        }
+
+        // Check audit status
+        if (account.auditStatus != null) {
+            switch (account.auditStatus) {
+                case auditing:
+                    AccountInfo superAdmin = getSuperAdmin();
+
+                    throw new StatusCodeWithException("账号尚未审核，请联系管理员 " + superAdmin.nickname + " （或其他任意管理员）对您的账号进行审核后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
+                case disagree:
+                    throw new StatusCodeWithException("账号审核不通过：" + account.auditStatus, StatusCode.PARAMETER_VALUE_INVALID);
+                default:
+            }
+        }
+    }
 }

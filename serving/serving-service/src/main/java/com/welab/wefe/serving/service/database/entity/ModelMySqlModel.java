@@ -49,26 +49,26 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "feature_source")
-    private PredictFeatureDataSource featureSource = PredictFeatureDataSource.api;
-    
+    private PredictFeatureDataSource featureSource = PredictFeatureDataSource.code;
+
     // 深度学习模型字段
-    
-    @Column(name="source_path")// 文件路径
+
+    @Column(name = "source_path")// 文件路径
     String sourcePath;
-    
+
     String filename;// 文件名
-    
-    @Column(name="use_count")// 使用计数
+
+    @Column(name = "use_count")// 使用计数
     int useCount;
-    
+
     // 通用字段
     private boolean enable;
 
     private String name;
-    
+
     private String url;
-    
-    @Column(name="service_type")
+
+    @Column(name = "service_type")
     private Integer serviceType;
 
     public String getModelId() {
@@ -166,5 +166,5 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
     public void setUseCount(int useCount) {
         this.useCount = useCount;
     }
-    
+
 }

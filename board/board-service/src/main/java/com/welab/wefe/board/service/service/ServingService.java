@@ -28,7 +28,6 @@ import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.dto.globalconfig.ServingConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
@@ -101,7 +100,7 @@ public class ServingService extends AbstractService {
         params.put("phoneNumber", phoneNumber);
         params.put("password", password);
 
-        request("global_config/initialize/union", params);
+        request("global_config/initialize/union", params, false);
     }
 
 
