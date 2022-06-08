@@ -16,12 +16,10 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
@@ -64,13 +62,17 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
      * }
      * </>
      */
-    private void getFederatedPredict( List<JObject> federatedResult) throws StatusCodeWithException {
+    private void getFederatedPredict(List<JObject> federatedResult) throws StatusCodeWithException {
 
         if (CollectionUtils.isEmpty(federatedResult)) {
             throw new StatusCodeWithException("federatedResult is null", StatusCode.REMOTE_SERVICE_ERROR);
         }
 
         for (JObject remote : federatedResult) {
+
+            if (remote.isEmpty()) {
+                continue;
+            }
 
             PredictModel predictModel = remote.getJObject("data").toJavaObject(PredictModel.class);
 

@@ -80,6 +80,43 @@ public class ServiceCallLogService {
         serviceCallLogRepository.save(model);
     }
 
+    public ServiceCallLogMysqlModel add(String orderId, int callByMe, String requestPartnerId,
+            String requestPartnerName, String serviceId, String serviceName, String serviceType, String requestId,
+            String requestData, String requestIp) {
+        ServiceCallLogMysqlModel model = new ServiceCallLogMysqlModel();
+        model.setOrderId(orderId);
+        model.setCallByMe(callByMe);
+        model.setRequestPartnerId(requestPartnerId);
+        model.setRequestPartnerName(requestPartnerName);
+        model.setServiceId(serviceId);
+        model.setServiceName(serviceName);
+        model.setServiceType(serviceType);
+        model.setRequestId(requestId);
+        model.setRequestData(requestData);
+        model.setRequestIp(requestIp);
+        model.setCreatedTime(new Date());
+        model.setUpdatedTime(new Date());
+        model = serviceCallLogRepository.save(model);
+        return model;
+    }
+    
+    public ServiceCallLogMysqlModel update(String callLogId, String responsePartnerId, String responsePartnerName,
+            String responseId, String responseData, int responseCode, String responseStatus, Long spendTime) {
+        ServiceCallLogMysqlModel model = serviceCallLogRepository.findOne("id", callLogId, ServiceCallLogMysqlModel.class);
+        if (null != model) {
+            model.setResponsePartnerId(responsePartnerId);
+            model.setResponsePartnerName(responsePartnerName);
+            model.setResponseId(responseId);
+            model.setResponseData(responseData);
+            model.setResponseCode(responseCode);
+            model.setResponseStatus(responseStatus);
+            model.setSpendTime(spendTime);
+            model.setUpdatedTime(new Date());
+            model = serviceCallLogRepository.save(model);
+        }
+        return model;
+    }
+    
     /**
      * 根据参数获取服务调用日志
      *

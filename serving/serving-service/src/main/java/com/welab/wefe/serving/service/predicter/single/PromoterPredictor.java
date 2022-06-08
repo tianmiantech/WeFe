@@ -35,6 +35,7 @@ import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
 import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
 import com.welab.wefe.serving.service.enums.ServiceCallStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
@@ -144,10 +145,23 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
 
             responseCheck(obj.getMemberId(), response);
 
+            //更新订单信息
+            updateOrderStatus(order, ServiceOrderEnum.SUCCESS);
+
             return extractData(response);
+        } catch (StatusCodeWithException e) {
+            //更新订单信息
+            updateOrderStatus(order, ServiceOrderEnum.FAILED);
+            throw e;
         } finally {
             callLog(obj.getMemberId(), order.getId(), buildFederatedPredictParam(), extractData(response), extractCode(response), extractResponseId(response));
         }
+    }
+
+    private void updateOrderStatus(SaveApi.Input order, ServiceOrderEnum status) {
+        ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
+        order.setStatus(status.getValue());
+        serviceOrderService.save(order);
     }
 
     private JObject extractData(HttpResponse response) {

@@ -16,8 +16,10 @@
 
 package com.welab.wefe.serving.service.api.system;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -26,6 +28,8 @@ import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Zane
@@ -57,20 +61,20 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
         )
         private String memberName;
 
-        @Check(name = "公钥")
-        private String rsaPublicKey;
-
-        @Check(name = "私钥")
-        private String rsaPrivateKey;
-
         public IdentityInfoModel convertToIdentityInfoModel() {
             IdentityInfoModel model = new IdentityInfoModel();
             model.setMemberId(memberId);
             model.setMemberName(memberName);
             model.setAvatar("");
-            model.setRsaPrivateKey(rsaPrivateKey);
-            model.setRsaPublicKey(rsaPublicKey);
             model.setMode(ServingModeEnum.standalone.name());
+
+            try {
+                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
+                model.setRsaPrivateKey(keyPair.privateKey);
+                model.setRsaPublicKey(keyPair.publicKey);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
             return model;
         }
 
@@ -90,22 +94,6 @@ public class InitializeApi extends AbstractNoneOutputApi<InitializeApi.Input> {
 
         public void setMemberName(String memberName) {
             this.memberName = memberName;
-        }
-
-        public String getRsaPublicKey() {
-            return rsaPublicKey;
-        }
-
-        public void setRsaPublicKey(String rsaPublicKey) {
-            this.rsaPublicKey = rsaPublicKey;
-        }
-
-        public String getRsaPrivateKey() {
-            return rsaPrivateKey;
-        }
-
-        public void setRsaPrivateKey(String rsaPrivateKey) {
-            this.rsaPrivateKey = rsaPrivateKey;
         }
 
 
