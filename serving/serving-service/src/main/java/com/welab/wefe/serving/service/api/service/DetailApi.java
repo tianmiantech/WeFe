@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,19 +15,6 @@
  */
 
 package com.welab.wefe.serving.service.api.service;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -63,6 +50,12 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
 import com.welab.wefe.serving.service.service.ServiceService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(path = "service/detail", name = "服务详情")
 public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
@@ -72,7 +65,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
     @Autowired
     private ModelRepository modelRepo;
-    
+
     @Autowired
     ModelService modelService;
 
@@ -105,7 +98,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         output.setModelParam(JObject.create(model.getModelParam()).getJObject("model_param"));
         output.setMyRole(findMyRoles(model.getModelId()));
-        output.setModelSqlConfig(querySqlConfig(model.getModelId()));
+        output.setModelSqlConfig(ModelSqlConfigOutput.of(model.getDataSourceId(), model.getSqlScript(), model.getSqlConditionField()));
         output.setProcessor(FeatureManager.getProcessor(model.getModelId()));
         output.setXgboostTree(
                 output.getAlgorithm() == Algorithm.XGBoost ? xgboost(output.getModelParam(), output.getFlType())
@@ -139,12 +132,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         preview.put("method", "POST");
         output.setPreview(preview);
         return success(output);
-    }
-
-    private ModelSqlConfigOutput querySqlConfig(String modelId) {
-        ModelSqlConfigMySqlModel sqlConfig = modelSqlConfigService.findById(modelId);
-
-        return ModelMapper.map(sqlConfig, ModelSqlConfigOutput.class);
     }
 
     private List<JobMemberRole> findMyRoles(String modelId) {
@@ -264,7 +251,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         children.add(rightNode);
         root.setChildren(children);
     }
-    
+
     public static class Input extends AbstractApiInput {
 
         @Check(name = "主键id")
@@ -296,7 +283,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         private Date createdTime;
         private Date updatedTime;
         private int status;
-        
+
         private String modelId;
         private Algorithm algorithm;
         private List<JobMemberRole> myRole;
@@ -308,7 +295,15 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         private String processor;
         private List<TreeNode> xgboostTree;
         private List<ModelStatusOutput> modelStatus;
+
         private JSONObject preview;
+
+
+        private String sqlScript;
+
+        private String sqlConditionField;
+
+        private String dataSourceId;
 
         public String getId() {
             return id;
@@ -508,6 +503,30 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         public void setModelStatus(List<ModelStatusOutput> modelStatus) {
             this.modelStatus = modelStatus;
+        }
+
+        public String getSqlScript() {
+            return sqlScript;
+        }
+
+        public void setSqlScript(String sqlScript) {
+            this.sqlScript = sqlScript;
+        }
+
+        public String getSqlConditionField() {
+            return sqlConditionField;
+        }
+
+        public void setSqlConditionField(String sqlConditionField) {
+            this.sqlConditionField = sqlConditionField;
+        }
+
+        public String getDataSourceId() {
+            return dataSourceId;
+        }
+
+        public void setDataSourceId(String dataSourceId) {
+            this.dataSourceId = dataSourceId;
         }
     }
 
