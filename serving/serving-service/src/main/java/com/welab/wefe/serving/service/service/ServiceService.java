@@ -407,7 +407,7 @@ public class ServiceService {
         PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
                 ServiceTypeEnum.getValue(service.getServiceType()), new Integer(0), ServiceOrderEnum.ORDERING.name(),
-                null, null, null, null);
+                client.getId(), client.getName(), CacheObjects.getMemberId(), CacheObjects.getMemberName());
         ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderModel.getId(), 0, client.getId(), client.getName(),
                 service.getId(), service.getName(),ServiceTypeEnum.getValue(service.getServiceType()),
                 input.getRequestId(), JSONObject.toJSONString(input),
