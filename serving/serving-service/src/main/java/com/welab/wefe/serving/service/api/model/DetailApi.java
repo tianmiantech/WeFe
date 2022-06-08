@@ -21,6 +21,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
+import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.Algorithm;
@@ -241,7 +242,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         //endregion
     }
 
-    public static class Output extends AbstractApiInput {
+    public static class Output extends AbstractApiOutput {
 
         private String modelId;
 
