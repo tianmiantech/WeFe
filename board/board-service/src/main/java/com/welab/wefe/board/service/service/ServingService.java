@@ -97,6 +97,7 @@ public class ServingService extends AbstractService {
         params.put("member_name", model.getMemberName());
         params.put("rsa_private_key", model.getRsaPrivateKey());
         params.put("rsa_public_key", model.getRsaPublicKey());
+        params.put("union_base_url", "test.com");
         params.put("phoneNumber", phoneNumber);
         params.put("password", password);
 
