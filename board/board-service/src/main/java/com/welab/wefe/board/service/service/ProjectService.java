@@ -220,7 +220,7 @@ public class ProjectService extends AbstractService {
                     messageService.addApplyDataResourceMessage(
                             input.callerMemberInfo.getMemberId(),
                             project,
-                            dataSetInput.getDataSetId()
+                            dataSet
                     );
                 }
             }
@@ -527,7 +527,7 @@ public class ProjectService extends AbstractService {
                 messageService.addApplyDataResourceMessage(
                         input.callerMemberInfo.getMemberId(),
                         project,
-                        item.getDataSetId()
+                        projectDataSet
                 );
             }
         }

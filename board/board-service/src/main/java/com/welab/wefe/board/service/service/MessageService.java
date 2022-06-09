@@ -19,7 +19,6 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.message.QueryApi;
 import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
-import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.MessageRepository;
@@ -104,9 +103,9 @@ public class MessageService extends AbstractService {
     /**
      * 添加一条 event 为 ApplyDataResource 的消息     *
      */
-    public void addApplyDataResourceMessage(String fromMemberId, ProjectMySqlModel project, String dataResourceId) {
+    public void addApplyDataResourceMessage(String fromMemberId, ProjectMySqlModel project, ProjectDataSetMySqlModel projectDataSet) throws StatusCodeWithException {
 
-        DataResourceMysqlModel dataResource = dataResourceService.findOneById(dataResourceId);
+        DataResourceOutputModel dataResource = dataResourceService.findDataResourceFromLocalOrUnion(projectDataSet);
 
         if (project == null || dataResource == null) {
             return;
@@ -118,7 +117,7 @@ public class MessageService extends AbstractService {
         content.projectName = project.getName();
         content.dataResourceName = dataResource.getName();
         content.dataResourceType = dataResource.getDataResourceType();
-        content.dataResourceId = dataResourceId;
+        content.dataResourceId = dataResource.getDataResourceId();
         add(MessageEvent.ApplyDataResource, content);
     }
 
