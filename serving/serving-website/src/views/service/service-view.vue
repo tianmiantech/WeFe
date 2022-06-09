@@ -28,23 +28,6 @@
                             :label="item.name"
                         />
                     </el-select>
-                    <div
-                        v-if="form.service_type === 4"
-                        class="ml10"
-                    >
-                        <el-radio
-                            v-model="form.operator"
-                            label="sum"
-                        >
-                            SUM
-                        </el-radio>
-                        <el-radio
-                            v-model="form.operator"
-                            label="avg"
-                        >
-                            AVG
-                        </el-radio>
-                    </div>
                 </el-form-item>
                 <div
                     class="ml10"
@@ -91,7 +74,7 @@
             <template v-if="form.service_type">
                 <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
                     <el-divider/>
-                    <p class="mb10">服务配置：</p>
+                    <p class="mb10">配置联邦服务：</p>
                     <el-form-item
                         v-for="(item, index) in service_config"
                         :key="index"
@@ -120,15 +103,42 @@
                         <el-button
                             type="primary"
                             @click="addService"
+                            class="dashed-btn"
                         >
-                            添加服务
+                            + 添加联邦服务
                         </el-button>
+                        <div
+                            v-if="form.service_type === 4 && service_config.length > 0"
+                            style="margin-top: 10px"
+                        >
+                            <label style="color: #6C757D;">
+                                <span>服务算子:</span>
+                            </label>
+                            <el-radio
+                                v-model="form.operator"
+                                label="sum"
+                            >
+                                SUM
+                            </el-radio>
+                            <el-radio
+                                v-model="form.operator"
+                                label="avg"
+                            >
+                                AVG
+                            </el-radio>
+                        </div>
                     </el-form-item>
                 </template>
                 <template
                     v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8">
                     <el-divider/>
                     <p class="mb10">查询参数配置：</p>
+                    <el-button
+                        v-if="form.paramsArr.length === 0"
+                        class="icons el-icon-circle-plus-outline"
+                        @click="add_params"
+                    >
+                    </el-button>
                     <el-form-item
                         v-for="(item, index) in form.paramsArr"
                         :key="`paramsArr-${index}`"
@@ -156,15 +166,22 @@
                             class="icons el-icon-delete color-danger"
                             @click="deleteParams(index, form.paramsArr)"
                         />
-                    </el-form-item>
-                    <el-form-item>
                         <el-button
-                            type="primary"
+                            v-if="index + 1 === form.paramsArr.length"
+                            class="icons el-icon-circle-plus-outline"
                             @click="add_params"
                         >
-                            新增参数
                         </el-button>
                     </el-form-item>
+                    <!--                    <el-form-item>-->
+                    <!--                        <el-button-->
+                    <!--                            type="primary"-->
+                    <!--                            @click="add_params"-->
+                    <!--                            class="dashed-btn"-->
+                    <!--                        >-->
+                    <!--                            + 新增-->
+                    <!--                        </el-button>-->
+                    <!--                    </el-form-item>-->
                 </template>
 
                 <template
@@ -249,7 +266,21 @@
                             class="condition_fields"
                             label="查询条件:"
                         >
-                            <el-tag>{{ sqlOperator === 'and' ? 'And' : 'Or' }}</el-tag>
+                            <el-select
+                                v-model="sqlOperator"
+                                class="ml10 no-arrow"
+                                style="width:40px;"
+                                @change="sqlShow"
+                            >
+                                <el-option
+                                    label="AND"
+                                    value="and"
+                                />
+                                <el-option
+                                    label="OR"
+                                    value="or"
+                                />
+                            </el-select>
                             <el-select
                                 v-model="item.field_on_table"
                                 class="ml10"
@@ -303,44 +334,26 @@
                                 class="icons el-icon-delete color-danger"
                                 @click="deleteParams($index, form.data_source.condition_fields)"
                             />
-                        </el-form-item>
-                        <el-button
-                            class="mb20"
-                            type="danger"
-                            icon="icons el-icon-circle-plus-outline"
-                            @click="addConditionFields"
-                        >
-                            添加查询字段
-                        </el-button>
-                        <span style="font-size:12px;padding-left: 5px">{{ show_sql_result }}</span>
-                        <el-form-item label="参数逻辑符:">
-                            <el-radio
-                                v-model="sqlOperator"
-                                label="and"
-                                @change="sqlShow"
+                            <el-button
+                                v-if="$index + 1 === form.data_source.condition_fields.length"
+                                class="icons el-icon-circle-plus-outline"
+                                @click="addConditionFields"
                             >
-                                And
-                            </el-radio>
-                            <el-radio
-                                v-model="sqlOperator"
-                                label="or"
-                                @change="sqlShow"
-                            >
-                                Or
-                            </el-radio>
+                            </el-button>
                         </el-form-item>
-                        <el-divider/>
                         <div
                             v-if="form.service_type !== 3"
                             class="mt5 mb20"
                         >
                             <el-button
-                                size="small"
+                                size="mt10"
                                 @click="sqlTest"
                             >
-                                SQL测试
+                                在线测试
                             </el-button>
+                            <span style="font-size:12px;padding-left: 5px">{{ show_sql_result }}</span>
                         </div>
+                        <el-divider/>
                     </template>
                 </template>
                 <template v-if="form.service_type === 7 || form.service_type === 8">
@@ -373,9 +386,10 @@
                     </el-form-item>
 
                     <el-divider/>
-                    <p class="mb10">模型概览：</p>
+                    <p class="mb10" v-if="form.model_data.model_id">模型概览：</p>
                     <el-form-item
                         class="service-list"
+                        v-if="form.model_data.model_id"
                     >
                         <p><strong>Id: </strong> {{ form.model_data.model_id }}</p>
                         <p><strong>算法: </strong> {{ form.model_data.model_algorithm }}</p>
@@ -396,7 +410,7 @@
                         </p>
                     </el-form-item>
 
-                    <p class="mb10">合作方模型状态：
+                    <p class="mb10" v-if="modelStatusVisible && form.model_data.model_id">合作方模型状态：
                         <el-button
                             size="medium"
                             icon="el-icon-refresh"
@@ -404,9 +418,9 @@
                             :loading="checkLoading"
                             @click="refreshPartnerStatus"></el-button>
                     </p>
-                    <el-form-item
-                        class="service-list"
-                        style="width: 60%"
+                    <el-form-item v-if="modelStatusVisible && form.model_data.model_id"
+                                  class="service-list"
+                                  style="width: 60%"
                     >
                         <el-table
                             :loading="partnerTableLoading"
@@ -441,7 +455,7 @@
                                     <el-popover
                                         v-if="scope.row.status === 'offline'"
                                         placement="top-start"
-                                        title="警告"
+                                        title="⚠️警告"
                                         width="200"
                                         trigger="hover"
                                         content="该合作者模型失联">
@@ -482,11 +496,11 @@
                         />
                     </el-dialog>
 
-                    <p class="mb10">特征配置：</p>
+                    <p class="mb10" v-if="form.model_data.model_id">特征配置：</p>
 
-                    <el-form-item>
-                        <el-tabs type="border-card">
-                            <el-tab-pane label="代码配置">
+                    <el-form-item v-if="form.model_data.model_id">
+                        <el-tabs type="border-card" @tab-click="handleTabClick" v-model="activeName">
+                            <el-tab-pane label="代码配置" name="api">
                                 <el-row :span="24">
                                     <el-col :span="2">
                                         <p class="mb10"><strong>处理器：</strong></p>
@@ -495,33 +509,10 @@
                                         <el-input :disabled="true" v-model="form.processor"></el-input>
                                         <p></p>
                                     </el-col>
-
-                                </el-row>
-                                <el-row :span="24">
-                                    <el-col :span="2">
-                                        <p class="mb10"><strong>样本ID：</strong></p>
-                                    </el-col>
-                                    <el-col :span="6" style="margin-right: 10px;">
-                                        <el-input v-model="form.model_data.model_sql_config.pk" type="text"></el-input>
-                                    </el-col>
-                                    <el-col :span="8">
-                                        <el-button type="primary"
-                                                   :disabled="form.model_data.model_sql_config.pk === ''"
-                                                   @click="testModel('api')"
-                                                   style="margin-right: 10px;"
-                                        >
-                                            可用性校验
-                                        </el-button>
-                                        <el-tooltip>
-                                            <div slot="content">输入样本ID后才可进行预测</div>
-                                            <i class="el-icon-info"/>
-                                        </el-tooltip>
-                                    </el-col>
-
                                 </el-row>
                             </el-tab-pane>
 
-                            <el-tab-pane label="SQL配置">
+                            <el-tab-pane label="SQL配置" name="sql">
                                 <el-form-item
                                     label="数据源："
                                     :rules="[{required: true, message: '数据源必填!'}]"
@@ -545,7 +536,7 @@
                                     :rules="[{required: true, message: 'SQL必填!'}]"
                                 >
                                     <el-input
-                                        v-model="form.model_data.model_sql_config.sql_context"
+                                        v-model="form.model_data.model_sql_config.sql_script"
                                         type="textarea"
                                         placeholder="如：select x0,x1,x2 form table where user_id = ?"
                                         clearable
@@ -553,9 +544,11 @@
                                     />
                                 </el-form-item>
 
-                                <el-form-item label="主键字段：">
+                                <el-form-item label="主键字段："
+                                              :rules="[{required: true, message: '主键字段必填!'}]"
+                                >
                                     <el-input
-                                        v-model="form.model_data.model_sql_config.pk"
+                                        v-model="form.model_data.model_sql_config.sql_condition_field"
                                         type="text"
                                         placeholder="例如：id"
                                         class="user-tips"
@@ -563,59 +556,42 @@
                                     />
 
                                 </el-form-item>
-
-                                <el-form-item label="用户标识：">
-                                    <el-input
-                                        v-model="form.model_data.model_sql_config.pk"
-                                        placeholder="如：15555555555"
-                                        clearable
-                                        class="user-tips"
-                                    />
-                                    <el-button
-                                        :disabled="form.model_data.model_sql_config.pk === ''"
-                                        type="primary"
-                                        @click="testModel('sql')"
-                                        style="margin-right: 10px;"
-                                    >
-                                        可用性校验
-                                    </el-button>
-                                    <el-tooltip>
-                                        <div slot="content">输入用户标识后才可进行预测</div>
-                                        <i class="el-icon-info"/>
-                                    </el-tooltip>
-                                </el-form-item>
-
-                                <el-row :span="24">
-                                    <el-col :span="12">
-
-                                    </el-col>
-                                    <el-col :span="6">
-
-
-                                    </el-col>
-                                </el-row>
-
                             </el-tab-pane>
-
                         </el-tabs>
-
                     </el-form-item>
 
+                    <el-card class="model-test-result-card" v-if="form.model_data.model_id">
+                        <div style="margin-bottom: 10px;">样本ID:</div>
+                        <div>
+                            <el-input v-model="form.model_data.check_data.sample_id" type="text"
+                                      class="checkButton"></el-input>
+                            <el-button type="primary"
+                                       :disabled="form.model_data.check_data.sample_id === ''"
+                                       @click="testModel"
+                                       style="margin-right: 10px;"
+                            >
+                                可用性校验
+                            </el-button>
+                            <el-tooltip>
+                                <div slot="content">输入样本ID后才可进行预测</div>
+                                <i class="el-icon-info"/>
+                            </el-tooltip>
+                        </div>
 
-                    <el-card class="model-test-result-card" v-if="predictResult !== ''">
-                        <p class="mb10">结果：</p>
-                        <p>
-                            {{
-                                predictResult.length > 150 ? predictResult.substring(0, 151) + '...' : predictResult
-                            }}</p>
-                        <br/>
-                        <el-button
-                            v-if="predictResult.length > 150"
-                            type="text"
-                            @click="showRequest(predictResult)"
-                        >
-                            查看更多
-                        </el-button>
+                        <div v-if="predictResult !== ''" style="margin-top: 20px; margin-bottom: 10px;">结果：</div>
+                        <div>
+                            <p>
+                                {{ predictResult.length > 150 ? predictResult.substring(0, 151) + '...' : predictResult }}</p>
+                        </div>
+                        <el-row>
+                            <el-button
+                                v-if="predictResult.length > 150"
+                                type="text"
+                                @click="showRequest(predictResult)"
+                            >
+                                查看更多
+                            </el-button>
+                        </el-row>
 
                         <el-dialog
                             :title="title"
@@ -638,6 +614,7 @@
                 type="primary"
                 size="medium"
                 @click="save"
+                :disabled="!form.service_type"
             >
                 保存
             </el-button>
@@ -667,7 +644,7 @@
                     :disabled="!api.id"
                     @click="export_sdk"
                 >
-                    工具包下载
+                    下载工具包
                 </el-button>
             </div>
         </el-form>
@@ -801,15 +778,7 @@ export default {
     data() {
         return {
             dataBaseOptions: [],
-            predictResult: '{\n' +
-                '  "featureData": {\n' +
-                '    "x": 1\n' +
-                '  },\n' +
-                '  "seqNo": "2022031712375334784734",\n' +
-                '  "modelId": "0527f9011007422b847d205d6aeb85d6_VertSecureBoost_16294251366419513",\n' +
-                '  "userId": "1",\n' +
-                '  "memberId": "d0f47307804844898ecfc65b875abe87"\n' +
-                '}',
+            predictResult: '',
             requestDataDialog: false,
             jsonData: '',
             title: '',
@@ -854,14 +823,16 @@ export default {
                 key_calc_rules: [],
                 stringResult: '',
                 model_data: {
+                    check_data: {
+                        sample_id: ''
+                    },
                     model_id: '',
                     model_param: '',
                     model_sql_config: {
                         feature_source: '',
                         data_source_id: '',
-                        sql_context: '',
-                        model_id: '',
-                        pk: '',
+                        sql_script: '',
+                        sql_condition_field: '',
                     },
                     model_member_status: [],
                     model_overview: '',
@@ -965,6 +936,8 @@ export default {
             model_show_flag: false,
             graphData: {},
             checkLoading: false,
+            activeName: 'api',
+            modelStatusVisible: false,
         };
     },
     computed: {
@@ -985,7 +958,14 @@ export default {
         }
     },
     methods: {
+        handleTabClick(tab, event) {
+            if (tab.name === 'sql') {
+                this.activeName = 'sql'
+            } else {
+                this.activeName = 'api'
+            }
 
+        },
         showRequest(data) {
             this.requestDataDialog = true;
             this.title = '请求体';
@@ -994,25 +974,25 @@ export default {
             });
         },
 
-        async testModel(feature_source) {
+        async testModel() {
+            // if (this.activeName === 'sql') {
+            const {code, data} = await this.$http.post({
+                url: 'predict/debug',
+                data: {
+                    model_id: this.form.model_data.model_id,
+                    user_id: this.form.model_data.check_data.sample_id,
+                    feature_source: this.activeName,
+                    params: this.form.model_data.model_sql_config,
+                    my_role: this.form.model_data.model_roles,
+                    feature_data: this.form
+                },
+            });
 
-            if (feature_source === 'sql') {
-                const {code, data} = await this.$http.post({
-                    url: 'predict/debug',
-                    data: {
-                        model_id: this.form.model_data.model_sql_config.model_id,
-                        user_id: this.form.model_data.model_sql_config.pk,
-                        feature_source: feature_source,
-                        params: this.form.model_data.model_sql_config,
-                        my_role: this.form.model_data.model_roles,
-                        feature_data: this.form
-                    },
-                });
-
-                if (code === 0) {
-                    this.sqlPredictResult = data;
-                }
+            if (code === 0) {
+                this.sqlPredictResult = data;
+                this.predictResult = data;
             }
+            // }
 
         },
 
@@ -1202,8 +1182,10 @@ export default {
                     this.form.service_type = type;
                     this.form.processor = data.processor
 
+                    console.log(data.model_id, 'data.model_id')
                     if (data.model_id) {
                         this.form.model_data.model_sql_config.model_id = data.model_id
+                        // console.log(this.form.model_data.model_sql_config.model_id)
                         this.form.model_data.model_id = data.model_id
                         this.form.model_data.model_overview = data.xgboost_tree
                         this.form.model_data.model_member_status = data.model_status
@@ -1211,6 +1193,11 @@ export default {
                             this.form.model_data.model_sql_config = data.model_sql_config
                         }
                         this.form.model_data.model_roles = data.my_role
+
+                        if (data.my_role.includes('promoter')) {
+                            this.modelStatusVisible = true
+                        }
+
                         this.form.model_data.model_param = data.model_param
                         this.form.model_data.model_algorithm = data.algorithm
                         this.form.model_data.model_fl_type = data.fl_type
@@ -1401,7 +1388,7 @@ export default {
                 data_source: {
                     id: obj.id,
                     table: obj.table,
-                    return_fields:[],
+                    return_fields: [],
                 },
             };
             $params.data_source.return_fields = obj.return_fields.map(x => {
@@ -1586,17 +1573,24 @@ export default {
 
         async saveModelConfig() {
             const {code, data, message} = await this.$http.post({
-                url: 'model/update_sql_config',
+                url: 'model/update',
                 data: {
                     feature_source: 'sql',
-                    sql_context: this.form.model_data.model_sql_config.sql_context,
+                    sql_script: this.form.model_data.model_sql_config.sql_script,
                     data_source_id: this.form.model_data.model_sql_config.data_source_id,
-                    model_id: this.form.model_data.model_sql_config.model_id,
+                    model_id: this.form.model_data.model_id,
+                    sql_condition_field: this.form.model_data.model_sql_config.sql_condition_field,
                 }
             });
 
             if (code === 0) {
+
                 this.$message.success('模型配置保存成功!');
+                this.$router.push({
+                    name: 'service-view',
+                    query: {id: this.serviceId},
+                });
+                this.$router.go(0);
             } else {
                 this.$message.error('模型配置保存失败: ' + message);
             }
@@ -1840,6 +1834,17 @@ export default {
 
 .model-test-result-card {
     width: 620px;
-    height: 145px;
+    height: 210px;
+}
+
+.dashed-btn {
+    background: transparent;
+    border: 1px dashed #28c2d7;
+    color: #28c2d7;
+}
+
+.checkButton {
+    width: 60%;
+    margin-right: 10px;
 }
 </style>

@@ -43,12 +43,10 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
     protected ApiResult<JObject> handle(Input input) {
         LOG.info("request =" + JObject.toJSONString(input));
         try {
-
             if (input.isModelService()) {
                 ServiceResultOutput output = modelService.predict(input);
                 return success(JObject.create(JSON.toJSONString(output)));
             }
-
             JObject result = service.executeService(input);
             LOG.info("response =" + JObject.toJSONString(result));
             return success(result);

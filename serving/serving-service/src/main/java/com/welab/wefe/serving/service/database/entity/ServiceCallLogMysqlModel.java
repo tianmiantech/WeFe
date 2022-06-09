@@ -25,6 +25,8 @@ import javax.persistence.Entity;
 @Entity(name = "service_call_log")
 public class ServiceCallLogMysqlModel extends AbstractBaseMySqlModel {
 
+    private static final long serialVersionUID = 5160393066516857125L;
+
     @Column(name = "order_id")
     private String orderId;
 
@@ -74,7 +76,7 @@ public class ServiceCallLogMysqlModel extends AbstractBaseMySqlModel {
     private String requestIp;
 
     @Column(name = "spend_time")
-    private Integer spendTime;
+    private Long spendTime;
 
 
     public String getOrderId() {
@@ -205,11 +207,11 @@ public class ServiceCallLogMysqlModel extends AbstractBaseMySqlModel {
         this.requestIp = requestIp;
     }
 
-    public Integer getSpendTime() {
+    public Long getSpendTime() {
         return spendTime;
     }
 
-    public void setSpendTime(Integer spendTime) {
+    public void setSpendTime(Long spendTime) {
         this.spendTime = spendTime;
     }
 }

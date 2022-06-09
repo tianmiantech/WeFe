@@ -134,23 +134,23 @@
                 min-width="160"
             >
                 <template slot-scope="scope">
-                    <el-button
-                        :type="scope.row.enable === true ? 'warning' : 'success'"
-                        @click="changeEnable(scope.row)"
-                    >
-                        <div v-if="scope.row.enable === true">
-                            下线
-                        </div>
-                        <div v-else>
-                            上线
-                        </div>
-                    </el-button>
+<!--                    <el-button-->
+<!--                        :type="scope.row.enable === true ? 'warning' : 'success'"-->
+<!--                        @click="changeEnable(scope.row)"-->
+<!--                    >-->
+<!--                        <div v-if="scope.row.enable === true">-->
+<!--                            下线-->
+<!--                        </div>-->
+<!--                        <div v-else>-->
+<!--                            上线-->
+<!--                        </div>-->
+<!--                    </el-button>-->
 
                     <el-button
                         type="primary"
                         @click="predict(scope.row)"
                     >
-                        配置
+                        部署
                     </el-button>
                 </template>
             </el-table-column>

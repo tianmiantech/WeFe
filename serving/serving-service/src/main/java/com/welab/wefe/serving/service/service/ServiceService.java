@@ -41,6 +41,7 @@ import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service_processor.*;
@@ -90,6 +91,10 @@ public class ServiceService {
     private ClientServiceService clientServiceService;
     @Autowired
     private ModelService modelService;
+    @Autowired
+    private ServiceOrderService serviceOrderService;
+    @Autowired
+    private ServiceCallLogService serviceCallLogService;
     @Autowired
     private Config config;
 
@@ -359,11 +364,11 @@ public class ServiceService {
             res.append("message", "invalid request: url = " + serviceUrl);
             return res;
         } else {
-            PartnerMysqlModel client = partnerService.queryByCode(input.getPartnerCode());
+            PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
             if (client == null || client.getStatus() != 1) {
                 res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
                 res.append("message",
-                        "invalid request: url = " + serviceUrl + ",partnerCode = " + input.getPartnerCode());
+                        "invalid request: url = " + serviceUrl + ",customerId = " + input.getCustomerId());
                 long duration = System.currentTimeMillis() - start;
                 log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
@@ -372,7 +377,7 @@ public class ServiceService {
                     client.getId());
             if (clientServiceMysqlModel == null || clientServiceMysqlModel.getStatus() != 1) {
                 res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
-                res.append("message", "invalid request: url = " + serviceUrl + ",partnerCode=" + client.getCode());
+                res.append("message", "invalid request: url = " + serviceUrl + ",customerId=" + client.getCode());
                 long duration = System.currentTimeMillis() - start;
                 log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
@@ -395,17 +400,24 @@ public class ServiceService {
 
     public JObject executeService(RouteApi.Input input) {
         long start = System.currentTimeMillis();
-
         String clientIp = ServiceUtil.getIpAddr(input.request);
-        ServiceMySqlModel service = serviceRepository.findOne("id", input.getServiceId(), ServiceMySqlModel.class);
         JObject data = JObject.create(input.getData());
-
+        
+        ServiceMySqlModel service = serviceRepository.findOne("id", input.getServiceId(), ServiceMySqlModel.class);
+        PartnerMysqlModel partner = partnerService.queryByCode(input.getCustomerId());
+        
+        // log
+        String serviceOrderId = preExecuteOrderLog(service, partner, input, clientIp);
+        String callLogId = preExecuteCallLog(serviceOrderId, service, partner, input, clientIp);
+        
+        long beginTime = System.currentTimeMillis();
         // check params
         JObject res = check(service, data, service.getUrl(), input, clientIp);
         if (res != null) {
+            res.append("responseId", UUID.randomUUID().toString().replaceAll("-", ""));
+            afterExecute(serviceOrderId, callLogId,ServiceOrderEnum.FAILED.name(),  res, beginTime);
             return res;
         }
-
         JObject result = JObject.create();
         try {
             AbstractServiceProcessor serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
@@ -416,14 +428,39 @@ public class ServiceService {
             result.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
             return result;
         } finally {
-            PartnerMysqlModel client = partnerService.queryByCode(input.getPartnerCode());
-            log(service, client, start, clientIp, result.getIntValue("code"));
+            log(service, partner, start, clientIp, result.getIntValue("code"));
+            result.append("responseId", UUID.randomUUID().toString().replaceAll("-", ""));
+            afterExecute(serviceOrderId, callLogId, callLogId, result, beginTime);
         }
     }
 
     private void log(ServiceMySqlModel service, PartnerMysqlModel client, long start, String clientIp, int code) {
         CommonThreadPool.run(() -> apiRequestRecordService.save(service.getId(), service.getName(),
                 service.getServiceType(), client.getName(), client.getId(), System.currentTimeMillis() - start, clientIp, code));
+    }
+    
+    private String preExecuteOrderLog(ServiceMySqlModel service, PartnerMysqlModel client, RouteApi.Input input,
+            String clientIp) {
+        ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
+                ServiceTypeEnum.getValue(service.getServiceType()), new Integer(0), ServiceOrderEnum.ORDERING.name(),
+                client.getId(), client.getName(), CacheObjects.getMemberId(), CacheObjects.getMemberName());
+        return serviceOrderModel.getId();
+    }
+
+    private String preExecuteCallLog(String serviceOrderId, ServiceMySqlModel service, PartnerMysqlModel client,
+            RouteApi.Input input, String clientIp) {
+        ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderId, 0, client.getId(),
+                client.getName(), service.getId(), service.getName(),
+                ServiceTypeEnum.getValue(service.getServiceType()), input.getRequestId(),
+                JSONObject.toJSONString(input), clientIp);
+        return serviceCallLogMysqlModel.getId();
+    }
+    
+    private void afterExecute(String serviceOrderId, String callLogId, String status, JObject res, long beginTime) {
+        serviceOrderService.update(serviceOrderId, status);
+        serviceCallLogService.update(callLogId, CacheObjects.getMemberId(), CacheObjects.getMemberName(),
+                res.getString("responseId"), res.toJSONString(), res.getInteger("code"),
+                ServiceResultEnum.getValueByCode(res.getInteger("code")), System.currentTimeMillis() - beginTime);
     }
 
     /**
