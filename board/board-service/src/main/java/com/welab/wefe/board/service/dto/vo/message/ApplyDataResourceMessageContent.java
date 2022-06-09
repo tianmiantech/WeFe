@@ -35,4 +35,9 @@ public class ApplyDataResourceMessageContent extends AbstractMessageContentWithP
                 "】申请使用" + dataResourceType.getLabel() +
                 "：" + dataResourceName + "(" + sampleCount + ")";
     }
+
+    @Override
+    public String getRelatedId2() {
+        return dataResourceId;
+    }
 }

@@ -26,4 +26,14 @@ public class TextMessageContent extends AbstractMessageContent {
     public String getTitle() {
         return null;
     }
+
+    @Override
+    public String getRelatedId1() {
+        return null;
+    }
+
+    @Override
+    public String getRelatedId2() {
+        return null;
+    }
 }

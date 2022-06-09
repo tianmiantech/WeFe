@@ -68,4 +68,14 @@ public enum MessageEvent {
                 return MessageLevel.info;
         }
     }
+
+    public boolean isTodo() {
+        switch (this) {
+            case CreateProject:
+            case ApplyDataResource:
+                return true;
+            default:
+                return false;
+        }
+    }
 }

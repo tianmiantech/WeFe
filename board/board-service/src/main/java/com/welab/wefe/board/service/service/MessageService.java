@@ -93,6 +93,10 @@ public class MessageService extends AbstractService {
         model.setTitle(title);
         model.setContent(content.toString());
         model.setUnread(true);
+        model.setTodo(event.isTodo());
+        model.setTodoComplete(false);
+        model.setTodoRelatedId1(content.getRelatedId1());
+        model.setTodoRelatedId2(content.getRelatedId2());
 
         messageRepository.save(model);
     }

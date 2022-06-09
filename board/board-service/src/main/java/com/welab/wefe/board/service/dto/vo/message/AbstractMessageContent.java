@@ -29,4 +29,13 @@ public abstract class AbstractMessageContent {
     public String toString() {
         return JSON.toJSONString(this);
     }
+
+    /**
+     * 获取正文中相关对象的关联id
+     * <p>
+     * 例如：邀请成员创建项目时发送的消息，关联id为项目id。
+     */
+    public abstract String getRelatedId1();
+
+    public abstract String getRelatedId2();
 }

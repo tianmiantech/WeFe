@@ -31,4 +31,9 @@ public abstract class AbstractMessageContentWithProject extends AbstractMessageC
     public String getFromMemberName() {
         return CacheObjects.getMemberName(fromMemberId);
     }
+
+    @Override
+    public String getRelatedId1() {
+        return projectId;
+    }
 }

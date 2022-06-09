@@ -27,4 +27,9 @@ public class CreateProjectMessageContent extends AbstractMessageContentWithProje
         return "成员【" + getFromMemberName() +
                 "】邀请您加入项目【" + projectName + "】";
     }
+
+    @Override
+    public String getRelatedId2() {
+        return null;
+    }
 }
