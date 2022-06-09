@@ -69,7 +69,7 @@ public class ModelService {
 
     Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private final String API_PREFIX = "predict/";
+    private final String API_PREFIX = "api/predict";
     @Autowired
     private ModelRepository modelRepository;
 
@@ -138,7 +138,7 @@ public class ModelService {
 
     private ModelMySqlModel convertTo(SaveModelApi.Input input, ModelMySqlModel model) {
         BeanUtils.copyProperties(input, model);
-        model.setUrl(setModelServiceUrl(model.getModelId()));
+        model.setUrl(setModelServiceUrl());
         model.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         return model;
     }
@@ -171,7 +171,7 @@ public class ModelService {
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
-                    setModelServiceUrl(modelId),
+                    setModelServiceUrl(),
                     ServiceTypeEnum.MachineLearning
             );
         } catch (StatusCodeWithException e) {
@@ -179,12 +179,8 @@ public class ModelService {
         }
     }
 
-    private String setModelServiceUrl(String modelId) {
-        return API_PREFIX + modelId;
-    }
-
-    private String extractServiceName(String modelId) {
-        return API_PREFIX + modelId;
+    private String setModelServiceUrl() {
+        return API_PREFIX;
     }
 
     /**
@@ -374,7 +370,7 @@ public class ModelService {
         try {
             JObject data = JObject.create(input.getData())
                     .append("requestId", input.getRequestId())
-                    .append("memberId", input.getCustomerId());
+                    .append("partnerCode", input.getPartnerCode());
             result = forward(data);
 
             //更新订单信息
@@ -400,8 +396,8 @@ public class ModelService {
         callLog.setServiceId(input.getServiceId());
         callLog.setServiceName(getModelName(input.getServiceId()));
         callLog.setRequestData(input.getData());
-        callLog.setRequestPartnerId(input.getCustomerId());
-        callLog.setRequestPartnerName(CacheObjects.getPartnerName(input.getCustomerId()));
+        callLog.setRequestPartnerId(input.getPartnerCode());
+        callLog.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
         callLog.setRequestId(input.getRequestId());
         callLog.setRequestIp(ServiceUtil.getIpAddr(input.request));
         callLog.setResponseCode(responseCode);
@@ -423,8 +419,8 @@ public class ModelService {
         order.setServiceId(input.getServiceId());
         order.setServiceName(getModelName(input.getServiceId()));
         order.setServiceType(ServiceTypeEnum.MachineLearning.name());
-        order.setRequestPartnerId(input.getCustomerId());
-        order.setRequestPartnerName(CacheObjects.getPartnerName(input.getCustomerId()));
+        order.setRequestPartnerId(input.getPartnerCode());
+        order.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
         order.setResponsePartnerId(CacheObjects.getMemberId());
         order.setResponsePartnerName(CacheObjects.getMemberName());
         //是否自己发起的订单

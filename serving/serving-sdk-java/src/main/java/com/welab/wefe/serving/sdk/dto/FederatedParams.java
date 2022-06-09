@@ -23,20 +23,20 @@ public class FederatedParams {
 
     private String modelId;
 
-    private String memberId;
+    private String partnerCode;
 
     private FederatedParams() {
     }
 
-    public FederatedParams(String modelId, String memberId) {
+    public FederatedParams(String modelId, String partnerCode) {
         this.modelId = modelId;
-        this.memberId = memberId;
+        this.partnerCode = partnerCode;
     }
 
-    public static FederatedParams of(String modelId, String memberId) {
+    public static FederatedParams of(String modelId, String partnerCode) {
         FederatedParams federatedParams = new FederatedParams();
         federatedParams.modelId = modelId;
-        federatedParams.memberId = memberId;
+        federatedParams.partnerCode = partnerCode;
         return federatedParams;
     }
 
@@ -49,13 +49,12 @@ public class FederatedParams {
         return this;
     }
 
-    public String getMemberId() {
-        return memberId;
+    public String getPartnerCode() {
+        return partnerCode;
     }
 
-    public FederatedParams setMemberId(String memberId) {
-        this.memberId = memberId;
+    public FederatedParams setPartnerCode(String partnerCode) {
+        this.partnerCode = partnerCode;
         return this;
     }
-
 }

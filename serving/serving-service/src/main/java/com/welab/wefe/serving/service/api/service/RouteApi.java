@@ -62,7 +62,7 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
     public static class Input extends AbstractApiInput {
 
         @Check(name = "合作者ID")
-        private String customerId;
+        private String partnerCode;
 
         @Check(name = "请求数据")
         private String data;
@@ -76,12 +76,12 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
         @Check(name = "请求ID", require = true)
         private boolean isModelService;
 
-        public String getCustomerId() {
-            return customerId;
+        public String getPartnerCode() {
+            return partnerCode;
         }
 
-        public void setCustomerId(String customerId) {
-            this.customerId = customerId;
+        public void setPartnerCode(String partnerCode) {
+            this.partnerCode = partnerCode;
         }
 
         public String getData() {

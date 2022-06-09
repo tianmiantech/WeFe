@@ -79,7 +79,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
      */
     public void initializeToUnion(IdentityInfoModel identityInfoModel, UnionInfoModel unionInfoModel) throws StatusCodeWithException {
 
-        checkInitialized();
+//        checkInitialized();
 
         setIdentityInfo(identityInfoModel);
 

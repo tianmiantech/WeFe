@@ -77,7 +77,7 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
                     input.getRequestId(),
                     input.getModelId(),
                     PredictParams.of(input.getUserId(), input.getFeatureData()),
-                    FederatedParams.of(input.getModelId(), input.getMemberId())
+                    FederatedParams.of(input.getModelId(), input.getPartnerCode())
             );
 
             return success(result);
@@ -93,7 +93,7 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
         @Check(require = true, name = "调用者身份 id")
-        private String memberId;
+        private String partnerCode;
         @Check(name = "用户 id")
         private String userId;
 
@@ -144,12 +144,12 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
             this.modelId = modelId;
         }
 
-        public String getMemberId() {
-            return memberId;
+        public String getPartnerCode() {
+            return partnerCode;
         }
 
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
+        public void setPartnerCode(String partnerCode) {
+            this.partnerCode = partnerCode;
         }
 
         public String getUserId() {

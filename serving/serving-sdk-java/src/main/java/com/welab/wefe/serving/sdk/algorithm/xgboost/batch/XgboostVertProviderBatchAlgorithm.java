@@ -16,10 +16,8 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
