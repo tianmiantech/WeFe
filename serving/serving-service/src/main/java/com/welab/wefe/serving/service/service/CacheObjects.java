@@ -16,17 +16,20 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.springframework.data.domain.Sort;
+
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.repository.PartnerRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
+import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
-import org.springframework.data.domain.Sort;
-
-import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * Global cache
@@ -39,13 +42,14 @@ import java.util.List;
  */
 public class CacheObjects {
 
-    private static String MEMBER_ID;
-    private static String RSA_PRIVATE_KEY;
-    private static String RSA_PUBLIC_KEY;
-    private static String BASE_URL;
+    private static String MEMBER_ID; // 系统ID
+    private static String RSA_PRIVATE_KEY; // 私钥
+    private static String RSA_PUBLIC_KEY; // 公钥
+    private static String SERVING_BASE_URL; // Serving服务地址
+    private static String UNION_BASE_URL; // Union服务地址
     //    private static String MEMBER_NAME;
-    private static String MEMBER_NAME;
-    private static String MODE;
+    private static String MEMBER_NAME; // 系统名称
+    private static String MODE; // 运行模式 standalone-独立模式 union-联邦模式
 
     /**
      * accountId : nickname
@@ -79,11 +83,18 @@ public class CacheObjects {
         return RSA_PUBLIC_KEY;
     }
 
-    public static String getBaseUrl() {
-        if (BASE_URL == null) {
+    public static String getServingBaseUrl() {
+        if (SERVING_BASE_URL == null) {
             refreshIdentityInfo();
         }
-        return BASE_URL;
+        return SERVING_BASE_URL;
+    }
+    
+    public static String getUnionBaseUrl() {
+        if (UNION_BASE_URL == null) {
+            refreshIdentityInfo();
+        }
+        return UNION_BASE_URL;
     }
 
     public static String getMemberName() {
@@ -100,23 +111,28 @@ public class CacheObjects {
         return MODE;
     }
 
+    public static boolean isUnionModel() {
+        return getMODE() == ServingModeEnum.union.name();
+    }
 
     /**
      * Reload member information
      */
     public static void refreshIdentityInfo() {
         GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
-        IdentityInfoModel model = service.getIdentityInfo();
-
-        if (model == null) {
-            return;
+        IdentityInfoModel identityModel = service.getIdentityInfo();
+        UnionInfoModel unionModel = service.getUnionInfoModel();
+        if (identityModel != null) {
+            MEMBER_ID = identityModel.getMemberId();
+            RSA_PUBLIC_KEY = identityModel.getRsaPublicKey();
+            RSA_PRIVATE_KEY = identityModel.getRsaPrivateKey();
+            MEMBER_NAME = identityModel.getMemberName();
+            MODE = identityModel.getMode();
+            SERVING_BASE_URL = identityModel.getServingBaseUrl();
         }
-
-        MEMBER_ID = model.getMemberId();
-        RSA_PUBLIC_KEY = model.getRsaPublicKey();
-        RSA_PRIVATE_KEY = model.getRsaPrivateKey();
-        MEMBER_NAME = model.getMemberName();
-        MODE = model.getMode();
+       if(unionModel != null) {
+           UNION_BASE_URL = unionModel.getIntranetBaseUri();
+       }
     }
 
 

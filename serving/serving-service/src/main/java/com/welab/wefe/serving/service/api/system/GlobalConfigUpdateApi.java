@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * @author hunter.zhao
  */
-@Api(path = "global_config/update", name = "更新配置信息", login = false)
+@Api(path = "global_config/update", name = "更新配置信息", login = true)
 public class GlobalConfigUpdateApi extends AbstractNoneOutputApi<GlobalConfigUpdateApi.Input> {
 
     @Autowired

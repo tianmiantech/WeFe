@@ -35,9 +35,6 @@ public class CommonConfig {
     @Value("${logging.file:}")
     private String loggingFilePath;
 
-    @Value("${wefe.union.base-url:}")
-    private String unionBaseUrl;
-
     @Value("${wefe.file.upload.dir:}")
     private String fileUploadDir;
 
@@ -69,14 +66,6 @@ public class CommonConfig {
 
     public void setLoggingFilePath(String loggingFilePath) {
         this.loggingFilePath = loggingFilePath;
-    }
-
-    public String getUnionBaseUrl() {
-        return unionBaseUrl;
-    }
-
-    public void setUnionBaseUrl(String unionBaseUrl) {
-        this.unionBaseUrl = unionBaseUrl;
     }
 
     public String getFileUploadDir() {

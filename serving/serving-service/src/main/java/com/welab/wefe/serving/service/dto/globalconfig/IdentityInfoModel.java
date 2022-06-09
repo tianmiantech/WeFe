@@ -30,7 +30,7 @@ public class IdentityInfoModel {
     @Check(name = "邮箱")
     private String email;
     @Check(name = "系统域路径")
-    private String baseUrl;
+    private String servingBaseUrl;
     @Check(name = "头像")
     private String avatar;
 
@@ -69,12 +69,12 @@ public class IdentityInfoModel {
         this.email = email;
     }
 
-    public String getBaseUrl() {
-        return baseUrl;
+    public String getServingBaseUrl() {
+        return servingBaseUrl;
     }
 
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
+    public void setServingBaseUrl(String servingBaseUrl) {
+        this.servingBaseUrl = servingBaseUrl;
     }
 
     public String getAvatar() {
