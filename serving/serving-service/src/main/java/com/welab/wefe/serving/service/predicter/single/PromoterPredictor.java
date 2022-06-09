@@ -82,7 +82,7 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
         TreeMap<String, Object> params = new TreeMap<>();
         params.put("modelId", federatedParams.getModelId());
         params.put("requestId", requestId);
-        params.put("memberId", federatedParams.getMemberId());
+        params.put("partnerCode", federatedParams.getPartnerCode());
         params.put("userId", predictParams.getUserId());
 
         /**

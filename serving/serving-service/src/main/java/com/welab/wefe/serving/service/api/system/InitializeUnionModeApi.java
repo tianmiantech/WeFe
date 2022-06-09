@@ -60,7 +60,7 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
 
 
     public static class Input extends AbstractApiInput {
-        @Check(name = "联邦成员id")
+        @Check(name = "联邦成员id", require = true)
         private String memberId;
 
         @Check(
@@ -92,7 +92,6 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
             IdentityInfoModel model = new IdentityInfoModel();
             model.setMemberId(memberId);
             model.setMemberName(memberName);
-            model.setAvatar("");
             model.setRsaPrivateKey(rsaPrivateKey);
             model.setRsaPublicKey(rsaPublicKey);
             model.setMode(ServingModeEnum.union.name());

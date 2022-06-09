@@ -359,11 +359,11 @@ public class ServiceService {
             res.append("message", "invalid request: url = " + serviceUrl);
             return res;
         } else {
-            PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
+            PartnerMysqlModel client = partnerService.queryByCode(input.getPartnerCode());
             if (client == null || client.getStatus() != 1) {
                 res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
                 res.append("message",
-                        "invalid request: url = " + serviceUrl + ",customerId = " + input.getCustomerId());
+                        "invalid request: url = " + serviceUrl + ",partnerCode = " + input.getPartnerCode());
                 long duration = System.currentTimeMillis() - start;
                 log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
@@ -372,7 +372,7 @@ public class ServiceService {
                     client.getId());
             if (clientServiceMysqlModel == null || clientServiceMysqlModel.getStatus() != 1) {
                 res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
-                res.append("message", "invalid request: url = " + serviceUrl + ",customerId=" + client.getCode());
+                res.append("message", "invalid request: url = " + serviceUrl + ",partnerCode=" + client.getCode());
                 long duration = System.currentTimeMillis() - start;
                 log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
@@ -416,7 +416,7 @@ public class ServiceService {
             result.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
             return result;
         } finally {
-            PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
+            PartnerMysqlModel client = partnerService.queryByCode(input.getPartnerCode());
             log(service, client, start, clientIp, result.getIntValue("code"));
         }
     }

@@ -81,44 +81,44 @@ public abstract class AbstractAlgorithm<T, R> {
 
         return new PredictResult(model.getAlgorithm(), model.getFlType(), model.getMyRole(), value);
     }
-
-    /**
-     * Set request body
-     */
-    protected String setFederatedBatchPredictBody(FederatedParams federatedParams, List<String> userIds) throws StatusCodeWithException {
-
-        /**
-         * params
-         * <p>predictParams will be sent to the provider. You need to be cautious about sensitive data</p>
-         */
-        TreeMap<String, Object> params = new TreeMap<>();
-//        params.put("seqNo", federatedParams.getSeqNo());
-        params.put("modelId", federatedParams.getModelId());
-        params.put("memberId", federatedParams.getMemberId());
-        params.put("isBatch", true);
-        params.put("predictParams", PredictParams.ofUserIds(userIds));
-
-        /**
-         * Prevent map disorder, resulting in signature verification failure
-         */
-        String data = new JSONObject(params).toJSONString();
-
-        /**
-         * sign
-         */
-        String sign;
-        try {
-            sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-
-        JSONObject body = new JSONObject();
-        body.put("memberId", Config.MEMBER_ID);
-        body.put("sign", sign);
-        body.put("data", data);
-
-        return body.toJSONString();
-    }
+//
+//    /**
+//     * Set request body
+//     */
+//    protected String setFederatedBatchPredictBody(FederatedParams federatedParams, List<String> userIds) throws StatusCodeWithException {
+//
+//        /**
+//         * params
+//         * <p>predictParams will be sent to the provider. You need to be cautious about sensitive data</p>
+//         */
+//        TreeMap<String, Object> params = new TreeMap<>();
+////        params.put("seqNo", federatedParams.getSeqNo());
+//        params.put("modelId", federatedParams.getModelId());
+//        params.put("memberId", federatedParams.getMemberId());
+//        params.put("isBatch", true);
+//        params.put("predictParams", PredictParams.ofUserIds(userIds));
+//
+//        /**
+//         * Prevent map disorder, resulting in signature verification failure
+//         */
+//        String data = new JSONObject(params).toJSONString();
+//
+//        /**
+//         * sign
+//         */
+//        String sign;
+//        try {
+//            sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+//        }
+//
+//        JSONObject body = new JSONObject();
+//        body.put("memberId", Config.MEMBER_ID);
+//        body.put("sign", sign);
+//        body.put("data", data);
+//
+//        return body.toJSONString();
+//    }
 }
