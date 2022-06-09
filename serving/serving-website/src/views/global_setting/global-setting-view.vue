@@ -42,6 +42,16 @@
                         />
                     </el-form-item>
 
+                    <el-form-item
+                        label="Union服务地址："
+                    >
+                        <el-input
+                            v-model="form.wefe_union.intranet_base_uri"
+                            placeholder=""
+                            :disabled="is_update"
+                        />
+                    </el-form-item>
+
                     <el-form-item label="运行模式：">
                         <el-radio v-model="mode" :label="0" @change="modeChange">独立模式</el-radio>
                         <el-radio v-model="mode" :label="1" @change="modeChange">联邦模式</el-radio>
@@ -94,6 +104,9 @@
                         member_name:     '',
                         serving_base_url:'',
                         mode:'',
+                    },
+                    wefe_union:{
+                        intranet_base_uri:'',
                     }
                 },
 
@@ -119,7 +132,7 @@
                 const { code, data } = await this.$http.post({
                     url: '/global_config/detail',
                     data:{
-                        "groups":['identity_info']
+                        "groups":['identity_info','wefe_union']
                     }
                 });
 
