@@ -51,7 +51,8 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
 
         try {
             PrivacyConfigModel config = globalConfigService.getModel(PrivacyConfigModel.class);
-            if (null == config || config.databaseEncryptCompleted) {
+            config = (null == config ? new PrivacyConfigModel() : config);
+            if (config.databaseEncryptCompleted) {
                 return;
             }
             LOG.info("Start auto encrypt database phone number........");
