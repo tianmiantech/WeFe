@@ -619,7 +619,14 @@
             >
                 保存
             </el-button>
-
+            <el-link
+                type="primary"
+                :disabled="!api.id"
+                @click="export_sdk"
+                style="margin-left: 10px"
+            >
+                点击下载工具包
+            </el-link>
             <div class="api-preview">
                 <el-divider/>
                 <p class="mb20 f16">API 预览:</p>
@@ -639,14 +646,6 @@
                         {{ api.url }}
                     </el-tag>
                 </el-form-item>
-                <el-button
-                    type="primary"
-                    size="medium"
-                    :disabled="!api.id"
-                    @click="export_sdk"
-                >
-                    下载工具包
-                </el-button>
             </div>
         </el-form>
 
