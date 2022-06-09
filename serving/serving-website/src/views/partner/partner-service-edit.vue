@@ -2,31 +2,16 @@
 
     <el-card v-loading="loading" class="page" shadow="never">
 
-        <h2 class="title">编辑服务</h2>
+        <h2 class="title">编辑客户服务</h2>
 
         <el-form :model="clientService" label-width="112px" :rules="rules" ref="clientService">
-            <el-form-item label="服务名称：" prop="serviceName">
-                <el-select v-model="clientService.serviceId" filterable clearable placeholder="请选择服务">
-                    <el-option
-                        v-for="item in services"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                    </el-option>
-                </el-select>
+            <el-form-item label="服务名称：">
+                {{clientService.serviceName}}
             </el-form-item>
 
-            <el-form-item label="合作者名称：" prop="clientName">
-                <el-select v-model="clientService.clientId" filterable clearable placeholder="请选择合作者">
-                    <el-option
-                        v-for="item in clients"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                    </el-option>
-                </el-select>
+            <el-form-item label="合作者名称：">
+                {{clientService.clientName}}
             </el-form-item>
-
 
             <el-form-item label="单价(￥)：" prop="unitPrice" class="unit_price">
                 <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
@@ -75,22 +60,6 @@ import {mapGetters} from 'vuex';
 export default {
     name: "partner-service-edit",
     data() {
-        let validateServiceName = (rule, value, callback) => {
-            if (!this.clientService.serviceId) {
-                return callback(new Error('服务名称不能为空'));
-            } else {
-                callback();
-            }
-        };
-
-        let validateClientName = (rule, value, callback) => {
-            if (!this.clientService.clientId) {
-                return callback(new Error('客户名称不能为空'));
-            } else {
-                callback();
-            }
-        };
-
         let validateUnitPrice = (rule, value, callback) => {
             if (!this.clientService.unitPrice) {
                 return callback(new Error('请输入单价'));
@@ -116,7 +85,9 @@ export default {
             loading: false,
             clientService: {
                 serviceId: '',
+                serviceName:'',
                 clientId: '',
+                clientName:'',
                 status: '',
                 unitPrice: '',
                 // 预留字段
@@ -124,8 +95,6 @@ export default {
                 ipAdd:'',
                 publicKey:'',
             },
-            services: [],
-            clients: [],
             dialogFormVisible: false,
             feeVisible: false,
             form: {
@@ -133,18 +102,11 @@ export default {
                 payType: '',
             },
             formLabelWidth: '100px',
-            // feeConfig: [],
             payType: {
                 0: "后付费",
                 1: "预付费"
             },
             rules: {
-                serviceName: [
-                    {required: true, validator: validateServiceName, trigger: 'change'},
-                ],
-                clientName: [
-                    {required: true, validator: validateClientName, trigger: 'change'}
-                ],
                 unitPrice: [
                     {required: true, validator: validateUnitPrice, trigger: 'blur'}
                 ],
@@ -161,20 +123,14 @@ export default {
     }
     ,
     async created() {
-
         this.loading = true;
         if (this.$route.query.clientId && this.$route.query.serviceId) {
+            this.clientService.serviceId = this.$route.query.serviceId;
             await this.getPartnerById(this.$route.query.clientId)
             await this.getServiceById(this.$route.query.serviceId)
             await this.getClientService(this.$route.query.serviceId, this.$route.query.clientId)
         }
-
-        await this.getServices()
-        await this.getPartners()
-
         this.loading = false;
-
-
     },
 
     methods: {
@@ -198,8 +154,6 @@ export default {
                             clientId: this.clientService.clientId,
                             ipAdd : this.clientService.ipAdd,
                             publicKey:this.clientService.publicKey,
-                            serviceName: this.clientService.serviceName,
-                            clientName: this.clientService.clientName,
                             unitPrice:this.clientService.unitPrice,
                             updatedBy: this.userInfo.nickname,
                         },
@@ -217,50 +171,6 @@ export default {
 
 
         },
-
-        handleServices(data) {
-            for (let i = 0; i < data.length; i++) {
-                this.services.push({
-                    label: data[i].name,
-                    value: data[i].id
-                })
-            }
-        }
-        ,
-
-        handlePartners(data) {
-            for (let i = 0; i < data.length; i++) {
-                this.clients.push({
-                    label: data[i].name,
-                    value: data[i].id
-                })
-            }
-        }
-        ,
-
-        async getServices() {
-            const {code, data} = await this.$http.post({
-                url: '/service/query',
-                data: {
-                    status: 1,
-                }
-            });
-
-            if (code === 0) {
-                this.handleServices(data.list)
-            }
-        },
-
-        async getPartners() {
-            const {code, data} = await this.$http.post({
-                url: '/partner/query-list',
-            });
-
-            if (code === 0) {
-                this.handlePartners(data.list)
-            }
-        },
-
         async getPartnerById(id) {
             const {code, data} = await this.$http.post({
                 url: '/partner/detail',
@@ -269,8 +179,13 @@ export default {
                 },
 
             });
-            if (code === 0) {
-                this.clientService.clientId = data.id
+            if (code === 0 && data) {
+                this.clientService.clientId = data.id;
+                this.clientService.clientName = data.name;
+            }
+            else{
+                this.clientService.clientId = '';
+                this.clientService.clientName = '';
             }
         },
 
@@ -282,8 +197,9 @@ export default {
                 },
 
             });
-            if (code === 0) {
-                this.clientService.serviceId = data.id
+            if (code === 0 && data) {
+                this.clientService.serviceId = data.id;
+                this.clientService.serviceName = data.name;
             }
         },
 
