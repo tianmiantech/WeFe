@@ -422,7 +422,8 @@
                     this.$router.push({
                         name:  'project-flow',
                         query: {
-                            flow_id: data.flow_id,
+                            flow_id:          data.flow_id,
+                            is_project_admin: this.form.is_project_admin,
                         },
                     });
                 }
