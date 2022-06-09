@@ -173,15 +173,15 @@
                         >
                         </el-button>
                     </el-form-item>
-<!--                    <el-form-item>-->
-<!--                        <el-button-->
-<!--                            type="primary"-->
-<!--                            @click="add_params"-->
-<!--                            class="dashed-btn"-->
-<!--                        >-->
-<!--                            + 新增-->
-<!--                        </el-button>-->
-<!--                    </el-form-item>-->
+                    <!--                    <el-form-item>-->
+                    <!--                        <el-button-->
+                    <!--                            type="primary"-->
+                    <!--                            @click="add_params"-->
+                    <!--                            class="dashed-btn"-->
+                    <!--                        >-->
+                    <!--                            + 新增-->
+                    <!--                        </el-button>-->
+                    <!--                    </el-form-item>-->
                 </template>
 
                 <template
@@ -509,30 +509,7 @@
                                         <el-input :disabled="true" v-model="form.processor"></el-input>
                                         <p></p>
                                     </el-col>
-
                                 </el-row>
-                                <!--                                <el-row :span="24">-->
-                                <!--                                    <el-col :span="2">-->
-                                <!--                                        <p class="mb10"><strong>样本ID：</strong></p>-->
-                                <!--                                    </el-col>-->
-                                <!--                                    <el-col :span="6" style="margin-right: 10px;">-->
-                                <!--                                        <el-input v-model="form.model_data.model_sql_config.pk" type="text"></el-input>-->
-                                <!--                                    </el-col>-->
-                                <!--                                    <el-col :span="8">-->
-                                <!--                                        <el-button type="primary"-->
-                                <!--                                                   :disabled="form.model_data.model_sql_config.pk === ''"-->
-                                <!--                                                   @click="testModel('api')"-->
-                                <!--                                                   style="margin-right: 10px;"-->
-                                <!--                                        >-->
-                                <!--                                            可用性校验-->
-                                <!--                                        </el-button>-->
-                                <!--                                        <el-tooltip>-->
-                                <!--                                            <div slot="content">输入样本ID后才可进行预测</div>-->
-                                <!--                                            <i class="el-icon-info"/>-->
-                                <!--                                        </el-tooltip>-->
-                                <!--                                    </el-col>-->
-
-                                <!--                                </el-row>-->
                             </el-tab-pane>
 
                             <el-tab-pane label="SQL配置" name="sql">
@@ -559,7 +536,7 @@
                                     :rules="[{required: true, message: 'SQL必填!'}]"
                                 >
                                     <el-input
-                                        v-model="form.model_data.model_sql_config.sql_context"
+                                        v-model="form.model_data.model_sql_config.sql_script"
                                         type="textarea"
                                         placeholder="如：select x0,x1,x2 form table where user_id = ?"
                                         clearable
@@ -571,7 +548,7 @@
                                               :rules="[{required: true, message: '主键字段必填!'}]"
                                 >
                                     <el-input
-                                        v-model="form.model_data.model_sql_config.pk"
+                                        v-model="form.model_data.model_sql_config.sql_condition_field"
                                         type="text"
                                         placeholder="例如：id"
                                         class="user-tips"
@@ -579,83 +556,33 @@
                                     />
 
                                 </el-form-item>
-
-                                <!--                                <el-form-item label="用户标识：">-->
-                                <!--                                    <el-input-->
-                                <!--                                        v-model="form.model_data.model_sql_config.pk"-->
-                                <!--                                        placeholder="如：15555555555"-->
-                                <!--                                        clearable-->
-                                <!--                                        class="user-tips"-->
-                                <!--                                    />-->
-                                <!--                                    <el-button-->
-                                <!--                                        :disabled="form.model_data.model_sql_config.pk === ''"-->
-                                <!--                                        type="primary"-->
-                                <!--                                        @click="testModel('sql')"-->
-                                <!--                                        style="margin-right: 10px;"-->
-                                <!--                                    >-->
-                                <!--                                        可用性校验-->
-                                <!--                                    </el-button>-->
-                                <!--                                    <el-tooltip>-->
-                                <!--                                        <div slot="content">输入用户标识后才可进行预测</div>-->
-                                <!--                                        <i class="el-icon-info"/>-->
-                                <!--                                    </el-tooltip>-->
-                                <!--                                </el-form-item>-->
-
-                                <!--                                <el-row :span="24">-->
-                                <!--                                    <el-col :span="12">-->
-
-                                <!--                                    </el-col>-->
-                                <!--                                    <el-col :span="6">-->
-
-
-                                <!--                                    </el-col>-->
-                                <!--                                </el-row>-->
-
                             </el-tab-pane>
-
                         </el-tabs>
-
                     </el-form-item>
 
-
                     <el-card class="model-test-result-card" v-if="form.model_data.model_id">
+                        <div style="margin-bottom: 10px;">样本ID:</div>
+                        <div>
+                            <el-input v-model="form.model_data.check_data.sample_id" type="text"
+                                      class="checkButton"></el-input>
+                            <el-button type="primary"
+                                       :disabled="form.model_data.check_data.sample_id === ''"
+                                       @click="testModel"
+                                       style="margin-right: 10px;"
+                            >
+                                可用性校验
+                            </el-button>
+                            <el-tooltip>
+                                <div slot="content">输入样本ID后才可进行预测</div>
+                                <i class="el-icon-info"/>
+                            </el-tooltip>
+                        </div>
 
-                        <el-row :span="24">
-                            <el-col :span="4">
-                                样本ID:
-                            </el-col>
-                            <el-col :span="6" style="margin-right: 10px;">
-                                <el-input v-model="form.model_data.model_sql_config.pk" type="text"></el-input>
-                            </el-col>
-                            <el-col :span="8">
-                                <el-button type="primary"
-                                           :disabled="form.model_data.model_sql_config.pk === ''"
-                                           @click="testModel"
-                                           style="margin-right: 10px;"
-                                >
-                                    可用性校验
-                                </el-button>
-                                <el-tooltip>
-                                    <div slot="content">输入样本ID后才可进行预测</div>
-                                    <i class="el-icon-info"/>
-                                </el-tooltip>
-                            </el-col>
-
-                        </el-row>
-
-                        <el-row>
-                            <p class="mb10">结果：</p>
-                        </el-row>
-
-                        <el-row>
+                        <div v-if="predictResult !== ''" style="margin-top: 20px; margin-bottom: 10px;">结果：</div>
+                        <div>
                             <p>
-                                {{
-                                    predictResult.length > 150 ? predictResult.substring(0, 151) + '...' : predictResult
-                                }}</p>
-                        </el-row>
-
-
-                        <!--                        <br/>-->
+                                {{ predictResult.length > 150 ? predictResult.substring(0, 151) + '...' : predictResult }}</p>
+                        </div>
                         <el-row>
                             <el-button
                                 v-if="predictResult.length > 150"
@@ -851,15 +778,7 @@ export default {
     data() {
         return {
             dataBaseOptions: [],
-            predictResult: '{\n' +
-                '  "featureData": {\n' +
-                '    "x": 1\n' +
-                '  },\n' +
-                '  "seqNo": "2022031712375334784734",\n' +
-                '  "modelId": "0527f9011007422b847d205d6aeb85d6_VertSecureBoost_16294251366419513",\n' +
-                '  "userId": "1",\n' +
-                '  "memberId": "d0f47307804844898ecfc65b875abe87"\n' +
-                '}',
+            predictResult: '',
             requestDataDialog: false,
             jsonData: '',
             title: '',
@@ -904,14 +823,16 @@ export default {
                 key_calc_rules: [],
                 stringResult: '',
                 model_data: {
+                    check_data: {
+                        sample_id: ''
+                    },
                     model_id: '',
                     model_param: '',
                     model_sql_config: {
                         feature_source: '',
                         data_source_id: '',
-                        sql_context: '',
-                        model_id: '',
-                        pk: '',
+                        sql_script: '',
+                        sql_condition_field: '',
                     },
                     model_member_status: [],
                     model_overview: '',
@@ -1054,24 +975,24 @@ export default {
         },
 
         async testModel() {
+            // if (this.activeName === 'sql') {
+            const {code, data} = await this.$http.post({
+                url: 'predict/debug',
+                data: {
+                    model_id: this.form.model_data.model_id,
+                    user_id: this.form.model_data.check_data.sample_id,
+                    feature_source: this.activeName,
+                    params: this.form.model_data.model_sql_config,
+                    my_role: this.form.model_data.model_roles,
+                    feature_data: this.form
+                },
+            });
 
-            if (this.activeName === 'sql') {
-                const {code, data} = await this.$http.post({
-                    url: 'predict/debug',
-                    data: {
-                        model_id: this.form.model_data.model_sql_config.model_id,
-                        user_id: this.form.model_data.model_sql_config.pk,
-                        feature_source: feature_source,
-                        params: this.form.model_data.model_sql_config,
-                        my_role: this.form.model_data.model_roles,
-                        feature_data: this.form
-                    },
-                });
-
-                if (code === 0) {
-                    this.sqlPredictResult = data;
-                }
+            if (code === 0) {
+                this.sqlPredictResult = data;
+                this.predictResult = data;
             }
+            // }
 
         },
 
@@ -1261,8 +1182,10 @@ export default {
                     this.form.service_type = type;
                     this.form.processor = data.processor
 
+                    console.log(data.model_id, 'data.model_id')
                     if (data.model_id) {
                         this.form.model_data.model_sql_config.model_id = data.model_id
+                        // console.log(this.form.model_data.model_sql_config.model_id)
                         this.form.model_data.model_id = data.model_id
                         this.form.model_data.model_overview = data.xgboost_tree
                         this.form.model_data.model_member_status = data.model_status
@@ -1650,17 +1573,24 @@ export default {
 
         async saveModelConfig() {
             const {code, data, message} = await this.$http.post({
-                url: 'model/update_sql_config',
+                url: 'model/update',
                 data: {
                     feature_source: 'sql',
-                    sql_context: this.form.model_data.model_sql_config.sql_context,
+                    sql_script: this.form.model_data.model_sql_config.sql_script,
                     data_source_id: this.form.model_data.model_sql_config.data_source_id,
-                    model_id: this.form.model_data.model_sql_config.model_id,
+                    model_id: this.form.model_data.model_id,
+                    sql_condition_field: this.form.model_data.model_sql_config.sql_condition_field,
                 }
             });
 
             if (code === 0) {
+
                 this.$message.success('模型配置保存成功!');
+                this.$router.push({
+                    name: 'service-view',
+                    query: {id: this.serviceId},
+                });
+                this.$router.go(0);
             } else {
                 this.$message.error('模型配置保存失败: ' + message);
             }
@@ -1904,12 +1834,17 @@ export default {
 
 .model-test-result-card {
     width: 620px;
-    height: 160px;
+    height: 210px;
 }
 
 .dashed-btn {
     background: transparent;
     border: 1px dashed #28c2d7;
     color: #28c2d7;
+}
+
+.checkButton {
+    width: 60%;
+    margin-right: 10px;
 }
 </style>
