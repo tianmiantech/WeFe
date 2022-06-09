@@ -364,11 +364,11 @@ public class ServiceService {
             res.append("message", "invalid request: url = " + serviceUrl);
             return res;
         } else {
-            PartnerMysqlModel client = partnerService.queryByCode(input.getCustomerId());
+            PartnerMysqlModel client = partnerService.queryByCode(input.getPartnerCode());
             if (client == null || client.getStatus() != 1) {
                 res.append("code", ServiceResultEnum.CUSTOMER_NOT_AUTHORITY.getCode());
                 res.append("message",
-                        "invalid request: url = " + serviceUrl + ",customerId = " + input.getCustomerId());
+                        "invalid request: url = " + serviceUrl + ",partnerCode = " + input.getPartnerCode());
                 long duration = System.currentTimeMillis() - start;
                 log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
@@ -404,7 +404,7 @@ public class ServiceService {
         JObject data = JObject.create(input.getData());
         
         ServiceMySqlModel service = serviceRepository.findOne("id", input.getServiceId(), ServiceMySqlModel.class);
-        PartnerMysqlModel partner = partnerService.queryByCode(input.getCustomerId());
+        PartnerMysqlModel partner = partnerService.queryByCode(input.getPartnerCode());
         
         // log
         String serviceOrderId = preExecuteOrderLog(service, partner, input, clientIp);
