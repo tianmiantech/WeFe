@@ -118,6 +118,7 @@ public class MessageService extends AbstractService {
         content.dataResourceName = dataResource.getName();
         content.dataResourceType = dataResource.getDataResourceType();
         content.dataResourceId = dataResource.getDataResourceId();
+        content.sampleCount = dataResource.getTotalDataCount();
         add(MessageEvent.ApplyDataResource, content);
     }
 
