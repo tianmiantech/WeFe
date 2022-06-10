@@ -100,6 +100,16 @@ public class MessageService extends AbstractService {
         messageRepository.save(model);
     }
 
+    public void completeApplyDataResourceTodo(ProjectDataSetMySqlModel projectDataSet) {
+        String projectId = projectDataSet.getProjectId();
+        String dataSetId = projectDataSet.getDataSetId();
+        messageRepository.completeTodo(projectId, dataSetId);
+    }
+
+    public void completeCreateProjectTodo(String projectId) {
+        messageRepository.completeTodo(projectId);
+    }
+
     /**
      * 添加一条 event 为 ApplyDataResource 的消息     *
      */

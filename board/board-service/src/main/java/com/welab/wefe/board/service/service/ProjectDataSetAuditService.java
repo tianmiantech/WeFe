@@ -82,6 +82,8 @@ public class ProjectDataSetAuditService extends AbstractService {
             if (!CacheObjects.getMemberId().equals(dataSet.getMemberId())) {
                 throw new StatusCodeWithException("你不能审核别人的数据集", StatusCode.ILLEGAL_REQUEST);
             }
+
+            messageService.completeApplyDataResourceTodo(dataSet);
         }
 
         projectDataSetService.update(dataSet, (x) -> x.setAuditStatus(input.getAuditStatus()));

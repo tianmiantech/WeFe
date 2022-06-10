@@ -860,6 +860,8 @@ public class ProjectService extends AbstractService {
             project.setAuditComment(input.getAuditComment());
             project.setStatusUpdatedTime(new Date());
             projectRepo.save(project);
+
+            messageService.completeCreateProjectTodo(project.getProjectId());
         }
 
         // update the audit status of project members

@@ -18,11 +18,23 @@ package com.welab.wefe.board.service.database.repository;
 
 import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Zane
  */
 @Repository
 public interface MessageRepository extends BaseRepository<MessageMysqlModel, String> {
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "update #{#entityName} set unread=false,todo_complete=true where todo_related_id1=?1 and todo_related_id1=?2", nativeQuery = true)
+    void completeTodo(String relatedId1, String relatedId2);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "update #{#entityName} set unread=false,todo_complete=true where todo_related_id1=?1", nativeQuery = true)
+    void completeTodo(String relatedId1);
 }
