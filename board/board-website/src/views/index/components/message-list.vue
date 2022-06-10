@@ -3,7 +3,7 @@
         v-loading="message_list_loading"
         class="box-card"
     >
-        <template #header>
+        <!-- <template #header>
             <div style="line-height: 32px;">
                 Message
                 <el-button
@@ -18,8 +18,11 @@
                     />
                 </el-button>
             </div>
-        </template>
+        </template> -->
         <el-tabs v-model="activeName" class="msg-tabs" type="border-card">
+            <el-tab-pane label="待办事项" name="todoList">
+                待办事项
+            </el-tab-pane>
             <el-tab-pane label="系统消息" name="systemMsg">
                 <div
                     v-if="!message_list || message_list.length === 0"
@@ -66,9 +69,6 @@
                     </el-collapse-item>
                 </el-collapse>
             </el-tab-pane>
-            <el-tab-pane label="待办事项" name="todoList">
-                待办事项
-            </el-tab-pane>
             <el-tab-pane label="合作通知" name="cooperateNotice">
                 合作通知
             </el-tab-pane>
@@ -106,7 +106,7 @@
                 },
 
                 message_list: [],
-                activeName:   'systemMsg',
+                activeName:   'todoList',
             };
         },
         created() {
@@ -169,7 +169,7 @@
         .message_list {
             overflow-y: auto;
             width: 100%;
-            height: 395px;
+            max-height: 484px;
             border: unset;
             .el-collapse-item__header{
                 color: #aaa;
@@ -210,6 +210,9 @@
         .msg-tabs {
             margin-top: -5px;
             overflow: auto;
+            .el-tabs__content {
+                padding: 5px;
+            }
         }
     }
     .success{
