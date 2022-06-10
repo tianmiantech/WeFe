@@ -6,6 +6,7 @@
         <el-form :model="form">
             <el-row :gutter="100">
                 <el-col :span="12">
+                    <p>基本配置：</p>
                     <el-form-item label="系统ID：">
                         {{ form.identity_info.member_id }}
                     </el-form-item>
@@ -19,19 +20,6 @@
                             :disabled="is_update"
                         />
                     </el-form-item>
-
-<!--                    <el-form-item-->
-<!--                        v-if="is_display"-->
-<!--                        label="公钥："-->
-<!--                    >-->
-<!--                        <el-input-->
-<!--                            v-model="form.identity_info.rsa_public_key"-->
-<!--                            type="textarea"-->
-<!--                            :disabled="is_update"-->
-<!--                            autosize-->
-<!--                        />-->
-<!--                    </el-form-item>-->
-
                     <el-form-item
                         label="Serving服务地址："
                     >
@@ -58,6 +46,50 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <el-divider/>
+            <el-row :gutter="100">
+                <el-col :span="12">
+                    <p>邮箱配置：</p>
+                    <el-form-item
+                        label="邮件服务器地址："
+                    >
+                        <el-input
+                            v-model="form.mail_server.host"
+                            placeholder=""
+                            :disabled="is_update"
+                        />
+                    </el-form-item>
+                    <el-form-item
+                        label="邮件服务器端口："
+                    >
+                        <el-input
+                            v-model="form.mail_server.port"
+                            placeholder=""
+                            :disabled="is_update"
+                        />
+                    </el-form-item>
+                    <el-form-item
+                        label="邮件用户名："
+                    >
+                        <el-input
+                            v-model="form.mail_server.username"
+                            placeholder=""
+                            :disabled="is_update"
+                        />
+                    </el-form-item>
+                    <el-form-item
+                        label="邮件密码："
+                    >
+                        <el-input
+                            type="password"
+                            v-model="form.mail_server.password"
+                            placeholder=""
+                            :disabled="is_update"
+                        />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
             <el-row :gutter="100">
                 <el-col :span="12">
                     <el-button
@@ -97,7 +129,6 @@
                 is_display: false,
                 is_reset : false,
                 mode:'',
-                // model
                 form:       {
                     identity_info:{
                         member_id:       '',
@@ -107,6 +138,12 @@
                     },
                     wefe_union:{
                         intranet_base_uri:'',
+                    },
+                    mail_server:{
+                        host:'',
+                        username:'',
+                        port:'',
+                        password:'',
                     }
                 },
 
@@ -132,7 +169,7 @@
                 const { code, data } = await this.$http.post({
                     url: '/global_config/detail',
                     data:{
-                        "groups":['identity_info','wefe_union']
+                        "groups":['identity_info','wefe_union','mail_server']
                     }
                 });
 
