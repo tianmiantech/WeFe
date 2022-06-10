@@ -46,6 +46,7 @@ public class BaseGlobalConfigService{
     public static class Group {
         public static String IDENTITY_INFO = "identity_info";
         public static String WEFE_UNION = "wefe_union";
+        public static String MAIL_SERVER = "mail_server";
     }
 
 
