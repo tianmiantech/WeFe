@@ -112,7 +112,7 @@ public class CacheObjects {
     }
 
     public static boolean isUnionModel() {
-        return getMODE() == ServingModeEnum.union.name();
+        return ServingModeEnum.union.name().equalsIgnoreCase(getMODE());
     }
 
     /**

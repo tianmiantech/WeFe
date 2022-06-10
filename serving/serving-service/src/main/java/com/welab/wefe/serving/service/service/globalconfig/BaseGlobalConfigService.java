@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -44,8 +42,6 @@ import com.welab.wefe.serving.service.service.UnionServiceService;
  * @author zane
  */
 public class BaseGlobalConfigService{
-    
-    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
     
     public static class Group {
         public static String IDENTITY_INFO = "identity_info";
@@ -121,7 +117,6 @@ public class BaseGlobalConfigService{
         if (comment != null) {
             one.setComment(comment);
         }
-        LOG.info("CacheObjects.isUnionModel()= " + CacheObjects.getMODE() + "\t" + CacheObjects.isUnionModel());
         if (name.equalsIgnoreCase("serving_base_url") && CacheObjects.isUnionModel()) {
             try {
                 unionServiceService.updateServingBaseUrlOnUnion(value);
