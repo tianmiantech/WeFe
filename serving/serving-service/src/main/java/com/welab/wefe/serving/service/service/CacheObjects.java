@@ -64,61 +64,61 @@ public class CacheObjects {
 
     public static String getMemberId() {
         if (MEMBER_ID == null) {
-            refreshIdentityInfo();
+            refreshGlobalConfig();
         }
         return MEMBER_ID;
     }
 
     public static String getRsaPrivateKey() {
         if (RSA_PRIVATE_KEY == null) {
-            refreshIdentityInfo();
+            refreshGlobalConfig();
         }
         return RSA_PRIVATE_KEY;
     }
 
     public static String getRsaPublicKey() {
         if (RSA_PUBLIC_KEY == null) {
-            refreshIdentityInfo();
+            refreshGlobalConfig();
         }
         return RSA_PUBLIC_KEY;
     }
 
     public static String getServingBaseUrl() {
         if (SERVING_BASE_URL == null) {
-            refreshIdentityInfo();
+            refreshGlobalConfig();
         }
         return SERVING_BASE_URL;
     }
     
     public static String getUnionBaseUrl() {
         if (UNION_BASE_URL == null) {
-            refreshIdentityInfo();
+            refreshGlobalConfig();
         }
         return UNION_BASE_URL;
     }
 
     public static String getMemberName() {
         if (MEMBER_NAME == null) {
-            refreshIdentityInfo();
+            refreshGlobalConfig();
         }
         return MEMBER_NAME;
     }
 
     public static String getMODE() {
         if (MODE == null) {
-            refreshIdentityInfo();
+            refreshGlobalConfig();
         }
         return MODE;
     }
 
     public static boolean isUnionModel() {
-        return getMODE() == ServingModeEnum.union.name();
+        return ServingModeEnum.union.name().equalsIgnoreCase(getMODE());
     }
 
     /**
      * Reload member information
      */
-    public static void refreshIdentityInfo() {
+    public static void refreshGlobalConfig() {
         GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
         IdentityInfoModel identityModel = service.getIdentityInfo();
         UnionInfoModel unionModel = service.getUnionInfoModel();

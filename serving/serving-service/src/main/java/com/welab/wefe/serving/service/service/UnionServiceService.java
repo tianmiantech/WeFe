@@ -153,7 +153,7 @@ public class UnionServiceService {
 	
     public JSONObject memberQuery(String memberId) throws StatusCodeWithException {
         if (CACHE_MAP.containsKey(memberId)) {
-            return (JSONObject) CACHE_MAP.get(memberId);
+            return JSONObject.parseObject(CACHE_MAP.get(memberId).toString());
         }
         JObject params = JObject.create().put("id", memberId);
         LOG.info("union member query params = " + JSONObject.toJSONString(params));
