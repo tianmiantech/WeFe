@@ -16,6 +16,15 @@
 
 package com.welab.wefe.serving.service.service.globalconfig;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
@@ -28,22 +37,16 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.serving.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.serving.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.serving.service.dto.GlobalConfigInput;
-import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.UnionServiceService;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author zane
  */
 public class BaseGlobalConfigService{
-
+    
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    
     public static class Group {
         public static String IDENTITY_INFO = "identity_info";
         public static String WEFE_UNION = "wefe_union";
@@ -118,6 +121,7 @@ public class BaseGlobalConfigService{
         if (comment != null) {
             one.setComment(comment);
         }
+        LOG.info("CacheObjects.isUnionModel()= " + CacheObjects.getMODE() + "\t" + CacheObjects.isUnionModel());
         if (name.equalsIgnoreCase("serving_base_url") && CacheObjects.isUnionModel()) {
             try {
                 unionServiceService.updateServingBaseUrlOnUnion(value);
