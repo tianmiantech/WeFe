@@ -103,11 +103,11 @@ public class MessageService extends AbstractService {
     public void completeApplyDataResourceTodo(ProjectDataSetMySqlModel projectDataSet) {
         String projectId = projectDataSet.getProjectId();
         String dataSetId = projectDataSet.getDataSetId();
-        messageRepository.completeTodo(projectId, dataSetId);
+        messageRepository.completeApplyDataResourceTodo(projectId, dataSetId);
     }
 
     public void completeCreateProjectTodo(String projectId) {
-        messageRepository.completeTodo(projectId);
+        messageRepository.completeCreateProjectTodo(projectId);
     }
 
     /**
