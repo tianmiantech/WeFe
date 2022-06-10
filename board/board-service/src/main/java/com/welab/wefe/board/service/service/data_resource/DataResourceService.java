@@ -285,7 +285,7 @@ public class DataResourceService extends AbstractDataResourceService {
     public DataResourceOutputModel findDataResourceFromLocalOrUnion(ProjectDataSetMySqlModel projectDataSet) throws StatusCodeWithException {
 
         if (CacheObjects.getMemberId().equals(projectDataSet.getMemberId())) {
-            Object obj = dataResourceRepository.findById(projectDataSet).orElse(null);
+            Object obj = dataResourceRepository.findById(projectDataSet.getDataSetId()).orElse(null);
             if (obj == null) {
                 return null;
             }
