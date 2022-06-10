@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface MessageRepository extends BaseRepository<MessageMysqlModel, String> {
     @Modifying(clearAutomatically = true)
     @Transactional
-    @Query(value = "update #{#entityName} set unread=false,todo_complete=true where `event`='ApplyDataResource' and todo_related_id1=?1 and todo_related_id1=?2", nativeQuery = true)
+    @Query(value = "update #{#entityName} set unread=false,todo_complete=true where `event`='ApplyDataResource' and todo_related_id1=?1 and todo_related_id2=?2", nativeQuery = true)
     void completeApplyDataResourceTodo(String projectId, String dataResourceId);
 
     @Modifying(clearAutomatically = true)
