@@ -45,7 +45,6 @@ from kernel.security.protol.spdz.tensor import fixedpoint_numpy
 from kernel.security.protol.spdz.tensor.base import TensorBase
 from kernel.security.protol.spdz.utils import NamingService
 from kernel.security.protol.spdz.utils import urand_tensor
-from kernel.security.protol.spdz.utils.random_utils import urand_tensor
 
 LOGGER = log_utils.get_logger()
 
