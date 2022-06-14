@@ -15,8 +15,9 @@
  */
 package com.welab.wefe.serving.service.utils;
 
+import org.apache.commons.compress.utils.Lists;
+
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,101 +25,48 @@ import java.util.List;
  * @date 2022/3/23
  */
 public class DeepLearningUtil {
-//    public static void main(String[] args) throws IOException {
-//        StringBuilder stringBuilder = new StringBuilder();
-//        BufferedReader bufferedReader = null;
-//
-//        try {
-//
-//
-//            String shellCommand = "python3 test_client.py";
-//
-//            stringBuilder.append("准备执行Shell命令 ").append(shellCommand).append(" /r/n");
-//
-//            String[] cmd = {"/bin/sh", "-c", shellCommand};
-//            Process pid = Runtime.getRuntime().exec(cmd);
-//
-//            if (pid != null) {
-//                stringBuilder.append("进程号：").append(pid.toString()).append("/r/n");
-//                //bufferedReader用于读取Shell的输出内容
-//                bufferedReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
-//                pid.waitFor();
-//            } else {
-//                stringBuilder.append("没有pid/r/n");
-//            }
-//            stringBuilder.append("Shell命令执行完毕/r/n执行结果为：/r/n");
-//            String line = null;
-//            //读取Shell的输出内容，并添加到stringBuffer中
-//            while (bufferedReader != null &&
-//                    (line = bufferedReader.readLine()) != null) {
-//                stringBuilder.append(line).append("/r/n");
-//            }
-//        } catch (Exception ioe) {
-//            stringBuilder.append("执行Shell命令时发生异常：/r/n").append(ioe.getMessage()).append("/r/n");
-//        } finally {
-//            if (bufferedReader != null) {
-////                OutputStreamWriter outputStreamWriter = null;
-//                try {
-//                    bufferedReader.close();
-//                    //将Shell的执行情况输出到日志文件中
-////                    OutputStream outputStream = new FileOutputStream(executeShellLogFile);
-////                    outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-8");
-////                    outputStreamWriter.write(stringBuilder.toString());
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                } finally {
-////                    outputStreamWriter.close();
-//                }
-//            }
-//
-//            System.out.println(stringBuilder);
-//        }
-//    }
 
+    public static String callPaddleServing(String imagePath, String labelListPath, String output, String wordDir) throws IOException {
+        start(wordDir);
 
-    public static String callPaddleServing(String lableListPath, String imagePath, String output) throws IOException {
-        // 创建命令集合
-        List<String> commandList = new ArrayList<String>();
+        execute(imagePath, labelListPath, output, wordDir);
 
-        commandList.add("python3");
-        commandList.add("test_client.py");
-        commandList.add(lableListPath);
-        commandList.add(imagePath);
-        commandList.add(output);
-        // ProcessBuilder是一个用于创建操作系统进程的类，它的start()方法用于启动一个进行
-        ProcessBuilder processBuilder = new ProcessBuilder(commandList);
-        // 启动进程
-        Process process = processBuilder.start();
-        // 解析输出
-        return convertStreamToStr(process.getInputStream());
+        kill(wordDir);
+
+        return "";
     }
 
-    public void callShellCommand(){
-
+    private static void kill(String wordDir) throws IOException {
+        executeShell(wordDir, "sh kill.sh");
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        String cmd = "python3 -m paddle_serving_server.serve --model serving_server --port 9393";
+    private static void executeShell(String wordDir, String commandShell) throws IOException {
 
-        // 创建命令集合
-        List<String> commandList = new ArrayList<String>();
-//        commandList.add("/bin/sh");
-//        commandList.add("-c");  // 执行结束后关闭
-//        commandList.add("echo");
-//        commandList.add("hello");
-//        commandList.add("cmd");
+        List<String> commandList = Lists.newArrayList();
+        System.out.println("执行命令：" + commandShell);
+        commandList.add("/bin/sh");
+        commandList.add("-c");
+        commandList.add(commandShell);
 
-        commandList.add("python3");
-        commandList.add("test_client.py");
         // ProcessBuilder是一个用于创建操作系统进程的类，它的start()方法用于启动一个进行
         ProcessBuilder processBuilder = new ProcessBuilder(commandList);
-        // 启动进程
-        Process process = processBuilder.start();
-        process.waitFor();
 
+        processBuilder.directory(new File(wordDir));
+        // 启动进程
+        Process process3 = processBuilder.start();
         // 解析输出
-        String result1 = convertStreamToStr(process.getInputStream());
-        System.out.println(result1);
+        convertStreamToStr(process3.getErrorStream());
+
+        convertStreamToStr(process3.getInputStream());
+    }
+
+    private static void execute(String imagePath, String labelListPath, String output, String wordDir) throws IOException {
+        String exe = "sh execute.sh test_client.py " + imagePath + " " + labelListPath + " " + output;
+        executeShell(wordDir, exe);
+    }
+
+    private static void start(String wordDir) throws IOException {
+        executeShell(wordDir, "sh start_server.sh");
     }
 
     public static String convertStreamToStr(InputStream is) throws IOException {

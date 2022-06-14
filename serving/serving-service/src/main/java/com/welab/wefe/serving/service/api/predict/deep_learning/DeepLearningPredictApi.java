@@ -18,7 +18,6 @@ package com.welab.wefe.serving.service.api.predict.deep_learning;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.file.decompression.SuperDecompressor;
 import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
-import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -29,7 +28,6 @@ import com.welab.wefe.serving.service.utils.ServingFileUtil;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -52,20 +50,11 @@ public class DeepLearningPredictApi extends AbstractApi<DeepLearningPredictApi.I
         File zipFile = ServingFileUtil.DeepLearningModelFile.getZipFile(input.modelId);
         DecompressionResult result = SuperDecompressor.decompression(zipFile, distDir, false);
 
-        //构造labelList
-        Path labelList = ServingFileUtil
-                .getBaseDir(ServingFileUtil.FileType.Temp)
-                .resolve(input.modelId)
-                .resolve("lable_list.txt");
-        for (String label : input.labelList) {
-            FileUtil.writeTextToFile(label + System.lineSeparator(), labelList, true);
-        }
-
         //指定结果输出路径
         Path output = ServingFileUtil.DeepLearningModelFile.getPredictOutputPath(input.getModelId());
 
         //调用paddle_serving服务
-        String resultStr = DeepLearningUtil.callPaddleServing(labelList.toString(), input.imagePath, output.toString());
+        String resultStr = DeepLearningUtil.callPaddleServing(input.imagePath, "label_list.txt", output.toString(), distDir);
 
         //转化结果
         return success(resultStr);
@@ -75,8 +64,8 @@ public class DeepLearningPredictApi extends AbstractApi<DeepLearningPredictApi.I
 
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
-        @Check(require = true, name = "标签list")
-        private List<String> labelList;
+//        @Check(require = true, name = "标签list")
+//        private List<String> labelList;
 
         @Check(name = "检测图片路径")
         private String imagePath;
@@ -90,14 +79,6 @@ public class DeepLearningPredictApi extends AbstractApi<DeepLearningPredictApi.I
 
         public void setModelId(String modelId) {
             this.modelId = modelId;
-        }
-
-        public List<String> getLabelList() {
-            return labelList;
-        }
-
-        public void setLabelList(List<String> labelList) {
-            this.labelList = labelList;
         }
 
         public String getImagePath() {
