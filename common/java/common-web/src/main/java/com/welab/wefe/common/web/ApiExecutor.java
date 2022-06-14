@@ -26,7 +26,7 @@ import com.welab.wefe.common.SamplingLogger;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
+import com.welab.wefe.common.fastjson.LoggerValueFilter;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -167,7 +167,7 @@ public class ApiExecutor {
             byte[] bytes = (byte[]) result.data;
             content = "bytes(length " + bytes.length + ")";
         } else {
-            content = JSON.toJSONString(result, LoggerSerializeConfig.instance());
+            content = JSON.toJSONString(result, LoggerValueFilter.instance);
         }
 
 

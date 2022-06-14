@@ -213,6 +213,7 @@ cp -r $WORKSPACE/board/board-website/dist $WORKSPACE/deploy_package_resource/boa
 cp -r $WORKSPACE/fusion/fusion-website/dist $WORKSPACE/deploy_package_resource/fusion-website
 cp -r $WORKSPACE/manager/manager-website/dist $WORKSPACE/deploy_package_resource/manager-website
 cp -r $WORKSPACE/serving/serving-website/dist $WORKSPACE/deploy_package_resource/serving-website
+cp -r $WORKSPACE/union/blockchain-data-sync/solidity $WORKSPACE/deploy_package_resource/solidity
 
 cd $WORKSPACE/deploy_package_resource
 tar -cf board-website.tar board-website
@@ -222,5 +223,7 @@ tar -cf serving-website.tar serving-website
 
 # 数据库文件
 cp $WORKSPACE/documents/数据库设计/board/wefe_board.sql $WORKSPACE/deploy_package_resource
+cp $WORKSPACE/documents/数据库设计/fusion/fusion.sql $WORKSPACE/deploy_package_resource
+cp $WORKSPACE/documents/数据库设计/serving/serving-init.sql $WORKSPACE/deploy_package_resource
 
 echo '###### INTEGRATION FINISHED ######'
