@@ -26,7 +26,7 @@
             </div>
             <template v-if="showComponentPanel">
                 <el-alert
-                    v-if="(isProjectAdmin || isProjectAdmin === 'false') && isCreator"
+                    v-if="(!isProjectAdmin || isProjectAdmin === 'false') && isCreator"
                     title="当前项目由管理员创建，您仅有查看权限，不能编辑。"
                     type="warning"
                     show-icon
