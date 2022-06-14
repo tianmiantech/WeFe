@@ -12,7 +12,7 @@
                 <div style="display: flex; align-items: center;">
                     <h3 class="card-title f19">数据融合</h3>
                     <template v-if="form.isPromoter">
-                        <router-link v-if="form.is_project_admin" class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id } }">
+                        <router-link v-if="form.is_project_admin" class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id, is_project_admin: form.is_project_admin } }">
                             <el-button
                                 v-if="!form.closed && !form.is_exited"
                                 type="primary"
@@ -44,7 +44,7 @@
                 min-width="220px"
             >
                 <template v-slot="scope">
-                    <router-link :to="{ name: 'fusion-detail', query: { id: scope.row.id, project_id } }">
+                    <router-link :to="{ name: 'fusion-detail', query: { id: scope.row.id, project_id, is_project_admin: form.is_project_admin } }">
                         {{ scope.row.name }}
                     </router-link>
                 </template>
@@ -267,7 +267,8 @@
                     name:  'fusion-detail',
                     query: {
                         id,
-                        project_id: this.project_id,
+                        project_id:       this.project_id,
+                        is_project_admin: this.form.is_project_admi,
                     },
                 });
             },
