@@ -9,6 +9,13 @@
             class="nav-title mb30"
             idx="-1"
         >
+            <el-alert
+                v-if="isDemo && !form.is_project_admin"
+                title="当前项目由管理员创建，您仅有查看权限，不能编辑。"
+                type="warning"
+                show-icon
+                class="unedit-tips">
+            </el-alert>
             <el-form @submit.prevent>
                 <el-alert
                     v-if="project.closed"
@@ -464,12 +471,12 @@
 
                     if (this.isDemo) {
                         // this.form.is_project_admin = this.userInfo.admin_role || (!this.userInfo.admin_role && this.userInfo.id === data.created_by) ? true : false; 
-                        this.form.is_project_admin = !!(this.userInfo.admin_role || (!this.userInfo.admin_role && this.userInfo.id === data.created_by)); 
-                        // this.form.is_project_admin = !!(this.userInfo.admin_role || (admin_user.length > 0 || this.userInfo.id === data.created_by) || (!this.userInfo.admin_role && is_admin_created.length === 0)); 
+                        // this.form.is_project_admin = !!(this.userInfo.admin_role || (!this.userInfo.admin_role && this.userInfo.id === data.created_by)); 
+                        this.form.is_project_admin = !!(this.userInfo.admin_role || (admin_user.length > 0 || this.userInfo.id === data.created_by) || (!this.userInfo.admin_role && is_admin_created.length === 0)); 
                     } else {
                         this.form.is_project_admin = true;
                     }
-
+                    // console.log('is_admin_created='+is_admin_created.length, 'isDemo='+this.isDemo, 'is_project_admin='+this.form.is_project_admin);
                     const members = {};
                     const { providerService, promoterService } = this;
 
@@ -763,6 +770,13 @@
     }
     .el-card__header {
         padding-bottom: unset;
+    }
+    .unedit-tips {
+        .el-alert__content {
+            height: 18px;
+            line-height: 23px;
+            padding: 0 6px;
+        }
     }
 </style>
 

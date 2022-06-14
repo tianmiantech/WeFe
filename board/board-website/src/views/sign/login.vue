@@ -131,7 +131,7 @@
                     </el-form>
                 </div>
             </div>
-            <p class="copyright text-c f12">@copyright 天冕信息技术有限公司 Version {{ version }}</p>
+            <p class="copyright text-c f12">@copyright 天冕信息技术（深圳）有限公司 Version {{ version }}</p>
         </el-main>
     </el-container>
 </template>

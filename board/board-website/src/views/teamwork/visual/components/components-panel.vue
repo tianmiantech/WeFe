@@ -25,6 +25,13 @@
                 />
             </div>
             <template v-if="showComponentPanel">
+                <el-alert
+                    v-if="(!isProjectAdmin || isProjectAdmin === 'false') && isCreator"
+                    title="当前项目由管理员创建，您仅有查看权限，不能编辑。"
+                    type="warning"
+                    show-icon
+                    class="unedit-tips">
+                </el-alert>
                 <el-scrollbar
                     v-if="componentType === 'defaultPanel'"
                     height="100%"
@@ -574,6 +581,22 @@
     :deep(.el-tabs__item){
         font-size: 13px;
         color:#909399;
+    }
+}
+</style>
+
+<style lang="scss">
+.unedit-tips {
+    z-index: 201;
+    padding: 8px 0 8px 8px;
+    .el-alert__content {
+        height: 18px;
+        line-height: 23px;
+        padding: unset;
+        .el-alert__close-btn {
+            top: 10px;
+            right: 6px;
+        }
     }
 }
 </style>
