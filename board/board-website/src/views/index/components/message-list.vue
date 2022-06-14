@@ -23,6 +23,9 @@
             <el-tab-pane label="待办事项" name="todoList">
                 待办事项
             </el-tab-pane>
+            <el-tab-pane label="合作通知" name="cooperateNotice">
+                合作通知
+            </el-tab-pane>
             <el-tab-pane label="系统消息" name="systemMsg">
                 <div
                     v-if="!message_list || message_list.length === 0"
@@ -68,9 +71,6 @@
                         {{ item.content }}
                     </el-collapse-item>
                 </el-collapse>
-            </el-tab-pane>
-            <el-tab-pane label="合作通知" name="cooperateNotice">
-                合作通知
             </el-tab-pane>
         </el-tabs>
         
