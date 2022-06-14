@@ -202,6 +202,7 @@ def gpu_paillier_table_dot(X, Y):
         gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
                                Y_array_size * DOUBLE_BYTE)
     else:
+        print(f'Y_array.dtype: {Y_array.dtype}')
         raise PermissionError("Invalid Data Type of Y_array")
 
     timebegin = dt.datetime.now()

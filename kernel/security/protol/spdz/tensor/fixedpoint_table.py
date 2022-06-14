@@ -95,9 +95,12 @@ def table_dot(a_table, b_table):
                 # 此处如果用type== int 进行转换，程序会自动转为 int64，后续的table_dot 会溢出，随后报错
                 a_new_tables = np.array(a_tables)
                 b_new_tables = np.array(b_tables)
+                print(f'int type(b_tables[0][0]): {type(b_tables[0][0])}')
             else:
                 a_new_tables = np.array(a_tables).astype(type(a_tables[0][0]))
                 b_new_tables = np.array(b_tables).astype(type(b_tables[0][0]))
+                print(f'type(b_tables[0][0]): {type(b_tables[0][0])}')
+
 
             # 获取 GPU 可执行批量数
             gpu_table_dot_batch = get_gpu_batch()
