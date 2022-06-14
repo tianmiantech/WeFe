@@ -158,7 +158,7 @@
 
             <el-table-column
                 label="操作"
-                width="150px"
+                width="250px"
                 fixed="right"
             >
                 <template slot-scope="scope">
@@ -181,6 +181,12 @@
                         @click="offline(scope.row.id)"
                     >
                         下线
+                    </el-button>
+                    <el-button
+                        type="primary"
+                        @click="export_sdk(scope.row.id)"
+                    >
+                        下载工具包
                     </el-button>
                 </template>
             </el-table-column>
@@ -205,6 +211,7 @@
 
 <script>
     import table from '@src/mixins/table.js';
+    import {mapGetters} from "vuex";
 
     export default {
         mixins: [table],
@@ -262,6 +269,9 @@
                     6: '多方匿踪查询',
                 },
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         created() {
             this.getAccounts();
@@ -322,6 +332,15 @@
                     }
                 });
             },
+            async export_sdk(id) {
+                const api = `${window.api.baseUrl}/service/export_sdk?serviceId=${id}&token=${this.userInfo.token}`;
+                const link = document.createElement('a');
+                link.href = api;
+                link.target = '_blank';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+            }
         },
     };
 </script>

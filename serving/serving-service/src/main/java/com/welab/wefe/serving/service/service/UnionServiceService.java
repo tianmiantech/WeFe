@@ -122,32 +122,38 @@ public class UnionServiceService {
 	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("queryParams", model.getQueryParams())
 				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
-				.append("baseUrl", config.getSERVING_BASE_URL())
+				.append("baseUrl", CacheObjects.getServingBaseUrl())
 				.append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl()).append("serviceId", model.getId())
 				.append("name", model.getName()).append("serviceStatus", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
-		return request("member/service/put", params);
+		JSONObject response = request("member/service/put", params);
+		LOG.info("union add2union response = " + JSONObject.toJSONString(response));
+		return response;
 	}
 
 	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("queryParams", model.getQueryParams())
 				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
-				.append("baseUrl", config.getSERVING_BASE_URL())
+				.append("baseUrl", CacheObjects.getServingBaseUrl())
 				.append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl()).append("serviceId", model.getId())
 				.append("name", model.getName()).append("serviceStatus", model.getStatus());
-		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
-		return request("member/service/put", params);
+		LOG.info("union offline2Union params = " + JSONObject.toJSONString(params));
+		JSONObject response = request("member/service/put", params);
+		LOG.info("union offline2Union response = " + JSONObject.toJSONString(response));
+		return response;
 	}
 	
 	public JSONObject updateServingBaseUrlOnUnion(String servingBaseUrl) throws StatusCodeWithException {
 	    JObject params = JObject.create().put("servingBaseUrl", servingBaseUrl);
         LOG.info("union updateServingBaseUrlOnUnion params = " + JSONObject.toJSONString(params));
-        return request("member/update_serving_base_url", params);
+        JSONObject response = request("member/update_serving_base_url", params);
+        LOG.info("union updateServingBaseUrlOnUnion response = " + JSONObject.toJSONString(response));
+        return response;
 	}
 	
     public JSONObject memberQuery(String memberId) throws StatusCodeWithException {
         if (CACHE_MAP.containsKey(memberId)) {
-            return (JSONObject) CACHE_MAP.get(memberId);
+            return JSONObject.parseObject(CACHE_MAP.get(memberId).toString());
         }
         JObject params = JObject.create().put("id", memberId);
         LOG.info("union member query params = " + JSONObject.toJSONString(params));
@@ -170,7 +176,7 @@ public class UnionServiceService {
     }
 
 	private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
-	    if (StringUtils.isBlank(config.getUnionBaseUrl())) {
+	    if (StringUtils.isBlank(CacheObjects.getUnionBaseUrl())) {
 	        return new JSONObject();
 	    }
 		return request(api, params, true);
@@ -194,7 +200,7 @@ public class UnionServiceService {
 			body.put("data", data);
 			data = body.toJSONString();
 		}
-		HttpResponse response = HttpRequest.create(config.getUnionBaseUrl() + api).setBody(data).postJson();
+		HttpResponse response = HttpRequest.create(CacheObjects.getUnionBaseUrl() + api).setBody(data).postJson();
 		if (!response.success()) {
 			throw new StatusCodeWithException(response.getMessage(), StatusCode.REMOTE_SERVICE_ERROR);
 		}

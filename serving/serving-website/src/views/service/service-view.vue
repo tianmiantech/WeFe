@@ -8,6 +8,7 @@
             :rules="rules"
             class="form-box"
         >
+            <p class="mb10">基本信息：</p>
             <div style="display: flex; margin-bottom: -10px;">
                 <el-form-item
                     prop="service_type"
@@ -618,10 +619,17 @@
             >
                 保存
             </el-button>
-
+            <el-link
+                type="primary"
+                :disabled="!api.id"
+                @click="export_sdk"
+                style="margin-left: 10px"
+            >
+                点击下载工具包
+            </el-link>
             <div class="api-preview">
                 <el-divider/>
-                <p class="color-danger mb20 f16">API 预览:</p>
+                <p class="mb20 f16">API 预览:</p>
                 <el-form-item
                     v-if="api.params"
                     label="查询参数:"
@@ -638,14 +646,6 @@
                         {{ api.url }}
                     </el-tag>
                 </el-form-item>
-                <el-button
-                    type="primary"
-                    size="medium"
-                    :disabled="!api.id"
-                    @click="export_sdk"
-                >
-                    下载工具包
-                </el-button>
             </div>
         </el-form>
 
@@ -912,11 +912,11 @@ export default {
                     value: 6,
                 },
                 {
-                    name: '深度学习模型',
+                    name: '深度学习模型服务',
                     value: 7,
                 },
                 {
-                    name: '机器学习模型',
+                    name: '机器学习模型服务',
                     value: 8,
                 }
             ],

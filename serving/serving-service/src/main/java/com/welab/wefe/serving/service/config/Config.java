@@ -11,9 +11,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
-    @Value("${wefe.serving.base-url}")
-    private String SERVING_BASE_URL;
-
     @Value("${wefe.serving.file-path}")
     private String fileBasePath;
 
@@ -56,19 +53,6 @@ public class Config extends CommonConfig {
     @Value("${sms.access_key_secret:xxx}")
     private String smsAccessKeySecret;
     
-    @Value("${wefe.mail_server.mail_host}")
-    private String mailHost;
-    
-    @Value("${wefe.mail_server.mail_password}")
-    private String mailPassword;
-    
-    @Value("${wefe.mail_server.port}")
-    private String mailPort;
-    
-    @Value("${wefe.mail_server.username}")
-    private String mailUsername;
-    
-    
     @Value("${encrypt.phone.number.open:false}")
     private boolean encryptPhoneNumberOpen;
 
@@ -79,14 +63,6 @@ public class Config extends CommonConfig {
 
     public void setFileBasePath(String fileBasePath) {
         this.fileBasePath = fileBasePath;
-    }
-
-    public String getSERVING_BASE_URL() {
-        return SERVING_BASE_URL;
-    }
-
-    public void setSERVING_BASE_URL(String sERVING_BASE_URL) {
-        SERVING_BASE_URL = sERVING_BASE_URL;
     }
 
     public String getRedisHost() {
@@ -193,38 +169,6 @@ public class Config extends CommonConfig {
 
     public void setSmsAccessKeySecret(String smsAccessKeySecret) {
         this.smsAccessKeySecret = smsAccessKeySecret;
-    }
-
-    public String getMailHost() {
-        return mailHost;
-    }
-
-    public void setMailHost(String mailHost) {
-        this.mailHost = mailHost;
-    }
-
-    public String getMailPassword() {
-        return mailPassword;
-    }
-
-    public void setMailPassword(String mailPassword) {
-        this.mailPassword = mailPassword;
-    }
-
-    public String getMailPort() {
-        return mailPort;
-    }
-
-    public void setMailPort(String mailPort) {
-        this.mailPort = mailPort;
-    }
-
-    public String getMailUsername() {
-        return mailUsername;
-    }
-
-    public void setMailUsername(String mailUsername) {
-        this.mailUsername = mailUsername;
     }
     
     public boolean isEncryptPhoneNumberOpen() {
