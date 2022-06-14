@@ -409,8 +409,10 @@
 
             // save component form
             saveComponentData($event) {
+                const type = this.componentType.split('-')[1] === 'params' ? this.componentType : this.componentType.split('-')[0] + '-params';
+
                 if(this.currentObj.nodeId) {
-                    const ref = this.$refs[this.componentType];
+                    const ref = this.$refs[type];
                     const refInstance = Array.isArray(ref) ? ref[0]: ref;
 
                     if(refInstance) {
@@ -434,7 +436,7 @@
                     url:  '/project/flow/node/update',
                     data: {
                         nodeId:        this.currentObj.nodeId,
-                        componentType: this.currentObj.componentType.replace('-params', ''),
+                        componentType: this.componentType.indexOf('result') !== -1 ? this.componentType.replace('-result', '') : this.currentObj.componentType.replace('-params', ''),
                         flowId,
                         params,
                     },
