@@ -9,6 +9,13 @@
             class="nav-title mb30"
             idx="-1"
         >
+            <el-alert
+                v-if="!form.is_project_admin"
+                title="当前项目由管理员创建，您仅有查看权限，不能编辑。"
+                type="warning"
+                show-icon
+                class="unedit-tips">
+            </el-alert>
             <el-form @submit.prevent>
                 <el-alert
                     v-if="project.closed"
@@ -469,7 +476,7 @@
                     } else {
                         this.form.is_project_admin = true;
                     }
-
+                    console.log(this.form.is_project_admin);
                     const members = {};
                     const { providerService, promoterService } = this;
 
@@ -763,6 +770,13 @@
     }
     .el-card__header {
         padding-bottom: unset;
+    }
+    .unedit-tips {
+        .el-alert__content {
+            height: 18px;
+            line-height: 23px;
+            padding: 0 6px;
+        }
     }
 </style>
 
