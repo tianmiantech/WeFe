@@ -15,7 +15,6 @@
  */
 package com.welab.wefe.common.fastjson;
 
-import com.alibaba.fastjson.serializer.BooleanCodec;
 import com.alibaba.fastjson.serializer.ValueFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +24,10 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * 当对象序列化后输出到日志中时，使用此自定义序列化可以避免输出过长的日志。
+ * 当对象序列化后输出到日志中时，此过滤器会对过大的value进行处理,防止日志内容过大。
  * <p>
  * 使用方法：
- * JSON.toJSONString(result, new LoggerValueFilter());
+ * JSON.toJSONString(result, LoggerValueFilter.instance);
  *
  * @author zane
  * @date 2022/4/27
