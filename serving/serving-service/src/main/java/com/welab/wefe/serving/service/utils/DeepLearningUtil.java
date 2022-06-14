@@ -37,7 +37,7 @@ public class DeepLearningUtil {
     }
 
     private static void kill(String wordDir) throws IOException {
-        executeShell(wordDir, "sh kill.sh");
+        executeShell(wordDir, "sh kill_server.sh");
     }
 
     private static void executeShell(String wordDir, String commandShell) throws IOException {

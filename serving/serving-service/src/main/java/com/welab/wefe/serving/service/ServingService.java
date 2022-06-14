@@ -16,30 +16,16 @@
 
 package com.welab.wefe.serving.service;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.BeansException;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
-import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.*;
 import com.welab.wefe.serving.service.database.repository.ModelRepository;
 import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
@@ -48,6 +34,15 @@ import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.MemberService;
 import com.welab.wefe.serving.service.service.PartnerService;
+import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author hunter.zhao
@@ -64,7 +59,7 @@ public class ServingService implements ApplicationContextAware {
                 .apiPackageClass(ServingService.class)
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((request, annotation, params) -> {
 
                     if (!annotation.rsaVerify()) {
@@ -101,10 +96,16 @@ public class ServingService implements ApplicationContextAware {
     private static void rsaVerifyCustomer(HttpServletRequest request, JSONObject params) throws Exception {
 
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+        if (StringUtil.isNotEmpty(signedApiInput.getMemberId())) {
+            signedApiInput.setPartnerCode(signedApiInput.getMemberId());
+        }
+        if (StringUtil.isNotEmpty(signedApiInput.getCustomerId())) {
+            signedApiInput.setPartnerCode(signedApiInput.getCustomerId());
+        }
 
-        String serviceId = verificationServiceApi(request);
+        String serviceId = extractServiceId(request, signedApiInput);
 
-        String partnerId = findPartner(signedApiInput.getCustomerId());
+        String partnerId = findPartner(signedApiInput.getPartnerCode());
 
         String partnerRsaKey = findPartnerRsaKey(partnerId, serviceId);
 
@@ -116,6 +117,7 @@ public class ServingService implements ApplicationContextAware {
     private static void buildParams(HttpServletRequest request, JSONObject params, SignedApiInput signedApiInput, String serviceId) {
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("customer_id", signedApiInput.getCustomerId());
+        params.put("partnerCode", signedApiInput.getPartnerCode());
         params.put("service_id", serviceId);
         params.put("isModelService", isModelService(request));
     }
@@ -138,21 +140,22 @@ public class ServingService implements ApplicationContextAware {
         return clientServiceMysqlModel.getPublicKey();
     }
 
-    private static String findPartner(String customerId) throws StatusCodeWithException {
+    private static String findPartner(String partnerCode) throws StatusCodeWithException {
         PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
-        PartnerMysqlModel partnerMysqlModel = partnerService.queryByCode(customerId);
+        PartnerMysqlModel partnerMysqlModel = partnerService.queryByCode(partnerCode);
         if (partnerMysqlModel == null) {
-            throw new StatusCodeWithException("未查询到该合作方：" + customerId,
+            throw new StatusCodeWithException("未查询到该合作方：" + partnerCode,
                     StatusCode.PARAMETER_VALUE_INVALID);
         }
         return partnerMysqlModel.getId();
     }
 
-    private static String verificationServiceApi(HttpServletRequest request) throws StatusCodeWithException {
+    private static String extractServiceId(HttpServletRequest request, SignedApiInput signedApiInput) throws StatusCodeWithException {
         String serviceUrl = extractServiceUrl(request);
         if (isModelService(request)) {
+            JSONObject param = JSONObject.parseObject(signedApiInput.getData());
             ModelRepository modelRepository = Launcher.CONTEXT.getBean(ModelRepository.class);
-            ModelMySqlModel model = modelRepository.findOne("url", serviceUrl, ModelMySqlModel.class);
+            ModelMySqlModel model = modelRepository.findOne("modelId", param.getString("model_id"), ModelMySqlModel.class);
             if (model == null) {
                 throw new StatusCodeWithException("未查找到该模型服务！", StatusCode.PARAMETER_VALUE_INVALID);
             }
