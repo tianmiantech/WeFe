@@ -20,13 +20,11 @@
 
 package com.welab.wefe.common.web;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.SamplingLogger;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fastjson.LoggerValueFilter;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -148,13 +146,13 @@ public class ApiExecutor {
 
     public static void logResponse(Api annotation, ApiResult<?> result) {
 
-        /**
-         * 警告 ⚠️:
-         * 当响应内容为 ResponseEntity<FileSystemResource> 时
-         * JSON.toJSONString(result) 序列化时会导致文件被置空
-         * 所以这里写日志时需要进行检查，避免对 FileSystemResource 进行 json 序列化。
-         */
-        String content = JSON.toJSONString(result, new LoggerValueFilter());
+        // 是否要省略此次日志打印，以减少磁盘使用。
+        boolean omitLog = false;
+        if (annotation.logSaplingInterval() > 0) {
+            omitLog = true;
+        }
+
+        String content = result.toLogString(omitLog);
 
         if ("debug".equals(annotation.logLevel())) {
             LOG.debug("response({}):{}", annotation.path(), content);
