@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @author Zane
  */
-@Api(path = "apis", name = "获取 api 列表", login = false)
+@Api(path = "apis", name = "获取 api 列表", login = false, logSaplingInterval = 10_000)
 public class Apis extends AbstractApi<Apis.Input, ResponseEntity<?>> {
 
 

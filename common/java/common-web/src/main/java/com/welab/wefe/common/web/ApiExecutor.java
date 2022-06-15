@@ -40,6 +40,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The entry class that calls the API
@@ -144,12 +146,26 @@ public class ApiExecutor {
         return result;
     }
 
+    private static final Map<String, Long> API_LOG_TIME_MAP = new ConcurrentHashMap<>();
+
     public static void logResponse(Api annotation, ApiResult<?> result) {
 
         // 是否要省略此次日志打印，以减少磁盘使用。
         boolean omitLog = false;
         if (annotation.logSaplingInterval() > 0) {
-            omitLog = true;
+            if (!API_LOG_TIME_MAP.containsKey(annotation.path())) {
+                API_LOG_TIME_MAP.put(annotation.path(), 0L);
+            }
+
+            long interval = TimeSpan
+                    .fromMs(System.currentTimeMillis() - API_LOG_TIME_MAP.get(annotation.path()))
+                    .toMs();
+
+            if (interval < annotation.logSaplingInterval()) {
+                omitLog = true;
+            } else {
+                API_LOG_TIME_MAP.put(annotation.path(), System.currentTimeMillis());
+            }
         }
 
         String content = result.toLogString(omitLog);

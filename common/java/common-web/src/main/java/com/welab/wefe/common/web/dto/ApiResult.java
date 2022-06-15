@@ -78,7 +78,8 @@ public class ApiResult<T> {
      */
     public String toLogString(boolean omitLog) {
         if (omitLog) {
-            ApiResult<Object> copy = ApiResult.ofSuccess(null);
+            // 省略输出时，data 为空。
+            ApiResult<String> copy = ApiResult.ofSuccess("省略...");
             copy.spend = this.spend;
             copy.code = this.code;
             copy.message = this.message;
