@@ -156,7 +156,7 @@ public class ServingService implements ApplicationContextAware {
         if (isModelService(request)) {
             JSONObject param = JSONObject.parseObject(signedApiInput.getData());
             ModelRepository modelRepository = Launcher.CONTEXT.getBean(ModelRepository.class);
-            ModelMySqlModel model = modelRepository.findOne("modelId", param.getString("model_id"), ModelMySqlModel.class);
+            ModelMySqlModel model = modelRepository.findOne("modelId", param.getString("modelId"), ModelMySqlModel.class);
             if (model == null) {
                 throw new StatusCodeWithException("未查找到该模型服务！", StatusCode.PARAMETER_VALUE_INVALID);
             }
