@@ -21,20 +21,22 @@ import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.database.entity.VerificationCodeMysqlModel;
+import com.welab.wefe.board.service.database.listener.GlobalConfigMysqlModelListener;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.board.service.database.repository.VerificationCodeRepository;
-import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service
-public class EncryptPhoneNumberService {
+public class PrivacyDatabaseEncryptService {
     @Autowired
     private Config config;
 
@@ -49,6 +51,15 @@ public class EncryptPhoneNumberService {
 
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
+        // Account privacy data encrypt
+        encryptAccountMysqlModel();
+        // Verification privacy data encrypt
+        encryptVerificationCodeMysqlModel();
+        // GlobalConfig privacy data encrypt
+        encryptGlobalConfigMysqlModel();
+    }
+
+    private void encryptAccountMysqlModel() {
         List<AccountMysqlModel> accountMysqlModelList = accountRepository.findAll();
         if (!CollectionUtils.isEmpty(accountMysqlModelList)) {
             for (AccountMysqlModel model : accountMysqlModelList) {
@@ -56,6 +67,9 @@ public class EncryptPhoneNumberService {
                 accountRepository.save(model);
             }
         }
+    }
+
+    private void encryptVerificationCodeMysqlModel() {
         List<VerificationCodeMysqlModel> verificationCodeMysqlModelList = verificationCodeRepository.findAll();
         if (!CollectionUtils.isEmpty(verificationCodeMysqlModelList)) {
             for (VerificationCodeMysqlModel model : verificationCodeMysqlModelList) {
@@ -63,12 +77,18 @@ public class EncryptPhoneNumberService {
                 verificationCodeRepository.save(model);
             }
         }
-        List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(ConfigGroupConstant.MEMBER_INFO);
-        if (!CollectionUtils.isEmpty(globalConfigMysqlModelList)) {
-            for (GlobalConfigMysqlModel model : globalConfigMysqlModelList) {
-                model.setUpdatedTime(new Date());
-                globalConfigRepository.save(model);
-            }
+    }
+
+    private void encryptGlobalConfigMysqlModel() {
+        List<GlobalConfigMysqlModel> totalGlobalConfigMysqlModelList = new ArrayList<>();
+        Set<String> globalConfigGroupSet = GlobalConfigMysqlModelListener.DB_PROTECTED_FIELD_MAP.keySet();
+        for (String group : globalConfigGroupSet) {
+            List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(group);
+            totalGlobalConfigMysqlModelList.addAll(CollectionUtils.isEmpty(globalConfigMysqlModelList) ? new ArrayList<>() : globalConfigMysqlModelList);
+        }
+        for (GlobalConfigMysqlModel model : totalGlobalConfigMysqlModelList) {
+            model.setUpdatedTime(new Date());
+            globalConfigRepository.save(model);
         }
     }
 }
