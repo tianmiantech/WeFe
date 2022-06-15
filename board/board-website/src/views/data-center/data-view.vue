@@ -8,7 +8,7 @@
             <router-link
                 :to="{
                     name: 'data-update',
-                    query: { id, type: 'img' }
+                    query: { id, type: addDataType }
                 }"
             >
                 <el-button class="ml5" plain size="small"><el-icon><elicon-edit-pen /></el-icon> 编辑</el-button>
