@@ -19,9 +19,13 @@
                 </el-button>
             </div>
         </template> -->
-        <el-tabs v-model="activeName" class="msg-tabs" type="border-card">
+        <el-tabs v-model="activeName" class="msg-tabs" type="border-card" @tab-click="tabChange">
             <el-tab-pane label="待办事项" name="todoList">
-                待办事项
+                待办事项：
+                <ol>
+                    <li>1. 待处理</li>
+                    <li>2. 已完成</li>
+                </ol>
             </el-tab-pane>
             <el-tab-pane label="合作通知" name="cooperateNotice">
                 合作通知
@@ -103,6 +107,7 @@
                     page_index: 0,
                     page_size:  15,
                     noMore:     false,
+                    todo:       true,
                 },
 
                 message_list: [],
@@ -113,6 +118,27 @@
             this.loadMessageList();
         },
         methods: {
+            tabChange(val) {
+                console.log(val.paneName);
+                switch(val.paneName) {
+                case 'todoList':
+                    this.message_search.todo = true;
+                    this.message_search.todoComplete = false;
+                    if (this.message_search.eventList) delete this.message_search.eventList;
+                    break;
+                case 'cooperateNotice':
+                    this.message_search.eventList = ['CreateProject', 'AgreeJoinProject', 'DisagreeJoinProject', 'ApplyDataResource', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
+                    if (this.message_search.todo !== '') delete this.message_search.todo;
+                    break;
+                case 'systemMsg':
+                    this.message_search.eventList = ['OnGatewayError', 'OnEmailSendFail'];
+                    if (this.message_search.todo !== '') delete this.message_search.todo;
+                    break;
+                }
+                this.message_search.page_index = 0;
+                this.noMore = false;
+                this.loadMessageList();
+            },
             async loadMessageList() {
                 if(this.noMore) return;
                 this.message_list_loading = true;
@@ -123,6 +149,14 @@
 
                 if(code === 0) {
                     this.noMore = data.list.length < 15;
+                    const eventlist = ['CreateProject', 'AgreeJoinProject', 'DisagreeJoinProject', 'ApplyDataResource', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
+
+                    data.list.forEach((item, i) => {
+                        if (eventlist.indexOf(item.event) !== -1) {
+                            console.log(item);
+                            console.log(JSON.parse(item.content));
+                        }
+                    });
                     for(const i in data.list){
                         this.message_list.push(data.list[i]);
                     }
