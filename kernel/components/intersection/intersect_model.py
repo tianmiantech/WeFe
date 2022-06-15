@@ -120,7 +120,7 @@ class IntersectModelBase(ModelBase):
         self.tracker.saveMetricData(self.metric_name, self.metric_namespace, None, metric_data)
 
         if metric_data[1][1] == 0:
-            raise CommonCustomError(message="Data Intersect result is zero")
+            raise CommonCustomError(message="所有参与方所选数据集无交集，请重新选择数据集")
 
     def output_data(self):
         return self.intersect_ids
