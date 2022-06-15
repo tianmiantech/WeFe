@@ -175,7 +175,7 @@ public class ProjectFlowJobService extends AbstractService {
             lastJob = jobRepo.findLastByFlowId(flow.getFlowId(), jobMember.getJobRole().name());
 
             // create new job
-            JobMySqlModel job = createJob(flow, input.getJobId(), jobMember.getJobRole());
+            JobMySqlModel job = createJob(flow, input, jobMember.getJobRole());
 
             // create Graph
             FlowGraph graph = new FlowGraph(job, lastJob, jobMembers, projectFlowNodeService.findNodesByFlowId(job.getFlowId()));
@@ -472,11 +472,11 @@ public class ProjectFlowJobService extends AbstractService {
     }
 
 
-    private JobMySqlModel createJob(ProjectFlowMySqlModel flow, String jobId, JobMemberRole myRole) {
+    private JobMySqlModel createJob(ProjectFlowMySqlModel flow, StartFlowApi.Input input, JobMemberRole myRole) {
         JobMySqlModel job = new JobMySqlModel();
         job.setFederatedLearningType(flow.getFederatedLearningType());
         job.setMyRole(myRole);
-        job.setJobId(jobId);
+        job.setJobId(input.getJobId());
         job.setCreatedBy(CurrentAccount.id());
         job.setName(flow.getFlowName());
         job.setProgress(0);
@@ -485,6 +485,7 @@ public class ProjectFlowJobService extends AbstractService {
         job.setProjectId(flow.getProjectId());
         job.setFlowId(flow.getFlowId());
         job.setGraph(flow.getGraph());
+        job.setRemark(input.getRemark());
 
         return job;
 

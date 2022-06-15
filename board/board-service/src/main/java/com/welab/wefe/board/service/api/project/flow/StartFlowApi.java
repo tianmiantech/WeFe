@@ -56,6 +56,8 @@ public class StartFlowApi extends AbstractApi<StartFlowApi.Input, StartFlowApi.O
         private String arbiterMemberId;
 
         private String ootJobId;
+        @Check(name = "备注")
+        private String remark;
 
         //region getter/setter
 
@@ -106,6 +108,15 @@ public class StartFlowApi extends AbstractApi<StartFlowApi.Input, StartFlowApi.O
         public void setOotJobId(String ootJobId) {
             this.ootJobId = ootJobId;
         }
+
+        public String getRemark() {
+            return remark;
+        }
+
+        public void setRemark(String remark) {
+            this.remark = remark;
+        }
+
         //endregion
     }
 
