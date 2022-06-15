@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.feature;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 
 import java.util.Map;
 
@@ -30,11 +31,11 @@ public abstract class AbstractFeatureDataHandler {
      *
      * Access to features
      * @param modelId
-     * @param predictParams
+     * @param userId
      * @return featureDataMap
      * @throws StatusCodeWithException
      */
-    public abstract Map<String, Object> handle(String modelId, PredictParams predictParams) throws StatusCodeWithException;
+    public abstract FeatureDataModel handle(String modelId, String userId) throws StatusCodeWithException;
 
     /**
      * Batch feature acquisition
@@ -43,5 +44,5 @@ public abstract class AbstractFeatureDataHandler {
      * @return featureDataMap
      * @throws StatusCodeWithException
      */
-    public abstract Map<String, Map<String, Object>> batch(String modelId, PredictParams predictParams) throws StatusCodeWithException;
+//    public abstract Map<String, Map<String, Object>> batch(String modelId, PredictParams predictParams) throws StatusCodeWithException;
 }

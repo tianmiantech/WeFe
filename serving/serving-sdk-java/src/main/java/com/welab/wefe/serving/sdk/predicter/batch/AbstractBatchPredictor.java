@@ -17,7 +17,8 @@
 package com.welab.wefe.serving.sdk.predicter.batch;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
+import com.welab.wefe.serving.sdk.algorithm.AbstractBatchAlgorithm;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
@@ -25,26 +26,29 @@ import com.welab.wefe.serving.sdk.manager.AlgorithmManager;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
-import com.welab.wefe.serving.sdk.predicter.BatchPredictBehavior;
-import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
+import com.welab.wefe.serving.sdk.processor.AbstractBatchModelProcessor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Batch prediction
  *
  * @author hunter.zhao
  */
-public abstract class AbstractBatchPredictor extends AbstractBasePredictor implements BatchPredictBehavior {
+public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
 
+    BatchPredictParams batchPredictParams;
 
-    public AbstractBatchPredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+    public AbstractBatchPredictor(String modelId, BatchPredictParams batchPredictParams, FederatedParams federatedParams) {
+        super(modelId, federatedParams);
+        this.batchPredictParams = batchPredictParams;
     }
 
     /**
      * Get the processor of the corresponding model
      */
-    @Override
-    public AbstractModelProcessor getProcessor() {
+    public AbstractBatchModelProcessor getProcessor() {
         return ModelProcessorManager.getBatchProcessor(modelId);
     }
 
@@ -57,19 +61,32 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor imple
 
         BaseModel model = getModel();
 
-        //Fill in corresponding feature information
-        predictParams.setFeatureDataMap(batchFindFeatureData());
+        batchPredictParams.setPredictParamsList(batchFindFeatureData());
 
-        AbstractModelProcessor processor = getProcessor();
+        AbstractBatchModelProcessor processor = getProcessor();
 
-        processor.preprocess(model, federatedParams, predictParams);
+        processor.preprocess(model, federatedParams, batchPredictParams);
 
-        AbstractAlgorithm algorithm = AlgorithmManager.getBatch(model);
+        AbstractBatchAlgorithm algorithm = AlgorithmManager.getBatch(model);
 
-        PredictResult result = algorithm.execute(model, predictParams, federatedResultByProviders());
+        PredictResult result = algorithm.execute(model, batchPredictParams, federatedResultByProviders());
 
-        processor.postprocess(result, model, federatedParams, predictParams);
+        processor.postprocess(result, model, federatedParams, batchPredictParams);
 
         return result;
+    }
+
+    private List<PredictParams> batchFindFeatureData() {
+        List<PredictParams> predictParamsList = batchPredictParams.getUserIds().stream()
+                .map(x -> {
+                    try {
+                        return PredictParams.of(x, findFeatureData(x));
+                    } catch (StatusCodeWithException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .collect(Collectors.toList());
+        return predictParamsList;
     }
 }

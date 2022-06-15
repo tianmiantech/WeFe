@@ -16,53 +16,19 @@
 
 package com.welab.wefe.serving.sdk.model;
 
-import com.welab.wefe.serving.sdk.enums.StateCode;
-
 /**
  * @author hunter.zhao
  */
 public class PredictModel {
-    private String userId;
-    private int stateCode = 0;
-    private String message;
-    private Double score;
-    private Object scores;
-    private Object data;
+    public String userId;
+    public String error = "";
+    private FindFeatureResultModel findFeatureResult;
 
-    public static PredictModel of(String userId, Double score) {
+
+    public static PredictModel fail(String userId, String error) {
         PredictModel model = new PredictModel();
         model.userId = userId;
-        model.score = score;
-        return model;
-    }
-
-    public static PredictModel ofObject(String userId, Object data) {
-        PredictModel model = new PredictModel();
-        model.userId = userId;
-        model.data = data;
-        return model;
-    }
-
-    public static PredictModel ofScores(String userId, Object scores) {
-        PredictModel model = new PredictModel();
-        model.userId = userId;
-        model.scores = scores;
-        return model;
-    }
-
-    public static PredictModel fail(String userId, StateCode stateCode, String message) {
-        PredictModel model = new PredictModel();
-        model.userId = userId;
-        model.stateCode = stateCode.getCode();
-        model.message = message;
-        return model;
-    }
-
-    public static PredictModel fail(String userId, StateCode stateCode) {
-        PredictModel model = new PredictModel();
-        model.userId = userId;
-        model.stateCode = stateCode.getCode();
-        model.message = stateCode.getMessage();
+        model.error = error;
         return model;
     }
 
@@ -74,43 +40,24 @@ public class PredictModel {
         this.userId = userId;
     }
 
-    public int getStateCode() {
-        return stateCode;
+    public String getError() {
+        return error;
     }
 
-    public void setStateCode(int stateCode) {
-        this.stateCode = stateCode;
+    public void setError(String error) {
+        this.error = error;
     }
 
-    public String getMessage() {
-        return message;
+    public void setFindFeatureResult(FindFeatureResultModel findFeatureResult) {
+        this.findFeatureResult = findFeatureResult;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public FindFeatureResultModel getFindFeatureResult() {
+        return findFeatureResult;
     }
 
-    public Object getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
-        this.data = data;
-    }
-
-    public Double getScore() {
-        return score;
-    }
-
-    public void setScore(Double score) {
-        this.score = score;
-    }
-
-    public Object getScores() {
-        return scores;
-    }
-
-    public void setScores(Object scores) {
-        this.scores = scores;
+    public PredictModel setFindFeatureResult(FeatureDataModel findFeatureResult) {
+        this.findFeatureResult = FindFeatureResultModel.of(findFeatureResult.isFound(), findFeatureResult.getError());
+        return this;
     }
 }

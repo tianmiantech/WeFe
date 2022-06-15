@@ -16,15 +16,15 @@
 
 package com.welab.wefe.serving.sdk.test;
 
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredictor;
-
-import java.util.Map;
 
 /**
  * This class mainly demonstrates how to customize the provider prediction class
@@ -72,12 +72,12 @@ public class ExampleProviderPredicter extends AbstractSingleProviderPredictor {
         return model;
     }
 
-
     @Override
-    public Map<String, Object> findFeatureData() {
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
         /**
          * Custom example
          */
-        return predictParams.getFeatureData();
+        return predictParams.getFeatureDataModel();
     }
+
 }

@@ -20,10 +20,12 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostPredictResultModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -81,7 +83,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
 
             for (JObject jobj : predictModelList) {
 
-                PredictModel model = jobj.toJavaObject(PredictModel.class);
+                XgboostPredictResultModel model = jobj.toJavaObject(XgboostPredictResultModel.class);
                 Map<String, Object> tree = (Map) model.getData();
 
                 Map<String, Object> remote = remoteResult.get(model.getUserId());
@@ -110,7 +112,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
     }
 
     @Override
-    protected List<PredictModel> handlePredict(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+    protected List<PredictModel> handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         getFederatedPredict(federatedResult);
 

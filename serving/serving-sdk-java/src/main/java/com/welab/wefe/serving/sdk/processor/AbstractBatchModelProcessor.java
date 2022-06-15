@@ -16,11 +16,35 @@
 
 package com.welab.wefe.serving.sdk.processor;
 
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
+import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.PredictResult;
+import com.welab.wefe.serving.sdk.model.BaseModel;
+
 /**
  * The model processor is used to inject additional logic into the model prediction process.
  *
- * @author Zane
+ * @author hunter
  */
 
-public abstract class AbstractBatchModelProcessor extends AbstractModelProcessor {
+public abstract class AbstractBatchModelProcessor {
+
+    /**
+     * Actions performed before model prediction
+     *
+     * @param model
+     * @param federatedParams
+     * @param batchPredictParams
+     */
+    public abstract void preprocess(BaseModel model, FederatedParams federatedParams, BatchPredictParams batchPredictParams);
+
+    /**
+     * Actions performed after model prediction
+     *
+     * @param result
+     * @param model
+     * @param federatedParams
+     * @param batchPredictParams
+     */
+    public abstract void postprocess(PredictResult result, BaseModel model, FederatedParams federatedParams, BatchPredictParams batchPredictParams);
 }

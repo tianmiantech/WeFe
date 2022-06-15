@@ -19,9 +19,10 @@ package com.welab.wefe.serving.sdk.algorithm.lr.batch;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -31,26 +32,27 @@ import java.util.List;
  *
  * @author hunter.zhao
  */
-public class LrVertPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseLrModel, List<PredictModel>> {
+public class LrVertPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseLrModel, List<LrPredictResultModel>> {
 
     @Override
-    protected List<PredictModel> handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+    protected List<LrPredictResultModel> handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
-        List<PredictModel> scores = compute(predictParams);
+        List<LrPredictResultModel> predictModelList = compute(batchPredictParams);
 
         if (CollectionUtils.isEmpty(federatedResult)) {
-            return sigmod(scores);
+            intercept(predictModelList);
+            return sigmod(predictModelList);
         }
 
         for (JSONObject remoteJson : federatedResult) {
-            List<PredictModel> remoteScores = (List<PredictModel>) remoteJson.get("data");
+            List<LrPredictResultModel> remoteScores = (List<LrPredictResultModel>) remoteJson.get("data");
 
             /**
              * Combine calculation results
              */
-            for (PredictModel model : scores) {
-                for (PredictModel remote : remoteScores) {
-                    if (model.getUserId().equals(remote.getUserId()) && remote.getStateCode() == 0) {
+            for (LrPredictResultModel model : predictModelList) {
+                for (LrPredictResultModel remote : remoteScores) {
+                    if (model.getUserId().equals(remote.getUserId())) {
                         Double score = model.getScore() + remote.getScore();
                         model.setScore(score);
                     }
@@ -58,6 +60,7 @@ public class LrVertPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseL
             }
         }
 
-        return sigmod(scores);
+        intercept(predictModelList);
+        return sigmod(predictModelList);
     }
 }

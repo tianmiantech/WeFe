@@ -20,10 +20,10 @@ import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ClassUtils;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.model.PredictModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,28 +32,38 @@ import java.util.List;
 import static java.lang.Math.exp;
 
 /**
- * @author Zane
+ * @author hunter.zhao
  */
-public abstract class AbstractAlgorithm<T, R> {
+public abstract class AbstractBatchAlgorithm<T, R> {
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     protected T modelParam;
 
     /**
-     * A single prediction
+     * batch sigmod function
+     */
+    protected List<LrPredictResultModel> sigmod(List<LrPredictResultModel> models) {
+        models.forEach(model ->
+                model.setScore(1. / (1. + exp(-model.getScore())))
+        );
+        return models;
+    }
+
+    /**
+     * A batch prediction
      *
-     * @param predictParams
+     * @param batchPredictParams
      * @return predict result
      * @throws StatusCodeWithException
      */
-    protected abstract R handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException;
+    protected abstract R handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException;
 
-    public PredictResult execute(BaseModel model, PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+    public PredictResult execute(BaseModel model, BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         // Convert the parameter list stored in the database into a well-defined entity object
         modelParam = (T) JSON.parseObject(model.params).toJavaObject(ClassUtils.getGenericClass(getClass(), 0));
 
-        R value = handle(predictParams, federatedResult);
+        R value = handle(batchPredictParams, federatedResult);
 
         return new PredictResult(model.getAlgorithm(), model.getFlType(), model.getMyRole(), value);
     }

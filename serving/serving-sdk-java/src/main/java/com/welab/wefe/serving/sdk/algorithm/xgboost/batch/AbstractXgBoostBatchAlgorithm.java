@@ -16,22 +16,21 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.algorithm.AbstractBatchAlgorithm;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
-import org.apache.commons.collections4.MapUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, R> extends AbstractAlgorithm<T, R> {
+public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, R> extends AbstractBatchAlgorithm<T, R> {
 
     /**
      * userId : featureDataMap
@@ -44,7 +43,7 @@ public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, 
      * <p>
      * {"x0":0.11111,"x1":0.2222,"x2":0.33333}->{"0":0.11111,"1":0.2222,"2":0.33333}
      */
-    private void setFidValueMapping(PredictParams predictParams) throws StatusCodeWithException {
+    private void setFidValueMapping(BatchPredictParams batchPredictParams) throws StatusCodeWithException {
 
         Map<String, String> tempMap = new HashMap<>(16);
 
@@ -52,39 +51,39 @@ public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, 
             tempMap.put(map.getValue(), map.getKey());
         }
 
-        if (MapUtils.isEmpty(predictParams.getFeatureDataMap())) {
-            throw new StatusCodeWithException(StatusCode.PARAMETER_CAN_NOT_BE_EMPTY, "特征入参设置错误，请正确设置特征来源！");
-        }
-
-        Map<String, Map<String, Object>> test = predictParams.getFeatureDataMap();
-        test.forEach((k, v) -> {
-
-            Map<String, Object> featureMap = new HashMap<>(16);
-            if (v != null) {
-                for (String key : v.keySet()) {
-                    if (tempMap.containsKey(key)) {
-                        featureMap.put(tempMap.get(key), v.get(key));
-                    }
-                }
-            }
-
-            fidValueMapping.put(k, featureMap);
-        });
+        batchPredictParams.getPredictParamsList().stream()
+                .forEach(
+                        x -> {
+//                            Map<String, Object> featureMap = new HashMap<>(16);
+//                            Map<String, Object> temp = x.getFeatureDataModel().getFeatureDataMap();
+//                            if (temp != null) {
+//                                for (String key : temp.keySet()) {
+//                                    if (tempMap.containsKey(key)) {
+//                                        featureMap.put(tempMap.get(key), temp.get(key));
+//                                    }
+//                                }
+//                            }
+                            Map<String, Object> featureMap = x.getFeatureDataModel().getFeatureDataMap().entrySet().stream()
+                                    .filter(y -> tempMap.containsKey(y.getKey()))
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                            fidValueMapping.put(x.getUserId(), featureMap);
+                        }
+                );
     }
 
     @Override
-    protected R handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
-        setFidValueMapping(predictParams);
+    protected R handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+        setFidValueMapping(batchPredictParams);
 
-        return handlePredict(predictParams, federatedResult);
+        return handlePredict(batchPredictParams, federatedResult);
     }
 
     /**
      * Model execution method
      *
-     * @param predictParams
+     * @param batchPredictParams
      * @return predict result
      * @throws StatusCodeWithException
      */
-    protected abstract R handlePredict(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException;
+    protected abstract R handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException;
 }

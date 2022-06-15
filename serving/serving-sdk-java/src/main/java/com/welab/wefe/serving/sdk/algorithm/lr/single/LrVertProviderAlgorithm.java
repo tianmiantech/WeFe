@@ -20,6 +20,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 
 import java.util.List;
 
@@ -28,10 +29,10 @@ import java.util.List;
  *
  * @author hunter.zhao
  */
-public class LrVertProviderAlgorithm extends AbstractLrAlgorithm<BaseLrModel, PredictModel> {
+public class LrVertProviderAlgorithm extends AbstractLrAlgorithm<BaseLrModel, LrPredictResultModel> {
 
     @Override
-    protected PredictModel handle(PredictParams predictParams, List<JObject> federatedResult) {
+    protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) {
         return compute(predictParams);
     }
 }

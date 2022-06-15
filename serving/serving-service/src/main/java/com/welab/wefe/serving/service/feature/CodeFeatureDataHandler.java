@@ -21,6 +21,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ReflectionsUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.feature.code.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,33 +134,33 @@ public class CodeFeatureDataHandler extends AbstractFeatureDataHandler {
     }
 
     @Override
-    public Map<String, Object> handle(String modelId, PredictParams predictParams) throws StatusCodeWithException {
+    public FeatureDataModel handle(String modelId, String userId) throws StatusCodeWithException {
         AbstractFeatureDataProcessor processor = get(modelId);
         if (processor == null) {
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "No corresponding processor was found");
+            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "未找到特征处理器！");
         }
-        return processor.process(predictParams.getUserId());
+        return processor.process(userId);
     }
 
-    @Override
-    public Map<String, Map<String, Object>> batch(String modelId, PredictParams predictParams) throws StatusCodeWithException {
-        //Find batch processor
-        AbstractBatchFeatureDataProcessor batchProcessor = getBatch(modelId);
-        if (batchProcessor != null) {
-            return batchProcessor.process(predictParams.getUserIds());
-        }
-
-        //If no batch processor is set, a single processor is used
-        AbstractFeatureDataProcessor processor = get(modelId);
-        if (processor == null) {
-            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "No corresponding processor was found");
-        }
-        Map<String, Map<String, Object>> featureDataMap = new HashMap<>(16);
-        predictParams.getUserIds().forEach(
-                x -> featureDataMap.put(x, processor.process(x))
-        );
-
-        return featureDataMap;
-    }
+//    @Override
+//    public Map<String, Map<String, Object>> batch(String modelId, PredictParams predictParams) throws StatusCodeWithException {
+//        //Find batch processor
+//        AbstractBatchFeatureDataProcessor batchProcessor = getBatch(modelId);
+//        if (batchProcessor != null) {
+//            return batchProcessor.process(predictParams.getUserIds());
+//        }
+//
+//        //If no batch processor is set, a single processor is used
+//        AbstractFeatureDataProcessor processor = get(modelId);
+//        if (processor == null) {
+//            throw new StatusCodeWithException(StatusCode.SYSTEM_ERROR, "No corresponding processor was found");
+//        }
+//        Map<String, Map<String, Object>> featureDataMap = new HashMap<>(16);
+//        predictParams.getUserIds().forEach(
+//                x -> featureDataMap.put(x, processor.process(x))
+//        );
+//
+//        return featureDataMap;
+//    }
 
 }

@@ -30,6 +30,7 @@ import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePromoterPredictor;
 import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
@@ -41,6 +42,7 @@ import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,6 +127,15 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
         return federatedResult;
     }
 
+    @Override
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
+        if (MapUtils.isNotEmpty(predictParams.getFeatureDataModel().getFeatureDataMap())) {
+            return predictParams.getFeatureDataModel();
+        }
+
+        return FeatureManager.getFeatureData(modelId, userId);
+    }
+
 
     private JObject callProviders(ProviderParams obj) throws StatusCodeWithException {
 
@@ -204,11 +215,6 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
 
     private String getResponseStatus(JObject result) {
         return result == null ? ServiceCallStatusEnum.RESPONSE_ERROR.name() : ServiceCallStatusEnum.SUCCESS.name();
-    }
-
-    @Override
-    public Map<String, Object> findFeatureData() throws StatusCodeWithException {
-        return FeatureManager.getFeatureData(modelId, predictParams);
     }
 
 

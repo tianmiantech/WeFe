@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter;
+package com.welab.wefe.serving.sdk.model.lr;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
-
-import java.util.Map;
+import com.welab.wefe.serving.sdk.model.PredictModel;
 
 /**
  * @author hunter.zhao
  */
-public interface SinglePredictBehavior extends PredictBehavior {
+public class LrPredictResultModel extends PredictModel {
+    private Double score;
 
-    /**
-     * Find features(single)
-     * <p>
-     * Build format must be{"x0":"0.12231","x1":"2.056412",...}
-     * </p>
-     *
-     * @return featureMap
-     * @throws StatusCodeWithException
-     */
-    Map<String, Object> findFeatureData() throws StatusCodeWithException;
+    public static LrPredictResultModel of(String userId, Double score) {
+        LrPredictResultModel model = new LrPredictResultModel();
+        model.userId = userId;
+        model.score = score;
+        return model;
+    }
 
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
 }

@@ -19,6 +19,7 @@ package com.welab.wefe.serving.sdk.predicter;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.model.BaseModel;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
 
 import java.util.List;
@@ -42,13 +43,17 @@ public interface PredictBehavior {
      *
      * @return Model Processor
      */
-    AbstractModelProcessor getProcessor();
+    List<JObject> federatedResultByProviders() throws StatusCodeWithException;
 
 
     /**
-     * processor
+     * Find features
+     * <p>
+     * Build format must be{"x0":"0.12231","x1":"2.056412",...}
+     * </p>
      *
-     * @return Model Processor
+     * @return featureMap
+     * @throws StatusCodeWithException
      */
-    List<JObject> federatedResultByProviders() throws StatusCodeWithException;
+    FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException;
 }

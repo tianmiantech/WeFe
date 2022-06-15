@@ -16,12 +16,11 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 
 import java.util.HashMap;
@@ -31,7 +30,7 @@ import java.util.Map;
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R> extends AbstractAlgorithm<T, R> {
+public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R extends PredictModel> extends AbstractAlgorithm<T, PredictModel> {
 
     /**
      * Characteristic mapping relation
@@ -53,7 +52,8 @@ public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R> ex
             tempMap.put(map.getValue(), map.getKey());
         }
 
-        Map<String, Object> features = predictParams.getFeatureData();
+        Map<String, Object> features = predictParams.getFeatureDataModel().getFeatureDataMap();
+        ;
 
         if (features != null) {
             for (String key : features.keySet()) {
@@ -66,11 +66,13 @@ public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R> ex
     }
 
     @Override
-    protected R handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+    protected PredictModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         setFidValueMapping(predictParams);
 
-        return handlePredict(predictParams, federatedResult);
+        PredictModel result = handlePredict(predictParams, federatedResult);
+
+        return result.setFindFeatureResult(predictParams.getFeatureDataModel());
     }
 
     /**

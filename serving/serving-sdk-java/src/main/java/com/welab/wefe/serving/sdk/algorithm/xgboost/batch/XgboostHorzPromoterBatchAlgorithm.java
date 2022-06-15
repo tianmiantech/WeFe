@@ -18,7 +18,7 @@ package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
@@ -37,7 +37,7 @@ public class XgboostHorzPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
     private CopyOnWriteArrayList<PredictModel> predictModelList = new CopyOnWriteArrayList<>();
 
     @Override
-    protected List<PredictModel> handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
+    protected List<PredictModel> handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) {
 
         CountDownLatch latch = new CountDownLatch(fidValueMapping.size());
 

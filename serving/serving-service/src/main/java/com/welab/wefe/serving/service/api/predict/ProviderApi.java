@@ -22,7 +22,6 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
@@ -31,7 +30,6 @@ import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Map;
 
@@ -106,20 +104,12 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
         @Check(name = "是否批量")
         private Boolean isBatch = false;
 
-        @Check(name = "批量预测参数")
-        private PredictParams predictParams;
-
-
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
             if (!isBatch) {
                 if (StringUtil.isEmpty(userId)) {
                     throw new StatusCodeWithException("单条预测时，参数userId不能为空", StatusCode.PARAMETER_VALUE_INVALID);
-                }
-            } else {
-                if (predictParams == null || CollectionUtils.isEmpty(predictParams.getUserIds())) {
-                    throw new StatusCodeWithException("批量预测时，参数predictParamsList不能为空", StatusCode.PARAMETER_VALUE_INVALID);
                 }
             }
 
@@ -183,23 +173,6 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
         public void setBatch(Boolean batch) {
             isBatch = batch;
         }
-
-//        public PredictParams getPredictParams() {
-//            return predictParams;
-//        }
-//
-//        public void setPredictParams(PredictParams predictParams) {
-//            this.predictParams = predictParams;
-//        }
-
-        public PredictParams getPredictParams() {
-            return predictParams;
-        }
-
-        public void setPredictParams(PredictParams predictParams) {
-            this.predictParams = predictParams;
-        }
-
 
         //endregion
     }

@@ -18,42 +18,29 @@ package com.welab.wefe.serving.sdk.predicter;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractBasePredictor {
+public abstract class AbstractBasePredictor implements PredictBehavior {
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     public FederatedParams federatedParams;
-    public PredictParams predictParams;
     public String modelId;
 
-    public AbstractBasePredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
+    public AbstractBasePredictor(String modelId, FederatedParams federatedParams) {
         this.modelId = modelId;
-        this.predictParams = predictParams;
         this.federatedParams = federatedParams;
     }
 
-    public AbstractBasePredictor setFederatedParams(FederatedParams federatedParams) {
-        this.federatedParams = federatedParams;
-        return this;
-    }
-
-    public AbstractBasePredictor setPredictParams(PredictParams predictParams) {
-        this.predictParams = predictParams;
-        return this;
-    }
-
-    public AbstractBasePredictor setModelId(String modelId) {
-        this.modelId = modelId;
-        return this;
-    }
-
+    /**
+     * Model prediction function
+     */
     public abstract PredictResult predict() throws StatusCodeWithException;
 
     /**

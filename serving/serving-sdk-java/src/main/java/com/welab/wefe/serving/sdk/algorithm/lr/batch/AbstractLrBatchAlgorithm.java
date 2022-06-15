@@ -16,11 +16,12 @@
 
 package com.welab.wefe.serving.sdk.algorithm.lr.batch;
 
-import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
+import com.welab.wefe.serving.sdk.algorithm.AbstractBatchAlgorithm;
 import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
 
 import java.util.List;
@@ -30,16 +31,22 @@ import java.util.concurrent.CountDownLatch;
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends AbstractAlgorithm<T, R> {
+public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends AbstractBatchAlgorithm<T, R> {
 
 
-    public List<PredictModel> compute(PredictParams predictParams) {
-        CopyOnWriteArrayList<PredictModel> outputs = new CopyOnWriteArrayList<>();
+    public List<LrPredictResultModel> compute(BatchPredictParams batchPredictParams) {
+        CopyOnWriteArrayList<LrPredictResultModel> outputs = new CopyOnWriteArrayList<>();
 
-        CountDownLatch latch = new CountDownLatch(predictParams.getUserIds().size());
+        CountDownLatch latch = new CountDownLatch(batchPredictParams.getUserIds().size());
 
-        predictParams.getFeatureDataMap().forEach((k, v) ->
-                AlgorithmThreadPool.run(() -> outputs.add(LrAlgorithmHelper.compute(modelParam.getModelParam(), k, v)))
+        batchPredictParams.getPredictParamsList().forEach(x ->
+                AlgorithmThreadPool.run(() -> outputs.add(
+                                LrAlgorithmHelper.compute(
+                                        modelParam.getModelParam(),
+                                        x.getUserId(),
+                                        x.getFeatureDataModel().getFeatureDataMap())
+                        )
+                )
         );
 
         try {
@@ -50,5 +57,10 @@ public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends
         }
 
         return outputs;
+    }
+
+    public void intercept(List<LrPredictResultModel> predictModelList) {
+        predictModelList.stream()
+                .forEach(x -> x.setScore(x.getScore() + modelParam.getModelParam().getIntercept()));
     }
 }
