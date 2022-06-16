@@ -16,8 +16,8 @@
 
 package com.welab.wefe.serving.sdk.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
+
 import java.util.Map;
 
 /**
@@ -26,11 +26,13 @@ import java.util.Map;
 public class PredictParams {
     private String userId;
 
-    private Map<String, Object> featureData;
+//    private Map<String, Object> featureData;
 
-    private List<String> userIds;
-
-    private Map<String, Map<String, Object>> featureDataMap;
+    private FeatureDataModel featureDataModel;
+//
+//    private List<String> userIds;
+//
+//    private Map<String, Map<String, Object>> featureDataMap;
 
     private PredictParams() {
 
@@ -40,10 +42,18 @@ public class PredictParams {
         this.userId = userId;
     }
 
-    public static PredictParams of(String userId, Map<String, Object> featureData) {
+    public static PredictParams of(String userId, Map<String, Object> featureDataMap) {
         PredictParams predictParams = new PredictParams();
         predictParams.userId = userId;
-        predictParams.featureData = featureData;
+        predictParams.featureDataModel = FeatureDataModel.of(featureDataMap);
+        return predictParams;
+    }
+
+
+    public static PredictParams of(String userId, FeatureDataModel featureDataModel) {
+        PredictParams predictParams = new PredictParams();
+        predictParams.userId = userId;
+        predictParams.featureDataModel = featureDataModel;
         return predictParams;
     }
 
@@ -55,44 +65,12 @@ public class PredictParams {
         this.userId = userId;
     }
 
-    public Map<String, Object> getFeatureData() {
-        return featureData;
+
+    public FeatureDataModel getFeatureDataModel() {
+        return featureDataModel;
     }
 
-    public void setFeatureData(Map<String, Object> featureData) {
-        this.featureData = featureData;
-    }
-
-    public List<String> getUserIds() {
-        return userIds;
-    }
-
-    public void setUserIds(List<String> userIds) {
-        this.userIds = userIds;
-    }
-
-    public Map<String, Map<String, Object>> getFeatureDataMap() {
-        return featureDataMap;
-    }
-
-    public void setFeatureDataMap(Map<String, Map<String, Object>> featureDataMap) {
-        this.featureDataMap = featureDataMap;
-    }
-
-    public static PredictParams ofUserIds(List<String> userIds) {
-        PredictParams predictParams = new PredictParams();
-        predictParams.userIds = userIds;
-        return predictParams;
-    }
-
-    public static PredictParams of(Map<String, Map<String, Object>> featureDataMap) {
-        PredictParams predictParams = new PredictParams();
-        predictParams.featureDataMap = featureDataMap;
-
-        List<String> userIds = new ArrayList<>();
-        featureDataMap.forEach((k, v) -> userIds.add(k));
-        predictParams.userIds = userIds;
-
-        return predictParams;
+    public void setFeatureDataModel(FeatureDataModel featureDataModel) {
+        this.featureDataModel = featureDataModel;
     }
 }

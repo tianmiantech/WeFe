@@ -16,18 +16,16 @@
 
 package com.welab.wefe.serving.sdk.predicter.single;
 
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.predicter.SinglePredictBehavior;
 
 /**
  * Single prediction
  *
  * @author hunter.zhao
  */
-public abstract class AbstractSinglePromoterPredictor extends AbstractSinglePredictor implements SinglePredictBehavior {
+public abstract class AbstractSinglePromoterPredictor extends AbstractSinglePredictor {
 
-    public AbstractSinglePromoterPredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+    public AbstractSinglePromoterPredictor(String modelId, PredictParams predictParams) {
+        super(modelId, predictParams);
     }
 }

@@ -16,24 +16,21 @@
 
 package com.welab.wefe.serving.service.manager;
 
-import static com.welab.wefe.common.StatusCode.UNEXPECTED_ENUM_CASE;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.collections4.MapUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.feature.SqlFeatureDataHandler;
 import com.welab.wefe.serving.service.service.ModelService;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.welab.wefe.common.StatusCode.UNEXPECTED_ENUM_CASE;
 
 /**
  * Get eigenvalue
@@ -74,11 +71,7 @@ public class FeatureManager {
         return FEATURE_SOURCE.get(modelId);
     }
 
-    public static Map<String, Object> getFeatureData(String modelId, PredictParams predictParams) throws StatusCodeWithException {
-
-        if (MapUtils.isNotEmpty(predictParams.getFeatureData())) {
-            return predictParams.getFeatureData();
-        }
+    public static FeatureDataModel getFeatureData(String modelId, String userId) throws StatusCodeWithException {
 
         PredictFeatureDataSource featureSource = getFeatureSource(modelId);
         /**
@@ -89,48 +82,46 @@ public class FeatureManager {
          */
         switch (featureSource) {
             case code:
-                return new CodeFeatureDataHandler().handle(modelId, predictParams);
+                return new CodeFeatureDataHandler().handle(modelId, userId);
             case sql:
-                return new SqlFeatureDataHandler().handle(modelId, predictParams);
+                return new SqlFeatureDataHandler().handle(modelId, userId);
             default:
                 throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
         }
     }
 
-    public static Map<String, Map<String, Object>> getFeatureDataByBatch(String modelId, PredictParams predictParams) throws StatusCodeWithException {
-
-        PredictFeatureDataSource featureSource = getFeatureSource(modelId);
-        /**
-         * Judge the source of feature acquisition
-         * -Interface input parameter
-         * -Class configuration
-         * -Through SQL query
-         */
-        switch (featureSource) {
-//            case api:
-//                return new ApiFeatureDataHandler().batch(modelId, predictParams);
-            case code:
-                return new CodeFeatureDataHandler().batch(modelId, predictParams);
-            case sql:
-                return new SqlFeatureDataHandler().batch(modelId, predictParams);
-            default:
-                throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
-        }
-    }
+//    public static Map<String, Map<String, Object>> getFeatureDataByBatch(String modelId, PredictParams predictParams) throws StatusCodeWithException {
+//
+//        PredictFeatureDataSource featureSource = getFeatureSource(modelId);
+//        /**
+//         * Judge the source of feature acquisition
+//         * -Interface input parameter
+//         * -Class configuration
+//         * -Through SQL query
+//         */
+//        switch (featureSource) {
+////            case api:
+////                return new ApiFeatureDataHandler().batch(modelId, predictParams);
+//            case code:
+//                return new CodeFeatureDataHandler().batch(modelId, predictParams);
+//            case sql:
+//                return new SqlFeatureDataHandler().batch(modelId, predictParams);
+//            default:
+//                throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
+//        }
+//    }
 
     /**
      * Get configuration via SQL
      */
-    public static Map<String, Object> getFeatureData(JSONObject sqlConfig) throws StatusCodeWithException {
-        DatabaseType type = DatabaseType.valueOf(sqlConfig.get("type").toString());
-        String url = sqlConfig.get("url").toString();
-        String username = sqlConfig.get("username").toString();
-        String password = sqlConfig.get("password").toString();
-        String sqlContext = sqlConfig.get("sql_context").toString();
+    public static FeatureDataModel getFeatureData(JSONObject sqlConfig) throws StatusCodeWithException {
+        String dataSourceId = sqlConfig.get("data_source_id").toString();
+        String sqlScript = sqlConfig.get("sql_script").toString();
+        String sqlConditionField = sqlConfig.get("sql_condition_field").toString();
         String userId = sqlConfig.get("user_id").toString();
 
         //Fill in corresponding feature information
-        return SqlFeatureDataHandler.get(type, url, username, password, sqlContext, userId);
+        return SqlFeatureDataHandler.debug(dataSourceId, sqlScript, sqlConditionField, userId);
     }
 
     /**

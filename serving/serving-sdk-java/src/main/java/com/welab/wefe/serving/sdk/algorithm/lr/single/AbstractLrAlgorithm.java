@@ -19,18 +19,24 @@ package com.welab.wefe.serving.sdk.algorithm.lr.single;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
 import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 
 /**
  * @author hunter.zhao
  */
 public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends AbstractAlgorithm<T, R> {
-    public PredictModel compute(PredictParams predictParams) {
-        return LrAlgorithmHelper.compute(
+    public LrPredictResultModel compute(PredictParams predictParams) {
+        LrPredictResultModel predictModel = LrAlgorithmHelper.compute(
                 modelParam.getModelParam(),
                 predictParams.getUserId(),
-                predictParams.getFeatureData()
+                predictParams.getFeatureDataModel().getFeatureDataMap()
         );
+        predictModel.setFeatureResult(predictParams.getFeatureDataModel());
+        return predictModel;
+    }
+
+    public void intercept(LrPredictResultModel predictModel) {
+        predictModel.setScore(predictModel.getScore() + modelParam.getModelParam().getIntercept());
     }
 }

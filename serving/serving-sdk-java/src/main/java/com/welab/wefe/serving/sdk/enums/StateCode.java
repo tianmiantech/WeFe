@@ -30,12 +30,12 @@ public enum StateCode {
      * System level error codes
      */
     SYSTEM_NOT_BEEN_INITIALIZED(10000, "The system has not been initialized, please perform initialization first."),
-    SYSTEM_ERROR(10001, "System error"),
+    SYSTEM_ERROR(10001, "系统错误！"),
 
     /**
      * Data error code
      */
-    FEATURE_ERROR(20001, "Sample characteristic error");
+    FEATURE_ERROR(20001, "未查找到样本特征");
 
     private int code;
     private String description;

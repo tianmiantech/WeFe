@@ -19,9 +19,7 @@ package com.welab.wefe.serving.sdk.algorithm.xgboost;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
+import com.welab.wefe.serving.sdk.model.xgboost.*;
 import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
@@ -231,7 +229,7 @@ public class XgboostAlgorithmHelper {
     /**
      * Prediction by sponsor (horizontal)
      */
-    public static PredictModel promoterPredictByHorz(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
+    public static XgboostPredictResultModel promoterPredictByHorz(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
 
         //Traverse to get the root node
         int[] treeNodeIds = new int[model.getTreeNum()];
@@ -260,7 +258,7 @@ public class XgboostAlgorithmHelper {
             weights[i] = getTreeLeafWeight(model, i, treeNodeIds[i]);
         }
 
-        return PredictModel.ofScores(userId, finalPredict(model, weights));
+        return XgboostPredictResultModel.ofScores(userId, finalPredict(model, weights));
     }
 
     /**
@@ -272,7 +270,7 @@ public class XgboostAlgorithmHelper {
      * @param decisionTreeMap decisionTreeMap
      * @return PredictModel
      */
-    public static PredictModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
+    public static XgboostPredictResultModel promoterPredictByVert(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
         //TODO 新增skip模式处理方法
         if (workMode.equals(XgboostWorkMode.skip.name())) {
             return skipPredictModel(model, userId, featureDataMap, decisionTreeMap);
@@ -334,14 +332,14 @@ public class XgboostAlgorithmHelper {
             }
 
 
-            return PredictModel.ofScores(
+            return XgboostPredictResultModel.ofScores(
                     userId,
                     finalPredict(model, weights)
             );
         }
     }
 
-    private static PredictModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
+    private static XgboostPredictResultModel skipPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap, Map<String, Object> decisionTreeMap) {
         int[] treeNodeIds = new int[model.getTreeNum()];
         double[] weights = new double[model.getTreeNum()];
 
@@ -373,7 +371,7 @@ public class XgboostAlgorithmHelper {
         }
 
 
-        return PredictModel.ofScores(
+        return XgboostPredictResultModel.ofScores(
                 userId,
                 finalPredict(model, weights)
         );
@@ -457,7 +455,7 @@ public class XgboostAlgorithmHelper {
      * @param featureDataMap featureDataMap
      * @return PredictModel
      */
-    public static PredictModel providerPredict(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap) {
+    public static XgbProviderPredictResultModel providerPredict(String workMode, XgboostModel model, String userId, Map<String, Object> featureDataMap) {
         //TODO 新增skip模式处理方法
         if (workMode.equals(XgboostWorkMode.skip.name())) {
             return skipProviderPredictModel(model, userId, featureDataMap);
@@ -510,7 +508,7 @@ public class XgboostAlgorithmHelper {
                 result.put(i, treeRoute);
             }
 
-            return PredictModel.ofObject(userId, result);
+            return XgbProviderPredictResultModel.ofObject(userId, result);
         }
     }
 
@@ -522,7 +520,7 @@ public class XgboostAlgorithmHelper {
      * @param featureDataMap featureDataMap
      * @return PredictModel
      */
-    private static PredictModel skipProviderPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
+    private static XgbProviderPredictResultModel skipProviderPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
         Map<Integer, Integer> result = new HashMap<>(16);
         int[] treeNodeIds = new int[model.getTreeNum()];
 
@@ -545,6 +543,6 @@ public class XgboostAlgorithmHelper {
         }
 
 
-        return PredictModel.ofObject(userId, result);
+        return XgbProviderPredictResultModel.ofObject(userId, result);
     }
 }

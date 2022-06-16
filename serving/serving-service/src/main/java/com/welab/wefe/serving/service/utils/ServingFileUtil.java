@@ -156,7 +156,7 @@ public class ServingFileUtil {
          * 预测结果输出地址
          */
         public static Path getPredictOutputPath(String modelId) {
-            return getBaseDir(FileType.DeepLearningModelFile).resolve(modelId);
+            return getBaseDir(FileType.DeepLearningModelFile).resolve(modelId).resolve("output");
         }
 
     }

@@ -19,13 +19,11 @@ package com.welab.wefe.serving.service.predicter.single;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import org.apache.commons.collections4.MapUtils;
-
-import java.util.Map;
 
 import static com.welab.wefe.common.StatusCode.UNEXPECTED_ENUM_CASE;
 
@@ -45,10 +43,9 @@ public class DebugPromoterPredictor extends PromoterPredictor {
     public DebugPromoterPredictor(String requestId,
                                   String modelId,
                                   PredictParams predictParams,
-                                  FederatedParams federatedParams,
                                   PredictFeatureDataSource featureSource,
                                   JSONObject extendParams) {
-        super(requestId, modelId, predictParams, federatedParams);
+        super(requestId, modelId, predictParams);
         this.extendParams = extendParams;
         this.featureSource = featureSource;
     }
@@ -59,16 +56,14 @@ public class DebugPromoterPredictor extends PromoterPredictor {
     }
 
     @Override
-    public Map<String, Object> findFeatureData() throws StatusCodeWithException {
-        if (MapUtils.isNotEmpty(predictParams.getFeatureData())) {
-            return predictParams.getFeatureData();
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
+        if (MapUtils.isNotEmpty(predictParams.getFeatureDataModel().getFeatureDataMap())) {
+            return predictParams.getFeatureDataModel();
         }
 
         switch (featureSource) {
-            case api:
-                return predictParams.getFeatureData();
             case code:
-                return new CodeFeatureDataHandler().handle(modelId, predictParams);
+                return new CodeFeatureDataHandler().handle(modelId, userId);
             case sql:
                 return FeatureManager.getFeatureData(extendParams);
             default:

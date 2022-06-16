@@ -16,6 +16,8 @@
 
 package com.welab.wefe.serving.service.feature.code;
 
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
+
 import java.util.Map;
 
 /**
@@ -29,5 +31,5 @@ public abstract class AbstractFeatureDataProcessor {
      * @param userId userId
      * @return featureDataMap
      */
-    public abstract Map<String, Object> process(String userId);
+    public abstract FeatureDataModel process(String userId);
 }

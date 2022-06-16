@@ -22,6 +22,7 @@ import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import org.apache.commons.collections4.MapUtils;
@@ -43,10 +44,9 @@ public class DebugProviderPredictor extends ProviderPredictor {
 
     public DebugProviderPredictor(String modelId,
                                   PredictParams predictParams,
-                                  FederatedParams federatedParams,
                                   PredictFeatureDataSource featureSource,
                                   JSONObject extendParams) {
-        super(modelId, predictParams, federatedParams);
+        super(modelId, predictParams);
         this.featureSource = featureSource;
         this.extendParams = extendParams;
     }
@@ -58,16 +58,14 @@ public class DebugProviderPredictor extends ProviderPredictor {
 
 
     @Override
-    public Map<String, Object> findFeatureData() throws StatusCodeWithException {
-        if (MapUtils.isNotEmpty(predictParams.getFeatureData())) {
-            return predictParams.getFeatureData();
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
+        if (MapUtils.isNotEmpty(predictParams.getFeatureDataModel().getFeatureDataMap())) {
+            return predictParams.getFeatureDataModel();
         }
 
         switch (featureSource) {
-            case api:
-                return predictParams.getFeatureData();
             case code:
-                return new CodeFeatureDataHandler().handle(modelId, predictParams);
+                return new CodeFeatureDataHandler().handle(modelId, userId);
             case sql:
                 return FeatureManager.getFeatureData(extendParams);
             default:

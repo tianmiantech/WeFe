@@ -18,9 +18,10 @@ package com.welab.wefe.serving.service.predicter.batch;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
@@ -35,8 +36,8 @@ import java.util.Map;
  */
 public class BatchPredicter extends AbstractBatchPredictor {
 
-    public BatchPredicter(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+    public BatchPredicter(String modelId, BatchPredictParams batchPredictParams) {
+        super(modelId, batchPredictParams);
     }
 
     @Override
@@ -50,7 +51,12 @@ public class BatchPredicter extends AbstractBatchPredictor {
     }
 
     @Override
-    public Map<String, Map<String, Object>> batchFindFeatureData() throws StatusCodeWithException {
-        return FeatureManager.getFeatureDataByBatch(modelId, predictParams);
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
+        return FeatureManager.getFeatureData(modelId,userId);
     }
+//
+//    @Override
+//    public Map<String, Map<String, Object>> batchFindFeatureData() throws StatusCodeWithException {
+//        return FeatureManager.getFeatureDataByBatch(modelId, predictParams);
+//    }
 }

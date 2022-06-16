@@ -24,6 +24,7 @@ import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.HashMap;
@@ -74,9 +75,9 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
                 continue;
             }
 
-            PredictModel predictModel = remote.getJObject("data").toJavaObject(PredictModel.class);
+            XgbProviderPredictResultModel predictModel = remote.getJObject("result").toJavaObject(XgbProviderPredictResultModel.class);
 
-            Map<String, Object> tree = (Map) predictModel.getData();
+            Map<String, Object> tree = (Map) predictModel.getXgboostTree();
 
             for (String key : tree.keySet()) {
                 if (remoteDecisionTreeMap.containsKey(key)

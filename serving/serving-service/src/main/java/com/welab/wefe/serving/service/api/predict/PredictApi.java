@@ -15,23 +15,20 @@
  */
 package com.welab.wefe.serving.service.api.predict;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
-import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,13 +53,14 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
         /**
          * batch prediction
          */
-//        if (input.getBatch()) {
-//            PredictResult result = Predictor.batchPromoterPredict(
-//                    input.getModelId(),
-//                    input.getFeatureDataMap()
-//            );
-//            return success(result);
-//        }
+        if (CollectionUtils.isNotEmpty(input.getUserIds())) {
+            PredictResult result = Predictor.batch(
+                    input.getRequestId(),
+                    input.getModelId(),
+                    BatchPredictParams.of(input.getUserIds(), input.getFeatureDataMap())
+            );
+            return success(result);
+        }
 
         /**
          * Single prediction
@@ -70,8 +68,7 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
         PredictResult result = Predictor.predict(
                 input.getRequestId(),
                 input.getModelId(),
-                PredictParams.of(input.getUserId(), input.getFeatureData()),
-                FederatedParams.of(input.getModelId(), input.getMemberId())
+                PredictParams.of(input.getUserId(), input.getFeatureData())
         );
 
         return success(result);
@@ -85,8 +82,8 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
 
-        @Check(require = true, name = "合作方标识")
-        private String memberId;
+        @Check(require = true, name = "调用者身份 id")
+        private String partnerCode;
 
         @Check(name = "用户 id")
         private String userId;
@@ -97,29 +94,11 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
         @Check(name = "其他参数")
         private Map<String, Object> params;
 
-        @Check(name = "是否批量")
-        private Boolean isBatch = false;
+        @Check(name = "用户 id")
+        private List<String> userIds;
 
         @Check(name = "批量预测参数")
         private Map<String, Map<String, Object>> featureDataMap;
-
-
-        @Override
-        public void checkAndStandardize() throws StatusCodeWithException {
-            super.checkAndStandardize();
-            if (!isBatch) {
-                if (StringUtil.isEmpty(userId)) {
-                    throw new StatusCodeWithException("单条预测时，参数userId不能为空", StatusCode.PARAMETER_VALUE_INVALID);
-                }
-
-                return;
-            }
-
-            if (MapUtils.isEmpty(featureDataMap)) {
-                throw new StatusCodeWithException("批量预测时，参数predictParamsList不能为空", StatusCode.PARAMETER_VALUE_INVALID);
-            }
-        }
-
 
         //region getter/setter
 
@@ -140,12 +119,12 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
             this.modelId = modelId;
         }
 
-        public String getMemberId() {
-            return memberId;
+        public String getPartnerCode() {
+            return partnerCode;
         }
 
-        public void setMemberId(String memberId) {
-            this.memberId = memberId;
+        public void setPartnerCode(String partnerCode) {
+            this.partnerCode = partnerCode;
         }
 
         public String getUserId() {
@@ -180,12 +159,12 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
             this.featureDataMap = featureDataMap;
         }
 
-        public Boolean getBatch() {
-            return isBatch;
+        public List<String> getUserIds() {
+            return userIds;
         }
 
-        public void setBatch(Boolean batch) {
-            isBatch = batch;
+        public void setUserIds(List<String> userIds) {
+            this.userIds = userIds;
         }
 
         //endregion

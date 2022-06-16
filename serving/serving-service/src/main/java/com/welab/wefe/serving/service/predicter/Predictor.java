@@ -26,12 +26,14 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.dto.ServiceResultOutput;
+import com.welab.wefe.serving.service.predicter.batch.BatchPromoterPredictor;
+import com.welab.wefe.serving.service.predicter.batch.BatchProviderPredictor;
 import com.welab.wefe.serving.service.predicter.single.DebugPromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.DebugProviderPredictor;
 import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
@@ -69,19 +71,34 @@ public class Predictor {
 
     public static PredictResult predict(String requestId,
                                         String modelId,
-                                        PredictParams predictParams,
-                                        FederatedParams federatedParams) throws StatusCodeWithException {
+                                        PredictParams predictParams) throws StatusCodeWithException {
 
-        AbstractBasePredictor predictor = constructPredictor(requestId, modelId, predictParams, federatedParams);
+        AbstractBasePredictor predictor = constructPredictor(requestId, modelId, predictParams);
         return predictor.predict();
     }
 
-    private static AbstractBasePredictor constructPredictor(String requestId, String modelId, PredictParams predictParams, FederatedParams federatedParams) throws StatusCodeWithException {
+    public static PredictResult batch(String requestId,
+                                        String modelId,
+                                        BatchPredictParams batchPredictParams) throws StatusCodeWithException {
+
+        AbstractBasePredictor predictor = constructPredictor(requestId, modelId, batchPredictParams);
+        return predictor.predict();
+    }
+
+    private static AbstractBasePredictor constructPredictor(String requestId, String modelId, PredictParams predictParams) throws StatusCodeWithException {
         JobMemberRole myRole = findMyRole(modelId);
 
         return myRole.equals(JobMemberRole.promoter) ?
-                new PromoterPredictor(requestId, modelId, predictParams, federatedParams)
-                : new ProviderPredictor(modelId, predictParams, federatedParams);
+                new PromoterPredictor(requestId, modelId, predictParams)
+                : new ProviderPredictor(modelId, predictParams);
+    }
+
+    private static AbstractBasePredictor constructPredictor(String requestId, String modelId, BatchPredictParams batchPredictParams) throws StatusCodeWithException {
+        JobMemberRole myRole = findMyRole(modelId);
+
+        return myRole.equals(JobMemberRole.promoter) ?
+                new BatchPromoterPredictor(requestId, modelId, batchPredictParams)
+                : new BatchProviderPredictor(modelId, batchPredictParams);
     }
 
     private static JobMemberRole findMyRole(String modelId) throws StatusCodeWithException {
@@ -166,23 +183,21 @@ public class Predictor {
      */
     public static PredictResult debug(String modelId,
                                       PredictParams predictParams,
-                                      FederatedParams federatedParams,
                                       PredictFeatureDataSource featureSource,
                                       JSONObject extendParams) throws Exception {
 
-        AbstractBasePredictor predictor = constructDebugPredictor(modelId, predictParams, federatedParams, featureSource, extendParams);
+        AbstractBasePredictor predictor = constructDebugPredictor(modelId, predictParams, featureSource, extendParams);
         return predictor.predict();
     }
 
     private static AbstractBasePredictor constructDebugPredictor(String modelId,
                                                                  PredictParams predictParams,
-                                                                 FederatedParams federatedParams,
                                                                  PredictFeatureDataSource featureDataSource,
                                                                  JSONObject extendParams) throws StatusCodeWithException {
         JobMemberRole myRole = findMyRole(modelId);
 
         return myRole.equals(JobMemberRole.promoter) ?
-                new DebugPromoterPredictor(ServiceResultOutput.buildId(), modelId, predictParams, federatedParams, featureDataSource, extendParams)
-                : new DebugProviderPredictor(modelId, predictParams, federatedParams, featureDataSource, extendParams);
+                new DebugPromoterPredictor(ServiceResultOutput.buildId(), modelId, predictParams, featureDataSource, extendParams)
+                : new DebugProviderPredictor(modelId, predictParams, featureDataSource, extendParams);
     }
 }

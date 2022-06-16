@@ -24,6 +24,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.clientservice.*;
 import com.welab.wefe.serving.service.api.clientservice.ServiceUrlTestApi.Input;
 import com.welab.wefe.serving.service.database.entity.*;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 /**
@@ -66,6 +68,9 @@ public class ClientServiceService {
 
     @Autowired
     private PartnerRepository partnerRepository;
+
+    @Autowired
+    private PartnerService partnerService;
 
     public void add(SaveApi.Input input) throws StatusCodeWithException {
 
@@ -160,8 +165,7 @@ public class ClientServiceService {
             if (x.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
                 output.setPayType("-");
                 output.setUnitPrice("-");
-            }
-            else {
+            } else {
                 output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
                 output.setUnitPrice(x.getUnitPrice() + "");
             }
@@ -388,5 +392,14 @@ public class ClientServiceService {
                 .build(ClientServiceMysqlModel.class);
 
         return clientServiceRepository.findAll(where);
+    }
+
+
+    public List<ProviderParams> findProviderList(String serviceId) {
+        return queryActivateListByServiceId(serviceId)
+                .stream()
+                //TODO 地址获取修改
+                .map(x -> ProviderParams.of(x.getClientId(), partnerService.findModelServiceUrl(x.getClientId()) + "/api/" + x.getUrl()))
+                .collect(Collectors.toList());
     }
 }

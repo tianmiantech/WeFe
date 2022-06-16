@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter;
+package com.welab.wefe.serving.sdk.model.xgboost;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
-
-import java.util.Map;
+import com.welab.wefe.serving.sdk.model.PredictModel;
 
 /**
  * @author hunter.zhao
  */
-public interface SinglePredictBehavior extends PredictBehavior {
+public class XgboostPredictResultModel extends PredictModel {
+    public Object scores;
 
-    /**
-     * Find features(single)
-     * <p>
-     * Build format must be{"x0":"0.12231","x1":"2.056412",...}
-     * </p>
-     *
-     * @return featureMap
-     * @throws StatusCodeWithException
-     */
-    Map<String, Object> findFeatureData() throws StatusCodeWithException;
+    public static XgboostPredictResultModel ofScores(String userId, Object scores) {
+        XgboostPredictResultModel model = new XgboostPredictResultModel();
+        model.userId = userId;
+        model.scores = scores;
+        return model;
+    }
 
+    public Object getScores() {
+        return scores;
+    }
+
+    public void setScores(Object scores) {
+        this.scores = scores;
+    }
 }

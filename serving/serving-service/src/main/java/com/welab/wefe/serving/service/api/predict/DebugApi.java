@@ -17,18 +17,20 @@
 package com.welab.wefe.serving.service.api.predict;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.Map;
 
@@ -49,7 +51,6 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
             PredictResult result = Predictor.debug(
                     input.getModelId(),
                     PredictParams.of(input.getUserId(), input.getFeatureData()),
-                    FederatedParams.of(input.getModelId(), CacheObjects.getMemberId()),
                     input.getFeatureSource(),
                     input.getParams() == null ? null : new JSONObject(input.getParams())
             );
@@ -77,9 +78,13 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
         @Check(name = "特征来源类型")
         private PredictFeatureDataSource featureSource;
 
-        @Check(name = "我的角色")
-        private JobMemberRole myRole;
-
+        @Override
+        public void checkAndStandardize() throws StatusCodeWithException {
+            super.checkAndStandardize();
+            if (PredictFeatureDataSource.sql.equals(featureSource) && MapUtils.isEmpty(params)) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("选择特征来源于SQL配置时，SQL配置项不能为空！");
+            }
+        }
 
         //region getter/setter
 
@@ -122,14 +127,6 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
 
         public void setFeatureSource(PredictFeatureDataSource featureSource) {
             this.featureSource = featureSource;
-        }
-
-        public JobMemberRole getMyRole() {
-            return myRole;
-        }
-
-        public void setMyRole(JobMemberRole myRole) {
-            this.myRole = myRole;
         }
 
         //endregion

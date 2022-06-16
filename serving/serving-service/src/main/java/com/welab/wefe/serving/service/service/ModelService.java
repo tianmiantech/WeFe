@@ -16,18 +16,6 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -59,6 +47,17 @@ import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.ModelServiceProcessor;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * model Service
@@ -206,8 +205,8 @@ public class ModelService {
         }
     }
 
-    public TableModelMySqlModel findOne(String modelId) {
-        return modelRepository.findOne("modelId", modelId, TableModelMySqlModel.class);
+    public TableModelMySqlModel findOne(String serviceId) {
+        return modelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
     }
 
     public List<ModelMemberMySqlModel> findByModelIdAndMemberId(String modelId, String memberId) {

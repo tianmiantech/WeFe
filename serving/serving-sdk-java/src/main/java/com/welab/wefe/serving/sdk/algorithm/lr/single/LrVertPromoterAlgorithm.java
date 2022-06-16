@@ -19,9 +19,11 @@ package com.welab.wefe.serving.sdk.algorithm.lr.single;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -31,32 +33,34 @@ import java.util.List;
  *
  * @author hunter.zhao
  */
-public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, PredictModel> {
+public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, LrPredictResultModel> {
 
     @Override
-    protected PredictModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+    protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         //Calculation results
-        PredictModel result = compute(predictParams);
-
-//        //Call predicter
-//        List<JObject> federatedResult = federatedPredict(federatedParams.getProviders(), setFederatedPredictBody(federatedParams, predictParams.getUserId()));
+        LrPredictResultModel result = compute(predictParams);
 
         if (CollectionUtils.isEmpty(federatedResult)) {
-            return sigmod(result);
+
+            intercept(result);
+
+            return LrAlgorithmHelper.sigmod(result);
         }
 
         /**
          * Consolidated results
          */
         for (JObject remote : federatedResult) {
-            PredictModel predictModel = remote.getJObject("data").toJavaObject(PredictModel.class);
+            LrPredictResultModel predictModel = remote.getJObject("result").toJavaObject(LrPredictResultModel.class);
 
 
             Double score = TypeUtils.castToDouble(result.getScore()) + TypeUtils.castToDouble(predictModel.getScore());
             result.setScore(score);
         }
 
-        return sigmod(result);
+        intercept(result);
+
+        return LrAlgorithmHelper.sigmod(result);
     }
 }

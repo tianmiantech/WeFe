@@ -18,14 +18,15 @@ package com.welab.wefe.serving.service.service_processor;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
-import com.welab.wefe.serving.service.api.predict.ProviderApi;
+import com.welab.wefe.serving.service.api.predict.PredictApi;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * @author hunter.zhao
@@ -36,7 +37,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
     @Override
     public PredictResult process(JObject data, TableModelMySqlModel model) throws StatusCodeWithException {
 
-        ProviderApi.Input input = data.toJavaObject(ProviderApi.Input.class);
+        PredictApi.Input input = data.toJavaObject(PredictApi.Input.class);
         input.checkAndStandardize();
 
         if (!ModelManager.getModelEnable(input.getModelId())) {
@@ -44,17 +45,19 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
                     .throwException("模型成员 " + CacheObjects.getMemberName() + " 未上线该模型");
         }
 
+
         /**
          * batch prediction
          */
-        if (input.getBatch()) {
-//                PredictResult result = Predictor.batchPromoterPredict(
-//                        input.getModelId(),
-//                        input.get()
-//                );
-//
-//                return success(result);
+        if (CollectionUtils.isNotEmpty(input.getUserIds())) {
+            PredictResult result = Predictor.batch(
+                    input.getRequestId(),
+                    input.getModelId(),
+                    BatchPredictParams.of(input.getUserIds(), input.getFeatureDataMap())
+            );
+            return result;
         }
+
 
         /**
          * Single prediction
@@ -62,8 +65,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
         PredictResult result = Predictor.predict(
                 input.getRequestId(),
                 input.getModelId(),
-                PredictParams.of(input.getUserId(), input.getFeatureData()),
-                FederatedParams.of(input.getModelId(), CacheObjects.getMemberId())
+                PredictParams.of(input.getUserId(), input.getFeatureData())
         );
 
         return result;

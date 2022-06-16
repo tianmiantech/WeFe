@@ -16,14 +16,11 @@
 
 package com.welab.wefe.serving.service.feature;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.feature.sql.AbstractTemplate;
@@ -33,6 +30,9 @@ import com.welab.wefe.serving.service.feature.sql.mysql.MySqlTemplate;
 import com.welab.wefe.serving.service.feature.sql.pg.PgSqlTemplate;
 import com.welab.wefe.serving.service.service.DataSourceService;
 import com.welab.wefe.serving.service.service.ModelService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author hunter.zhao
@@ -88,21 +88,25 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
 
 
     @Override
-    public Map<String, Object> handle(String modelId, PredictParams predictParams) throws StatusCodeWithException {
+    public FeatureDataModel handle(String modelId, String userId) throws StatusCodeWithException {
 
         AbstractTemplate template = generateTemplate(modelId);
 
-        String sql = buildSqlContext(modelId, predictParams.getUserId());
+        String sql = buildSqlContextByModelId(modelId, userId);
 
-        return template.handle(sql);
+        return FeatureDataModel.of(template.handle(sql));
     }
 
-    private String buildSqlContext(String modelId, String userId) {
+    private String buildSqlContextByModelId(String modelId, String userId) {
         TableModelMySqlModel modelConfig = modelService.findOne(modelId);
+        return buildSqlContext(userId, modelConfig.getSqlScript(), modelConfig.getSqlConditionField());
+    }
+
+    private static String buildSqlContext(String userId, String sqlScript, String sqlConditionField) {
         return new StringBuilder(16)
-                .append(modelConfig.getSqlScript())
+                .append(sqlScript)
                 .append(" where ")
-                .append(modelConfig.getSqlConditionField())
+                .append(sqlConditionField)
                 .append("='")
                 .append(userId)
                 .append("'").toString();
@@ -131,51 +135,44 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
 
     private DataSourceMySqlModel findSqlConfig(String modelId) throws StatusCodeWithException {
         TableModelMySqlModel modelConfig = modelService.findOne(modelId);
-        DataSourceMySqlModel dataSource = dataSourceService.findById(modelConfig.getDataSourceId());
+        return getDataSourceMySqlModel(modelConfig.getDataSourceId());
+    }
+
+    private static DataSourceMySqlModel getDataSourceMySqlModel(String dataSourceId) throws StatusCodeWithException {
+        DataSourceMySqlModel dataSource = dataSourceService.findById(dataSourceId);
         if (dataSource == null) {
-            throw new StatusCodeWithException("模型 {} 未查找到特征sql配置！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("未查找到特征sql配置！" + dataSourceId, StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         return dataSource;
     }
 
-    @Override
-    public Map<String, Map<String, Object>> batch(String modelId, PredictParams predictParams) {
-        Map<String, Map<String, Object>> featureDataMap = new HashMap<>(16);
-        predictParams.getUserIds().forEach(userId -> {
-            try {
-                featureDataMap.put(
-                        userId,
-                        handle(modelId, PredictParams.of(userId, null))
-                );
-            } catch (StatusCodeWithException e) {
-                e.printStackTrace();
-            }
-        });
-
-        return featureDataMap;
-    }
-
     /**
      * Get feature data
      */
-    public static Map<String, Object> get(DatabaseType type,
-                                          String url,
-                                          String username,
-                                          String password,
-                                          String sqlContext,
-                                          String userId) throws StatusCodeWithException {
+    public static FeatureDataModel debug(String dataSourceId,
+                                         String sqlScript,
+                                         String sqlConditionField,
+                                         String userId) throws StatusCodeWithException {
 
-//
-//        GenerateTemplateFunction func = SQL_TEMPLATE.get(type);
-//        if (func == null) {
-//            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "DatabaseType", type.name());
-//        }
-//
-//        AbstractTemplate template = func.generate(url, username, password);
-//
-//        return template.handle(sqlContext);
-        return null;
+        DataSourceMySqlModel dataSource = getDataSourceMySqlModel(dataSourceId);
+
+        GenerateTemplateFunction func = SQL_TEMPLATE.get(dataSource.getDatabaseType());
+        if (func == null) {
+            throw new StatusCodeWithException(StatusCode.PARAMETER_VALUE_INVALID, "DatabaseType", dataSource.getDatabaseType().name());
+        }
+
+        AbstractTemplate template = func.generate(
+                dataSource.getDatabaseType(),
+                dataSource.getHost(),
+                dataSource.getPort(),
+                dataSource.getDatabaseName(),
+                dataSource.getUserName(),
+                dataSource.getPassword()
+        );
+
+        String sql = buildSqlContext(userId, sqlScript, sqlConditionField);
+
+        return FeatureDataModel.of(template.handle(sql));
     }
-
 }

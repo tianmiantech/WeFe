@@ -16,23 +16,18 @@
 
 package com.welab.wefe.serving.sdk.test;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.dto.PredictResult;
-import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class mainly demonstrates how to customize the promoter prediction class
@@ -41,8 +36,8 @@ import java.util.Map;
  */
 public class ExamplePromoterPredicter extends AbstractSinglePredictor {
 
-    public ExamplePromoterPredicter(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+    public ExamplePromoterPredicter(String modelId, PredictParams predictParams) {
+        super(modelId, predictParams);
     }
 
     @Override
@@ -96,12 +91,10 @@ public class ExamplePromoterPredicter extends AbstractSinglePredictor {
         return federatedResult;
     }
 
-
     @Override
-    public Map<String, Object> findFeatureData() {
-        /**
-         * 用户自定义
-         */
-        return predictParams.getFeatureData();
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
+        return predictParams.getFeatureDataModel();
     }
+
+
 }

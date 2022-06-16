@@ -18,14 +18,12 @@ package com.welab.wefe.serving.sdk.predicter.single;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.manager.AlgorithmManager;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
-import com.welab.wefe.serving.sdk.predicter.SinglePredictBehavior;
 import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
 
 /**
@@ -33,17 +31,19 @@ import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
  *
  * @author hunter.zhao
  */
-public abstract class AbstractSinglePredictor extends AbstractBasePredictor implements SinglePredictBehavior {
+public abstract class AbstractSinglePredictor extends AbstractBasePredictor {
+
+    public PredictParams predictParams;
 
 
-    public AbstractSinglePredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+    public AbstractSinglePredictor(String modelId, PredictParams predictParams) {
+        super(modelId);
+        this.predictParams = predictParams;
     }
 
     /**
      * Get the processor of the corresponding model
      */
-    @Override
     public AbstractModelProcessor getProcessor() {
         return ModelProcessorManager.getProcessor(modelId);
     }
@@ -56,17 +56,17 @@ public abstract class AbstractSinglePredictor extends AbstractBasePredictor impl
 
         BaseModel model = getModel();
 
-        predictParams.setFeatureData(findFeatureData());
+        predictParams.setFeatureDataModel(findFeatureData(predictParams.getUserId()));
 
         AbstractModelProcessor processor = getProcessor();
 
-        processor.preprocess(model, federatedParams, predictParams);
+        processor.preprocess(model, predictParams);
 
         AbstractAlgorithm algorithm = AlgorithmManager.get(model);
 
         PredictResult result = algorithm.execute(model, predictParams, federatedResultByProviders());
 
-        processor.postprocess(result, model, federatedParams, predictParams);
+        processor.postprocess(result, model, predictParams);
 
         return result;
     }

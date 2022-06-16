@@ -17,9 +17,10 @@
 package com.welab.wefe.serving.sdk.algorithm.lr.batch;
 
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 
 import java.util.List;
 
@@ -28,10 +29,12 @@ import java.util.List;
  *
  * @author hunter.zhao
  */
-public class LrHorzPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseLrModel, List<PredictModel>> {
+public class LrHorzPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseLrModel, List<LrPredictResultModel>> {
 
     @Override
-    protected List<PredictModel> handle(PredictParams predictParams, List<JObject> federatedResult) {
-        return sigmod(compute(predictParams));
+    protected List<LrPredictResultModel> handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) {
+        List<LrPredictResultModel> predictModelList = compute(batchPredictParams);
+        intercept(predictModelList);
+        return sigmod(predictModelList);
     }
 }

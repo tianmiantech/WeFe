@@ -16,8 +16,13 @@
 
 package com.welab.wefe.serving.sdk.dto;
 
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.compress.utils.Lists;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -49,6 +54,19 @@ public class BatchPredictParams {
         return batchPredictParams;
     }
 
+
+    public static BatchPredictParams of(List<String> userIds, Map<String, Map<String, Object>> featureDataMap) {
+        BatchPredictParams batchPredictParams = new BatchPredictParams();
+        batchPredictParams.userIds = userIds;
+        batchPredictParams.predictParamsList = MapUtils.isEmpty(featureDataMap) ? Lists.newArrayList() :
+                featureDataMap
+                        .entrySet()
+                        .stream()
+                        .map(x -> PredictParams.of(x.getKey(), x.getValue()))
+                        .collect(Collectors.toList());
+        return batchPredictParams;
+    }
+
     public List<PredictParams> getPredictParamsList() {
         return predictParamsList;
     }
@@ -63,5 +81,13 @@ public class BatchPredictParams {
 
     public void setUserIds(List<String> userIds) {
         this.userIds = userIds;
+    }
+
+    public PredictParams getPredictParamsByUserId(String userId) {
+        return predictParamsList.isEmpty() ? null : predictParamsList
+                .stream()
+                .filter(x -> x.getUserId().equals(userId))
+                .findFirst()
+                .get();
     }
 }

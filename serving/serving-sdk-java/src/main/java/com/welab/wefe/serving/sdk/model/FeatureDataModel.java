@@ -15,31 +15,17 @@
  */
 package com.welab.wefe.serving.sdk.model;
 
+import org.apache.commons.collections4.MapUtils;
+
 import java.util.Map;
 
 /**
  * @author hunter.zhao
  * @date 2022/5/17
  */
-public class FeatureDataModel {
+public class FeatureDataModel extends BaseFeatureResultModel {
 
-    public boolean isFound = true;
-
-    public Map<String, Object> featureDataMap;
-
-    public String retCode = "0";
-
-    public String error;
-
-    public String message;
-
-    public boolean isFound() {
-        return isFound;
-    }
-
-    public void setFound(boolean found) {
-        isFound = found;
-    }
+    private Map<String, Object> featureDataMap;
 
     public Map<String, Object> getFeatureDataMap() {
         return featureDataMap;
@@ -49,58 +35,17 @@ public class FeatureDataModel {
         this.featureDataMap = featureDataMap;
     }
 
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public String getRetCode() {
-        return retCode;
-    }
-
-    public void setRetCode(String retCode) {
-        this.retCode = retCode;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public static FeatureDataModel of(Map<String, Object> featureData) {
         FeatureDataModel featureDataModel = new FeatureDataModel();
         featureDataModel.featureDataMap = featureData;
+        featureDataModel.found = MapUtils.isNotEmpty(featureData);
+        featureDataModel.error = MapUtils.isNotEmpty(featureData) ? "" : "未查询到样本！";
         return featureDataModel;
     }
 
-    public static FeatureDataModel fail(String errorMessage, String retCode) {
+    public static FeatureDataModel fail(String errorMessage) {
         FeatureDataModel featureDataModel = new FeatureDataModel();
-        featureDataModel.isFound = false;
         featureDataModel.error = errorMessage;
-        featureDataModel.retCode = retCode;
         return featureDataModel;
     }
-
-    /**
-     * 不带特征返回实体
-     *
-     * @param retCode
-     * @param message
-     * @return
-     */
-    public static FeatureDataModel of(Boolean isFound, String retCode, String message) {
-        FeatureDataModel featureDataModel = new FeatureDataModel();
-        featureDataModel.retCode = retCode;
-        featureDataModel.message = message;
-        featureDataModel.isFound = isFound;
-        return featureDataModel;
-    }
-
-
 }

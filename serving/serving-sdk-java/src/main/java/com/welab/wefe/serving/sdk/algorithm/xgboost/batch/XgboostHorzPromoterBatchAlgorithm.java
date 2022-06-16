@@ -18,9 +18,9 @@ package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostPredictResultModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
 
 import java.util.List;
@@ -32,12 +32,12 @@ import java.util.concurrent.CountDownLatch;
  *
  * @author hunter.zhao
  */
-public class XgboostHorzPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgorithm<BaseXgboostModel, List<PredictModel>> {
+public class XgboostHorzPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgorithm<BaseXgboostModel, List<XgboostPredictResultModel>> {
 
-    private CopyOnWriteArrayList<PredictModel> predictModelList = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<XgboostPredictResultModel> predictModelList = new CopyOnWriteArrayList<>();
 
     @Override
-    protected List<PredictModel> handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
+    protected List<XgboostPredictResultModel> handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) {
 
         CountDownLatch latch = new CountDownLatch(fidValueMapping.size());
 
@@ -45,15 +45,12 @@ public class XgboostHorzPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
         fidValueMapping.forEach((k, v) ->
                 AlgorithmThreadPool.run(() -> {
                     try {
-
                         LOG.info("predict start:" + k);
                         predictModelList.add(XgboostAlgorithmHelper.promoterPredictByHorz(modelParam.getModelParam(), k, v));
-
                     } finally {
                         LOG.info("Predict the end:" + k);
                         latch.countDown();
                     }
-
                 })
         );
 

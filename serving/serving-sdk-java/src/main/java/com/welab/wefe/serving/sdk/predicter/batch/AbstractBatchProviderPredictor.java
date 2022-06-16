@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter;
+package com.welab.wefe.serving.sdk.predicter.batch;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 
-import java.util.Map;
+import java.util.List;
 
 /**
+ * batch prediction
+ *
  * @author hunter.zhao
  */
-public interface BatchPredictBehavior extends PredictBehavior {
+public abstract class AbstractBatchProviderPredictor extends AbstractBatchPredictor {
 
-    /**
-     * Batch feature acquisition
-     * <p>
-     * The generated format must be ：
-     * {"15911111111":{"x0":"0.12231","x1":"2.056412"},"15922222222":{"x0":"0.12231","x1":"2.056412"},...}
-     * </>
-     *
-     * @return featureDataMap
-     * @throws StatusCodeWithException
-     */
-    Map<String, Map<String, Object>> batchFindFeatureData() throws StatusCodeWithException;
+    public AbstractBatchProviderPredictor(String modelId, BatchPredictParams batchPredictParams) {
+        super(modelId, batchPredictParams);
+    }
+
+    @Override
+    public List<JObject> federatedResultByProviders() throws StatusCodeWithException {
+        return null;
+    }
 }

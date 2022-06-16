@@ -16,37 +16,23 @@
 
 package com.welab.wefe.serving.service.predicter.single;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.http.HttpRequest;
-import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.sdk.config.Config;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePromoterPredictor;
-import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
-import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
-import com.welab.wefe.serving.service.enums.ServiceCallStatusEnum;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.service.*;
+import com.welab.wefe.serving.service.service.ClientServiceService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /**
  * Model call initiator
@@ -59,9 +45,8 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
 
     public PromoterPredictor(String requestId,
                              String modelId,
-                             PredictParams predictParams,
-                             FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+                             PredictParams predictParams) {
+        super(modelId, predictParams);
         this.requestId = requestId;
     }
 
@@ -70,203 +55,33 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
         return ModelManager.getModelParam(modelId);
     }
 
-    /**
-     * Set request body(single)
-     */
-    protected String buildFederatedPredictParam() throws StatusCodeWithException {
-
-        /**
-         * params
-         * <p>predictParams will be sent to the provider. You need to be cautious about sensitive data</p>
-         */
-        TreeMap<String, Object> params = new TreeMap<>();
-        params.put("modelId", federatedParams.getModelId());
-        params.put("requestId", requestId);
-        params.put("partnerCode", federatedParams.getPartnerCode());
-        params.put("userId", predictParams.getUserId());
-
-        /**
-         * Prevent map disorder, resulting in signature verification failure
-         */
-        String data = new JSONObject(params).toJSONString();
-
-        /**
-         * sign
-         */
-        String sign;
-        try {
-            sign = RSAUtil.sign(data, Config.RSA_PRIVATE_KEY);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
-
-        JSONObject body = new JSONObject();
-        body.put("customerId", Config.MEMBER_ID);
-        body.put("sign", sign);
-        body.put("data", data);
-
-        return body.toJSONString();
-    }
-
     @Override
     public List<JObject> federatedResultByProviders() throws StatusCodeWithException {
 
-        if (CollectionUtils.isEmpty(findProviders())) {
-            LOG.error("未找到纵向联邦的协作方！");
+        ClientServiceService service = Launcher.CONTEXT.getBean(ClientServiceService.class);
+        List<ProviderParams> providerList = service.findProviderList(modelId);
+
+        if (CollectionUtils.isEmpty(providerList)) {
             throw new StatusCodeWithException("未找到纵向联邦的协作方！", StatusCode.DATA_NOT_FOUND);
         }
 
         List<JObject> federatedResult = new ArrayList<>();
-        for (ProviderParams provider : findProviders()) {
-            federatedResult.add(callProviders(provider));
+        for (ProviderParams provider : providerList) {
+            String requestParam = PromoterPredictHelper.buildFederatedPredictParam(modelId, requestId, predictParams.getUserId());
+            JObject response = PromoterPredictHelper.callProviders(modelId, requestId, provider, requestParam);
+            federatedResult.add(response);
         }
 
         return federatedResult;
     }
 
-
-    private JObject callProviders(ProviderParams obj) throws StatusCodeWithException {
-
-        HttpResponse response = null;
-        SaveApi.Input order = null;
-        try {
-            if (StringUtil.isEmpty(obj.getApi())) {
-                LOG.error("未找到协作方的请求地址！");
-                throw new StatusCodeWithException("未找到协作方预测地址！请配置" + obj.getMemberId() + " 协作方地址后再尝试重试", StatusCode.PARAMETER_CAN_NOT_BE_EMPTY);
-            }
-
-            order = createOrder(obj.getMemberId());
-
-            response = HttpRequest.create(obj.getApi())
-                    .setBody(buildFederatedPredictParam())
-                    .setRetryCount(3)
-                    .postJson();
-
-            responseCheck(obj.getMemberId(), response);
-
-            //更新订单信息
-            updateOrderStatus(order, ServiceOrderEnum.SUCCESS);
-
-            return extractData(response);
-        } catch (StatusCodeWithException e) {
-            //更新订单信息
-            updateOrderStatus(order, ServiceOrderEnum.FAILED);
-            throw e;
-        } finally {
-            callLog(obj.getMemberId(), order.getId(), buildFederatedPredictParam(), extractData(response), extractCode(response), extractResponseId(response));
-        }
-    }
-
-    private void updateOrderStatus(SaveApi.Input order, ServiceOrderEnum status) {
-        ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
-        order.setStatus(status.getValue());
-        serviceOrderService.save(order);
-    }
-
-    private JObject extractData(HttpResponse response) {
-        if (response == null || response.getBodyAsJson() == null) {
-            return JObject.create();
-        }
-        JSONObject json = response.getBodyAsJson();
-        return JObject.create(json.getJSONObject("data"));
-    }
-
-    private void responseCheck(String memberId, HttpResponse response) throws StatusCodeWithException {
-        JSONObject json = response.getBodyAsJson();
-        Integer code = extractCode(response);
-        if (!response.success() || code == null || !code.equals(0) || !json.containsKey("data")) {
-            LOG.error("协作方响应失败({}),{}", code, json.getString("message"));
-            String message = "协作方 " + memberId + " 响应失败(" + code + ")," + json.getString("message");
-            StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
-        }
-    }
-
-    private Integer extractCode(HttpResponse response) {
-        if (!response.success()) {
-            return StatusCode.SYSTEM_ERROR.getCode();
-        }
-        JSONObject json = response.getBodyAsJson();
-        return json.getInteger("code");
-    }
-
-    private String extractResponseId(HttpResponse response) {
-        if (response == null
-                || !response.success()
-                || response.getBodyAsJson().getInteger("code") != 0) {
-            return "";
-        }
-        JSONObject json = response.getBodyAsJson();
-        return json.getJSONObject("data").containsKey("responseId") ?
-                json.getJSONObject("data").getString("responseId")
-                : "";
-    }
-
-    private String getResponseStatus(JObject result) {
-        return result == null ? ServiceCallStatusEnum.RESPONSE_ERROR.name() : ServiceCallStatusEnum.SUCCESS.name();
-    }
-
     @Override
-    public Map<String, Object> findFeatureData() throws StatusCodeWithException {
-        return FeatureManager.getFeatureData(modelId, predictParams);
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
+        if (MapUtils.isNotEmpty(predictParams.getFeatureDataModel().getFeatureDataMap())) {
+            return predictParams.getFeatureDataModel();
+        }
+
+        return FeatureManager.getFeatureData(modelId, userId);
     }
 
-
-    /**
-     * Get partner information
-     */
-    private List<ProviderParams> findProviders() {
-        ClientServiceService clientServiceService = Launcher.CONTEXT.getBean(ClientServiceService.class);
-        return clientServiceService.queryActivateListByServiceId(modelId)
-                .stream()
-                .map(x -> ProviderParams.of(x.getClientId(), findModelServiceUrl(x.getClientId()) + x.getUrl()))
-                .collect(Collectors.toList());
-    }
-
-    private String findModelServiceUrl(String partnerId) {
-        PartnerService partnerService = Launcher.CONTEXT.getBean(PartnerService.class);
-        PartnerMysqlModel partner = partnerService.findOne(partnerId);
-        return partnerService.findOne(partnerId) == null ? "" : partner.getServingBaseUrl();
-    }
-
-    private void callLog(String memberId, String orderId, String requestData, JObject result, Integer responseCode, String responseId) {
-        ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
-        callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
-        callLog.setOrderId(orderId);
-        callLog.setServiceId(modelId);
-        //TODO 加服务名
-        callLog.setServiceName("");
-        callLog.setRequestData(requestData);
-        callLog.setRequestPartnerId(CacheObjects.getMemberId());
-        callLog.setRequestPartnerName(CacheObjects.getMemberName());
-        callLog.setRequestId(requestId);
-        callLog.setRequestIp("");
-        callLog.setResponseCode(responseCode);
-        callLog.setResponseId(responseId);
-        callLog.setResponsePartnerId(memberId);
-        callLog.setResponsePartnerName(CacheObjects.getPartnerName(memberId));
-        callLog.setResponseData(result.toJSONString());
-        callLog.setResponseStatus(getResponseStatus(result));
-        callLog.setCallByMe(0);
-
-        ServiceCallLogService serviceCallLogService = Launcher.CONTEXT.getBean(ServiceCallLogService.class);
-        serviceCallLogService.save(callLog);
-    }
-
-
-    private SaveApi.Input createOrder(String partnerId) {
-        SaveApi.Input order = new SaveApi.Input();
-        order.setServiceId(modelId);
-        order.setServiceName("");
-        order.setServiceType(ServiceTypeEnum.MachineLearning.name());
-        order.setRequestPartnerId(CacheObjects.getMemberId());
-        order.setRequestPartnerName(CacheObjects.getMemberName());
-        order.setResponsePartnerId(partnerId);
-        order.setRequestPartnerName(CacheObjects.getPartnerName(partnerId));
-        order.setOrderType(1);
-
-        ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
-        serviceOrderService.save(order);
-        return order;
-    }
 }

@@ -16,8 +16,6 @@
 
 package com.welab.wefe.serving.sdk.processor;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.model.BaseModel;
@@ -33,18 +31,18 @@ public abstract class AbstractModelProcessor {
 
     /**
      * Actions performed before model prediction
+     *
      * @param model
-     * @param federatedParams
      * @param predictParams
      */
-    public abstract void preprocess(BaseModel model, FederatedParams federatedParams, PredictParams predictParams);
+    public abstract void preprocess(BaseModel model, PredictParams predictParams);
 
     /**
      * Actions performed after model prediction
+     *
      * @param result
      * @param model
-     * @param federatedParams
      * @param predictParams
      */
-    public abstract void postprocess(PredictResult result, BaseModel model, FederatedParams federatedParams, PredictParams predictParams);
+    public abstract void postprocess(PredictResult result, BaseModel model, PredictParams predictParams);
 }
