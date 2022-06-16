@@ -27,7 +27,7 @@ import java.io.IOException;
  * 当对象序列化后输出到日志中时，此过滤器会对过大的value进行处理,防止日志内容过大。
  * <p>
  * 使用方法：
- * JSON.toJSONString(result, LoggerValueFilter.instance);
+ * JSON.toJSONString(result, LoggerValueFilter.DEFAULT);
  *
  * @author zane
  * @date 2022/4/27
