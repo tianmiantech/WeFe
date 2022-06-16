@@ -60,6 +60,7 @@ import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.board.service.service.TaskResultService;
@@ -122,7 +123,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks pre task list
      * @param node     node
      */
-    public List<TaskMySqlModel> buildMixTask(FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
+    public List<TaskMySqlModel> buildMixTask(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -137,7 +138,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                 }
             }
         }
-        JSONObject taskParam = createTaskParams(graph, preTasks, node, params);
+        JSONObject taskParam = createTaskParams(jobBuilder, graph, preTasks, node, params);
         if (taskParam == null) {
             return null;
         }
@@ -258,7 +259,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks A collection of created tasks
      * @param node     the node of flow
      */
-    public TaskMySqlModel buildTask(ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
+    public TaskMySqlModel buildTask(JobBuilder jobBuilder, ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -274,7 +275,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
             }
         }
 
-        JSONObject taskParam = createTaskParams(graph, preTasks, node, params);
+        JSONObject taskParam = createTaskParams(jobBuilder, graph, preTasks, node, params);
         if (taskParam == null) {
             return null;
         }
@@ -725,7 +726,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * Assemble the input parameters of the task according to the component configuration
      */
-    protected abstract JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws Exception;
+    protected abstract JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, T params) throws Exception;
 
     public abstract ComponentType taskType();
 

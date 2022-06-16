@@ -139,9 +139,9 @@ class GlobalSetting(object):
         return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
 
     @staticmethod
-    def get_visualfl_base_url():
+    def get_paddle_visual_dl_baseurl():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('wefe_flow', 'visual_fl_base_url')
+        return GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url')
 
 
 class DataResource(ModelBase):

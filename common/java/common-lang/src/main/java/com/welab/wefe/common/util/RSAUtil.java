@@ -18,6 +18,7 @@ package com.welab.wefe.common.util;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.util.Base64Utils;
 
 import javax.crypto.Cipher;
 import java.io.*;
@@ -68,6 +69,14 @@ public class RSAUtil {
         RSAPublicKey publicKey = getPublicKey(publicKeyStr);
         byte[] enData = encryptByPublicKey(data.getBytes("UTF-8"), publicKey);
         return Base64Util.encode(enData);
+    }
+
+    public static String decryptByPrivateKey(String data, String privateKeyStr) throws Exception {
+        RSAPrivateKey privateKey = getPrivateKey(privateKeyStr);
+        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(cipher.doFinal(Base64Utils.decode(data.getBytes(StandardCharsets.UTF_8))));
     }
 
     /**
@@ -165,7 +174,6 @@ public class RSAUtil {
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         return cipher.doFinal(data);
     }
-
 
     /**
      * The private key signature

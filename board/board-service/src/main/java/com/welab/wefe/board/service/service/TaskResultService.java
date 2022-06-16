@@ -31,7 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.data_resource.table_data_set.DetailApi;
 import com.welab.wefe.board.service.api.project.job.task.GetFeatureApi;
 import com.welab.wefe.board.service.api.project.job.task.SelectFeatureApi;
@@ -55,10 +57,12 @@ import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -93,6 +97,8 @@ public class TaskResultService extends AbstractService {
 
     @Autowired
     private GatewayService gatewayService;
+    @Autowired
+    private TaskService taskService;
 
     /**
      * There are multiple results for mixed federations
@@ -466,18 +472,18 @@ public class TaskResultService extends AbstractService {
                 .append("featureNum", selectMembers.size());
     }
 
-	/**
-	 * Get feature list
-	 * 
-	 * has_feature_calculation: true 表示支持CV/IV过滤 从计算特征价值 组件获取CV值/IV值
-	 * has_feature_statistic: true 表示支持缺失率 特征统计组件获取缺失率
-	 * 
-	 * 1.做了特征统计（不管横向还是纵向还是混合），那就有 缺失率和cv
-	 * 
-	 * 2.做了计算特征价值（只有纵向流程有），就有cv和iv。
-	 * 
-	 * 3.做了分箱（不管横向还是纵向还是混合），那就有iv
-	 */
+    /**
+     * Get feature list
+     * <p>
+     * has_feature_calculation: true 表示支持CV/IV过滤 从计算特征价值 组件获取CV值/IV值
+     * has_feature_statistic: true 表示支持缺失率 特征统计组件获取缺失率
+     * <p>
+     * 1.做了特征统计（不管横向还是纵向还是混合），那就有 缺失率和cv
+     * <p>
+     * 2.做了计算特征价值（只有纵向流程有），就有cv和iv。
+     * <p>
+     * 3.做了分箱（不管横向还是纵向还是混合），那就有iv
+     */
     public GetFeatureApi.Output getResultFeature(GetFeatureApi.Input input) throws StatusCodeWithException {
         GetFeatureApi.Output out = new GetFeatureApi.Output();
         FlowGraph graph = jobService.createFlowGraph(input.getFlowId());
@@ -521,25 +527,25 @@ public class TaskResultService extends AbstractService {
                 }
             }
 
-			FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
-					x -> x.getComponentType() == ComponentType.MixBinning
-							|| x.getComponentType() == ComponentType.Binning
-							|| x.getComponentType() == ComponentType.HorzFeatureBinning);
-			if (featureBinningNode != null && StringUtil.isNotEmpty(input.getJobId())) {
-				ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-				TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(),
-						featureBinningNode.getNodeId(), project.getMyRole().name());
-				if (featureBinningTask != null) {
-					TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
-							featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
-					if (featureBinningResult != null) {
-						if (!out.isHasFeatureCalculation()) {
-							out.setHasFeatureCalculation(out.isHasFeatureStatistic());
-						}
-						out.setHasIV(true);
-					}
-				}
-			}
+            FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
+                    x -> x.getComponentType() == ComponentType.MixBinning
+                            || x.getComponentType() == ComponentType.Binning
+                            || x.getComponentType() == ComponentType.HorzFeatureBinning);
+            if (featureBinningNode != null && StringUtil.isNotEmpty(input.getJobId())) {
+                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
+                TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(),
+                        featureBinningNode.getNodeId(), project.getMyRole().name());
+                if (featureBinningTask != null) {
+                    TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
+                            featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
+                    if (featureBinningResult != null) {
+                        if (!out.isHasFeatureCalculation()) {
+                            out.setHasFeatureCalculation(out.isHasFeatureStatistic());
+                        }
+                        out.setHasIV(true);
+                    }
+                }
+            }
         }
 
         List<MemberFeatureInfoModel> members = getMemberFeatures(graph, node);
@@ -550,7 +556,8 @@ public class TaskResultService extends AbstractService {
     /**
      * Find the feature column in the training data set:
      * take the feature column from (DataIO/binning/feature filtering)
-     * @throws StatusCodeWithException 
+     *
+     * @throws StatusCodeWithException
      */
     public List<MemberFeatureInfoModel> getMemberFeatures(FlowGraph graph, FlowGraphNode node) throws StatusCodeWithException {
         List<NodeOutputItem> nodeOutputItems = node.getComponent().findInputNodes(graph, node);
@@ -589,36 +596,36 @@ public class TaskResultService extends AbstractService {
 
         List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
 
-		// need filter
-		VertOneHotComponent.Params params = JObject.create(node.getParams())
-				.toJavaObject(VertOneHotComponent.Params.class);
-		if (params == null || CollectionUtils.isEmpty(params.getMembers())) {
-			return getMemberFeatures(flowGraph, flowGraph.getNode(node.getNodeId()));
-		}
-		for (MemberInfoModel memberInfoModel : params.getMembers()) {
-			for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
-				if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()
-						&& memberInfoModel.getMemberId().equals(dataSetItem.getMemberId())) {
-					List<String> needPassFeatures = memberInfoModel.getFeatures();
-					MemberFeatureInfoModel member = new MemberFeatureInfoModel();
-					member.setMemberId(dataSetItem.getMemberId());
-					member.setMemberRole(dataSetItem.getMemberRole());
-					List<MemberFeatureInfoModel.Feature> features = new ArrayList<>();
-					for (String name : dataSetItem.getFeatures()) {
-						if (needPassFeatures != null && needPassFeatures.contains(name)) {
-							continue; // pass
-						}
-						MemberFeatureInfoModel.Feature feature = new MemberFeatureInfoModel.Feature();
-						feature.setName(name);
-						features.add(feature);
-					}
-					member.setFeatures(features);
-					member.setDataSetId(dataSetItem.getDataSetId());
-					member.setMemberName(CacheObjects.getMemberName(member.getMemberId()));
-					members.add(member);
-				}
-			}
-		}
+        // need filter
+        VertOneHotComponent.Params params = JObject.create(node.getParams())
+                .toJavaObject(VertOneHotComponent.Params.class);
+        if (params == null || CollectionUtils.isEmpty(params.getMembers())) {
+            return getMemberFeatures(flowGraph, flowGraph.getNode(node.getNodeId()));
+        }
+        for (MemberInfoModel memberInfoModel : params.getMembers()) {
+            for (DataIOComponent.DataSetItem dataSetItem : dataSetItems) {
+                if (memberInfoModel.getMemberRole() == dataSetItem.getMemberRole()
+                        && memberInfoModel.getMemberId().equals(dataSetItem.getMemberId())) {
+                    List<String> needPassFeatures = memberInfoModel.getFeatures();
+                    MemberFeatureInfoModel member = new MemberFeatureInfoModel();
+                    member.setMemberId(dataSetItem.getMemberId());
+                    member.setMemberRole(dataSetItem.getMemberRole());
+                    List<MemberFeatureInfoModel.Feature> features = new ArrayList<>();
+                    for (String name : dataSetItem.getFeatures()) {
+                        if (needPassFeatures != null && needPassFeatures.contains(name)) {
+                            continue; // pass
+                        }
+                        MemberFeatureInfoModel.Feature feature = new MemberFeatureInfoModel.Feature();
+                        feature.setName(name);
+                        features.add(feature);
+                    }
+                    member.setFeatures(features);
+                    member.setDataSetId(dataSetItem.getDataSetId());
+                    member.setMemberName(CacheObjects.getMemberName(member.getMemberId()));
+                    members.add(member);
+                }
+            }
+        }
         if (flowGraph.getLastJob() != null) {
             TableDataSetMysqlModel myTmpDataSet = tableDataSetService.query(flowGraph.getLastJob().getJobId(),
                     node.getComponentType());
@@ -847,5 +854,27 @@ public class TaskResultService extends AbstractService {
                 .equal("servingModel", true)
                 .build(TaskResultMySqlModel.class);
         return taskResultRepository.findOne(where).orElse(null);
+    }
+
+    /**
+     * 中断推理任务
+     */
+    public void stopDeepLearningInfer(String taskId) throws StatusCodeWithException {
+        TaskMySqlModel task = taskService.findOne(taskId);
+        if (task == null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("此task不存在:" + taskId);
+        }
+
+        TaskResultMySqlModel taskResult = findByTaskIdAndTypeAndRole(taskId, "infer", task.getRole());
+        if (taskResult == null) {
+            StatusCode.PARAMETER_VALUE_INVALID.throwException("未找到推理任务");
+        }
+
+        JSONObject root = JSON.parseObject(taskResult.getResult());
+        root.put("status", "stopped");
+
+        taskResult.setResult(root.toJSONString());
+        taskResult.setUpdatedBy(CurrentAccount.id());
+        taskResultRepository.save(taskResult);
     }
 }

@@ -14,6 +14,7 @@
                 :my-role="myRole"
                 :graph="mainGraph"
                 :is-creator="isCreator"
+                :is-project-admin="isProjectAdmin"
                 @excute="methods.excute"
                 @job-running="methods.jobRunning"
                 @reset-graph-state="methods.resetGraphState"
@@ -35,12 +36,14 @@
                     <el-collapse
                         class="job-history"
                         accordion
+                        v-model="vData.currentJob"
                     >
                         <el-collapse-item
                             v-for="item in vData.jobHistoryList"
                             :key="item.job_id"
                             :name="item.job_id"
                             :title="`${item.my_role} - ${item.job_id}`"
+                            @click="methods.jobHistoryDetail(item)"
                         >
                             <el-form
                                 class="job-history-info"
@@ -162,7 +165,7 @@
         onBeforeUnmount,
         getCurrentInstance,
     } from 'vue';
-    import { useRouter } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import {
         Menu,
         Minimap,
@@ -187,29 +190,31 @@
             NodeResultHistory,
         },
         props: {
-            currentObj:    Object,
-            jobDetail:     Object,
-            componentType: String,
-            projectId:     String,
-            flowId:        String,
-            myRole:        String,
-            isCreator:     Boolean,
-            jobGraphShow:  Boolean,
-            ootJobId:      String,
-            mainGraph:     Object,
-            parentCanvas:  Object,
+            currentObj:     Object,
+            jobDetail:      Object,
+            componentType:  String,
+            projectId:      String,
+            flowId:         String,
+            myRole:         String,
+            isCreator:      Boolean,
+            jobGraphShow:   Boolean,
+            ootJobId:       String,
+            mainGraph:      Object,
+            parentCanvas:   Object,
+            isProjectAdmin: String,
         },
-        emits: ['resetGraphState', 'switchJobGraphPanel', 'checkResult', 'checkHelp', 'switchComponent'],
+        emits: ['resetGraphState', 'switchJobGraphPanel', 'checkResult', 'checkHelp', 'switchComponent', 'graphInit'],
         setup (props, context) {
             const { appContext } = getCurrentInstance();
             const {
                 $bus,
                 $http,
-                /* $confirm,
-                $message, */
+                $confirm,
+                $message,
                 dateFormat,
             } = appContext.config.globalProperties;
             const router = useRouter();
+            const route = useRoute();
             const vData = reactive({
                 jobId:          '',
                 showName:       true,
@@ -227,6 +232,7 @@
                     page_size:  10,
                     page_index: 1,
                 },
+                currentJob: route.query.job_id || '',
             });
             const jobMinimap = ref();
             const jobGraphRef = ref();
@@ -774,19 +780,47 @@
                     window.open(href, '_blank');
                 },
 
-                /* reEdit(item) {
+                reEdit(item) {
                     $confirm('重新编辑该任务将会导致当前画布内容全部丢失, 此操作不可恢复, 请谨慎操作!', '警告', {
                         type: 'warning',
                     }).then(() => {
                         $message.success('操作成功! 画布已恢复到历史状态');
                     });
-                }, */
+                },
 
                 currentPageChange(val) {
                     vData.jobHistory.page_index = val;
                     methods.getJobHistory();
                 },
 
+                async jobHistoryDetail(item) {
+                    // loading
+                    const { code, data } = await $http.get({
+                        url:    '/flow/job/detail',
+                        params: {
+                            requestFromRefresh: true,
+                            jobId:              item.job_id,
+                            flowId:             item.flow_id,
+                            member_role:        item.my_role,
+                            needResult:         true,
+                        },
+                    });
+
+                    nextTick(()=>{
+                        if (code === 0 && data) {
+                            // 未更新视图，后续有时间再整
+                            // const _data = data.job.graph || {};
+                            // const nodes = _data.nodes || [];
+                            // const edges = _data.edges || [];
+                            // const combos = _data.combos || [];
+
+                            // methods.initJobGraph({ nodes, edges, combos });
+                            // methods.createGraph({ nodes, edges, combos });
+                            // context.emit('graphInit', { nodes, edges, combos }); // visual.vue中的job-panel组件上面添加了该方法
+                        }
+                    });
+                    // context.emit('graphInit', { requestFromRefresh: false, job_id: item.job_id });
+                },
             };
 
             toolbarMixin.mixin({
@@ -796,6 +830,12 @@
 
             onMounted(_ => {
                 methods.getJobHistory();
+
+                if (vData.currentJob) {
+                    setTimeout(()=> {
+                        methods.switchJobGraphPanel(true);
+                    }, 500);
+                }
 
                 $bus.$on('sideCollapsed', () => {
                     if (graph.instance) {

@@ -47,8 +47,8 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -324,7 +324,7 @@ public class DataResourceService extends AbstractDataResourceService {
                 .containsItem("tags", input.getTag())
                 .equal("createdBy", input.getCreator())
                 .equal("derivedResource", false)
-                .orderBy("createdTime", OrderBy.asc);
+                .orderBy("createdTime", OrderBy.desc);
 
         // 查所有资源
         if (CollectionUtils.isEmpty(input.getDataResourceType()) || input.getDataResourceType().size() > 1) {

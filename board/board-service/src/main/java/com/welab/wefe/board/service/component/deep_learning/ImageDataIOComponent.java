@@ -30,6 +30,7 @@ import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSet
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetSampleService;
 import com.welab.wefe.board.service.service.data_resource.image_data_set.ImageDataSetService;
@@ -109,9 +110,8 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
         }
     }
 
-
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws Exception {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws Exception {
         DataSetItem myDataSetConfig = params.getDataSetList()
                 .stream()
                 .filter(x ->
@@ -127,7 +127,7 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
 
 
         // 生成数据集文件
-        AbstractImageDataSetParser
+        String version = AbstractImageDataSetParser
                 .getParser(myDataSet.getForJobType())
                 .parseSamplesToDataSetFile(
                         graph.getJob().getJobId(),
@@ -136,6 +136,7 @@ public class ImageDataIOComponent extends AbstractComponent<ImageDataIOComponent
                         params.trainTestSplitRatio
                 );
 
+        jobBuilder.dataSetVersion = version;
 
         return output;
     }

@@ -89,7 +89,8 @@ public class ProjectQueryOutputModel extends AbstractOutputModel {
     private int needMeAuditDataSetCount;
     @Check(name = "项目类型")
     private ProjectType projectType;
-
+    @Check(name = "是否置顶")
+    private boolean top;
 
     public String getExitOperatorNickname() {
         return CacheObjects.getNickname(exitedBy);
@@ -284,6 +285,14 @@ public class ProjectQueryOutputModel extends AbstractOutputModel {
 
     public void setProjectType(ProjectType projectType) {
         this.projectType = projectType;
+    }
+
+    public boolean isTop() {
+        return top;
+    }
+
+    public void setTop(boolean top) {
+        this.top = top;
     }
 
     //endregion

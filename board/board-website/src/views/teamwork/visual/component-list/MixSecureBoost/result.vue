@@ -32,7 +32,7 @@
                     </template>
                 </el-collapse-item>
                 <el-collapse-item
-                    v-if="vData.results.length"
+                    v-if="vData.results.length && myRole === 'promoter'"
                     title="任务跟踪指标（LOSS）"
                     name="2"
                 >

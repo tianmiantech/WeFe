@@ -28,6 +28,7 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -80,18 +81,18 @@ public class HorzFeatureBinningComponent extends AbstractComponent<HorzFeatureBi
         return ComponentType.HorzFeatureBinning;
     }
 
-	@Override
-	protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-			Params params) throws FlowNodeException {
+    @Override
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
+                                          Params params) throws FlowNodeException {
 
-		JSONObject taskParam = new JSONObject();
-		List<Member> members = params.members;
-		int bin_num = 10;
-		List<String> bin_names = new ArrayList<>();
-		for (Member member : members) {
-			if (CacheObjects.getMemberId().equals(member.getMemberId())) {
-				List<Feature> features = member.features;
-				features.stream().forEach(x -> {
+        JSONObject taskParam = new JSONObject();
+        List<Member> members = params.members;
+        int bin_num = 10;
+        List<String> bin_names = new ArrayList<>();
+        for (Member member : members) {
+            if (CacheObjects.getMemberId().equals(member.getMemberId())) {
+                List<Feature> features = member.features;
+                features.stream().forEach(x -> {
 					bin_names.add(x.getName());
 				});
 				bin_num = features.get(0).getCount();

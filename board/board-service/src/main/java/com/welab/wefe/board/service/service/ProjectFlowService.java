@@ -364,6 +364,9 @@ public class ProjectFlowService extends AbstractService {
                 .equal("projectId", input.getProjectId())
                 .equal("deleted", input.isDeleted())
                 .in("flowId", input.getFlowIdList())
+                .orderBy("top", OrderBy.desc)
+                .orderBy("sortNum", OrderBy.desc)
+                .orderBy("createdTime", OrderBy.desc)
                 .build(ProjectFlowMySqlModel.class);
 
         PagingOutput<ProjectFlowListOutputModel> page = projectFlowRepo.paging(where, input, ProjectFlowListOutputModel.class);
@@ -671,5 +674,16 @@ public class ProjectFlowService extends AbstractService {
                 .stream()
                 .map(x -> ModelMapper.map(x, ProjectFlowNodeOutputModel.class))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 设置项目的置顶状态
+     */
+    public void top(String flowId, boolean top) {
+        if (top) {
+            projectFlowRepo.top(flowId);
+        } else {
+            projectFlowRepo.cancelTop(flowId);
+        }
     }
 }

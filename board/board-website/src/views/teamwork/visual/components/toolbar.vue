@@ -21,7 +21,7 @@
                     @click="excute('forward')"
                 />
             </el-tooltip> -->
-            <template v-if="myRole === 'promoter' && isCreator">
+            <template v-if="myRole === 'promoter' && isCreator && isProjectAdmin === 'true'">
                 <el-tooltip
                     v-if="vData.jobStatus === '' || jobStopStatus.includes(vData.jobStatus)"
                     :show-after="600"
@@ -232,6 +232,7 @@
                 type:    Boolean,
                 default: true,
             },
+            isProjectAdmin: String,
         },
         emits: ['excute', 'switchJobGraphPanel', 'reset-graph-state', 'job-change', 'reset-graph-state', 'job-running'],
         setup(props, context) {

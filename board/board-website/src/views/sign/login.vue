@@ -131,7 +131,7 @@
                     </el-form>
                 </div>
             </div>
-            <p class="copyright text-c f12">@copyright 天冕信息技术有限公司 Version {{ version }}</p>
+            <p class="copyright text-c f12">@copyright 天冕信息技术（深圳）有限公司 Version {{ version }}</p>
         </el-main>
     </el-container>
 </template>
@@ -210,6 +210,7 @@
                         if (code === 10000) {
                             this.$store.commit('SYSTEM_INITED', false);
                             this.$store.commit('UPDATE_USERINFO', data);
+                            this.$store.commit('UI_CONFIG', data.ui_config);
 
                             this.$router.replace({
                                 name: 'init',
@@ -217,6 +218,7 @@
                         } else if (code === 0) {
                             this.$store.commit('UPDATE_USERINFO', data);
                             this.$store.commit('SYSTEM_INITED', true);
+                            this.$store.commit('UI_CONFIG', data.ui_config || {});
 
                             const res = await this.$http.get({
                                 url: '/member/detail',
@@ -234,12 +236,46 @@
                                 this.$store.commit('UPDATE_USERINFO', null);
                                 this.$message.error('请重试');
                             }
+                            this.checkEnv();
+                            this.getUserList();
                         } else {
                             this.getImgCode();
                         }
                     }
                     this.submitting = false;
                 });
+            },
+            async checkEnv() {
+                const { code, data } = await this.$http.get('/env');
+
+                if (code === 0) {
+                    const is_demo = data.env_properties.is_demo === 'true';
+
+                    this.$store.commit('IS_DEMO', is_demo);
+                } else {
+                    this.$store.commit('IS_DEMO', false);
+                }
+            },
+            async getUserList() {
+                const { code, data } = await this.$http.post({
+                    url:  '/account/query',
+                    data: {
+                        phone_number: '',
+                        nickname:     '',
+                        audit_status: '',
+                        page_index:   '',
+                        page_size:    '',
+                    },
+                });
+
+                if (code === 0 && data) {
+                    let admin_list = [];
+
+                    if (data.list && data.list.length) {
+                        admin_list = data.list.filter(item => item.admin_role);
+                    }
+                    this.$store.commit('ADMIN_USER_LIST', admin_list);
+                }
             },
         },
     };

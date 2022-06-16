@@ -6,3 +6,9 @@ Content-Type: application/json
 }
 
 ###
+GET http://localhost:8080/board-service/project/query?closed=false&name=%E6%B7%B7%E5%90%88kaylee&member_id=&member_name=&member_role=&audit_status=&start_create_time=&end_create_time=&my_role=&project_type=&searchRequest=false&activeTab=allProjects&page_index=0&page_size=20
+Content-Type: application/json
+token:{{token}}
+
+{
+}

@@ -189,8 +189,6 @@ public class XgboostAlgorithmHelper {
         } else {
             splitValue = model.getTrees().get(treeId).getTree(treeNodeId).getBid();
         }
-
-
         return getNextNodeId(model, treeId, treeNodeId, featureDataMap, splitValue, fidStr);
     }
 
@@ -476,10 +474,6 @@ public class XgboostAlgorithmHelper {
                 for (int j = 0; j < decisionTree.getTree().size(); j++) {
 
                     XgboostNodeModel tree = decisionTree.getTree().get(j);
-
-                    if (!PROVIDER.equals(getSite(model, i, j))) {
-                        continue;
-                    }
 
                     int fid = tree.getFid();
 

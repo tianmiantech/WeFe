@@ -16,10 +16,15 @@
                     :key="$index"
                 >
                     <strong class="mb10">{{ result.titleText }}</strong>
-                    <PieChart
+                    <!-- <PieChart
                         :ref="piechartRefs[$index]"
                         :config="result.chart"
-                    />
+                    /> -->
+                    <div class="mt10">
+                        <p class="mb5"><el-tag type="success" size="small">已对齐</el-tag><span class="f14">：{{result.chart.series[0].value}}</span></p>
+                        <p><el-tag type="warning" size="small">未对齐</el-tag><span class="f14">：{{result.chart.series[1].value}}</span></p>
+                    </div>
+
                 </template>
             </div>
         </template>

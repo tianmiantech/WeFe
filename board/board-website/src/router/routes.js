@@ -439,6 +439,16 @@ const baseRoutes = [
                 },
                 component: () => import('../views/system-config/calculation-engine-config'),
             },
+            {
+                path: `${prefixPath}dev-tools`,
+                name: 'dev-tools',
+                meta: {
+                    loginAndRefresh:  true,
+                    title:            '运维人员工具',
+                    normalUserCanSee: false,
+                },
+                component: () => import('../views/dev/dev-tools'),
+            },
         ],
     },
     {

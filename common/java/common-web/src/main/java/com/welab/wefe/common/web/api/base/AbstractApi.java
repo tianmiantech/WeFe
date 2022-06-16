@@ -152,9 +152,14 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
 
         Type[] types = ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments();
         if (types.length > 0) {
-            Class<?> type = (Class<?>) types[0];
-            if (AbstractApiInput.class.isAssignableFrom(type)) {
-                return (Class<In>) type;
+            try {
+                Class<?> type = (Class<?>) types[0];
+                if (AbstractApiInput.class.isAssignableFrom(type)) {
+                    return (Class<In>) type;
+                }
+            } catch (ClassCastException e) {
+                // 当此处发生异常时，通常是因为接口中的泛型参数不是AbstractApiInput的子类。
+                // 这里不用做任何处理，下面的代码会尝试从父类中继续寻找。
             }
         }
 

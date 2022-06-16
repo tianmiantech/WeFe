@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.database.entity;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
 import com.welab.wefe.board.service.database.listener.AccountMysqlModelListener;
@@ -92,7 +93,12 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private JSONArray historyPasswordList;
-
+    /**
+     * UI 相关配置信息
+     */
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private JSONObject uiConfig;
 
     //region getter/setter
 
@@ -198,6 +204,14 @@ public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     public void setHistoryPasswordList(JSONArray historyPasswordList) {
         this.historyPasswordList = historyPasswordList;
+    }
+
+    public JSONObject getUiConfig() {
+        return uiConfig;
+    }
+
+    public void setUiConfig(JSONObject uiConfig) {
+        this.uiConfig = uiConfig;
     }
 
     //endregion

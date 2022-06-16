@@ -40,7 +40,7 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
     protected ApiResult handler(Input input) throws StatusCodeWithException {
         switch (input.getModelType()) {
             case MachineLearning:
-                modelImportService.saveMachineLearningModel(input.getFilename());
+                modelImportService.saveMachineLearningModel(input.getName(), input.getFilename());
                 break;
             case DeepLearning:
                 modelImportService.saveDeepLearningModel(input.getName(), input.getFilename());
@@ -49,6 +49,7 @@ public class ImportApi extends AbstractNoneOutputApi<ImportApi.Input> {
 
         return success();
     }
+
 
     public static class Input extends AbstractApiInput {
 

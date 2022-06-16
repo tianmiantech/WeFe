@@ -232,6 +232,8 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         private String modelId;
 
+        private String name;
+
         private Algorithm algorithm;
 
         private List<JobMemberRole> myRole;
@@ -341,6 +343,14 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         public void setMyRole(List<JobMemberRole> myRole) {
             this.myRole = myRole;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
 
         //endregion

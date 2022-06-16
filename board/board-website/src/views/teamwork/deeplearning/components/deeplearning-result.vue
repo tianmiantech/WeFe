@@ -64,7 +64,7 @@
             flowType:            String,
         },
         setup(props, context) {
-            const activeName = ref('1');
+            const activeName = ref(['1', '2']);
             const LineChart = ref();
 
             let vData = reactive({
@@ -77,12 +77,13 @@
                     xAxis:  [],
                     series: [[]],
                 },
-                isshow: false,
+                isshow: true,
             });
 
             let methods = {
                 tabChange() {
                     methods.readData();
+                    vData.isshow = false;
                 },
                 collapseChanged(val) {
                     if(val.includes('2')){
@@ -90,7 +91,12 @@
                     }
                 },
                 showResult(data) {
+                    vData.train_loss = {
+                        xAxis:  [],
+                        series: [[]],
+                    };
                     if(data[0].result) {
+                        vData.isshow = true;
                         vData.result = true;
                         const train_loss = data[0].result.data;
 
@@ -129,3 +135,11 @@
         },
     };
 </script>
+<style lang="scss" scoped>
+.result {
+    padding-left: 30px;
+    :deep(.el-collapse-item__header) {
+        font-size: 12px !important;
+    }
+}
+</style>

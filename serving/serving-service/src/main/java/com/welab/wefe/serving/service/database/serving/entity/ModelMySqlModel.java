@@ -49,6 +49,8 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
 
     private boolean enable;
 
+    private String name;
+
     public String getModelId() {
         return modelId;
     }
@@ -95,5 +97,13 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

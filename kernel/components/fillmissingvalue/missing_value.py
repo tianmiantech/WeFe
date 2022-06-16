@@ -66,6 +66,7 @@ class FillMissingValue(ModelBase):
             data_instances.schema = data_instances.get_metas()
         self.header = get_header(data_instances)
         self.calc_statistics(data_instances)
+        LOGGER.debug(f'statistics={self.statistics}')
 
         feature_missing_count = self.calc_missing_count(data_instances)
         fill_result = self.generate_fill_result(feature_missing_count)
@@ -139,7 +140,7 @@ class FillMissingValue(ModelBase):
             elif method == consts.MEAN:
                 self.statistics[consts.MEAN] = statistics.get_mean()
             elif method == consts.MEDIAN:
-                percentiles = statistics.get_percentile(percentage_list=[50])
+                percentiles = statistics.get_percentile(percentage_list=[50], allow_duplicate=True)
                 medians = {}
                 for feature, value in percentiles.items():
                     medians[feature] = value.get(50)

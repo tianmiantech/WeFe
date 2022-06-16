@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.account;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.service.account.AccountService;
@@ -52,6 +53,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
         String token = accountService.login(input.phoneNumber, input.password, input.key, input.code);
         AccountMysqlModel model = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(input.phoneNumber));
         Output output = new Output(token, model);
+        output.uiConfig = model.getUiConfig();
 
         /**
          * After successful login, check whether the system has been initialized
@@ -141,6 +143,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
         private Boolean superAdminRole;
 
         private Boolean adminRole;
+        private JSONObject uiConfig;
 
         public Output() {
         }
@@ -213,6 +216,13 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
             this.adminRole = adminRole;
         }
 
+        public JSONObject getUiConfig() {
+            return uiConfig;
+        }
+
+        public void setUiConfig(JSONObject uiConfig) {
+            this.uiConfig = uiConfig;
+        }
 
         //endregion
     }

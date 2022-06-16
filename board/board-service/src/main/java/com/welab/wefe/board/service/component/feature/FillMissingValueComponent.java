@@ -30,6 +30,7 @@ import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -80,7 +81,7 @@ public class FillMissingValueComponent extends AbstractComponent<FillMissingValu
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
         // Need to find DataIO data set
         FlowGraphNode dataIONode = graph.findOneNodeFromParent(node, ComponentType.DataIO);

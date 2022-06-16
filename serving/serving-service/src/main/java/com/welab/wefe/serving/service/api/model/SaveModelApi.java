@@ -53,7 +53,8 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
                 input.getAlgorithm(),
                 input.getFlType(),
                 input.getModelParam(),
-                input.getMemberParams());
+                input.getMemberParams(),
+                input.getName());
 
         return success();
     }
@@ -62,6 +63,8 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
 
         @Check(require = true, name = "流水号")
         private String modelId;
+        @Check(name = "模型名称")
+        private String name;
         @Check(require = true, name = "算法")
         private Algorithm algorithm;
         @Check(require = true, name = "联邦学习类型")
@@ -123,6 +126,14 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
 
         public void setFeatureEngineerMap(Map<Integer, Object> featureEngineerMap) {
             this.featureEngineerMap = featureEngineerMap;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
 
         //endregion

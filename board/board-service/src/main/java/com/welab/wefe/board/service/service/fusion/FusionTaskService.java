@@ -31,6 +31,7 @@ import com.welab.wefe.board.service.fusion.actuator.ClientActuator;
 import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.fusion.manager.ExportManager;
+import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.ProjectService;
@@ -42,6 +43,7 @@ import com.welab.wefe.board.service.util.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
@@ -94,8 +96,8 @@ public class FusionTaskService extends AbstractService {
     @Autowired
     ProjectService projectService;
 
-    public FusionTaskMySqlModel find(String taskId) throws StatusCodeWithException {
-        return fusionTaskRepository.findOne("id", taskId, FusionTaskMySqlModel.class);
+    public FusionTaskMySqlModel find(String id) throws StatusCodeWithException {
+        return fusionTaskRepository.findOne("id", id, FusionTaskMySqlModel.class);
     }
 
     public FusionTaskMySqlModel findByBusinessId(String businessId) throws StatusCodeWithException {
@@ -142,7 +144,7 @@ public class FusionTaskService extends AbstractService {
         //A non promoter cannot create a task
         ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
         if (!JobMemberRole.promoter.equals(project.getMyRole())) {
-            throw new StatusCodeWithException("A non promoter cannot create a task", StatusCode.UNSUPPORTED_HANDLE);
+            throw new StatusCodeWithException("只有发起方才能创建融合任务", StatusCode.UNSUPPORTED_HANDLE);
         }
 
         //If a task is being executed, add it after the task is completed
@@ -548,10 +550,39 @@ public class FusionTaskService extends AbstractService {
      * Delete the data
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(String id) throws StatusCodeWithException {
+    public void delete(DeleteApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel task = find(input.getId());
+        if (task == null) {
+            return;
+        }
+
+        OnlineDemoBranchStrategy.hackOnDelete(input, task, "只能删除自己创建的流程。");
+
+        if (!input.fromGateway() && !task.getCreatedBy().equals(CurrentAccount.id()) && !CurrentAccount.isAdmin()) {
+            throw new StatusCodeWithException("只能删除自己创建的流程。", StatusCode.UNSUPPORTED_HANDLE);
+        }
 
         //Judge task status
-        fusionTaskRepository.deleteById(id);
+        task.setDeleted(true);
+        task.setUpdatedBy(input);
+        fusionTaskRepository.save(task);
+
+        thirdPartyService.delete(task);
     }
 
+    /**
+     * Delete the data
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteCallback(DeleteCallbackApi.Input input) throws StatusCodeWithException {
+        FusionTaskMySqlModel model = findByBusinessId(input.getBusinessId());
+        if (model == null) {
+            return;
+        }
+
+        //Judge task status
+        model.setDeleted(true);
+        model.setUpdatedTime(new Date());
+        fusionTaskRepository.save(model);
+    }
 }

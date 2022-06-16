@@ -37,8 +37,8 @@ import java.util.UUID;
  * @author zane
  * @date 2022/2/14
  */
-@Api(path = "model/deep_learning/call/result/download", name = "下载模型推理结果")
-public class DownloadCallModelResultApi extends AbstractApi<DownloadCallModelResultApi.Input, ResponseEntity<?>> {
+@Api(path = "model/deep_learning/infer/result/download", name = "下载模型推理结果")
+public class DownloadInferResultApi extends AbstractApi<DownloadInferResultApi.Input, ResponseEntity<?>> {
 
     @Autowired
     private TaskService taskService;

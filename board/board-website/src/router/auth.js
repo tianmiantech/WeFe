@@ -78,6 +78,7 @@ export const baseLogout = async (opt = { redirect: true }) => {
     }
     clearUserInfo();
     setStorage().removeItem(`${baseUrl}_system_inited`);
+    setStorage().removeItem(`${baseUrl}_isDemo`);
 
     let query = {};
 

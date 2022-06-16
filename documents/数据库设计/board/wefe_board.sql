@@ -43,6 +43,7 @@ CREATE TABLE `account`
     `cancelled`             tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已注销',
     `last_action_time`      datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP (6) COMMENT '最后活动时间',
     `history_password_list` text NULL COMMENT '历史曾用密码',
+    `ui_config`             text NULL COMMENT 'UI 相关配置信息',
     PRIMARY KEY (`id`),
     UNIQUE KEY `index_unique_phonenumber` (`phone_number`),
     KEY                     `idx_create_time` (`created_time`)
@@ -445,6 +446,8 @@ CREATE TABLE `project`
     `closed_time`              datetime(6) NULL COMMENT '关闭时间',
     `flow_status_statistics`   varchar(512) COMMENT '流程状态统计',
     `project_type`             varchar(36)  NOT NULL DEFAULT 'MachineLearning' COMMENT '项目类型',
+    `top`                      tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否置顶',
+    `sort_num`                 int          NOT NULL DEFAULT 0 COMMENT '排序序号',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`project_id`)
 ) ENGINE = InnoDB
@@ -531,6 +534,8 @@ CREATE TABLE `project_flow`
     `flow_desc`               text COMMENT '流程描述',
     `graph`                   longtext COMMENT '画布中编辑的图',
     `creator_member_id`       varchar(36) COMMENT '创建此流程的成员的ID',
+    `top`                     tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否置顶',
+    `sort_num`                int          NOT NULL DEFAULT 0 COMMENT '排序序号',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`flow_id`)
 ) ENGINE = InnoDB
@@ -1063,6 +1068,7 @@ CREATE TABLE `fusion_task`
     `processed_count`            int(11) DEFAULT NULL COMMENT '已处理数据量',
     `hash_function`              varchar(100)  DEFAULT NULL COMMENT '主键hash方式',
     `partner_hash_function`      varchar(100)  DEFAULT NULL COMMENT '合作方主键hash方式',
+    `deleted`                    tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='融合任务表';
 

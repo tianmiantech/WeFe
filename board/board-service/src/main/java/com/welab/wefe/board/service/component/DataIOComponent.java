@@ -32,6 +32,7 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -139,7 +140,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
 
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
         if (graph.getJob().getMyRole() == JobMemberRole.arbiter) {
             return null;
         }
@@ -157,7 +158,7 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
 
         TableDataSetMysqlModel myDataSet = tableDataSetService.findOneById(myDataSetConfig.dataSetId);
         if (myDataSet == null) {
-            throw new FlowNodeException(node, "找不到自己的数据集。");
+            throw new FlowNodeException(node, "找不到己方数据集，请检查数据集是否已删除。");
         }
 
         JObject output = JObject

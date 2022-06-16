@@ -158,13 +158,7 @@
                     </template>
                 </el-collapse-item>
                 <el-collapse-item title="tree param" name="2">
-                    <el-form-item label="L2 正则项系数">
-                        <el-input
-                            v-model="vData.form.tree_param.criterion_method"
-                            placeholder="如 xgboost"
-                        />
-                    </el-form-item>
-                    <el-form-item label="标准参数">
+                    <el-form-item label="正则项系数">
                         <el-input
                             v-model="vData.form.tree_param.criterion_params"
                             placeholder="支持 0.1,0.2 区间范围"
@@ -458,7 +452,6 @@
                             params,
                         },
                     } = vData.form;
-
                     if(String(criterion_params).includes(',')) {
                         $params.tree_param.criterion_params = criterion_params.split(',').map(str => +str);
                     } else {

@@ -69,14 +69,14 @@ public class StorageCheckpoint extends AbstractCheckpoint {
             storage.put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
         } catch (Exception e) {
             super.log(e);
-            throw new Exception(config.getDbType().name() + " put异常，请检查相关配置是否正确。");
+            throw new Exception(config.getDbType().name() + " put 异常，请检查相关配置是否正确：" + e.getMessage());
         }
 
         try {
             storage.dropTB(DATABASE_NAME, name);
         } catch (Exception e) {
             super.log(e);
-            throw new Exception(config.getDbType().name() + " drop异常，请检查相关配置是否正确。");
+            throw new Exception(config.getDbType().name() + " drop 异常，请检查相关配置是否正确：" + e.getMessage());
         }
 
     }

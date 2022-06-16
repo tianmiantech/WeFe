@@ -33,6 +33,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.ColumnDataTypeInferrer;
 import com.welab.wefe.common.wefe.enums.ColumnDataType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,7 +188,7 @@ public class BloomFilterPreviewApi extends AbstractApi<BloomFilterPreviewApi.Inp
          * Infer data type
          */
         private ColumnDataType inferDataType(String value) {
-            if (AbstractTableDataSetReader.isEmptyValue(value)) {
+            if (ColumnDataTypeInferrer.isEmptyValue(value)) {
                 return null;
             }
 

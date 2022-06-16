@@ -33,6 +33,7 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -66,7 +67,7 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
     }
 
     @Override
-    protected JSONObject createTaskParams(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
+    protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
 
         JObject output = JObject.create();
         output.append("penalty", params.otherParam.penalty)
@@ -152,8 +153,8 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
         }
 
         public static class OtherParam extends AbstractCheckModel {
-        	@Check(name = "LR算法", require = true)
-        	private String lrMethod;
+            @Check(name = "LR算法", require = true)
+            private String lrMethod;
             @Check(name = "惩罚方式", require = true)
             private String penalty;
 
@@ -194,14 +195,14 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
             private int earlyStoppingRounds;
 
             public String getLrMethod() {
-				return lrMethod;
-			}
+                return lrMethod;
+            }
 
-			public void setLrMethod(String lrMethod) {
-				this.lrMethod = lrMethod;
-			}
+            public void setLrMethod(String lrMethod) {
+                this.lrMethod = lrMethod;
+            }
 
-			public String getPenalty() {
+            public String getPenalty() {
                 return penalty;
             }
 

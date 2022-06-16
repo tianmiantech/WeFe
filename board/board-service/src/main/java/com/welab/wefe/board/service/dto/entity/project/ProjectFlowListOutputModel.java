@@ -57,6 +57,10 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
     private Integer jobProgress;
     @Check(name = "创建此流程的成员的ID")
     private String creatorMemberId;
+    @Check(name = "是否置顶")
+    private boolean top;
+    @Check(name = "排序号")
+    private int sortNum;
 
     public String getCreatorMemberName() {
         return CacheObjects.getMemberName(creatorMemberId);
@@ -175,6 +179,22 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
 
     public void setCreatorMemberId(String creatorMemberId) {
         this.creatorMemberId = creatorMemberId;
+    }
+
+    public boolean isTop() {
+        return top;
+    }
+
+    public void setTop(boolean top) {
+        this.top = top;
+    }
+
+    public int getSortNum() {
+        return sortNum;
+    }
+
+    public void setSortNum(int sortNum) {
+        this.sortNum = sortNum;
     }
 
     //endregion

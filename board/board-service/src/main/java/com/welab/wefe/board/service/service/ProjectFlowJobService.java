@@ -40,6 +40,7 @@ import com.welab.wefe.board.service.dto.vo.JobArbiterInfo;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
+import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
 import com.welab.wefe.common.StatusCode;
@@ -134,20 +135,37 @@ public class ProjectFlowJobService extends AbstractService {
         List<JobMemberMySqlModel> jobMembers = listJobMembers(project.getProjectId(), input.getFlowId(),
                 input.getJobId(), jobArbiterInfo, isOotMode);
 
+        // 横向联邦时，不支持一方同时参与 promoter 和 provider。
+        if (flow.getFederatedLearningType() == FederatedLearningType.horizontal) {
+            if (project.getMyRole() == JobMemberRole.promoter) {
+                boolean inPromoterAndProvider = jobMembers.stream()
+                        .anyMatch(x ->
+                                x.getJobRole() == JobMemberRole.provider
+                                        && x.getMemberId().equals(CacheObjects.getMemberId())
+                        );
+                if (inPromoterAndProvider) {
+                    StatusCode.PARAMETER_VALUE_INVALID.throwException("横向联邦时，您不能同时作为 发起方 和 协作方！");
+                }
+            }
+        }
+
+
         if (!input.fromGateway()) {
             if (jobMembers.stream().noneMatch(x -> CacheObjects.getMemberId().equals(x.getMemberId()))) {
                 throw new StatusCodeWithException("当前任务不包含我方数据集，无法启动。", StatusCode.PARAMETER_VALUE_INVALID);
             }
         }
-		long memberCount = jobMembers.stream().filter(x -> x.getJobRole() != JobMemberRole.arbiter).count();
-		if (memberCount < 2 && !isOotMode) {
-			throw new StatusCodeWithException("需要在【" + ComponentType.DataIO.getLabel() + "】中选择两个或两个以上的数据集",
-					StatusCode.PARAMETER_VALUE_INVALID);
-		}
+        long memberCount = jobMembers.stream().filter(x -> x.getJobRole() != JobMemberRole.arbiter).count();
+        if (memberCount < 2 && !isOotMode) {
+            throw new StatusCodeWithException("需要在【" + ComponentType.DataIO.getLabel() + "】中选择两个或两个以上的数据集",
+                    StatusCode.PARAMETER_VALUE_INVALID);
+        }
         long promoterMemberCount = jobMembers.stream().filter(x -> x.getJobRole() == JobMemberRole.promoter).count();
         if (promoterMemberCount >= MIX_FLOW_PROMOTER_NUM && !flow.getFederatedLearningType().equals(FederatedLearningType.mix)) {
             throw new StatusCodeWithException("【选择数据集】组件参数错误，请先移除再重新添加", StatusCode.PARAMETER_VALUE_INVALID);
         }
+
+        JobBuilder jobBuilder = new JobBuilder();
         for (JobMemberMySqlModel jobMember : jobMembers) {
             if (!CacheObjects.getMemberId().equals(jobMember.getMemberId())) {
                 continue;
@@ -166,7 +184,7 @@ public class ProjectFlowJobService extends AbstractService {
                 checkBeforeStartFlow(graph, project, isOotMode);
             }
             // create task
-            createJobTasks(project, graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
+            createJobTasks(jobBuilder, project, graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
 
         }
 
@@ -412,7 +430,7 @@ public class ProjectFlowJobService extends AbstractService {
 
     }
 
-    private List<TaskMySqlModel> createJobTasks(ProjectMySqlModel project, FlowGraph graph, boolean useCache, String endNodeId,
+    private List<TaskMySqlModel> createJobTasks(JobBuilder jobBuilder, ProjectMySqlModel project, FlowGraph graph, boolean useCache, String endNodeId,
                                                 FederatedLearningType federatedLearningType) throws StatusCodeWithException {
 
         List<FlowGraphNode> startNodes = graph.getStartNodes();
@@ -487,12 +505,12 @@ public class ProjectFlowJobService extends AbstractService {
             try {
                 addPreTasks(node, tasks, cacheTasks);
                 if (federatedLearningType == FederatedLearningType.mix) {
-                    List<TaskMySqlModel> subTasks = component.buildMixTask(graph, tasks, kernelJob, node);
+                    List<TaskMySqlModel> subTasks = component.buildMixTask(jobBuilder, graph, tasks, kernelJob, node);
                     if (subTasks != null && !subTasks.isEmpty()) {
                         tasks.addAll(subTasks);
                     }
                 } else {
-                    TaskMySqlModel task = component.buildTask(project, graph, tasks, kernelJob, node);
+                    TaskMySqlModel task = component.buildTask(jobBuilder, project, graph, tasks, kernelJob, node);
                     if (task != null) {
                         tasks.add(task);
                     }

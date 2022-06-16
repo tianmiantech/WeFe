@@ -35,6 +35,7 @@ import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResou
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
+import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
@@ -625,7 +626,7 @@ public class ProjectService extends AbstractService {
     public PagingOutput<ProjectQueryOutputModel> query(QueryApi.Input input) {
 
         StringBuffer sql = new StringBuffer(
-                "select distinct(p.id),p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
+                "select distinct(p.id),p.top,p.sort_num,p.project_type,p.flow_status_statistics,p.deleted,p.name,p.project_desc,p.audit_status,p.status_updated_time"
                         + ",p.audit_status_from_myself,p.audit_status_from_others,p.audit_comment,p.exited,p.closed"
                         + ",p.closed_by,p.closed_time,p.exited_by,p.exited_time"
                         + ",p.project_id,p.member_id,p.my_role"
@@ -634,7 +635,7 @@ public class ProjectService extends AbstractService {
 
         int total = projectRepo.queryByClass(sql.append(buildQueryWhere(input)).toString(), ProjectMySqlModel.class).size();
 
-        sql.append(" order by p.created_time desc");
+        sql.append(" order by p.top desc,p.sort_num desc,p.created_time desc");
         sql.append(" limit " + input.getPageIndex() * input.getPageSize() + "," + input.getPageSize());
 
         List<ProjectMySqlModel> projectList = projectRepo.queryByClass(sql.toString(), ProjectMySqlModel.class);
@@ -1226,11 +1227,15 @@ public class ProjectService extends AbstractService {
                 .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
     }
 
+    @Autowired
+    private AccountService accountService;
 
     /**
      * close project
+     *
+     * @param byScheduledJob 是否来自定时任务
      */
-    public void closeProject(CloseProjectApi.Input input) throws StatusCodeWithException {
+    public void closeProject(CloseProjectApi.Input input, boolean byScheduledJob) throws StatusCodeWithException {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
@@ -1243,11 +1248,18 @@ public class ProjectService extends AbstractService {
             }
         }
 
-        OnlineDemoBranchStrategy.hackOnDelete(input, project, "只能关闭自己创建的项目。");
-
         project.setClosed(true);
         project.setClosedTime(new Date());
-        project.setClosedBy(project.getOperatorId(input));
+
+        // 如果是定时任务触发的关闭，操作者设置为超级管理员。
+        if (byScheduledJob) {
+            project.setClosedBy(accountService.getSuperAdmin().id);
+        } else {
+            project.setClosedBy(project.getOperatorId(input));
+
+            OnlineDemoBranchStrategy.hackOnDelete(input, project, "只能关闭自己创建的项目。");
+        }
+
 
         projectRepo.save(project);
 
@@ -1320,4 +1332,14 @@ public class ProjectService extends AbstractService {
         return projectService.findByProjectId(jobs.get(0).getProjectId());
     }
 
+    /**
+     * 设置项目的置顶状态
+     */
+    public void top(String projectId, boolean top) {
+        if (top) {
+            projectRepo.top(projectId);
+        } else {
+            projectRepo.cancelTop(projectId);
+        }
+    }
 }
