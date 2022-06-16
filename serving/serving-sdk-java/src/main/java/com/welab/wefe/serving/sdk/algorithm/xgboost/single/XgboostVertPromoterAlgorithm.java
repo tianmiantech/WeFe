@@ -19,10 +19,8 @@ package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
@@ -76,8 +74,8 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
             if (remote.isEmpty()) {
                 continue;
             }
-            PredictResult result = remote.toJavaObject(PredictResult.class);
-            XgbProviderPredictResultModel predictModel = ModelMapper.map(result.getResult(), XgbProviderPredictResultModel.class);
+
+            XgbProviderPredictResultModel predictModel = remote.getJObject("result").toJavaObject(XgbProviderPredictResultModel.class);
 
             Map<String, Object> tree = (Map) predictModel.getXgboostTree();
 

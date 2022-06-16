@@ -227,7 +227,7 @@ public class PromoterPredictHelper {
             return JObject.create();
         }
         JSONObject json = response.getBodyAsJson();
-        return JObject.create(json.getJSONObject("data"));
+        return JObject.create(json.getJSONObject("data").getJSONObject("data"));
     }
 
     private static void checkResponse(String memberId, HttpResponse response) throws StatusCodeWithException {

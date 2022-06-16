@@ -27,6 +27,7 @@ import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.sdk.processor.AbstractBatchModelProcessor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,7 +83,7 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
                         return PredictParams.of(x, findFeatureData(x));
                     } catch (StatusCodeWithException e) {
                         e.printStackTrace();
-                        return null;
+                        return PredictParams.of(x, new HashMap<>());
                     }
                 })
                 .collect(Collectors.toList());

@@ -23,7 +23,6 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
-import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.clientservice.*;
@@ -166,8 +165,7 @@ public class ClientServiceService {
             if (x.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
                 output.setPayType("-");
                 output.setUnitPrice("-");
-            }
-            else {
+            } else {
                 output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
                 output.setUnitPrice(x.getUnitPrice() + "");
             }
@@ -400,7 +398,8 @@ public class ClientServiceService {
     public List<ProviderParams> findProviderList(String serviceId) {
         return queryActivateListByServiceId(serviceId)
                 .stream()
-                .map(x -> ProviderParams.of(x.getClientId(), partnerService.findModelServiceUrl(x.getClientId()) + x.getUrl()))
+                //TODO 地址获取修改
+                .map(x -> ProviderParams.of(x.getClientId(), partnerService.findModelServiceUrl(x.getClientId()) + "/api/" + x.getUrl()))
                 .collect(Collectors.toList());
     }
 }

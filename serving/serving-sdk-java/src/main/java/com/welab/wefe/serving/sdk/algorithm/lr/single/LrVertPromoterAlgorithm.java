@@ -52,7 +52,7 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
          * Consolidated results
          */
         for (JObject remote : federatedResult) {
-            LrPredictResultModel predictModel = remote.getJObject("data").toJavaObject(LrPredictResultModel.class);
+            LrPredictResultModel predictModel = remote.getJObject("result").toJavaObject(LrPredictResultModel.class);
 
 
             Double score = TypeUtils.castToDouble(result.getScore()) + TypeUtils.castToDouble(predictModel.getScore());

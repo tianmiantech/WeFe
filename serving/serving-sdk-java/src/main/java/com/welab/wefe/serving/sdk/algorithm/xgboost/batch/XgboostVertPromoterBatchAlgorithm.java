@@ -78,7 +78,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
          * The resolution partner returns the result
          */
         for (JObject result : federatedResult) {
-            List<JObject> predictModelList = result.getJSONList("data");
+            List<JObject> predictModelList = result.getJSONList("result");
 
             for (JObject jobj : predictModelList) {
 

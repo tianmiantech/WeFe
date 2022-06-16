@@ -45,7 +45,7 @@ public class LrVertPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseL
         }
 
         for (JSONObject remoteJson : federatedResult) {
-            List<LrPredictResultModel> remoteScores = (List<LrPredictResultModel>) remoteJson.get("data");
+            List<LrPredictResultModel> remoteScores = (List<LrPredictResultModel>) remoteJson.get("result");
 
             /**
              * Combine calculation results
