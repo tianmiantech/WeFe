@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * @author aaron.li
  **/
-@Api(path = "member/query_all", name = "member_query_all", rsaVerify = true, login = false, logSaplingInterval = 60_1000)
+@Api(path = "member/query_all", name = "member_query_all", rsaVerify = true, login = false, logSaplingInterval = 60_000)
 public class QueryAllApi extends AbstractApi<QueryAllApi.Input, JObject> {
     @Autowired
     private MemberMongoReop memberMongoReop;
