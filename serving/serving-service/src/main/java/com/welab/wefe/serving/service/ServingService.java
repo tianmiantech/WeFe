@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -35,18 +36,14 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
+import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
-import com.welab.wefe.serving.service.database.repository.ModelRepository;
-import com.welab.wefe.serving.service.database.repository.ServiceRepository;
+import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.operation.ServingApiLogger;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import com.welab.wefe.serving.service.service.MemberService;
 import com.welab.wefe.serving.service.service.PartnerService;
 
 /**
@@ -117,7 +114,6 @@ public class ServingService implements ApplicationContextAware {
         params.putAll(JSONObject.parseObject(signedApiInput.getData()));
         params.put("customer_id", signedApiInput.getCustomerId());
         params.put("service_id", serviceId);
-        params.put("isModelService", isModelService(request));
     }
 
     private static void verify(SignedApiInput signedApiInput, String partnerRsaKey) throws Exception {
@@ -150,62 +146,15 @@ public class ServingService implements ApplicationContextAware {
 
     private static String verificationServiceApi(HttpServletRequest request) throws StatusCodeWithException {
         String serviceUrl = extractServiceUrl(request);
-        if (isModelService(request)) {
-            ModelRepository modelRepository = Launcher.CONTEXT.getBean(ModelRepository.class);
-            ModelMySqlModel model = modelRepository.findOne("url", serviceUrl, ModelMySqlModel.class);
-            if (model == null) {
-                throw new StatusCodeWithException("未查找到该模型服务！", StatusCode.PARAMETER_VALUE_INVALID);
-            }
-            return model.getModelId();
-        }
-
-        ServiceRepository serviceRepository = Launcher.CONTEXT.getBean(ServiceRepository.class);
-        ServiceMySqlModel service = serviceRepository.findOne("url", serviceUrl, ServiceMySqlModel.class);
-        if (service == null) {
-            throw new StatusCodeWithException("未查找到该服务！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-        return service.getId();
+        BaseServiceRepository<BaseServiceMySqlModel> modelRepository = Launcher.CONTEXT
+                .getBean(BaseServiceRepository.class);
+        BaseServiceMySqlModel service = modelRepository.findOne("url", serviceUrl, BaseServiceMySqlModel.class);
+        return StringUtils.isNotBlank(service.getServiceId()) ? service.getServiceId() : service.getId();
     }
 
     private static String extractServiceUrl(HttpServletRequest request) {
         String uri = request.getRequestURI();
         return uri.substring(uri.lastIndexOf("api/") + 4);
-    }
-
-    private static boolean isModelService(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        String serviceUrl = uri.substring(uri.lastIndexOf("api/") + 4);
-        return serviceUrl.contains("predict");
-    }
-
-    /**
-     * rsa Signature check
-     * <p>
-     * Federal member
-     * </p>
-     */
-    private static void rsaVerifyMember(JSONObject params) throws Exception {
-
-
-        SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
-
-        /**
-         * Find signature information
-         */
-        MemberService memberService = Launcher.CONTEXT.getBean(MemberService.class);
-        MemberMySqlModel member = memberService.findOne(signedApiInput.getMemberId());
-
-        if (member == null) {
-            throw new StatusCodeWithException("Invalid member_id：" + signedApiInput.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-
-        boolean verified = RSAUtil.verify(signedApiInput.getData().getBytes(), RSAUtil.getPublicKey(member.getPublicKey()), signedApiInput.getSign());
-        if (!verified) {
-            throw new StatusCodeWithException("Wrong signature", StatusCode.PARAMETER_VALUE_INVALID);
-        }
-
-        params.putAll(JSONObject.parseObject(signedApiInput.getData()));
     }
 
     /**
