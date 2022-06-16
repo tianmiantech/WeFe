@@ -41,25 +41,25 @@ public class ModelStatusCheckApi extends AbstractApi<ModelStatusCheckApi.Input, 
     @Override
     protected ApiResult<List<ModelStatusOutput>> handle(Input input) throws Exception {
         return success(
-                modelMemberService.checkAvailableByModelIdAndMemberId(input.getModelId(), input.getMemberId())
+                modelMemberService.checkAvailableByModelIdAndMemberId(input.getServiceId(), input.getMemberId())
         );
     }
 
     public static class Input extends AbstractApiInput {
 
         @Check(name = "模型id", require = true)
-        private String modelId;
+        private String serviceId;
 
 
         @Check(name = "成员ID")
         private String memberId;
 
-        public String getModelId() {
-            return modelId;
+        public String getServiceId() {
+            return serviceId;
         }
 
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         public String getMemberId() {

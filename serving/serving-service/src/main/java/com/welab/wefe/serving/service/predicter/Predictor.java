@@ -16,6 +16,10 @@
 
 package com.welab.wefe.serving.service.predicter;
 
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -36,11 +40,6 @@ import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
-import com.welab.wefe.serving.service.service.ModelService;
-import com.welab.wefe.serving.service.service.ServiceOrderService;
-import org.apache.commons.collections4.CollectionUtils;
-
-import java.util.List;
 
 
 /**
@@ -50,14 +49,8 @@ public class Predictor {
 
     private static ModelMemberService modelMemberService;
 
-    private static ModelService modelService;
-
-    private static ServiceOrderService serviceOrderService;
-
     static {
         modelMemberService = Launcher.CONTEXT.getBean(ModelMemberService.class);
-        modelService = Launcher.CONTEXT.getBean(ModelService.class);
-        serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
     }
 
     /**

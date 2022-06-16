@@ -33,14 +33,12 @@ import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.service.api.model.SaveModelApi;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.repository.MemberRepository;
-import com.welab.wefe.serving.service.database.repository.ModelRepository;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
-import com.welab.wefe.serving.service.service.ModelMemberService;
 import com.welab.wefe.serving.service.service.ModelService;
-import com.welab.wefe.serving.service.service.PartnerService;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
 
 /**
@@ -54,18 +52,8 @@ public class ModelImportService {
     @Autowired
     private ModelService modelService;
 
-
     @Autowired
-    private ModelMemberService modelMemberService;
-
-    @Autowired
-    private ModelRepository modelRepository;
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private PartnerService partnerService;
+    private TableModelRepository modelRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public String saveMachineLearningModel(String name, String filename, String url) throws StatusCodeWithException {
@@ -88,7 +76,7 @@ public class ModelImportService {
     private SaveModelApi.Input buildModelParam(JObject jObject, String url) {
 
         SaveModelApi.Input modelContent = new SaveModelApi.Input();
-        modelContent.setModelId(jObject.getString("modelId"));
+        modelContent.setServiceId(jObject.getString("modelId"));
         modelContent.setName(jObject.getString("name"));
         modelContent.setMyRole(extractMyRole(jObject));
         modelContent.setFlType(extractFlType(jObject));
@@ -139,21 +127,21 @@ public class ModelImportService {
 
     public String saveDeepLearningModel(String name, String filename, String url) throws StatusCodeWithException {
 
-        ModelMySqlModel model = modelRepository.findOne("name", name, ModelMySqlModel.class);
+        TableModelMySqlModel model = modelRepository.findOne("name", name, TableModelMySqlModel.class);
         if (model != null) {
             throw new StatusCodeWithException("该模型名称已存在，请更改后再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
         String path = ServingFileUtil
                 .getBaseDir(ServingFileUtil.FileType.DeepLearningModelFile).toString();
 
-        model = new ModelMySqlModel();
+        model = new TableModelMySqlModel();
         ServingFileUtil.DeepLearningModelFile.renameZipFile(filename, model.getId());
 
         model.setSourcePath(path);
         model.setFilename(model.getId() + ".zip");
         model.setUseCount(0);
         model.setName(name);
-        model.setServiceType(7);
+        model.setServiceType(ServiceTypeEnum.DeepLearning.getCode());
         model.setUrl(url);
 
         modelRepository.save(model);

@@ -61,7 +61,7 @@ public class ClientServiceService {
     private ClientServiceQueryRepository clientServiceQueryRepository;
 
     @Autowired
-    private ServiceRepository serviceRepository;
+    private BaseServiceRepository<BaseServiceMySqlModel> serviceRepository;
 
     @Autowired
     private FeeConfigRepository feeConfigRepository;
@@ -91,8 +91,8 @@ public class ClientServiceService {
                         PartnerMysqlModel.class);
 
                 // 保存服务类型
-                ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
-                        ServiceMySqlModel.class);
+                BaseServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
+                        BaseServiceMySqlModel.class);
                 if (serviceMySqlModel != null) {
                     model.setServiceType(serviceMySqlModel.getServiceType());
                     model.setUrl(serviceMySqlModel.getUrl());
@@ -225,8 +225,8 @@ public class ClientServiceService {
             model.setPayType(input.getPayType());
             model.setIpAdd(input.getIpAdd());
             // 保存服务类型
-            ServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
-                    ServiceMySqlModel.class);
+            BaseServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
+                    BaseServiceMySqlModel.class);
             // 开通
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
                 model.setUrl(serviceMySqlModel.getUrl());

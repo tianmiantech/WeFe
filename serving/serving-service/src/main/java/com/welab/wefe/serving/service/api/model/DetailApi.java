@@ -16,11 +16,20 @@
 
 package com.welab.wefe.serving.service.api.model;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
@@ -32,20 +41,19 @@ import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ModelSqlConfigMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
-import com.welab.wefe.serving.service.database.repository.ModelRepository;
-import com.welab.wefe.serving.service.dto.*;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
+import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
+import com.welab.wefe.serving.service.dto.ModelStatusOutput;
+import com.welab.wefe.serving.service.dto.PagingInput;
+import com.welab.wefe.serving.service.dto.TreeNode;
+import com.welab.wefe.serving.service.dto.TreeNodeData;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ModelSqlConfigService;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -56,7 +64,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     ModelService modelService;
 
     @Autowired
-    private ModelRepository modelRepository;
+    private TableModelRepository modelRepository;
 
     @Autowired
     private ModelMemberRepository modelMemberRepository;
@@ -67,7 +75,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
     @Override
     protected ApiResult<DetailApi.Output> handle(Input input) {
 
-        ModelMySqlModel model = modelRepository.findOne("id", input.getId(), ModelMySqlModel.class);
+        TableModelMySqlModel model = modelRepository.findOne("id", input.getId(), TableModelMySqlModel.class);
         if (model == null) {
             return fail("未查询到模型！");
         }
@@ -75,16 +83,16 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         DetailApi.Output output = ModelMapper.map(model, DetailApi.Output.class);
 
         output.setModelParam(JObject.create(model.getModelParam()).getJObject("model_param"));
-        output.setMyRole(findMyRoles(model.getModelId()));
+        output.setMyRole(findMyRoles(model.getServiceId()));
 //        output.setModelSqlConfig(querySqlConfig(model.getModelId()));
-        output.setProcessor(FeatureManager.getProcessor(model.getModelId()));
+        output.setProcessor(FeatureManager.getProcessor(model.getServiceId()));
         output.setXgboostTree(
                 output.getAlgorithm() == Algorithm.XGBoost ?
                         xgboost(output.getModelParam(), output.getFlType()) : null
         );
         output.setModelStatus(
                 output.getMyRole().contains(JobMemberRole.promoter) ?
-                        findModelStatus(model.getModelId()) : null
+                        findModelStatus(model.getServiceId()) : null
         );
 
         return success(output);
@@ -244,7 +252,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
     public static class Output extends AbstractApiOutput {
 
-        private String modelId;
+        private String serviceId;
 
         private String name;
 
@@ -278,16 +286,16 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         //region getter/setter
 
-        public String getModelId() {
-            return modelId;
-        }
-
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
-        }
-
         public Algorithm getAlgorithm() {
             return algorithm;
+        }
+
+        public String getServiceId() {
+            return serviceId;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         public void setAlgorithm(Algorithm algorithm) {

@@ -15,6 +15,14 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import org.apache.commons.collections.CollectionUtils;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -22,22 +30,15 @@ import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionRequest;
 import com.welab.wefe.mpc.psi.request.QueryPrivateSetIntersectionResponse;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
-import org.apache.commons.collections.CollectionUtils;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 
 /**
  * @author hunter.zhao
  */
-public class PsiServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
+public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
 
     @Override
-    public JObject process(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {
+    public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
         String p = data.getString("p");
         List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
         if (CollectionUtils.isEmpty(clientIds)) {

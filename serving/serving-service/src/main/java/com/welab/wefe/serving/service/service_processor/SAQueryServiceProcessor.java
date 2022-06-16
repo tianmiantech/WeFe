@@ -15,6 +15,9 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
@@ -27,21 +30,18 @@ import com.welab.wefe.mpc.sa.sdk.config.ServerConfig;
 import com.welab.wefe.mpc.sa.sdk.transfer.SecureAggregationTransferVariable;
 import com.welab.wefe.mpc.sa.sdk.transfer.impl.HttpTransferVariable;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author hunter.zhao
  */
-public class SAQueryServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
+public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 
     @Override
-    public JObject process(JObject data, ServiceMySqlModel model) throws Exception {
+    public JObject process(JObject data, TableServiceMySqlModel model) throws Exception {
         Double result = -999.0;
 
         JObject userParams = data.getJObject("query_params");

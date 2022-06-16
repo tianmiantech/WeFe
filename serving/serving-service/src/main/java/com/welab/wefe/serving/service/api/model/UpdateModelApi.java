@@ -16,6 +16,8 @@
 
 package com.welab.wefe.serving.service.api.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -24,7 +26,6 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.service.service.ModelService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
@@ -38,7 +39,7 @@ public class UpdateModelApi extends AbstractNoneOutputApi<UpdateModelApi.Input> 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
         modelService.updateConfig(
-                input.getModelId(),
+                input.getServiceId(),
                 input.getFeatureSource(),
                 input.getDataSourceId(),
                 input.getSqlScript(),
@@ -50,7 +51,7 @@ public class UpdateModelApi extends AbstractNoneOutputApi<UpdateModelApi.Input> 
     public static class Input extends AbstractApiInput {
 
         @Check(require = true, name = "模型ID")
-        private String modelId;
+        private String serviceId;
         @Check(require = true, name = "配置来源")
         private PredictFeatureDataSource featureSource;
 
@@ -65,16 +66,16 @@ public class UpdateModelApi extends AbstractNoneOutputApi<UpdateModelApi.Input> 
 
         //region getter/setter
 
-        public String getModelId() {
-            return modelId;
-        }
-
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
-        }
-
         public PredictFeatureDataSource getFeatureSource() {
             return featureSource;
+        }
+
+        public String getServiceId() {
+            return serviceId;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         public void setFeatureSource(PredictFeatureDataSource featureSource) {

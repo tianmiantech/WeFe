@@ -15,6 +15,22 @@
  */
 package com.welab.wefe.serving.service.service;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.DateUtil;
@@ -24,28 +40,19 @@ import com.welab.wefe.serving.service.api.paymentsrecords.DownloadApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.QueryListApi;
 import com.welab.wefe.serving.service.api.paymentsrecords.SaveApi;
 import com.welab.wefe.serving.service.config.Config;
+import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.entity.PaymentsRecordsMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
 import com.welab.wefe.serving.service.database.repository.ClientRepository;
 import com.welab.wefe.serving.service.database.repository.PaymentsRecordsRepository;
-import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.PaymentsTypeEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @author ivenn.zheng
@@ -59,7 +66,7 @@ public class PaymentsRecordsService {
     private PaymentsRecordsRepository paymentsRecordsRepository;
 
     @Autowired
-    private ServiceRepository serviceRepository;
+    private BaseServiceRepository<BaseServiceMySqlModel> serviceRepository;
 
     @Autowired
     private ClientRepository clientRepository;
@@ -165,9 +172,9 @@ public class PaymentsRecordsService {
         model.setPayType(input.getPayType());
 
         // get service by id
-        Optional<ServiceMySqlModel> serviceMySqlModel = serviceRepository.findById(input.getServiceId());
+        Optional<BaseServiceMySqlModel> serviceMySqlModel = serviceRepository.findById(input.getServiceId());
         if (serviceMySqlModel.isPresent()) {
-            ServiceMySqlModel service = serviceMySqlModel.get();
+            BaseServiceMySqlModel service = serviceMySqlModel.get();
             model.setServiceId(service.getId());
             model.setServiceName(service.getName());
             model.setServiceType(service.getServiceType());

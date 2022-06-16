@@ -16,6 +16,11 @@
 
 package com.welab.wefe.serving.service.api.model;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -27,10 +32,6 @@ import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.service.ModelService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author hunter.zhao
@@ -56,7 +57,7 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
     public static class Input extends AbstractApiInput {
 
         @Check(require = true, name = "模型ID")
-        private String modelId;
+        private String serviceId;
         @Check(require = true, name = "我的角色")
         private JobMemberRole myRole;
         @Check(name = "模型名称")
@@ -79,16 +80,16 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
 
         //region getter/setter
 
-        public String getModelId() {
-            return modelId;
-        }
-
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
-        }
-
         public Algorithm getAlgorithm() {
             return algorithm;
+        }
+
+        public String getServiceId() {
+            return serviceId;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         public void setAlgorithm(Algorithm algorithm) {

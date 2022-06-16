@@ -16,6 +16,18 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -32,10 +44,10 @@ import com.welab.wefe.serving.service.api.model.SaveModelApi;
 import com.welab.wefe.serving.service.api.service.RouteApi;
 import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
-import com.welab.wefe.serving.service.database.repository.ModelRepository;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
@@ -47,17 +59,6 @@ import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.ModelServiceProcessor;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * model Service
@@ -71,7 +72,7 @@ public class ModelService {
 
     private final String API_PREFIX = "api/predict";
     @Autowired
-    private ModelRepository modelRepository;
+    private TableModelRepository modelRepository;
 
     @Autowired
     private ModelMemberService modelMemberService;
@@ -84,9 +85,6 @@ public class ModelService {
 
     @Autowired
     private ModelMemberRepository modelMemberRepository;
-
-    @Autowired
-    private ModelSqlConfigService modelSqlConfigService;
 
     @Autowired
     private ServiceOrderService serviceOrderService;
@@ -106,7 +104,7 @@ public class ModelService {
         openService(input);
 
         //save model
-        ModelMySqlModel model = upsertModel(input);
+        TableModelMySqlModel model = upsertModel(input);
         return model.getId();
         //TODO 考虑模型是否放到service表
     }
@@ -117,16 +115,16 @@ public class ModelService {
 
     private void saveModelMembers(SaveModelApi.Input input) {
         if (JobMemberRole.provider.equals(input.getMyRole())) {
-            modelMemberService.save(input.getModelId(), CacheObjects.getMemberId(), input.getMyRole());
+            modelMemberService.save(input.getServiceId(), CacheObjects.getMemberId(), input.getMyRole());
         } else {
-            modelMemberService.save(input.getModelId(), input.getMemberParams());
+            modelMemberService.save(input.getServiceId(), input.getMemberParams());
         }
     }
 
-    private ModelMySqlModel upsertModel(SaveModelApi.Input input) {
-        ModelMySqlModel model = findOne(input.getModelId());
+    private TableModelMySqlModel upsertModel(SaveModelApi.Input input) {
+        TableModelMySqlModel model = findOne(input.getServiceId());
         if (model == null) {
-            model = new ModelMySqlModel();
+            model = new TableModelMySqlModel();
         }
 
         convertTo(input, model);
@@ -136,7 +134,7 @@ public class ModelService {
         return model;
     }
 
-    private ModelMySqlModel convertTo(SaveModelApi.Input input, ModelMySqlModel model) {
+    private TableModelMySqlModel convertTo(SaveModelApi.Input input, TableModelMySqlModel model) {
         BeanUtils.copyProperties(input, model);
         model.setUrl(setModelServiceUrl());
         model.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
@@ -145,9 +143,9 @@ public class ModelService {
 
     private void openService(SaveModelApi.Input input) {
         if (JobMemberRole.provider.equals(input.getMyRole())) {
-            openPartnerService(input.getModelId(), input.getMemberParams());
+            openPartnerService(input.getServiceId(), input.getMemberParams());
         } else {
-            activatePartnerService(input.getModelId(), input.getName(), input.getMemberParams());
+            activatePartnerService(input.getServiceId(), input.getName(), input.getMemberParams());
         }
     }
 
@@ -208,8 +206,8 @@ public class ModelService {
         }
     }
 
-    public ModelMySqlModel findOne(String modelId) {
-        return modelRepository.findOne("modelId", modelId, ModelMySqlModel.class);
+    public TableModelMySqlModel findOne(String modelId) {
+        return modelRepository.findOne("modelId", modelId, TableModelMySqlModel.class);
     }
 
     public List<ModelMemberMySqlModel> findByModelIdAndMemberId(String modelId, String memberId) {
@@ -229,7 +227,7 @@ public class ModelService {
      */
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
 
-        PagingOutput<ModelMySqlModel> page = queryModels(input);
+        PagingOutput<TableModelMySqlModel> page = queryModels(input);
 
         PagingOutput<ModelMemberMySqlModel> memberPage = queryModelMembers(input);
 
@@ -241,7 +239,7 @@ public class ModelService {
         );
     }
 
-    private List<QueryApi.Output> bulidOutputs(PagingOutput<ModelMySqlModel> page, PagingOutput<ModelMemberMySqlModel> memberPage) {
+    private List<QueryApi.Output> bulidOutputs(PagingOutput<TableModelMySqlModel> page, PagingOutput<ModelMemberMySqlModel> memberPage) {
         List<QueryApi.Output> list = page
                 .getList()
                 .stream()
@@ -250,12 +248,12 @@ public class ModelService {
         return list;
     }
 
-    private QueryApi.Output setRole(PagingOutput<ModelMemberMySqlModel> memberPage, ModelMySqlModel modelMySqlModel) {
-        QueryApi.Output output = ModelMapper.map(modelMySqlModel, QueryApi.Output.class);
+    private QueryApi.Output setRole(PagingOutput<ModelMemberMySqlModel> memberPage, TableModelMySqlModel TableModelMySqlModel) {
+        QueryApi.Output output = ModelMapper.map(TableModelMySqlModel, QueryApi.Output.class);
 
         memberPage.getList()
                 .stream()
-                .filter(model -> model.getModelId().equals(modelMySqlModel.getModelId()))
+                .filter(model -> model.getModelId().equals(TableModelMySqlModel.getServiceId()))
                 .forEach(x -> output.setMyRole(x.getRole()));
 
         return output;
@@ -275,21 +273,21 @@ public class ModelService {
         return where;
     }
 
-    private PagingOutput<ModelMySqlModel> queryModels(QueryApi.Input input) {
-        Specification<ModelMySqlModel> jobWhere = buildQueryModelParam(input);
-        PagingOutput<ModelMySqlModel> page = modelRepository.paging(jobWhere, input);
+    private PagingOutput<TableModelMySqlModel> queryModels(QueryApi.Input input) {
+        Specification<TableModelMySqlModel> jobWhere = buildQueryModelParam(input);
+        PagingOutput<TableModelMySqlModel> page = modelRepository.paging(jobWhere, input);
         return page;
     }
 
-    private Specification<ModelMySqlModel> buildQueryModelParam(QueryApi.Input input) {
-        Specification<ModelMySqlModel> jobWhere = Where
+    private Specification<TableModelMySqlModel> buildQueryModelParam(QueryApi.Input input) {
+        Specification<TableModelMySqlModel> jobWhere = Where
                 .create()
                 .contains("modelId", input.getModelId())
                 .contains("name", input.getName())
                 .equal("algorithm", input.getAlgorithm())
                 .equal("flType", input.getFlType())
                 .equal("createdBy", input.getCreator())
-                .build(ModelMySqlModel.class);
+                .build(TableModelMySqlModel.class);
         return jobWhere;
     }
 
@@ -298,11 +296,11 @@ public class ModelService {
      */
     public void enable(EnableApi.Input input) {
 
-        modelRepository.updateById(input.getId(), "enable", input.isEnable(), ModelMySqlModel.class);
+        modelRepository.updateById(input.getId(), "enable", input.isEnable(), TableModelMySqlModel.class);
 
-        ModelMySqlModel modelMySqlModel = modelRepository.findOne("id", input.getId(), ModelMySqlModel.class);
+        TableModelMySqlModel TableModelMySqlModel = modelRepository.findOne("id", input.getId(), TableModelMySqlModel.class);
 
-        ModelManager.refreshModelEnable(modelMySqlModel.getModelId(), input.isEnable());
+        ModelManager.refreshModelEnable(TableModelMySqlModel.getServiceId(), input.isEnable());
     }
 
 
@@ -338,7 +336,7 @@ public class ModelService {
                              String sqlScript,
                              String sqlConditionField) throws StatusCodeWithException {
 
-        ModelMySqlModel model = findOne(modelId);
+        TableModelMySqlModel model = findOne(modelId);
         if (model == null) {
             throw new StatusCodeWithException("未查找到模型！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -436,6 +434,6 @@ public class ModelService {
 
     private PredictResult forward(JObject data) throws StatusCodeWithException {
         ModelServiceProcessor processor = new ModelServiceProcessor();
-        return processor.process(data, new ModelMySqlModel());
+        return processor.process(data, new TableModelMySqlModel());
     }
 }

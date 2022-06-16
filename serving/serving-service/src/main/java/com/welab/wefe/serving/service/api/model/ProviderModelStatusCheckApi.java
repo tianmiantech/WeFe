@@ -15,6 +15,8 @@
  */
 package com.welab.wefe.serving.service.api.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -23,19 +25,12 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.service.ModelService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
  * @date 2022/5/17
  */
-@Api(
-        path = "model/provider/status/check",
-        name = "检查模型状态（协作方提供接口）",
-        login = false,
-        rsaVerify = true,
-        domain = Caller.Customer
-)
+@Api(path = "model/provider/status/check", name = "检查模型状态（协作方提供接口）", login = false, rsaVerify = true, domain = Caller.Customer)
 public class ProviderModelStatusCheckApi extends AbstractApi<ProviderModelStatusCheckApi.Input, ModelStatusOutput> {
 
     @Autowired
@@ -43,21 +38,22 @@ public class ProviderModelStatusCheckApi extends AbstractApi<ProviderModelStatus
 
     @Override
     protected ApiResult<ModelStatusOutput> handle(Input input) throws Exception {
-        return success(modelService.checkAvailable(input.getModelId()));
+        return success(modelService.checkAvailable(input.getServiceId()));
     }
 
     public static class Input extends AbstractApiInput {
 
         @Check(name = "模型id", require = true)
-        private String modelId;
+        private String serviceId;
 
-        public String getModelId() {
-            return modelId;
+        public String getServiceId() {
+            return serviceId;
         }
 
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
+
     }
 
 }

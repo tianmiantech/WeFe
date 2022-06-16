@@ -107,7 +107,6 @@
 
             <el-table-column
                 label="服务类型"
-                prop="service_type"
                 min-width="100px"
             >
                 <template slot-scope="scope">
@@ -120,7 +119,7 @@
                 width="100px"
             >
                 <template slot-scope="scope">
-                    <div v-if="scope.row.status == 0">
+                    <div v-if="scope.row.status === 0">
                         离线
                     </div>
                     <div v-else>
@@ -162,32 +161,64 @@
                 fixed="right"
             >
                 <template slot-scope="scope">
-                    <el-button
-                        type="primary"
-                        @click="editService(scope.row)"
-                    >
-                        配置
-                    </el-button>
-                    <el-button
-                        v-if="scope.row.status == 0"
-                        type="primary"
-                        @click="online(scope.row.id)"
-                    >
-                        上线
-                    </el-button>
-                    <el-button
-                        v-else
-                        type="danger"
-                        @click="offline(scope.row.id)"
-                    >
-                        下线
-                    </el-button>
-                    <el-button
-                        type="primary"
-                        @click="export_sdk(scope.row.id)"
-                    >
-                        下载工具包
-                    </el-button>
+                        <el-button
+                            type="primary"
+                            @click="editService(scope.row)"
+                        >
+                            配置
+                        </el-button>
+                        <el-button
+                            v-if="scope.row.status == 0"
+                            type="primary"
+                            @click="online(scope.row.id)"
+                        >
+                            上线
+                        </el-button>
+                        <el-button
+                            v-else
+                            type="danger"
+                            @click="offline(scope.row.id)"
+                        >
+                            下线
+                        </el-button>
+                    &nbsp;
+                    <el-dropdown size="small">
+                        <el-button type="text" size="small">
+                            更多
+                        </el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item v-if="scope.row.service_type < 7">
+                                    <el-button
+                                        type="text"
+                                        size="small"
+                                        @click="export_sdk(scope.row.id)"
+                                    >
+                                        下载工具包
+                                    </el-button>
+                                </el-dropdown-item>
+                                <el-dropdown-item divided v-if="scope.row.service_type > 6">
+                                    <el-button
+                                        type="text"
+                                        size="small"
+                                        @click="alert('pass')"
+                                    >
+                                        监控
+                                    </el-button>
+                                </el-dropdown-item>
+                                <el-dropdown-item divided v-if="scope.row.service_type > 6">
+                                    <el-button
+                                        type="text"
+                                        size="small"
+                                        v-if="scope.row.service_type > 6"
+                                        @click="alert('pass')"
+                                    >
+                                        效果
+                                    </el-button>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
                 </template>
             </el-table-column>
         </el-table>
@@ -236,30 +267,40 @@
                 },
                 dataDialog:      false,
                 jsonData:        '',
-                serviceTypeList: [{
-                    name:  '两方匿踪查询',
-                    value: '1',
-                },
-                {
-                    name:  '两方交集查询',
-                    value: '2',
-                },
-                {
-                    name:  '多方安全统计(被查询方)',
-                    value: '3',
-                },
-                {
-                    name:  '多方安全统计(查询方)',
-                    value: '4',
-                },
-                {
-                    name:  '多方交集查询',
-                    value: '5',
-                },
-                {
-                    name:  '多方匿踪查询',
-                    value: '6',
-                }],
+                serviceTypeList: [
+                    {
+                        name: '两方匿踪查询',
+                        value: '1',
+                    },
+                    {
+                        name: '两方交集查询',
+                        value: '2',
+                    },
+                    {
+                        name: '多方安全统计(被查询方)',
+                        value: '3',
+                    },
+                    {
+                        name: '多方安全统计(查询方)',
+                        value: '4',
+                    },
+                    {
+                        name: '多方交集查询',
+                        value: '5',
+                    },
+                    {
+                        name: '多方匿踪查询',
+                        value: '6',
+                    },
+                    {
+                        name: '机器学习模型服务',
+                        value: '7',
+                    },
+                    {
+                        name: '深度学习模型服务',
+                        value: '8',
+                    },
+                ],
                 serviceTypeMap: {
                     1: '两方匿踪查询',
                     2: '两方交集查询',
@@ -267,6 +308,8 @@
                     4: '多方安全统计(查询方)',
                     5: '多方交集查询',
                     6: '多方匿踪查询',
+                    7: '机器学习模型服务',
+                    8: '深度学习模型服务',
                 },
             };
         },
@@ -290,11 +333,10 @@
                     this.jsonData = string;
                 });
             },
-
             editService(row) {
                 this.$router.push({
                     name:  'service-view',
-                    query: { id: row.id },
+                    query: { id: row.id,service_type:row.service_type },
                 });
             },
 

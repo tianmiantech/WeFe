@@ -23,6 +23,8 @@ import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.api.predict.PredictApi;
 import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.api.predict.ProviderApi;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
@@ -31,13 +33,13 @@ import org.apache.commons.collections4.CollectionUtils;
 /**
  * @author hunter.zhao
  */
-public class ModelServiceProcessor extends AbstractServiceProcessor<ModelMySqlModel, PredictResult> {
+public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMySqlModel, PredictResult> {
 
 
     @Override
-    public PredictResult process(JObject data, ModelMySqlModel model) throws StatusCodeWithException {
+    public PredictResult process(JObject data, TableModelMySqlModel model) throws StatusCodeWithException {
 
-        PredictApi.Input input = data.toJavaObject(PredictApi.Input.class);
+        ProviderApi.Input input = data.toJavaObject(ProviderApi.Input.class);
         input.checkAndStandardize();
 
         if (!ModelManager.getModelEnable(input.getModelId())) {

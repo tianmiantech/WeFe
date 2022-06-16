@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,17 +24,16 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
 
 /**
  * @author hunter.zhao
  */
-@Entity(name = "model")
-public class ModelMySqlModel extends AbstractBaseMySqlModel {
+@Entity(name = "table_model")
+@Table(name = "table_model")
+public class TableModelMySqlModel extends BaseServiceMySqlModel {
 
-    private static final long serialVersionUID = -9177967935224674890L;
-
-    @Column(name = "model_id")
-    private String modelId;
+    private static final long serialVersionUID = -1320731560182386318L;
 
     // 机器学习模型字段
     @Enumerated(EnumType.STRING)
@@ -53,23 +52,13 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
 
     // 深度学习模型字段
 
-    @Column(name = "source_path")// 文件路径
+    @Column(name = "source_path") // 文件路径
     String sourcePath;
 
     String filename;// 文件名
 
-    @Column(name = "use_count")// 使用计数
+    @Column(name = "use_count") // 使用计数
     int useCount;
-
-    // 通用字段
-    private boolean enable;
-
-    private String name;
-
-    private String url;
-
-    @Column(name = "service_type")
-    private Integer serviceType;
 
     @Column(name = "sql_script")
     private String sqlScript;
@@ -79,15 +68,6 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
 
     @Column(name = "data_source_id")
     private String dataSourceId;
-
-
-    public String getModelId() {
-        return modelId;
-    }
-
-    public void setModelId(String modelId) {
-        this.modelId = modelId;
-    }
 
     public Algorithm getAlgorithm() {
         return algorithm;
@@ -121,38 +101,6 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
         this.featureSource = featureSource;
     }
 
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Integer getServiceType() {
-        return serviceType;
-    }
-
-    public void setServiceType(Integer serviceType) {
-        this.serviceType = serviceType;
-    }
-
     public String getSourcePath() {
         return sourcePath;
     }
@@ -176,7 +124,6 @@ public class ModelMySqlModel extends AbstractBaseMySqlModel {
     public void setUseCount(int useCount) {
         this.useCount = useCount;
     }
-
 
     public String getSqlScript() {
         return sqlScript;

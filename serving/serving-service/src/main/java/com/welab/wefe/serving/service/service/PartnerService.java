@@ -81,7 +81,6 @@ public class PartnerService {
         for (ClientMysqlModel c : clients) {
             PartnerMysqlModel model = ModelMapper.map(c, PartnerMysqlModel.class);
             model.setStatus(c.getStatus());
-//            model.setServingBaseUrl(config.getSERVING_BASE_URL());
             model.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             partnerRepository.save(model);
         }
