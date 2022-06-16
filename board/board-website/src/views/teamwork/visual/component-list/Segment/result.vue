@@ -72,7 +72,8 @@
                                     label="正 : 负"
                                     width="150">
                                     <template v-slot="scope">
-                                        {{scope.row.example_good / scope.row.example_good}} : {{(scope.row.example_bad / scope.row.example_good).toFixed(2)}}
+                                        <template v-if="scope.row.with_label">{{scope.row.example_good / scope.row.example_good}} : {{(scope.row.example_bad / scope.row.example_good).toFixed(2)}}</template>
+                                        <template v-else>-</template>
                                     </template>
                                 </el-table-column>
                             </el-table>
