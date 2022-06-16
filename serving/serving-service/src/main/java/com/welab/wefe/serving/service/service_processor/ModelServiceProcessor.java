@@ -22,8 +22,6 @@ import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.api.predict.PredictApi;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.api.predict.ProviderApi;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.Predictor;
@@ -39,7 +37,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
     @Override
     public PredictResult process(JObject data, TableModelMySqlModel model) throws StatusCodeWithException {
 
-        ProviderApi.Input input = data.toJavaObject(ProviderApi.Input.class);
+        PredictApi.Input input = data.toJavaObject(PredictApi.Input.class);
         input.checkAndStandardize();
 
         if (!ModelManager.getModelEnable(input.getModelId())) {

@@ -16,21 +16,12 @@
 
 package com.welab.wefe.serving.service.manager;
 
-import static com.welab.wefe.common.StatusCode.UNEXPECTED_ENUM_CASE;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.collections4.MapUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.feature.SqlFeatureDataHandler;
@@ -91,9 +82,9 @@ public class FeatureManager {
          */
         switch (featureSource) {
             case code:
-                return new CodeFeatureDataHandler().batch(modelId, predictParams);
+                return new CodeFeatureDataHandler().handle(modelId, userId);
             case sql:
-                return new SqlFeatureDataHandler().batch(modelId, predictParams);
+                return new SqlFeatureDataHandler().handle(modelId, userId);
             default:
                 throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
         }

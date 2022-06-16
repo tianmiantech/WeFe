@@ -20,7 +20,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.feature.sql.AbstractTemplate;
@@ -98,7 +98,7 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
     }
 
     private String buildSqlContextByModelId(String modelId, String userId) {
-        ModelMySqlModel modelConfig = modelService.findOne(modelId);
+        TableModelMySqlModel modelConfig = modelService.findOne(modelId);
         return buildSqlContext(userId, modelConfig.getSqlScript(), modelConfig.getSqlConditionField());
     }
 
@@ -134,7 +134,7 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
     }
 
     private DataSourceMySqlModel findSqlConfig(String modelId) throws StatusCodeWithException {
-        ModelMySqlModel modelConfig = modelService.findOne(modelId);
+        TableModelMySqlModel modelConfig = modelService.findOne(modelId);
         return getDataSourceMySqlModel(modelConfig.getDataSourceId());
     }
 
