@@ -886,6 +886,7 @@ export default {
                 service_type: [{required: true, message: '服务类型必选!'}],
             },
             serviceId: '',
+            serviceType:'',
             serviceTypeList: [
                 {
                     name: '两方匿踪查询',
@@ -912,11 +913,11 @@ export default {
                     value: 6,
                 },
                 {
-                    name: '深度学习模型服务',
+                    name: '机器学习模型服务',
                     value: 7,
                 },
                 {
-                    name: '机器学习模型服务',
+                    name: '深度学习模型服务',
                     value: 8,
                 }
             ],
@@ -950,6 +951,7 @@ export default {
     },
     created() {
         this.serviceId = this.$route.query.id;
+        this.serviceType = this.$route.query.service_type;
         this.getDataSource();
         this.getDataResources();
 
@@ -1164,7 +1166,7 @@ export default {
         async getSqlConfigDetail() {
             const {code, data} = await this.$http.post({
                 url: '/service/detail',
-                data: {id: this.serviceId},
+                data: {id: this.serviceId, service_type:this.serviceType},
             });
 
             if (code === 0) {
