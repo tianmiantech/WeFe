@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.sdk.processor;
 
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.model.BaseModel;
@@ -26,13 +25,14 @@ import com.welab.wefe.serving.sdk.model.BaseModel;
  */
 public class EmptyModelProcessor extends AbstractModelProcessor {
 
+
     @Override
-    public void preprocess(BaseModel model, FederatedParams federatedParams, PredictParams predictParams) {
+    public void preprocess(BaseModel model, PredictParams predictParams) {
 
     }
 
     @Override
-    public void postprocess(PredictResult result, BaseModel model, FederatedParams federatedParams, PredictParams predictParams) {
+    public void postprocess(PredictResult result, BaseModel model, PredictParams predictParams) {
 
     }
 }

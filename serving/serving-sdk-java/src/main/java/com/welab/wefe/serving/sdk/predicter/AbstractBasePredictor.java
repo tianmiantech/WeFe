@@ -17,25 +17,17 @@
 package com.welab.wefe.serving.sdk.predicter;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
-import com.welab.wefe.serving.sdk.model.FeatureDataModel;
-import org.apache.commons.collections4.MapUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author hunter.zhao
  */
 public abstract class AbstractBasePredictor implements PredictBehavior {
-    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    public FederatedParams federatedParams;
     public String modelId;
 
-    public AbstractBasePredictor(String modelId, FederatedParams federatedParams) {
+    public AbstractBasePredictor(String modelId) {
         this.modelId = modelId;
-        this.federatedParams = federatedParams;
     }
 
     /**

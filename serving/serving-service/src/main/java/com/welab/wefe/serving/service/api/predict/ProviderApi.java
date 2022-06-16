@@ -74,8 +74,7 @@ public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
             PredictResult result = Predictor.predict(
                     input.getRequestId(),
                     input.getModelId(),
-                    PredictParams.of(input.getUserId(), input.getFeatureData()),
-                    FederatedParams.of(input.getModelId(), input.getPartnerCode())
+                    PredictParams.of(input.getUserId(), input.getFeatureData())
             );
 
             return success(result);

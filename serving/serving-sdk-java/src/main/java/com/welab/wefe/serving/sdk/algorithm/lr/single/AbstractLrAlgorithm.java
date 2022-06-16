@@ -32,7 +32,7 @@ public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends Abst
                 predictParams.getUserId(),
                 predictParams.getFeatureDataModel().getFeatureDataMap()
         );
-        predictModel.setFindFeatureResult(predictParams.getFeatureDataModel());
+        predictModel.setFeatureResult(predictParams.getFeatureDataModel());
         return predictModel;
     }
 

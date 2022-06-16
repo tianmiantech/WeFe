@@ -21,7 +21,6 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
@@ -37,8 +36,8 @@ import java.util.List;
  */
 public class ExamplePromoterPredicter extends AbstractSinglePredictor {
 
-    public ExamplePromoterPredicter(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+    public ExamplePromoterPredicter(String modelId, PredictParams predictParams) {
+        super(modelId, predictParams);
     }
 
     @Override

@@ -44,10 +44,9 @@ public class DebugProviderPredictor extends ProviderPredictor {
 
     public DebugProviderPredictor(String modelId,
                                   PredictParams predictParams,
-                                  FederatedParams federatedParams,
                                   PredictFeatureDataSource featureSource,
                                   JSONObject extendParams) {
-        super(modelId, predictParams, federatedParams);
+        super(modelId, predictParams);
         this.featureSource = featureSource;
         this.extendParams = extendParams;
     }

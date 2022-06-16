@@ -21,6 +21,7 @@ import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostPredictResultModel;
 
 import java.util.List;
 
@@ -29,10 +30,10 @@ import java.util.List;
  *
  * @author hunter.zhao
  */
-public class XgboostHorzPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, PredictModel> {
+public class XgboostHorzPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, XgboostPredictResultModel> {
 
     @Override
-    protected PredictModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
+    protected XgboostPredictResultModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
         return XgboostAlgorithmHelper.promoterPredictByHorz(modelParam.getModelParam(), predictParams.getUserId(), fidValueMapping);
     }
 }

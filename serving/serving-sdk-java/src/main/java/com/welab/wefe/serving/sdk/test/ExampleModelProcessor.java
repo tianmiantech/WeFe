@@ -33,12 +33,12 @@ import com.welab.wefe.serving.sdk.processor.ModelProcessor;
 public class ExampleModelProcessor extends AbstractModelProcessor {
 
     @Override
-    public void preprocess(BaseModel model, FederatedParams federatedParams, PredictParams predictParams) {
+    public void preprocess(BaseModel model, PredictParams predictParams) {
 
     }
 
     @Override
-    public void postprocess(PredictResult result, BaseModel model, FederatedParams federatedParams, PredictParams predictParams) {
+    public void postprocess(PredictResult result, BaseModel model, PredictParams predictParams) {
 
     }
 }

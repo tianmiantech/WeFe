@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @author hunter.zhao
  */
-public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, PredictModel> {
+public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, LrPredictResultModel> {
 
     @Override
     protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {

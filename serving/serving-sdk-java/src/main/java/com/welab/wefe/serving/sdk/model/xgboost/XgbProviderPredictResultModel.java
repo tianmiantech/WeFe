@@ -14,18 +14,28 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter.single;
+package com.welab.wefe.serving.sdk.model.xgboost;
 
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.PredictModel;
 
 /**
- * Single prediction
- *
  * @author hunter.zhao
  */
-public abstract class AbstractSinglePromoterPredictor extends AbstractSinglePredictor {
+public class XgbProviderPredictResultModel extends PredictModel {
+    private Object xgboostTree;
 
-    public AbstractSinglePromoterPredictor(String modelId, PredictParams predictParams) {
-        super(modelId, predictParams);
+    public static XgbProviderPredictResultModel ofObject(String userId, Object xgboostTree) {
+        XgbProviderPredictResultModel model = new XgbProviderPredictResultModel();
+        model.userId = userId;
+        model.xgboostTree = xgboostTree;
+        return model;
+    }
+
+    public Object getXgboostTree() {
+        return xgboostTree;
+    }
+
+    public void setXgboostTree(Object xgboostTree) {
+        this.xgboostTree = xgboostTree;
     }
 }

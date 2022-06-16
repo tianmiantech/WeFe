@@ -101,11 +101,10 @@ public class PartnerService {
         if (null != partnerMysqlModel) {
             throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
         }
-        
+
         if (StringUtils.isNotBlank(input.getId())) {
             partnerMysqlModel = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
-        }
-        else {
+        } else {
             input.setId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
         if (null == partnerMysqlModel) {
@@ -235,5 +234,10 @@ public class PartnerService {
                 e.printStackTrace();
             }
         });
+    }
+
+    public String findModelServiceUrl(String partnerId) {
+        PartnerMysqlModel partner = findOne(partnerId);
+        return partner == null ? "" : partner.getServingBaseUrl();
     }
 }

@@ -18,7 +18,6 @@ package com.welab.wefe.serving.sdk.predicter.single;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.manager.AlgorithmManager;
@@ -37,8 +36,8 @@ public abstract class AbstractSinglePredictor extends AbstractBasePredictor {
     public PredictParams predictParams;
 
 
-    public AbstractSinglePredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, federatedParams);
+    public AbstractSinglePredictor(String modelId, PredictParams predictParams) {
+        super(modelId);
         this.predictParams = predictParams;
     }
 
@@ -61,13 +60,13 @@ public abstract class AbstractSinglePredictor extends AbstractBasePredictor {
 
         AbstractModelProcessor processor = getProcessor();
 
-        processor.preprocess(model, federatedParams, predictParams);
+        processor.preprocess(model, predictParams);
 
         AbstractAlgorithm algorithm = AlgorithmManager.get(model);
 
         PredictResult result = algorithm.execute(model, predictParams, federatedResultByProviders());
 
-        processor.postprocess(result, model, federatedParams, predictParams);
+        processor.postprocess(result, model, predictParams);
 
         return result;
     }

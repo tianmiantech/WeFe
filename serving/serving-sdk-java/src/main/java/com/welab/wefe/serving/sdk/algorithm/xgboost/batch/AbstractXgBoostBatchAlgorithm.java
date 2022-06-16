@@ -20,6 +20,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.AbstractBatchAlgorithm;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
+import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 
 import java.util.HashMap;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, R> extends AbstractBatchAlgorithm<T, R> {
+public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, R> extends AbstractBatchAlgorithm<T, List<? extends PredictModel>> {
 
     /**
      * userId : featureDataMap
@@ -54,28 +55,28 @@ public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, 
         batchPredictParams.getPredictParamsList().stream()
                 .forEach(
                         x -> {
-//                            Map<String, Object> featureMap = new HashMap<>(16);
-//                            Map<String, Object> temp = x.getFeatureDataModel().getFeatureDataMap();
-//                            if (temp != null) {
-//                                for (String key : temp.keySet()) {
-//                                    if (tempMap.containsKey(key)) {
-//                                        featureMap.put(tempMap.get(key), temp.get(key));
-//                                    }
-//                                }
-//                            }
-                            Map<String, Object> featureMap = x.getFeatureDataModel().getFeatureDataMap().entrySet().stream()
-                                    .filter(y -> tempMap.containsKey(y.getKey()))
-                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                            fidValueMapping.put(x.getUserId(), featureMap);
+                            if (x.getFeatureDataModel().isFound()) {
+                                Map<String, Object> featureMap = x.getFeatureDataModel().getFeatureDataMap().entrySet().stream()
+                                        .filter(y -> tempMap.containsKey(y.getKey()))
+                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                                fidValueMapping.put(x.getUserId(), featureMap);
+                            } else {
+                                fidValueMapping.put(x.getUserId(), new HashMap<>());
+                            }
                         }
                 );
     }
 
     @Override
-    protected R handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+    protected List<? extends PredictModel> handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
         setFidValueMapping(batchPredictParams);
 
-        return handlePredict(batchPredictParams, federatedResult);
+        List<? extends PredictModel> result = handlePredict(batchPredictParams, federatedResult);
+
+        result.stream().map(
+                x -> x.setFeatureResult(batchPredictParams.getPredictParamsByUserId(x.getUserId()).getFeatureDataModel())
+        ).collect(Collectors.toList());
+        return result;
     }
 
     /**
@@ -85,5 +86,5 @@ public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, 
      * @return predict result
      * @throws StatusCodeWithException
      */
-    protected abstract R handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException;
+    protected abstract List<? extends PredictModel> handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException;
 }

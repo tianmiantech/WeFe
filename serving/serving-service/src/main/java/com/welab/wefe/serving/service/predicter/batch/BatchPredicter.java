@@ -36,8 +36,8 @@ import java.util.Map;
  */
 public class BatchPredicter extends AbstractBatchPredictor {
 
-    public BatchPredicter(String modelId, BatchPredictParams batchPredictParams, FederatedParams federatedParams) {
-        super(modelId, batchPredictParams, federatedParams);
+    public BatchPredicter(String modelId, BatchPredictParams batchPredictParams) {
+        super(modelId, batchPredictParams);
     }
 
     @Override

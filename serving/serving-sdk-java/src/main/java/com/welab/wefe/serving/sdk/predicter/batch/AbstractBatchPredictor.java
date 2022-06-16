@@ -19,7 +19,6 @@ package com.welab.wefe.serving.sdk.predicter.batch;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.serving.sdk.algorithm.AbstractBatchAlgorithm;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.manager.AlgorithmManager;
@@ -38,10 +37,10 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
 
-    BatchPredictParams batchPredictParams;
+    public BatchPredictParams batchPredictParams;
 
-    public AbstractBatchPredictor(String modelId, BatchPredictParams batchPredictParams, FederatedParams federatedParams) {
-        super(modelId, federatedParams);
+    public AbstractBatchPredictor(String modelId, BatchPredictParams batchPredictParams) {
+        super(modelId);
         this.batchPredictParams = batchPredictParams;
     }
 
@@ -65,13 +64,13 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
 
         AbstractBatchModelProcessor processor = getProcessor();
 
-        processor.preprocess(model, federatedParams, batchPredictParams);
+        processor.preprocess(model, batchPredictParams);
 
         AbstractBatchAlgorithm algorithm = AlgorithmManager.getBatch(model);
 
         PredictResult result = algorithm.execute(model, batchPredictParams, federatedResultByProviders());
 
-        processor.postprocess(result, model, federatedParams, batchPredictParams);
+        processor.postprocess(result, model, batchPredictParams);
 
         return result;
     }

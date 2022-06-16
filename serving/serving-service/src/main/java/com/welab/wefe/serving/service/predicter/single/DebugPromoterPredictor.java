@@ -19,7 +19,6 @@ package com.welab.wefe.serving.service.predicter.single;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
@@ -44,10 +43,9 @@ public class DebugPromoterPredictor extends PromoterPredictor {
     public DebugPromoterPredictor(String requestId,
                                   String modelId,
                                   PredictParams predictParams,
-                                  FederatedParams federatedParams,
                                   PredictFeatureDataSource featureSource,
                                   JSONObject extendParams) {
-        super(requestId, modelId, predictParams, federatedParams);
+        super(requestId, modelId, predictParams);
         this.extendParams = extendParams;
         this.featureSource = featureSource;
     }

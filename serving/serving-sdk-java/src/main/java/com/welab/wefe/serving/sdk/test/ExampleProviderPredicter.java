@@ -33,8 +33,8 @@ import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredict
  */
 public class ExampleProviderPredicter extends AbstractSingleProviderPredictor {
 
-    public ExampleProviderPredicter(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+    public ExampleProviderPredicter(String modelId, PredictParams predictParams) {
+        super(modelId, predictParams);
     }
 
     @Override

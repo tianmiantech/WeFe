@@ -23,14 +23,6 @@ import com.welab.wefe.serving.sdk.model.PredictModel;
  */
 public class XgboostPredictResultModel extends PredictModel {
     public Object scores;
-    private Object data;
-
-    public static XgboostPredictResultModel ofObject(String userId, Object data) {
-        XgboostPredictResultModel model = new XgboostPredictResultModel();
-        model.userId = userId;
-        model.data = data;
-        return model;
-    }
 
     public static XgboostPredictResultModel ofScores(String userId, Object scores) {
         XgboostPredictResultModel model = new XgboostPredictResultModel();
@@ -45,13 +37,5 @@ public class XgboostPredictResultModel extends PredictModel {
 
     public void setScores(Object scores) {
         this.scores = scores;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
-        this.data = data;
     }
 }

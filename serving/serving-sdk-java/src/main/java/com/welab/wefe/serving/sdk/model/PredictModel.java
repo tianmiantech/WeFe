@@ -22,8 +22,7 @@ package com.welab.wefe.serving.sdk.model;
 public class PredictModel {
     public String userId;
     public String error = "";
-    private FindFeatureResultModel findFeatureResult;
-
+    private BaseFeatureResultModel featureResult;
 
     public static PredictModel fail(String userId, String error) {
         PredictModel model = new PredictModel();
@@ -48,16 +47,17 @@ public class PredictModel {
         this.error = error;
     }
 
-    public void setFindFeatureResult(FindFeatureResultModel findFeatureResult) {
-        this.findFeatureResult = findFeatureResult;
+    public BaseFeatureResultModel getFeatureResult() {
+        return featureResult;
     }
 
-    public FindFeatureResultModel getFindFeatureResult() {
-        return findFeatureResult;
+    public void setFeatureResult(BaseFeatureResultModel featureResult) {
+        this.featureResult = featureResult;
     }
 
-    public PredictModel setFindFeatureResult(FeatureDataModel findFeatureResult) {
-        this.findFeatureResult = FindFeatureResultModel.of(findFeatureResult.isFound(), findFeatureResult.getError());
+    public PredictModel setFeatureResult(FeatureDataModel featureResult) {
+        this.featureResult = BaseFeatureResultModel.of(featureResult.isFound(), featureResult.getError());
         return this;
     }
+
 }

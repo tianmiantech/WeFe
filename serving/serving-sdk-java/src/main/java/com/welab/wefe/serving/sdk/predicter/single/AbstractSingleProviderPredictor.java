@@ -18,7 +18,6 @@ package com.welab.wefe.serving.sdk.predicter.single;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 
 import java.util.List;
@@ -30,8 +29,8 @@ import java.util.List;
  */
 public abstract class AbstractSingleProviderPredictor extends AbstractSinglePredictor {
 
-    public AbstractSingleProviderPredictor(String modelId, PredictParams predictParams, FederatedParams federatedParams) {
-        super(modelId, predictParams, federatedParams);
+    public AbstractSingleProviderPredictor(String modelId, PredictParams predictParams) {
+        super(modelId, predictParams);
     }
 
     @Override

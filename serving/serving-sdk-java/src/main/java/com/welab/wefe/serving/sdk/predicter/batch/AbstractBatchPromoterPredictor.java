@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter.single;
+package com.welab.wefe.serving.sdk.predicter.batch;
 
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
+import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 
 /**
- * Single prediction
+ * batch prediction
  *
  * @author hunter.zhao
  */
-public abstract class AbstractSinglePromoterPredictor extends AbstractSinglePredictor {
+public abstract class AbstractBatchPromoterPredictor extends AbstractBatchPredictor {
 
-    public AbstractSinglePromoterPredictor(String modelId, PredictParams predictParams) {
-        super(modelId, predictParams);
+    public AbstractBatchPromoterPredictor(String modelId, BatchPredictParams batchPredictParams) {
+        super(modelId, batchPredictParams);
     }
 }

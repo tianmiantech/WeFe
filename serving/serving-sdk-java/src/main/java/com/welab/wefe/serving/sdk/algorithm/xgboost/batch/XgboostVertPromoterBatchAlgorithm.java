@@ -21,10 +21,9 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostPredictResultModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,14 +40,14 @@ import java.util.concurrent.CountDownLatch;
  *
  * @author hunter.zhao
  */
-public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgorithm<BaseXgboostModel, List<PredictModel>> {
+public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgorithm<BaseXgboostModel, List<XgboostPredictResultModel>> {
 
     /**
      * Federated forecast returns data
      */
     private Map<String, Map<String, Object>> remoteResult = new HashMap<>();
 
-    private CopyOnWriteArrayList<PredictModel> predictModelList = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<XgboostPredictResultModel> predictModelList = new CopyOnWriteArrayList<>();
 
     /**
      * Call provider to get the federated decision tree
@@ -83,8 +82,8 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
 
             for (JObject jobj : predictModelList) {
 
-                XgboostPredictResultModel model = jobj.toJavaObject(XgboostPredictResultModel.class);
-                Map<String, Object> tree = (Map) model.getData();
+                XgbProviderPredictResultModel model = jobj.toJavaObject(XgbProviderPredictResultModel.class);
+                Map<String, Object> tree = (Map) model.getXgboostTree();
 
                 Map<String, Object> remote = remoteResult.get(model.getUserId());
                 if (MapUtils.isEmpty(remote)) {
@@ -112,7 +111,7 @@ public class XgboostVertPromoterBatchAlgorithm extends AbstractXgBoostBatchAlgor
     }
 
     @Override
-    protected List<PredictModel> handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+    protected List<XgboostPredictResultModel> handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         getFederatedPredict(federatedResult);
 

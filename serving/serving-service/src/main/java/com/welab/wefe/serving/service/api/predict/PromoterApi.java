@@ -22,10 +22,8 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
@@ -74,8 +72,7 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
             PredictResult result = Predictor.predict(
                     input.getRequestId(),
                     input.getModelId(),
-                    PredictParams.of(input.getUserId(), input.getFeatureData()),
-                    FederatedParams.of(input.getModelId(), CacheObjects.getMemberId())
+                    PredictParams.of(input.getUserId(), input.getFeatureData())
             );
 
             return success(result);

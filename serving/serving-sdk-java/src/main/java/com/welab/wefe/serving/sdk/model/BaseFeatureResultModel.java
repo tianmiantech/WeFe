@@ -19,15 +19,15 @@ package com.welab.wefe.serving.sdk.model;
  * @author hunter.zhao
  * @date 2022/5/17
  */
-public class FindFeatureResultModel {
+public class BaseFeatureResultModel {
 
     public boolean found = false;
 
     public String error = "";
 
 
-    public static FindFeatureResultModel of(boolean found, String error) {
-        FindFeatureResultModel model = new FindFeatureResultModel();
+    public static BaseFeatureResultModel of(boolean found, String error) {
+        BaseFeatureResultModel model = new BaseFeatureResultModel();
         model.found = found;
         model.error = error;
         return model;

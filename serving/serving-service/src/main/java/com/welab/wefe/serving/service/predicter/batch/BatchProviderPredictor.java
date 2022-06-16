@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.predicter.single;
+package com.welab.wefe.serving.service.predicter.batch;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredictor;
+import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchProviderPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import org.apache.commons.collections4.MapUtils;
@@ -31,10 +30,10 @@ import org.apache.commons.collections4.MapUtils;
  *
  * @author hunter.zhao
  */
-public class ProviderPredictor extends AbstractSingleProviderPredictor {
+public class BatchProviderPredictor extends AbstractBatchProviderPredictor {
 
-    public ProviderPredictor(String modelId, PredictParams predictParams) {
-        super(modelId, predictParams);
+    public BatchProviderPredictor(String modelId, BatchPredictParams batchPredictParams) {
+        super(modelId, batchPredictParams);
     }
 
     @Override
@@ -44,8 +43,9 @@ public class ProviderPredictor extends AbstractSingleProviderPredictor {
 
     @Override
     public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
-        if (MapUtils.isNotEmpty(predictParams.getFeatureDataModel().getFeatureDataMap())) {
-            return predictParams.getFeatureDataModel();
+        if (batchPredictParams.getPredictParamsByUserId(userId) != null &&
+                MapUtils.isNotEmpty(batchPredictParams.getPredictParamsByUserId(userId).getFeatureDataModel().getFeatureDataMap())) {
+            return batchPredictParams.getPredictParamsByUserId(userId).getFeatureDataModel();
         }
 
         return FeatureManager.getFeatureData(modelId, userId);

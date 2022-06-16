@@ -23,7 +23,7 @@ import java.util.Map;
  * @author hunter.zhao
  * @date 2022/5/17
  */
-public class FeatureDataModel extends FindFeatureResultModel {
+public class FeatureDataModel extends BaseFeatureResultModel {
 
     private Map<String, Object> featureDataMap;
 
@@ -39,7 +39,7 @@ public class FeatureDataModel extends FindFeatureResultModel {
         FeatureDataModel featureDataModel = new FeatureDataModel();
         featureDataModel.featureDataMap = featureData;
         featureDataModel.found = MapUtils.isNotEmpty(featureData);
-        featureDataModel.error = MapUtils.isNotEmpty(featureData) ? "" : "未查询到该样本！";
+        featureDataModel.error = MapUtils.isNotEmpty(featureData) ? "" : "未查询到样本！";
         return featureDataModel;
     }
 

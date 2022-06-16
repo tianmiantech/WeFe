@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.predicter.single;
+package com.welab.wefe.serving.service.predicter.batch;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePromoterPredictor;
+import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPromoterPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
+import com.welab.wefe.serving.service.predicter.single.PromoterPredictHelper;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -39,14 +40,14 @@ import java.util.List;
  *
  * @author hunter.zhao
  */
-public class PromoterPredictor extends AbstractSinglePromoterPredictor {
+public class BatchPromoterPredictor extends AbstractBatchPromoterPredictor {
 
     private String requestId;
 
-    public PromoterPredictor(String requestId,
-                             String modelId,
-                             PredictParams predictParams) {
-        super(modelId, predictParams);
+    public BatchPromoterPredictor(String requestId,
+                                  String modelId,
+                                  BatchPredictParams batchPredictParams) {
+        super(modelId, batchPredictParams);
         this.requestId = requestId;
     }
 
@@ -67,7 +68,7 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
 
         List<JObject> federatedResult = new ArrayList<>();
         for (ProviderParams provider : providerList) {
-            String requestParam = PromoterPredictHelper.buildFederatedPredictParam(modelId, requestId, predictParams.getUserId());
+            String requestParam = PromoterPredictHelper.buildBatchFederatedPredictParam(modelId, requestId, batchPredictParams.getUserIds());
             JObject response = PromoterPredictHelper.callProviders(modelId, requestId, provider, requestParam);
             federatedResult.add(response);
         }
@@ -77,8 +78,9 @@ public class PromoterPredictor extends AbstractSinglePromoterPredictor {
 
     @Override
     public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
-        if (MapUtils.isNotEmpty(predictParams.getFeatureDataModel().getFeatureDataMap())) {
-            return predictParams.getFeatureDataModel();
+        if (batchPredictParams.getPredictParamsByUserId(userId) != null &&
+                MapUtils.isNotEmpty(batchPredictParams.getPredictParamsByUserId(userId).getFeatureDataModel().getFeatureDataMap())) {
+            return batchPredictParams.getPredictParamsByUserId(userId).getFeatureDataModel();
         }
 
         return FeatureManager.getFeatureData(modelId, userId);

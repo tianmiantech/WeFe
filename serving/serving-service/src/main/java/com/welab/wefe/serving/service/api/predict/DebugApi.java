@@ -51,7 +51,6 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
             PredictResult result = Predictor.debug(
                     input.getModelId(),
                     PredictParams.of(input.getUserId(), input.getFeatureData()),
-                    FederatedParams.of(input.getModelId(), CacheObjects.getMemberId()),
                     input.getFeatureSource(),
                     input.getParams() == null ? null : new JSONObject(input.getParams())
             );

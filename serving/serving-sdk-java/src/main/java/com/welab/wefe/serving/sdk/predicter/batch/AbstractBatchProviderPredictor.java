@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.sdk.predicter.single;
+package com.welab.wefe.serving.sdk.predicter.batch;
 
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
+
+import java.util.List;
 
 /**
- * Single prediction
+ * batch prediction
  *
  * @author hunter.zhao
  */
-public abstract class AbstractSinglePromoterPredictor extends AbstractSinglePredictor {
+public abstract class AbstractBatchProviderPredictor extends AbstractBatchPredictor {
 
-    public AbstractSinglePromoterPredictor(String modelId, PredictParams predictParams) {
-        super(modelId, predictParams);
+    public AbstractBatchProviderPredictor(String modelId, BatchPredictParams batchPredictParams) {
+        super(modelId, batchPredictParams);
+    }
+
+    @Override
+    public List<JObject> federatedResultByProviders() throws StatusCodeWithException {
+        return null;
     }
 }

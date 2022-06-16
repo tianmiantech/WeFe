@@ -23,16 +23,17 @@ import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
 
 /**
  * Vertically federated Provider(xgboost)
  *
  * @author hunter.zhao
  */
-public class XgboostVertProviderAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, PredictModel> {
+public class XgboostVertProviderAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, XgbProviderPredictResultModel> {
 
     @Override
-    protected PredictModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
+    protected XgbProviderPredictResultModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
         return XgboostAlgorithmHelper.providerPredict(modelParam.getModelMeta().getWorkMode(), modelParam.getModelParam(), predictParams.getUserId(), fidValueMapping);
     }
 }
