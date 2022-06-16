@@ -21,11 +21,30 @@
         </template> -->
         <el-tabs v-model="activeName" class="msg-tabs" type="border-card" @tab-click="tabChange">
             <el-tab-pane label="待办事项" name="todoList">
-                待办事项：
-                <ol>
-                    <li>1. 待处理</li>
-                    <li>2. 已完成</li>
-                </ol>
+                <el-collapse
+                    v-infinite-scroll="loadMessageList"
+                    infinite-scroll-delay="100"
+                    class="message_list todoList"
+                    accordion
+                    @change="handleMessageListCollapseChange"
+                >
+                    <el-collapse-item
+                        v-for="(item,index) in message_list"
+                        :key="item.id"
+                        :name="index"
+                        :class="item.unread ? 'unread' : ''"
+                    >
+                        <template #title>
+                            <i :class="message_level_icon[item.level]" />
+                            {{ item.title }}
+                            <el-icon v-if="item.unread" class="el-icon-message unread-icon">
+                                <elicon-message />
+                            </el-icon>
+                            <span class="time">{{ dateFormat(item.created_time) }}</span>
+                        </template>
+                        {{ item.content }}
+                    </el-collapse-item>
+                </el-collapse>
             </el-tab-pane>
             <el-tab-pane label="合作通知" name="cooperateNotice">
                 合作通知
@@ -120,6 +139,7 @@
         methods: {
             tabChange(val) {
                 console.log(val.paneName);
+                this.message_list = [];
                 switch(val.paneName) {
                 case 'todoList':
                     this.message_search.todo = true;
@@ -246,6 +266,9 @@
             overflow: auto;
             .el-tabs__content {
                 padding: 5px;
+            }
+            .todoList {
+                
             }
         }
     }
