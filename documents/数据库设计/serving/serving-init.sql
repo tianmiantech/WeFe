@@ -386,3 +386,55 @@ CREATE TABLE `global_config`
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique_group_name` (`group`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局设置';
+
+
+CREATE TABLE `base_service` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `service_id` varchar(256) DEFAULT NULL COMMENT '服务ID',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `name` varchar(32) NOT NULL COMMENT '服务名',
+  `url` varchar(128) DEFAULT '' COMMENT '服务地址',
+  `service_type` tinyint(2) NOT NULL COMMENT '服务类型',
+  `status` tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
+  PRIMARY KEY (`id`),
+  KEY `url_unique` (`url`),
+  KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务';
+
+CREATE TABLE `table_service` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `query_params` text COMMENT '查询参数配置',
+  `query_params_config` varchar(255) DEFAULT NULL,
+  `data_source` text COMMENT 'SQL配置',
+  `service_config` text COMMENT '服务配置',
+  `ids_table_name` varchar(100) DEFAULT NULL COMMENT '主键对应的表名',
+  `operator` varchar(10) DEFAULT NULL COMMENT '操作 sum / avg',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务表';
+
+
+CREATE TABLE `table_model` (
+  `id` varchar(32) NOT NULL,
+  `algorithm` varchar(64) DEFAULT NULL COMMENT '算法',
+  `fl_type` varchar(64) DEFAULT '' COMMENT '联邦学习类型',
+  `feature_source` varchar(64) DEFAULT '',
+  `model_param` mediumtext COMMENT '模型参数',
+  `source_path` varchar(255) DEFAULT NULL COMMENT '文件路径',
+  `filename` varchar(255) DEFAULT NULL COMMENT '文件名',
+  `use_count` int(11) DEFAULT '0' COMMENT '使用计数',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `sql_script` varchar(1024) DEFAULT NULL COMMENT 'sql脚本',
+  `sql_condition_field` varchar(100) DEFAULT NULL COMMENT 'sql查询条件字段',
+  `data_source_id` varchar(100) DEFAULT NULL COMMENT '数据源ID',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';

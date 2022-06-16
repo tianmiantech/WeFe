@@ -15,6 +15,11 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
@@ -22,22 +27,18 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.psi.sdk.PrivateSetIntersection;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import org.apache.commons.collections.CollectionUtils;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author hunter.zhao
  */
-public class MultiPsiServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject>{
+public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject>{
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 
     @Override
-    public JObject process(JObject data, ServiceMySqlModel model) throws Exception {
+    public JObject process(JObject data, TableServiceMySqlModel model) throws Exception {
         List<String> clientIds = JObject.parseArray(data.getString("client_ids"), String.class);
         if (CollectionUtils.isEmpty(clientIds)) {
             clientIds = JObject.parseArray(data.getString("clientIds"), String.class);

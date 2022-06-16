@@ -16,6 +16,13 @@
 
 package com.welab.wefe.serving.service.manager;
 
+import static com.welab.wefe.common.StatusCode.UNEXPECTED_ENUM_CASE;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.collections4.MapUtils;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -23,16 +30,10 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
 import com.welab.wefe.serving.service.feature.SqlFeatureDataHandler;
 import com.welab.wefe.serving.service.service.ModelService;
-import org.apache.commons.collections4.MapUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.welab.wefe.common.StatusCode.UNEXPECTED_ENUM_CASE;
 
 /**
  * Get eigenvalue
@@ -62,7 +63,7 @@ public class FeatureManager {
         }
 
         synchronized (modelService) {
-            ModelMySqlModel mysqlModel = modelService.findOne(modelId);
+            TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
                 throw new StatusCodeWithException("modelId error: " + modelId, StatusCode.PARAMETER_VALUE_INVALID);
             }

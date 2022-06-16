@@ -16,6 +16,10 @@
 
 package com.welab.wefe.serving.service.api.model;
 
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -28,9 +32,6 @@ import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.ModelService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
 
 /**
  * @author hunter.zhao
@@ -110,7 +111,7 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
 
         private String id;
 
-        private String modelId;
+        private String serviceId;
 
         private String name;
 
@@ -142,12 +143,12 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
             this.id = id;
         }
 
-        public String getModelId() {
-            return modelId;
+        public String getServiceId() {
+            return serviceId;
         }
 
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         public Algorithm getAlgorithm() {

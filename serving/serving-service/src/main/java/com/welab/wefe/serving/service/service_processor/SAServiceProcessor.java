@@ -15,6 +15,10 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -25,20 +29,16 @@ import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyRequest;
 import com.welab.wefe.mpc.sa.request.QueryDiffieHellmanKeyResponse;
 import com.welab.wefe.mpc.sa.server.service.QueryDiffieHellmanKeyService;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author hunter.zhao
  */
-public class SAServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
+public class SAServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
 
     @Override
-    public JObject process(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {
+    public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
 
         QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
         request.setP(data.getString("p"));

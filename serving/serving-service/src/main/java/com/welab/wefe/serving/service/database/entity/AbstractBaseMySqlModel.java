@@ -27,6 +27,8 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class AbstractBaseMySqlModel extends AbstractMySqlModel {
 
+    private static final long serialVersionUID = 3412866991205235454L;
+
     @Column(name = "created_by")
     private String createdBy;
 

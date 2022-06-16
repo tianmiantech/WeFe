@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
@@ -41,8 +40,7 @@ import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Input;
 import com.welab.wefe.serving.service.api.service.UnionServiceApi.Output;
-import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 
@@ -61,9 +59,6 @@ public class UnionServiceService {
             .expiration(60, TimeUnit.SECONDS)
             .maxSize(500)
             .build();
-    
-	@Autowired
-	private Config config;
 
     public PagingOutput<Output> query(Input input) throws StatusCodeWithException {
         JSONObject result = query4Union(input);
@@ -119,7 +114,7 @@ public class UnionServiceService {
 		return request("member/service/query", params);
 	}
 
-	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
+	public JSONObject add2Union(TableServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("queryParams", model.getQueryParams())
 				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
 				.append("baseUrl", CacheObjects.getServingBaseUrl())
@@ -131,7 +126,7 @@ public class UnionServiceService {
 		return response;
 	}
 
-	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
+	public JSONObject offline2Union(TableServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("queryParams", model.getQueryParams())
 				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
 				.append("baseUrl", CacheObjects.getServingBaseUrl())

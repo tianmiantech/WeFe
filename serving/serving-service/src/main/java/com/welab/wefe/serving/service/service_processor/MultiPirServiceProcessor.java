@@ -15,6 +15,11 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
@@ -24,22 +29,18 @@ import com.welab.wefe.mpc.config.CommunicationConfig;
 import com.welab.wefe.mpc.pir.sdk.PrivateInformationRetrievalQuery;
 import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author hunter.zhao
  */
-public class MultiPirServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
+public class MultiPirServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 
     @Override
-    public JObject process(JObject data, ServiceMySqlModel model) throws Exception {
+    public JObject process(JObject data, TableServiceMySqlModel model) throws Exception {
         List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
         int idx = data.getIntValue("index");
         String otMethod = data.getString("otMethod");

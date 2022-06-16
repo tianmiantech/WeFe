@@ -16,6 +16,12 @@
 
 package com.welab.wefe.serving.service.api.service;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -26,236 +32,37 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
-import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelSqlConfigMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
-import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
-import com.welab.wefe.serving.service.database.repository.ModelRepository;
-import com.welab.wefe.serving.service.database.repository.ServiceRepository;
 import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
 import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.TreeNode;
-import com.welab.wefe.serving.service.dto.TreeNodeData;
-import com.welab.wefe.serving.service.manager.FeatureManager;
-import com.welab.wefe.serving.service.service.CacheObjects;
-import com.welab.wefe.serving.service.service.ModelService;
-import com.welab.wefe.serving.service.service.ModelSqlConfigService;
 import com.welab.wefe.serving.service.service.ServiceService;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Api(path = "service/detail", name = "服务详情")
 public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
     @Autowired
-    private ServiceRepository serviceRepo;
-
-    @Autowired
-    private ModelRepository modelRepo;
-
-    @Autowired
-    ModelService modelService;
-
-    @Autowired
-    private ModelMemberRepository modelMemberRepository;
-
-    @Autowired
-    private ModelSqlConfigService modelSqlConfigService;
+    private ServiceService service;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
-
-        Optional<ServiceMySqlModel> serviceMySqlModel = serviceRepo.findById(input.getId());
-        if (serviceMySqlModel != null && serviceMySqlModel.isPresent()) {
-            return detailService(serviceMySqlModel);
-        } else {
-            Optional<ModelMySqlModel> modelServiceModelOptional = modelRepo.findById(input.getId());
-            if (modelServiceModelOptional != null && modelServiceModelOptional.isPresent()) {
-                return detailModel(modelServiceModelOptional);
-            } else {
-                return fail("data not found");
-            }
+        try {
+            return success(service.detail(input));
+        } catch (Exception e) {
+            return fail(e.getMessage());
         }
-
-    }
-
-    private ApiResult<Output> detailModel(Optional<ModelMySqlModel> modelServiceModelOptional) {
-        ModelMySqlModel model = modelServiceModelOptional.get();
-        DetailApi.Output output = ModelMapper.map(model, DetailApi.Output.class);
-
-        output.setModelParam(JObject.create(model.getModelParam()).getJObject("model_param"));
-        output.setMyRole(findMyRoles(model.getModelId()));
-        output.setModelSqlConfig(ModelSqlConfigOutput.of(model.getDataSourceId(), model.getSqlScript(), model.getSqlConditionField()));
-        output.setProcessor(FeatureManager.getProcessor(model.getModelId()));
-        output.setXgboostTree(
-                output.getAlgorithm() == Algorithm.XGBoost ? xgboost(output.getModelParam(), output.getFlType())
-                        : null);
-        output.setModelStatus(
-                output.getMyRole().contains(JobMemberRole.promoter) ? findModelStatus(model.getModelId()) : null);
-
-        return success(output);
-    }
-
-    private ApiResult<Output> detailService(Optional<ServiceMySqlModel> serviceMySqlModel) {
-        ServiceMySqlModel entity = serviceMySqlModel.get();
-
-        DetailApi.Output output = ModelMapper.map(entity, DetailApi.Output.class);
-        if (StringUtils.isNotBlank(entity.getDataSource())) {
-            output.setDataSource(JSONObject.parseObject(entity.getDataSource()));
-        }
-        if (StringUtils.isNotBlank(entity.getQueryParams())) {
-            output.setQueryParams(Arrays.asList(entity.getQueryParams().split(",")));
-        }
-        if (StringUtils.isNotBlank(entity.getServiceConfig())) {
-            output.setServiceConfig(JSONObject.parseArray(entity.getServiceConfig()));
-        }
-        if (StringUtils.isNotBlank(entity.getQueryParamsConfig())) {
-            output.setQueryParamsConfig(JSONObject.parseArray(entity.getQueryParamsConfig()));
-        }
-        JSONObject preview = new JSONObject();
-        preview.put("id", entity.getId());
-        preview.put("params", entity.getQueryParams());
-        preview.put("url", ServiceService.SERVICE_PRE_URL + entity.getUrl());
-        preview.put("method", "POST");
-        output.setPreview(preview);
-        return success(output);
-    }
-
-    private List<JobMemberRole> findMyRoles(String modelId) {
-        List<ModelMemberMySqlModel> memberBaseInfo = modelMemberRepository.findByModelIdAndMemberId(modelId, CacheObjects.getMemberId());
-
-        return memberBaseInfo
-                .stream()
-                .map(ModelMemberMySqlModel::getRole)
-                .collect(Collectors.toList());
-    }
-
-    private List<ModelStatusOutput> findModelStatus(String modelId) {
-        List<ModelMemberMySqlModel> modelMemberMySqlModels = modelMemberRepository.findByModelId(modelId);
-
-        return modelMemberMySqlModels
-                .stream()
-                .filter(x -> JobMemberRole.provider.equals(x.getRole()))
-                .map(x -> ModelStatusOutput.of
-                        (
-                                x.getMemberId(),
-                                CacheObjects.getPartnerName(x.getMemberId()),
-                                x.getStatus()
-                        )
-                )
-                .collect(Collectors.toList());
-    }
-
-    private List<TreeNode> xgboost(JObject modelParam, FederatedLearningType flType) {
-
-        JObject feature = modelParam.getJObject("featureNameFidMapping");
-
-        XgboostModel model = modelParam.toJavaObject(XgboostModel.class);
-
-        /**
-         * xgboost Tree structure settings
-         * <p>
-         * tree:[
-         *    {
-         *        "children":[
-         *            Object{...},
-         *            Object{...}
-         *        ],
-         *        "data":{
-         *            "feature":"x15",
-         *            "leaf":false,
-         *            "left_node":1,
-         *            "right_node":2,
-         *            "sitename":"promoter:d3c9199e15154d9eac22690a55abc0f4",
-         *            "split_maskdict":0.3127503322540728,
-         *            "weight":-1.6183986372
-         *        },
-         *       "id":0
-         *    }
-         * ]
-         * </p>
-         */
-        List<TreeNode> xgboost = new ArrayList<>();
-
-        List<XgboostDecisionTreeModel> trees = model.getTrees();
-        for (int i = 0; i < trees.size(); i++) {
-
-            Map<Integer, TreeNode> map = new HashMap<>(16);
-            List<XgboostNodeModel> tree = trees.get(i).getTree();
-            Map<Integer, Double> splitMaskdict = trees.get(i).getSplitMaskdict();
-
-            //Composite node
-            for (XgboostNodeModel xgboostNodeModel : tree) {
-                //Find child nodes
-                TreeNode node = new TreeNode();
-                TreeNodeData data = new TreeNodeData();
-                node.setId(i + "-" + xgboostNodeModel.getId().toString());
-                node.setData(data);
-
-                data.setFeature(feature.getString(xgboostNodeModel.getFid().toString()));
-                data.setLeaf(xgboostNodeModel.isLeaf());
-                data.setLeftNode(xgboostNodeModel.getLeftNodeId());
-                data.setRightNode(xgboostNodeModel.getRightNodeId());
-                data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
-                data.setWeight(xgboostNodeModel.getWeight());
-                data.setThreshold(
-                        flType == FederatedLearningType.vertical ?
-                                splitMaskdict.get(xgboostNodeModel.getId()) : xgboostNodeModel.getBid());
-
-                map.put(xgboostNodeModel.getId(), node);
-            }
-
-            //Traversing the processing node tree
-            TreeNode root = map.get(0);
-            recursive(map, root);
-
-            xgboost.add(root);
-        }
-
-        return xgboost;
-    }
-
-    /**
-     * Recursive fill tree
-     */
-    void recursive(Map<Integer, TreeNode> map, TreeNode root) {
-
-        if (root.getData().isLeaf()) {
-            return;
-        }
-
-        //Find left and right subtrees
-        TreeNode leftNode = map.get(root.getData().getLeftNode());
-        TreeNode rightNode = map.get(root.getData().getRightNode());
-
-        //Set fill left and right subtrees
-        recursive(map, leftNode);
-        recursive(map, rightNode);
-
-        //Add child node
-        List<TreeNode> children = new ArrayList<>();
-        children.add(leftNode);
-        children.add(rightNode);
-        root.setChildren(children);
     }
 
     public static class Input extends AbstractApiInput {
 
         @Check(name = "主键id")
         private String id;
+
+        @Check(name = "服务类型")
+        private int serviceType;
 
         // region getter/setter
 
@@ -266,6 +73,15 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         public void setId(String id) {
             this.id = id;
         }
+
+        public int getServiceType() {
+            return serviceType;
+        }
+
+        public void setServiceType(int serviceType) {
+            this.serviceType = serviceType;
+        }
+
         // endregion
     }
 
@@ -297,7 +113,6 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         private List<ModelStatusOutput> modelStatus;
 
         private JSONObject preview;
-
 
         private String sqlScript;
 

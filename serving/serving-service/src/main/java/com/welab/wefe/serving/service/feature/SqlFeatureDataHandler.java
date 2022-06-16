@@ -16,13 +16,16 @@
 
 package com.welab.wefe.serving.service.feature;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.feature.sql.AbstractTemplate;
 import com.welab.wefe.serving.service.feature.sql.hive.HiveTemplate;
 import com.welab.wefe.serving.service.feature.sql.impala.ImpalaTemplate;
@@ -30,9 +33,6 @@ import com.welab.wefe.serving.service.feature.sql.mysql.MySqlTemplate;
 import com.welab.wefe.serving.service.feature.sql.pg.PgSqlTemplate;
 import com.welab.wefe.serving.service.service.DataSourceService;
 import com.welab.wefe.serving.service.service.ModelService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author hunter.zhao
@@ -98,7 +98,7 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
     }
 
     private String buildSqlContext(String modelId, String userId) {
-        ModelMySqlModel modelConfig = modelService.findOne(modelId);
+        TableModelMySqlModel modelConfig = modelService.findOne(modelId);
         return new StringBuilder(16)
                 .append(modelConfig.getSqlScript())
                 .append(" where ")
@@ -130,7 +130,7 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
     }
 
     private DataSourceMySqlModel findSqlConfig(String modelId) throws StatusCodeWithException {
-        ModelMySqlModel modelConfig = modelService.findOne(modelId);
+        TableModelMySqlModel modelConfig = modelService.findOne(modelId);
         DataSourceMySqlModel dataSource = dataSourceService.findById(modelConfig.getDataSourceId());
         if (dataSource == null) {
             throw new StatusCodeWithException("模型 {} 未查找到特征sql配置！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);

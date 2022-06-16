@@ -46,6 +46,8 @@ public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceDetailOut
         private String id;
 
         private Integer status;
+        
+        private int serviceType;
 
         public String getId() {
             return id;
@@ -53,6 +55,14 @@ public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceDetailOut
 
         public void setId(String id) {
             this.id = id;
+        }
+
+        public int getServiceType() {
+            return serviceType;
+        }
+
+        public void setServiceType(int serviceType) {
+            this.serviceType = serviceType;
         }
 
         public Integer getStatus() {

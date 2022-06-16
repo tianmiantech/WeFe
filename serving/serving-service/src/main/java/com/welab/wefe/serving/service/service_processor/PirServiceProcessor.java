@@ -15,12 +15,19 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
 import com.welab.wefe.mpc.commom.Constants;
@@ -30,21 +37,17 @@ import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
 import com.welab.wefe.mpc.pir.server.service.HuackKeyService;
 import com.welab.wefe.mpc.pir.server.service.naor.NaorPinkasRandomService;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceMySqlModel;
-import com.welab.wefe.serving.service.service.DataSourceService;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.*;
 
 /**
  * @author hunter.zhao
  * @date 2022/5/19
  */
-public class PirServiceProcessor extends AbstractServiceProcessor<ServiceMySqlModel, JObject> {
+public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
 
     @Override
-    public JObject process(JObject data, ServiceMySqlModel model) throws StatusCodeWithException {
+    public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
 
         List<String> ids = JObject.parseArray(data.getString("ids"), String.class);
         String otMethod = data.getString("otMethod");
