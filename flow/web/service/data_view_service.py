@@ -37,7 +37,7 @@ class DataViewService:
         # Judge Whether Have Label Y
         if len(storage_data.take()[0][1].to_csv().split(",")) == len(header_list) + 1:
             header_list.insert(0, "y")
-        header_list.insert(0, json.loads(my_str)["sid_name"])
+        header_list.insert(0, json.loads(my_str)['schema']["sid_name"])
         for x in header_list:
             result["header"].append(x)
         print(result)
