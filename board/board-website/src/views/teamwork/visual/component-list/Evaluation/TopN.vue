@@ -9,7 +9,7 @@
                 label="TopN"
                 width="150">
             </el-table-column>
-            <el-table-column v-if="vData.train_topn.length" label="训练集" align="center">
+            <el-table-column label="训练集" align="center">
                 <el-table-column
                     label="cutoff 区间"
                     width="120">
@@ -80,7 +80,7 @@
             const methods = {};
 
             const renderTopnTable = (result) => {
-                const topnList = result.train_topn || result.validate_topn;
+                const topnList = result.validate_topn || result.train_topn;
 
                 vData.validate_topn = result.validate_topn;
                 if(topnList && topnList.length) {
