@@ -295,8 +295,9 @@ public class ServiceService {
         root.setChildren(children);
     }
 
+    // TODO
     @Transactional(rollbackFor = Exception.class)
-    public com.welab.wefe.serving.service.api.service.AddApi.Output save(AddApi.Input input)
+    public com.welab.wefe.serving.service.api.service.AddApi.Output saveService(AddApi.Input input)
             throws StatusCodeWithException {
         TableServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), TableServiceMySqlModel.class);
         if (model != null) {
@@ -443,7 +444,7 @@ public class ServiceService {
         return PagingOutput.of(page.getTotal(), list);
     }
 
-    public com.welab.wefe.serving.service.api.service.AddApi.Output update(Input input) throws StatusCodeWithException {
+    public com.welab.wefe.serving.service.api.service.AddApi.Output updateService(Input input) throws StatusCodeWithException {
         TableServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), TableServiceMySqlModel.class);
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
@@ -496,7 +497,7 @@ public class ServiceService {
     }
 
     public void offlineService(String id) throws StatusCodeWithException {
-        TableServiceMySqlModel model = serviceRepository.findOne("id", id, TableServiceMySqlModel.class);
+        BaseServiceMySqlModel model = baseServiceRepository.findOne("id", id, BaseServiceMySqlModel.class);
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
@@ -504,12 +505,15 @@ public class ServiceService {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
         }
         model.setStatus(0);
-        serviceRepository.save(model);
-        unionServiceService.offline2Union(model);
+        baseServiceRepository.save(model);
+        if (!model.isModelService()) {
+            TableServiceMySqlModel m = serviceRepository.findOne("id", id, TableServiceMySqlModel.class);
+            unionServiceService.offline2Union(m);
+        }
     }
 
     public void onlineService(String id) throws StatusCodeWithException {
-        TableServiceMySqlModel model = serviceRepository.findOne("id", id, TableServiceMySqlModel.class);
+        BaseServiceMySqlModel model = baseServiceRepository.findOne("id", id, BaseServiceMySqlModel.class);
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
@@ -517,13 +521,16 @@ public class ServiceService {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
         }
         model.setStatus(1);
-        serviceRepository.save(model);
-        if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
-            JSONObject dataSource = JObject.parseObject(model.getDataSource());
-            String key_calc_rule = dataSource.getString("key_calc_rule");
-            model.setQueryParams(key_calc_rule);
+        baseServiceRepository.save(model);
+        if (!model.isModelService()) {
+            TableServiceMySqlModel m = serviceRepository.findOne("id", id, TableServiceMySqlModel.class);
+            if (m.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
+                JSONObject dataSource = JObject.parseObject(m.getDataSource());
+                String key_calc_rule = dataSource.getString("key_calc_rule");
+                m.setQueryParams(key_calc_rule);
+            }
+            unionServiceService.add2Union(m);
         }
-        unionServiceService.add2Union(model);
     }
 
     public Output sqlTest(com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Input input)
@@ -551,7 +558,7 @@ public class ServiceService {
         return out;
     }
 
-    public JObject check(TableServiceMySqlModel service, JObject res, String serviceUrl,
+    public JObject check(BaseServiceMySqlModel service, JObject res, String serviceUrl,
             com.welab.wefe.serving.service.api.service.RouteApi.Input input, String clientIp) {
         long start = System.currentTimeMillis();
         if (service == null) {
@@ -634,7 +641,7 @@ public class ServiceService {
         }
     }
 
-    private void log(TableServiceMySqlModel service, PartnerMysqlModel client, long start, String clientIp, int code) {
+    private void log(BaseServiceMySqlModel service, PartnerMysqlModel client, long start, String clientIp, int code) {
         CommonThreadPool.run(() -> apiRequestRecordService.save(service.getId(), service.getName(),
                 service.getServiceType(), client.getName(), client.getId(),
                 System.currentTimeMillis() - start, clientIp, code));
@@ -730,7 +737,7 @@ public class ServiceService {
     }
 
     public ServiceDetailOutput queryById(QueryOneApi.Input input) {
-        if (input.getServiceType() <= 7) {
+        if (input.getServiceType() < 7) {
             TableServiceMySqlModel service = serviceRepository.findOne("id", input.getId(),
                     TableServiceMySqlModel.class);
             return ServiceDetailOutput.convertByService(service);

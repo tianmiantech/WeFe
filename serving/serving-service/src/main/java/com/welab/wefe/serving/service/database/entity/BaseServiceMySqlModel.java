@@ -88,5 +88,9 @@ public class BaseServiceMySqlModel extends AbstractBaseMySqlModel {
     public void setStatus(int status) {
         this.status = status;
     }
+    
+    public boolean isModelService() {
+        return this.serviceType > 6;
+    }
 
 }

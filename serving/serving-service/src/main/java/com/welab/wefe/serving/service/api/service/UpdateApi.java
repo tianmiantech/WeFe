@@ -44,7 +44,7 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 
 	@Override
 	protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
-		return success(service.update(input));
+		return success(service.updateService(input));
 	}
 
 	public static class Input extends AbstractApiInput {
