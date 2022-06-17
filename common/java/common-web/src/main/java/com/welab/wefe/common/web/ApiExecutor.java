@@ -215,7 +215,7 @@ public class ApiExecutor {
      * Check mobile phone number flow control
      */
     private static void checkFlowLimitByMobile(HttpServletRequest httpServletRequest, AbstractApi<?, ?> api, JSONObject params) throws Exception {
-        if (null == Launcher.FLOW_LIMIT_BY_MOBILE_FUNCTION || null == params || StringUtil.isEmpty(params.getString("mobile"))) {
+        if (null == Launcher.FLOW_LIMIT_BY_MOBILE_FUNCTION) {
             return;
         }
         FlowLimitByMobile flowLimitByMobile = api.getClass().getAnnotation(FlowLimitByMobile.class);
