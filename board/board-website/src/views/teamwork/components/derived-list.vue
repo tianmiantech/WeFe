@@ -131,7 +131,7 @@
             </el-table-column>
             <el-table-column label="查看任务">
                 <template v-slot="scope">
-                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.data_resource.source_job_id, project_id, member_role: scope.row.data_resource.member_role }}">
+                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.data_resource.derived_from_job_id, project_id, member_role: scope.row.member_role }}">
                         查看任务
                     </router-link>
                 </template>

@@ -402,7 +402,7 @@
                     url: `${map[this.addType]}?id=` + this.id,
                 });
 
-                if (code === 0) {
+                if (code === 0 && data) {
                     this.form = Object.assign(this.form, data);
                     if (this.form.public_level === 'PublicWithMemberList') {
                         for (const key in data.public_member_info_list) {
