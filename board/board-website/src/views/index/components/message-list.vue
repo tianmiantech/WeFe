@@ -32,7 +32,7 @@
                         v-for="(item,index) in message_list"
                         :key="item.id"
                         :name="index"
-                        :class="item.unread ? 'unread' : ''"
+                        :class="item.todo_complete ? '' : 'unread'"
                     >
                         <template #title>
                             <i :class="message_level_icon[item.level]" />
@@ -42,12 +42,59 @@
                             </el-icon>
                             <span class="time">{{ dateFormat(item.created_time) }}</span>
                         </template>
-                        {{ item.content }}
+                        <div v-if="activeName === 'todoList'">
+                            <!-- 数据集审核 -->
+                            <div v-if="item.project.data_resource_id">
+                                <p>数据集名称：{{item.project.data_resource_name}}</p>
+                                <p>数据集ID：{{item.project.data_resource_id}}</p>
+                            </div>
+                            <!-- 项目审核 -->
+                            <div v-else>
+                                <p>项目名称：{{item.project.project_name}}</p>
+                                <p>项目ID:{{item.project.project_id}}</p>
+                            </div>
+                            <router-link
+                                :to="{name: 'project-detail', query: { project_id: item.project.project_id, project_type: item.project.project_type }}"
+                                class="li"
+                            >去处理</router-link>
+                        </div>
                     </el-collapse-item>
                 </el-collapse>
             </el-tab-pane>
             <el-tab-pane label="合作通知" name="cooperateNotice">
-                合作通知
+                <el-collapse
+                    v-infinite-scroll="loadMessageList"
+                    infinite-scroll-delay="100"
+                    class="message_list todoList"
+                    accordion
+                    @change="handleMessageListCollapseChange"
+                >
+                    <el-collapse-item
+                        v-for="(item,index) in message_list"
+                        :key="item.id"
+                        :name="index"
+                        class="unread"
+                    >
+                        <template #title>
+                            <i :class="message_level_icon[item.level]" />
+                            {{ item.title }}
+                            <el-icon v-if="item.unread" class="el-icon-message unread-icon">
+                                <elicon-message />
+                            </el-icon>
+                            <span class="time">{{ dateFormat(item.created_time) }}</span>
+                        </template>
+                        <div v-if="activeName === 'cooperateNotice'">
+                            <p>项目名称：{{item.project.project_name}}</p>
+                            <p>项目ID:{{item.project.project_id}}</p>
+                            <p>数据集名称：{{item.project.data_resource_name}}</p>
+                            <p>数据集ID：{{item.project.data_resource_id}}</p>
+                            <router-link
+                                :to="{name: 'project-detail', query: { project_id: item.project.project_id, project_type: item.project.project_type }}"
+                                class="li"
+                            >去处理</router-link>
+                        </div>
+                    </el-collapse-item>
+                </el-collapse>
             </el-tab-pane>
             <el-tab-pane label="系统消息" name="systemMsg">
                 <div
@@ -122,7 +169,7 @@
                     error:   'el-icon-error error level',
                 },
                 message_search: {
-                    unread:     true,
+                    unread:     null,
                     page_index: 0,
                     page_size:  15,
                     noMore:     false,
@@ -138,7 +185,6 @@
         },
         methods: {
             tabChange(val) {
-                console.log(val.paneName);
                 this.message_list = [];
                 switch(val.paneName) {
                 case 'todoList':
@@ -169,19 +215,38 @@
 
                 if(code === 0) {
                     this.noMore = data.list.length < 15;
-                    const eventlist = ['CreateProject', 'AgreeJoinProject', 'DisagreeJoinProject', 'ApplyDataResource', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
+                    if (this.activeName === 'todoList' || this.activeName === 'cooperateNotice') {
+                        const eventlist = ['CreateProject', 'AgreeJoinProject', 'DisagreeJoinProject', 'ApplyDataResource', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
+                        const list = data.list.map((item, i) => {
+                            if (eventlist.indexOf(item.event) !== -1) {
+                                const content = JSON.parse(item.content);
 
-                    data.list.forEach((item, i) => {
-                        if (eventlist.indexOf(item.event) !== -1) {
-                            console.log(item);
-                            console.log(JSON.parse(item.content));
+                                // console.log(content, content.project_type);
+
+                                return {
+                                    ...item,
+                                    project: {
+                                        project_id:         content.project_id,
+                                        project_name:       content.project_name,
+                                        data_resource_id:   content.data_resource_id,
+                                        data_resource_name: content.data_resource_name,
+                                        project_type:       content.project_type,
+                                    },
+                                };
+                            }
+                        });
+
+                        for(const i in list){
+                            this.message_list.push(list[i]);
                         }
-                    });
-                    for(const i in data.list){
-                        this.message_list.push(data.list[i]);
+                    } else if (this.activeName === 'systemMsg') {
+                        for(const i in data.list){ 
+                            this.message_list.push(data.list[i]); 
+                        } 
                     }
                     this.message_search.page_index++;
                 }
+                // console.log(this.message_list);
                 this.message_list_loading = false;
             },
             async handleMessageListCollapseChange(index){
