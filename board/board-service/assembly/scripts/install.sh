@@ -10,24 +10,18 @@ application=$1
 ## --- 该分割线以上代码不用动 ---
 
 ## 切换到具体的子项目顶层目录
-# workdir=$(dirname $0)/../../ ; cd $workdir
-workdir=$(pwd)/$(dirname $0)/../../ ; cd $workdir
+workdir=$(pwd)
 
-## 子项目编译命令，需要根据实际项目更改
-## CI_ 打头的为和运维约定好的变量，CI_DEPLOY_ENV 代表编译环境
-[ -e $HOME/.nvm/nvm.sh ] && source $HOME/.nvm/nvm.sh
+cd "$workdir"
 
-rm -rf node_modules
-nvm use 16.13.0 || :
-nrm use npm
-npm install
-npm run build -- $CI_DEPLOY_ENV=$CI_SERVICE_NAME tail=2
+mvn clean install -Dmaven.test.skip=true -am -pl board/board-service
+echo "打包完毕"
 
 ## 生成 JSON 配置文件，此文件作用告知运维怎么拿到实际要部署的代码、配置文件（以目录形式存放）
 ## JSON 中的 key 值，事先和运维约定好
-cat > /tmp/$application <<-EOF
+cat > /tmp/"$application" <<-EOF
 {
-    "targetPath": "$workdir/dist"
+    "targetPath": "${workdir}/board/board-service/target"
 }
 EOF
 
