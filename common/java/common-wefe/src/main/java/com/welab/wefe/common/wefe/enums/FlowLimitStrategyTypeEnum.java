@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.common.data.mongodb.constant;
+package com.welab.wefe.common.wefe.enums;
 
 /**
  * @author aaron.li

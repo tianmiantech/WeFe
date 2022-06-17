@@ -45,9 +45,12 @@ public class Launcher {
      */
     public static CheckSessionTokenFunction CHECK_SESSION_TOKEN_FUNCTION;
     /**
-     * IP Address Filtering Policy
+     * Flow control of basic IP address
      */
     public static FlowLimitByIpFunction FLOW_LIMIT_BY_IP_FUNCTION;
+    /**
+     * Flow control of basic mobile address
+     */
     public static FlowLimitByMobileFunction FLOW_LIMIT_BY_MOBILE_FUNCTION;
     public static String API_PACKAGE_PATH;
 
