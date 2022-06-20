@@ -83,7 +83,6 @@ public class ModelImportService {
         modelContent.setAlgorithm(extractAlgorithm(jObject));
         modelContent.setModelParam(jObject.getString("modelParam"));
         modelContent.setMemberParams(extractMemberParams(jObject));
-        modelContent.setServiceType(8);
         modelContent.setUrl(url);
         return modelContent;
     }
