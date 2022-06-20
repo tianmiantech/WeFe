@@ -105,7 +105,6 @@ public class ModelService {
         //save model
         TableModelMySqlModel model = upsertModel(input);
         return model.getId();
-        //TODO 考虑模型是否放到service表
     }
 
     private void addPartners(SaveModelApi.Input input) {
@@ -124,11 +123,13 @@ public class ModelService {
         TableModelMySqlModel model = findOne(input.getServiceId());
         if (model == null) {
             model = new TableModelMySqlModel();
+            model.setCreatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getNickname());
         }
 
         convertTo(input, model);
 
         model.setUpdatedTime(new Date());
+        model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getNickname());
         modelRepository.save(model);
         return model;
     }

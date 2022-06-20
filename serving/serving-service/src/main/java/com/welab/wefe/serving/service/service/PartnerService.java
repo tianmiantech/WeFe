@@ -116,6 +116,7 @@ public class PartnerService {
         partnerMysqlModel.setCreatedBy(input.getCreatedBy());
         partnerMysqlModel.setCode(input.getCode());
         partnerMysqlModel.setId(input.getId());
+        partnerMysqlModel.setIsUnionMember(input.getIsUnionMember());
         partnerRepository.save(partnerMysqlModel);
     }
 
