@@ -338,6 +338,7 @@ public class ClientServiceService {
         clientService.setClientId(clientId);
         clientService.setServiceId(serviceId);
         clientService.setPublicKey(publicKey);
+        clientService.setCode(clientId);
         clientService.setType(ServiceClientTypeEnum.OPEN.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         add(clientService);
