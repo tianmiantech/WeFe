@@ -261,6 +261,7 @@ public class ServingService extends AbstractService {
         TreeMap<String, Object> params = new TreeMap<>();
         params.put("myRole", role);
         params.put("modelId", taskResult.getModelId());
+        params.put("serviceId", taskResult.getModelId());
         params.put("name", job.getName());
         // The v2 version job does not have Algorithm and flType parameters
         params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
