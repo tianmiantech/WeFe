@@ -31,10 +31,8 @@ import com.welab.wefe.serving.service.service.ServiceService;
 @Api(path = "service/query-one", name = "query service by id")
 public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceDetailOutput> {
 
-
     @Autowired
     private ServiceService serviceService;
-
 
     @Override
     protected ApiResult<ServiceDetailOutput> handle(Input input) throws Exception {
@@ -45,10 +43,6 @@ public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceDetailOut
 
         private String id;
 
-        private Integer status;
-        
-        private int serviceType;
-
         public String getId() {
             return id;
         }
@@ -56,24 +50,5 @@ public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceDetailOut
         public void setId(String id) {
             this.id = id;
         }
-
-        public int getServiceType() {
-            return serviceType;
-        }
-
-        public void setServiceType(int serviceType) {
-            this.serviceType = serviceType;
-        }
-
-        public Integer getStatus() {
-            return status;
-        }
-
-        public void setStatus(Integer status) {
-            this.status = status;
-        }
     }
 }
-
-
-

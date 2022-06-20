@@ -736,8 +736,12 @@ public class ServiceService {
         }
     }
 
-    public ServiceDetailOutput queryById(QueryOneApi.Input input) {
-        if (input.getServiceType() < 7) {
+    public ServiceDetailOutput queryById(QueryOneApi.Input input) throws Exception {
+        BaseServiceMySqlModel baseService = baseServiceRepository.getOne(input.getId());
+        if (baseService == null) {
+            throw new Exception("data not found");
+        }
+        if (!baseService.isModelService()) {
             TableServiceMySqlModel service = serviceRepository.findOne("id", input.getId(),
                     TableServiceMySqlModel.class);
             return ServiceDetailOutput.convertByService(service);
