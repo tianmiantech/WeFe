@@ -309,6 +309,11 @@ public class ServingService extends AbstractService {
                         getJSONArray("list").
                         getJSONObject(0).
                         getString("public_key"));
+                member.put("url", json.getJSONObject("data").
+                        getJSONArray("list").
+                        getJSONObject(0).
+                        getJSONObject("ext_json").
+                        getString("serving_base_url"));
             } catch (StatusCodeWithException e) {
                 super.log(e);
             }
