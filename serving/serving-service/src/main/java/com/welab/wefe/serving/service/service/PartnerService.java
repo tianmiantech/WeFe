@@ -116,6 +116,7 @@ public class PartnerService {
         partnerMysqlModel.setCreatedBy(input.getCreatedBy());
         partnerMysqlModel.setCode(input.getCode());
         partnerMysqlModel.setId(input.getId());
+        partnerMysqlModel.setIsUnionMember(input.getIsUnionMember());
         partnerRepository.save(partnerMysqlModel);
     }
 
@@ -225,7 +226,7 @@ public class PartnerService {
             partner.setId(x.getMemberId());
             partner.setName(x.getName());
             partner.setCode(x.getMemberId());
-            partner.setServingBaseUrl("");
+            partner.setServingBaseUrl(x.getUrl());
             partner.setEmail("");
             try {
                 save(partner);

@@ -16,12 +16,6 @@
 
 package com.welab.wefe.serving.service.api.service;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -40,6 +34,11 @@ import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
 import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.TreeNode;
 import com.welab.wefe.serving.service.service.ServiceService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 @Api(path = "service/detail", name = "服务详情")
 public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
@@ -58,11 +57,11 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "主键id")
+        @Check(name = "主键id", require = true)
         private String id;
 
-        @Check(name = "服务类型")
-        private int serviceType;
+        @Check(name = "服务类型", require = true)
+        private int serviceType = 0;
 
         // region getter/setter
 

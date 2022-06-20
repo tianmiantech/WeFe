@@ -69,7 +69,7 @@ public class ModelService {
 
     Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private final String API_PREFIX = "api/predict";
+    private final String API_PREFIX = "/api/predict/";
     @Autowired
     private TableModelRepository modelRepository;
 
@@ -105,7 +105,6 @@ public class ModelService {
         //save model
         TableModelMySqlModel model = upsertModel(input);
         return model.getId();
-        //TODO 考虑模型是否放到service表
     }
 
     private void addPartners(SaveModelApi.Input input) {
@@ -124,18 +123,20 @@ public class ModelService {
         TableModelMySqlModel model = findOne(input.getServiceId());
         if (model == null) {
             model = new TableModelMySqlModel();
+            model.setCreatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getNickname());
         }
 
         convertTo(input, model);
 
         model.setUpdatedTime(new Date());
+        model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getNickname());
         modelRepository.save(model);
         return model;
     }
 
     private TableModelMySqlModel convertTo(SaveModelApi.Input input, TableModelMySqlModel model) {
         BeanUtils.copyProperties(input, model);
-        model.setUrl(setModelServiceUrl());
+        model.setUrl(setModelServiceUrl(input.getServiceId()));
         model.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         return model;
     }
@@ -151,24 +152,24 @@ public class ModelService {
     /**
      * promoter：Activate model service
      *
-     * @param modelId
+     * @param serviceId
      * @param memberParams
      */
-    private void activatePartnerService(String modelId, String modelName, List<MemberParams> memberParams) {
+    private void activatePartnerService(String serviceId, String modelName, List<MemberParams> memberParams) {
         memberParams.stream()
                 .filter(x -> JobMemberRole.provider.equals(x.getRole()))
-                .forEach(x -> activate(modelId, modelName, x));
+                .forEach(x -> activate(serviceId, modelName, x));
     }
 
-    private void activate(String modelId, String name, MemberParams x) {
+    private void activate(String serviceId, String name, MemberParams x) {
         try {
             clientServiceService.activateService(
-                    modelId,
+                    serviceId,
                     name,
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
-                    setModelServiceUrl(),
+                    setModelServiceUrl(serviceId),
                     ServiceTypeEnum.MachineLearning
             );
         } catch (StatusCodeWithException e) {
@@ -176,8 +177,8 @@ public class ModelService {
         }
     }
 
-    private String setModelServiceUrl() {
-        return API_PREFIX;
+    private String setModelServiceUrl(String serviceId) {
+        return API_PREFIX + serviceId;
     }
 
     /**
