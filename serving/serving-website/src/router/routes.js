@@ -309,23 +309,23 @@ const baseRoutes = [
                 },
                 component: () => import('@views/service_order/order-statistics.vue'),
             },
-            {
-                path: `${prefixPath}record-list`,
-                name: 'record-list',
-                meta: {
-                    title: '调用记录',
-                },
-                component: () => import('@views/logger/log-list.vue'),
-            },
-            {
-                path: `${prefixPath}log-statistics`,
-                name: 'log-statistics',
-                meta: {
-                    title:  '调用统计',
-                    active: `${prefixPath}log-statistics`,
-                },
-                component: () => import('@views/logger/log-statistics.vue'),
-            },
+            // {
+            //     path: `${prefixPath}record-list`,
+            //     name: 'record-list',
+            //     meta: {
+            //         title: '调用记录',
+            //     },
+            //     component: () => import('@views/logger/log-list.vue'),
+            // },
+            // {
+            //     path: `${prefixPath}log-statistics`,
+            //     name: 'log-statistics',
+            //     meta: {
+            //         title:  '调用统计',
+            //         active: `${prefixPath}log-statistics`,
+            //     },
+            //     component: () => import('@views/logger/log-statistics.vue'),
+            // },
             {
                 path: `${prefixPath}log-view`,
                 name: 'log-view',
