@@ -20,7 +20,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import org.apache.commons.collections4.CollectionUtils;
@@ -53,6 +52,12 @@ public class LrVertPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseL
             for (LrPredictResultModel model : predictModelList) {
                 for (LrPredictResultModel remote : remoteScores) {
                     if (model.getUserId().equals(remote.getUserId())) {
+
+                        if (!remote.getError().isEmpty()) {
+                            model.setError("协作方模型调用失败！错误：" + remote.getError());
+                            continue;
+                        }
+
                         Double score = model.getScore() + remote.getScore();
                         model.setScore(score);
                     }

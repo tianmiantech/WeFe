@@ -98,7 +98,11 @@ public class ModelMemberService {
     }
 
     public void save(String modelId, String memberId, JobMemberRole role) {
-        ModelMemberMySqlModel member = new ModelMemberMySqlModel();
+
+        ModelMemberMySqlModel member = modelMemberRepository.findByModelIdAndMemberIdAndRole(modelId, memberId, role);
+        if (member == null) {
+            member = new ModelMemberMySqlModel();
+        }
         member.setModelId(modelId);
         member.setMemberId(memberId);
         member.setRole(role);

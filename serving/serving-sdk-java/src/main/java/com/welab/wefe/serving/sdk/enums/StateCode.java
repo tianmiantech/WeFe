@@ -35,7 +35,7 @@ public enum StateCode {
     /**
      * Data error code
      */
-    FEATURE_ERROR(20001, "未查找到样本特征");
+    FEATURE_ERROR(20001, "样本特征不匹配！");
 
     private int code;
     private String description;

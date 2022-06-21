@@ -31,6 +31,13 @@ public class LrPredictResultModel extends PredictModel {
         return model;
     }
 
+    public static LrPredictResultModel fail(String userId, String error) {
+        LrPredictResultModel model = new LrPredictResultModel();
+        model.userId = userId;
+        model.error = error;
+        return model;
+    }
+
 
     public Double getScore() {
         return score;

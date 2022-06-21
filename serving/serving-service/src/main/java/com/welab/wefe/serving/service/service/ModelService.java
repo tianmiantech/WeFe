@@ -330,15 +330,15 @@ public class ModelService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void updateConfig(String modelId,
+    public void updateConfig(String serviceId,
                              PredictFeatureDataSource featureSource,
                              String dataSourceId,
                              String sqlScript,
                              String sqlConditionField) throws StatusCodeWithException {
 
-        TableModelMySqlModel model = findOne(modelId);
+        TableModelMySqlModel model = findOne(serviceId);
         if (model == null) {
-            throw new StatusCodeWithException("未查找到模型！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("未查找到模型！" + serviceId, StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         if (featureSource.equals(PredictFeatureDataSource.sql)) {

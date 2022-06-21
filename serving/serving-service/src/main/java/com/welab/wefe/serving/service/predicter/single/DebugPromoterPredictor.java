@@ -65,7 +65,7 @@ public class DebugPromoterPredictor extends PromoterPredictor {
             case code:
                 return new CodeFeatureDataHandler().handle(modelId, userId);
             case sql:
-                return FeatureManager.getFeatureData(extendParams);
+                return FeatureManager.getFeatureData(userId, extendParams);
             default:
                 throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
         }

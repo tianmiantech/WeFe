@@ -114,11 +114,10 @@ public class FeatureManager {
     /**
      * Get configuration via SQL
      */
-    public static FeatureDataModel getFeatureData(JSONObject sqlConfig) throws StatusCodeWithException {
+    public static FeatureDataModel getFeatureData(String userId, JSONObject sqlConfig) throws StatusCodeWithException {
         String dataSourceId = sqlConfig.get("data_source_id").toString();
         String sqlScript = sqlConfig.get("sql_script").toString();
         String sqlConditionField = sqlConfig.get("sql_condition_field").toString();
-        String userId = sqlConfig.get("user_id").toString();
 
         //Fill in corresponding feature information
         return SqlFeatureDataHandler.debug(dataSourceId, sqlScript, sqlConditionField, userId);

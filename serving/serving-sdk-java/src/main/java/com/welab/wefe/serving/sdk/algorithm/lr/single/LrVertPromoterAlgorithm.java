@@ -17,11 +17,11 @@
 package com.welab.wefe.serving.sdk.algorithm.lr.single;
 
 import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import org.apache.commons.collections4.CollectionUtils;
@@ -53,7 +53,9 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
          */
         for (JObject remote : federatedResult) {
             LrPredictResultModel predictModel = remote.getJObject("result").toJavaObject(LrPredictResultModel.class);
-
+            if (!predictModel.getError().isEmpty()) {
+                StatusCode.REMOTE_SERVICE_ERROR.throwException("协作方模型调用失败！错误：" + predictModel.getError());
+            }
 
             Double score = TypeUtils.castToDouble(result.getScore()) + TypeUtils.castToDouble(predictModel.getScore());
             result.setScore(score);

@@ -53,7 +53,6 @@ public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R ext
         }
 
         Map<String, Object> features = predictParams.getFeatureDataModel().getFeatureDataMap();
-        ;
 
         if (features != null) {
             for (String key : features.keySet()) {

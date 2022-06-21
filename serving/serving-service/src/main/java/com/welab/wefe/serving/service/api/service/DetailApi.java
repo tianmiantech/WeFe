@@ -99,7 +99,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         private Date updatedTime;
         private int status;
 
-        private String modelId;
+        private String serviceId;
         private Algorithm algorithm;
         private List<JobMemberRole> myRole;
         private FederatedLearningType flType;
@@ -231,12 +231,12 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
             this.queryParamsConfig = queryParamsConfig;
         }
 
-        public String getModelId() {
-            return modelId;
+        public String getServiceId() {
+            return serviceId;
         }
 
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         public Algorithm getAlgorithm() {

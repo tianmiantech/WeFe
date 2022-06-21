@@ -19,7 +19,6 @@ package com.welab.wefe.serving.sdk.algorithm.lr;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.welab.wefe.serving.sdk.enums.StateCode;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.LrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import org.slf4j.Logger;
@@ -74,7 +73,7 @@ public class LrAlgorithmHelper {
         //Features do not match at all
         if (featureNum <= 0) {
             LOG.error("featureData error, userId : {}, featureData: {} ,weight: {}", userId, JSON.toJSONString(featureData), JSON.toJSONString(model.getWeight()));
-            PredictModel.fail(userId, StateCode.FEATURE_ERROR.getMessage());
+            return LrPredictResultModel.fail(userId, StateCode.FEATURE_ERROR.getMessage());
         }
 
         return LrPredictResultModel.of(userId, score);

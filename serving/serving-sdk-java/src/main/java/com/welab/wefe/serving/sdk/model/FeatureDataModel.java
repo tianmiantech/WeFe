@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.serving.sdk.model;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.collections4.MapUtils;
 
 import java.util.Map;
@@ -47,5 +48,10 @@ public class FeatureDataModel extends BaseFeatureResultModel {
         FeatureDataModel featureDataModel = new FeatureDataModel();
         featureDataModel.error = errorMessage;
         return featureDataModel;
+    }
+
+    public static void main(String[] args) {
+        FeatureDataModel featureDataModel =  FeatureDataModel.of(null);
+        System.out.println(JSON.toJSONString(featureDataModel));
     }
 }
