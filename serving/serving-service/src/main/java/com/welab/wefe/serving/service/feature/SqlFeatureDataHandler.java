@@ -109,7 +109,9 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
                 .append(sqlConditionField)
                 .append("='")
                 .append(userId)
-                .append("'").toString();
+                .append("'")
+                .append(" limit 1")
+                .toString();
     }
 
     private AbstractTemplate generateTemplate(String modelId) throws StatusCodeWithException {

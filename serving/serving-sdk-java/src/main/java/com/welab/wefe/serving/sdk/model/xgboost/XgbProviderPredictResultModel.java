@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.sdk.model.xgboost;
 
 import com.welab.wefe.serving.sdk.model.PredictModel;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 
 /**
  * @author hunter.zhao
@@ -28,6 +29,14 @@ public class XgbProviderPredictResultModel extends PredictModel {
         XgbProviderPredictResultModel model = new XgbProviderPredictResultModel();
         model.userId = userId;
         model.xgboostTree = xgboostTree;
+        return model;
+    }
+
+
+    public static XgbProviderPredictResultModel fail(String userId, String error) {
+        XgbProviderPredictResultModel model = new XgbProviderPredictResultModel();
+        model.userId = userId;
+        model.error = error;
         return model;
     }
 
