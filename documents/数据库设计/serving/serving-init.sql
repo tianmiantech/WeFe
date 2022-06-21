@@ -230,26 +230,29 @@ CREATE TABLE client
 
 -- 客户-服务表
 DROP TABLE IF EXISTS client_service;
-CREATE TABLE client_service
-(
-    id           VARCHAR(32)  NOT NULL COMMENT '客户服务id',
-    service_id   VARCHAR(32)  NOT NULL COMMENT '服务id',
-    client_id    VARCHAR(32)  NOT NULL COMMENT '客户id',
-    client_name  VARCHAR(255) COMMENT '客户名称',
-    service_name VARCHAR(255) COMMENT '服务名称',
-    service_type tinyint(2) COMMENT '服务类型',
-    unit_price   double       NOT NULL COMMENT '调用单价',
-    url          varchar(128) NOT NULL COMMENT '服务地址',
-    pay_type     tinyint(1) NOT NULL COMMENT '付费类型: 1 预付费、0 后付费',
-    ip_add       VARCHAR(255) NOT NULL COMMENT 'ip地址',
-    created_by   varchar(32)           DEFAULT NULL COMMENT '创建人',
-    created_time datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_by   varchar(32)           DEFAULT NULL COMMENT '更新人',
-    updated_time datetime              DEFAULT NULL COMMENT '更新时间',
-    status       TINYINT(1) NOT NULL DEFAULT 1 COMMENT '是否启用',
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT = '客户服务表';
-CREATE UNIQUE INDEX service_client_index ON client_service (id, service_id, client_id);
+CREATE TABLE `client_service` (
+  `id` varchar(32) NOT NULL COMMENT '客户服务id',
+  `service_id` varchar(256) NOT NULL DEFAULT '' COMMENT '服务id',
+  `client_id` varchar(32) NOT NULL COMMENT '客户id',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint(1) NOT NULL COMMENT '是否启用',
+  `service_name` varchar(100) DEFAULT NULL COMMENT '服务名称',
+  `client_name` varchar(100) DEFAULT NULL COMMENT '客户名称',
+  `type` tinyint(1) DEFAULT NULL COMMENT '服务类型 0开通，1激活 ',
+  `public_key` text COMMENT '调用者公钥',
+  `private_key` text COMMENT '调用者私钥',
+  `code` varchar(255) DEFAULT NULL COMMENT '调用者code',
+  `service_type` tinyint(4) DEFAULT NULL COMMENT '服务类型',
+  `ip_add` varchar(100) DEFAULT NULL COMMENT 'IP 白名单',
+  `pay_type` tinyint(4) DEFAULT NULL COMMENT '付费类型',
+  `unit_price` double(20,4) DEFAULT NULL COMMENT '单价',
+  `url` varchar(128) DEFAULT '' COMMENT '服务地址',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `service_client_index` (`id`,`service_id`,`client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='客户服务表';
 
 -- 计费规则配置表
 DROP TABLE IF EXISTS fee_config;
