@@ -25,23 +25,27 @@
                         :class="item.todo_complete ? '' : 'unread'"
                     >
                         <template #title>
-                            <span :class="[item.todo_complete ? 'success' : 'warning', 'mr5 ml5']">{{item.todo_complete ? '[已处理]' : '[待处理]'}}</span>
-                            {{ item.title }}
-                            <el-icon v-if="item.unread" class="el-icon-message unread-icon">
-                                <elicon-message />
-                            </el-icon>
+                            <p :class="{'collapse-title': windowWidth<=1440, 'mr5': true}"><span :class="[item.todo_complete ? 'success' : 'warning', 'mr5 ml5']">{{item.todo_complete ? '[已处理]' : '[待处理]'}}</span>{{ item.title }}</p>
+                            <router-link
+                                :to="{name: 'project-detail', query: { project_id: item.project.project_id, project_type: item.project.project_type }}"
+                                class="li"
+                            >{{item.todo_complete ? '查看详情' : '去处理'}}</router-link>
                             <span class="time">{{ dateFormat(item.created_time) }}</span>
                         </template>
                         <div v-if="activeName === 'todoList' && item.todo" class="list_detail">
-                            <!-- 数据集审核 -->
-                            <div v-if="item.project.data_resource_id">
-                                <p>数据集名称：{{item.project.data_resource_name}}</p>
-                                <p>数据集ID：{{item.project.data_resource_id}}</p>
-                            </div>
-                            <!-- 项目审核 -->
-                            <div v-else>
-                                <p>项目名称：{{item.project.project_name}}</p>
-                                <p>项目ID:{{item.project.project_id}}</p>
+                            <div>
+                                <p>{{item.project.title}}</p>
+                                <p>申请成员：{{item.project.from_member_name}}</p>
+                                <!-- 数据集审核 -->
+                                <div v-if="item.project.data_resource_id">
+                                    <p>数据集名称：{{item.project.data_resource_name}}</p>
+                                    <p>数据集ID：{{item.project.data_resource_id}}</p>
+                                </div>
+                                <!-- 项目审核 -->
+                                <div v-else>
+                                    <p>项目名称：{{item.project.project_name}}</p>
+                                    <p>项目ID:{{item.project.project_id}}</p>
+                                </div>
                             </div>
                             <router-link
                                 :to="{name: 'project-detail', query: { project_id: item.project.project_id, project_type: item.project.project_type }}"
@@ -61,9 +65,6 @@
                     >
                     <p class="p1">棒棒哒~</p>
                     <p class="p2">您已处理完了所有待办事项</p>
-                </div>
-                <div class="fixed_footer">
-
                 </div>
             </el-tab-pane>
             <el-tab-pane label="合作通知" name="cooperateNotice">
@@ -96,10 +97,14 @@
                         </template>
                         <div v-if="activeName === 'cooperateNotice'" class="list_detail">
                             <div>
+                                <p>{{item.project.title}}</p>
+                                <p>申请成员：{{item.project.from_member_name}}</p>
                                 <p>项目名称：{{item.project.project_name}}</p>
                                 <p>项目ID:{{item.project.project_id}}</p>
-                                <p>数据集名称：{{item.project.data_resource_name}}</p>
-                                <p>数据集ID：{{item.project.data_resource_id}}</p>
+                                <div v-if="item.project.data_resource_id">
+                                    <p>数据集名称：{{item.project.data_resource_name}}</p>
+                                    <p>数据集ID：{{item.project.data_resource_id}}</p>
+                                </div>
                             </div>
                             <router-link
                                 :to="{name: 'project-detail', query: { project_id: item.project.project_id, project_type: item.project.project_type }}"
@@ -225,10 +230,14 @@
                         value: true,
                     },
                 ],
+                windowWidth: document.documentElement.clientWidth,
             };
         },
         created() {
             this.loadMessageList();
+            window.onresize = () => {
+                this.windowWidth = document.documentElement.clientWidth;
+            };
         },
         methods: {
             tabChange(val) {
@@ -289,6 +298,8 @@
                                         data_resource_id:   content.data_resource_id,
                                         data_resource_name: content.data_resource_name,
                                         project_type:       content.project_type,
+                                        from_member_name:   content.from_member_name,
+                                        title:              content.title,
                                     },
                                 };
                             } else {
@@ -395,6 +406,12 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-end;
+            }
+            .collapse-title {
+                max-width: 320px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
         .todoList {
