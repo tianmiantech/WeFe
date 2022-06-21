@@ -25,6 +25,8 @@ from common.python.common.exception.custom_exception import NotSupportTypeError
 from kernel.base.instance import Instance
 from ctypes import cdll, sizeof, c_buffer, cast, c_int32
 from ctypes import c_char, c_char_p, c_void_p, c_uint32, c_double, c_int64, c_int, c_size_t, c_longlong
+
+from kernel.security.fixedpoint import FixedPointNumber
 from kernel.security.paillier import PaillierEncryptedNumber
 
 BATCH_SIZE = 20000
@@ -88,7 +90,7 @@ def gpu_paillier_table_dot(X, Y):
         nsquare_bytes = public_key.nsquare.to_bytes(CIPHER_BYTE, 'little')
         max_int_bytes = public_key.max_int.to_bytes(CIPHER_BYTE, 'little')
     else:
-        return wefe_table_dot(X, Y)
+        return table_dot(X, Y)
 
     if X.shape[0] != Y.shape[0]:
         raise ValueError("X's row count not equal Y's row count!")
