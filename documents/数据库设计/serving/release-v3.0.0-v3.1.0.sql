@@ -147,6 +147,11 @@ ALTER TABLE model_member
 
 alter table client_service modify column `service_id` varchar (256) NOT NULL DEFAULT '' COMMENT '服务id';
 alter table client_service modify column `url` varchar (128) DEFAULT '' COMMENT '服务地址';
+alter table client_service modify column `ip_add` varchar(100) DEFAULT NULL COMMENT 'IP 白名单';
+alter table client_service modify column `unit_price` double(20,4) DEFAULT NULL COMMENT '单价';
+alter table client_service modify column `pay_type` tinyint(4) DEFAULT NULL COMMENT '付费类型';
+alter table client_service modify column `service_type` tinyint(4) DEFAULT NULL COMMENT '服务类型';
+
 alter table `service`
     add column `query_params_config` varchar(255) DEFAULT NULL comment "服务配置" after `query_params`;
 
