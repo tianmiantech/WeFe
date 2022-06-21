@@ -158,7 +158,7 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
     @Query(value = "SELECT sum(os.call_times) as call_times , sum(os.success_times) as success_times , sum(os.failed_times) as failed_times , " +
             "os.service_id ,os.service_name ,os.request_partner_id ,os.request_partner_name ,os.response_partner_id ,os.response_partner_name , " +
             "os.`month` as date_time " +
-            "FROM wefe_serving.order_statistics os " +
+            "FROM order_statistics os " +
             "where if(:service_id !='', os.service_id = :service_id, 1=1) and " +
             "if(:service_name !='', os.service_name like concat('%',:service_name,'%'), 1=1) and " +
             "if(:request_partner_id !='', os.request_partner_id = :request_partner_id, 1=1) and " +
