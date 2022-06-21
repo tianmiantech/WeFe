@@ -79,6 +79,8 @@ def gpu_paillier_table_dot(X, Y):
     PLAIN_BYTE = 256
     device_type = 1
 
+    zero = 0
+
     if isinstance(X[0][0], PaillierEncryptedNumber):
         public_key = X[0][0].public_key
         g_bytes = public_key.g.to_bytes(CIPHER_BYTE, 'little')
@@ -86,7 +88,7 @@ def gpu_paillier_table_dot(X, Y):
         nsquare_bytes = public_key.nsquare.to_bytes(CIPHER_BYTE, 'little')
         max_int_bytes = public_key.max_int.to_bytes(CIPHER_BYTE, 'little')
     else:
-        return table_dot_cpu(X, Y)
+        return wefe_table_dot(X, Y)
 
     if X.shape[0] != Y.shape[0]:
         raise ValueError("X's row count not equal Y's row count!")
@@ -171,64 +173,134 @@ def gpu_paillier_table_dot(X, Y):
     # prepare Y for GPU
     Y_array = Y.reshape(matrix_row_count * matrix_Y_column_count)
     Y_array_size = Y_array.size
-    Y_array_data = gpu_lib.GPU_H_C_Malloc(c_size_t(Y_array_size * DOUBLE_BYTE))
-    if Y_array_data is None:
-        gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
-        error_message = gpu_lib.GPU_H_C_GetError()
-        raise ValueError("gpu_lib ERROR: " +
-                         str(error_message, encoding='utf8'))
 
-    # all turn to 64 bit data type
-    if (Y_array.dtype == 'int32'):
-        Y_array_astyped = Y_array.astype(np.int64)
-        Y_array_ctypes = Y_array_astyped.ctypes.data_as(c_void_p)
-        data_type = INT64_TYPE
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
-                               Y_array_size * INT64_BYTE)
-    elif (Y_array.dtype == 'int64'):
-        Y_array_ctypes = Y_array.ctypes.data_as(c_void_p)
-        data_type = INT64_TYPE
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
-                               Y_array_size * INT64_BYTE)
-    elif (Y_array.dtype == 'float32'):
-        Y_array_astyped = Y_array.astype(np.float64)
-        Y_array_ctypes = Y_array_astyped.ctypes.data_as(c_void_p)
-        data_type = FLOAT_TYPE
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
-                               Y_array_size * DOUBLE_BYTE)
-    elif (Y_array.dtype == 'float64'):
-        Y_array_ctypes = Y_array.ctypes.data_as(c_void_p)
-        data_type = FLOAT_TYPE
-        gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
-                               Y_array_size * DOUBLE_BYTE)
+    if isinstance(Y[0][0], FixedPointNumber):
+        # malloc 1 * DOUBLE_BYTE space for code unify
+        Y_array_data = gpu_lib.GPU_H_C_Malloc(c_size_t(1 * DOUBLE_BYTE))
+        if Y_array_data is None:
+            gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        # malloc GPU structure
+        Y_array_encoded = gpu_lib.GPU_H_C_Malloc(
+            c_size_t(Y_array_size * (6 * CIPHER_BYTE + 2 * INT64_BYTE)))
+        if Y_array_encoded is None:
+            gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        # fill GPU structure
+        ii = 0
+        for i in range(matrix_row_count * matrix_Y_column_count):
+            # skip x_sign
+            ii = ii + INT64_BYTE
+
+            # x
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_encoded + ii),
+                                   Y_array[i].encoding.to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   c_size_t(CIPHER_BYTE))
+            ii = ii + CIPHER_BYTE
+
+            # x_exponent
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_encoded + ii),
+                                   Y_array[i].exponent.to_bytes(
+                                       INT64_BYTE, 'little'),
+                                   c_size_t(INT64_BYTE))
+            ii = ii + INT64_BYTE
+
+            # g (0)
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_encoded + ii),
+                                   zero.to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # n
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_encoded + ii),
+                                   Y_array[i].n.to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # nsquare (0)
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_encoded + ii),
+                                   zero.to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # max_int(0)
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_encoded + ii),
+                                   zero.to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # skip random
+            ii = ii + CIPHER_BYTE
     else:
-        print(f'Y_array.dtype: {Y_array.dtype}')
-        raise PermissionError("Invalid Data Type of Y_array")
+        Y_array_data = gpu_lib.GPU_H_C_Malloc(c_size_t(Y_array_size * DOUBLE_BYTE))
+        if Y_array_data is None:
+            gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
 
-    timebegin = dt.datetime.now()
-    Y_array_encoded = gpu_lib.GPU_H_Paillier_Encode(
-        1,
-        c_longlong(data_type),
-        c_void_p(None),
-        c_void_p(None),
-        c_void_p(Y_array_data),
-        c_size_t(matrix_row_count * matrix_Y_column_count),
-        c_char_p(g_bytes),
-        c_char_p(n_bytes),
-        c_char_p(nsquare_bytes),
-        c_char_p(max_int_bytes)
-    )
-    if Y_array_encoded is None:
-        gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
-        gpu_lib.GPU_H_C_Free(c_void_p(Y_array_data))
-        error_message = gpu_lib.GPU_H_C_GetError()
-        raise ValueError("gpu_lib ERROR: " +
-                         str(error_message, encoding='utf8'))
+        # all turn to 64 bit data type
+        if (Y_array.dtype == 'int32'):
+            Y_array_astyped = Y_array.astype(np.int64)
+            Y_array_ctypes = Y_array_astyped.ctypes.data_as(c_void_p)
+            data_type = INT64_TYPE
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
+                                   Y_array_size * INT64_BYTE)
+        elif (Y_array.dtype == 'int64'):
+            Y_array_ctypes = Y_array.ctypes.data_as(c_void_p)
+            data_type = INT64_TYPE
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
+                                   Y_array_size * INT64_BYTE)
+        elif (Y_array.dtype == 'float32'):
+            Y_array_astyped = Y_array.astype(np.float64)
+            Y_array_ctypes = Y_array_astyped.ctypes.data_as(c_void_p)
+            data_type = FLOAT_TYPE
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
+                                   Y_array_size * DOUBLE_BYTE)
+        elif (Y_array.dtype == 'float64'):
+            Y_array_ctypes = Y_array.ctypes.data_as(c_void_p)
+            data_type = FLOAT_TYPE
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(Y_array_data), Y_array_ctypes,
+                                   Y_array_size * DOUBLE_BYTE)
+        else:
+            gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+            raise PermissionError("Invalid Data Type of Y_array")
 
-    timeover = dt.datetime.now()
-    costtime = (timeover - timebegin).total_seconds()
-    print(" gpu_lib.GPU_H_Paillier_Encode matrix, cost time:  %f " % (costtime))
-    print(f' ')
+        timebegin = dt.datetime.now()
+        Y_array_encoded = gpu_lib.GPU_H_Paillier_Encode(
+            1,
+            c_longlong(data_type),
+            c_void_p(None),
+            c_void_p(None),
+            c_void_p(Y_array_data),
+            c_size_t(matrix_row_count * matrix_Y_column_count),
+            c_char_p(g_bytes),
+            c_char_p(n_bytes),
+            c_char_p(nsquare_bytes),
+            c_char_p(max_int_bytes)
+        )
+        if Y_array_encoded is None:
+            gpu_lib.GPU_H_C_Free(c_void_p(X_array_encoded))
+            gpu_lib.GPU_H_C_Free(c_void_p(Y_array_data))
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        timeover = dt.datetime.now()
+        costtime = (timeover - timebegin).total_seconds()
+        print(" gpu_lib.GPU_H_Paillier_Encode matrix, cost time:  %f " % (costtime))
+        print(f' ')
 
     # print(" _debug_print_pub_one_variable_instance, X_array_encoded ---------> :  " )
     # _debug_print_pub_one_variable_instance(gpu_lib, X_array_encoded, matrix_row_count*matrix_X_column_count)
@@ -236,7 +308,6 @@ def gpu_paillier_table_dot(X, Y):
     # print(" _debug_print_pub_one_variable_instance, Y_array_encoded ---------> :  ")
     # _debug_print_pub_one_variable_instance(gpu_lib, Y_array_encoded, matrix_row_count*matrix_Y_column_count)
 
-    # print(f'matrix_row_count:{matrix_row_count}, matrix_X_column_count:{matrix_X_column_count}, matrix_Y_column_count:{matrix_Y_column_count}')
     timebegin = dt.datetime.now()
     matrix_multiplied = gpu_lib.GPU_H_Paillier_TableDot_MatrixMultiply(
         1,
@@ -350,7 +421,6 @@ def gpu_paillier_table_dot(X, Y):
     print(f' ')
 
     result = out_sum_paillier_encrypted_number_array.reshape(matrix_X_column_count, matrix_Y_column_count)
-    # return session.parallelize(result.tolist(), include_key=True, partition=partitions)
     return result
 
 
