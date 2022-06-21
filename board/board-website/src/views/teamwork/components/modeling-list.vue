@@ -229,7 +229,7 @@
                     </div>
                 </el-tab-pane>
                 <el-tab-pane label="同步到serving" :name="1">
-                    <p>模型推送到 serving</p>
+                    <p>将模型一键同步到已配置的Serving（未配置Serving地址？<router-link :to="{name: 'system-config-view'}">去配置</router-link>）</p>
                     <div class="text-c mt30">
                         <el-button
                             type="primary"
@@ -240,7 +240,8 @@
                     </div>
                 </el-tab-pane>
                 <el-tab-pane label="下载模型" :name="2">
-                    <p>下载模型文件到本地</p>
+                    <p>将模型下载到本地文件</p>
+                    <p>模型文件已加密，仅可在本方Serving导入使用</p>
                     <div class="text-c mt30">
                         <el-button
                             type="primary"
