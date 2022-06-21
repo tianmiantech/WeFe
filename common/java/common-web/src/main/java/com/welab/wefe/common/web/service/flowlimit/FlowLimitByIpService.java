@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.service.flowlimit;
+package com.welab.wefe.common.web.service.flowlimit;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.data.mongodb.constant.FlowLimitStrategyTypeEnum;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.FlowLimitByIp;
 import com.welab.wefe.common.web.util.HttpServletRequestUtil;
+import com.welab.wefe.common.wefe.enums.FlowLimitStrategyTypeEnum;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * IP address flow control
- *
- * @author aaron.li
- * @date 2021/10/22 15:50
+ * Flow control of basic IP address
  **/
-public class FlowLimitByIpService extends AbstractFlowLimitService {
-
+public class FlowLimitByIpService extends AbstractMemoryFlowLimitService {
     public FlowLimitByIpService(HttpServletRequest httpServletRequest, AbstractApi<?, ?> api, JSONObject params) {
         super(httpServletRequest, api, params);
     }
 
     @Override
-    protected String getFlowLimitKey() {
+    protected String getFlowLimitKey() throws StatusCodeWithException {
         String clientIp = HttpServletRequestUtil.getClientIp(getHttpServletRequest());
         String path = getApi().getClass().getAnnotation(Api.class).path();
         return path + "_" + FlowLimitStrategyTypeEnum.IP + "_" + clientIp;
@@ -55,13 +52,13 @@ public class FlowLimitByIpService extends AbstractFlowLimitService {
     }
 
     @Override
-    protected int getFlowLimitCount() {
-        return getApi().getClass().getAnnotation(FlowLimitByIp.class).count();
+    protected long getFlowLimitSecond() {
+        return getApi().getClass().getAnnotation(FlowLimitByIp.class).second();
     }
 
     @Override
-    protected long getFlowLimitSecond() {
-        return getApi().getClass().getAnnotation(FlowLimitByIp.class).second();
+    protected int getFlowLimitCount() {
+        return getApi().getClass().getAnnotation(FlowLimitByIp.class).count();
     }
 
     @Override
