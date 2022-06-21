@@ -15,8 +15,8 @@ CREATE TABLE service_call_log
     request_id            VARCHAR(255) NOT NULL COMMENT '请求id',
     response_id           VARCHAR(255) COMMENT '相应id',
     request_data          TEXT         NOT NULL COMMENT '请求内容',
-    response_data         TEXT         COMMENT '响应内容',
-    response_code         INT          DEFAULT 0 COMMENT '响应码',
+    response_data         TEXT COMMENT '响应内容',
+    response_code         INT                   DEFAULT 0 COMMENT '响应码',
     response_status       VARCHAR(255) COMMENT '响应状态',
     request_ip            VARCHAR(255) NOT NULL COMMENT '请求ip',
     spend_time            INT COMMENT '响应时间',
@@ -56,7 +56,7 @@ CREATE INDEX service_req_resp_index ON service_order (service_id, request_partne
 DROP TABLE IF EXISTS order_statistics;
 CREATE TABLE order_statistics
 (
-    id                    VARCHAR(32) NOT NULL COMMENT '序号',
+    id                    VARCHAR(32)  NOT NULL COMMENT '序号',
     call_times            INT COMMENT '调用次数',
     success_times         INT COMMENT '成功次数',
     failed_times          INT COMMENT '失败次数',
@@ -65,11 +65,11 @@ CREATE TABLE order_statistics
     day                   VARCHAR(255) COMMENT '每天统计',
     month                 VARCHAR(255) COMMENT '每月统计',
     service_id            VARCHAR(255) NOT NULL COMMENT '服务id',
-    service_name          VARCHAR(32) NOT NULL COMMENT '服务名称',
-    request_partner_id    VARCHAR(32) NOT NULL COMMENT '请求方id',
-    request_partner_name  VARCHAR(32) NOT NULL COMMENT '请求方名称',
-    response_partner_id   VARCHAR(32) NOT NULL COMMENT '响应方id',
-    response_partner_name VARCHAR(32) NOT NULL COMMENT '响应方名称',
+    service_name          VARCHAR(32)  NOT NULL COMMENT '服务名称',
+    request_partner_id    VARCHAR(32)  NOT NULL COMMENT '请求方id',
+    request_partner_name  VARCHAR(32)  NOT NULL COMMENT '请求方名称',
+    response_partner_id   VARCHAR(32)  NOT NULL COMMENT '响应方id',
+    response_partner_name VARCHAR(32)  NOT NULL COMMENT '响应方名称',
     created_by            VARCHAR(32) COMMENT '创建人',
     created_time          DATETIME COMMENT '创建时间',
     updated_by            VARCHAR(32) COMMENT '更新人',
@@ -115,7 +115,7 @@ values (replace(uuid(), '-', ''), 'identity_info', 'member_id', '系统身份 Id
 -- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085243
 CREATE TABLE `partner`
 (
-    `id`               varchar(32)  NOT NULL,
+    `id`               varchar(32) NOT NULL,
     `name`             varchar(64)  DEFAULT NULL COMMENT '合作者名称',
     `email`            varchar(255) DEFAULT NULL COMMENT '邮箱',
     `serving_base_url` varchar(255) DEFAULT NULL COMMENT 'Serving服务地址',
@@ -123,12 +123,11 @@ CREATE TABLE `partner`
     `remark`           text COMMENT '备注',
     `is_union_member`  tinyint(1) NOT NULL COMMENT '是否是联邦成员',
     `status`           int(11) NOT NULL DEFAULT '1' COMMENT '合作者状态;1正常、0删除',
-    `created_time`     datetime     NOT NULL,
+    `created_time`     datetime    NOT NULL,
     `updated_time`     datetime     DEFAULT NULL,
     `created_by`       varchar(32)  DEFAULT NULL COMMENT '创建人',
     `updated_by`       varchar(32)  DEFAULT NULL COMMENT '更新人',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `partner_id` (`partner_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='合作者';
 
 
@@ -146,73 +145,63 @@ ALTER TABLE model_member
     ADD `status` varchar(64) DEFAULT 'offline' NOT NULL COMMENT '成员模型状态 offline-成员失联 unavailable-模型不可用 available-模型可用';
 
 
-ALTER TABLE model_sql_config
-    ADD `data_source_id` varchar(64) NOT NULL COMMENT '数据源id';
-    
-alter table model add column  `source_path` varchar(255) COMMENT '文件路径' after `model_param`;
-alter table model add column  `filename` varchar(255) NULL COMMENT '文件名' after `source_path`;
-alter table model add column  `use_count` int(11) NULL DEFAULT '0' COMMENT '使用计数' after `filename`;
-alter table model add column  `service_type` tinyint(2)  NOT NULL COMMENT '服务类型' after `use_count`;
-alter table model add column  `url` varchar(256)  COMMENT '服务地址' after `service_type`;
-alter table model modify column `model_id` varchar(256) COMMENT '模型id';
-alter table model modify column `algorithm` varchar(64) COMMENT '算法';
-alter table client_service modify column `service_id` varchar(256) NOT NULL DEFAULT '' COMMENT '服务id';
-alter table client_service modify column `url` varchar(128) DEFAULT '' COMMENT '服务地址';
-alter table `service` add column `query_params_config` varchar(255) DEFAULT NULL comment "服务配置" after `query_params`;
+alter table client_service modify column `service_id` varchar (256) NOT NULL DEFAULT '' COMMENT '服务id';
+alter table client_service modify column `url` varchar (128) DEFAULT '' COMMENT '服务地址';
+alter table `service`
+    add column `query_params_config` varchar(255) DEFAULT NULL comment "服务配置" after `query_params`;
 
-alter table fee_config modify column `service_id` varchar(255) COMMENT '服务Id';
-
-ALTER TABLE model ADD sql_script varchar(1024) NULL COMMENT 'sql脚本';
-ALTER TABLE model ADD sql_condition_field varchar(100) NULL COMMENT 'sql查询条件字段';
-ALTER TABLE model ADD data_source_id varchar(100) NULL  COMMENT '数据源ID';
+alter table fee_config modify column `service_id` varchar (255) COMMENT '服务Id';
 
 
-CREATE TABLE `base_service` (
-  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
-  `service_id` varchar(256) DEFAULT NULL COMMENT '服务ID',
-  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
-  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
-  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `name` varchar(32) NOT NULL COMMENT '服务名',
-  `url` varchar(128) DEFAULT '' COMMENT '服务地址',
-  `service_type` tinyint(2) NOT NULL COMMENT '服务类型',
-  `status` tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
-  PRIMARY KEY (`id`),
-  KEY `url_unique` (`url`),
-  KEY `name` (`name`)
+CREATE TABLE `base_service`
+(
+    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `service_id`   varchar(256)         DEFAULT NULL COMMENT '服务ID',
+    `created_by`   varchar(32)          DEFAULT NULL COMMENT '创建人',
+    `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
+    `name`         varchar(32) NOT NULL COMMENT '服务名',
+    `url`          varchar(128)         DEFAULT '' COMMENT '服务地址',
+    `service_type` tinyint(2) NOT NULL COMMENT '服务类型',
+    `status`       tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
+    PRIMARY KEY (`id`),
+    KEY            `url_unique` (`url`),
+    KEY            `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务';
 
-CREATE TABLE `table_service` (
-  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
-  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
-  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
-  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `query_params` text COMMENT '查询参数配置',
-  `query_params_config` varchar(255) DEFAULT NULL,
-  `data_source` text COMMENT 'SQL配置',
-  `service_config` text COMMENT '服务配置',
-  `ids_table_name` varchar(100) DEFAULT NULL COMMENT '主键对应的表名',
-  `operator` varchar(10) DEFAULT NULL COMMENT '操作 sum / avg',
-  PRIMARY KEY (`id`)
+CREATE TABLE `table_service`
+(
+    `id`                  varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`          varchar(32)          DEFAULT NULL COMMENT '创建人',
+    `created_time`        datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_by`          varchar(32)          DEFAULT NULL COMMENT '更新人',
+    `updated_time`        datetime             DEFAULT NULL COMMENT '更新时间',
+    `query_params`        text COMMENT '查询参数配置',
+    `query_params_config` varchar(255)         DEFAULT NULL,
+    `data_source`         text COMMENT 'SQL配置',
+    `service_config`      text COMMENT '服务配置',
+    `ids_table_name`      varchar(100)         DEFAULT NULL COMMENT '主键对应的表名',
+    `operator`            varchar(10)          DEFAULT NULL COMMENT '操作 sum / avg',
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务表';
 
-CREATE TABLE `table_model` (
-  `id` varchar(32) NOT NULL,
-  `algorithm` varchar(64) DEFAULT NULL COMMENT '算法',
-  `fl_type` varchar(64) DEFAULT '' COMMENT '联邦学习类型',
-  `feature_source` varchar(64) DEFAULT '',
-  `model_param` mediumtext COMMENT '模型参数',
-  `source_path` varchar(255) DEFAULT NULL COMMENT '文件路径',
-  `filename` varchar(255) DEFAULT NULL COMMENT '文件名',
-  `use_count` int(11) DEFAULT '0' COMMENT '使用计数',
-  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
-  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
-  `sql_script` varchar(1024) DEFAULT NULL COMMENT 'sql脚本',
-  `sql_condition_field` varchar(100) DEFAULT NULL COMMENT 'sql查询条件字段',
-  `data_source_id` varchar(100) DEFAULT NULL COMMENT '数据源ID',
-  PRIMARY KEY (`id`)
+CREATE TABLE `table_model`
+(
+    `id`                  varchar(32) NOT NULL,
+    `algorithm`           varchar(64)          DEFAULT NULL COMMENT '算法',
+    `fl_type`             varchar(64)          DEFAULT '' COMMENT '联邦学习类型',
+    `feature_source`      varchar(64)          DEFAULT '',
+    `model_param`         mediumtext COMMENT '模型参数',
+    `source_path`         varchar(255)         DEFAULT NULL COMMENT '文件路径',
+    `filename`            varchar(255)         DEFAULT NULL COMMENT '文件名',
+    `use_count`           int(11) DEFAULT '0' COMMENT '使用计数',
+    `created_by`          varchar(32)          DEFAULT NULL COMMENT '创建人',
+    `created_time`        datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_time`        datetime             DEFAULT NULL COMMENT '更新时间',
+    `updated_by`          varchar(32)          DEFAULT NULL COMMENT '更新人',
+    `sql_script`          varchar(1024)        DEFAULT NULL COMMENT 'sql脚本',
+    `sql_condition_field` varchar(100)         DEFAULT NULL COMMENT 'sql查询条件字段',
+    `data_source_id`      varchar(100)         DEFAULT NULL COMMENT '数据源ID',
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';
