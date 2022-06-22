@@ -84,50 +84,50 @@ if [[ ! -f $WORKSPACE/gateway/target/wefe-gateway.jar ]]; then
 fi
 echo 'FINISHED'
 
-echo 'PACK FUSION-SERVICE'
-rm -rf $WORKSPACE/fusion/fusion-service/target
-mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl fusion/fusion-service
-if [[ ! -f $WORKSPACE/fusion/fusion-service/target/fusion-service.jar ]]; then
-    echo '文件 fusion-service.jar 不存在，请检查此模块打包流程是否正常'
-    exit 1
-fi
-echo 'FINISHED'
-
-echo 'PACK MANAGER-SERVICE'
-rm -rf $WORKSPACE/manager/manager-service/target
-mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl manager/manager-service
-if [[ ! -f $WORKSPACE/manager/manager-service/target/manager-service.jar ]]; then
-    echo '文件 manager-service.jar 不存在，请检查此模块打包流程是否正常'
-    exit 1
-fi
-echo 'FINISHED'
-
-echo 'PACK SERVING-SERVICE'
-rm -rf $WORKSPACE/serving/serving-service/target
-mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl serving/serving-service
-if [[ ! -f $WORKSPACE/serving/serving-service/target/serving-service.jar ]]; then
-    echo '文件 serving-service.jar 不存在，请检查此模块打包流程是否正常'
-    exit 1
-fi
-echo 'FINISHED'
-
-echo 'PACK BLOCKCHAIN-DATA-SYNC'
-rm -rf $WORKSPACE/union/blockchain-data-sync/target
-mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl union/blockchain-data-sync
-if [[ ! -f $WORKSPACE/union/blockchain-data-sync/target/wefe-blockchain-data-sync.jar ]]; then
-    echo '文件 wefe-blockchain-data-sync.jar 不存在，请检查此模块打包流程是否正常'
-    exit 1
-fi
-echo 'FINISHED'
-
-echo 'PACK UNION-SERVICE'
-rm -rf $WORKSPACE/union/union-service/target
-mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl union/union-service
-if [[ ! -f $WORKSPACE/union/union-service/target/wefe-union-service.jar ]]; then
-    echo '文件 wefe-union-service.jar 不存在，请检查此模块打包流程是否正常'
-    exit 1
-fi
-echo 'FINISHED'
+#echo 'PACK FUSION-SERVICE'
+#rm -rf $WORKSPACE/fusion/fusion-service/target
+#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl fusion/fusion-service
+#if [[ ! -f $WORKSPACE/fusion/fusion-service/target/fusion-service.jar ]]; then
+#    echo '文件 fusion-service.jar 不存在，请检查此模块打包流程是否正常'
+#    exit 1
+#fi
+#echo 'FINISHED'
+#
+#echo 'PACK MANAGER-SERVICE'
+#rm -rf $WORKSPACE/manager/manager-service/target
+#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl manager/manager-service
+#if [[ ! -f $WORKSPACE/manager/manager-service/target/manager-service.jar ]]; then
+#    echo '文件 manager-service.jar 不存在，请检查此模块打包流程是否正常'
+#    exit 1
+#fi
+#echo 'FINISHED'
+#
+#echo 'PACK SERVING-SERVICE'
+#rm -rf $WORKSPACE/serving/serving-service/target
+#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl serving/serving-service
+#if [[ ! -f $WORKSPACE/serving/serving-service/target/serving-service.jar ]]; then
+#    echo '文件 serving-service.jar 不存在，请检查此模块打包流程是否正常'
+#    exit 1
+#fi
+#echo 'FINISHED'
+#
+#echo 'PACK BLOCKCHAIN-DATA-SYNC'
+#rm -rf $WORKSPACE/union/blockchain-data-sync/target
+#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl union/blockchain-data-sync
+#if [[ ! -f $WORKSPACE/union/blockchain-data-sync/target/wefe-blockchain-data-sync.jar ]]; then
+#    echo '文件 wefe-blockchain-data-sync.jar 不存在，请检查此模块打包流程是否正常'
+#    exit 1
+#fi
+#echo 'FINISHED'
+#
+#echo 'PACK UNION-SERVICE'
+#rm -rf $WORKSPACE/union/union-service/target
+#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl union/union-service
+#if [[ ! -f $WORKSPACE/union/union-service/target/wefe-union-service.jar ]]; then
+#    echo '文件 wefe-union-service.jar 不存在，请检查此模块打包流程是否正常'
+#    exit 1
+#fi
+#echo 'FINISHED'
 
 echo '###### JAVA FINISHED ######'
 echo '###### NPM ######'
@@ -151,47 +151,47 @@ if ! $(check_dir $WORKSPACE/board/board-website/dist); then
 fi
 echo 'FINISHED'
 
-echo 'PACK FUSION-WEBSITE'
-cd $WORKSPACE/fusion/fusion-website
-rm -rf $WORKSPACE/fusion/fusion-website/dist
-#npm install > /dev/null
-npm install
-# fusion/fusion-website/dist
-npm run build -- prod=fusion-website
-sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/fusion-service", prefixPath: "/fusion-website/"};</script>' dist/fusion-website/index.html
-if ! $(check_dir $WORKSPACE/fusion/fusion-website/dist); then
-    echo '目录 $WORKSPACE/fusion/fusion-website/dist 不存在，请检查此模块打包流程是否正常'
-    exit 1
-fi
-echo 'FINISHED'
-
-echo 'PACK MANAGER-WEBSITE'
-cd $WORKSPACE/manager/manager-website
-rm -rf $WORKSPACE/manager/manager-website/dist
-#npm install > /dev/null
-npm install
-# manager/manager-website/dist
-npm run build -- prod=manager-website
-sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/manager-service", prefixPath: "/manager-website/"};</script>' dist/manager-website/index.html
-if ! $(check_dir $WORKSPACE/manager/manager-website/dist); then
-    echo '目录 $WORKSPACE/manager/manager-website/dist 不存在，请检查此模块打包流程是否正常'
-    exit 1
-fi
-echo 'FINISHED'
-
-echo 'PACK SERVING-WEBSITE'
-cd $WORKSPACE/serving/serving-website
-rm -rf $WORKSPACE/serving/serving-website/dist
-#npm install > /dev/null
-npm install
-# serving/serving-website/dist
-npm run build -- prod=serving-website
-sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/serving-service", prefixPath: "/serving-website/"};</script>' dist/serving-website/index.html
-if ! $(check_dir $WORKSPACE/serving/serving-website/dist); then
-    echo '目录 $WORKSPACE/serving/serving-website/dist 不存在，请检查此模块打包流程是否正常'
-    exit 1
-fi
-echo 'FINISHED'
+#echo 'PACK FUSION-WEBSITE'
+#cd $WORKSPACE/fusion/fusion-website
+#rm -rf $WORKSPACE/fusion/fusion-website/dist
+##npm install > /dev/null
+#npm install
+## fusion/fusion-website/dist
+#npm run build -- prod=fusion-website
+#sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/fusion-service", prefixPath: "/fusion-website/"};</script>' dist/fusion-website/index.html
+#if ! $(check_dir $WORKSPACE/fusion/fusion-website/dist); then
+#    echo '目录 $WORKSPACE/fusion/fusion-website/dist 不存在，请检查此模块打包流程是否正常'
+#    exit 1
+#fi
+#echo 'FINISHED'
+#
+#echo 'PACK MANAGER-WEBSITE'
+#cd $WORKSPACE/manager/manager-website
+#rm -rf $WORKSPACE/manager/manager-website/dist
+##npm install > /dev/null
+#npm install
+## manager/manager-website/dist
+#npm run build -- prod=manager-website
+#sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/manager-service", prefixPath: "/manager-website/"};</script>' dist/manager-website/index.html
+#if ! $(check_dir $WORKSPACE/manager/manager-website/dist); then
+#    echo '目录 $WORKSPACE/manager/manager-website/dist 不存在，请检查此模块打包流程是否正常'
+#    exit 1
+#fi
+#echo 'FINISHED'
+#
+#echo 'PACK SERVING-WEBSITE'
+#cd $WORKSPACE/serving/serving-website
+#rm -rf $WORKSPACE/serving/serving-website/dist
+##npm install > /dev/null
+#npm install
+## serving/serving-website/dist
+#npm run build -- prod=serving-website
+#sed -i '/<title>/i<script>window.clientApi = {env: "prod", baseUrl: "http://127.0.0.1/serving-service", prefixPath: "/serving-website/"};</script>' dist/serving-website/index.html
+#if ! $(check_dir $WORKSPACE/serving/serving-website/dist); then
+#    echo '目录 $WORKSPACE/serving/serving-website/dist 不存在，请检查此模块打包流程是否正常'
+#    exit 1
+#fi
+#echo 'FINISHED'
 
 echo '###### NPM FINISHED ######'
 echo '###### INTEGRATION ######'
@@ -203,23 +203,23 @@ mkdir $WORKSPACE/deploy_package_resource
 cp -r $WORKSPACE/python_project $WORKSPACE/deploy_package_resource
 cp $WORKSPACE/board/board-service/target/wefe-board-service.jar $WORKSPACE/deploy_package_resource/board-service.jar
 cp $WORKSPACE/gateway/target/wefe-gateway.jar $WORKSPACE/deploy_package_resource/gateway.jar
-cp $WORKSPACE/fusion/fusion-service/target/fusion-service.jar $WORKSPACE/deploy_package_resource/fusion-service.jar
-cp $WORKSPACE/manager/manager-service/target/manager-service.jar $WORKSPACE/deploy_package_resource/manager-service.jar
-cp $WORKSPACE/serving/serving-service/target/serving-service.jar $WORKSPACE/deploy_package_resource/serving-service.jar
-cp $WORKSPACE/union/blockchain-data-sync/target/wefe-blockchain-data-sync.jar $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar
-cp $WORKSPACE/union/union-service/target/wefe-union-service.jar $WORKSPACE/deploy_package_resource/wefe-union-service.jar
+#cp $WORKSPACE/fusion/fusion-service/target/fusion-service.jar $WORKSPACE/deploy_package_resource/fusion-service.jar
+#cp $WORKSPACE/manager/manager-service/target/manager-service.jar $WORKSPACE/deploy_package_resource/manager-service.jar
+#cp $WORKSPACE/serving/serving-service/target/serving-service.jar $WORKSPACE/deploy_package_resource/serving-service.jar
+#cp $WORKSPACE/union/blockchain-data-sync/target/wefe-blockchain-data-sync.jar $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar
+#cp $WORKSPACE/union/union-service/target/wefe-union-service.jar $WORKSPACE/deploy_package_resource/wefe-union-service.jar
 
 cp -r $WORKSPACE/board/board-website/dist $WORKSPACE/deploy_package_resource/board-website
-cp -r $WORKSPACE/fusion/fusion-website/dist $WORKSPACE/deploy_package_resource/fusion-website
-cp -r $WORKSPACE/manager/manager-website/dist $WORKSPACE/deploy_package_resource/manager-website
-cp -r $WORKSPACE/serving/serving-website/dist $WORKSPACE/deploy_package_resource/serving-website
+#cp -r $WORKSPACE/fusion/fusion-website/dist $WORKSPACE/deploy_package_resource/fusion-website
+#cp -r $WORKSPACE/manager/manager-website/dist $WORKSPACE/deploy_package_resource/manager-website
+#cp -r $WORKSPACE/serving/serving-website/dist $WORKSPACE/deploy_package_resource/serving-website
 cp -r $WORKSPACE/union/blockchain-data-sync/solidity $WORKSPACE/deploy_package_resource/solidity
 
 cd $WORKSPACE/deploy_package_resource
 tar -cf board-website.tar board-website
-tar -cf fusion-website.tar fusion-website
-tar -cf manager-website.tar manager-website
-tar -cf serving-website.tar serving-website
+#tar -cf fusion-website.tar fusion-website
+#tar -cf manager-website.tar manager-website
+#tar -cf serving-website.tar serving-website
 
 # 数据库文件
 cp $WORKSPACE/documents/数据库设计/board/wefe_board.sql $WORKSPACE/deploy_package_resource
