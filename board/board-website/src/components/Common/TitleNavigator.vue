@@ -132,8 +132,8 @@
                         vData.showNavigation = route.meta.navigation;
                         hightlightTitle();
                     }
+                    console.log(vData.list);
                 }, 250);
-                
             };
             const hightlightTitle = () => {
                 if(route.meta.navigation) {

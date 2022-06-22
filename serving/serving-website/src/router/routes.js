@@ -11,6 +11,7 @@
  * @param {meta: icon} String 当前菜单的图标
  * @param {meta: title} String 当前菜单的标题
  * @param {meta: asmenu} Boolean 只显示1级菜单
+ * @param {meta: navigation} Boolean             show page fixed navigation on the right
  */
 const { pathname } = window.location;
 const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
@@ -60,9 +61,10 @@ const baseRoutes = [
                 path: `${prefixPath}service-view`,
                 name: 'service-view',
                 meta: {
-                    title:  '服务配置',
-                    hidden: true,
-                    active: `${prefixPath}service-view`,
+                    title:      '服务配置',
+                    hidden:     true,
+                    active:     `${prefixPath}service-view`,
+                    navigation: true,
                 },
                 component: () => import('@views/service/service-view.vue'),
             },
