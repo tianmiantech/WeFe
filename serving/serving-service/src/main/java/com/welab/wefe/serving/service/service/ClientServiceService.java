@@ -341,6 +341,7 @@ public class ClientServiceService {
         clientService.setCode(clientId);
         clientService.setType(ServiceClientTypeEnum.OPEN.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
+        clientService.setCreatedBy(CacheObjects.getMemberName());
         add(clientService);
     }
 
@@ -371,7 +372,7 @@ public class ClientServiceService {
         clientService.setUrl(url);
         clientService.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
-        clientService.setCreatedBy(CacheObjects.getMemberId());
+        clientService.setCreatedBy(CacheObjects.getMemberName());
         add(clientService);
     }
 

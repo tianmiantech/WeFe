@@ -16,20 +16,21 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import org.springframework.data.domain.Sort;
-
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
 import com.welab.wefe.serving.service.database.repository.PartnerRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
+import org.springframework.data.domain.Sort;
+
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Global cache
@@ -62,6 +63,12 @@ public class CacheObjects {
      */
     private static LinkedHashMap<String, String> PARTNER_MAP = new LinkedHashMap<>();
 
+    /**
+     * serviceId : serviceName
+     */
+    private static LinkedHashMap<String, String> SERVICE_MAP = new LinkedHashMap<>();
+
+
     public static String getMemberId() {
         if (MEMBER_ID == null) {
             refreshGlobalConfig();
@@ -89,7 +96,7 @@ public class CacheObjects {
         }
         return SERVING_BASE_URL;
     }
-    
+
     public static String getUnionBaseUrl() {
         if (UNION_BASE_URL == null) {
             refreshGlobalConfig();
@@ -130,9 +137,9 @@ public class CacheObjects {
             MODE = identityModel.getMode();
             SERVING_BASE_URL = identityModel.getServingBaseUrl();
         }
-       if(unionModel != null) {
-           UNION_BASE_URL = unionModel.getIntranetBaseUri();
-       }
+        if (unionModel != null) {
+            UNION_BASE_URL = unionModel.getIntranetBaseUri();
+        }
     }
 
 
@@ -197,5 +204,37 @@ public class CacheObjects {
             return null;
         }
         return getPartnerMap().get(partnerId) == null ? "未知" : getPartnerMap().get(partnerId);
+    }
+
+
+    /**
+     * Reload account list
+     */
+    public static void refreshServiceMap() {
+        BaseServiceRepository repo = Launcher.CONTEXT.getBean(BaseServiceRepository.class);
+        List<BaseServiceMySqlModel> list = repo.findAll(Sort.by("name"));
+
+        SERVICE_MAP.clear();
+
+        for (BaseServiceMySqlModel item : list) {
+            SERVICE_MAP.put(item.getId(), item.getName());
+        }
+    }
+
+    public static LinkedHashMap<String, String> getServiceMap() {
+        if (SERVICE_MAP.isEmpty()) {
+            refreshServiceMap();
+        }
+        return SERVICE_MAP;
+    }
+
+    /**
+     * Get the account's nickname
+     */
+    public static String getServiceName(String serviceId) {
+        if (serviceId == null) {
+            return null;
+        }
+        return getServiceMap().get(serviceId) == null ? "未知" : getServiceMap().get(serviceId);
     }
 }
