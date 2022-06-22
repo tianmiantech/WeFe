@@ -1,0 +1,15 @@
+data_promoter: "data/student_vert_promoter.csv"
+data_provider: "data/student_vert_provider.csv"
+idx: "id"
+label_name: "y"
+data_promoter_train: "student_vert_promoter"
+data_promoter_val: "student_vert_promoter"
+data_provider_train: "student_vert_provider"
+data_provider_val: "student_vert_provider"
+eval_type: "regression"
+task_type: "regression"
+loss_func: "log_cosh"
+tree_depth: 3
+tree_num: 50
+learning_rate: 0.1
+
