@@ -50,8 +50,8 @@ LOGGER = log_utils.get_logger()
 
 
 def get_gpu_batch(algo_type='paillier_table_dot'):
-    return int(aclr.gpu_device_info('max_array_size', algo_type) / conf_utils.get_comm_config(
-        consts.COMM_CONF_KEY_GPU_INSTANCE, 1))
+    return int(aclr.gpu_device_info('max_array_size', algo_type) / int(conf_utils.get_comm_config(
+        consts.COMM_CONF_KEY_GPU_INSTANCE, 1)))
 
 
 def _table_binary_op(x, y, op):
@@ -101,7 +101,8 @@ def table_dot(a_table, b_table):
                 b_new_tables = np.array(b_tables).astype(type(b_tables[0][0]))
                 print(f'type(b_tables[0][0]): {type(b_tables[0][0])}')
 
-
+            print(f'a_new_tables len :{len(a_new_tables)}')
+            print(f'b_new_tables len :{len(b_new_tables)}')
             # 获取 GPU 可执行批量数
             gpu_table_dot_batch = get_gpu_batch()
             LOGGER.debug(f'gpu_table_dot_batch: {gpu_table_dot_batch}')
