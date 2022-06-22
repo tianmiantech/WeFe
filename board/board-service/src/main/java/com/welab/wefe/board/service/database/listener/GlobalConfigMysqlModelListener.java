@@ -41,6 +41,7 @@ public class GlobalConfigMysqlModelListener {
         DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.MEMBER_INFO, Arrays.asList("member_mobile"));
         DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.MAIL_SERVER, Arrays.asList("mail_password"));
         DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.ALIYUN_FC_CONFIG, Arrays.asList("access_key_id", "access_key_secret"));
+        DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.ALIYUN_SMS_CHANNEL, Arrays.asList("access_key_id", "access_key_secret"));
     }
 
 
