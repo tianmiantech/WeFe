@@ -148,12 +148,21 @@
 
             <el-table-column
                 label="创建人"
-                prop="created_by"
-            />
+                width="60"
+            >
+                <template slot-scope="scope">
+                    <p>{{ scope.row.created_by }}</p>
+                </template>
+            </el-table-column>
+
             <el-table-column
                 label="修改人"
-                prop="updated_by"
-            />
+                width="60"
+            >
+                <template slot-scope="scope">
+                    <p>{{ scope.row.updated_by }}</p>
+                </template>
+            </el-table-column>
 
             <el-table-column
                 label="操作"
