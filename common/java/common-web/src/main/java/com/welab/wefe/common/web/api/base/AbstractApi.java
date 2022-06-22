@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -49,7 +49,7 @@ public abstract class AbstractApi<In extends AbstractApiInput, Out> {
     /**
      * The concurrency of the API, used to limit the concurrency of the API
      */
-    private static final Map<String, LongAdder> API_PARALLELISM = new HashMap<>();
+    private static final Map<String, LongAdder> API_PARALLELISM = new ConcurrentHashMap<>();
 
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
