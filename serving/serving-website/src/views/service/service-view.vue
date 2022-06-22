@@ -854,6 +854,61 @@
                 @confirm-checked-rows="addServiceRow"
             />
         </div>
+        <div class="right_box">
+            <h3>配置说明</h3>
+            <div
+                v-if="currentDesc"
+                class="service_item"
+            >
+                <h3>服务类型：</h3>
+                <div class="service_desc">{{ currentDesc }}</div>
+            </div>
+            <div class="service_item">
+                <h3>协作方模型状态：</h3>
+                <div class="service_desc">
+                    联邦学习的纵向训练可能有多个参与方，发起方在建立模型服务的时候需要依赖于协作方模型服务，如果协作方的模型服务不可用或未上线，则发起方配置的服务无法进行正确预测。
+                </div>
+            </div>
+            <div class="service_item">
+                <h3>特征配置：</h3>
+                <div class="service_desc">
+                    模型服务的入模特征需要进行配置，包含两
+                    种方式：
+                    <br>
+                    <p>
+                        1、代码配置：使用者根据自己的数据源获取方式
+                        ，编写一段通过输入的样本ID获取样本特征的代
+                        码。指定该模型服务使用代码配置。具体做法：
+                    </p>
+                    <p>a) 继承AbstractFeatureDataProcessor类。</p>
+                    <p>
+                        b) 添加FeatureProcessor注解，注解的值使用
+                        模型服务ID。
+                    </p>
+                    <p>
+                        c) 实现processor方法，方法里面实现获取特征
+                        代码。
+                    </p>
+                    提示：默认处理器EmptyFeatureDataProcessor
+                    ，不做任何处理返回为空。
+
+                    2、SQL配置：使用指定已经配置好的数据源，编
+                    写相应的SQL查询语句，并选定样本的查询条件
+                    值。
+
+                    注意：样本的特征也可以在调用时，由接口传入。
+                </div>
+            </div>
+            <div class="service_item">
+                <h3>可用性测试：</h3>
+                <div class="service_desc">
+                    模型的可用性测试的特征可自行填写(格式
+                    参照输入样例)或从已配置的来源中获取。
+
+                    预测返回参数说明：
+                </div>
+            </div>
+        </div>
     </el-card>
 </template>
 
@@ -1870,11 +1925,27 @@ export default {
 <style lang="scss" scoped>
 .service_view {
     margin-right: 80px;
-    :deep(.el-card__body) {
-        display: flex;
-    }
     .right_box {
-        width: 400px;
+        max-width: 320px;
+        padding-left: 10px;
+        border-left: 1px dashed #ccc;
+        .service_item {
+            margin-bottom: 10px;
+            font-family: Microsoft YaHei;
+            h3 {
+                font-size: 14px;
+                line-height: 28px;
+                color: #333;
+                font-weight: bold;
+            }
+            .service_desc {
+                font-size: 13px;
+                line-height: 18px;
+                text-align: justify;
+                text-indent: 25px;
+                color: #5A5A5A;
+            }
+        }
     }
 }
 .maxlength {
@@ -1967,4 +2038,8 @@ export default {
 
 <style lang="scss">
 .service_tips {max-width: 400px !important;}
+.service_view .el-card__body {
+    display: flex;
+    justify-content: space-between;
+}
 </style>
