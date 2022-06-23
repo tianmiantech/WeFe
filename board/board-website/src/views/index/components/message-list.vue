@@ -27,6 +27,7 @@
                         <template #title>
                             <p :class="{'collapse-title': windowWidth<=1440, 'mr5': true}"><span :class="[item.todo_complete ? 'success' : 'warning', 'mr5 ml5']">{{item.todo_complete ? '[已处理]' : '[待处理]'}}</span>{{ item.title }}</p>
                             <router-link
+                                v-if="activeName === 'todoList' && item.todo"
                                 :to="{name: 'project-detail', query: { project_id: item.project.project_id, project_type: item.project.project_type }}"
                                 class="li"
                             >{{item.todo_complete ? '查看详情' : '去处理'}}</router-link>
@@ -95,7 +96,7 @@
                             </el-icon>
                             <span class="time">{{ dateFormat(item.created_time) }}</span>
                         </template>
-                        <div v-if="activeName === 'cooperateNotice'" class="list_detail">
+                        <div v-if="activeName === 'cooperateNotice' && item.level !== 'error'" class="list_detail">
                             <div>
                                 <p>{{item.project.title}}</p>
                                 <p>申请成员：{{item.project.from_member_name}}</p>
