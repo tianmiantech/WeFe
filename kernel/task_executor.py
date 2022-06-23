@@ -395,12 +395,19 @@ class TaskExecutor(object):
         elif "NaN" in message:
             e = NaNTypeError()
         elif "spark" in message or "Py4J" in message:
-            pattern = re.compile('raise .*(.*)')
-            result = re.search(pattern, message)
-            if result is not None:
-                e = SparkError(message=result.group(0))
+
+            if "OutOfMemoryError" in message:
+                e = SparkOutOfMemoryError()
             else:
-                e = SparkError(message)
+
+                pattern = re.compile('raise .*(.*)')
+                result = re.search(pattern, message)
+                if result is not None:
+                    e = SparkError(message=result.group(0))
+                else:
+                    e = SparkError(message)
+        elif "CUDA" in message and "memory" in message:
+            e = GpuOutOfMemoryError()
         elif isinstance(e, TypeError):
             e = CustomTypeError()
 
