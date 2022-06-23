@@ -18,7 +18,6 @@ package com.welab.wefe.serving.sdk.algorithm.lr.single;
 
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 
@@ -33,6 +32,6 @@ public class LrVertProviderAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
 
     @Override
     protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) {
-        return compute(predictParams);
+        return execute(predictParams);
     }
 }

@@ -16,10 +16,6 @@
 
 package com.welab.wefe.serving.service.predicter;
 
-import java.util.List;
-
-import org.apache.commons.collections4.CollectionUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -40,6 +36,9 @@ import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.List;
 
 
 /**
@@ -78,8 +77,8 @@ public class Predictor {
     }
 
     public static PredictResult batch(String requestId,
-                                        String modelId,
-                                        BatchPredictParams batchPredictParams) throws StatusCodeWithException {
+                                      String modelId,
+                                      BatchPredictParams batchPredictParams) throws StatusCodeWithException {
 
         AbstractBasePredictor predictor = constructPredictor(requestId, modelId, batchPredictParams);
         return predictor.predict();
@@ -109,72 +108,6 @@ public class Predictor {
         return model.get(0).getRole();
     }
 
-//    /**
-//     * Initiator batch call logic
-//     */
-//    public static PredictResult batchPromoterPredict(String modelId, String memberId, Map<String, Map<String, Object>> featureDataMap) throws Exception {
-//
-//        long start = System.currentTimeMillis();
-//
-//        String seqNo = "";
-//        PredictResult result;
-//
-//        boolean requestResult = false;
-//        PredictParams predictParams = PredictParams.of(featureDataMap);
-//
-//        try {
-//            //Generation predicter
-//            AbstractBasePredictor promoterPredict = new BatchPredicter()
-//                    .setPredictParams(predictParams)
-//                    .setFederatedParams(FederatedParams.of(modelId, CacheObjects.getMemberId(), findProviders(modelId)));
-//
-//            //start predict
-//            result = promoterPredict.predict();
-//
-//            //Call succeeded
-//            requestResult = true;
-//
-//        } finally {
-////            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
-//        }
-//
-//        return result;
-//    }
-
-    /**
-     * provider batch call logic
-     */
-//    public static PredictResult batchProviderPredict(String seqNo,
-//                                                     String modelId,
-//                                                     String memberId,
-//                                                     PredictParams predictParams) throws Exception {
-//
-//
-//        long start = System.currentTimeMillis();
-//
-//        PredictResult result;
-//
-//        boolean requestResult = false;
-//
-//        try {
-//            //Generate predicter
-//            FederatedParams federatedParams = FederatedParams.of(modelId, memberId);
-//            AbstractBasePredictor providerPredicter = new BatchPredicter()
-//                    .setFederatedParams(federatedParams)
-//                    .setPredictParams(predictParams);
-//
-//            //Start prediction
-//            result = providerPredicter.predict();
-//
-//            //Call succeeded
-//            requestResult = true;
-//
-//        } finally {
-////            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
-//        }
-//
-//        return result;
-//    }
 
     /**
      * predict Interface

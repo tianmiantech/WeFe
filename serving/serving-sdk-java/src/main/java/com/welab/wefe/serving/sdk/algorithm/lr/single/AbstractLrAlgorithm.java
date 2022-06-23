@@ -19,6 +19,7 @@ package com.welab.wefe.serving.sdk.algorithm.lr.single;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
 import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 
@@ -26,17 +27,32 @@ import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
  * @author hunter.zhao
  */
 public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends AbstractAlgorithm<T, R> {
-    public LrPredictResultModel compute(PredictParams predictParams) {
-        LrPredictResultModel predictModel = LrAlgorithmHelper.compute(
+    public LrPredictResultModel execute(PredictParams predictParams) {
+        LrPredictResultModel predictResult = LrAlgorithmHelper.compute(
                 modelParam.getModelParam(),
                 predictParams.getUserId(),
-                predictParams.getFeatureDataModel().getFeatureDataMap()
+                predictParams.getFeatureDataModel().getFeatureDataMap());
+
+        predictResult.setFeatureResult(
+                PredictModel.extractFeatureResult(predictParams.getFeatureDataModel())
         );
-        predictModel.setFeatureResult(predictParams.getFeatureDataModel());
-        return predictModel;
+        return predictResult;
     }
 
-    public void intercept(LrPredictResultModel predictModel) {
-        predictModel.setScore(predictModel.getScore() + modelParam.getModelParam().getIntercept());
+    public void normalize(LrPredictResultModel predictResult) {
+        intercept(predictResult);
+        sigmod(predictResult);
+    }
+
+    /**
+     * single sigmod function
+     */
+    private void sigmod(LrPredictResultModel predictResult) {
+        predictResult.setScore(LrAlgorithmHelper.sigmod(predictResult.getScore()));
+    }
+
+    private void intercept(LrPredictResultModel predictResult) {
+        Double score = LrAlgorithmHelper.intercept(predictResult.getScore(), modelParam.getModelParam().getIntercept());
+        predictResult.setScore(score);
     }
 }
