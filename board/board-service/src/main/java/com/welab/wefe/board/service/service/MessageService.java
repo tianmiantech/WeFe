@@ -106,8 +106,8 @@ public class MessageService extends AbstractService {
         messageRepository.completeApplyDataResourceTodo(projectId, dataSetId);
     }
 
-    public void completeCreateProjectTodo(String projectId) {
-        messageRepository.completeCreateProjectTodo(projectId);
+    public void completeApplyJoinProjectTodo(String projectId) {
+        messageRepository.completeApplyJoinProjectTodo(projectId);
     }
 
     /**
@@ -156,14 +156,14 @@ public class MessageService extends AbstractService {
     }
 
     /**
-     * 添加一条 event 为 CreateProject 的消息
+     * 添加一条 event 为 ApplyJoinProject 的消息
      */
-    public void addCreateProjectMessage(String fromMemberId, String projectId, String projectName) {
+    public void addApplyJoinProjectMessage(String fromMemberId, String projectId, String projectName) {
         CreateProjectMessageContent content = new CreateProjectMessageContent();
         content.fromMemberId = fromMemberId;
         content.projectId = projectId;
         content.projectName = projectName;
-        add(MessageEvent.CreateProject, content);
+        add(MessageEvent.ApplyJoinProject, content);
     }
 
     /**

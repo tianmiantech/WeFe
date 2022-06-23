@@ -165,7 +165,7 @@ public class ProjectService extends AbstractService {
         projectRepo.save(project);
 
         if (input.fromGateway()) {
-            messageService.addCreateProjectMessage(
+            messageService.addApplyJoinProjectMessage(
                     input.callerMemberInfo.getMemberId(),
                     project.getProjectId(),
                     project.getName()
@@ -861,7 +861,7 @@ public class ProjectService extends AbstractService {
             project.setStatusUpdatedTime(new Date());
             projectRepo.save(project);
 
-            messageService.completeCreateProjectTodo(project.getProjectId());
+            messageService.completeApplyJoinProjectTodo(project.getProjectId());
         }
 
         // update the audit status of project members

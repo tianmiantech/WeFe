@@ -21,9 +21,9 @@ package com.welab.wefe.common.wefe.enums;
  */
 public enum MessageEvent {
     /**
-     * 创建项目
+     * 邀请加入项目
      */
-    CreateProject,
+    ApplyJoinProject,
     /**
      * 同意加入项目
      */
@@ -71,7 +71,7 @@ public enum MessageEvent {
 
     public boolean isTodo() {
         switch (this) {
-            case CreateProject:
+            case ApplyJoinProject:
             case ApplyDataResource:
                 return true;
             default:

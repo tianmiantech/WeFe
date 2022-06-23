@@ -69,6 +69,8 @@ public class ProjectMemberService {
     private JobMemberService jobMemberService;
     @Autowired
     private ProjectMemberAuditRepository projectMemberAuditRepository;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * Add members to an existing project
@@ -89,19 +91,29 @@ public class ProjectMemberService {
     public synchronized void addMember(AddApi.Input input) throws StatusCodeWithException {
 
         List<ProjectMemberMySqlModel> members = findListByProjectId(input.getProjectId());
+        ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
 
-        for (ProjectMemberInput item : input.getMemberList()) {
-            if (checkExistMember(item.getMemberId(), members)) {
-                throw new StatusCodeWithException("您此次添加的成员 " + CacheObjects.getMemberName(item.getMemberId()) + " 已在该项目中，不可重复添加", StatusCode.PARAMETER_VALUE_INVALID);
+        for (ProjectMemberInput member : input.getMemberList()) {
+            if (checkExistMember(member.getMemberId(), members)) {
+                throw new StatusCodeWithException("您此次添加的成员 " + CacheObjects.getMemberName(member.getMemberId()) + " 已在该项目中，不可重复添加", StatusCode.PARAMETER_VALUE_INVALID);
             }
-            JobMemberRole role = item.getMemberRole();
+            JobMemberRole role = member.getMemberRole();
             if (role.equals(JobMemberRole.provider)) {
-                addProviderMember(input, item);
+                addProviderMember(input, member);
             } else if (role.equals(JobMemberRole.promoter)) {
-                addPromoterMember(input, item);
+                addPromoterMember(input, member);
             }
             // 由于该成员可能是之前审核不过然后重新添加的，所以需要将这个成员的历史审核记录都清除掉。
-            projectMemberAuditRepository.deleteAuditingRecord(input.getProjectId(), item.getMemberId());
+            projectMemberAuditRepository.deleteAuditingRecord(input.getProjectId(), member.getMemberId());
+
+            // 如果邀请的是我，添加一条消息。
+            if (input.fromGateway() && CacheObjects.getMemberId().equals(member.getMemberId())) {
+                messageService.addApplyJoinProjectMessage(
+                        input.callerMemberInfo.getMemberId(),
+                        project.getProjectId(),
+                        project.getName()
+                );
+            }
         }
         members = findListByProjectId(input.getProjectId());
         if (!checkMembers(members)) {

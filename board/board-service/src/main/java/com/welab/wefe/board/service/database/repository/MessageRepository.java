@@ -35,6 +35,6 @@ public interface MessageRepository extends BaseRepository<MessageMysqlModel, Str
 
     @Modifying(clearAutomatically = true)
     @Transactional
-    @Query(value = "update #{#entityName} set unread=false,todo_complete=true where `event`='CreateProject' and todo_related_id1=?1", nativeQuery = true)
-    void completeCreateProjectTodo(String relatedId1);
+    @Query(value = "update #{#entityName} set unread=false,todo_complete=true where `event`='ApplyJoinProject' and todo_related_id1=?1", nativeQuery = true)
+    void completeApplyJoinProjectTodo(String relatedId1);
 }
