@@ -131,7 +131,7 @@
                     </el-form>
                 </div>
             </div>
-            <p class="copyright text-c f12">@copyright 天冕信息技术有限公司 Version {{ version }}</p>
+            <p class="copyright text-c f12">@copyright 天冕信息技术（深圳）有限公司 Version {{ version }}</p>
         </el-main>
     </el-container>
 </template>
@@ -258,13 +258,11 @@
             },
             async getUserList() {
                 const { code, data } = await this.$http.post({
-                    url:  '/account/query',
+                    url:  '/account/list_all',
                     data: {
-                        phone_number: '',
-                        nickname:     '',
-                        audit_status: '',
-                        page_index:   '',
-                        page_size:    '',
+                        nickname:   '',
+                        page_index: 0,
+                        page_size:  '',
                     },
                 });
 

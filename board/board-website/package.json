@@ -12,7 +12,7 @@
     "prepare": "cd ../../ && husky install board/board-website/.husky"
   },
   "dependencies": {
-    "@antv/g6": "^4.6.4",
+    "@antv/g6": "^4.3.11",
     "@element-plus/icons-vue": "^1.1.4",
     "axios": "^0.21.4",
     "echarts": "^5.2.0",

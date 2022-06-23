@@ -178,7 +178,7 @@ public class ProjectFlowJobService extends AbstractService {
             JobMySqlModel job = createJob(flow, input.getJobId(), jobMember.getJobRole());
 
             // create Graph
-            FlowGraph graph = new FlowGraph(job, lastJob, jobMembers, projectFlowNodeService.findNodesByFlowId(job.getFlowId()));
+            FlowGraph graph = new FlowGraph(job, lastJob, jobMembers, projectFlowNodeService.findNodesByFlowId(job.getFlowId()), flow.getCreatorMemberId());
             // 设置 JobConfig
             setJobConfig(input, job, graph, isOotMode);
 
@@ -489,7 +489,6 @@ public class ProjectFlowJobService extends AbstractService {
         return job;
 
     }
-
 
     private List<TaskMySqlModel> createJobTasks(JobBuilder jobBuilder, ProjectMySqlModel project, FlowGraph graph, boolean useCache, String endNodeId,
                                                 FederatedLearningType federatedLearningType) throws StatusCodeWithException {

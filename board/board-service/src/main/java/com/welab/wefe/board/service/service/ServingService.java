@@ -262,6 +262,7 @@ public class ServingService extends AbstractService {
         }
     }
 
+
     private String getModelParam(String taskResult) {
         return JObject.create(taskResult).getString("model_param");
     }

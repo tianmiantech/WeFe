@@ -193,7 +193,7 @@ public class ProjectDataSetService extends AbstractService {
     private JobMemberService jobMemberService;
 
     public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY) {
-        return listRawDataSet(projectId, dataResourceType, memberId, memberRole, containsY, null);
+        return listRawDataSet(projectId, dataResourceType, null, memberId, memberRole, containsY, null);
     }
 
     /**
@@ -201,12 +201,13 @@ public class ProjectDataSetService extends AbstractService {
      * <p>
      * When memberId is empty, check the data sets of all members.
      */
-    public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String memberId, JobMemberRole memberRole, Boolean containsY, DeepLearningJobType forJobType) {
+    public List<ProjectDataResourceOutputModel> listRawDataSet(String projectId, DataResourceType dataResourceType, String dataResourceId, String memberId, JobMemberRole memberRole, Boolean containsY, DeepLearningJobType forJobType) {
 
         Specification<ProjectDataSetMySqlModel> where = Where
                 .create()
                 .equal("projectId", projectId)
                 .equal("dataResourceType", dataResourceType)
+                .equal("dataSetId", dataResourceId)
                 .equal("memberId", memberId)
                 .equal("memberRole", memberRole)
                 .equal("sourceType", null, false)
