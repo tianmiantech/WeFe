@@ -36,11 +36,13 @@ public class LrVertPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseL
     @Override
     protected List<LrPredictResultModel> handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
-        List<LrPredictResultModel> predictModelList = compute(batchPredictParams);
+        List<LrPredictResultModel> predictModelList = batchExecute(batchPredictParams);
 
         if (CollectionUtils.isEmpty(federatedResult)) {
-            intercept(predictModelList);
-            return sigmod(predictModelList);
+
+            normalize(predictModelList);
+
+            return predictModelList;
         }
 
         for (JSONObject remoteJson : federatedResult) {
@@ -65,7 +67,8 @@ public class LrVertPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseL
             }
         }
 
-        intercept(predictModelList);
-        return sigmod(predictModelList);
+        normalize(predictModelList);
+
+        return predictModelList;
     }
 }

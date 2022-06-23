@@ -90,27 +90,6 @@ public class FeatureManager {
         }
     }
 
-//    public static Map<String, Map<String, Object>> getFeatureDataByBatch(String modelId, PredictParams predictParams) throws StatusCodeWithException {
-//
-//        PredictFeatureDataSource featureSource = getFeatureSource(modelId);
-//        /**
-//         * Judge the source of feature acquisition
-//         * -Interface input parameter
-//         * -Class configuration
-//         * -Through SQL query
-//         */
-//        switch (featureSource) {
-////            case api:
-////                return new ApiFeatureDataHandler().batch(modelId, predictParams);
-//            case code:
-//                return new CodeFeatureDataHandler().batch(modelId, predictParams);
-//            case sql:
-//                return new SqlFeatureDataHandler().batch(modelId, predictParams);
-//            default:
-//                throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
-//        }
-//    }
-
     /**
      * Get configuration via SQL
      */

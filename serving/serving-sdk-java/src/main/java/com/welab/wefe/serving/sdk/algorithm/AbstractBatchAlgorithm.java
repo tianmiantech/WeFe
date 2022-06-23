@@ -40,16 +40,6 @@ public abstract class AbstractBatchAlgorithm<T, R> {
     protected T modelParam;
 
     /**
-     * batch sigmod function
-     */
-    protected List<LrPredictResultModel> sigmod(List<LrPredictResultModel> models) {
-        models.forEach(model ->
-                model.setScore(1. / (1. + exp(-model.getScore())))
-        );
-        return models;
-    }
-
-    /**
      * A batch prediction
      *
      * @param batchPredictParams

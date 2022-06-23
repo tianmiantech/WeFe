@@ -17,7 +17,6 @@
 package com.welab.wefe.serving.sdk.algorithm.lr.single;
 
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
@@ -34,10 +33,10 @@ public class LrHorzPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Pr
 
     @Override
     protected PredictModel handle(PredictParams predictParams, List<JObject> federatedResult) {
-        LrPredictResultModel predictModel = compute(predictParams);
+        LrPredictResultModel predictModel = execute(predictParams);
 
-        intercept(predictModel);
+        normalize(predictModel);
 
-        return LrAlgorithmHelper.sigmod(predictModel);
+        return predictModel;
     }
 }

@@ -37,6 +37,7 @@ public class ServiceProcessorUtils {
         SERVICE_PROCESSOR_MAPPING.put(ServiceTypeEnum.MULTI_SA.getCode(), SAQueryServiceProcessor.class);
         SERVICE_PROCESSOR_MAPPING.put(ServiceTypeEnum.MULTI_PSI.getCode(), MultiPsiServiceProcessor.class);
         SERVICE_PROCESSOR_MAPPING.put(ServiceTypeEnum.MULTI_PIR.getCode(), MultiPirServiceProcessor.class);
+        SERVICE_PROCESSOR_MAPPING.put(ServiceTypeEnum.MachineLearning.getCode(), ModelServiceProcessor.class);
     }
 
 

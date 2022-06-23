@@ -20,7 +20,6 @@ import com.alibaba.fastjson.util.TypeUtils;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
@@ -39,13 +38,12 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
     protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         //Calculation results
-        LrPredictResultModel result = compute(predictParams);
+        LrPredictResultModel result = execute(predictParams);
 
         if (CollectionUtils.isEmpty(federatedResult)) {
+            normalize(result);
 
-            intercept(result);
-
-            return LrAlgorithmHelper.sigmod(result);
+            return result;
         }
 
         /**
@@ -61,8 +59,7 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
             result.setScore(score);
         }
 
-        intercept(result);
-
-        return LrAlgorithmHelper.sigmod(result);
+        normalize(result);
+        return result;
     }
 }

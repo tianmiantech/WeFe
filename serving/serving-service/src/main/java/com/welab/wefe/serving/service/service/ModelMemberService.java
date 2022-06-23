@@ -113,22 +113,17 @@ public class ModelMemberService {
         List<ModelMemberMySqlModel> list = findListByModelIdAndMemberId(modelId, memberId);
 
         return isProvider(list) ?
-                Lists.newArrayList()
-                : list
-                .stream()
+                Lists.newArrayList() : list.stream()
                 .filter(x -> !CacheObjects.getMemberId().equals(x.getMemberId()))
                 .map(x -> checkAvailable(modelId, x))
                 .collect(Collectors.toList());
     }
 
     private boolean isProvider(List<ModelMemberMySqlModel> list) {
-        for (ModelMemberMySqlModel model : list) {
-            if (model.getMemberId().equals(CacheObjects.getMemberId())
-                    && model.getRole().equals(JobMemberRole.provider)) {
-                return true;
-            }
-        }
-        return false;
+        return list.stream().anyMatch(
+                member -> member.getMemberId().equals(CacheObjects.getMemberId())
+                        && member.getRole().equals(JobMemberRole.provider)
+        );
     }
 
     private ModelStatusOutput checkAvailable(String modelId, ModelMemberMySqlModel model) {
