@@ -906,6 +906,26 @@
                     参照输入样例)或从已配置的来源中获取。
 
                     预测返回参数说明：
+                    <el-table
+                        :data="canUseTestList"
+                        style="width: 100%"
+                        border
+                    >
+                        <el-table-column
+                            prop="field"
+                            label="字段"
+                            width="100"
+                        />
+                        <el-table-column
+                            prop="type"
+                            label="类型"
+                            width="90"
+                        />
+                        <el-table-column
+                            prop="desc"
+                            label="描述"
+                        />
+                    </el-table>
                 </div>
             </div>
         </div>
@@ -1087,6 +1107,63 @@ export default {
             checkLoading:       false,
             activeName:         'api',
             modelStatusVisible: false,
+            canUseTestList:     [
+                {
+                    field: 'algorithm',
+                    type:  'String',
+                    desc:  '算法类型',
+                },
+                {
+                    field: 'type',
+                    type:  'String',
+                    desc:  '训练类型 横向/纵向',
+                },
+                {
+                    field: 'my_role',
+                    type:  'String',
+                    desc:  '我的参与角色',
+                },
+                {
+                    field: 'result',
+                    type:  'Object',
+                    desc:  '推理返回信息',
+                },
+                {
+                    field: 'user_id',
+                    type:  'String',
+                    desc:  '样本ID',
+                },
+                {
+                    field: 'score',
+                    type:  'Double',
+                    desc:  '逻辑回归概率分数',
+                },
+                {
+                    field: 'scores',
+                    type:  'Object',
+                    desc:  'Xgboost算法概率',
+                },
+                {
+                    field: 'xgboost_tree',
+                    type:  'Map',
+                    desc:  '协作方树节点走向',
+                },
+                {
+                    field: 'feature_result',
+                    type:  'Object',
+                    desc:  '特征查询情况',
+                },
+                {
+                    field: 'error',
+                    type:  'String',
+                    desc:  '特征查询错误',
+                },
+                {
+                    field: 'found',
+                    type:  'Boolean',
+                    desc:  '特征查得、未查得',
+                },
+            ],
         };
     },
     computed: {
