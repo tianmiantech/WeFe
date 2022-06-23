@@ -71,8 +71,8 @@
             <el-tab-pane label="合作通知" name="cooperateNotice">
                 <div v-if="message_list && message_list.length" class="search_box">
                     <span>状态：</span>
-                    <el-radio-group v-model="message_search.todoComplete" size="small" @change="todoListChange">
-                        <el-radio-button v-for="item in todoListSelect" :key="item.value" :label="item.value">{{item.label}}</el-radio-button>
+                    <el-radio-group v-model="message_search.unread" size="small" @change="systemMsgChange">
+                        <el-radio-button v-for="item in systemMsgSelect" :key="item.value" :label="item.value">{{item.label}}</el-radio-button>
                     </el-radio-group>
                 </div>
                 <el-collapse
@@ -89,7 +89,7 @@
                         class="unread"
                     >
                         <template #title>
-                            <span :class="[item.todo_complete ? 'success' : 'warning', 'mr5 ml5']">{{item.todo_complete ? '[已处理]' : '[待处理]'}}</span>
+                            <span :class="[item.unread ? 'warning' : 'success', 'mr5 ml5']">{{item.unread ? '[未读]' : '[已读]'}}</span>
                             {{ item.title }}
                             <el-icon v-if="item.unread" class="el-icon-message unread-icon">
                                 <elicon-message />
@@ -115,6 +115,25 @@
                         <div v-else>{{item.content}}</div>
                     </el-collapse-item>
                 </el-collapse>
+                <div
+                    v-if="!message_list || message_list.length === 0"
+                    class="empty-message-list"
+                >
+                    <img
+                        class="empty-data-img"
+                        src="@assets/images/bangbangda.png"
+                    >
+                    <p class="p1">棒棒哒~</p>
+                    <p class="p2">您已看完了所有合作通知</p>
+                    <p class="p3">
+                        <el-button
+                            type="text"
+                            @click="messageSearchChangeUnread(false)"
+                        >
+                            查看已读
+                        </el-button>
+                    </p>
+                </div>
             </el-tab-pane>
             <el-tab-pane label="系统消息" name="systemMsg">
                 <div v-if="message_list && message_list.length" class="search_box">
@@ -137,6 +156,7 @@
                         :class="item.unread ? 'unread' : ''"
                     >
                         <template #title>
+                            <span :class="[item.unread ? 'warning' : 'success', 'mr5 ml5']">{{item.unread ? '[未读]' : '[已读]'}}</span>
                             {{ item.title }}
                             <el-icon v-if="item.unread" class="el-icon-message unread-icon">
                                 <elicon-message />
@@ -246,10 +266,10 @@
                 switch(val.paneName) {
                 case 'todoList':
                     this.message_search.todo = true;
-                    if (this.message_search.eventList) delete this.message_search.eventList;
+                    this.message_search.eventList = ['ApplyJoinProject', 'ApplyDataResource'];
                     break;
                 case 'cooperateNotice':
-                    this.message_search.eventList = ['CreateProject', 'AgreeJoinProject', 'DisagreeJoinProject', 'ApplyDataResource', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
+                    this.message_search.eventList = ['AgreeJoinProject', 'DisagreeJoinProject', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
                     if (this.message_search.todo !== '') delete this.message_search.todo;
                     break;
                 case 'systemMsg':
