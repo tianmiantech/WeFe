@@ -467,7 +467,6 @@
                         <el-form-item
                             v-if="modelStatusVisible && form.model_data.model_id"
                             class="service-list"
-                            style="width: 60%"
                         >
                             <el-table
                                 :loading="partnerTableLoading"
@@ -638,52 +637,58 @@
                             </el-tabs>
                         </el-form-item>
 
-                        <el-card
+                        <div
                             v-if="form.model_data.model_id"
-                            class="model-test-result-card nav-title"
                             name="可用性测试"
+                            class="nav-title"
                         >
-                            <div style="margin-bottom: 10px;">样本ID:</div>
-                            <div>
-                                <el-input
-                                    v-model="form.model_data.check_data.sample_id"
-                                    type="text"
-                                    class="checkButton"
-                                />
-                                <el-button
-                                    type="primary"
-                                    :disabled="form.model_data.check_data.sample_id === ''"
-                                    style="margin-right: 10px;"
-                                    @click="testModel"
-                                >
-                                    可用性校验
-                                </el-button>
-                                <el-tooltip>
-                                    <div slot="content">输入样本ID后才可进行预测</div>
-                                    <i class="el-icon-info" />
-                                </el-tooltip>
-                            </div>
-
+                            <p class="mt10">可用性测试：</p>
                             <div
-                                v-if="predictResult !== ''"
-                                style="margin-top: 20px; margin-bottom: 10px;"
+                                class="mt10"
+                                style="border: 1px solid #ccc; padding: 20px; border-radius: 4px;"
                             >
-                                结果：
-                            </div>
-                            <div>
-                                <p>
-                                    {{ predictResult.length > 150 ? predictResult.substring(0, 151) + '...' : predictResult }}
-                                </p>
-                            </div>
-                            <el-row>
-                                <el-button
-                                    v-if="predictResult.length > 150"
-                                    type="text"
-                                    @click="showRequest(predictResult)"
+                                <div class="mb10">样本ID:</div>
+                                <div>
+                                    <el-input
+                                        v-model="form.model_data.check_data.sample_id"
+                                        type="text"
+                                        class="checkButton"
+                                    />
+                                    <el-button
+                                        type="primary"
+                                        :disabled="form.model_data.check_data.sample_id === ''"
+                                        style="margin-right: 10px;"
+                                        @click="testModel"
+                                    >
+                                        可用性校验
+                                    </el-button>
+                                    <el-tooltip placement="right">
+                                        <div slot="content">输入样本ID后才可进行预测</div>
+                                        <i class="el-icon-info" />
+                                    </el-tooltip>
+                                </div>
+
+                                <div
+                                    v-if="predictResult !== ''"
+                                    style="margin-top: 20px; margin-bottom: 10px;"
                                 >
-                                    查看更多
-                                </el-button>
-                            </el-row>
+                                    结果：
+                                </div>
+                                <div>
+                                    <p>
+                                        {{ predictResult.length > 150 ? predictResult.substring(0, 151) + '...' : predictResult }}
+                                    </p>
+                                </div>
+                                <el-row>
+                                    <el-button
+                                        v-if="predictResult.length > 150"
+                                        type="text"
+                                        @click="showRequest(predictResult)"
+                                    >
+                                        查看更多
+                                    </el-button>
+                                </el-row>
+                            </div>
 
                             <el-dialog
                                 :title="title"
@@ -695,7 +700,7 @@
                                     copyable
                                 />
                             </el-dialog>
-                        </el-card>
+                        </div>
                     </template>
                 </template>
                 <el-button
@@ -715,7 +720,10 @@
                 >
                     点击下载工具包
                 </el-link>
-                <div class="api-preview">
+                <div
+                    v-if="api.params || api.method || api.url"
+                    class="api-preview"
+                >
                     <el-divider />
                     <p
                         name="API 预览"
@@ -857,7 +865,12 @@
         </div>
         <div class="right_box">
             <!-- <el-divider content-position="center">配置说明</el-divider> -->
-            <h3 class="f16">配置说明</h3>
+            <h3
+                v-if="form.service_type"
+                class="f16"
+            >
+                配置说明
+            </h3>
             <div class="config_box">
                 <div
                     v-if="currentDesc"
@@ -1254,7 +1267,7 @@ export default {
                 // timeout: 1000 * 60 * 2,
                 params: {
                     member_id: partner_id,
-                    model_id:  this.form.model_data.model_id,
+                    serviceId: this.form.model_data.model_id,
                 },
             });
 
@@ -1822,7 +1835,7 @@ export default {
                     feature_source:      'sql',
                     sql_script:          this.form.model_data.model_sql_config.sql_script,
                     data_source_id:      this.form.model_data.model_sql_config.data_source_id,
-                    model_id:            this.form.model_data.model_id,
+                    serviceId:           this.form.model_data.model_id,
                     sql_condition_field: this.form.model_data.model_sql_config.sql_condition_field,
                 },
             });
@@ -1832,7 +1845,11 @@ export default {
                 this.$message.success('模型配置保存成功!');
                 this.$router.push({
                     name:  'service-view',
-                    query: { id: this.serviceId },
+                    query: {
+                        ...this.$route.query,
+                        id:        this.serviceId,
+                        isRefresh: Math.random(),
+                    },
                 });
                 this.$router.go(0);
             } else {
@@ -2007,6 +2024,9 @@ export default {
 <style lang="scss" scoped>
 .service_view {
     margin-right: 80px;
+    .left_box {
+        width: 60%;
+    }
     .right_box {
         max-width: 320px;
         >h3 {
