@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.service.flowlimit;
+package com.welab.wefe.common.web.service.flowlimit;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.constant.FlowLimitStrategyTypeEnum;
-import com.welab.wefe.common.data.mongodb.entity.common.FlowLimit;
-import com.welab.wefe.common.data.mongodb.repo.FlowLimitRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.wefe.enums.FlowLimitStrategyTypeEnum;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author aaron.li
- * @date 2021/10/22 15:38
- **/
+ * Flow limit base service
+ * <p>
+ * Flow control mode of basic counter
+ * </p>
+ */
 public abstract class AbstractFlowLimitService {
 
     /**
@@ -53,12 +52,10 @@ public abstract class AbstractFlowLimitService {
         this.params = params;
     }
 
-
     public void check() throws StatusCodeWithException {
         synchronized (AbstractFlowLimitService.class) {
             String key = getFlowLimitKey();
-            FlowLimitRepo flowLimitRepo = Launcher.CONTEXT.getBean(FlowLimitRepo.class);
-            FlowLimit flowLimit = flowLimitRepo.findByKey(key);
+            FlowLimit flowLimit = getFlowLimit(key);
             flowLimit = (null == flowLimit ? createFlowLimit() : flowLimit);
             if ((System.currentTimeMillis() - flowLimit.getStartVisitTime()) <= (getFlowLimitSecond() * 1000L)) {
                 if (flowLimit.getCount() >= getFlowLimitCount()) {
@@ -71,7 +68,7 @@ public abstract class AbstractFlowLimitService {
                 flowLimit.setCount(1);
             }
             flowLimit.setLatestVisitTime(System.currentTimeMillis());
-            flowLimitRepo.save(flowLimit);
+            updateFlowLimit(key, flowLimit);
         }
     }
 
@@ -86,7 +83,7 @@ public abstract class AbstractFlowLimitService {
     protected abstract FlowLimitStrategyTypeEnum getFlowLimitStrategyType();
 
     /**
-     *  Flow limit strategy value
+     * Flow limit strategy value
      */
     protected abstract String getFlowLimitStrategyValue();
 
@@ -108,7 +105,17 @@ public abstract class AbstractFlowLimitService {
     }
 
     /**
-     * 返回初始化的流量对象
+     * Get flow limit info by key
+     */
+    protected abstract FlowLimit getFlowLimit(String key);
+
+    /**
+     * Update flow limit info
+     */
+    protected abstract void updateFlowLimit(String key, FlowLimit flowLimit);
+
+    /**
+     * Create an initialized flow limit object
      */
     private FlowLimit createFlowLimit() throws StatusCodeWithException {
         FlowLimit flowLimit = new FlowLimit();
@@ -121,6 +128,109 @@ public abstract class AbstractFlowLimitService {
         flowLimit.setLatestVisitTime(flowLimit.getStartVisitTime());
         flowLimit.setActiveTime(getFlowLimitSecond() * 10 * 1000L);
         return flowLimit;
+    }
+
+    /**
+     * Flow limit info
+     */
+    public static class FlowLimit {
+        /**
+         * The access record key must be unique
+         */
+        private String key;
+        /**
+         * Number of visits
+         */
+        private int count;
+        /**
+         * api path
+         */
+        private String path;
+        /**
+         * flow limit strategy type
+         */
+        private FlowLimitStrategyTypeEnum strategyType;
+        /**
+         * flow limit strategy value
+         */
+        private String strategyValue;
+        /**
+         * Access timing time in milliseconds
+         */
+        private long startVisitTime;
+        /**
+         * Last access time in milliseconds
+         */
+        private long latestVisitTime;
+        /**
+         * The active time is the effective time. If it exceeds this time, it can be judged as an inactive record,
+         * which can be cleared from the database
+         */
+        private long activeTime;
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+
+        public long getStartVisitTime() {
+            return startVisitTime;
+        }
+
+        public void setStartVisitTime(long startVisitTime) {
+            this.startVisitTime = startVisitTime;
+        }
+
+        public long getLatestVisitTime() {
+            return latestVisitTime;
+        }
+
+        public void setLatestVisitTime(long latestVisitTime) {
+            this.latestVisitTime = latestVisitTime;
+        }
+
+        public FlowLimitStrategyTypeEnum getStrategyType() {
+            return strategyType;
+        }
+
+        public void setStrategyType(FlowLimitStrategyTypeEnum strategyType) {
+            this.strategyType = strategyType;
+        }
+
+        public long getActiveTime() {
+            return activeTime;
+        }
+
+        public void setActiveTime(long activeTime) {
+            this.activeTime = activeTime;
+        }
+
+        public String getStrategyValue() {
+            return strategyValue;
+        }
+
+        public void setStrategyValue(String strategyValue) {
+            this.strategyValue = strategyValue;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
     }
 
     public HttpServletRequest getHttpServletRequest() {
