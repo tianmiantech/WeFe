@@ -73,9 +73,14 @@ public abstract class AbstractXgBoostBatchAlgorithm<T extends BaseXgboostModel, 
 
         List<? extends PredictModel> result = handlePredict(batchPredictParams, federatedResult);
 
-        result.stream().map(
-                x -> x.setFeatureResult(batchPredictParams.getPredictParamsByUserId(x.getUserId()).getFeatureDataModel())
-        ).collect(Collectors.toList());
+        result.stream().forEach(
+                x -> x.setFeatureResult(
+                        PredictModel.extractFeatureResult(
+                                batchPredictParams.getPredictParamsByUserId(x.getUserId()).getFeatureDataModel()
+                        )
+                )
+        );
+
         return result;
     }
 

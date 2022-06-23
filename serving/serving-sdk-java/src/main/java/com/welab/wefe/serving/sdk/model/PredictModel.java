@@ -55,9 +55,8 @@ public class PredictModel {
         this.featureResult = featureResult;
     }
 
-    public PredictModel setFeatureResult(FeatureDataModel featureResult) {
-        this.featureResult = BaseFeatureResultModel.of(featureResult.isFound(), featureResult.getError());
-        return this;
+    public static BaseFeatureResultModel extractFeatureResult(FeatureDataModel featureDataModel) {
+        return BaseFeatureResultModel.of(featureDataModel.isFound(), featureDataModel.getError());
     }
 
 }

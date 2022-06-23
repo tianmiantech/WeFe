@@ -71,7 +71,9 @@ public abstract class AbstractXgboostAlgorithm<T extends BaseXgboostModel, R ext
 
         PredictModel result = handlePredict(predictParams, federatedResult);
 
-        result.setFeatureResult(predictParams.getFeatureDataModel());
+        result.setFeatureResult(
+                PredictModel.extractFeatureResult(predictParams.getFeatureDataModel())
+        );
 
         return result;
     }

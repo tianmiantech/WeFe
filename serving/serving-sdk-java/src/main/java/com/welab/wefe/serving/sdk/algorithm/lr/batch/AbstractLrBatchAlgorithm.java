@@ -22,45 +22,49 @@ import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
-import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author hunter.zhao
  */
 public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends AbstractBatchAlgorithm<T, R> {
+    protected List<LrPredictResultModel> batchExecute(BatchPredictParams batchPredictParams) {
+        List<LrPredictResultModel> predictResult = LrAlgorithmHelper.batchCompute(
+                modelParam.getModelParam(), batchPredictParams);
 
-
-    public List<LrPredictResultModel> compute(BatchPredictParams batchPredictParams) {
-        CopyOnWriteArrayList<LrPredictResultModel> outputs = new CopyOnWriteArrayList<>();
-
-        CountDownLatch latch = new CountDownLatch(batchPredictParams.getUserIds().size());
-
-        batchPredictParams.getPredictParamsList().forEach(x ->
-                AlgorithmThreadPool.run(() -> outputs.add(
-                                LrAlgorithmHelper.compute(
-                                        modelParam.getModelParam(),
-                                        x.getUserId(),
-                                        x.getFeatureDataModel().getFeatureDataMap())
+        predictResult.stream().forEach(
+                x -> x.setFeatureResult(PredictModel.extractFeatureResult(
+                                batchPredictParams
+                                        .getPredictParamsByUserId(x.getUserId())
+                                        .getFeatureDataModel()
                         )
                 )
         );
 
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            LOG.error("Execution prediction error：{}", e.getMessage());
-            e.printStackTrace();
-        }
-
-        return outputs;
+        return predictResult;
     }
 
-    public void intercept(List<LrPredictResultModel> predictModelList) {
-        predictModelList.stream()
-                .forEach(x -> x.setScore(x.getScore() + modelParam.getModelParam().getIntercept()));
+    protected void intercept(List<LrPredictResultModel> predictResultList) {
+        predictResultList.forEach(x -> x.setScore(
+                        LrAlgorithmHelper.intercept(
+                                x.getScore(),
+                                modelParam.getModelParam().getIntercept())
+                )
+        );
     }
+    /**
+     * batch sigmod function
+     */
+    protected void sigmod(List<LrPredictResultModel> predictResultList) {
+        predictResultList.forEach(model ->
+                model.setScore(LrAlgorithmHelper.sigmod(model.getScore()))
+        );
+    }
+
+    protected void normalize(List<LrPredictResultModel> predictResultList) {
+        intercept(predictResultList);
+        sigmod(predictResultList);
+    }
+
 }

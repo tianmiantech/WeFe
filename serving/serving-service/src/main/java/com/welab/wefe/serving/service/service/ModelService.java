@@ -103,8 +103,7 @@ public class ModelService {
         openService(input);
 
         //save model
-        TableModelMySqlModel model = upsertModel(input);
-        return model.getId();
+        return upsertModel(input);
     }
 
     private void addPartners(SaveModelApi.Input input) {
@@ -119,7 +118,7 @@ public class ModelService {
         }
     }
 
-    private TableModelMySqlModel upsertModel(SaveModelApi.Input input) {
+    private String upsertModel(SaveModelApi.Input input) {
         TableModelMySqlModel model = findOne(input.getServiceId());
         if (model == null) {
             model = new TableModelMySqlModel();
@@ -131,7 +130,7 @@ public class ModelService {
         model.setUpdatedTime(new Date());
         model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getNickname());
         modelRepository.save(model);
-        return model;
+        return model.getId();
     }
 
     private TableModelMySqlModel convertTo(SaveModelApi.Input input, TableModelMySqlModel model) {
@@ -305,29 +304,21 @@ public class ModelService {
 
 
     public ModelStatusOutput checkAvailable(String modelId) {
-        try {
-            if (ModelManager.getModelEnable(modelId)) {
-                return ModelStatusOutput.of(
-                        CacheObjects.getMemberId(),
-                        CacheObjects.getMemberName(),
-                        MemberModelStatusEnum.available
-                );
-            }
-
-            return ModelStatusOutput.of(
-                    CacheObjects.getMemberId(),
-                    CacheObjects.getMemberName(),
-                    MemberModelStatusEnum.unavailable
-            );
-        } catch (StatusCodeWithException e) {
-            return ModelStatusOutput.of(
-                    CacheObjects.getMemberId(),
-                    CacheObjects.getMemberName(),
-                    MemberModelStatusEnum.unavailable
-            );
-        }
+        return ModelStatusOutput.of(
+                CacheObjects.getMemberId(),
+                CacheObjects.getMemberName(),
+                getAvailableStatus(modelId)
+        );
     }
 
+    private MemberModelStatusEnum getAvailableStatus(String modelId) {
+        try {
+            return ModelManager.getModelEnable(modelId) ?
+                    MemberModelStatusEnum.available : MemberModelStatusEnum.unavailable;
+        } catch (StatusCodeWithException e) {
+            return MemberModelStatusEnum.unavailable;
+        }
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public void updateConfig(String serviceId,
@@ -360,31 +351,29 @@ public class ModelService {
 
     public ServiceResultOutput predict(RouteApi.Input input) throws StatusCodeWithException {
 
-        SaveApi.Input order = createOrder(input);
-
         String responseId = ServiceResultOutput.buildId();
         PredictResult result = null;
+        ServiceOrderEnum status = ServiceOrderEnum.SUCCESS;
         Integer responseCode = 0;
         try {
-            JObject data = JObject.create(input.getData())
-                    .append("requestId", input.getRequestId())
-                    .append("partnerCode", input.getPartnerCode());
+            JObject data = initParam(input);
             result = forward(data);
-
-            //更新订单信息
-            order.setStatus(ServiceOrderEnum.SUCCESS.getValue());
-            serviceOrderService.save(order);
 
             return ServiceResultOutput.of(input.getRequestId(), responseId, result);
         } catch (StatusCodeWithException e) {
-            //更新订单信息
-            order.setStatus(ServiceOrderEnum.FAILED.getValue());
-            serviceOrderService.save(order);
+            status = ServiceOrderEnum.FAILED;
             responseCode = StatusCode.SYSTEM_ERROR.getCode();
             throw e;
         } finally {
-            callLog(input, order.getId(), responseId, result, responseCode);
+            String orderId = createOrder(input, status);
+            callLog(input, orderId, responseId, result, responseCode);
         }
+    }
+
+    private JObject initParam(RouteApi.Input input) {
+        return JObject.create(input.getData())
+                .append("requestId", input.getRequestId())
+                .append("partnerCode", input.getPartnerCode());
     }
 
     private void callLog(RouteApi.Input input, String orderId, String responseId, PredictResult result, Integer responseCode) {
@@ -392,7 +381,7 @@ public class ModelService {
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
         callLog.setOrderId(orderId);
         callLog.setServiceId(input.getServiceId());
-        callLog.setServiceName(getModelName(input.getServiceId()));
+        callLog.setServiceName(CacheObjects.getServiceName(input.getServiceId()));
         callLog.setRequestData(input.getData());
         callLog.setRequestPartnerId(input.getPartnerCode());
         callLog.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
@@ -403,6 +392,7 @@ public class ModelService {
         callLog.setResponsePartnerId(CacheObjects.getMemberId());
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
+        //是否自己发起的请求 0-否 1-是
         callLog.setCallByMe(0);
         callLog.setResponseStatus(getResponseStatus(result));
         serviceCallLogService.save(callLog);
@@ -412,10 +402,10 @@ public class ModelService {
         return result == null ? ServiceCallStatusEnum.RESPONSE_ERROR.name() : ServiceCallStatusEnum.SUCCESS.name();
     }
 
-    private SaveApi.Input createOrder(RouteApi.Input input) {
+    private String createOrder(RouteApi.Input input, ServiceOrderEnum status) {
         SaveApi.Input order = new SaveApi.Input();
         order.setServiceId(input.getServiceId());
-        order.setServiceName(getModelName(input.getServiceId()));
+        order.setServiceName(CacheObjects.getServiceName(input.getServiceId()));
         order.setServiceType(ServiceTypeEnum.MachineLearning.name());
         order.setRequestPartnerId(input.getPartnerCode());
         order.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
@@ -423,13 +413,9 @@ public class ModelService {
         order.setResponsePartnerName(CacheObjects.getMemberName());
         //是否自己发起的订单
         order.setOrderType(0);
+        order.setStatus(status.getValue());
         serviceOrderService.save(order);
-        return order;
-    }
-
-    private String getModelName(String serviceId) {
-        //TODO 需要修改
-        return "测试";
+        return order.getId();
     }
 
     private PredictResult forward(JObject data) throws StatusCodeWithException {
