@@ -160,7 +160,7 @@
         },
         methods: {
             async getUploaders() {
-                const { code, data } = await this.$http.get('/account/query');
+                const { code, data } = await this.$http.get('/account/list_all');
 
                 if (code === 0) {
                     this.userList = data.list;
