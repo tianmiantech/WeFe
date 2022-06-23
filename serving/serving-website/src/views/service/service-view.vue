@@ -233,6 +233,7 @@
                             </el-select>
                             <el-button
                                 size="mini"
+                                class="ml10"
                                 @click="addDataResource"
                             >
                                 添加数据源
