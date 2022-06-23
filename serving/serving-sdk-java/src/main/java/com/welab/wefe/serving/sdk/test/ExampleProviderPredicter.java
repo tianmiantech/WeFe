@@ -20,7 +20,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;

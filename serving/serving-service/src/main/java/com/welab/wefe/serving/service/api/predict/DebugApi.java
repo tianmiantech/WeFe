@@ -25,11 +25,9 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.predicter.Predictor;
-import com.welab.wefe.serving.service.service.CacheObjects;
 import org.apache.commons.collections4.MapUtils;
 
 import java.util.Map;
