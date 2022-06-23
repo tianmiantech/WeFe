@@ -62,3 +62,14 @@
     ::-webkit-scrollbar-corner{background: rgba(0,0,0,0.1);}
 }
 
+fieldset {
+    border-radius: 4px;
+    border-width: thin;
+    margin-bottom: 15px;
+    legend {
+        color: $color-link-base;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
