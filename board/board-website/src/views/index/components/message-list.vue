@@ -50,7 +50,7 @@
                             </div>
                             <router-link
                                 :to="{name: 'project-detail', query: { project_id: item.project.project_id, project_type: item.project.project_type }}"
-                                class="li"
+                                class="link_item"
                             >{{item.todo_complete ? '查看详情' : '去处理'}}</router-link>
                         </div>
                         <div v-else>{{item.content}}</div>
@@ -89,7 +89,8 @@
                         class="unread"
                     >
                         <template #title>
-                            <span :class="[item.unread ? 'warning' : 'success', 'mr5 ml5']">{{item.unread ? '[未读]' : '[已读]'}}</span>
+                            <!-- <span :class="[item.unread ? 'warning' : 'success', 'mr5 ml5']">{{item.unread ? '[未读]' : '[已读]'}}</span> -->
+                            <span v-if="item.unread" class="unread_tips"></span>
                             {{ item.title }}
                             <el-icon v-if="item.unread" class="el-icon-message unread-icon">
                                 <elicon-message />
@@ -109,8 +110,8 @@
                             </div>
                             <router-link
                                 :to="{name: 'project-detail', query: { project_id: item.project.project_id, project_type: item.project.project_type }}"
-                                class="li"
-                            >{{item.todo_complete ? '查看详情' : '去处理'}}</router-link>
+                                class="link_item"
+                            >查看详情</router-link>
                         </div>
                         <div v-else>{{item.content}}</div>
                     </el-collapse-item>
@@ -156,7 +157,7 @@
                         :class="item.unread ? 'unread' : ''"
                     >
                         <template #title>
-                            <span :class="[item.unread ? 'warning' : 'success', 'mr5 ml5']">{{item.unread ? '[未读]' : '[已读]'}}</span>
+                            <span v-if="item.unread" class="unread_tips"></span>
                             {{ item.title }}
                             <el-icon v-if="item.unread" class="el-icon-message unread-icon">
                                 <elicon-message />
@@ -433,6 +434,18 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+            }
+            .unread_tips {
+                &::before {
+                    content: '';
+                    border: 3px solid #f00;
+                    border-radius: 50%;
+                    display: inline-block;
+                    margin-right: 6px;
+                }
+            }
+            .link_item {
+                min-width: 82px;
             }
         }
         .todoList {
