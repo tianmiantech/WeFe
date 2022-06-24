@@ -22,8 +22,6 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
@@ -39,6 +37,7 @@ import com.welab.wefe.serving.service.service.ModelMemberService;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -70,34 +69,42 @@ public class Predictor {
 
     public static PredictResult predict(String requestId,
                                         String modelId,
-                                        PredictParams predictParams) throws StatusCodeWithException {
+                                        String userId,
+                                        Map<String, Object> featureData) throws StatusCodeWithException {
 
-        AbstractBasePredictor predictor = constructPredictor(requestId, modelId, predictParams);
+        AbstractBasePredictor predictor = constructPredictor(requestId, modelId, userId, featureData);
         return predictor.predict();
     }
 
     public static PredictResult batch(String requestId,
                                       String modelId,
-                                      BatchPredictParams batchPredictParams) throws StatusCodeWithException {
+                                      List<String> userIds,
+                                      Map<String, Map<String, Object>> featureDataMap) throws StatusCodeWithException {
 
-        AbstractBasePredictor predictor = constructPredictor(requestId, modelId, batchPredictParams);
+        AbstractBasePredictor predictor = constructPredictor(requestId, modelId, userIds, featureDataMap);
         return predictor.predict();
     }
 
-    private static AbstractBasePredictor constructPredictor(String requestId, String modelId, PredictParams predictParams) throws StatusCodeWithException {
+    private static AbstractBasePredictor constructPredictor(String requestId,
+                                                            String modelId,
+                                                            String userId,
+                                                            Map<String, Object> featureData) throws StatusCodeWithException {
         JobMemberRole myRole = findMyRole(modelId);
 
         return myRole.equals(JobMemberRole.promoter) ?
-                new PromoterPredictor(requestId, modelId, predictParams)
-                : new ProviderPredictor(modelId, predictParams);
+                new PromoterPredictor(requestId, modelId, userId, featureData)
+                : new ProviderPredictor(modelId, userId, featureData);
     }
 
-    private static AbstractBasePredictor constructPredictor(String requestId, String modelId, BatchPredictParams batchPredictParams) throws StatusCodeWithException {
+    private static AbstractBasePredictor constructPredictor(String requestId,
+                                                            String modelId,
+                                                            List<String> userIds,
+                                                            Map<String, Map<String, Object>> featureDataMap) throws StatusCodeWithException {
         JobMemberRole myRole = findMyRole(modelId);
 
         return myRole.equals(JobMemberRole.promoter) ?
-                new BatchPromoterPredictor(requestId, modelId, batchPredictParams)
-                : new BatchProviderPredictor(modelId, batchPredictParams);
+                new BatchPromoterPredictor(requestId, modelId, userIds, featureDataMap)
+                : new BatchProviderPredictor(modelId, userIds, featureDataMap);
     }
 
     private static JobMemberRole findMyRole(String modelId) throws StatusCodeWithException {
@@ -115,22 +122,24 @@ public class Predictor {
      * @param modelId model id
      */
     public static PredictResult debug(String modelId,
-                                      PredictParams predictParams,
+                                      String userId,
+                                      Map<String, Object> featureData,
                                       PredictFeatureDataSource featureSource,
                                       JSONObject extendParams) throws Exception {
 
-        AbstractBasePredictor predictor = constructDebugPredictor(modelId, predictParams, featureSource, extendParams);
+        AbstractBasePredictor predictor = constructDebugPredictor(modelId, userId, featureData, featureSource, extendParams);
         return predictor.predict();
     }
 
     private static AbstractBasePredictor constructDebugPredictor(String modelId,
-                                                                 PredictParams predictParams,
+                                                                 String userId,
+                                                                 Map<String, Object> featureData,
                                                                  PredictFeatureDataSource featureDataSource,
                                                                  JSONObject extendParams) throws StatusCodeWithException {
         JobMemberRole myRole = findMyRole(modelId);
 
         return myRole.equals(JobMemberRole.promoter) ?
-                new DebugPromoterPredictor(ServiceResultOutput.buildId(), modelId, predictParams, featureDataSource, extendParams)
-                : new DebugProviderPredictor(modelId, predictParams, featureDataSource, extendParams);
+                new DebugPromoterPredictor(ServiceResultOutput.buildId(), modelId, userId, featureData, featureDataSource, extendParams)
+                : new DebugProviderPredictor(modelId, userId, featureData, featureDataSource, extendParams);
     }
 }

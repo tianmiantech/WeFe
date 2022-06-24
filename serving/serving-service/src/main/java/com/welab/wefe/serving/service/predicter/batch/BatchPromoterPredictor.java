@@ -20,11 +20,10 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
-import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPromoterPredictor;
+import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.single.PromoterPredictHelper;
@@ -34,20 +33,22 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Model call initiator
  *
  * @author hunter.zhao
  */
-public class BatchPromoterPredictor extends AbstractBatchPromoterPredictor {
+public class BatchPromoterPredictor extends AbstractBatchPredictor {
 
     private String requestId;
 
     public BatchPromoterPredictor(String requestId,
                                   String modelId,
-                                  BatchPredictParams batchPredictParams) {
-        super(modelId, batchPredictParams);
+                                  List<String> userIds,
+                                  Map<String, Map<String, Object>> featureDataMap) {
+        super(modelId, userIds, featureDataMap);
         this.requestId = requestId;
     }
 

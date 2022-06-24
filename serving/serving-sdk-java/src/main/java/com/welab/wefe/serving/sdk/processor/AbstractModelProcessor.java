@@ -44,5 +44,5 @@ public abstract class AbstractModelProcessor {
      * @param model
      * @param predictParams
      */
-    public abstract void postprocess(PredictResult result, BaseModel model, PredictParams predictParams);
+    public abstract void postprocess(Object result, BaseModel model, PredictParams predictParams);
 }

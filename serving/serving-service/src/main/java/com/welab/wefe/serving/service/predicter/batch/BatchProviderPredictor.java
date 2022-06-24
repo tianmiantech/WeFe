@@ -17,13 +17,15 @@
 package com.welab.wefe.serving.service.predicter.batch;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.batch.AbstractBatchProviderPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import org.apache.commons.collections4.MapUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * model call provider
@@ -32,8 +34,8 @@ import org.apache.commons.collections4.MapUtils;
  */
 public class BatchProviderPredictor extends AbstractBatchProviderPredictor {
 
-    public BatchProviderPredictor(String modelId, BatchPredictParams batchPredictParams) {
-        super(modelId, batchPredictParams);
+    public BatchProviderPredictor(String modelId, List<String> userIds, Map<String, Map<String, Object>> featureDataMap) {
+        super(modelId, userIds, featureDataMap);
     }
 
     @Override

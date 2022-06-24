@@ -32,7 +32,7 @@ public class EmptyModelProcessor extends AbstractModelProcessor {
     }
 
     @Override
-    public void postprocess(PredictResult result, BaseModel model, PredictParams predictParams) {
+    public void postprocess(Object result, BaseModel model, PredictParams predictParams) {
 
     }
 }

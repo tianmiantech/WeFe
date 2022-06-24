@@ -21,15 +21,10 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.ClassUtils;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
-import com.welab.wefe.serving.sdk.dto.PredictResult;
-import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-import static java.lang.Math.exp;
 
 /**
  * @author hunter.zhao
@@ -48,13 +43,11 @@ public abstract class AbstractBatchAlgorithm<T, R> {
      */
     protected abstract R handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException;
 
-    public PredictResult execute(BaseModel model, BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
+    public R execute(String modelParamStr, BatchPredictParams batchPredictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         // Convert the parameter list stored in the database into a well-defined entity object
-        modelParam = (T) JSON.parseObject(model.params).toJavaObject(ClassUtils.getGenericClass(getClass(), 0));
+        modelParam = (T) JSON.parseObject(modelParamStr).toJavaObject(ClassUtils.getGenericClass(getClass(), 0));
 
-        R value = handle(batchPredictParams, federatedResult);
-
-        return new PredictResult(model.getAlgorithm(), model.getFlType(), model.getMyRole(), value);
+        return handle(batchPredictParams, federatedResult);
     }
 }

@@ -56,7 +56,7 @@ public class Example {
         featureData.put("x3", 3.432);
         featureData.put("x4", 4.543);
         featureData.put("x5", 5.654);
-        PredictParams predictParams = PredictParams.of("15555555555", featureData);
+        PredictParams predictParams = PredictParams.create("15555555555", featureData);
 
         try {
 

@@ -65,7 +65,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
         PredictResult result = Predictor.predict(
                 input.getRequestId(),
                 input.getModelId(),
-                PredictParams.of(input.getUserId(), input.getFeatureData())
+                PredictParams.create(input.getUserId(), input.getFeatureData())
         );
 
         return result;

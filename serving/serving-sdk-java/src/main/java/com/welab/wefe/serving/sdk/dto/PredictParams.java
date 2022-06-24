@@ -26,13 +26,7 @@ import java.util.Map;
 public class PredictParams {
     private String userId;
 
-//    private Map<String, Object> featureData;
-
     private FeatureDataModel featureDataModel;
-//
-//    private List<String> userIds;
-//
-//    private Map<String, Map<String, Object>> featureDataMap;
 
     private PredictParams() {
 
@@ -42,7 +36,7 @@ public class PredictParams {
         this.userId = userId;
     }
 
-    public static PredictParams of(String userId, Map<String, Object> featureDataMap) {
+    public static PredictParams create(String userId, Map<String, Object> featureDataMap) {
         PredictParams predictParams = new PredictParams();
         predictParams.userId = userId;
         predictParams.featureDataModel = FeatureDataModel.of(featureDataMap);
@@ -50,7 +44,7 @@ public class PredictParams {
     }
 
 
-    public static PredictParams of(String userId, FeatureDataModel featureDataModel) {
+    public static PredictParams create(String userId, FeatureDataModel featureDataModel) {
         PredictParams predictParams = new PredictParams();
         predictParams.userId = userId;
         predictParams.featureDataModel = featureDataModel;

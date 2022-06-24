@@ -29,6 +29,7 @@ import com.welab.wefe.serving.sdk.processor.AbstractBatchModelProcessor;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,9 +41,9 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
 
     public BatchPredictParams batchPredictParams;
 
-    public AbstractBatchPredictor(String modelId, BatchPredictParams batchPredictParams) {
+    public AbstractBatchPredictor(String modelId, List<String> userIds, Map<String, Map<String, Object>> featureDataMap) {
         super(modelId);
-        this.batchPredictParams = batchPredictParams;
+        this.batchPredictParams = BatchPredictParams.of(userIds, featureDataMap);
     }
 
     /**
@@ -69,21 +70,26 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
 
         AbstractBatchAlgorithm algorithm = AlgorithmManager.getBatch(model);
 
-        PredictResult result = algorithm.execute(model, batchPredictParams, federatedResultByProviders());
+        Object result = algorithm.execute(model.getParams(), batchPredictParams, federatedResultByProviders());
 
         processor.postprocess(result, model, batchPredictParams);
 
-        return result;
+        return new PredictResult(
+                model.getAlgorithm(),
+                model.getFlType(),
+                model.getMyRole(),
+                result
+        );
     }
 
     private List<PredictParams> batchFindFeatureData() {
         List<PredictParams> predictParamsList = batchPredictParams.getUserIds().stream()
                 .map(x -> {
                     try {
-                        return PredictParams.of(x, findFeatureData(x));
+                        return PredictParams.create(x, findFeatureData(x));
                     } catch (StatusCodeWithException e) {
                         e.printStackTrace();
-                        return PredictParams.of(x, new HashMap<>());
+                        return PredictParams.create(x, new HashMap<>());
                     }
                 })
                 .collect(Collectors.toList());
