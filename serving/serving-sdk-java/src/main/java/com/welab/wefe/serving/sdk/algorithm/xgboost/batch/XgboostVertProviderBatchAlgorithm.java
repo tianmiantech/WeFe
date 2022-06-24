@@ -19,8 +19,6 @@ package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
@@ -36,11 +34,10 @@ import java.util.concurrent.CountDownLatch;
  */
 public class XgboostVertProviderBatchAlgorithm extends AbstractXgBoostBatchAlgorithm<BaseXgboostModel, List<XgbProviderPredictResultModel>> {
 
-    private CopyOnWriteArrayList<XgbProviderPredictResultModel> predictModelList = new CopyOnWriteArrayList<>();
-
     @Override
     protected List<XgbProviderPredictResultModel> handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) {
 
+        CopyOnWriteArrayList<XgbProviderPredictResultModel> predictModelList = new CopyOnWriteArrayList<>();
         CountDownLatch latch = new CountDownLatch(fidValueMapping.size());
 
         //Multithreaded compute node
