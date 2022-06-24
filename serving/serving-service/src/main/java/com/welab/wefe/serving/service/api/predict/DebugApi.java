@@ -25,7 +25,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import org.apache.commons.collections4.MapUtils;
@@ -48,7 +47,8 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
         try {
             PredictResult result = Predictor.debug(
                     input.getModelId(),
-                    PredictParams.of(input.getUserId(), input.getFeatureData()),
+                    input.getUserId(),
+                    input.getFeatureData(),
                     input.getFeatureSource(),
                     input.getParams() == null ? null : new JSONObject(input.getParams())
             );

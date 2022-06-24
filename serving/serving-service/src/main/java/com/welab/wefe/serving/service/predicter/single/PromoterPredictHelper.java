@@ -29,6 +29,7 @@ import com.welab.wefe.serving.sdk.config.Config;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
 import com.welab.wefe.serving.service.enums.ServiceCallStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
@@ -171,7 +172,7 @@ public class PromoterPredictHelper {
         order.setRequestPartnerName(CacheObjects.getMemberName());
         order.setResponsePartnerId(partnerId);
         order.setResponsePartnerName(CacheObjects.getPartnerName(partnerId));
-        order.setOrderType(1);
+        order.setOrderType(CallByMeEnum.YES.getValue());
         order.setStatus(status.getValue());
 
         ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
@@ -185,8 +186,7 @@ public class PromoterPredictHelper {
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
         callLog.setOrderId(orderId);
         callLog.setServiceId(modelId);
-        //TODO 加服务名
-        callLog.setServiceName("");
+        callLog.setServiceName(CacheObjects.getServiceName(modelId));
         callLog.setRequestData(requestData);
         callLog.setRequestPartnerId(CacheObjects.getMemberId());
         callLog.setRequestPartnerName(CacheObjects.getMemberName());
@@ -198,7 +198,7 @@ public class PromoterPredictHelper {
         callLog.setResponsePartnerName(CacheObjects.getPartnerName(memberId));
         callLog.setResponseData(result.toJSONString());
         callLog.setResponseStatus(getResponseStatus(result));
-        callLog.setCallByMe(0);
+        callLog.setCallByMe(CallByMeEnum.YES.getValue());
 
         ServiceCallLogService serviceCallLogService = Launcher.CONTEXT.getBean(ServiceCallLogService.class);
         serviceCallLogService.save(callLog);

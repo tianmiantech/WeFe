@@ -18,9 +18,9 @@ package com.welab.wefe.serving.sdk.predicter.batch;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * batch prediction
@@ -29,8 +29,8 @@ import java.util.List;
  */
 public abstract class AbstractBatchProviderPredictor extends AbstractBatchPredictor {
 
-    public AbstractBatchProviderPredictor(String modelId, BatchPredictParams batchPredictParams) {
-        super(modelId, batchPredictParams);
+    public AbstractBatchProviderPredictor(String modelId, List<String> userIds, Map<String, Map<String, Object>> featureDataMap) {
+        super(modelId, userIds, featureDataMap);
     }
 
     @Override

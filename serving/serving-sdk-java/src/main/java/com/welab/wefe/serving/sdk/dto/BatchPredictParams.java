@@ -62,7 +62,7 @@ public class BatchPredictParams {
                 featureDataMap
                         .entrySet()
                         .stream()
-                        .map(x -> PredictParams.of(x.getKey(), x.getValue()))
+                        .map(x -> PredictParams.create(x.getKey(), x.getValue()))
                         .collect(Collectors.toList());
         return batchPredictParams;
     }

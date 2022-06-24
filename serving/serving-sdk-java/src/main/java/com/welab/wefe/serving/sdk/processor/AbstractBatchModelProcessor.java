@@ -43,5 +43,5 @@ public abstract class AbstractBatchModelProcessor {
      * @param model
      * @param batchPredictParams
      */
-    public abstract void postprocess(PredictResult result, BaseModel model, BatchPredictParams batchPredictParams);
+    public abstract void postprocess(Object result, BaseModel model, BatchPredictParams batchPredictParams);
 }
