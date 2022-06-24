@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
 
-    public BatchPredictParams batchPredictParams;
+    protected BatchPredictParams batchPredictParams;
 
     public AbstractBatchPredictor(String modelId, List<String> userIds, Map<String, Map<String, Object>> featureDataMap) {
         super(modelId);

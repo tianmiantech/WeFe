@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public abstract class AbstractSinglePredictor extends AbstractBasePredictor {
 
-    public PredictParams predictParams;
+    protected PredictParams predictParams;
 
 
     public AbstractSinglePredictor(String modelId, String userId, Map<String, Object> featureData) {

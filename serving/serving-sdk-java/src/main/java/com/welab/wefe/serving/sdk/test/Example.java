@@ -18,7 +18,6 @@ package com.welab.wefe.serving.sdk.test;
 
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.serving.sdk.config.Launcher;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
@@ -56,14 +55,13 @@ public class Example {
         featureData.put("x3", 3.432);
         featureData.put("x4", 4.543);
         featureData.put("x5", 5.654);
-        PredictParams predictParams = PredictParams.create("15555555555", featureData);
 
         try {
 
             /**
              * promoter
              */
-            ExamplePromoterPredicter promoter = new ExamplePromoterPredicter("modelId", predictParams);
+            ExamplePromoterPredicter promoter = new ExamplePromoterPredicter("modelId", "15555555555", featureData);
             PredictResult promoterResult = promoter.predict();
             System.err.println(JSON.toJSONString(promoterResult));
 
@@ -71,7 +69,7 @@ public class Example {
             /**
              * provider
              */
-            AbstractBasePredictor provider = new ExampleProviderPredicter("modelId-02", predictParams);
+            AbstractBasePredictor provider = new ExampleProviderPredicter("modelId-02", "15555555555", featureData);
             PredictResult providerResult = provider.predict();
             System.err.println(JSON.toJSONString(providerResult));
 

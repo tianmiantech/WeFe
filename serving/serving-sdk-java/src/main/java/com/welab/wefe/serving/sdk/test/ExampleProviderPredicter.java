@@ -20,10 +20,11 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredictor;
+
+import java.util.Map;
 
 /**
  * This class mainly demonstrates how to customize the provider prediction class
@@ -32,8 +33,8 @@ import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredict
  */
 public class ExampleProviderPredicter extends AbstractSingleProviderPredictor {
 
-    public ExampleProviderPredicter(String modelId, PredictParams predictParams) {
-        super(modelId, predictParams);
+    public ExampleProviderPredicter(String modelId, String userId, Map<String, Object> featureData) {
+        super(modelId, userId, featureData);
     }
 
     @Override

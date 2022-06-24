@@ -40,10 +40,7 @@ import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceResultOutput;
-import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
-import com.welab.wefe.serving.service.enums.ServiceCallStatusEnum;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import com.welab.wefe.serving.service.enums.*;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.ModelServiceProcessor;
 import com.welab.wefe.serving.service.utils.ServiceUtil;
@@ -392,8 +389,7 @@ public class ModelService {
         callLog.setResponsePartnerId(CacheObjects.getMemberId());
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
-        //是否自己发起的请求 0-否 1-是
-        callLog.setCallByMe(0);
+        callLog.setCallByMe(CallByMeEnum.NO.getValue());
         callLog.setResponseStatus(getResponseStatus(result));
         serviceCallLogService.save(callLog);
     }
@@ -412,7 +408,7 @@ public class ModelService {
         order.setResponsePartnerId(CacheObjects.getMemberId());
         order.setResponsePartnerName(CacheObjects.getMemberName());
         //是否自己发起的订单
-        order.setOrderType(0);
+        order.setOrderType(CallByMeEnum.NO.getValue());
         order.setStatus(status.getValue());
         serviceOrderService.save(order);
         return order.getId();

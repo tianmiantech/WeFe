@@ -21,13 +21,13 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class mainly demonstrates how to customize the promoter prediction class
@@ -36,8 +36,8 @@ import java.util.List;
  */
 public class ExamplePromoterPredicter extends AbstractSinglePredictor {
 
-    public ExamplePromoterPredicter(String modelId, PredictParams predictParams) {
-        super(modelId, predictParams);
+    public ExamplePromoterPredicter(String modelId, String userId, Map<String, Object> featureData) {
+        super(modelId, userId, featureData);
     }
 
     @Override
