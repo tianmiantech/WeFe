@@ -720,11 +720,16 @@ public class ServiceService {
 
         HttpResponse response = HttpRequest.create(uri).setBody(SignUtils.parameterSign(params)).postJson();
 
-        if (!response.success()) {
-            throw new StatusCodeWithException("调用" + uri + "失败，" + response.getMessage(),
-                    StatusCode.REMOTE_SERVICE_ERROR);
+        if (!response.success() || response.getCode() != 200 || response.getBodyAsJson().getInteger("code") != 0) {
+            StatusCode.REMOTE_SERVICE_ERROR.throwException("调用" + uri + "失败，" + getErrorMessage(response));
         }
 
         return response.getBodyAsJson().getJSONObject("data").toJavaObject(entityClass);
+    }
+
+    private String getErrorMessage(HttpResponse response) {
+        return response.getMessage().isEmpty() ?
+                response.getBodyAsJson().getString("message") :
+                response.getMessage();
     }
 }

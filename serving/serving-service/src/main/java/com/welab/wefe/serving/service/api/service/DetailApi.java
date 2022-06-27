@@ -342,6 +342,8 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         public void setDataSourceId(String dataSourceId) {
             this.dataSourceId = dataSourceId;
         }
+
+
     }
 
 }

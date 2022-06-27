@@ -63,7 +63,10 @@ public class PromoterPredictHelper {
                     .setRetryCount(3)
                     .postJson();
 
-            checkResponse(obj.getMemberId(), response);
+            if (!isSuccess(response)) {
+                String message = "协作方 " + CacheObjects.getPartnerName(obj.getMemberId()) + " 响应失败";
+                StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
+            }
 
             return extractData(response);
         } catch (StatusCodeWithException e) {
@@ -210,8 +213,8 @@ public class PromoterPredictHelper {
     }
 
 
-    private static String extractResponseId(HttpResponse response) {
-        if (response == null || !response.success() || response.getCode() != 200) {
+    private static String extractResponseId(HttpResponse response) throws StatusCodeWithException {
+        if (!isSuccess(response)) {
             return "";
         }
 
@@ -222,33 +225,33 @@ public class PromoterPredictHelper {
     }
 
 
-    private static JObject extractData(HttpResponse response) {
-        if (response == null || !response.success() || response.getCode() != 200) {
+    private static JObject extractData(HttpResponse response) throws StatusCodeWithException {
+        if (!isSuccess(response)) {
             return JObject.create();
         }
         JSONObject json = response.getBodyAsJson();
         return JObject.create(json.getJSONObject("data").getJSONObject("data"));
     }
 
-    private static void checkResponse(String memberId, HttpResponse response) throws StatusCodeWithException {
+    private static boolean isSuccess(HttpResponse response) throws StatusCodeWithException {
         if (response == null || !response.success() || response.getCode() != 200) {
-            String message = "协作方 " + CacheObjects.getPartnerName(memberId) + " 响应失败(" + response.getCode() + ")," + response.getMessage();
-            LOG.error(message);
-            StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
+            return false;
         }
+
 
         Integer code = extractCode(response);
         if (code == null || !code.equals(0) || !response.getBodyAsJson().containsKey("data")) {
-            String message = "协作方 " + CacheObjects.getPartnerName(memberId) + " 响应失败(" + code + ")," + response.getBodyAsJson().getString("message");
-            LOG.error(message);
-            StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
+            return false;
         }
+
+        return true;
     }
 
-    private static Integer extractCode(HttpResponse response) {
+    private static Integer extractCode(HttpResponse response) throws StatusCodeWithException {
         if (response == null || !response.success() || response.getCode() != 200) {
             return StatusCode.SYSTEM_ERROR.getCode();
         }
+
         JSONObject json = response.getBodyAsJson();
         return json.getInteger("code");
     }

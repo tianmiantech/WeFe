@@ -109,13 +109,13 @@ public class ModelMemberService {
         modelMemberRepository.save(member);
     }
 
-    public List<ModelStatusOutput> checkAvailableByModelIdAndMemberId(String modelId, String memberId) {
-        List<ModelMemberMySqlModel> list = findListByModelIdAndMemberId(modelId, memberId);
+    public List<ModelStatusOutput> checkAvailableByModelIdAndMemberId(String serviceId, String memberId) {
+        List<ModelMemberMySqlModel> list = findListByModelIdAndMemberId(serviceId, memberId);
 
         return isProvider(list) ?
                 Lists.newArrayList() : list.stream()
                 .filter(x -> !CacheObjects.getMemberId().equals(x.getMemberId()))
-                .map(x -> checkAvailable(modelId, x))
+                .map(x -> checkAvailable(serviceId, x))
                 .collect(Collectors.toList());
     }
 
@@ -126,9 +126,9 @@ public class ModelMemberService {
         );
     }
 
-    private ModelStatusOutput checkAvailable(String modelId, ModelMemberMySqlModel model) {
+    private ModelStatusOutput checkAvailable(String serviceId, ModelMemberMySqlModel model) {
 
-        ModelStatusOutput output = callProvider(modelId, model.getMemberId());
+        ModelStatusOutput output = callProvider(serviceId, model.getMemberId());
         output.setUrl(findPartnerUrl(model.getMemberId()));
         updateModelStatus(model, output.getStatus());
 
@@ -147,11 +147,11 @@ public class ModelMemberService {
         modelMemberRepository.save(model);
     }
 
-    private ModelStatusOutput callProvider(String modelId, String memberId) {
+    private ModelStatusOutput callProvider(String serviceId, String memberId) {
         String servingBaseUrl = findServingBaseUrl(memberId);
 
         TreeMap<String, Object> param = new TreeMap<>();
-        param.put("modelId", modelId);
+        param.put("serviceId", serviceId);
         try {
             return serviceService.callOtherPartnerServing(
                     servingBaseUrl,
