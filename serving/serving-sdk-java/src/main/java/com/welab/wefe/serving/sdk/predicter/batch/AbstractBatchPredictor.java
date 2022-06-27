@@ -43,7 +43,7 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
 
     public AbstractBatchPredictor(String modelId, List<String> userIds, Map<String, Map<String, Object>> featureDataMap) {
         super(modelId);
-        this.batchPredictParams = BatchPredictParams.of(userIds, featureDataMap);
+        this.batchPredictParams = BatchPredictParams.create(userIds, featureDataMap);
     }
 
     /**
@@ -62,7 +62,7 @@ public abstract class AbstractBatchPredictor extends AbstractBasePredictor {
 
         BaseModel model = getModel();
 
-        batchPredictParams.setPredictParamsList(batchFindFeatureData());
+        batchPredictParams.replacePredictParamsList(batchFindFeatureData());
 
         AbstractBatchModelProcessor processor = getProcessor();
 
