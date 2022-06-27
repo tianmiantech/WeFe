@@ -89,7 +89,7 @@
                 min-width="240px"
             >
                 <template slot-scope="scope">
-                    <router-link :to="{ name: 'service-view', query: { id: scope.row.id } }">
+                    <router-link :to="{ name: 'service-view', query: { id: scope.row.id, service_type: scope.row.service_type } }">
                         {{ scope.row.name }}
                     </router-link>
                     <p class="id">{{ scope.row.id }}</p>
@@ -170,29 +170,32 @@
                 fixed="right"
             >
                 <template slot-scope="scope">
-                        <el-button
-                            type="primary"
-                            @click="editService(scope.row)"
-                        >
-                            配置
-                        </el-button>
-                        <el-button
-                            v-if="scope.row.status == 0"
-                            type="primary"
-                            @click="online(scope.row.id)"
-                        >
-                            上线
-                        </el-button>
-                        <el-button
-                            v-else
-                            type="danger"
-                            @click="offline(scope.row.id)"
-                        >
-                            下线
-                        </el-button>
+                    <el-button
+                        type="primary"
+                        @click="editService(scope.row)"
+                    >
+                        配置
+                    </el-button>
+                    <el-button
+                        v-if="scope.row.status == 0"
+                        type="primary"
+                        @click="online(scope.row.id)"
+                    >
+                        上线
+                    </el-button>
+                    <el-button
+                        v-else
+                        type="danger"
+                        @click="offline(scope.row.id)"
+                    >
+                        下线
+                    </el-button>
                     &nbsp;
                     <el-dropdown size="small">
-                        <el-button type="text" size="small">
+                        <el-button
+                            type="text"
+                            size="small"
+                        >
                             更多
                         </el-button>
                         <template #dropdown>
@@ -206,7 +209,10 @@
                                         下载工具包
                                     </el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item divided v-if="scope.row.service_type > 6">
+                                <el-dropdown-item
+                                    v-if="scope.row.service_type > 6"
+                                    divided
+                                >
                                     <el-button
                                         type="text"
                                         size="small"
@@ -215,11 +221,14 @@
                                         监控
                                     </el-button>
                                 </el-dropdown-item>
-                                <el-dropdown-item divided v-if="scope.row.service_type > 6">
+                                <el-dropdown-item
+                                    v-if="scope.row.service_type > 6"
+                                    divided
+                                >
                                     <el-button
+                                        v-if="scope.row.service_type > 6"
                                         type="text"
                                         size="small"
-                                        v-if="scope.row.service_type > 6"
                                         @click="alert('pass')"
                                     >
                                         效果
@@ -251,7 +260,7 @@
 
 <script>
     import table from '@src/mixins/table.js';
-    import {mapGetters} from "vuex";
+    import { mapGetters } from 'vuex';
 
     export default {
         mixins: [table],
@@ -278,35 +287,35 @@
                 jsonData:        '',
                 serviceTypeList: [
                     {
-                        name: '两方匿踪查询',
+                        name:  '两方匿踪查询',
                         value: '1',
                     },
                     {
-                        name: '两方交集查询',
+                        name:  '两方交集查询',
                         value: '2',
                     },
                     {
-                        name: '多方安全统计(被查询方)',
+                        name:  '多方安全统计(被查询方)',
                         value: '3',
                     },
                     {
-                        name: '多方安全统计(查询方)',
+                        name:  '多方安全统计(查询方)',
                         value: '4',
                     },
                     {
-                        name: '多方交集查询',
+                        name:  '多方交集查询',
                         value: '5',
                     },
                     {
-                        name: '多方匿踪查询',
+                        name:  '多方匿踪查询',
                         value: '6',
                     },
                     {
-                        name: '机器学习模型服务',
+                        name:  '机器学习模型服务',
                         value: '7',
                     },
                     {
-                        name: '深度学习模型服务',
+                        name:  '深度学习模型服务',
                         value: '8',
                     },
                 ],
@@ -345,7 +354,7 @@
             editService(row) {
                 this.$router.push({
                     name:  'service-view',
-                    query: { id: row.id,service_type:row.service_type },
+                    query: { id: row.id,service_type: row.service_type },
                 });
             },
 
@@ -386,12 +395,13 @@
             async export_sdk(id) {
                 const api = `${window.api.baseUrl}/service/export_sdk?serviceId=${id}&token=${this.userInfo.token}`;
                 const link = document.createElement('a');
+
                 link.href = api;
                 link.target = '_blank';
                 link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
-            }
+            },
         },
     };
 </script>

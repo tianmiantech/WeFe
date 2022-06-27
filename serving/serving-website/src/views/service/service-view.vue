@@ -69,7 +69,7 @@
                     />
                 </el-form-item>
 
-                <el-form-item
+                <!-- <el-form-item
                     prop="url"
                     label="服务地址:"
                     class="maxlength"
@@ -84,7 +84,7 @@
                             /api/
                         </template>
                     </el-input>
-                </el-form-item>
+                </el-form-item> -->
 
                 <template v-if="form.service_type">
                     <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
@@ -417,19 +417,16 @@
 
                         <el-divider />
                         <p
-                            v-if="form.model_data.model_id"
+                            v-if="form.service_type === 7"
                             name="模型概览"
                             class="nav-title mb10"
                         >
                             模型概览：
                         </p>
-                        <el-form-item
-                            v-if="form.model_data.model_id"
-                            class="service-list"
-                        >
+                        <el-form-item class="service-list">
                             <p><strong>Id: </strong> {{ form.model_data.model_id }}</p>
                             <p><strong>算法: </strong> {{ form.model_data.model_algorithm }}</p>
-                            <p><strong>训练类型: </strong> {{ form.model_data.model_fl_type }}</p>
+                            <p><strong>训练类型: </strong> {{ flType(form.model_data.model_fl_type) }}</p>
                             <p>
                                 <strong>我的角色: </strong>
                                 <el-tag
@@ -462,7 +459,7 @@
                                 icon="el-icon-refresh"
                                 type="text"
                                 :loading="checkLoading"
-                                @click="refreshPartnerStatus"
+                                @click="refreshPartnerStatus('')"
                             />
                         </p>
                         <el-form-item
@@ -561,16 +558,31 @@
                         </p>
 
                         <el-form-item v-if="form.model_data.model_id">
-                            <el-tabs
-                                v-model="activeName"
-                                type="border-card"
-                                @tab-click="handleTabClick"
-                            >
-                                <el-tab-pane
-                                    label="代码配置"
-                                    name="api"
-                                >
-                                    <el-row :span="24">
+                            <div class="config_box_left">
+                                <div class="mb10">
+                                    <el-radio-group
+                                        v-model="activeName"
+                                        class="ml-4"
+                                    >
+                                        <el-radio
+                                            label="api"
+                                            size="small"
+                                        >
+                                            代码配置
+                                        </el-radio>
+                                        <el-radio
+                                            label="sql"
+                                            size="small"
+                                        >
+                                            SQL配置
+                                        </el-radio>
+                                    </el-radio-group>
+                                </div>
+                                <div>
+                                    <el-row
+                                        v-if="activeName === 'api'"
+                                        :span="24"
+                                    >
                                         <el-col :span="3">
                                             <p class="mb10"><strong>处理器：</strong></p>
                                         </el-col>
@@ -585,57 +597,53 @@
                                             <p />
                                         </el-col>
                                     </el-row>
-                                </el-tab-pane>
-
-                                <el-tab-pane
-                                    label="SQL配置"
-                                    name="sql"
-                                >
-                                    <el-form-item
-                                        label="数据源："
-                                        :rules="[{required: true, message: '数据源必填!'}]"
-                                    >
-                                        <el-select
-                                            v-model="form.model_data.model_sql_config.data_source_id"
-                                            placeholder="请选择数据源"
-                                            clearable
+                                    <div v-if="activeName === 'sql'">
+                                        <el-form-item
+                                            label="数据源："
+                                            :rules="[{required: true, message: '数据源必填!'}]"
                                         >
-                                            <el-option
-                                                v-for="(item) in dataBaseOptions"
-                                                :key="item.value"
-                                                :value="item.value"
-                                                :label="item.label"
+                                            <el-select
+                                                v-model="form.model_data.model_sql_config.data_source_id"
+                                                placeholder="请选择数据源"
+                                                clearable
+                                            >
+                                                <el-option
+                                                    v-for="(item) in dataBaseOptions"
+                                                    :key="item.value"
+                                                    :value="item.value"
+                                                    :label="item.label"
+                                                />
+                                            </el-select>
+                                        </el-form-item>
+
+                                        <el-form-item
+                                            label="SQL："
+                                            :rules="[{required: true, message: 'SQL必填!'}]"
+                                        >
+                                            <el-input
+                                                v-model="form.model_data.model_sql_config.sql_script"
+                                                type="textarea"
+                                                placeholder="如：select x0,x1,x2 form table where user_id = ?"
+                                                clearable
+                                                rows="4"
                                             />
-                                        </el-select>
-                                    </el-form-item>
+                                        </el-form-item>
 
-                                    <el-form-item
-                                        label="SQL："
-                                        :rules="[{required: true, message: 'SQL必填!'}]"
-                                    >
-                                        <el-input
-                                            v-model="form.model_data.model_sql_config.sql_script"
-                                            type="textarea"
-                                            placeholder="如：select x0,x1,x2 form table where user_id = ?"
-                                            clearable
-                                            rows="4"
-                                        />
-                                    </el-form-item>
-
-                                    <el-form-item
-                                        label="主键字段："
-                                        :rules="[{required: true, message: '主键字段必填!'}]"
-                                    >
-                                        <el-input
-                                            v-model="form.model_data.model_sql_config.sql_condition_field"
-                                            type="text"
-                                            placeholder="例如：id"
-                                            class="user-tips"
-                                            clearable
-                                        />
-                                    </el-form-item>
-                                </el-tab-pane>
-                            </el-tabs>
+                                        <el-form-item
+                                            label="主键字段："
+                                            :rules="[{required: true, message: '主键字段必填!'}]"
+                                        >
+                                            <el-input
+                                                v-model="form.model_data.model_sql_config.sql_condition_field"
+                                                type="text"
+                                                placeholder="例如：id"
+                                                class="user-tips"
+                                                clearable
+                                            />
+                                        </el-form-item>
+                                    </div>
+                                </div>
+                            </div>
                         </el-form-item>
 
                         <div
@@ -654,6 +662,7 @@
                                         v-model="form.model_data.check_data.sample_id"
                                         type="text"
                                         class="checkButton"
+                                        clearable
                                     />
                                     <el-button
                                         type="primary"
@@ -1062,11 +1071,11 @@ export default {
             },
             rules: {
                 name:         [{ required: true, message: '服务名称必填!' }],
-                url:          [{ required: true, message: '服务地址必填!' }],
+                // url:          [{ required: true, message: '服务地址必填!' }],
                 service_type: [{ required: true, message: '服务类型必选!' }],
             },
             serviceId:       '',
-            serviceType:     '',
+            serviceType:     this.$route.query.service_type,
             serviceTypeList: [
                 {
                     name:  '两方匿踪查询',
@@ -1180,6 +1189,11 @@ export default {
     },
     computed: {
         ...mapGetters(['userInfo']),
+        flType(val) {
+            return function(val) {
+                return val === 'vertical' ? '纵向' : val === 'horizontal' ? '横向' : '混合';
+            };
+        },
     },
     watch: {
         'form.service_type'() {
@@ -1200,14 +1214,6 @@ export default {
         });
     },
     methods: {
-        handleTabClick(tab, event) {
-            if (tab.name === 'sql') {
-                this.activeName = 'sql';
-            } else {
-                this.activeName = 'api';
-            }
-
-        },
         showRequest(data) {
             this.requestDataDialog = true;
             this.title = '请求体';
@@ -1262,14 +1268,16 @@ export default {
         },
 
         async refreshPartnerStatus(partner_id) {
+            console.log(partner_id);
             this.checkLoading = true;
+            const params = {
+                serviceId: this.form.model_data.model_id,
+            };
+
+            if (partner_id) params.member_id = partner_id;
             const { code, data } = await this.$http.get({
-                url:    '/model/status/check',
-                // timeout: 1000 * 60 * 2,
-                params: {
-                    member_id: partner_id,
-                    serviceId: this.form.model_data.model_id,
-                },
+                url: '/model/status/check',
+                params,
             });
 
             if (code === 0) {
@@ -1382,16 +1390,35 @@ export default {
                 params:  {
                     filename:         e.file.name,
                     uniqueIdentifier: e.uniqueIdentifier,
-                    fileType:         this.form.service_type === 8 ? 'MachineLearningModelFile' : 'DeepLearningModelFile',
+                    fileType:         this.form.service_type === 7 ? 'MachineLearningModelFile' : 'DeepLearningModelFile',
                 },
             });
 
             this.loading = false;
             if (code === 0) {
                 this.form.filename = data.filename;
+                this.filePreview();
             } else {
                 this.fileRemoved();
                 this.$refs.uploaderRef.uploader.cancel();
+            }
+        },
+        async filePreview() {
+            this.loading = true;
+
+            const { code, data } = await this.$http.get({
+                url:     '/model/import',
+                timeout: 1000 * 60 * 2,
+                params:  {
+                    id:          this.serviceId,
+                    filename:    this.form.filename,
+                    serviceType: this.form.service_type,
+                },
+            });
+
+            this.loading = false;
+            if (code === 0) {
+                console.log(data);
             }
         },
         setServiceDesc() {
@@ -1428,10 +1455,10 @@ export default {
                     this.form.processor = data.processor;
 
                     console.log(data.model_id, 'data.model_id');
-                    if (data.model_id) {
+                    if (data.id) {
                         this.form.model_data.model_sql_config.model_id = data.model_id;
                         // console.log(this.form.model_data.model_sql_config.model_id)
-                        this.form.model_data.model_id = data.model_id;
+                        this.form.model_data.model_id = data.service_id;
                         this.form.model_data.model_overview = data.xgboost_tree;
                         this.form.model_data.model_member_status = data.model_status;
                         if (data.model_sql_config) {
@@ -1538,7 +1565,7 @@ export default {
             }
             if (this.form.service_type === 7 || this.form.service_type === 8) {
                 this.form.url = 'predict/promoter';
-                this.file_upload_options.query.fileType = this.form.service_type === 8 ? 'MachineLearningModelFile' : 'DeepLearningModelFile';
+                this.file_upload_options.query.fileType = this.form.service_type === 7 ? 'MachineLearningModelFile' : 'DeepLearningModelFile';
             } else {
                 this.form.url = '';
             }
@@ -1815,11 +1842,11 @@ export default {
                     }
 
                 } else {
-                    if (this.form.service_type === 7 && !this.form.filename.endsWith('.zip')) {
-                        this.$message.error('深度学习只能传zip格式文件');
-                        return;
-                    } else if (this.form.service_type === 8 && !this.form.filename.endsWith('.txt')) {
+                    if (this.form.service_type === 7 && !this.form.filename.endsWith('.txt')) {
                         this.$message.error('机器学习只能传txt格式文件');
+                        return;
+                    } else if (this.form.service_type === 8 && !this.form.filename.endsWith('.zip')) {
+                        this.$message.error('深度学习只能传zip格式文件');
                         return;
                     }
                     // this.form.model_data.model_sql_config = this.model_sql_config
@@ -1863,9 +1890,9 @@ export default {
             const { code, data } = await this.$http.post({
                 url:  '/model/import',
                 data: {
-                    name:       this.form.name,
-                    filename:   this.form.filename,
-                    model_type: this.form.service_type === 8 ? 'MachineLearning' : 'DeepLearning',
+                    name:         this.form.name,
+                    filename:     this.form.filename,
+                    service_type: this.form.service_type,
                 },
                 btnState: {
                     target: event,
@@ -1876,7 +1903,7 @@ export default {
                 this.$message.success('模型导入成功!');
                 this.$router.push({
                     name:  'service-view',
-                    query: { id: data.id },
+                    query: { id: data.id, service_type: this.form.service_type },
                 });
                 this.$router.go(0);
             }
@@ -2059,6 +2086,11 @@ export default {
                 }
             }
         }
+    }
+    .config_box_left {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px 20px;
     }
 }
 .maxlength {
