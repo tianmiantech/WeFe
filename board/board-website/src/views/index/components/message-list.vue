@@ -282,6 +282,7 @@
                 this.message_search.page_index = 0;
                 this.message_search.todoComplete = '';
                 this.noMore = false;
+                this.message_search.unread = null;
                 this.loadMessageList();
             },
             todoListChange(val) {
@@ -379,10 +380,16 @@
         .empty-message-list{
             text-align: center;
             padding-top:15px;
+            height: 434px;
             .p1{
                 font-size: 24px;
                 font-weight: bold;
                 line-height: 150%;
+                margin-top: 10px;
+            }
+            .p2 {
+                margin-top: 5px;
+                margin-bottom: 5px;
             }
         }
         .message_list {
