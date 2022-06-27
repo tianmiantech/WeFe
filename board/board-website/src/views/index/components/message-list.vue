@@ -5,7 +5,7 @@
     >
         <el-tabs v-model="activeName" class="msg-tabs" type="border-card" @tab-click="tabChange">
             <el-tab-pane label="待办事项" name="todoList">
-                <div v-if="message_list && message_list.length" class="search_box">
+                <div class="search_box">
                     <span>状态：</span>
                     <el-radio-group v-model="message_search.todoComplete" size="small" @change="todoListChange">
                         <el-radio-button v-for="item in todoListSelect" :key="item.value" :label="item.value">{{item.label}}</el-radio-button>
@@ -69,7 +69,7 @@
                 </div>
             </el-tab-pane>
             <el-tab-pane label="合作通知" name="cooperateNotice">
-                <div v-if="message_list && message_list.length" class="search_box">
+                <div class="search_box">
                     <span>状态：</span>
                     <el-radio-group v-model="message_search.unread" size="small" @change="systemMsgChange">
                         <el-radio-button v-for="item in systemMsgSelect" :key="item.value" :label="item.value">{{item.label}}</el-radio-button>
@@ -137,7 +137,7 @@
                 </div>
             </el-tab-pane>
             <el-tab-pane label="系统消息" name="systemMsg">
-                <div v-if="message_list && message_list.length" class="search_box">
+                <div class="search_box">
                     <span>状态：</span>
                     <el-radio-group v-model="message_search.unread" size="small" @change="systemMsgChange">
                         <el-radio-button v-for="item in systemMsgSelect" :key="item.value" :label="item.value">{{item.label}}</el-radio-button>
@@ -220,6 +220,7 @@
                     noMore:       false,
                     todo:         true,
                     todoComplete: '',
+                    eventList:    ['ApplyJoinProject', 'ApplyDataResource'],
                 },
 
                 message_list:   [],
