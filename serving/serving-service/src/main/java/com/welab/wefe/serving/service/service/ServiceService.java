@@ -716,6 +716,10 @@ public class ServiceService {
 
     public <T> T callOtherPartnerServing(String url, String api, TreeMap<String, Object> params, Class<T> entityClass)
             throws StatusCodeWithException {
+        if (StringUtils.isEmpty(url)) {
+            StatusCode.PARAMETER_CAN_NOT_BE_EMPTY.throwException("未配置合作者地址，请先配置地址");
+        }
+
         String uri = url + "/" + api;
 
         HttpResponse response = HttpRequest.create(uri).setBody(SignUtils.parameterSign(params)).postJson();
@@ -728,7 +732,7 @@ public class ServiceService {
     }
 
     private String getErrorMessage(HttpResponse response) {
-        return response.getMessage().isEmpty() ?
+        return StringUtils.isEmpty(response.getMessage()) ?
                 response.getBodyAsJson().getString("message") :
                 response.getMessage();
     }
