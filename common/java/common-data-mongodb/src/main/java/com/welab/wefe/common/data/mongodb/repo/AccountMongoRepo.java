@@ -176,8 +176,8 @@ public class AccountMongoRepo extends AbstractMongoRepo {
         return mongoManagerTemplate.findAll(Account.class);
     }
 
-    public void updateLastActionTime(String userId) {
-        Query query = new QueryBuilder().append("accountId", userId).build();
+    public void updateLastActionTime(String accountId) {
+        Query query = new QueryBuilder().append("accountId", accountId).build();
         Update update = new UpdateBuilder()
                 .append("lastActionTime", new Date())
                 .build();
