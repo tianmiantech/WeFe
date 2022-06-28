@@ -104,6 +104,8 @@ public class ServiceService {
     private Config config;
     @Autowired
     private ModelMemberRepository modelMemberRepository;
+    @Autowired
+    private ModelMemberService modelMemberService;
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
@@ -173,11 +175,7 @@ public class ServiceService {
     }
 
     private List<ModelStatusOutput> findModelStatus(String modelId) {
-        List<ModelMemberMySqlModel> modelMemberMySqlModels = modelMemberRepository.findByModelId(modelId);
-
-        return modelMemberMySqlModels.stream().filter(x -> JobMemberRole.provider.equals(x.getRole())).map(
-                        x -> ModelStatusOutput.of(x.getMemberId(), CacheObjects.getPartnerName(x.getMemberId()), x.getStatus()))
-                .collect(Collectors.toList());
+        return modelMemberService.checkAvailableByModelIdAndMemberId(modelId, null);
     }
 
     private List<TreeNode> xgboost(JObject modelParam, FederatedLearningType flType) {
