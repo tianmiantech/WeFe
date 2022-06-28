@@ -459,7 +459,7 @@
                         </div>
 
                         <p
-                            v-if="modelStatusVisible"
+                            v-if="modelStatusVisible && form.model_data.model_fl_type !== 'horizontal'"
                             class="mb10 nav-title"
                             name="合作方模型状态"
                         >
@@ -473,7 +473,7 @@
                             />
                         </p>
                         <el-form-item
-                            v-if="modelStatusVisible"
+                            v-if="modelStatusVisible && form.model_data.model_fl_type !== 'horizontal'"
                             class="service-list"
                         >
                             <el-table
@@ -941,7 +941,7 @@
                     <div class="service_desc">{{ currentDesc }}</div>
                 </div>
                 <div
-                    v-if="modelStatusVisible"
+                    v-if="modelStatusVisible && form.model_data.model_fl_type !== 'horizontal'"
                     class="service_item"
                 >
                     <h3>合作方模型状态：</h3>
