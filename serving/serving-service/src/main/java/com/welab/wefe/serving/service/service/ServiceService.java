@@ -135,10 +135,15 @@ public class ServiceService {
         output.setXgboostTree(
                 output.getAlgorithm() == Algorithm.XGBoost ? xgboost(output.getModelParam(), output.getFlType())
                         : null);
-        output.setModelStatus(
-                output.getMyRole().contains(JobMemberRole.promoter) ? findModelStatus(model.getServiceId()) : null);
+        output.setModelStatus(getModelStatus(model, output));
 
         return output;
+    }
+
+    private List<ModelStatusOutput> getModelStatus(TableModelMySqlModel model, DetailApi.Output output) {
+        return output.getMyRole().contains(JobMemberRole.promoter) &&
+                FederatedLearningType.vertical.equals(output.getFlType()) ?
+                checkModelStatus(model.getServiceId()) : null;
     }
 
     private com.welab.wefe.serving.service.api.service.DetailApi.Output detailService(
@@ -174,7 +179,7 @@ public class ServiceService {
         return memberBaseInfo.stream().map(ModelMemberMySqlModel::getRole).collect(Collectors.toList());
     }
 
-    private List<ModelStatusOutput> findModelStatus(String modelId) {
+    private List<ModelStatusOutput> checkModelStatus(String modelId) {
         return modelMemberService.checkAvailableByModelIdAndMemberId(modelId, null);
     }
 
