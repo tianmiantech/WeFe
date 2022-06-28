@@ -177,7 +177,7 @@ public class AccountMongoRepo extends AbstractMongoRepo {
     }
 
     public void updateLastActionTime(String userId) {
-        Query query = new QueryBuilder().append("userId", userId).build();
+        Query query = new QueryBuilder().append("accountId", userId).build();
         Update update = new UpdateBuilder()
                 .append("lastActionTime", new Date())
                 .build();
