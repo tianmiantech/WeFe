@@ -17,8 +17,8 @@
 package com.welab.wefe.board.service.service;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.beust.jcommander.internal.Maps;
 import com.welab.wefe.board.service.api.data_output_info.PushModelToServingByProviderApi;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
@@ -27,6 +27,7 @@ import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.dto.globalconfig.ServingConfigModel;
+import com.welab.wefe.board.service.dto.serving.ProviderModelPushResult;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -194,7 +195,7 @@ public class ServingService extends AbstractService {
      * @return
      * @throws StatusCodeWithException
      */
-    private List<Object> callMembersPushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
+    private List<ProviderModelPushResult> callMembersPushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
         String modelId = getModelIdByTaskIdAndRole(taskId, role);
         List<JobMemberOutputModel> memberList = getMemberListByTaskIdAndRole(taskId, role);
 
@@ -206,19 +207,31 @@ public class ServingService extends AbstractService {
                 .collect(Collectors.toList());
     }
 
-    private Map callSingleMemberPushToServing(String modelId, JobMemberOutputModel member) {
+    private ProviderModelPushResult callSingleMemberPushToServing(String modelId, JobMemberOutputModel member) {
         try {
             callOtherMemberPushServing(member.getMemberId(), modelId, member.getJobRole());
 
-            Map map = Maps.newHashMap();
-            map.put(member.getMemberId(), true);
-            return map;
+            return ProviderModelPushResult.create(
+                    member.getMemberId(),
+                    member.getMemberName(),
+                    true);
+
         } catch (Exception e) {
             LOG.info("call member {} fail: {}", member.getMemberName(), e);
-            Map map = Maps.newHashMap();
-            map.put(member.getMemberId(), false);
-            return map;
+            return ProviderModelPushResult.create(
+                    member.getMemberId(),
+                    member.getMemberName(),
+                    false);
         }
+    }
+
+    public static void main(String[] args) {
+        ProviderModelPushResult result =  ProviderModelPushResult.create(
+                "mem",
+                "name",
+                false);
+
+        System.out.println(JSON.toJSONString(result));
     }
 
     private List<JobMemberOutputModel> getMemberListByTaskIdAndRole(String taskId, JobMemberRole role) {
