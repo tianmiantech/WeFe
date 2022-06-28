@@ -1,5 +1,6 @@
 <template>
     <el-card
+        v-loading="loading"
         class="page service_view"
         shadow="never"
     >
@@ -416,37 +417,46 @@
                         </el-form-item>
 
                         <el-divider />
-                        <p
-                            v-if="form.service_type === 7"
-                            name="模型概览"
-                            class="nav-title mb10"
-                        >
-                            模型概览：
-                        </p>
-                        <el-form-item class="service-list">
-                            <p><strong>Id: </strong> {{ form.model_data.model_id }}</p>
-                            <p><strong>算法: </strong> {{ form.model_data.model_algorithm }}</p>
-                            <p><strong>训练类型: </strong> {{ flType(form.model_data.model_fl_type) }}</p>
-                            <p>
-                                <strong>我的角色: </strong>
-                                <el-tag
-                                    v-for="each in form.model_data.model_roles"
-                                    :key="each"
-                                >
-                                    {{ each }}
-                                </el-tag>
+                        <div v-if="form.service_type === 7 && form.model_data.model_id">
+                            <p
+                                name="模型概览"
+                                class="nav-title mb10"
+                            >
+                                模型概览：
                             </p>
-                            <p>
-                                <strong>模型结构: </strong>
-                                <el-button
-                                    size="mini"
-                                    round
-                                    @click="show_model_overview"
-                                >
-                                    展示
-                                </el-button>
-                            </p>
-                        </el-form-item>
+                            <el-form-item class="service-list">
+                                <p><strong>Id: </strong> {{ form.model_data.model_id }}</p>
+                                <p><strong>算法: </strong> {{ form.model_data.model_algorithm }}</p>
+                                <p><strong>训练类型: </strong> {{ flType(form.model_data.model_fl_type) }}</p>
+                                <p>
+                                    <strong>我的角色: </strong>
+                                    <el-tag
+                                        v-for="each in form.model_data.model_roles"
+                                        :key="each"
+                                    >
+                                        {{ each }}
+                                    </el-tag>
+                                </p>
+                                <p>
+                                    <strong>模型结构: </strong>
+                                    <el-button
+                                        v-if="algorithm === 'XGBoost'"
+                                        size="mini"
+                                        round
+                                        @click="show_model_overview"
+                                    >
+                                        展示
+                                    </el-button>
+                                    <el-button
+                                        v-else
+                                        size="mini"
+                                        @click="showTableData"
+                                    >
+                                        查看
+                                    </el-button>
+                                </p>
+                            </el-form-item>
+                        </div>
 
                         <p
                             v-if="modelStatusVisible && form.model_data.model_id"
@@ -472,18 +482,16 @@
                                 style="width: 100%"
                             >
                                 <el-table-column
-                                    :min-width="150"
                                     label="合作者ID"
                                     prop="member_id"
                                 />
                                 <el-table-column
-                                    :min-width="60"
                                     label="合作者名称"
                                     prop="member_name"
+                                    width="160"
                                 />
                                 <el-table-column
                                     label="URL"
-                                    :min-width="100"
                                 >
                                     <template slot-scope="scope">
                                         {{ scope.row.url }}
@@ -519,6 +527,7 @@
                                 <el-table-column
                                     label="操作"
                                     align="right"
+                                    width="60"
                                 >
                                     <template slot-scope="scope">
                                         <el-button
@@ -587,7 +596,7 @@
                                             <p class="mb10"><strong>处理器：</strong></p>
                                         </el-col>
                                         <el-col
-                                            :span="6"
+                                            :span="12"
                                             style="margin-right: 10px;"
                                         >
                                             <el-input
@@ -600,6 +609,7 @@
                                     <div v-if="activeName === 'sql'">
                                         <el-form-item
                                             label="数据源："
+                                            label-width="94px"
                                             :rules="[{required: true, message: '数据源必填!'}]"
                                         >
                                             <el-select
@@ -618,6 +628,7 @@
 
                                         <el-form-item
                                             label="SQL："
+                                            label-width="94px"
                                             :rules="[{required: true, message: 'SQL必填!'}]"
                                         >
                                             <el-input
@@ -631,6 +642,7 @@
 
                                         <el-form-item
                                             label="主键字段："
+                                            label-width="94px"
                                             :rules="[{required: true, message: '主键字段必填!'}]"
                                         >
                                             <el-input
@@ -656,48 +668,64 @@
                                 class="mt10"
                                 style="border: 1px solid #ccc; padding: 20px; border-radius: 4px;"
                             >
-                                <div class="mb10">样本ID:</div>
-                                <div>
-                                    <el-input
-                                        v-model="form.model_data.check_data.sample_id"
-                                        type="text"
-                                        class="checkButton"
-                                        clearable
-                                    />
+                                <div class="can_use_test">
+                                    <div>
+                                        <el-form-item
+                                            label="输入特征："
+                                            label-width="94px"
+                                        >
+                                            <el-switch v-model="isEnterCharacter" />
+                                        </el-form-item>
+                                        <el-form-item
+                                            v-if="isEnterCharacter"
+                                            label="样本特征："
+                                            label-width="94px"
+                                            :rules="[{required: true, message: '样本特征必填!'}]"
+                                            style="margin-bottom: unset;"
+                                        >
+                                            <el-input
+                                                v-model="form.model_data.check_data.feature_data"
+                                                type="textarea"
+                                                clearable
+                                                rows="4"
+                                                placeholder="如:{&quot;x0&quot;: 0.1, &quot;x1&quot;: 0.2}"
+                                            />
+                                        </el-form-item>
+                                        <el-form-item
+                                            v-if="!isEnterCharacter || form.model_data.model_roles === 'promoter'"
+                                            label="样本ID："
+                                            label-width="94px"
+                                            :rules="[{required: true, message: '样本特征必填!'}]"
+                                            style="margin-bottom: unset;"
+                                        >
+                                            <el-input
+                                                v-model="form.model_data.check_data.sample_id"
+                                                type="text"
+                                                clearable
+                                                style="width: 50%;"
+                                            />
+                                        </el-form-item>
+                                    </div>
                                     <el-button
                                         type="primary"
-                                        :disabled="form.model_data.check_data.sample_id === ''"
-                                        style="margin-right: 10px;"
+                                        class="ml10 mr10"
+                                        style="text-align: right;"
                                         @click="testModel"
                                     >
                                         可用性校验
                                     </el-button>
-                                    <el-tooltip placement="right">
-                                        <div slot="content">输入样本ID后才可进行预测</div>
-                                        <i class="el-icon-info" />
-                                    </el-tooltip>
                                 </div>
 
                                 <div
                                     v-if="predictResult !== ''"
-                                    style="margin-top: 20px; margin-bottom: 10px;"
+                                    class="test_result"
                                 >
                                     结果：
+                                    <JsonViewer
+                                        :value="predictResult"
+                                        copyable
+                                    />
                                 </div>
-                                <div>
-                                    <p>
-                                        {{ predictResult.length > 150 ? predictResult.substring(0, 151) + '...' : predictResult }}
-                                    </p>
-                                </div>
-                                <el-row>
-                                    <el-button
-                                        v-if="predictResult.length > 150"
-                                        type="text"
-                                        @click="showRequest(predictResult)"
-                                    >
-                                        查看更多
-                                    </el-button>
-                                </el-row>
                             </div>
 
                             <el-dialog
@@ -872,6 +900,29 @@
                 :service-type="`${form.service_type}`"
                 @confirm-checked-rows="addServiceRow"
             />
+
+            <el-dialog
+                :visible.sync="isShowTable"
+                title="模型结构"
+                width="70%"
+                top="10vh"
+            >
+                <el-table
+                    :data="gridData"
+                    style="width: 100%;"
+                    height="500"
+                    border
+                >
+                    <el-table-column
+                        property="feature"
+                        label="特征"
+                    />
+                    <el-table-column
+                        property="weight"
+                        label="权重"
+                    />
+                </el-table>
+            </el-dialog>
         </div>
         <div class="right_box">
             <!-- <el-divider content-position="center">配置说明</el-divider> -->
@@ -1185,6 +1236,9 @@ export default {
                     desc:  '特征查得、未查得',
                 },
             ],
+            isEnterCharacter: false,
+            isShowTable:      false,
+            gridData:         [],
         };
     },
     computed: {
@@ -1214,6 +1268,9 @@ export default {
         });
     },
     methods: {
+        showTableData() {
+            this.isShowTable = true;
+        },
         showRequest(data) {
             this.requestDataDialog = true;
             this.title = '请求体';
@@ -1223,25 +1280,68 @@ export default {
         },
 
         async testModel() {
-            // if (this.activeName === 'sql') {
+            if (this.form.model_data.model_roles === 'promoter') {
+                // 发起方
+                if (!this.form.model_data.check_data.sample_id || this.form.model_data.check_data.sample_id === '') {
+                    this.$message.error('样本ID不能为空！');
+                    return;
+                } else if (this.isEnterCharacter && (!this.form.model_data.check_data.feature_data || this.form.model_data.check_data.feature_data === '')) {
+                    this.$message.error('样本特征不能为空！');
+                    return;
+                }
+            } else {
+                if (this.isEnterCharacter && (!this.form.model_data.check_data.feature_data || this.form.model_data.check_data.feature_data === '')) {
+                    this.$message.error('样本特征不能为空！');
+                    return;
+                }
+            }
+            const params = {
+                model_id:       this.form.model_data.model_id,
+                user_id:        this.form.model_data.check_data.sample_id || '',
+                feature_source: this.activeName,
+                params:         this.form.model_data.model_sql_config,
+                my_role:        this.form.model_data.model_roles,
+            };
+
+            if (this.isEnterCharacter) {
+                if (this.isJSON(this.form.model_data.check_data.feature_data)) {
+                    const feature_data = JSON.parse(this.form.model_data.check_data.feature_data);
+
+                    params.feature_data = feature_data;
+                } else {
+                    this.$message.error('样本特征格式有误！');
+                    return;
+                }
+
+            }
+            this.loading = true;
             const { code, data } = await this.$http.post({
                 url:  'predict/debug',
-                data: {
-                    model_id:       this.form.model_data.model_id,
-                    user_id:        this.form.model_data.check_data.sample_id,
-                    feature_source: this.activeName,
-                    params:         this.form.model_data.model_sql_config,
-                    my_role:        this.form.model_data.model_roles,
-                    feature_data:   this.form,
-                },
+                data: params,
             });
 
             if (code === 0) {
                 this.sqlPredictResult = data;
                 this.predictResult = data;
             }
-            // }
+            this.loading = false;
+        },
+        isJSON(str) {
+            if (typeof str === 'string') {
+                try {
+                    const obj=JSON.parse(str);
 
+                    if(typeof obj === 'object' && obj ){
+                        return true;
+                    }else{
+                        return false;
+                    }
+
+                } catch(e) {
+                    console.log('error：'+str+'!!!'+e);
+                    return false;
+                }
+            }
         },
 
         async getDataSource() {
@@ -1397,28 +1497,8 @@ export default {
             this.loading = false;
             if (code === 0) {
                 this.form.filename = data.filename;
-                this.filePreview();
             } else {
-                this.fileRemoved();
                 this.$refs.uploaderRef.uploader.cancel();
-            }
-        },
-        async filePreview() {
-            this.loading = true;
-
-            const { code, data } = await this.$http.get({
-                url:     '/model/import',
-                timeout: 1000 * 60 * 2,
-                params:  {
-                    id:          this.serviceId,
-                    filename:    this.form.filename,
-                    serviceType: this.form.service_type,
-                },
-            });
-
-            this.loading = false;
-            if (code === 0) {
-                console.log(data);
             }
         },
         setServiceDesc() {
@@ -1434,12 +1514,14 @@ export default {
             this.currentDesc = descList[this.form.service_type - 1];
         },
         async getSqlConfigDetail() {
+            this.loading = true;
             const { code, data } = await this.$http.post({
                 url:  '/service/detail',
                 data: { id: this.serviceId, service_type: this.serviceType },
             });
 
             if (code === 0) {
+                this.loading = false;
                 if (data) {
                     const {
                         service_type: type,
@@ -1474,7 +1556,7 @@ export default {
                         this.form.model_data.model_algorithm = data.algorithm;
                         this.form.model_data.model_fl_type = data.fl_type;
                     }
-
+                    this.algorithm = data.algorithm;
                     if (data.algorithm === 'XGBoost') {
                         if (data.xgboost_tree && data.xgboost_tree.length) {
                             this.$nextTick(() => {
@@ -1483,6 +1565,27 @@ export default {
                                     label:    'XGBoost',
                                     children: data.xgboost_tree,
                                 };
+                            });
+                            this.gridData = [];
+                            for (let i = 0; i < data.xgboost_tree.length; i++) {
+                                const feature = data.xgboost_tree[i].data.feature,
+                                    weight = data.xgboost_tree[i].data.weight;
+
+                                this.gridData.push({
+                                    feature,
+                                    weight,
+                                });
+                            }
+                        }
+                    }
+                    if (data.model_param && data.model_param.iters) {
+                        this.gridData = [];
+                        for (let i = 0; i < data.model_param.header.length; i++) {
+                            const name = data.model_param.header[i];
+
+                            this.gridData.push({
+                                name,
+                                weight: data.model_param.weight[name],
                             });
                         }
                     }
@@ -1556,6 +1659,7 @@ export default {
                     });
                 }
             }
+            this.loading = false;
         },
         serviceTypeChange() {
             this.form.data_source.table = '';
@@ -2092,6 +2196,23 @@ export default {
         border-radius: 4px;
         padding: 10px 20px;
     }
+    .can_use_test {
+        display: flex;
+        align-items: flex-end;
+        >div:first-child {
+            width: 100%;
+        }
+        .el-input, .el-textarea {
+            width: 100% !important;
+        }
+    }
+    // .test_result {
+    //     .jv-container {
+    //        .jv-code {
+    //             padding: 30px 20px 0 !important;
+    //         } 
+    //     }
+    // }
 }
 .maxlength {
     max-width: 400px;
@@ -2154,7 +2275,7 @@ export default {
 }
 
 .form-box {
-    .el-textarea {
+    .el-textarea, .el-input {
         width: 70%;
     }
 
@@ -2186,5 +2307,12 @@ export default {
 .service_view .el-card__body {
     display: flex;
     justify-content: space-between;
+}
+.test_result {
+    .jv-container {
+        .jv-code {
+            padding: 30px 20px 0 !important;
+        } 
+    }
 }
 </style>
