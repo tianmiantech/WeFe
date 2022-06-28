@@ -91,7 +91,6 @@ public class ProjectMemberService {
     public synchronized void addMember(AddApi.Input input) throws StatusCodeWithException {
 
         List<ProjectMemberMySqlModel> members = findListByProjectId(input.getProjectId());
-        ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
 
         for (ProjectMemberInput member : input.getMemberList()) {
             if (checkExistMember(member.getMemberId(), members)) {
@@ -108,6 +107,7 @@ public class ProjectMemberService {
 
             // 如果邀请的是我，添加一条消息。
             if (input.fromGateway() && CacheObjects.getMemberId().equals(member.getMemberId())) {
+                ProjectMySqlModel project = projectService.findByProjectId(input.getProjectId());
                 messageService.addApplyJoinProjectMessage(
                         input.callerMemberInfo.getMemberId(),
                         project.getProjectId(),
