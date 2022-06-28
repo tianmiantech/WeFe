@@ -681,7 +681,7 @@
                                             label="样本特征："
                                             label-width="94px"
                                             :rules="[{required: true, message: '样本特征必填!'}]"
-                                            style="margin-bottom: unset;"
+                                            :style="{marginBottom: isEnterCharacter && myRole === 'promoter' ? '10px' : 'unset'}"
                                         >
                                             <el-input
                                                 v-model="form.model_data.check_data.feature_data"
@@ -692,7 +692,7 @@
                                             />
                                         </el-form-item>
                                         <el-form-item
-                                            v-if="!isEnterCharacter || form.model_data.model_roles === 'promoter'"
+                                            v-if="!isEnterCharacter || myRole === 'promoter'"
                                             label="样本ID："
                                             label-width="94px"
                                             :rules="[{required: true, message: '样本特征必填!'}]"
@@ -1239,6 +1239,7 @@ export default {
             isEnterCharacter: false,
             isShowTable:      false,
             gridData:         [],
+            myRole:           '',
         };
     },
     computed: {
@@ -1280,7 +1281,7 @@ export default {
         },
 
         async testModel() {
-            if (this.form.model_data.model_roles === 'promoter') {
+            if (this.myRole === 'promoter') {
                 // 发起方
                 if (!this.form.model_data.check_data.sample_id || this.form.model_data.check_data.sample_id === '') {
                     this.$message.error('样本ID不能为空！');
@@ -1535,6 +1536,7 @@ export default {
                     this.form.url = data.url;
                     this.form.service_type = type;
                     this.form.processor = data.processor;
+                    this.myRole = data.my_role[0];
 
                     console.log(data.model_id, 'data.model_id');
                     if (data.id) {
