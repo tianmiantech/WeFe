@@ -500,8 +500,10 @@
                                             placement="top-start"
                                             width="100"
                                             trigger="hover"
+                                            content="模型已上线"
                                         >
                                             <el-button
+                                                size="middle"
                                                 slot="reference"
                                                 type="text"
                                                 icon="el-icon-check"
@@ -514,9 +516,10 @@
                                             title="⚠️警告"
                                             width="200"
                                             trigger="hover"
-                                            content="模型不可用"
+                                            content="模型未上线"
                                         >
                                             <el-button
+                                                size="middle"
                                                 slot="reference"
                                                 type="text"
                                                 icon="el-icon-warning"
@@ -546,7 +549,7 @@
                                 >
                                     <template slot-scope="scope">
                                         <el-button
-                                            size="mini"
+                                            size="middle"
                                             icon="el-icon-refresh"
                                             type="text"
                                             :loading="checkLoading"
@@ -982,7 +985,7 @@
                         <p>c) 实现processor方法，方法里面实现获取特征代码。</p>
                         <p>提示：默认处理器EmptyFeatureDataProcessor,不做任何处理返回为空。</p>
                         <p>2、SQL配置：使用指定已经配置好的数据源，编写相应的SQL查询语句，并选定样本的查询条件值。</p>
-                        <p class="highlight mt10">注意：样本的特征也可以在调用时，由接口传入。</p>        
+                        <p class="highlight mt10">注意：样本的特征也可以在调用时，由接口传入。</p>
                     </div>
                 </div>
                 <div
@@ -2230,7 +2233,7 @@ export default {
     //     .jv-container {
     //        .jv-code {
     //             padding: 30px 20px 0 !important;
-    //         } 
+    //         }
     //     }
     // }
 }
@@ -2332,7 +2335,7 @@ export default {
     .jv-container {
         .jv-code {
             padding: 30px 20px 0 !important;
-        } 
+        }
     }
 }
 </style>
