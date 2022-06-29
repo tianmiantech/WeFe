@@ -574,7 +574,7 @@
                                         class="ml-4"
                                     >
                                         <el-radio
-                                            label="api"
+                                            label="code"
                                             size="small"
                                         >
                                             代码配置
@@ -589,7 +589,7 @@
                                 </div>
                                 <div>
                                     <el-row
-                                        v-if="activeName === 'api'"
+                                        v-if="activeName === 'code'"
                                         :span="24"
                                     >
                                         <el-col :span="3">
