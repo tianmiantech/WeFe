@@ -126,14 +126,14 @@
                     >
                     <p class="p1">棒棒哒~</p>
                     <p class="p2">您已看完了所有合作通知</p>
-                    <p class="p3">
+                    <!-- <p class="p3">
                         <el-button
                             type="text"
                             @click="messageSearchChangeUnread(false)"
                         >
                             查看已读
                         </el-button>
-                    </p>
+                    </p> -->
                 </div>
             </el-tab-pane>
             <el-tab-pane label="系统消息" name="systemMsg">
@@ -182,7 +182,7 @@
                             type="text"
                             @click="messageSearchChangeUnread(false)"
                         >
-                            查看已读
+                            查看全部
                         </el-button>
                     </p>
                 </div>
@@ -309,7 +309,7 @@
                     this.noMore = data.list.length < 15;
                     if (this.activeName === 'todoList' || this.activeName === 'cooperateNotice') {
                         let isEventList = true;
-                        const eventlist = ['CreateProject', 'AgreeJoinProject', 'DisagreeJoinProject', 'ApplyDataResource', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
+                        const eventlist = ['CreateProject', 'AgreeJoinProject', 'ApplyJoinProject', 'DisagreeJoinProject', 'ApplyDataResource', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
                         const list = data.list.map((item, i) => {
                             if (eventlist.indexOf(item.event) !== -1) {
                                 const content = JSON.parse(item.content);
@@ -366,7 +366,7 @@
                 this.noMore = false;
                 this.message_search.page_index = 0;
                 if(!value){
-                    this.message_search.unread = false;
+                    this.message_search.unread = null;
                 }
                 this.loadMessageList();
             },
