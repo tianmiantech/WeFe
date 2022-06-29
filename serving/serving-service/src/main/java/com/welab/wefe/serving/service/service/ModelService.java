@@ -66,7 +66,7 @@ public class ModelService {
 
     Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private final String API_PREFIX = "/predict/";
+    private final String API_PREFIX = "predict/";
     @Autowired
     private TableModelRepository modelRepository;
 
