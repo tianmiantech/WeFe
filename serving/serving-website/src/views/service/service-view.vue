@@ -490,11 +490,10 @@
                                     <template slot-scope="scope">
                                         {{ scope.row.url }}
                                         <el-popover
-                                            v-if="scope.row.status === 'online'"
+                                            v-if="scope.row.status === 'available'"
                                             placement="top-start"
                                             width="100"
                                             trigger="hover"
-                                            content="合作者已联通"
                                         >
                                             <el-button
                                                 slot="reference"
@@ -502,13 +501,29 @@
                                                 icon="el-icon-check"
                                             />
                                         </el-popover>
+
+                                        <el-popover
+                                            v-if="scope.row.status === 'unavailable'"
+                                            placement="top-start"
+                                            title="⚠️警告"
+                                            width="200"
+                                            trigger="hover"
+                                            content="模型不可用"
+                                        >
+                                            <el-button
+                                                slot="reference"
+                                                type="text"
+                                                icon="el-icon-warning"
+                                            />
+                                        </el-popover>
+
                                         <el-popover
                                             v-if="scope.row.status === 'offline'"
                                             placement="top-start"
                                             title="⚠️警告"
                                             width="200"
                                             trigger="hover"
-                                            content="该合作者模型失联"
+                                            content="模型不可用"
                                         >
                                             <el-button
                                                 slot="reference"
