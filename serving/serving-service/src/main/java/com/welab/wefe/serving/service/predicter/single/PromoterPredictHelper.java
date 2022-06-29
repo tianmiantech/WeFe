@@ -170,7 +170,7 @@ public class PromoterPredictHelper {
         SaveApi.Input order = new SaveApi.Input();
         order.setServiceId(modelId);
         order.setServiceName("");
-        order.setServiceType(ServiceTypeEnum.MachineLearning.name());
+        order.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         order.setRequestPartnerId(CacheObjects.getMemberId());
         order.setRequestPartnerName(CacheObjects.getMemberName());
         order.setResponsePartnerId(partnerId);

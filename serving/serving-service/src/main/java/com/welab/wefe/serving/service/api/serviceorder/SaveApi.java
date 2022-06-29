@@ -56,7 +56,7 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         private String serviceName;
 
         @Check(name = "服务类型")
-        private String serviceType;
+        private Integer serviceType;
 
         @Check(name = "订单类型", require = true)
         private Integer orderType;
@@ -122,11 +122,11 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
             this.serviceName = serviceName;
         }
 
-        public String getServiceType() {
+        public Integer getServiceType() {
             return serviceType;
         }
 
-        public void setServiceType(String serviceType) {
+        public void setServiceType(Integer serviceType) {
             this.serviceType = serviceType;
         }
 
