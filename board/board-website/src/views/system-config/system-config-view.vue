@@ -98,18 +98,18 @@
                                     v-model="config.wefe_serving.intranet_base_uri"
                                 />
                             </el-form-item>
-                           <!-- <el-form-item>
+                            <el-form-item>
                                 <el-button type="success"
                                            @click="showDialog"
                                 >
                                     初始化
                                 </el-button>
-                            </el-form-item> -->
+                            </el-form-item>
 
 
                         </fieldset>
 
-                        <!--
+
                         <el-dialog title="Serving系统初始化" v-model="dialogVisibleInfo" width="40%">
                             <el-form :model="form">
                                 <el-form-item label="账号" :label-width="formLabelWidth">
@@ -126,7 +126,6 @@
                                 <el-button type="primary" @click="init">确 定</el-button>
                             </div>
                         </el-dialog>
-                        -->
 
                         <el-dialog
                             title="成功"
