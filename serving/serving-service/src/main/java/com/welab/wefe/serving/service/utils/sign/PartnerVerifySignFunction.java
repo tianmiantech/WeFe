@@ -49,7 +49,7 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
             signedApiInput.setPartnerCode(signedApiInput.getCustomerId());
         }
 
-        String serviceId = extractServiceId(request, params);
+        String serviceId = extractServiceId(request, JSONObject.parseObject(signedApiInput.getData()));
 
         String partnerId = findPartner(signedApiInput.getPartnerCode());
 
