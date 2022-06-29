@@ -153,7 +153,7 @@
                 min-width="80"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.date_time | dateFormat }}</p>
+                    <p>{{ scope.row.date_time }}</p>
                 </template>
             </el-table-column>
 
