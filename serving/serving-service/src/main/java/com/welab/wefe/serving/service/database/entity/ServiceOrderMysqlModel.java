@@ -34,7 +34,7 @@ public class ServiceOrderMysqlModel extends AbstractBaseMySqlModel {
     private String serviceName;
 
     @Column(name = "service_type")
-    private String serviceType;
+    private Integer serviceType;
 
     @Column(name = "order_type")
     private Integer orderType;
@@ -71,11 +71,11 @@ public class ServiceOrderMysqlModel extends AbstractBaseMySqlModel {
         this.serviceName = serviceName;
     }
 
-    public String getServiceType() {
+    public Integer getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(String serviceType) {
+    public void setServiceType(Integer serviceType) {
         this.serviceType = serviceType;
     }
 
