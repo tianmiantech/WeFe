@@ -209,6 +209,59 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}logger`,
+        meta: {
+            title: '订单管理',
+            icon:  'el-icon-notebook-1',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}order-list`,
+                name: 'order-list',
+                meta: {
+                    title: '订单列表',
+                },
+                component: () => import('@views/service_order/order-list.vue'),
+            },
+            {
+                path: `${prefixPath}order-statistics`,
+                name: 'order-statistics',
+                meta: {
+                    title: '订单统计',
+                },
+                component: () => import('@views/service_order/order-statistics.vue'),
+            },
+            // {
+            //     path: `${prefixPath}record-list`,
+            //     name: 'record-list',
+            //     meta: {
+            //         title: '调用记录',
+            //     },
+            //     component: () => import('@views/logger/log-list.vue'),
+            // },
+            // {
+            //     path: `${prefixPath}log-statistics`,
+            //     name: 'log-statistics',
+            //     meta: {
+            //         title:  '调用统计',
+            //         active: `${prefixPath}log-statistics`,
+            //     },
+            //     component: () => import('@views/logger/log-statistics.vue'),
+            // },
+            {
+                path: `${prefixPath}log-view`,
+                name: 'log-view',
+                meta: {
+                    title:  '调用详情',
+                    hidden: true,
+                    active: `${prefixPath}log-view`,
+                },
+                component: () => import('@views/logger/log-view.vue'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}fee`,
         meta: {
             title: '计费管理',
@@ -216,16 +269,16 @@ const baseRoutes = [
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
-            {
-                path: `${prefixPath}request-statistics`,
-                name: 'request-statistics',
-                meta: {
-                    title:           '调用信息',
-                    loginAndRefresh: true,
-                    active:          `${prefixPath}request-statistics`,
-                },
-                component: () => import('@views/fee/request-statistics.vue'),
-            },
+            // {
+            //     path: `${prefixPath}request-statistics`,
+            //     name: 'request-statistics',
+            //     meta: {
+            //         title:           '调用信息',
+            //         loginAndRefresh: true,
+            //         active:          `${prefixPath}request-statistics`,
+            //     },
+            //     component: () => import('@views/fee/request-statistics.vue'),
+            // },
             {
                 path: `${prefixPath}fee-detail`,
                 name: 'fee-detail',
@@ -287,59 +340,7 @@ const baseRoutes = [
             },
         ],
     },
-    {
-        path: `${prefixPath}logger`,
-        meta: {
-            title: '日志管理',
-            icon:  'el-icon-notebook-1',
-        },
-        component: () => import('@comp/LayoutBase.vue'),
-        children:  [
-            {
-                path: `${prefixPath}order-list`,
-                name: 'order-list',
-                meta: {
-                    title: '订单列表',
-                },
-                component: () => import('@views/service_order/order-list.vue'),
-            },
-            {
-                path: `${prefixPath}order-statistics`,
-                name: 'order-statistics',
-                meta: {
-                    title: '订单统计',
-                },
-                component: () => import('@views/service_order/order-statistics.vue'),
-            },
-            // {
-            //     path: `${prefixPath}record-list`,
-            //     name: 'record-list',
-            //     meta: {
-            //         title: '调用记录',
-            //     },
-            //     component: () => import('@views/logger/log-list.vue'),
-            // },
-            // {
-            //     path: `${prefixPath}log-statistics`,
-            //     name: 'log-statistics',
-            //     meta: {
-            //         title:  '调用统计',
-            //         active: `${prefixPath}log-statistics`,
-            //     },
-            //     component: () => import('@views/logger/log-statistics.vue'),
-            // },
-            {
-                path: `${prefixPath}log-view`,
-                name: 'log-view',
-                meta: {
-                    title:  '调用详情',
-                    hidden: true,
-                    active: `${prefixPath}log-view`,
-                },
-                component: () => import('@views/logger/log-view.vue'),
-            },
-        ],
-    },
+
     {
         path: `${prefixPath}global-setting`,
         meta: {

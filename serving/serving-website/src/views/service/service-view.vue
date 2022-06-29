@@ -496,25 +496,43 @@
                                     <template slot-scope="scope">
                                         {{ scope.row.url }}
                                         <el-popover
-                                            v-if="scope.row.status === 'online'"
+                                            v-if="scope.row.status === 'available'"
                                             placement="top-start"
                                             width="100"
                                             trigger="hover"
-                                            content="合作者已联通"
+                                            content="模型已上线"
                                         >
                                             <el-button
+                                                size="middle"
                                                 slot="reference"
                                                 type="text"
                                                 icon="el-icon-check"
                                             />
                                         </el-popover>
+
+                                        <el-popover
+                                            v-if="scope.row.status === 'unavailable'"
+                                            placement="top-start"
+                                            title="⚠️警告"
+                                            width="200"
+                                            trigger="hover"
+                                            content="模型未上线"
+                                        >
+                                            <el-button
+                                                size="middle"
+                                                slot="reference"
+                                                type="text"
+                                                icon="el-icon-warning"
+                                            />
+                                        </el-popover>
+
                                         <el-popover
                                             v-if="scope.row.status === 'offline'"
                                             placement="top-start"
                                             title="⚠️警告"
                                             width="200"
                                             trigger="hover"
-                                            content="该合作者模型失联"
+                                            content="模型不可用"
                                         >
                                             <el-button
                                                 slot="reference"
@@ -531,7 +549,7 @@
                                 >
                                     <template slot-scope="scope">
                                         <el-button
-                                            size="mini"
+                                            size="middle"
                                             icon="el-icon-refresh"
                                             type="text"
                                             :loading="checkLoading"
@@ -967,7 +985,7 @@
                         <p>c) 实现processor方法，方法里面实现获取特征代码。</p>
                         <p>提示：默认处理器EmptyFeatureDataProcessor,不做任何处理返回为空。</p>
                         <p>2、SQL配置：使用指定已经配置好的数据源，编写相应的SQL查询语句，并选定样本的查询条件值。</p>
-                        <p class="highlight mt10">注意：样本的特征也可以在调用时，由接口传入。</p>        
+                        <p class="highlight mt10">注意：样本的特征也可以在调用时，由接口传入。</p>
                     </div>
                 </div>
                 <div
@@ -2215,7 +2233,7 @@ export default {
     //     .jv-container {
     //        .jv-code {
     //             padding: 30px 20px 0 !important;
-    //         } 
+    //         }
     //     }
     // }
 }
@@ -2317,7 +2335,7 @@ export default {
     .jv-container {
         .jv-code {
             padding: 30px 20px 0 !important;
-        } 
+        }
     }
 }
 </style>

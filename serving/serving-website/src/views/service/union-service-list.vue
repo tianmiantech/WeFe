@@ -61,13 +61,14 @@
                 min-width="160px"
             >
                 <template slot-scope="scope">
+                    {{ scope.row.supplier_name }}
                     <el-tooltip placement="top">
                         <div slot="content">
                             邮箱：{{scope.row.member_info.email}}<br/>
                             服务地址：{{scope.row.member_info.serving_base_url}}<br/>
                             联系方式：{{scope.row.member_info.mobile}}<br/>
                         </div>
-                        <p>{{ scope.row.supplier_name }}【{{scope.row.supplier_id }}】</p>
+                       <p class="id">{{scope.row.supplier_id }}</p>
                     </el-tooltip>
                 </template>
             </el-table-column>
