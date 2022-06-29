@@ -228,6 +228,7 @@
         },
         methods: {
             showDialog() {
+
                 this.dialogVisibleInfo = true;
             },
 
