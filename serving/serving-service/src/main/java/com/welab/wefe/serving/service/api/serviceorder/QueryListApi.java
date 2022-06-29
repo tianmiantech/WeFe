@@ -52,7 +52,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
 
         private String serviceName;
 
-        private String serviceType;
+        private Integer serviceType;
 
         private Integer orderType;
 
@@ -90,11 +90,11 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.serviceName = serviceName;
         }
 
-        public String getServiceType() {
+        public Integer getServiceType() {
             return serviceType;
         }
 
-        public void setServiceType(String serviceType) {
+        public void setServiceType(Integer serviceType) {
             this.serviceType = serviceType;
         }
 

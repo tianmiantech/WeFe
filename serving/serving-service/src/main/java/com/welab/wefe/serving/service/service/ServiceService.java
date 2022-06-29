@@ -42,6 +42,7 @@ import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.entity.*;
 import com.welab.wefe.serving.service.database.repository.*;
 import com.welab.wefe.serving.service.dto.*;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
@@ -621,7 +622,7 @@ public class ServiceService {
     private String preExecuteOrderLog(TableServiceMySqlModel service, PartnerMysqlModel client, RouteApi.Input input,
                                       String clientIp) {
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
-                ServiceTypeEnum.getValue(service.getServiceType()), new Integer(0),
+                service.getServiceType(), CallByMeEnum.NO.getValue(),
                 ServiceOrderEnum.ORDERING.name(), client.getId(), client.getName(), CacheObjects.getMemberId(),
                 CacheObjects.getMemberName());
         return serviceOrderModel.getId();

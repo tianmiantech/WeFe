@@ -402,7 +402,7 @@ public class ModelService {
         SaveApi.Input order = new SaveApi.Input();
         order.setServiceId(input.getServiceId());
         order.setServiceName(CacheObjects.getServiceName(input.getServiceId()));
-        order.setServiceType(ServiceTypeEnum.MachineLearning.name());
+        order.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         order.setRequestPartnerId(input.getPartnerCode());
         order.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
         order.setResponsePartnerId(CacheObjects.getMemberId());

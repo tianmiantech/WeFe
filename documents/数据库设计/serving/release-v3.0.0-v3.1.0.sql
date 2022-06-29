@@ -11,7 +11,7 @@ CREATE TABLE service_call_log
     response_partner_name VARCHAR(32)  NOT NULL COMMENT '响应方名称',
     service_id            VARCHAR(255) NOT NULL COMMENT '服务id',
     service_name          VARCHAR(32)  NOT NULL COMMENT '服务名称',
-    service_type          VARCHAR(32)  NOT NULL COMMENT '服务类型',
+    service_type          tinyint(2) NOT NULL COMMENT '服务类型',
     request_id            VARCHAR(255) NOT NULL COMMENT '请求id',
     response_id           VARCHAR(255) COMMENT '相应id',
     request_data          TEXT         NOT NULL COMMENT '请求内容',
@@ -37,7 +37,7 @@ CREATE TABLE service_order
     id                    VARCHAR(32) NOT NULL COMMENT '订单号',
     service_id            VARCHAR(255) COMMENT '服务id',
     service_name          VARCHAR(32) COMMENT '服务名称',
-    service_type          VARCHAR(32) COMMENT '服务类型',
+    service_type          tinyint(2) COMMENT '服务类型',
     order_type            BOOL        NOT NULL DEFAULT 1 COMMENT '是否为己方生成的订单;1 是, 0否',
     status                VARCHAR(32) NOT NULL COMMENT '订单状态;成功、失败、进行中',
     request_partner_id    VARCHAR(32) NOT NULL COMMENT '请求方id',
@@ -147,8 +147,8 @@ ALTER TABLE model_member
 
 alter table client_service modify column `service_id` varchar (256) NOT NULL DEFAULT '' COMMENT '服务id';
 alter table client_service modify column `url` varchar (128) DEFAULT '' COMMENT '服务地址';
-alter table client_service modify column `ip_add` varchar(100) DEFAULT NULL COMMENT 'IP 白名单';
-alter table client_service modify column `unit_price` double(20,4) DEFAULT NULL COMMENT '单价';
+alter table client_service modify column `ip_add` varchar (100) DEFAULT NULL COMMENT 'IP 白名单';
+alter table client_service modify column `unit_price` double (20,4) DEFAULT NULL COMMENT '单价';
 alter table client_service modify column `pay_type` tinyint(4) DEFAULT NULL COMMENT '付费类型';
 alter table client_service modify column `service_type` tinyint(4) DEFAULT NULL COMMENT '服务类型';
 

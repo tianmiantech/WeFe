@@ -72,7 +72,7 @@ public class ServiceOrderService {
         serviceOrderRepository.save(model);
     }
 
-    public ServiceOrderMysqlModel add(String serviceId, String serviceName, String serviceType, Integer orderType, String status,
+    public ServiceOrderMysqlModel add(String serviceId, String serviceName, Integer serviceType, Integer orderType, String status,
             String requestPartnerId, String requestPartnerName, String responsePartnerId, String responsePartnerName) {
         ServiceOrderMysqlModel model = new ServiceOrderMysqlModel();
         model.setServiceId(serviceId);
@@ -188,7 +188,7 @@ public class ServiceOrderService {
                     model.getId(),
                     model.getServiceId(),
                     model.getServiceName(),
-                    model.getServiceType(),
+                    model.getServiceType().toString(),
                     model.getOrderType().toString(),
                     model.getStatus(),
                     model.getRequestPartnerId(),
