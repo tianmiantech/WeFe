@@ -46,6 +46,7 @@ import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.FeatureManager;
+import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
 import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
 import com.welab.wefe.serving.service.utils.*;
@@ -475,6 +476,8 @@ public class ServiceService {
         if (!model.isModelService()) {
             TableServiceMySqlModel m = serviceRepository.findOne("id", id, TableServiceMySqlModel.class);
             unionServiceService.offline2Union(m);
+        } else {
+            ModelManager.refreshModelEnable(model.getServiceId(), false);
         }
     }
 
@@ -496,6 +499,8 @@ public class ServiceService {
                 m.setQueryParams(key_calc_rule);
             }
             unionServiceService.add2Union(m);
+        } else {
+            ModelManager.refreshModelEnable(model.getServiceId(), true);
         }
     }
 

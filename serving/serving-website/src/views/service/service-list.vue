@@ -96,18 +96,18 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
+            <!-- <el-table-column
                 label="URL"
                 min-width="140px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.url }}
                 </template>
-            </el-table-column>
+            </el-table-column> -->
 
             <el-table-column
                 label="服务类型"
-                min-width="100px"
+                min-width="120px"
             >
                 <template slot-scope="scope">
                     {{ serviceTypeMap[scope.row.service_type] }}
@@ -116,7 +116,7 @@
             <el-table-column
                 label="状态"
                 prop="status"
-                width="100px"
+                width="60px"
             >
                 <template slot-scope="scope">
                     <div v-if="scope.row.status === 0">
@@ -130,7 +130,7 @@
 
             <el-table-column
                 label="创建时间"
-                min-width="160px"
+                min-width="145px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -139,7 +139,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="160px"
+                min-width="145px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -148,7 +148,7 @@
 
             <el-table-column
                 label="创建人"
-                width="60"
+                width="80px"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.created_by }}</p>
@@ -157,7 +157,7 @@
 
             <el-table-column
                 label="修改人"
-                width="60"
+                width="80px"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.updated_by }}</p>
@@ -166,7 +166,7 @@
 
             <el-table-column
                 label="操作"
-                width="250px"
+                width="180px"
                 fixed="right"
             >
                 <template slot-scope="scope">

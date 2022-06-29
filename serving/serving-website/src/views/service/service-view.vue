@@ -719,6 +719,7 @@
                                 <div
                                     v-if="predictResult !== ''"
                                     class="test_result"
+                                    style="margin-top: 30px; margin-left: 35px;"
                                 >
                                     结果：
                                     <JsonViewer
@@ -1588,7 +1589,7 @@ export default {
                             const name = data.model_param.header[i];
 
                             this.gridData.push({
-                                name,
+                                feature: name,
                                 weight: data.model_param.weight[name],
                             });
                         }
