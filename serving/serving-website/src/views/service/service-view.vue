@@ -1177,7 +1177,7 @@ export default {
             model_show_flag:    false,
             graphData:          {},
             checkLoading:       false,
-            activeName:         'api',
+            activeName:         'code',
             modelStatusVisible: false,
             canUseTestList:     [
                 {
@@ -1538,6 +1538,7 @@ export default {
                     this.form.service_type = type;
                     this.form.processor = data.processor;
                     this.myRole = data.my_role[0];
+                    this.activeName = data.feature_source;
 
                     console.log(data.model_id, 'data.model_id');
                     if (data.id) {
