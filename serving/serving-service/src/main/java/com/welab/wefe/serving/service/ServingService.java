@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service;
 
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
