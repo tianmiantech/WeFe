@@ -25,12 +25,10 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.predicter.Predictor;
-import com.welab.wefe.serving.service.service.CacheObjects;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -50,7 +48,8 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
         try {
             PredictResult result = Predictor.debug(
                     input.getModelId(),
-                    PredictParams.of(input.getUserId(), input.getFeatureData()),
+                    input.getUserId(),
+                    input.getFeatureData(),
                     input.getFeatureSource(),
                     input.getParams() == null ? null : new JSONObject(input.getParams())
             );
@@ -66,7 +65,7 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
 
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
-        @Check(require = true, name = "用户 id")
+        @Check(name = "用户 id")
         private String userId;
 
         @Check(name = "预测入参")
@@ -83,6 +82,10 @@ public class DebugApi extends AbstractApi<DebugApi.Input, PredictResult> {
             super.checkAndStandardize();
             if (PredictFeatureDataSource.sql.equals(featureSource) && MapUtils.isEmpty(params)) {
                 StatusCode.PARAMETER_VALUE_INVALID.throwException("选择特征来源于SQL配置时，SQL配置项不能为空！");
+            }
+
+            if (MapUtils.isEmpty(featureData) && StringUtils.isEmpty(userId)) {
+                StatusCode.PARAMETER_VALUE_INVALID.throwException("请输入样本ID或样本特征");
             }
         }
 

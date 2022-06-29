@@ -46,6 +46,7 @@ import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.FeatureManager;
+import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
 import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
 import com.welab.wefe.serving.service.utils.*;
@@ -104,6 +105,8 @@ public class ServiceService {
     private Config config;
     @Autowired
     private ModelMemberRepository modelMemberRepository;
+    @Autowired
+    private ModelMemberService modelMemberService;
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
@@ -133,10 +136,15 @@ public class ServiceService {
         output.setXgboostTree(
                 output.getAlgorithm() == Algorithm.XGBoost ? xgboost(output.getModelParam(), output.getFlType())
                         : null);
-        output.setModelStatus(
-                output.getMyRole().contains(JobMemberRole.promoter) ? findModelStatus(model.getServiceId()) : null);
+        output.setModelStatus(getModelStatus(model, output));
 
         return output;
+    }
+
+    private List<ModelStatusOutput> getModelStatus(TableModelMySqlModel model, DetailApi.Output output) {
+        return output.getMyRole().contains(JobMemberRole.promoter) &&
+                FederatedLearningType.vertical.equals(output.getFlType()) ?
+                checkModelStatus(model.getServiceId()) : null;
     }
 
     private com.welab.wefe.serving.service.api.service.DetailApi.Output detailService(
@@ -172,12 +180,8 @@ public class ServiceService {
         return memberBaseInfo.stream().map(ModelMemberMySqlModel::getRole).collect(Collectors.toList());
     }
 
-    private List<ModelStatusOutput> findModelStatus(String modelId) {
-        List<ModelMemberMySqlModel> modelMemberMySqlModels = modelMemberRepository.findByModelId(modelId);
-
-        return modelMemberMySqlModels.stream().filter(x -> JobMemberRole.provider.equals(x.getRole())).map(
-                        x -> ModelStatusOutput.of(x.getMemberId(), CacheObjects.getPartnerName(x.getMemberId()), x.getStatus()))
-                .collect(Collectors.toList());
+    private List<ModelStatusOutput> checkModelStatus(String modelId) {
+        return modelMemberService.checkAvailableByModelIdAndMemberId(modelId, null);
     }
 
     private List<TreeNode> xgboost(JObject modelParam, FederatedLearningType flType) {
@@ -472,6 +476,8 @@ public class ServiceService {
         if (!model.isModelService()) {
             TableServiceMySqlModel m = serviceRepository.findOne("id", id, TableServiceMySqlModel.class);
             unionServiceService.offline2Union(m);
+        } else {
+            ModelManager.refreshModelEnable(model.getServiceId(), false);
         }
     }
 
@@ -493,6 +499,8 @@ public class ServiceService {
                 m.setQueryParams(key_calc_rule);
             }
             unionServiceService.add2Union(m);
+        } else {
+            ModelManager.refreshModelEnable(model.getServiceId(), true);
         }
     }
 
@@ -716,15 +724,24 @@ public class ServiceService {
 
     public <T> T callOtherPartnerServing(String url, String api, TreeMap<String, Object> params, Class<T> entityClass)
             throws StatusCodeWithException {
+        if (StringUtils.isEmpty(url)) {
+            StatusCode.PARAMETER_CAN_NOT_BE_EMPTY.throwException("未配置合作者地址，请先配置地址");
+        }
+
         String uri = url + "/" + api;
 
         HttpResponse response = HttpRequest.create(uri).setBody(SignUtils.parameterSign(params)).postJson();
 
-        if (!response.success()) {
-            throw new StatusCodeWithException("调用" + uri + "失败，" + response.getMessage(),
-                    StatusCode.REMOTE_SERVICE_ERROR);
+        if (!response.success() || response.getCode() != 200 || response.getBodyAsJson().getInteger("code") != 0) {
+            StatusCode.REMOTE_SERVICE_ERROR.throwException("调用" + uri + "失败，" + getErrorMessage(response));
         }
 
         return response.getBodyAsJson().getJSONObject("data").toJavaObject(entityClass);
+    }
+
+    private String getErrorMessage(HttpResponse response) {
+        return StringUtils.isEmpty(response.getMessage()) ?
+                response.getBodyAsJson().getString("message") :
+                response.getMessage();
     }
 }

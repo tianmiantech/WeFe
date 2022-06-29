@@ -32,7 +32,7 @@ public class EmptyBatchModelProcessor extends AbstractBatchModelProcessor {
     }
 
     @Override
-    public void postprocess(PredictResult result, BaseModel model, BatchPredictParams batchPredictParams) {
+    public void postprocess(Object result, BaseModel model, BatchPredictParams batchPredictParams) {
 
     }
 }

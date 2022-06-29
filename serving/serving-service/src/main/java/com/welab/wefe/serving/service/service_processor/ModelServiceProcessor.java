@@ -18,8 +18,6 @@ package com.welab.wefe.serving.service.service_processor;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.api.predict.PredictApi;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
@@ -53,7 +51,8 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
             PredictResult result = Predictor.batch(
                     input.getRequestId(),
                     input.getModelId(),
-                    BatchPredictParams.of(input.getUserIds(), input.getFeatureDataMap())
+                    input.getUserIds(),
+                    input.getFeatureDataMap()
             );
             return result;
         }
@@ -65,7 +64,8 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
         PredictResult result = Predictor.predict(
                 input.getRequestId(),
                 input.getModelId(),
-                PredictParams.of(input.getUserId(), input.getFeatureData())
+                input.getUserId(),
+                input.getFeatureData()
         );
 
         return result;

@@ -20,11 +20,10 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePromoterPredictor;
+import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service.ClientServiceService;
@@ -33,20 +32,22 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Model call initiator
  *
  * @author hunter.zhao
  */
-public class PromoterPredictor extends AbstractSinglePromoterPredictor {
+public class PromoterPredictor extends AbstractSinglePredictor {
 
     private String requestId;
 
     public PromoterPredictor(String requestId,
                              String modelId,
-                             PredictParams predictParams) {
-        super(modelId, predictParams);
+                             String userId,
+                             Map<String, Object> featureData) {
+        super(modelId, userId, featureData);
         this.requestId = requestId;
     }
 

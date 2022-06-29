@@ -17,14 +17,14 @@
 package com.welab.wefe.serving.service.predicter.single;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredictor;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import org.apache.commons.collections4.MapUtils;
+
+import java.util.Map;
 
 /**
  * model call provider
@@ -33,8 +33,8 @@ import org.apache.commons.collections4.MapUtils;
  */
 public class ProviderPredictor extends AbstractSingleProviderPredictor {
 
-    public ProviderPredictor(String modelId, PredictParams predictParams) {
-        super(modelId, predictParams);
+    public ProviderPredictor(String modelId, String userId, Map<String, Object> featureData) {
+        super(modelId, userId, featureData);
     }
 
     @Override

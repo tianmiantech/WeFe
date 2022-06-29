@@ -15,13 +15,6 @@
  */
 package com.welab.wefe.serving.service.service.model;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.AESUtil;
@@ -40,6 +33,12 @@ import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -56,7 +55,7 @@ public class ModelImportService {
     private TableModelRepository modelRepository;
 
     @Transactional(rollbackFor = Exception.class)
-    public String saveMachineLearningModel(String name, String filename, String url) throws StatusCodeWithException {
+    public String saveMachineLearningModel(String name, String filename) throws StatusCodeWithException {
         try {
             List<String> jsonStr = parseFileToList(filename);
             String aesKeyCiphertext = jsonStr.get(0);
@@ -65,7 +64,7 @@ public class ModelImportService {
             String aesKey = decryptAesKey(aesKeyCiphertext);
             JObject jObject = decryptModel(modelCiphertext, aesKey).append("name", name);
 
-            SaveModelApi.Input modelContent = buildModelParam(jObject, url);
+            SaveModelApi.Input modelContent = buildModelParam(jObject);
             return modelService.save(modelContent);
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,7 +72,7 @@ public class ModelImportService {
         }
     }
 
-    private SaveModelApi.Input buildModelParam(JObject jObject, String url) {
+    private SaveModelApi.Input buildModelParam(JObject jObject) {
 
         SaveModelApi.Input modelContent = new SaveModelApi.Input();
         modelContent.setServiceId(jObject.getString("modelId"));
@@ -83,7 +82,6 @@ public class ModelImportService {
         modelContent.setAlgorithm(extractAlgorithm(jObject));
         modelContent.setModelParam(jObject.getString("modelParam"));
         modelContent.setMemberParams(extractMemberParams(jObject));
-        modelContent.setUrl(url);
         return modelContent;
     }
 
@@ -124,7 +122,7 @@ public class ModelImportService {
     }
 
 
-    public String saveDeepLearningModel(String name, String filename, String url) throws StatusCodeWithException {
+    public String saveDeepLearningModel(String name, String filename) throws StatusCodeWithException {
 
         TableModelMySqlModel model = modelRepository.findOne("name", name, TableModelMySqlModel.class);
         if (model != null) {
@@ -141,7 +139,7 @@ public class ModelImportService {
         model.setUseCount(0);
         model.setName(name);
         model.setServiceType(ServiceTypeEnum.DeepLearning.getCode());
-        model.setUrl(url);
+        model.setUrl("predict/deep_learning/" + model.getId());
 
         modelRepository.save(model);
         return model.getId();

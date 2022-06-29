@@ -29,6 +29,7 @@ import com.welab.wefe.serving.sdk.config.Config;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
 import com.welab.wefe.serving.service.enums.ServiceCallStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
@@ -62,7 +63,10 @@ public class PromoterPredictHelper {
                     .setRetryCount(3)
                     .postJson();
 
-            checkResponse(obj.getMemberId(), response);
+            if (!isSuccess(response)) {
+                String message = "协作方 " + CacheObjects.getPartnerName(obj.getMemberId()) + " 响应失败";
+                StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
+            }
 
             return extractData(response);
         } catch (StatusCodeWithException e) {
@@ -171,7 +175,7 @@ public class PromoterPredictHelper {
         order.setRequestPartnerName(CacheObjects.getMemberName());
         order.setResponsePartnerId(partnerId);
         order.setResponsePartnerName(CacheObjects.getPartnerName(partnerId));
-        order.setOrderType(1);
+        order.setOrderType(CallByMeEnum.YES.getValue());
         order.setStatus(status.getValue());
 
         ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
@@ -185,8 +189,7 @@ public class PromoterPredictHelper {
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
         callLog.setOrderId(orderId);
         callLog.setServiceId(modelId);
-        //TODO 加服务名
-        callLog.setServiceName("");
+        callLog.setServiceName(CacheObjects.getServiceName(modelId));
         callLog.setRequestData(requestData);
         callLog.setRequestPartnerId(CacheObjects.getMemberId());
         callLog.setRequestPartnerName(CacheObjects.getMemberName());
@@ -198,7 +201,7 @@ public class PromoterPredictHelper {
         callLog.setResponsePartnerName(CacheObjects.getPartnerName(memberId));
         callLog.setResponseData(result.toJSONString());
         callLog.setResponseStatus(getResponseStatus(result));
-        callLog.setCallByMe(0);
+        callLog.setCallByMe(CallByMeEnum.YES.getValue());
 
         ServiceCallLogService serviceCallLogService = Launcher.CONTEXT.getBean(ServiceCallLogService.class);
         serviceCallLogService.save(callLog);
@@ -210,8 +213,8 @@ public class PromoterPredictHelper {
     }
 
 
-    private static String extractResponseId(HttpResponse response) {
-        if (response == null || !response.success() || response.getCode() != 200) {
+    private static String extractResponseId(HttpResponse response) throws StatusCodeWithException {
+        if (!isSuccess(response)) {
             return "";
         }
 
@@ -222,33 +225,33 @@ public class PromoterPredictHelper {
     }
 
 
-    private static JObject extractData(HttpResponse response) {
-        if (response == null || !response.success() || response.getCode() != 200) {
+    private static JObject extractData(HttpResponse response) throws StatusCodeWithException {
+        if (!isSuccess(response)) {
             return JObject.create();
         }
         JSONObject json = response.getBodyAsJson();
         return JObject.create(json.getJSONObject("data").getJSONObject("data"));
     }
 
-    private static void checkResponse(String memberId, HttpResponse response) throws StatusCodeWithException {
+    private static boolean isSuccess(HttpResponse response) throws StatusCodeWithException {
         if (response == null || !response.success() || response.getCode() != 200) {
-            String message = "协作方 " + CacheObjects.getPartnerName(memberId) + " 响应失败(" + response.getCode() + ")," + response.getMessage();
-            LOG.error(message);
-            StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
+            return false;
         }
+
 
         Integer code = extractCode(response);
         if (code == null || !code.equals(0) || !response.getBodyAsJson().containsKey("data")) {
-            String message = "协作方 " + CacheObjects.getPartnerName(memberId) + " 响应失败(" + code + ")," + response.getBodyAsJson().getString("message");
-            LOG.error(message);
-            StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
+            return false;
         }
+
+        return true;
     }
 
-    private static Integer extractCode(HttpResponse response) {
+    private static Integer extractCode(HttpResponse response) throws StatusCodeWithException {
         if (response == null || !response.success() || response.getCode() != 200) {
             return StatusCode.SYSTEM_ERROR.getCode();
         }
+
         JSONObject json = response.getBodyAsJson();
         return json.getInteger("code");
     }

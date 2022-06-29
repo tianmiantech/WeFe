@@ -26,6 +26,8 @@ import com.welab.wefe.serving.sdk.model.BaseModel;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
 
+import java.util.Map;
+
 /**
  * Single prediction
  *
@@ -33,12 +35,12 @@ import com.welab.wefe.serving.sdk.processor.AbstractModelProcessor;
  */
 public abstract class AbstractSinglePredictor extends AbstractBasePredictor {
 
-    public PredictParams predictParams;
+    protected PredictParams predictParams;
 
 
-    public AbstractSinglePredictor(String modelId, PredictParams predictParams) {
+    public AbstractSinglePredictor(String modelId, String userId, Map<String, Object> featureData) {
         super(modelId);
-        this.predictParams = predictParams;
+        this.predictParams = PredictParams.create(userId, featureData);
     }
 
     /**
@@ -64,11 +66,16 @@ public abstract class AbstractSinglePredictor extends AbstractBasePredictor {
 
         AbstractAlgorithm algorithm = AlgorithmManager.get(model);
 
-        PredictResult result = algorithm.execute(model, predictParams, federatedResultByProviders());
+        Object result = algorithm.execute(model.getParams(), predictParams, federatedResultByProviders());
 
         processor.postprocess(result, model, predictParams);
 
-        return result;
+        return new PredictResult(
+                model.getAlgorithm(),
+                model.getFlType(),
+                model.getMyRole(),
+                result
+        );
     }
 
 }

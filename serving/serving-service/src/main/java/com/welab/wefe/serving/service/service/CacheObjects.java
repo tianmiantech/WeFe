@@ -20,9 +20,10 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
-import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
 import com.welab.wefe.serving.service.database.repository.PartnerRepository;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
@@ -211,8 +212,8 @@ public class CacheObjects {
      * Reload account list
      */
     public static void refreshServiceMap() {
-        BaseServiceRepository repo = Launcher.CONTEXT.getBean(BaseServiceRepository.class);
-        List<BaseServiceMySqlModel> list = repo.findAll(Sort.by("name"));
+        TableModelRepository repo = Launcher.CONTEXT.getBean(TableModelRepository.class);
+        List<TableModelMySqlModel> list = repo.findAll(Sort.by("name"));
 
         SERVICE_MAP.clear();
 

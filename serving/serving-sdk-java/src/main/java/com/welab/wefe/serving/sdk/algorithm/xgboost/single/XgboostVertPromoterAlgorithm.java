@@ -39,12 +39,6 @@ import java.util.Map;
 public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, PredictModel> {
 
     /**
-     * Federal forecast decision tree results
-     */
-    private Map<String, Object> remoteDecisionTreeMap = new HashMap<>();
-
-
-    /**
      * Call the provider to get the federated decision tree
      * Return structure
      * <p>
@@ -63,7 +57,9 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
      * }
      * </>
      */
-    private void getFederatedPredict(List<JObject> federatedResult) throws StatusCodeWithException {
+    private Map<String, Object> getPartnerTreeStructure(List<JObject> federatedResult) throws StatusCodeWithException {
+
+        Map<String, Object> remoteDecisionTreeMap = new HashMap<>();
 
         if (CollectionUtils.isEmpty(federatedResult)) {
             throw new StatusCodeWithException("federatedResult is null", StatusCode.REMOTE_SERVICE_ERROR);
@@ -91,21 +87,19 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
             }
 
         }
+
+        return remoteDecisionTreeMap;
     }
 
     @Override
     protected PredictModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
-
-        //Get partner decision tree structure
-        getFederatedPredict(federatedResult);
-
         return XgboostAlgorithmHelper
                 .promoterPredictByVert(
                         modelParam.getModelMeta().getWorkMode(),
                         modelParam.getModelParam(),
                         predictParams.getUserId(),
                         fidValueMapping,
-                        remoteDecisionTreeMap
+                        getPartnerTreeStructure(federatedResult)
                 );
     }
 

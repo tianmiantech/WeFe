@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.serving.service.utils.sign;
 
-package com.welab.wefe.serving.sdk.predicter.batch;
+import com.alibaba.fastjson.JSONObject;
 
-import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
-import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * batch prediction
- *
  * @author hunter.zhao
+ * @date 2022/6/27
  */
-public abstract class AbstractBatchPromoterPredictor extends AbstractBatchPredictor {
-
-    public AbstractBatchPromoterPredictor(String modelId, BatchPredictParams batchPredictParams) {
-        super(modelId, batchPredictParams);
-    }
+public abstract class AbstractVerifySignFunction {
+    protected abstract void rsaVerify(HttpServletRequest request, JSONObject params) throws Exception;
 }

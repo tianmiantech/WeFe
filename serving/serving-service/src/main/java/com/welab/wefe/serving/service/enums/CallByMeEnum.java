@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.serving.sdk.predicter.single;
-
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+package com.welab.wefe.serving.service.enums;
 
 /**
- * Single prediction
- *
  * @author hunter.zhao
+ * @date 2022/6/24
  */
-public abstract class AbstractSinglePromoterPredictor extends AbstractSinglePredictor {
+public enum CallByMeEnum {
+    YES(1),
 
-    public AbstractSinglePromoterPredictor(String modelId, PredictParams predictParams) {
-        super(modelId, predictParams);
+    NO(0);
+
+
+    private int value;
+
+    CallByMeEnum(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
     }
 }
