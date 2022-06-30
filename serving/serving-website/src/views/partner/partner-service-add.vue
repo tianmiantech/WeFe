@@ -1,80 +1,133 @@
 <template>
-
-    <el-card class="page" shadow="never">
-
+    <el-card
+        class="page"
+        shadow="never"
+    >
         <h2 class="title">开通服务</h2>
 
-        <el-form :model="clientService" label-width="112px" :rules="rules" ref="clientService">
-            <el-form-item label="服务名称：" prop="serviceName">
-                <el-select v-model="clientService.serviceId" filterable clearable placeholder="请选择服务">
+        <el-form
+            ref="clientService"
+            :model="clientService"
+            :label-width="formLabelWidth"
+            :rules="rules"
+        >
+            <el-form-item
+                label="服务名称："
+                prop="serviceName"
+            >
+                <el-select
+                    v-model="clientService.serviceId"
+                    filterable
+                    clearable
+                    placeholder="请选择服务"
+                >
                     <el-option
                         v-for="item in services"
                         :key="item.value"
                         :label="item.label"
-                        :value="item.value">
-                    </el-option>
+                        :value="item.value"
+                    />
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="合作者名称：" prop="clientName">
-                <el-select v-model="clientService.clientId" filterable clearable placeholder="请选择合作者">
+            <el-form-item
+                label="合作者名称："
+                prop="clientName"
+            >
+                <el-select
+                    v-model="clientService.clientId"
+                    filterable
+                    clearable
+                    placeholder="请选择合作者"
+                >
                     <el-option
                         v-for="item in clients"
                         :key="item.value"
                         :label="item.label"
-                        :value="item.value">
-                    </el-option>
+                        :value="item.value"
+                    />
                 </el-select>
             </el-form-item>
-            <el-form-item label="服务调用单价(￥)：" prop="unitPrice" class="unit_price">
-                <el-input v-model="clientService.unitPrice" maxlength="10"></el-input>
+            <el-form-item
+                label="服务调用单价(￥)："
+                prop="unitPrice"
+                class="unit_price"
+            >
+                <el-input
+                    v-model="clientService.unitPrice"
+                    maxlength="10"
+                />
             </el-form-item>
 
-            <el-form-item label="合作者公钥：" prop="publicKey" class="public_key">
-                <el-input v-model="clientService.publicKey"
-                          type="textarea"
-                          rows="5"
-                          :maxlength="1000"
-                          :minlength="0"
-                          show-word-limit>
-                </el-input>
+            <el-form-item
+                label="合作者公钥："
+                prop="publicKey"
+                class="public_key"
+            >
+                <el-input
+                    v-model="clientService.publicKey"
+                    type="textarea"
+                    rows="5"
+                    :maxlength="1000"
+                    :minlength="0"
+                    show-word-limit
+                />
             </el-form-item>
 
-            <el-form-item label="合作者出口IP：" prop="ipAdd" class="ip_add">
-                <el-input v-model="clientService.ipAdd"></el-input>
+            <el-form-item
+                label="合作者出口IP："
+                prop="ipAdd"
+                class="ip_add"
+            >
+                <el-input v-model="clientService.ipAdd" />
             </el-form-item>
 
-            <el-form-item label="合作者付费类型：" :label-width="formLabelWidth" prop="payType">
-                <el-radio v-model="clientService.payType" label="0">后付费</el-radio>
-                <el-radio v-model="clientService.payType" label="1">预付费</el-radio>
+            <el-form-item
+                label="合作者付费类型："
+                prop="payType"
+            >
+                <el-radio
+                    v-model="clientService.payType"
+                    label="0"
+                >
+                    后付费
+                </el-radio>
+                <el-radio
+                    v-model="clientService.payType"
+                    label="1"
+                >
+                    预付费
+                </el-radio>
             </el-form-item>
 
             <el-form-item>
-                <el-button type="primary" @click="onSubmit">提交</el-button>
+                <el-button
+                    type="primary"
+                    @click="onSubmit"
+                >
+                    提交
+                </el-button>
                 <router-link
                     :to="{
-                            name: 'partner-service-list',
-                        }"
+                        name: 'partner-service-list',
+                    }"
                     style="margin-left: 3px"
                 >
                     <el-button>返回</el-button>
                 </router-link>
             </el-form-item>
         </el-form>
-
     </el-card>
-
-
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
 
 
 export default {
-    name: "partner-service-add",
+    name: 'PartnerServiceAdd',
     data() {
-        let validateServiceName = (rule, value, callback) => {
+        const validateServiceName = (rule, value, callback) => {
             if (!this.clientService.serviceId) {
                 return callback(new Error('服务名称不能为空'));
             } else {
@@ -82,7 +135,7 @@ export default {
             }
         };
 
-        let validateClientName = (rule, value, callback) => {
+        const validateClientName = (rule, value, callback) => {
             if (!this.clientService.clientId) {
                 return callback(new Error('客户名称不能为空'));
             } else {
@@ -90,11 +143,12 @@ export default {
             }
         };
 
-        let validateUnitPrice = (rule, value, callback) => {
+        const validateUnitPrice = (rule, value, callback) => {
             if (!this.clientService.unitPrice) {
                 return callback(new Error('请输入单价'));
             } else {
-                let reg = /^\d+(\.\d+)?$/;
+                const reg = /^\d+(\.\d+)?$/;
+
                 if (reg.test(this.clientService.unitPrice)) {
                     callback();
                 } else {
@@ -103,7 +157,7 @@ export default {
             }
         };
 
-        let validatePayType = (rule, value, callback) => {
+        const validatePayType = (rule, value, callback) => {
             if (!this.clientService.payType) {
                 return callback(new Error('请选择计费类型'));
             } else {
@@ -113,64 +167,63 @@ export default {
 
         return {
             clientService: {
-                serviceId: '',
-                clientId: '',
-                status: '',
-                unitPrice: '',
-                ipAdd:'',
-                publicKey:'',
+                serviceId:   '',
+                clientId:    '',
+                status:      '',
+                unitPrice:   '',
+                ipAdd:       '',
+                publicKey:   '',
                 // 预留字段
-                payType: '',
+                payType:     '',
                 serviceName: '',
-                clientName: '',
+                clientName:  '',
             },
-            services: [],
-            clients: [],
+            services:          [],
+            clients:           [],
             dialogFormVisible: false,
-            feeVisible: false,
-            form: {
+            feeVisible:        false,
+            form:              {
                 unitPrice: '',
-                payType: '',
+                payType:   '',
             },
-            formLabelWidth: '115px',
-            payType: {
-                0: "后付费",
-                1: "预付费"
+            formLabelWidth: '142px',
+            payType:        {
+                0: '后付费',
+                1: '预付费',
             },
             rules: {
                 serviceName: [
-                    {required: true, validator: validateServiceName, trigger: 'change'},
+                    { required: true, validator: validateServiceName, trigger: 'change' },
                     // {min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur'}
                 ],
                 clientName: [
-                    {required: true, validator: validateClientName, trigger: 'change'}
+                    { required: true, validator: validateClientName, trigger: 'change' },
                 ],
                 unitPrice: [
-                    {required: true, validator: validateUnitPrice, trigger: 'change'}
+                    { required: true, validator: validateUnitPrice, trigger: 'change' },
                 ],
                 payType: [
-                    {required: true, validator: validatePayType, trigger: 'change'}
+                    { required: true, validator: validatePayType, trigger: 'change' },
                 ],
             },
-        }
+        };
     },
 
     computed: {
         ...
             mapGetters(['userInfo']),
-    }
-    ,
+    },    
     created() {
 
 
         if (this.$route.query.partnerId) {
-            this.getPartnerById(this.$route.query.partnerId)
+            this.getPartnerById(this.$route.query.partnerId);
         }
         if (this.$route.query.serviceId) {
-            this.getServiceById(this.$route.query.serviceId)
+            this.getServiceById(this.$route.query.serviceId);
         }
         this.getServices();
-        this.getPartners()
+        this.getPartners();
 
 
     },
@@ -190,28 +243,28 @@ export default {
                         return false;
                     }
                     this.clientService.serviceName = this.services.find(y => y.value === this.clientService.serviceId).label;
-                    const {code} = await this.$http.post({
-                        url: '/clientservice/save',
+                    const { code } = await this.$http.post({
+                        url:  '/clientservice/save',
                         data: {
-                            serviceId: this.clientService.serviceId,
-                            clientId: this.clientService.clientId,
-                            unitPrice: this.clientService.unitPrice,
-                            payType: this.clientService.payType,
-                            publicKey:this.clientService.publicKey,
-                            ipAdd:this.clientService.ipAdd,
+                            serviceId:   this.clientService.serviceId,
+                            clientId:    this.clientService.clientId,
+                            unitPrice:   this.clientService.unitPrice,
+                            payType:     this.clientService.payType,
+                            publicKey:   this.clientService.publicKey,
+                            ipAdd:       this.clientService.ipAdd,
                             serviceName: this.clientService.serviceName,
-                            clientName: this.clientService.clientName,
-                            createdBy: this.userInfo.nickname,
+                            clientName:  this.clientService.clientName,
+                            createdBy:   this.userInfo.nickname,
                         },
                     });
 
                     if (code === 0) {
                         setTimeout(() => {
                             this.$message('提交成功!');
-                        }, 1000)
+                        }, 1000);
                         this.$router.push({
-                            name: 'partner-service-list'
-                        })
+                            name: 'partner-service-list',
+                        });
                     }
                 } else {
                     return false;
@@ -225,71 +278,70 @@ export default {
             for (let i = 0; i < data.length; i++) {
                 this.services.push({
                     label: data[i].name,
-                    value: data[i].id
-                })
+                    value: data[i].id,
+                });
             }
-        }
-        ,
+        },        
 
         handlePartners(data) {
             for (let i = 0; i < data.length; i++) {
                 this.clients.push({
                     label: data[i].name,
-                    value: data[i].id
-                })
+                    value: data[i].id,
+                });
             }
-        }
-        ,
+        },        
 
         async getServices() {
-            const {code, data} = await this.$http.post({
-                url: '/service/query',
+            const { code, data } = await this.$http.post({
+                url:  '/service/query',
                 data: {
                     status: 1,
-                }
+                },
             });
 
             if (code === 0) {
-                this.handleServices(data.list)
+                this.handleServices(data.list);
             }
-        }
-        ,
+        },        
 
         async getPartners() {
-            const {code, data} = await this.$http.post({
+            const { code, data } = await this.$http.post({
                 url: '/partner/query-list',
             });
 
             if (code === 0) {
-                this.handlePartners(data.list)
+                this.handlePartners(data.list);
             }
         },
 
         async getPartnerById(id) {
-            const {code, data} = await this.$http.post({
-                url: '/partner/detail',
+            const { code, data } = await this.$http.post({
+                url:  '/partner/detail',
                 data: {
-                    id: id,
+                    id,
                 },
 
             });
+
             if (code === 0) {
-                this.clientService.clientId = data.id
-                this.clientService.clientName = data.name
+                this.clientService.clientId = data.id;
+                this.clientService.clientName = data.name;
             }
         },
 
         async getServiceById(id) {
-            const {code, data} = await this.$http.post({
-                url: '/service/query-one',
+            const { code, data } = await this.$http.post({
+                url:  '/service/query-one',
                 data: {
-                    id: id,
+                    id,
                 },
 
             });
+
             if (code === 0) {
-                this.clientService.serviceId = data.id
-                this.clientService.serviceName = data.name
+                this.clientService.serviceId = data.id;
+                this.clientService.serviceName = data.name;
             }
         },
 
@@ -297,7 +349,7 @@ export default {
     ,
 
 
-}
+};
 </script>
 
 <style lang="scss" scoped>
