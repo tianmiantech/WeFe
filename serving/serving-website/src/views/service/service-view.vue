@@ -669,7 +669,7 @@
                                                 placeholder="例如：id"
                                                 class="user-tips"
                                                 clearable
-                                            />
+                                            />=
                                             <el-input
                                                 v-model="form.model_data.model_sql_config.user_id"
                                                 type="text"
@@ -1329,6 +1329,8 @@ export default {
     },
     methods: {
         async sqlTestPreview($event) {
+            this.tableDataPreview = [];
+            this.tableColumns = [];
             if (
                 this.form.model_data.model_sql_config.data_source_id
                 && this.form.model_data.model_sql_config.sql_script
