@@ -16,8 +16,6 @@
 
 package com.welab.wefe.serving.service.api.model;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -26,6 +24,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.service.service.ModelService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author hunter.zhao
@@ -40,6 +39,7 @@ public class UpdateModelApi extends AbstractNoneOutputApi<UpdateModelApi.Input> 
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
         modelService.updateConfig(
                 input.getServiceId(),
+                input.getServiceName(),
                 input.getFeatureSource(),
                 input.getDataSourceId(),
                 input.getSqlScript(),
@@ -52,6 +52,8 @@ public class UpdateModelApi extends AbstractNoneOutputApi<UpdateModelApi.Input> 
 
         @Check(require = true, name = "模型ID")
         private String serviceId;
+        @Check(require = true, name = "模型名称")
+        private String serviceName;
         @Check(require = true, name = "配置来源")
         private PredictFeatureDataSource featureSource;
 
@@ -65,6 +67,15 @@ public class UpdateModelApi extends AbstractNoneOutputApi<UpdateModelApi.Input> 
         private String sqlConditionField;
 
         //region getter/setter
+
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
 
         public PredictFeatureDataSource getFeatureSource() {
             return featureSource;
