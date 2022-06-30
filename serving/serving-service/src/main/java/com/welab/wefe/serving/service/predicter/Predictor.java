@@ -20,11 +20,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.dto.ServiceResultOutput;
 import com.welab.wefe.serving.service.predicter.batch.BatchPromoterPredictor;
 import com.welab.wefe.serving.service.predicter.batch.BatchProviderPredictor;
@@ -34,6 +36,7 @@ import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
+import com.welab.wefe.serving.service.service.ModelService;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
@@ -46,9 +49,11 @@ import java.util.Map;
 public class Predictor {
 
     private static ModelMemberService modelMemberService;
+    private static ModelService modelService;
 
     static {
         modelMemberService = Launcher.CONTEXT.getBean(ModelMemberService.class);
+        modelService = Launcher.CONTEXT.getBean(ModelService.class);
     }
 
     /**
@@ -90,8 +95,9 @@ public class Predictor {
                                                             String userId,
                                                             Map<String, Object> featureData) throws StatusCodeWithException {
         JobMemberRole myRole = findMyRole(modelId);
+        FederatedLearningType flType = findFlType(modelId);
 
-        return myRole.equals(JobMemberRole.promoter) ?
+        return myRole.equals(JobMemberRole.promoter) && !flType.equals(FederatedLearningType.horizontal) ?
                 new PromoterPredictor(requestId, modelId, userId, featureData)
                 : new ProviderPredictor(modelId, userId, featureData);
     }
@@ -101,8 +107,9 @@ public class Predictor {
                                                             List<String> userIds,
                                                             Map<String, Map<String, Object>> featureDataMap) throws StatusCodeWithException {
         JobMemberRole myRole = findMyRole(modelId);
+        FederatedLearningType flType = findFlType(modelId);
 
-        return myRole.equals(JobMemberRole.promoter) ?
+        return myRole.equals(JobMemberRole.promoter) && !flType.equals(FederatedLearningType.horizontal) ?
                 new BatchPromoterPredictor(requestId, modelId, userIds, featureDataMap)
                 : new BatchProviderPredictor(modelId, userIds, featureDataMap);
     }
@@ -113,6 +120,14 @@ public class Predictor {
             StatusCode.DATA_NOT_FOUND.throwException("未查找到模型数据！");
         }
         return model.get(0).getRole();
+    }
+
+    private static FederatedLearningType findFlType(String modelId) throws StatusCodeWithException {
+        TableModelMySqlModel model = modelService.findOne(modelId);
+        if (model == null) {
+            StatusCode.DATA_NOT_FOUND.throwException("未查找到模型数据！");
+        }
+        return model.getFlType();
     }
 
 
@@ -137,8 +152,9 @@ public class Predictor {
                                                                  PredictFeatureDataSource featureDataSource,
                                                                  JSONObject extendParams) throws StatusCodeWithException {
         JobMemberRole myRole = findMyRole(modelId);
+        FederatedLearningType flType = findFlType(modelId);
 
-        return myRole.equals(JobMemberRole.promoter) ?
+        return myRole.equals(JobMemberRole.promoter) && !flType.equals(FederatedLearningType.horizontal) ?
                 new DebugPromoterPredictor(ServiceResultOutput.buildId(), modelId, userId, featureData, featureDataSource, extendParams)
                 : new DebugProviderPredictor(modelId, userId, featureData, featureDataSource, extendParams);
     }
