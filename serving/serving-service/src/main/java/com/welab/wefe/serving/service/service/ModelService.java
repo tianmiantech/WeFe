@@ -375,7 +375,7 @@ public class ModelService {
 
     private void callLog(RouteApi.Input input, String orderId, String responseId, PredictResult result, Integer responseCode) {
         ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
-        callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
+        callLog.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         callLog.setOrderId(orderId);
         callLog.setServiceId(input.getServiceId());
         callLog.setServiceName(CacheObjects.getServiceName(input.getServiceId()));
