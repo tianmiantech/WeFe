@@ -492,9 +492,10 @@
                                 />
                                 <el-table-column
                                     label="URL"
-                                >
+                                    prop="url"
+                                />
+                                <el-table-column label="状态">
                                     <template slot-scope="scope">
-                                        {{ scope.row.url }}
                                         <el-popover
                                             v-if="scope.row.status === 'available'"
                                             placement="top-start"
@@ -503,8 +504,8 @@
                                             content="模型已上线"
                                         >
                                             <el-button
-                                                size="middle"
                                                 slot="reference"
+                                                size="middle"
                                                 type="text"
                                                 icon="el-icon-check"
                                             />
@@ -519,8 +520,8 @@
                                             content="模型未上线"
                                         >
                                             <el-button
-                                                size="middle"
                                                 slot="reference"
+                                                size="middle"
                                                 type="text"
                                                 icon="el-icon-warning"
                                             />
@@ -542,6 +543,7 @@
                                         </el-popover>
                                     </template>
                                 </el-table-column>
+
                                 <el-table-column
                                     label="操作"
                                     align="right"
@@ -627,7 +629,7 @@
                                     <div v-if="activeName === 'sql'">
                                         <el-form-item
                                             label="数据源："
-                                            label-width="94px"
+                                            label-width="121px"
                                             :rules="[{required: true, message: '数据源必填!'}]"
                                         >
                                             <el-select
@@ -643,11 +645,10 @@
                                                 />
                                             </el-select>
                                         </el-form-item>
-
                                         <el-form-item
-                                            label="SQL："
-                                            label-width="94px"
-                                            :rules="[{required: true, message: 'SQL必填!'}]"
+                                            label="SQL脚本："
+                                            label-width="121px"
+                                            :rules="[{required: true, message: 'SQL脚本必填!'}]"
                                         >
                                             <el-input
                                                 v-model="form.model_data.model_sql_config.sql_script"
@@ -657,11 +658,10 @@
                                                 rows="4"
                                             />
                                         </el-form-item>
-
                                         <el-form-item
-                                            label="主键字段："
-                                            label-width="94px"
-                                            :rules="[{required: true, message: '主键字段必填!'}]"
+                                            label="查询条件字段："
+                                            label-width="121px"
+                                            :rules="[{required: true, message: '查询条件字段必填!'}]"
                                         >
                                             <el-input
                                                 v-model="form.model_data.model_sql_config.sql_condition_field"
@@ -670,6 +670,20 @@
                                                 class="user-tips"
                                                 clearable
                                             />
+                                            <el-input
+                                                v-model="form.model_data.model_sql_config.user_id"
+                                                type="text"
+                                                placeholder="查询的字段对应的值"
+                                                class="user-tips"
+                                                style="width: 40%"
+                                            />
+                                            <el-button
+                                                type="primary"
+                                                style="width: 95px;"
+                                                @click="sqlTestPreview"
+                                            >
+                                                测试预览
+                                            </el-button>
                                         </el-form-item>
                                     </div>
                                 </div>
@@ -710,7 +724,7 @@
                                             />
                                         </el-form-item>
                                         <el-form-item
-                                            v-if="!isEnterCharacter || myRole === 'promoter'"
+                                            v-if="!isEnterCharacter || (myRole === 'promoter' && form.model_data.model_fl_type !== 'horizontal')"
                                             label="样本ID："
                                             label-width="94px"
                                             :rules="[{required: true, message: '样本特征必填!'}]"
@@ -942,6 +956,28 @@
                     />
                 </el-table>
             </el-dialog>
+
+            <el-dialog
+                title="查询结果预览"
+                :visible.sync="sqlResultDialog"
+            >
+                <p class="mb10">
+                    <span class="code_1">{{ form.model_data.model_sql_config.sql_script }}</span> where <span class="code_2">{{ form.model_data.model_sql_config.sql_condition_field }}=</span><span class="code_2">{{ form.model_data.model_sql_config.user_id }}</span> limit 1
+                </p>
+                <el-table
+                    :data="tableDataPreview"
+                    style="width: 100%"
+                    border
+                    stripe
+                >
+                    <el-table-column
+                        v-for="item in tableColumns"
+                        :key="item.label"
+                        :prop="item.label"
+                        :label="item.label"
+                    />
+                </el-table>
+            </el-dialog>
         </div>
         <div class="right_box">
             <!-- <el-divider content-position="center">配置说明</el-divider> -->
@@ -1092,6 +1128,7 @@ export default {
                         data_source_id:      '',
                         sql_script:          '',
                         sql_condition_field: '',
+                        user_id:             '',
                     },
                     model_member_status: [],
                     model_overview:      '',
@@ -1259,6 +1296,9 @@ export default {
             isShowTable:      false,
             gridData:         [],
             myRole:           '',
+            sqlResultDialog:  false,
+            tableDataPreview: [],
+            tableColumns:     [],
         };
     },
     computed: {
@@ -1288,6 +1328,46 @@ export default {
         });
     },
     methods: {
+        async sqlTestPreview($event) {
+            if (
+                this.form.model_data.model_sql_config.data_source_id
+                && this.form.model_data.model_sql_config.sql_script
+                && this.form.model_data.model_sql_config.sql_condition_field
+                && this.form.model_data.model_sql_config.user_id
+            ) {
+                const { code, data } = await this.$http.get({
+                    url:    '/predict/sql_config_test',
+                    params: {
+                        data_source_id:      this.form.model_data.model_sql_config.data_source_id,
+                        sql_script:          this.form.model_data.model_sql_config.sql_script,
+                        sql_condition_field: this.form.model_data.model_sql_config.sql_condition_field,
+                        user_id:             this.form.model_data.model_sql_config.user_id,
+                    },
+                    btnState: {
+                        target: $event,
+                    },
+                });
+
+                if (code === 0 && data && data.feature_data_map) {
+                    for (const key in data.feature_data_map) {
+                        const val = data.feature_data_map[key];
+
+                        this.tableColumns.unshift({
+                            label: key,
+                            value: val,
+                        });
+                    }
+                    this.tableDataPreview.push(data.feature_data_map);
+                    console.log(this.tableColumns);
+                    console.log(this.tableDataPreview);
+
+                    this.sqlResultDialog = true;
+                }
+            } else {
+                this.$message.error('请填写必填字段！');
+                return;
+            }
+        },
         showTableData() {
             this.isShowTable = true;
         },
@@ -1300,7 +1380,7 @@ export default {
         },
 
         async testModel() {
-            if (this.myRole === 'promoter') {
+            if (this.myRole === 'promoter' && this.form.model_data.model_fl_type !== 'horizontal') {
                 // 发起方
                 if (!this.form.model_data.check_data.sample_id || this.form.model_data.check_data.sample_id === '') {
                     this.$message.error('样本ID不能为空！');
@@ -1608,7 +1688,7 @@ export default {
 
                             this.gridData.push({
                                 feature: name,
-                                weight: data.model_param.weight[name],
+                                weight:  data.model_param.weight[name],
                             });
                         }
                     }
@@ -1992,6 +2072,7 @@ export default {
                     data_source_id:      this.form.model_data.model_sql_config.data_source_id,
                     serviceId:           this.form.model_data.model_id,
                     sql_condition_field: this.form.model_data.model_sql_config.sql_condition_field,
+                    serviceName:         this.form.name,
                 },
             });
 
@@ -2181,6 +2262,12 @@ export default {
     margin-right: 80px;
     .left_box {
         width: 60%;
+        .code_1 {
+            color: #f00;
+        }
+        .code_2 {
+            color: $--color-success;
+        }
     }
     .right_box {
         max-width: 320px;
