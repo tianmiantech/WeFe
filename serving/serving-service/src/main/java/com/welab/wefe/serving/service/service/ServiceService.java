@@ -632,7 +632,7 @@ public class ServiceService {
                                      RouteApi.Input input, String clientIp) {
         ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderId, 0, client.getId(),
                 client.getName(), service.getId(), service.getName(),
-                ServiceTypeEnum.getValue(service.getServiceType()), input.getRequestId(),
+                service.getServiceType(), input.getRequestId(),
                 JSONObject.toJSONString(input), clientIp);
         return serviceCallLogMysqlModel.getId();
     }

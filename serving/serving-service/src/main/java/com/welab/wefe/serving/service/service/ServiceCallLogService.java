@@ -81,7 +81,7 @@ public class ServiceCallLogService {
     }
 
     public ServiceCallLogMysqlModel add(String orderId, int callByMe, String requestPartnerId,
-            String requestPartnerName, String serviceId, String serviceName, String serviceType, String requestId,
+            String requestPartnerName, String serviceId, String serviceName, Integer serviceType, String requestId,
             String requestData, String requestIp) {
         ServiceCallLogMysqlModel model = new ServiceCallLogMysqlModel();
         model.setOrderId(orderId);
