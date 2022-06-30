@@ -240,7 +240,8 @@ public class PromoterPredictHelper {
 
 
         Integer code = extractCode(response);
-        if (code == null || !code.equals(0) || !response.getBodyAsJson().containsKey("data")) {
+        if (code == null || !code.equals(0) || !response.getBodyAsJson().containsKey("data") ||
+                response.getBodyAsJson().getJSONObject("data").containsKey("code")) {
             return false;
         }
 
