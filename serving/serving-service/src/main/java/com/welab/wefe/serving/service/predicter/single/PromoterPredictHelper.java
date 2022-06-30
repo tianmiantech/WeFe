@@ -169,7 +169,7 @@ public class PromoterPredictHelper {
     private static SaveApi.Input createOrder(String modelId, String partnerId, ServiceOrderEnum status) {
         SaveApi.Input order = new SaveApi.Input();
         order.setServiceId(modelId);
-        order.setServiceName("");
+        order.setServiceName(CacheObjects.getServiceName(modelId));
         order.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         order.setRequestPartnerId(CacheObjects.getMemberId());
         order.setRequestPartnerName(CacheObjects.getMemberName());
@@ -186,7 +186,7 @@ public class PromoterPredictHelper {
 
     private static void callLog(String modelId, String requestId, String memberId, String orderId, String requestData, JObject result, Integer responseCode, String responseId) {
         ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
-        callLog.setServiceType(ServiceTypeEnum.MachineLearning.name());
+        callLog.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         callLog.setOrderId(orderId);
         callLog.setServiceId(modelId);
         callLog.setServiceName(CacheObjects.getServiceName(modelId));
