@@ -319,6 +319,7 @@ public class ModelService {
 
     @Transactional(rollbackFor = Exception.class)
     public void updateConfig(String serviceId,
+                             String serviceName,
                              PredictFeatureDataSource featureSource,
                              String dataSourceId,
                              String sqlScript,
@@ -330,6 +331,7 @@ public class ModelService {
         }
 
         if (featureSource.equals(PredictFeatureDataSource.sql)) {
+            model.setName(serviceName);
             model.setFeatureSource(featureSource);
             model.setSqlScript(sqlScript);
             model.setSqlConditionField(sqlConditionField);
@@ -338,10 +340,13 @@ public class ModelService {
             model.setUpdatedTime(new Date());
             modelRepository.save(model);
         } else {
+            model.setName(serviceName);
             model.setFeatureSource(featureSource);
             model.setDataSourceId(null);
             model.setSqlScript("");
             model.setSqlConditionField("");
+            model.setUpdatedBy(CurrentAccount.id());
+            model.setUpdatedTime(new Date());
             modelRepository.save(model);
         }
     }
