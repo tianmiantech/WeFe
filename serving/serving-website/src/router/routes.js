@@ -14,7 +14,7 @@
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
  */
 const { pathname } = window.location;
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `/${process.env.CONTEXT_ENV}/`;
+const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
 // 主框架路由
 const baseRoutes = [
@@ -42,7 +42,7 @@ const baseRoutes = [
                 name: 'service-list',
                 meta: {
                     title:           '我的服务',
-                    active:          `${prefixPath}service-list`,
+                    // active:          `${prefixPath}service-list`,
                     loginAndRefresh: true,
                 },
                 component: () => import('@views/service/service-list.vue'),
