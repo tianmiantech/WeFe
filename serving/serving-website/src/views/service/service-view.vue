@@ -70,7 +70,7 @@
                     />
                 </el-form-item>
 
-                <!-- <el-form-item
+                <el-form-item
                     prop="url"
                     label="服务地址:"
                     class="maxlength"
@@ -85,7 +85,7 @@
                             /api/
                         </template>
                     </el-input>
-                </el-form-item> -->
+                </el-form-item>
 
                 <template v-if="form.service_type">
                     <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
