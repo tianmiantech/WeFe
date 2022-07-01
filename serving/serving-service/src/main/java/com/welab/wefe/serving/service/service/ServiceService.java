@@ -143,9 +143,9 @@ public class ServiceService {
     }
 
     private List<ModelStatusOutput> getModelStatus(TableModelMySqlModel model, DetailApi.Output output) {
-        return output.getMyRole().contains(JobMemberRole.promoter) &&
-                FederatedLearningType.vertical.equals(output.getFlType()) ?
-                checkModelStatus(model.getServiceId()) : null;
+        return output.getMyRole().contains(JobMemberRole.promoter)
+                && FederatedLearningType.vertical.equals(output.getFlType()) ? checkModelStatus(model.getServiceId())
+                        : null;
     }
 
     private com.welab.wefe.serving.service.api.service.DetailApi.Output detailService(
@@ -417,10 +417,18 @@ public class ServiceService {
         return PagingOutput.of(page.getTotal(), list);
     }
 
-    public com.welab.wefe.serving.service.api.service.AddApi.Output updateService(Input input) throws StatusCodeWithException {
+    public com.welab.wefe.serving.service.api.service.AddApi.Output updateService(Input input)
+            throws StatusCodeWithException {
         TableServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), TableServiceMySqlModel.class);
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+        Where where = Where.create();
+        where = where.equal("name", input.getName());
+        Specification<BaseServiceMySqlModel> condition = where.build(BaseServiceMySqlModel.class);
+        List<BaseServiceMySqlModel> baseModels = baseServiceRepository.findAll(condition);
+        if (baseModels != null && baseModels.size() >= 2) {
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "name");
         }
         if (StringUtils.isNotBlank(input.getName())) {
             model.setName(input.getName());
@@ -536,7 +544,7 @@ public class ServiceService {
     }
 
     public JObject check(BaseServiceMySqlModel service, JObject res, String serviceUrl,
-                         com.welab.wefe.serving.service.api.service.RouteApi.Input input, String clientIp) {
+            com.welab.wefe.serving.service.api.service.RouteApi.Input input, String clientIp) {
         long start = System.currentTimeMillis();
         if (service == null) {
             return JObject.create("message", "service not found: url = " + serviceUrl).append("code",
@@ -619,25 +627,23 @@ public class ServiceService {
     }
 
     private void log(BaseServiceMySqlModel service, PartnerMysqlModel client, long start, String clientIp, int code) {
-        CommonThreadPool.run(() -> apiRequestRecordService.save(service.getId(), service.getName(),
-                service.getServiceType(), client.getName(), client.getId(),
-                System.currentTimeMillis() - start, clientIp, code));
+        CommonThreadPool
+                .run(() -> apiRequestRecordService.save(service.getId(), service.getName(), service.getServiceType(),
+                        client.getName(), client.getId(), System.currentTimeMillis() - start, clientIp, code));
     }
 
     private String preExecuteOrderLog(TableServiceMySqlModel service, PartnerMysqlModel client, RouteApi.Input input,
-                                      String clientIp) {
+            String clientIp) {
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
-                service.getServiceType(), CallByMeEnum.NO.getValue(),
-                ServiceOrderEnum.ORDERING.name(), client.getId(), client.getName(), CacheObjects.getMemberId(),
-                CacheObjects.getMemberName());
+                service.getServiceType(), CallByMeEnum.NO.getValue(), ServiceOrderEnum.ORDERING.name(), client.getId(),
+                client.getName(), CacheObjects.getMemberId(), CacheObjects.getMemberName());
         return serviceOrderModel.getId();
     }
 
     private String preExecuteCallLog(String serviceOrderId, TableServiceMySqlModel service, PartnerMysqlModel client,
-                                     RouteApi.Input input, String clientIp) {
+            RouteApi.Input input, String clientIp) {
         ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderId, 0, client.getId(),
-                client.getName(), service.getId(), service.getName(),
-                service.getServiceType(), input.getRequestId(),
+                client.getName(), service.getId(), service.getName(), service.getServiceType(), input.getRequestId(),
                 JSONObject.toJSONString(input), clientIp);
         return serviceCallLogMysqlModel.getId();
     }
@@ -746,8 +752,7 @@ public class ServiceService {
     }
 
     private String getErrorMessage(HttpResponse response) {
-        return StringUtils.isEmpty(response.getMessage()) ?
-                response.getBodyAsJson().getString("message") :
-                response.getMessage();
+        return StringUtils.isEmpty(response.getMessage()) ? response.getBodyAsJson().getString("message")
+                : response.getMessage();
     }
 }
