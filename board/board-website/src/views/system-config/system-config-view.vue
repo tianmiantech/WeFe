@@ -98,19 +98,16 @@
                                     v-model="config.wefe_serving.intranet_base_uri"
                                 />
                             </el-form-item>
-                            <el-form-item>
+                            <!--  <el-form-item>
                                 <el-button type="success"
                                            @click="showDialog"
                                 >
-                                    初始化
+                                    同步密钥
                                 </el-button>
-                            </el-form-item>
-
-
+                            </el-form-item> -->
                         </fieldset>
 
-
-                        <el-dialog title="Serving系统初始化" v-model="dialogVisibleInfo" width="40%">
+                        <!--   <el-dialog title="同步密钥到Serving" v-model="dialogVisibleInfo" width="40%">
                             <el-form :model="form">
                                 <el-form-item label="账号" :label-width="formLabelWidth">
                                     <el-input v-model="form.phone_number" type="text" clearable
@@ -125,7 +122,7 @@
                                 <el-button @click="dialogVisibleInfo = false">取 消</el-button>
                                 <el-button type="primary" @click="init">确 定</el-button>
                             </div>
-                        </el-dialog>
+                        </el-dialog> -->
 
                         <el-dialog
                             title="成功"
@@ -134,7 +131,7 @@
                             center
                             custom-class="init-success"
                         >
-                            <div class="serving-init-div">Serving 系统已初始化成功！</div>
+                            <div class="serving-init-div">同步成功！</div>
                             <div style="text-align: right">
                                 <el-button type="primary" @click="initDialogVisible = false">确 定</el-button>
                             </div>
