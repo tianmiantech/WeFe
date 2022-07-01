@@ -20,6 +20,32 @@
         <el-form-item label="正标签类型：">
             <el-input v-model="vData.form.pos_label" />
         </el-form-item>
+
+
+        <el-form-item label="是否计算分布：">
+            <el-switch
+                v-model="vData.form.prob_need_to_bin"
+                active-color="#13ce66">
+            </el-switch>
+        </el-form-item>
+
+        <el-form-item v-if="vData.form.prob_need_to_bin">
+            <el-select v-model="vData.form.bin_method" placeholder="请选择" style="width:86px;">
+                <el-option
+                    v-for="item in vData.bin_method"
+                    :key="item.value"
+                    :label="item.text"
+                    :value="item.value">
+                </el-option>
+            </el-select>
+            <el-input-number
+                v-model="vData.form.bin_num"
+                type="number"
+                :min="10"
+                :max="20"
+                controls-position="right"
+            />箱
+        </el-form-item>
     </el-form>
 </template>
 
@@ -40,18 +66,28 @@
         },
         setup(props) {
             let vData = reactive({
+                bin_method: [
+                    { value: 'quantile',text: '等频' },
+                    { value: 'bucket',text: '等宽' },
+                ],
                 evalTypes: [
                     { value: 'binary',text: 'binary' },
                     { value: 'regression',text: 'regression' },
                     { value: 'multi',text: 'multi' },
                 ],
                 form: {
-                    eval_type: 'binary',
-                    pos_label: 1,
+                    eval_type:        'binary',
+                    pos_label:        1,
+                    prob_need_to_bin: false,
+                    bin_num:          10,
+                    bin_method:       'bucket',
                 },
                 originForm: {
-                    eval_type: 'binary',
-                    pos_label: 1,
+                    eval_type:        'binary',
+                    pos_label:        1,
+                    prob_need_to_bin: false,
+                    bin_num:          10,
+                    bin_method:       'bucket',
                 },
             });
 
@@ -79,3 +115,14 @@
         },
     };
 </script>
+
+<style lang="scss" scoped>
+    .el-input-number{
+        width: 104px;
+        margin:0 10px;
+        :deep(.el-input__inner){
+            padding-left:5px;
+            padding-right: 40px;
+        }
+    }
+</style>
