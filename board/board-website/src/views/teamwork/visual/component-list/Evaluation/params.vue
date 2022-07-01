@@ -30,7 +30,11 @@
         </el-form-item>
 
         <el-form-item v-if="vData.form.prob_need_to_bin">
-            <el-select v-model="vData.form.bin_method" placeholder="请选择" style="width:86px;">
+            <el-select 
+                v-model="vData.form.bin_method"
+                placeholder="请选择"
+                disabled=true
+                style="width:86px;">
                 <el-option
                     v-for="item in vData.bin_method"
                     :key="item.value"
@@ -67,7 +71,6 @@
         setup(props) {
             let vData = reactive({
                 bin_method: [
-                    { value: 'quantile',text: '等频' },
                     { value: 'bucket',text: '等宽' },
                 ],
                 evalTypes: [

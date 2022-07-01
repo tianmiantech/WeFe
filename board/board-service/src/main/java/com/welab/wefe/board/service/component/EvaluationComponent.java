@@ -342,7 +342,7 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         private boolean probNeedToBin;
 
         @Check
-        private int binMethod;
+        private String binMethod;
 
         @Check
         private int binNum;
@@ -372,11 +372,11 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
             this.probNeedToBin = probNeedToBin;
         }
 
-        public int getBinMethod() {
+        public String getBinMethod() {
             return binMethod;
         }
 
-        public void setBinMethod(int binMethod) {
+        public void setBinMethod(String binMethod) {
             this.binMethod = binMethod;
         }
 
