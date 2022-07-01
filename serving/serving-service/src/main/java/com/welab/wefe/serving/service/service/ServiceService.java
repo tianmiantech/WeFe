@@ -267,6 +267,11 @@ public class ServiceService {
     @Transactional(rollbackFor = Exception.class)
     public com.welab.wefe.serving.service.api.service.AddApi.Output saveService(AddApi.Input input)
             throws StatusCodeWithException {
+        BaseServiceMySqlModel baseModel = baseServiceRepository.findOne("name", input.getName(),
+                BaseServiceMySqlModel.class);
+        if (baseModel == null) {
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "name");
+        }
         TableServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), TableServiceMySqlModel.class);
         if (model != null) {
             throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getUrl(), "url");
