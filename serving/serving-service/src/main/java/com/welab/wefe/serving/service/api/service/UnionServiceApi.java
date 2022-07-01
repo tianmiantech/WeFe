@@ -17,6 +17,7 @@
 package com.welab.wefe.serving.service.api.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.UnionServiceService;
 
 @Api(path = "service/union/query", name = "query union service list")
@@ -38,10 +40,15 @@ public class UnionServiceApi extends AbstractApi<UnionServiceApi.Input, PagingOu
 	@Autowired
 	UnionServiceService unionServiceService;
 
-	@Override
-	protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException, IOException {
-		return success(unionServiceService.query(input));
-	}
+    @Override
+    protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException, IOException {
+        if (CacheObjects.isUnionModel()) {
+            return success(unionServiceService.query(input));
+        } else {
+            PagingOutput<Output> page = PagingOutput.of(0, new ArrayList<>());
+            return success(page);
+        }
+    }
 
 	public static class Output extends AbstractApiOutput {
 		private String id;// 服务ID

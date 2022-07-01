@@ -171,7 +171,7 @@ public class UnionServiceService {
     }
 
 	private JSONObject request(String api, JSONObject params) throws StatusCodeWithException {
-	    if (StringUtils.isBlank(CacheObjects.getUnionBaseUrl())) {
+	    if (StringUtils.isBlank(CacheObjects.getUnionBaseUrl()) || !CacheObjects.isUnionModel()) {
 	        return new JSONObject();
 	    }
 		return request(api, params, true);
