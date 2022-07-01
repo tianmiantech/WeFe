@@ -17,8 +17,10 @@
 package com.welab.wefe.common.web.dto;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.fastjson.LoggerValueFilter;
 
 /**
  * @author Zane
@@ -62,6 +64,30 @@ public class ApiResult<T> {
     public ApiResult<T> setMessage(String message) {
         this.message = message;
         return this;
+    }
+
+    /**
+     * 获取 ApiResult 用于输出日志文件的内容
+     * <p>
+     * 警告 ⚠️:
+     * 当响应内容为 ResponseEntity<FileSystemResource> 时
+     * JSON.toJSONString(result) 序列化时会导致文件被置空
+     * 所以这里写日志时务必使用 LoggerValueFilter，序列化时对 value 进行自定义处理。
+     *
+     * @param omitLog 是否要省略此次日志打印，以减少磁盘使用。
+     */
+    public String toLogString(boolean omitLog) {
+        if (omitLog) {
+            // 省略输出时，data 为空。
+            ApiResult<String> copy = ApiResult.ofSuccess("省略...");
+            copy.spend = this.spend;
+            copy.code = this.code;
+            copy.message = this.message;
+            copy.httpCode = this.httpCode;
+            return JSON.toJSONString(copy);
+        } else {
+            return JSON.toJSONString(this, LoggerValueFilter.DEFAULT);
+        }
     }
 
     public boolean success() {

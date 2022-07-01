@@ -140,3 +140,18 @@ class GPUCalcError(CustomBaseException):
 class NotSupportTypeError(CustomBaseException):
     def __init__(self, code=1402, message='不支持此类型做加速运算', **kwargs):
         self.init(code, message, kwargs)
+
+
+class GpuOutOfMemoryError(CustomBaseException):
+    def __init__(self, code=1402, message='GPU 显存不足，建议尝试减少执行数据量', **kwargs):
+        self.init(code, message, kwargs)
+
+
+#########################################
+#
+# 1500-1599：GPU computing related exception definition
+#
+#########################################
+class SparkOutOfMemoryError(CustomBaseException):
+    def __init__(self, code=1501, message='Spark 运行内存不足，请重新调整数据集大小，或调整Spark运行参数', **kwargs):
+        self.init(code, message, kwargs)

@@ -98,8 +98,8 @@ public class VerificationCodeService extends AbstractVerificationCodeService {
         AccountMysqlModel accountMysqlModel = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(mobile), AccountMysqlModel.class);
         // email
         if (VerificationCodeSendChannel.email.equals(sendChannel)) {
-            String subject = config.getEmailAccountForgetPasswordSubject();
-            String content = config.getEmailAccountForgetPasswordContent().replace("#code#", verificationCode);
+            String subject = "忘记密码";
+            String content = "您正在执行忘记密码操作。您的验证码是" + verificationCode + "，2分钟内有效，请勿泄漏于他人!";
             MailServerModel mailServerModel = globalConfigService.getModel(MailServerModel.class);
             return EmailClient.buildExtendParams(mailServerModel.getMailHost(), mailServerModel.getMailPort(), mailServerModel.getMailUsername(),
                     mailServerModel.getMailPassword(), mailServerModel.getMailUsername(), accountMysqlModel.getEmail(), subject, content);

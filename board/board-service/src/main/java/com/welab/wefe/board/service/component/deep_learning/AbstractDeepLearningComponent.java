@@ -92,7 +92,7 @@ public abstract class AbstractDeepLearningComponent extends AbstractComponent<Ab
         DataResourceOutputModel myJobDataSet = imageDataIoParam.getMyJobDataSet(job.role);
         JObject dataSetInfo = JObject.create(myJobDataSet);
         dataSetInfo.put("download_url", buildDataSetDownloadUrl(myJobDataSet.getId(), job.jobId, jobBuilder.dataSetVersion));
-        dataSetInfo.put("download_file_name", AbstractImageDataSetParser.getDataSetFileName(job.jobId, jobBuilder.dataSetVersion));
+        dataSetInfo.put("download_file_name", AbstractImageDataSetParser.getDataSetFileName(myJobDataSet.getId(), jobBuilder.dataSetVersion));
 
 
         JObject output = JObject.create(job);

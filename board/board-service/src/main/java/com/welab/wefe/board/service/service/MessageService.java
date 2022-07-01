@@ -19,10 +19,20 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.message.QueryApi;
 import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.MessageRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.MessageOutputModel;
+import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
+import com.welab.wefe.board.service.dto.vo.message.*;
+import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.MessageEvent;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -34,24 +44,143 @@ import org.springframework.stereotype.Service;
 public class MessageService extends AbstractService {
 
     @Autowired
-    MessageRepository repo;
+    private MessageRepository messageRepository;
+    @Autowired
+    private DataResourceService dataResourceService;
 
     public PagingOutput<MessageOutputModel> query(QueryApi.Input input) {
 
         Specification<MessageMysqlModel> where = Where
                 .create()
-                .equal("level", input.getLevel())
-                .equal("unread", input.getUnread())
+                .equal("todo", input.todo)
+                .equal("todoComplete", input.todoComplete)
+                .equal("level", input.level)
+                .equal("unread", input.unread)
+                .in("event", input.eventList)
                 .build(MessageMysqlModel.class);
 
-        return repo.paging(where, input, MessageOutputModel.class);
+        return messageRepository.paging(where, input, MessageOutputModel.class);
     }
 
     public void read(String id) {
-        repo.updateById(id, "unread", false, MessageMysqlModel.class);
+        messageRepository.updateById(id, "unread", false, MessageMysqlModel.class);
     }
 
-    public void add(MessageMysqlModel model) {
-        repo.save(model);
+    public void add(MessageEvent event, String title, String content) {
+        TextMessageContent messageContent = new TextMessageContent();
+        messageContent.message = content;
+        add(event, title, content);
+    }
+
+    public void add(MessageEvent event, AbstractMessageContent content) {
+        add(event, null, content);
+    }
+
+    public void add(MessageEvent event, String title, AbstractMessageContent content) {
+        if (StringUtil.isEmpty(title)) {
+            title = content.getTitle();
+        }
+
+        if (StringUtil.isEmpty(title)) {
+            throw new RuntimeException("你怎么能不写标题呢~");
+        }
+
+        MessageMysqlModel model = new MessageMysqlModel();
+        model.setEvent(event);
+        model.setProducer(ProducerType.board);
+        model.setLevel(event.getLevel());
+        model.setTitle(title);
+        model.setContent(content.toString());
+        model.setUnread(true);
+        model.setTodo(event.isTodo());
+        model.setTodoComplete(false);
+        model.setTodoRelatedId1(content.getRelatedId1());
+        model.setTodoRelatedId2(content.getRelatedId2());
+
+        messageRepository.save(model);
+    }
+
+    public void completeApplyDataResourceTodo(ProjectDataSetMySqlModel projectDataSet) {
+        String projectId = projectDataSet.getProjectId();
+        String dataSetId = projectDataSet.getDataSetId();
+        messageRepository.completeApplyDataResourceTodo(projectId, dataSetId);
+    }
+
+    public void completeApplyJoinProjectTodo(String projectId) {
+        messageRepository.completeApplyJoinProjectTodo(projectId);
+    }
+
+    /**
+     * 添加一条 event 为 ApplyDataResource 的消息     *
+     */
+    public void addApplyDataResourceMessage(String fromMemberId, ProjectMySqlModel project, ProjectDataSetMySqlModel projectDataSet) throws StatusCodeWithException {
+
+        DataResourceOutputModel dataResource = dataResourceService.findDataResourceFromLocalOrUnion(projectDataSet);
+
+        if (project == null || dataResource == null) {
+            return;
+        }
+
+        ApplyDataResourceMessageContent content = new ApplyDataResourceMessageContent();
+        content.fromMemberId = fromMemberId;
+        content.projectId = project.getProjectId();
+        content.projectName = project.getName();
+        content.dataResourceName = dataResource.getName();
+        content.dataResourceType = dataResource.getDataResourceType();
+        content.dataResourceId = dataResource.getDataResourceId();
+        content.sampleCount = dataResource.getTotalDataCount();
+        add(MessageEvent.ApplyDataResource, content);
+    }
+
+    public void addAuditDataResourceMessage(String fromMemberId, ProjectMySqlModel project, ProjectDataSetMySqlModel projectDataResource, AuditStatus auditStatus, String auditComment) throws StatusCodeWithException {
+        DataResourceOutputModel dataResource = dataResourceService.findDataResourceFromLocalOrUnion(projectDataResource);
+        if (dataResource == null) {
+            return;
+        }
+        AuditApplyDataResourceMessageContent content = new AuditApplyDataResourceMessageContent();
+        content.fromMemberId = fromMemberId;
+        content.projectId = project.getProjectId();
+        content.projectName = project.getName();
+        content.dataResourceName = dataResource.getName();
+        content.dataResourceType = dataResource.getDataResourceType();
+        content.dataResourceId = dataResource.getDataResourceId();
+        content.sampleCount = dataResource.getTotalDataCount();
+        content.auditStatus = auditStatus;
+        content.auditComment = auditComment;
+
+        MessageEvent event = auditStatus == AuditStatus.agree
+                ? MessageEvent.AgreeApplyDataResource
+                : MessageEvent.DisagreeApplyDataResource;
+        add(event, content);
+
+    }
+
+    /**
+     * 添加一条 event 为 ApplyJoinProject 的消息
+     */
+    public void addApplyJoinProjectMessage(String fromMemberId, String projectId, String projectName) {
+        CreateProjectMessageContent content = new CreateProjectMessageContent();
+        content.fromMemberId = fromMemberId;
+        content.projectId = projectId;
+        content.projectName = projectName;
+        add(MessageEvent.ApplyJoinProject, content);
+    }
+
+    /**
+     * 添加一条 event 为 AgreeJoinProject/DisagreeJoinProject 的消息
+     */
+    public void addAuditJoinProjectMessage(String fromMemberId, ProjectMySqlModel project, AuditStatus auditStatus, String auditComment) {
+        AuditJoinProjectMessageContent content = new AuditJoinProjectMessageContent();
+        content.fromMemberId = fromMemberId;
+        content.projectId = project.getProjectId();
+        content.projectName = project.getName();
+        content.auditStatus = auditStatus;
+        content.auditComment = auditComment;
+
+        MessageEvent event = auditStatus == AuditStatus.agree
+                ? MessageEvent.AgreeJoinProject
+                : MessageEvent.DisagreeJoinProject;
+
+        add(event, content);
     }
 }

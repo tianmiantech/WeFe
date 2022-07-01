@@ -18,7 +18,7 @@ package com.welab.wefe.board.service.listener;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.dto.globalconfig.PrivacyConfigModel;
-import com.welab.wefe.board.service.service.EncryptPhoneNumberService;
+import com.welab.wefe.board.service.service.PrivacyDatabaseEncryptService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +28,14 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Auto encrypt mobile phone number
+ * Auto encrypt privacy database
  */
 @Component
-public class AutoEncryptPhoneNumberListener implements ApplicationListener<ApplicationStartedEvent> {
-    private static final Logger LOG = LoggerFactory.getLogger(AutoEncryptPhoneNumberListener.class);
+public class AutoPrivacyDatabaseEncryptListener implements ApplicationListener<ApplicationStartedEvent> {
+    private static final Logger LOG = LoggerFactory.getLogger(AutoPrivacyDatabaseEncryptListener.class);
 
     @Autowired
-    private EncryptPhoneNumberService encryptPhoneNumberService;
+    private PrivacyDatabaseEncryptService privacyDatabaseEncryptService;
 
     @Autowired
     private Config config;
@@ -51,17 +51,18 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
 
         try {
             PrivacyConfigModel config = globalConfigService.getModel(PrivacyConfigModel.class);
+            config = (null == config ? new PrivacyConfigModel() : config);
             if (config.databaseEncryptCompleted) {
                 return;
             }
-            LOG.info("Start auto encrypt database phone number........");
-            encryptPhoneNumberService.encrypt();
+            LOG.info("Start auto encrypt privacy database........");
+            privacyDatabaseEncryptService.encrypt();
             config.databaseEncryptCompleted = true;
             globalConfigService.put(config);
 
-            LOG.info("End auto encrypt database phone number!!!");
+            LOG.info("End auto encrypt privacy database!!!");
         } catch (Exception e) {
-            LOG.error("Auto encrypt database phone number exception: ", e);
+            LOG.error("Auto encrypt privacy database exception: ", e);
         }
     }
 }

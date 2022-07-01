@@ -125,7 +125,7 @@
                         :ref="tab.name"
                         :key="tab.name"
                         :tab-name="tab.name"
-                        :search-key="searchRequest"
+                        :search-key="search"
                         :my-role="tab.myRole"
                     />
                 </el-tab-pane>
@@ -206,7 +206,7 @@
                     }
                     this.search.closed = val.closed || 'false';
                     this.search.searchRequest = val.closed || 'false';
-                    this.getProjectList();
+                    // this.getProjectList();
                 },
                 deep: true,
             },

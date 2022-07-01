@@ -11,6 +11,7 @@
             inline
             size="small"
             @submit.prevent
+            style="display: flex;"
         >
             <el-form-item
                 label="Id："

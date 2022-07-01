@@ -57,8 +57,6 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        System.out.println(config.getTest());
-
         try {
             globalConfigService.init();
 

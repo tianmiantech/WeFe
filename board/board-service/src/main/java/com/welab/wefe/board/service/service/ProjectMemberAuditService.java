@@ -28,6 +28,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -60,6 +61,8 @@ public class ProjectMemberAuditService {
 
     @Autowired
     GatewayService gatewayService;
+    @Autowired
+    private MessageService messageService;
 
     @Autowired
     ProjectMemberAuditRepository projectMemberAuditRepository;
@@ -114,11 +117,17 @@ public class ProjectMemberAuditService {
             throw new StatusCodeWithException("未找到项目关联的member！", StatusCode.ILLEGAL_REQUEST);
         }
 
+        // 被审核成员
         ProjectMemberMySqlModel needAuditMember = needAuditMembers.stream()
                 .filter(s -> s.getAuditStatus() == AuditStatus.auditing && !s.isExited()).findFirst().get();
 
         if (needAuditMember == null) {
             throw new StatusCodeWithException("未找到项目关联的member！", StatusCode.ILLEGAL_REQUEST);
+        }
+
+        // 如果是自审，完成待办事项。
+        if (CacheObjects.getMemberId().equals(needAuditMember.getMemberId())) {
+            messageService.completeApplyJoinProjectTodo(project.getProjectId());
         }
 
         String auditorId = input.fromGateway() ? input.callerMemberInfo.getMemberId() : CacheObjects.getMemberId();
@@ -137,6 +146,17 @@ public class ProjectMemberAuditService {
         model.setAuditResult(input.getAuditResult());
         model.setUpdatedBy(input);
         projectMemberAuditRepository.save(model);
+
+
+        // 如果我是 promoter，别人的审核事件会触发添加 message。
+        if (input.fromGateway() && project.getMyRole() == JobMemberRole.promoter) {
+            messageService.addAuditJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project,
+                    input.getAuditResult(),
+                    input.getAuditComment()
+            );
+        }
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AuditApi.class);
 

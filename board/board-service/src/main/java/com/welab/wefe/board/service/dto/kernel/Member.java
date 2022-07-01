@@ -162,6 +162,5 @@ public class Member {
     public void setBackend(JobBackendType backend) {
         this.backend = backend;
     }
-
     //endregion
 }

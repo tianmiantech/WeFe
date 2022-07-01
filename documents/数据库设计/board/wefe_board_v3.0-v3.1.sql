@@ -50,3 +50,18 @@ ALTER TABLE `table_data_set`
 ALTER TABLE `global_config`
     MODIFY COLUMN `name` varchar (128) COMMENT '配置项名称',
     MODIFY COLUMN `group` varchar (128) COMMENT '配置项名称';
+
+-- -------------------------------------
+-- message 表加字段
+-- author: zane.luo
+-- -------------------------------------
+ALTER TABLE `message`
+    ADD COLUMN `event` varchar(32) NOT NULL DEFAULT 'OnGatewayError' COMMENT '消息关联的事件';
+ALTER TABLE `message`
+    ADD COLUMN `todo` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是待办事项';
+ALTER TABLE `message`
+    ADD COLUMN `todo_complete` tinyint(1) NOT NULL DEFAULT '0' COMMENT '待办事项是否已处理';
+ALTER TABLE `message`
+    ADD COLUMN `todo_related_id1` varchar(128) COMMENT '待办事项关联对象Id1';
+ALTER TABLE `message`
+    ADD COLUMN `todo_related_id2` varchar(128) COMMENT '待办事项关联对象Id2';

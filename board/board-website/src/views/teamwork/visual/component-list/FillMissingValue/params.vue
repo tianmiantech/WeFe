@@ -139,7 +139,7 @@
                     { value: 'min', label: '最小值' },
                     { value: 'const', label: '常量' },
                     { value: 'mean', label: '平均值' },
-                    { value: 'median', label: '中位数' },
+                    // { value: 'median', label: '中位数' },
                     // { value: 'mode', label: '众数' },
                 ],
                 methodObj: {
@@ -157,6 +157,9 @@
 
             if(props.learningType === 'vertical') {
                 vData.methodList.push({ value: 'mode', label: '众数' });
+            }
+            if(props.learningType !== 'mix') {
+                vData.methodList.push({ value: 'median', label: '中位数' });
             }
 
             let methods = {

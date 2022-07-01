@@ -215,6 +215,7 @@
             destroy-on-close
             append-to-body
             width="70%"
+            :before-close="methods.selectDataClose"
         >
             <el-tabs
                 v-model="vData.dataSetTabName"
@@ -228,15 +229,9 @@
                         inline
                         @submit.prevent
                     >
-                        <el-form-item label="名称">
-                            <el-input
-                                v-model="vData.rawSearch.name"
-                                clearable
-                            />
-                        </el-form-item>
                         <el-form-item label="id">
                             <el-input
-                                v-model="vData.rawSearch.data_set_id"
+                                v-model="vData.rawSearch.data_resource_id"
                                 clearable
                             />
                         </el-form-item>
@@ -264,7 +259,7 @@
                             <el-button
                                 type="primary"
                                 native-type="submit"
-                                @click="methods.dataSetSearch"
+                                @click="methods.dataSetSearch('raw')"
                             >
                                 搜索
                             </el-button>
@@ -297,12 +292,6 @@
                         title="使用衍生数据资源将 自动替换 关联成员已选的数据资源"
                     />
                     <el-form class="mt10" inline>
-                        <el-form-item label="名称">
-                            <el-input
-                                v-model="vData.derivedSearch.name"
-                                clearable
-                            />
-                        </el-form-item>
                         <el-form-item label="id">
                             <el-input
                                 v-model="vData.derivedSearch.data_set_id"
@@ -312,7 +301,7 @@
                         <el-button
                             class="mb20"
                             type="primary"
-                            @click="dataSetTabChange('derived')"
+                            @click="methods.dataSetTabChange('derived')"
                         >
                             搜索
                         </el-button>
@@ -397,15 +386,13 @@
                 showSelectDataSet: false,
                 dataSetTabName:    'raw',
                 derivedSearch:     {
-                    name:        '',
                     data_set_id: '',
                 },
                 rawSearch: {
-                    allList:     [],
-                    list:        [],
-                    name:        '',
-                    contains_y:  '',
-                    data_set_id: '',
+                    allList:          [],
+                    list:             [],
+                    contains_y:       '',
+                    data_resource_id: '',
                 },
                 currentItem:  {}, // current member
                 providerList: [],
@@ -494,6 +481,8 @@
                 },
 
                 async readData(model) {
+                    vData.promoterList = [];
+                    vData.providerList = [];
                     vData.loading = true;
                     await methods.getNodeData();
                     await methods.getNodeDetail(model);
@@ -504,13 +493,19 @@
                     vData.rawSearch.allList = list;
                 },
 
+                selectDataClose() {
+                    vData.rawSearch.data_resource_id = '';
+                    vData.derivedSearch.data_set_id = '';
+                    vData.showSelectDataSet = false;
+                },
+
                 // search raw dataset
                 dataSetSearch() {
-                    const { allList, name, contains_y, data_set_id } = vData.rawSearch;
+                    const { allList, name, contains_y, data_resource_id } = vData.rawSearch;
                     const list = [];
 
                     allList.forEach(row => {
-                        if(row.data_resource.name.includes(name) && row.data_resource.data_resource_id.includes(data_set_id)) {
+                        if(row.data_resource.name.includes(name) && row.data_resource.data_resource_id.includes(data_resource_id)) {
                             if(contains_y === '' || row.contains_y === contains_y) {
                                 list.push(row);
                             }
@@ -563,7 +558,7 @@
                         raw:     rawDataSetListRef,
                         derived: derivedDataSetListRef,
                     };
-                    const refInstance = refInstances[ref.paneName].value;
+                    const refInstance = refInstances[ref.paneName || ref].value;
 
                     refInstance.searchField.project_id = props.projectId;
                     refInstance.searchField.member_id = vData.memberId;
@@ -572,7 +567,7 @@
                     refInstance.searchField.data_resource_type = 'TableDataSet';
                     refInstance.isFlow = true;
 
-                    switch(ref.paneName) {
+                    switch(ref.paneName || ref) {
                     case 'raw':
                         params.url = '/project/raw_data_set/list';
                         break;

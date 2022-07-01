@@ -21,7 +21,7 @@
         />
 
         <h3 class="mb30">新建融合任务</h3>
-        <el-form @submit.prevent style="max-width:700px;">
+        <el-form @submit.prevent style="max-width:700px;" :disabled="!vData.is_project_admin || vData.is_project_admin === 'false'">
             <el-form-item label="任务名称:" class="is-required">
                 <el-input
                     v-model="vData.name"
@@ -132,6 +132,7 @@
                             >
                                 <el-button
                                     type="danger"
+                                    :disabled="!vData.is_project_admin || vData.is_project_admin === 'false'"
                                     @click="methods.removeDataSet('promoter')"
                                 >
                                     移除
@@ -206,6 +207,7 @@
                         >
                             <el-button
                                 type="danger"
+                                :disabled="!vData.is_project_admin || vData.is_project_admin === 'false'"
                                 @click="methods.removeDataSet('provider')"
                             >
                                 移除
@@ -246,7 +248,7 @@
                             <el-button
                                 v-if="!vData.export_status || vData.export_status !== 'exporting'"
                                 type="primary"
-                                :disabled="vData.status !== 'Success' || vData.fusion_count <= 0"
+                                :disabled="vData.status !== 'Success' || vData.fusion_count <= 0 || (!vData.is_project_admin || vData.is_project_admin === 'false')"
                                 @click="vData.exportDialog.visible = true"
                             >
                                 导出融合结果
@@ -320,6 +322,7 @@
                 <el-button
                     v-if="vData.myRole === 'promoter' && (vData.status === 'Refuse' || vData.status === 'Interrupt' || vData.status === 'Failure' || vData.status === 'Success')"
                     type="primary"
+                    :disabled="!vData.is_project_admin || vData.is_project_admin === 'false'"
                     @click="methods.submit"
                 >
                     重新发起融合
@@ -462,11 +465,13 @@
             const {
                 id,
                 project_id,
+                is_project_admin,
             } = route.query;
 
             const vData = reactive({
                 id,
                 project_id,
+                is_project_admin,
                 business_id:       '',
                 comment:           '',
                 finish_time:       '',
@@ -904,7 +909,7 @@
                         },
                     });
 
-                    if(code === 0) {
+                    if(code === 0 && data) {
                         nextTick(_ => {
                             vData.table_name = data.table_name;
                             vData.finish_time = data.finish_time;

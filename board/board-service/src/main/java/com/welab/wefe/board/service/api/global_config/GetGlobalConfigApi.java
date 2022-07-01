@@ -19,10 +19,8 @@ package com.welab.wefe.board.service.api.global_config;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -45,9 +43,9 @@ public class GetGlobalConfigApi extends AbstractApi<GetGlobalConfigApi.Input, Ma
     @Override
     protected ApiResult<Map<String, JSONObject>> handle(Input input) throws StatusCodeWithException {
 
-        if (!CurrentAccount.isAdmin()) {
-            StatusCode.PERMISSION_DENIED.throwException("非管理员禁止查看配置项");
-        }
+        // if (!CurrentAccount.isAdmin()) {
+        //     StatusCode.PERMISSION_DENIED.throwException("非管理员禁止查看配置项");
+        // }
 
         Map<String, JSONObject> output = new HashMap<>();
 
