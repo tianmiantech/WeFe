@@ -68,7 +68,7 @@ public class ModelImportService {
             return modelService.save(modelContent);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException("导入模型失败！error: " + e.getMessage(), StatusCode.FILE_IO_ERROR);
+            throw new StatusCodeWithException("导入模型失败,确认是否已加入联邦且未更改联邦密钥!", StatusCode.FILE_IO_ERROR);
         }
     }
 
