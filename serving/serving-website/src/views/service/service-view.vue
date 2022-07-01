@@ -150,8 +150,7 @@
                             </div>
                         </el-form-item>
                     </template>
-                    <template
-                        v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8"
+                    <template v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8"
                     >
                         <el-divider />
                         <p
@@ -209,8 +208,7 @@
                     <!--                    </el-form-item>-->
                     </template>
 
-                    <template
-                        v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
+                    <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
                     >
                         <el-divider />
                         <p
@@ -1638,7 +1636,9 @@ export default {
                     this.form.url = data.url;
                     this.form.service_type = type;
                     this.form.processor = data.processor;
-                    this.myRole = data.my_role[0];
+                    if(data.my_role) {
+                        this.myRole = data.my_role[0];
+                    }
                     this.activeName = data.feature_source;
 
                     console.log(data.model_id, 'data.model_id');
@@ -1825,6 +1825,11 @@ export default {
             this.keyMaps.stringResult = '';
             this.form.key_calc_rules = [];
             this.form.data_source.condition_fields = [];
+            this.form.data_source.condition_fields.push({
+                field_on_param: '',
+                field_on_table: '',
+                condition:      '=',
+            });
             this.getDataTable();
         },
         async getDataTable() {
@@ -1916,6 +1921,7 @@ export default {
             const { data_source: obj } = this.form;
 
             this.sql_test.params = [];
+            console.log(obj.condition_fields);
             for (const i in obj.condition_fields) {
                 const item = obj.condition_fields[i];
 
