@@ -34,7 +34,7 @@ public class AuditApplyDataResourceMessageContent extends ApplyDataResourceMessa
                 : "拒绝";
 
         return "成员【" + getFromMemberName() +
-                "】" + status + "了你对" + dataResourceType.getLabel() +
-                "【" + dataResourceName + "】(" + sampleCount + ")的申请";
+                "】" + status + "同意将" + dataResourceType.getLabel() +
+                "“" + dataResourceName + "(" + sampleCount + ")”添加到项目：" + projectName;
     }
 }
