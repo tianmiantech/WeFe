@@ -31,6 +31,7 @@ import os
 from cachetools import cached, LRUCache
 from common.python.common import consts
 from common.python.utils import file_utils
+from common.python.utils.sm4_utils import SM4CBC
 
 
 def get_db_config(key: tuple):
@@ -55,6 +56,10 @@ def get_db_config(key: tuple):
         return 'http://oss-' + group_config['region'] + '.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT:
         return 'http://oss-' + group_config['region'] + '-internal.aliyuncs.com'
+    elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET:
+        sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_SM4_SECRET_KEY))
+        sm4_cipher = SM4CBC()
+        return sm4_cipher.decrypt(sm4_key, group_config[var_name])
     else:
         return group_config[var_name]
 
@@ -160,12 +165,3 @@ def set_env(key, value):
 
     """
     os.environ[key] = value
-
-# def get_backend_from_string(backend_string):
-#     try:
-#         return BACKEND.__dict__.get(backend_string)
-#     except ValueError:
-#         schedule_logger().error("BackType is Wrong")
-#
-# if __name__ == '__main__':
-#     get_comm_config(consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT)

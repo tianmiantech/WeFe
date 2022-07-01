@@ -82,6 +82,9 @@ COMM_CONF_KEY_FC_STORAGE_TYPE = "fc.storage.type"
 # COMM_CONF_KEY_FC_OTS_INSTANCE_NAME = "fc.ots.instance_name"
 
 
+# SM4 config
+COMM_CONF_SM4_SECRET_KEY = "sm4.secret.key"
+
 # example config
 COMM_CONF_KEY_EXAMPLE_RUN = "example.run"
 
