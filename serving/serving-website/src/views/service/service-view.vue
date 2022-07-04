@@ -70,9 +70,9 @@
                     />
                 </el-form-item>
 
-                <el-form-item
+                <el-form-item v-if="form.service_type > 0 && this.form.service_type < 7"
                     prop="url"
-                    label="服务地址:"
+                    label="服务英文名称:"
                     class="maxlength"
                 >
                     <el-input
@@ -81,9 +81,6 @@
                         :minlength="4"
                         size="medium"
                     >
-                        <template #prepend>
-                            /api/
-                        </template>
                     </el-input>
                 </el-form-item>
 
@@ -209,8 +206,7 @@
                     <!--                    </el-form-item>-->
                     </template>
 
-                    <template
-                        v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
+                    <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
                     >
                         <el-divider />
                         <p
