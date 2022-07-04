@@ -108,7 +108,7 @@ def get_local_config(key, config_type):
             for line in lines:
                 if line and not line.startswith("#"):
                     split_arr = line.split('=')
-                    if split_arr[0].strip() == key:
+                    if split_arr[0].strip() == key[1]:
                         return split_arr[1].strip()
 
 
@@ -175,7 +175,7 @@ def get_env_config(key, default=None):
 
     """
     env_dist = os.environ
-    val = env_dist.get(key)
+    val = env_dist.get(key[1])
     return val if val else default
 
 
