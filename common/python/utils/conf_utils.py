@@ -57,14 +57,29 @@ def get_db_config(key: tuple):
     elif key == consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT:
         return 'http://oss-' + group_config['region'] + '-internal.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET:
-        sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_SM4_SECRET_KEY))
-        sm4_cipher = SM4CBC()
-        return sm4_cipher.decrypt(sm4_key, group_config[var_name])
+        enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
+        if "true" == enable:
+            sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
+            sm4_cipher = SM4CBC()
+            return sm4_cipher.decrypt(sm4_key, group_config[var_name])
+        else:
+            return group_config[var_name]
     else:
         return group_config[var_name]
 
 
 def get_fc_local_config(key):
+    """
+        前提：函数已部署上云端
+        目的：读取已和函数一起上传云端的配置
+    Parameters
+    ----------
+    key
+
+    Returns
+    -------
+
+    """
     root_path = os.getenv('PYTHONPATH')
     print(f'root_path: {root_path}/config.properties')
     comm_file_path = root_path + '/config.properties'
@@ -78,9 +93,15 @@ def get_fc_local_config(key):
                         return split_arr[1].strip()
 
 
-def get_local_config(key):
-    comm_file_path = os.path.join(file_utils.get_project_base_directory(),
-                                  get_env_config(consts.ENV_CONF_KEY_CONFIG) or "config.properties")
+def get_local_config(key, config_type):
+    if config_type == consts.COMMON:
+        comm_file_path = os.path.join(file_utils.get_project_base_directory(),
+                                      get_env_config(consts.ENV_CONF_KEY_CONFIG) or "common.properties")
+    elif config_type == consts.MEMBER_BASE:
+        comm_file_path = os.path.join(file_utils.get_project_base_directory(),
+                                      get_env_config(consts.ENV_CONF_KEY_CONFIG) or "member-base.properties")
+    else:
+        raise AttributeError(f'未知配置类型：{config_type}')
     if os.path.exists(comm_file_path):
         with open(comm_file_path, encoding="utf8") as fp:
             lines = fp.readlines()
@@ -105,30 +126,37 @@ def get_comm_config(key, default=None):
     -------
 
     """
-    db_local_dict = {
-        consts.COMM_CONF_KEY_FC_OSS_ENDPOINT: 'fc.oss.endpoint',
-        consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT: 'fc.oss.internal_endpoint',
-        consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME: 'fc.oss.bucket_name',
-        consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID: 'fc.access_key_id',
-        consts.COMM_CONF_KEY_FC_KEY_SECRET: 'fc.access_key_secret',
-        consts.COMM_CONF_KEY_FC_ACCOUNT_ID: 'fc.account_id',
-        consts.COMM_CONF_KEY_LOG_ROOT: 'flow.log.root.path'
-    }
 
-    fc_env = os.getenv('IN_FC_ENV')
     if isinstance(key, tuple) and key is not None:
-        # 需从数据库读取
-        if fc_env is None:
-            result = get_db_config(key)
+        config_type = key[0]
+        if config_type == consts.MEMBER_BASE:
+            # 读取 member-base.properties
+            result = get_local_config(key, consts.MEMBER_BASE)
+        elif config_type == consts.COMMON:
+            # 读取 common.properties
+            result = get_local_config(key, consts.COMMON)
         else:
-            result = get_fc_local_config(db_local_dict[key])
-        if result is not None:
-            return result
-    else:
+            fc_env = os.getenv('IN_FC_ENV')
 
-        result = get_local_config(key)
+            if fc_env is None:
+                # 需从数据库读取
+                result = get_db_config(key)
+            else:
+                # 读取云端函数计算配置
+                db_local_dict = {
+                    consts.COMM_CONF_KEY_FC_OSS_ENDPOINT: 'fc.oss.endpoint',
+                    consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT: 'fc.oss.internal_endpoint',
+                    consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME: 'fc.oss.bucket_name',
+                    consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID: 'fc.access_key_id',
+                    consts.COMM_CONF_KEY_FC_KEY_SECRET: 'fc.access_key_secret',
+                    consts.COMM_CONF_KEY_FC_ACCOUNT_ID: 'fc.account_id',
+                    consts.COMM_CONF_KEY_LOG_ROOT: 'flow.log.root.path'
+                }
+                result = get_fc_local_config(db_local_dict[key])
+
         if result is not None:
             return result
+
     return default
 
 

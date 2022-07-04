@@ -62,15 +62,28 @@ COMM_CONF_KEY_FC_OSS_ENDPOINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "oss_endpoint"
 COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT = ALIYUN_FUNCTION_COMPUTE_CONFIG, "oss_internal_endpoint"
 # global config end ------------------------------------------------------------------------------
 
-COMM_CONF_KEY_MYSQL_HOST = "db.mysql.host"
-COMM_CONF_KEY_MYSQL_PORT = "db.mysql.port"
-COMM_CONF_KEY_MYSQL_DATABASE = "db.mysql.database"
-COMM_CONF_KEY_MYSQL_USERNAME = "db.mysql.username"
-COMM_CONF_KEY_MYSQL_PASSWORD = "db.mysql.password"
+# member-base.properties start -----------------------------------------------------------
+MEMBER_BASE = "member.base"
+COMM_CONF_KEY_MYSQL_HOST = MEMBER_BASE, "db.mysql.host"
+COMM_CONF_KEY_MYSQL_PORT = MEMBER_BASE, "db.mysql.port"
+COMM_CONF_KEY_MYSQL_DATABASE = MEMBER_BASE, "db.mysql.database"
+COMM_CONF_KEY_MYSQL_USERNAME = MEMBER_BASE, "db.mysql.username"
+COMM_CONF_KEY_MYSQL_PASSWORD = MEMBER_BASE, "db.mysql.password"
+COMM_CONF_KEY_EXAMPLE_RUN = MEMBER_BASE, "example.run"
+COMM_CONF_KEY_LOG_ROOT = MEMBER_BASE, "flow.log.root.path"
+# member-base.properties end -----------------------------------------------------------
+
+
+# common.properties start -------------------------------------------------------------
+COMMON = "common"
+COMM_CONF_KEY_UNION_BASE_URL = COMMON, "wefe.union.base-url"
+COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE = COMMON, "privacy.database.encrypt.enable"
+COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY = COMMON, "privacy.database.encrypt.secret.key"
+# common.properties end ---------------------------------------------------------------
+
 
 COMM_CONF_KEY_SPARK_NUM_SLICES = "flow.spark.default.num.slices"
-COMM_CONF_KEY_UNION_BASE_URL = "wefe.union.base-url"
-COMM_CONF_KEY_LOG_ROOT = "flow.log.root.path"
+
 
 COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS = "flow.spark.submit.default.num.executors"
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES = "flow.spark.submit.default.executor.cores"
@@ -84,9 +97,6 @@ COMM_CONF_KEY_FC_STORAGE_TYPE = "fc.storage.type"
 
 # SM4 config
 COMM_CONF_SM4_SECRET_KEY = "sm4.secret.key"
-
-# example config
-COMM_CONF_KEY_EXAMPLE_RUN = "example.run"
 
 COMM_CONF_KEY_WEB_IP = "flow.web.ip"
 COMM_CONF_KEY_WEB_PORT = "flow.web.port"
