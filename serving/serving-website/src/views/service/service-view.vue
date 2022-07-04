@@ -150,7 +150,8 @@
                             </div>
                         </el-form-item>
                     </template>
-                    <template v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8"
+                    <template
+                        v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8"
                     >
                         <el-divider />
                         <p
@@ -208,7 +209,8 @@
                     <!--                    </el-form-item>-->
                     </template>
 
-                    <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
+                    <template
+                        v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
                     >
                         <el-divider />
                         <p
@@ -968,6 +970,9 @@
                     border
                     stripe
                 >
+                    <template #empty>
+                        <TableEmptyData :message="errorMsg" />
+                    </template>
                     <el-table-column
                         v-for="item in tableColumns"
                         :key="item.label"
@@ -1297,6 +1302,7 @@ export default {
             sqlResultDialog:  false,
             tableDataPreview: [],
             tableColumns:     [],
+            errorMsg:         '',
         };
     },
     computed: {
@@ -1348,19 +1354,20 @@ export default {
                     },
                 });
 
-                if (code === 0 && data && data.feature_data_map) {
-                    for (const key in data.feature_data_map) {
-                        const val = data.feature_data_map[key];
+                if (code === 0) {
+                    if (data && data.feature_data_map) {
+                        for (const key in data.feature_data_map) {
+                            const val = data.feature_data_map[key];
 
-                        this.tableColumns.unshift({
-                            label: key,
-                            value: val,
-                        });
+                            this.tableColumns.unshift({
+                                label: key,
+                                value: val,
+                            });
+                        }
+                        this.tableDataPreview.push(data.feature_data_map);
+                    } else {
+                        this.errorMsg = data.error;
                     }
-                    this.tableDataPreview.push(data.feature_data_map);
-                    console.log(this.tableColumns);
-                    console.log(this.tableDataPreview);
-
                     this.sqlResultDialog = true;
                 }
             } else {
