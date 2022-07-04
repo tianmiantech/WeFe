@@ -26,8 +26,8 @@ from common.python.common import consts
 from common.python.protobuf.pyproto import intermediate_data_pb2
 from common.python.storage.fc_storage import FCStorage
 from common.python.utils import log_utils, conf_utils, network_utils
+from common.python.utils.sm4_utils import SM4CBC
 from common.python.utils.core_utils import deserialize, serialize
-
 
 LOGGER = log_utils.get_logger()
 
@@ -148,10 +148,17 @@ class OssStorage(FCStorage):
 
         if self._cloud_store_temp_auth is None or self._cloud_store_temp_auth == "":
             end_point = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT)
-            access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
-            key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
-            bucket_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME)
+            enable = conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
+            if enable == "true":
+                sm4_util = SM4CBC()
+                key = conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY)
+                access_key_id = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID))
+                key_secret = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET))
+            else:
+                access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
+                key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
 
+            bucket_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME)
             auth = oss2.Auth(access_key_id, key_secret)
             bucket = oss2.Bucket(auth, end_point, bucket_name)
 
@@ -457,8 +464,14 @@ def get_object_data_4poolmap(param_list):
 
 
 if __name__ == '__main__':
-    pass
-    oss_ins = OssStorage("test", "20220125", partitions=10)
-    oss_ins.count()
-    # # oss_ins.put("k", "v")
-    # print(list(oss_ins.collect()))
+    cloud_store_temp_auth = {'temp_access_key_id': 'STS.NSvc4GBQp5tbsyKdoQ7ZgYzyj',
+                             'temp_access_key_secret': '9a6XhJsmx9Xo4ngCcWx14wVg6kKgiWPWY4uXYJ3AdCqL',
+                             'sts_token': 'CAISzgR1q6Ft5B2yfSjIr5DDKI7zr45RgraJcV/6gG8EO9VLtr/SiDz2IH5EdXZuB+EXsP0+nmFW7PYelqF0UIRySUXYZJP1f0LoBVvzDbDasumZsJbN4//MQBqWaXPS2MvVfJ+zLrf0ceusbFbpjzJ6xaCAGxypQ12iN+/r6/5gdc9FcQSkL0BuZrFsKxBltdUROFbIKP+pKWSKuGfLC1dysQcOxQE14K+kkMqH8Uic3h+o1eIbqsH/Kd+7YsdhC49lVNy4x/cxNNgFukw9whxO87gMzc4g0Dzbv9abLkBM6hGdSYT9+cFuKwkLH8pdHLVf/tz9juFfsO7enJjssU8vW9tYSCPCXout7dLZEeeyTLYDeK38Jm7G36LyVOL8uBh2ZmkAZkEYOYg+J3F9TBInMJ2zSM2c5ErLZAiHSquIqsMxyoEn90/l89uaVZnmIXvwzisWN6gkdUQjOgUNmjftLPNZfQYdKlo3DOqYHIh6NUlQoK6y5VSNWCYwlCgNiOXkYPbRpq0FXqT5Qp9cyocWeJVBtVxzEQ2mFerx0hhJLjI5HecOjp71I5i676OI2tLDOLabU/tYsApULT6NpSeEQC4AdCf4voF9ZwqRpZyNnJuTrc05SwEivJVRB1HYNI80olcj6vfqsVHLqrO5WSijrmNgooKfvas3sBc5Lqr107/M42SG5yHBOZNUwpmHBDddJj2sYGF8zfyogXYKmgsMiWncOWxEtQTAijjuLZxFi63Rly0eUvtJ/vvVRTrl8G4lDsmS+bsCVfOM92O/0kwftxqAAQPPQ4h/MUBb+LDPooPXUiEW771/h0TQQbCk8Dwz1YbsLZ9/8l8P6jlrewkAmM7labjRIWtf3EySXciwxD6s0+ZGZYCvk5SvNrQKJlnO3JDYhDUzNfVi4IoimFf0qyJrLK6Xz7yUzJqBX57x94CFAcUxNpRgb3Lnye6mXF+aJE7d',
+                             'temp_auth_internal_end_point': 'https://oss-cn-shenzhen-internal.aliyuncs.com',
+                             'temp_auth_end_point': 'https://oss-cn-shenzhen.aliyuncs.com',
+                             'temp_auth_bucket_name': 'wefe-fc'}
+
+    oss_ins = OssStorage("wefe_process",
+                         "3d647fb91a8c4e9ea11fae2017fc8212_promoter_Intersection_16196070752644906_promoter_81051c7b7f4f4beaa581ba046f8a6048_76613bd2-fb85-11ec-a406-0242c0a8a003",
+                         partitions=1)
+    print(list(oss_ins.collect()))
