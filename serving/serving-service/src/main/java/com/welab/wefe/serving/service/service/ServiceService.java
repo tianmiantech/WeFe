@@ -167,12 +167,28 @@ public class ServiceService {
         }
         JSONObject preview = new JSONObject();
         preview.put("id", entity.getId());
-        preview.put("params", entity.getQueryParams());
+        preview.put("params", displayServiceQueryParams(entity.getQueryParams(), entity.getQueryParamsConfig()));
         preview.put("url", SERVICE_PRE_URL + entity.getUrl());
         preview.put("method", "POST");
         output.setPreview(preview);
         return output;
     }
+
+    public String displayServiceQueryParams(String queryParams, String queryParamsConfig) {
+        if (StringUtils.isNotBlank(queryParamsConfig)) {
+            StringBuilder sb = new StringBuilder();
+            JSONArray arr = JSONObject.parseArray(queryParamsConfig);
+            for (int i = 0; i < arr.size(); i++) {
+                JSONObject jo = arr.getJSONObject(i);
+                String name = jo.getString("name");
+                String desc = jo.getString("desc");
+                sb.append("参数"+(i+1)+":"+name + ",描述:"+desc+";");
+            }
+            return sb.toString();
+        }
+        return queryParams;
+    }
+    
 
     private List<JobMemberRole> findMyRoles(String modelId) {
         List<ModelMemberMySqlModel> memberBaseInfo = modelMemberRepository.findByModelIdAndMemberId(modelId,
@@ -263,18 +279,17 @@ public class ServiceService {
         root.setChildren(children);
     }
 
-    // TODO
     @Transactional(rollbackFor = Exception.class)
     public com.welab.wefe.serving.service.api.service.AddApi.Output saveService(AddApi.Input input)
             throws StatusCodeWithException {
         BaseServiceMySqlModel baseModel = baseServiceRepository.findOne("name", input.getName(),
                 BaseServiceMySqlModel.class);
-        if (baseModel == null) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "name");
+        if (baseModel != null) {
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "服务名称");
         }
         TableServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), TableServiceMySqlModel.class);
         if (model != null) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getUrl(), "url");
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getUrl(), "服务英文名称");
         }
         model = ModelMapper.map(input, TableServiceMySqlModel.class);
         model.setCreatedBy(CurrentAccount.id());
@@ -290,7 +305,7 @@ public class ServiceService {
         serviceRepository.save(model);
         com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
         output.setId(model.getId());
-        output.setParams(model.getQueryParams());
+        output.setParams(displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
         output.setUrl(SERVICE_PRE_URL + model.getUrl());
         return output;
     }
@@ -423,13 +438,18 @@ public class ServiceService {
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
-        Where where = Where.create();
-        where = where.equal("name", input.getName());
-        Specification<BaseServiceMySqlModel> condition = where.build(BaseServiceMySqlModel.class);
-        List<BaseServiceMySqlModel> baseModels = baseServiceRepository.findAll(condition);
+        List<BaseServiceMySqlModel> baseModels = baseServiceRepository
+                .findAll(Where.create().equal("name", input.getName()).build(BaseServiceMySqlModel.class));
         if (baseModels != null && baseModels.size() >= 2) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "name");
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "服务名称");
         }
+        
+        baseModels = baseServiceRepository
+                .findAll(Where.create().equal("url", input.getUrl()).build(BaseServiceMySqlModel.class));
+        if (baseModels != null && baseModels.size() >= 2) {
+            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "服务英文名称");
+        }
+        
         if (StringUtils.isNotBlank(input.getName())) {
             model.setName(input.getName());
         }
@@ -460,7 +480,7 @@ public class ServiceService {
         serviceRepository.save(model);
         com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
         output.setId(model.getId());
-        output.setParams(model.getQueryParams());
+        output.setParams(displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
         output.setUrl(SERVICE_PRE_URL + model.getUrl());
         if (model.getStatus() == 1) {
             if (model.getServiceType() == ServiceTypeEnum.PSI.getCode()) {
@@ -706,7 +726,7 @@ public class ServiceService {
         Map<String, Object> valuesMap = new HashMap<>();
         if (model != null) {
             valuesMap.put("url", model.getUrl());
-            valuesMap.put("params", model.getQueryParams() == null ? "" : model.getQueryParams());
+            valuesMap.put("params", displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
             valuesMap.put("desc", model.getName());
             valuesMap.put("method", "POST");
             String templateString = "# url:\n" + "	${url}\n" + "	\n" + "# method:\n" + "	${method}\n" + "	\n"
