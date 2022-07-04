@@ -725,7 +725,7 @@ public class ServiceService {
     private void fillReadmeFile(TableServiceMySqlModel model, File readme) throws IOException {
         Map<String, Object> valuesMap = new HashMap<>();
         if (model != null) {
-            valuesMap.put("url", model.getUrl());
+            valuesMap.put("url", CacheObjects.getServingBaseUrl() + SERVICE_PRE_URL + model.getUrl());
             valuesMap.put("params", displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
             valuesMap.put("desc", model.getName());
             valuesMap.put("method", "POST");
