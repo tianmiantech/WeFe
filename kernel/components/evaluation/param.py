@@ -51,12 +51,16 @@ class EvaluateParam(BaseParam):
         Indicate if this module needed to be run
     """
 
-    def __init__(self, eval_type="binary", pos_label=1, need_run=True, metrics=None):
+    def __init__(self, eval_type="binary", pos_label=1, need_run=True, metrics=None, prob_need_to_bin = True,
+                 bin_method = "bucket", bin_num = 10):
         super().__init__()
         self.eval_type = eval_type
         self.pos_label = pos_label
         self.need_run = need_run
         self.metrics = metrics
+        self.prob_need_to_bin = prob_need_to_bin
+        self.bin_num = bin_num
+        self.bin_method = bin_method
 
         self.default_metrics = {
             consts.BINARY: consts.ALL_BINARY_METRICS,
@@ -141,6 +145,12 @@ class EvaluateParam(BaseParam):
             LOGGER.warning('use default metric {} for eval type {}'.format(self.metrics, self.eval_type))
 
         self.metrics = self._check_valid_metric(self.metrics)
+
+        if self.prob_need_to_bin:
+            if self.bin_method not in ["bucket","quantile"]:
+                raise ValueError("bin_method{} not support".format(self.bin_method))
+            if self.bin_num <= 0:
+                raise ValueError("bin_num is {}, should choose number of binning greater than 0".format(self.bin_num))
 
         LOGGER.info("Finish evaluation parameter check!")
 
