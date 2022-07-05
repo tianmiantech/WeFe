@@ -18,6 +18,7 @@ package com.welab.wefe.gateway.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.SM4Util;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.common.EncryptEnableEnum;
 import com.welab.wefe.gateway.config.CommonConfig;
 import com.welab.wefe.gateway.dto.*;
@@ -80,10 +81,19 @@ public class GlobalConfigService extends AbstractService {
     public AliyunFunctionComputeConfigModel getAliyunFunctionComputeConfig() {
         AliyunFunctionComputeConfigModel model = getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
         if (EncryptEnableEnum.ENABLE.getValue().equals(commonConfig.getIsDatabaseEncryptEnable())) {
+
             String secretKey = commonConfig.getPrivacyDatabaseEncryptSecretKey();
+            if (StringUtil.isEmpty(secretKey)) {
+                throw new NullPointerException("databaseEncryptEnable is true, but secretKey is Null");
+            }
             try {
-                model.setAccessKeyId(SM4Util.decrypt(secretKey, model.getAccessKeyId()));
-                model.setAccessKeySecret(SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
+                if (StringUtil.isNotEmpty(model.getAccessKeyId())) {
+                    model.setAccessKeyId(SM4Util.decrypt(secretKey, model.getAccessKeyId()));
+                }
+
+                if (StringUtil.isNotEmpty(model.getAccessKeySecret())) {
+                    model.setAccessKeySecret(SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
