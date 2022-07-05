@@ -94,6 +94,8 @@ public class ServiceCallLogService {
         model.setRequestId(requestId);
         model.setRequestData(requestData);
         model.setRequestIp(requestIp);
+        model.setResponsePartnerId(CacheObjects.getMemberId());
+        model.setResponsePartnerName(CacheObjects.getMemberName());
         model.setCreatedTime(new Date());
         model.setUpdatedTime(new Date());
         model = serviceCallLogRepository.save(model);

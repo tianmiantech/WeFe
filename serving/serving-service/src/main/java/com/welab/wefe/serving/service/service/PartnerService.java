@@ -192,6 +192,9 @@ public class PartnerService {
         model.setIsUnionMember(input.getIsUnionMember());
         model.setServingBaseUrl(input.getServingBaseUrl());
         model.setRemark(input.getRemark());
+        if(StringUtils.isBlank(model.getCode()) && StringUtils.isNotBlank(input.getCode())) {
+            model.setCode(input.getCode());
+        }
         partnerRepository.save(model);
         // 客户信息变动时，客户服务表中的字段也更新
         Specification<ClientServiceMysqlModel> where = Where.create().equal("clientId", input.getId())

@@ -51,6 +51,9 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         @Check(name = "备注")
         private String remark;
         
+        @Check(name="合作者code")
+        private String code;
+        
         @Check(name = "修改人")
         private String updatedBy;
 
@@ -125,6 +128,14 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         public void setServingBaseUrl(String servingBaseUrl) {
             this.servingBaseUrl = servingBaseUrl;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
         }
         
     }
