@@ -20,13 +20,11 @@
 
 package com.welab.wefe.common.web;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.SamplingLogger;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fastjson.LoggerValueFilter;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -42,6 +40,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The entry class that calls the API
@@ -146,15 +146,29 @@ public class ApiExecutor {
         return result;
     }
 
+    private static final Map<String, Long> API_LOG_TIME_MAP = new ConcurrentHashMap<>();
+
     public static void logResponse(Api annotation, ApiResult<?> result) {
 
-        /**
-         * 警告 ⚠️:
-         * 当响应内容为 ResponseEntity<FileSystemResource> 时
-         * JSON.toJSONString(result) 序列化时会导致文件被置空
-         * 所以这里写日志时需要进行检查，避免对 FileSystemResource 进行 json 序列化。
-         */
-        String content = JSON.toJSONString(result, new LoggerValueFilter());
+        // 是否要省略此次日志打印，以减少磁盘使用。
+        boolean omitLog = false;
+        if (annotation.logSaplingInterval() > 0) {
+            if (!API_LOG_TIME_MAP.containsKey(annotation.path())) {
+                API_LOG_TIME_MAP.put(annotation.path(), 0L);
+            }
+
+            long interval = TimeSpan
+                    .fromMs(System.currentTimeMillis() - API_LOG_TIME_MAP.get(annotation.path()))
+                    .toMs();
+
+            if (interval < annotation.logSaplingInterval()) {
+                omitLog = true;
+            } else {
+                API_LOG_TIME_MAP.put(annotation.path(), System.currentTimeMillis());
+            }
+        }
+
+        String content = result.toLogString(omitLog);
 
         if ("debug".equals(annotation.logLevel())) {
             LOG.debug("response({}):{}", annotation.path(), content);

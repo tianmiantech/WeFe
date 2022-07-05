@@ -22,6 +22,7 @@ import com.welab.wefe.board.service.api.account.*;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
+import com.welab.wefe.board.service.dto.entity.AccountListAllOutputModel;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
@@ -43,6 +44,7 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
@@ -72,6 +74,17 @@ public class AccountService extends AbstractAccountService {
 
     @Autowired
     private VerificationCodeService verificationCodeService;
+
+    public List<AccountListAllOutputModel> listAll(ListAllApi.Input input) {
+
+        Specification<AccountMysqlModel> where = Where
+                .create()
+                .contains("nickname", input.getNickname())
+                .build(AccountMysqlModel.class);
+
+        List<AccountMysqlModel> list = accountRepository.findAll(where);
+        return ModelMapper.maps(list, AccountListAllOutputModel.class);
+    }
 
     /**
      * Paging query account
