@@ -35,7 +35,7 @@
             >
                 <el-input
                     v-model="client.code"
-                    :disabled="clientId !== ''"
+                    :disabled="!client.codeCanUpdate"
                     placeholder="建议格式：[公司简称]-[手机号]-[日期]"
                     :maxlength="60"
                     :minlength="4"
@@ -137,6 +137,7 @@ export default {
                 isUnionMember:'',
                 servingBaseUrl:'',
                 status: '',
+                codeCanUpdate:'',
             },
             rules: {
                 name: [
@@ -182,6 +183,7 @@ export default {
                             servingBaseUrl : this.client.servingBaseUrl,
                             updatedBy: this.userInfo.nickname,
                             status:    this.client.status,
+                            code: this.client.code,
                         },
                     });
 
@@ -189,6 +191,11 @@ export default {
                         setTimeout(() => {
                             this.$message('提交成功!');
                         }, 1000);
+                        this.$router.push({
+                            name:  'partner-edit',
+                            query: { id: this.client.id},
+                        });
+                        this.$router.go(0);
                     }
                 }
             });
@@ -214,6 +221,7 @@ export default {
                 this.client.isUnionMember = data.is_union_member?1:0;
                 this.client.servingBaseUrl = data.serving_base_url;
                 this.client.status = data.status;
+                this.client.codeCanUpdate = (data.code === '');
             }
         },
     },

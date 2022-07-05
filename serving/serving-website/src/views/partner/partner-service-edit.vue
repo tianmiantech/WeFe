@@ -147,6 +147,7 @@ export default {
                             publicKey:this.clientService.publicKey,
                             unitPrice:this.clientService.unitPrice,
                             updatedBy: this.userInfo.nickname,
+                            payType : this.clientService.payType,
                         },
                     });
 

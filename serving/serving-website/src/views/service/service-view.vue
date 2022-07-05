@@ -158,7 +158,7 @@
                             name="查询参数配置"
                             class="mb10 nav-title"
                         >
-                            查询参数配置：
+                            查询参数配置：<span style="color:#F85564">*</span>
                         </p>
                         <el-button
                             v-if="form.paramsArr.length === 0"
@@ -218,7 +218,7 @@
                             name="SQL 配置"
                             class="mb10 nav-title"
                         >
-                            SQL 配置：
+                            SQL 配置：<span style="color:#F85564">*</span>
                         </p>
                         <el-form-item
                             label="数据源:"
@@ -1197,8 +1197,9 @@ export default {
             },
             rules: {
                 name:         [{ required: true, message: '服务名称必填!' }],
-                // url:          [{ required: true, message: '服务地址必填!' }],
+                url:          [{ required: true, message: '服务英文名必填!' }],
                 service_type: [{ required: true, message: '服务类型必选!' }],
+                paramsArr: [{ required: true, message: '查询参数不能为空!' }],
             },
             serviceId:       '',
             serviceType:     this.$route.query.service_type,
@@ -1663,11 +1664,8 @@ export default {
                         this.myRole = data.my_role[0];
                     }
                     this.activeName = data.feature_source;
-
-                    console.log(data.model_id, 'data.model_id');
                     if (data.id) {
                         this.form.model_data.model_sql_config.model_id = data.model_id;
-                        // console.log(this.form.model_data.model_sql_config.model_id)
                         this.form.model_data.model_id = data.service_id;
                         this.form.model_data.model_overview = data.xgboost_tree;
                         this.form.model_data.model_member_status = data.model_status;
@@ -1944,12 +1942,11 @@ export default {
             const { data_source: obj } = this.form;
 
             this.sql_test.params = [];
-            console.log(obj.condition_fields);
             for (const i in obj.condition_fields) {
                 const item = obj.condition_fields[i];
 
                 if (!item.field_on_param || !item.field_on_table) {
-                    return this.$message.error('请将查询字段填写完整!');
+                    return this.$message.error('请将查询字段填写完整1!');
                 } else {
                     this.sql_test.params.push({
                         label: item.field_on_param,
@@ -2148,6 +2145,14 @@ export default {
             }
         },
         async saveService(event) {
+            if (!this.form.name) {
+                this.$message.error('请将必填项填写完整！');
+                return;
+            }
+            if (!this.form.name || !this.form.url || !this.form.service_type) {
+                this.$message.error('请将必填项填写完整！');
+                return;
+            }
             if (!this.form.name || !this.form.url || !this.form.service_type) {
                 this.$message.error('请将必填项填写完整！');
                 return;
@@ -2241,7 +2246,7 @@ export default {
                         const item = obj.condition_fields[i];
 
                         if (!item.field_on_param || !item.field_on_table) {
-                            return this.$message.error('请将查询字段填写完整!');
+                            return this.$message.error('查询条件不能为空!');
                         }
                     }
 
