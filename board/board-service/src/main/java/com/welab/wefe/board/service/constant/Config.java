@@ -33,6 +33,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
+    @Value("${wefe.union.base-url}")
+    private String unionBaseUrl;
+    
     @Value("${wefe.job.work_mode}")
     private Integer workMode;
 
@@ -165,6 +168,14 @@ public class Config extends CommonConfig {
 
     public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
         this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
+    }
+
+    public String getUnionBaseUrl() {
+        return unionBaseUrl;
+    }
+
+    public void setUnionBaseUrl(String unionBaseUrl) {
+        this.unionBaseUrl = unionBaseUrl;
     }
 
     // endregion
