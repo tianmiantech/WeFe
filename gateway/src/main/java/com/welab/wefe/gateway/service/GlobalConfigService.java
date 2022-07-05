@@ -24,6 +24,8 @@ import com.welab.wefe.gateway.config.CommonConfig;
 import com.welab.wefe.gateway.dto.*;
 import com.welab.wefe.gateway.entity.GlobalConfigEntity;
 import com.welab.wefe.gateway.repository.GlobalConfigRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,8 @@ public class GlobalConfigService extends AbstractService {
 
     @Autowired
     private CommonConfig commonConfig;
+
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     protected static class Group {
         public static String MEMBER_INFO = "member_info";
@@ -80,18 +84,24 @@ public class GlobalConfigService extends AbstractService {
      */
     public AliyunFunctionComputeConfigModel getAliyunFunctionComputeConfig() {
         AliyunFunctionComputeConfigModel model = getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
+        LOG.info("getIsDatabaseEncryptEnable: " + commonConfig.getIsDatabaseEncryptEnable());
         if (EncryptEnableEnum.ENABLE.getValue().equals(commonConfig.getIsDatabaseEncryptEnable())) {
 
             String secretKey = commonConfig.getPrivacyDatabaseEncryptSecretKey();
+            LOG.info("secretKey: " + secretKey);
             if (StringUtil.isEmpty(secretKey)) {
                 throw new NullPointerException("databaseEncryptEnable is true, but secretKey is Null");
             }
             try {
                 if (StringUtil.isNotEmpty(model.getAccessKeyId())) {
+                    LOG.info("old AccessKeyId:" + model.getAccessKeyId());
+                    LOG.info("decrypt AccessKeyId:" + SM4Util.decrypt(secretKey, model.getAccessKeyId()));
                     model.setAccessKeyId(SM4Util.decrypt(secretKey, model.getAccessKeyId()));
                 }
 
                 if (StringUtil.isNotEmpty(model.getAccessKeySecret())) {
+                    LOG.info("old getAccessKeySecret:" + model.getAccessKeySecret());
+                    LOG.info("decrypt getAccessKeySecret:" + SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
                     model.setAccessKeySecret(SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
                 }
             } catch (Exception e) {
