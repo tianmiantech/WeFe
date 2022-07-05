@@ -198,6 +198,7 @@ class TaskResultDataType(object):
     DATA = "data"
     MODEL = "model"
     METRIC = 'metric'
+    DISTRIBUTION = 'distribution'
     TRAINING_MODEL = "training_model"
 
 
