@@ -72,7 +72,7 @@ class VertPearson(ModelBase):
         return base_pearson.select_columns(self, data_instance)
 
     @staticmethod
-    def _standardized(data):
+    def _standardized(data, features):
         n = data.count()
         sum_x, sum_square_x = data.mapValues(lambda x: (x, x ** 2)) \
             .reduce(lambda pair1, pair2: (pair1[0] + pair2[0], pair1[1] + pair2[1]))
@@ -82,13 +82,16 @@ class VertPearson(ModelBase):
         LOGGER.debug(
             f'n={n},sum_x={sum_x},sum_square_x={sum_square_x},mu={mu},sigma_square={sigma_square},sigma={sigma}')
         if (sigma <= 0).any():
-            raise ValueError(f"zero standard deviation detected, sigma={sigma}")
+            zero_idx = [i for i in range(len(sigma)) if sigma[i] <= 0]
+            LOGGER.error(f'features={features}, zero_idx={zero_idx}')
+            zero_feature = np.array(features)[zero_idx]
+            raise ValueError(f"zero standard deviation detected, features={zero_feature}, sigma={sigma}")
         return n, data.mapValues(lambda x: (x - mu) / sigma)
 
     def fit(self, data_instance):
         # local
         data = self._select_columns(data_instance)
-        n, normed = self._standardized(data)
+        n, normed = self._standardized(data, self.names)
         self.local_corr = table_dot(normed, normed)
         self.local_corr /= n
         self._summary["local_corr"] = self.local_corr.tolist()

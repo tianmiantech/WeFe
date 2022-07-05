@@ -244,7 +244,7 @@
                     // other member's audit comment
                     audit_status_from_others: '',
                     project_type:             'MachineLearning',
-                    is_project_admin:         false,
+                    is_project_admin:         true,
                 },
                 cooperAuthDialog: {
                     show: false,
@@ -460,7 +460,8 @@
                     this.promoter.$data_set = promoter.data_resource_list;
 
                     const admin_user = this.adminUserList.filter(item => item.id === this.userInfo.id) || [];
-                    const is_admin_created = this.adminUserList.filter(item => item.id === data.created_by) || []; 
+                    const is_not_admin_created = this.adminUserList.filter(item => item.id === data.created_by) || [];
+
 
                     // demo环境下：
                     // 1. 管理员可以编辑所有项目
@@ -469,14 +470,26 @@
                     // 4. 管理员创建的项目，其他管理员可以编辑
                     // 5. 自己可以编辑自己创建的项目
 
+                    // 以下情况对项目有编辑权限，其他无
+                    // 1. 当前用户是管理员
+                    // 2. 该项目是当前用户自己创建
+                    // 3. 该项目是非管理员创建
+                    const is_self_project = this.userInfo.id === data.created_by;
+
+                    console.log('is_self_project=',is_self_project, 'is_admin=',this.userInfo.admin_role, 'is_not_admin_created=',is_not_admin_created.length===0);
+                    // const is_can_edit = (this.userInfo.admin_role || is_self_project || is_not_admin_created.length===0) ? true : false
+                    const is_can_edit = !!((this.userInfo.admin_role || is_self_project || is_not_admin_created.length === 0));
+
+                    console.log('is_can_edit=',is_can_edit);
+
+
                     if (this.isDemo) {
-                        // this.form.is_project_admin = this.userInfo.admin_role || (!this.userInfo.admin_role && this.userInfo.id === data.created_by) ? true : false; 
-                        // this.form.is_project_admin = !!(this.userInfo.admin_role || (!this.userInfo.admin_role && this.userInfo.id === data.created_by)); 
-                        this.form.is_project_admin = !!(this.userInfo.admin_role || (admin_user.length > 0 || this.userInfo.id === data.created_by) || (!this.userInfo.admin_role && is_admin_created.length === 0)); 
+                        // this.form.is_project_admin = !!(this.userInfo.admin_role || (admin_user.length > 0 || this.userInfo.id === data.created_by) || (!this.userInfo.admin_role && is_not_admin_created.length === 0)); 
+                        this.form.is_project_admin = !!((this.userInfo.admin_role || is_self_project || is_not_admin_created.length===0));
                     } else {
                         this.form.is_project_admin = true;
                     }
-                    // console.log('is_admin_created='+is_admin_created.length, 'isDemo='+this.isDemo, 'is_project_admin='+this.form.is_project_admin);
+                    // console.log('is_not_admin_created='+is_not_admin_created.length, 'isDemo='+this.isDemo, 'is_project_admin='+this.form.is_project_admin);
                     const members = {};
                     const { providerService, promoterService } = this;
 

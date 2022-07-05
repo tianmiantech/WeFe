@@ -27,17 +27,26 @@ import java.io.IOException;
  * 当对象序列化后输出到日志中时，此过滤器会对过大的value进行处理,防止日志内容过大。
  * <p>
  * 使用方法：
- * JSON.toJSONString(result, LoggerValueFilter.instance);
+ * JSON.toJSONString(result, LoggerValueFilter.DEFAULT);
  *
  * @author zane
  * @date 2022/4/27
  */
 public class LoggerValueFilter implements ValueFilter {
     private static final Logger LOG = LoggerFactory.getLogger(LoggerValueFilter.class);
+    public static final LoggerValueFilter DEFAULT = new LoggerValueFilter(1024);
 
-    public static final LoggerValueFilter instance = new LoggerValueFilter();
+    /**
+     * 为了不在日志中输出过长的 value，超过这个参数的字符串会被截断。
+     * <p>
+     * 需求背景：
+     * 1. 太长的 value 不方便debug，例如日志内容包含 base64 形式的图片、文件。
+     * 2. 太长的 value 造成磁盘消耗太快
+     */
+    private int limitStringLength = 1024;
 
-    public LoggerValueFilter() {
+    private LoggerValueFilter(int limitStringLength) {
+        this.limitStringLength = limitStringLength;
     }
 
     @Override
@@ -100,7 +109,7 @@ public class LoggerValueFilter implements ValueFilter {
     public Object process(Object object, String name, String value) {
         // 对过长的文本进行截断处理
         int length = value.length();
-        if (length > 1024) {
+        if (length > limitStringLength) {
             return value.substring(0, 50) + "...(length:" + length + ")";
         }
 
