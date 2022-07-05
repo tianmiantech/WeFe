@@ -98,20 +98,20 @@
                                     v-model="config.wefe_serving.intranet_base_uri"
                                 />
                             </el-form-item>
-                            <!--  <el-form-item>
+                            <el-form-item>
                                 <el-button type="success"
                                            @click="showDialog"
                                 >
-                                    同步密钥
+                                    初始化
                                 </el-button>
-                            </el-form-item> -->
+                            </el-form-item>
                         </fieldset>
 
-                        <!--   <el-dialog title="同步密钥到Serving" v-model="dialogVisibleInfo" width="40%">
+                        <el-dialog title="初始化" v-model="dialogVisibleInfo" width="40%">
                             <el-form :model="form">
                                 <el-form-item label="账号" :label-width="formLabelWidth">
                                     <el-input v-model="form.phone_number" type="text" clearable
-                                              placeholder="请输入手机号"></el-input>
+                                              placeholder="请输入Serving管理员账号(手机号)"></el-input>
                                 </el-form-item>
                                 <el-form-item label="密码" :label-width="formLabelWidth">
                                     <el-input v-model="form.password" type="password" clearable
@@ -122,20 +122,20 @@
                                 <el-button @click="dialogVisibleInfo = false">取 消</el-button>
                                 <el-button type="primary" @click="init">确 定</el-button>
                             </div>
-                        </el-dialog> -->
-
-                        <el-dialog
-                            title="成功"
-                            v-model="initDialogVisible"
-                            width="30%"
-                            center
-                            custom-class="init-success"
-                        >
-                            <div class="serving-init-div">同步成功！</div>
-                            <div style="text-align: right">
-                                <el-button type="primary" @click="initDialogVisible = false">确 定</el-button>
-                            </div>
                         </el-dialog>
+
+                        <!--                        <el-dialog-->
+                        <!--                            title="成功"-->
+                        <!--                            v-model="initDialogVisible"-->
+                        <!--                            width="30%"-->
+                        <!--                            center-->
+                        <!--                            custom-class="init-success"-->
+                        <!--                        >-->
+                        <!--                            <div class="serving-init-div">初始化成功！</div>-->
+                        <!--                            <div style="text-align: right">-->
+                        <!--                                <el-button type="primary" @click="initDialogVisible = false">确 定</el-button>-->
+                        <!--                            </div>-->
+                        <!--                        </el-dialog>-->
                     </el-col>
                     <el-col :span="12">
                         <fieldset>
@@ -216,7 +216,7 @@
                 visible:           true,
                 dialogVisibleInfo: false,
                 formLabelWidth:    '20px',
-                initDialogVisible: false,
+            // initDialogVisible: false,
             };
         },
         computed: {
@@ -227,7 +227,6 @@
         },
         methods: {
             showDialog() {
-
                 this.dialogVisibleInfo = true;
             },
 
@@ -241,7 +240,7 @@
                     this.form.password.substr(this.form.password.length - 3),
                 ].join('');
 
-                const { code, data, message } = await this.$http.post({
+                const { code, message } = await this.$http.post({
                     url:  '/member/sync_to_serving',
                     data: {
                         phone_number: this.form.phone_number,
@@ -250,13 +249,14 @@
                 });
 
                 if (code === 0) {
-                    console.log(data);
-                    console.log(message);
-                    this.initDialogVisible = true;
+                    this.$message.success('初始化成功');
+                    this.dialogVisibleInfo = false;
                 } else {
-                    console.log(data);
-                    console.log(message);
+                    this.$message.error('初始化失败：', message);
+                    this.dialogVisibleInfo = false;
+
                 }
+
 
             },
 
