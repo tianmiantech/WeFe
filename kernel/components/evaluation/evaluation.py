@@ -242,7 +242,7 @@ class Evaluation(ModelBase):
 
     def prob_bin_result(self, data):
         classes = len(set([d[1][0] for d in data]))
-        if classes < 3:
+        if classes < 3 and self.model_param.prob_need_to_bin:
             sample_pro_result_list = []
             for index, sample_pro_result in enumerate(data):
                 sample_pro_result_list.append(sample_pro_result[1][2])

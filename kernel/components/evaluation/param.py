@@ -51,8 +51,8 @@ class EvaluateParam(BaseParam):
         Indicate if this module needed to be run
     """
 
-    def __init__(self, eval_type="binary", pos_label=1, need_run=True, metrics=None, prob_need_to_bin = True,
-                 bin_method = "bucket", bin_num = 10):
+    def __init__(self, eval_type="binary", pos_label=1, need_run=True, metrics=None, prob_need_to_bin = False,
+                 bin_method = None, bin_num = None):
         super().__init__()
         self.eval_type = eval_type
         self.pos_label = pos_label
