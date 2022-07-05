@@ -15,7 +15,7 @@
  */
 package com.welab.wefe.gateway.config;
 
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -34,10 +34,10 @@ public class CommonConfig {
     @Value("${privacy.database.encrypt.enable:false}")
     private String isDatabaseEncryptEnable;
 
-    @Value("${privacy.database.encrypt.secret.key}")
+    @Value("${privacy.database.encrypt.secret.key:}")
     private String privacyDatabaseEncryptSecretKey;
 
-    @Value("${wefe.union.base-url}")
+    @Value("${wefe.union.base-url:}")
     private String unionBaseUrl;
 
     public String getIsDatabaseEncryptEnable() {
@@ -63,4 +63,6 @@ public class CommonConfig {
     public void setUnionBaseUrl(String unionBaseUrl) {
         this.unionBaseUrl = unionBaseUrl;
     }
+
+
 }
