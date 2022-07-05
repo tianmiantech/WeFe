@@ -54,7 +54,7 @@ public class ClientService {
 
         ClientMysqlModel clientMysqlModel = queryByCode(input.getCode());
         if (clientMysqlModel != null) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
+            throw new StatusCodeWithException("code 【"+input.getCode()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
 
         ClientMysqlModel clientMysqlModel1 = queryByClientName(input.getName());

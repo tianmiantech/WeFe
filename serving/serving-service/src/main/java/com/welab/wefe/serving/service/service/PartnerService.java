@@ -92,7 +92,7 @@ public class PartnerService {
         if (StringUtils.isNotBlank(input.getCode())) {
             partnerMysqlModel = queryByCode(input.getCode());
             if (partnerMysqlModel != null) {
-                throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
+                throw new StatusCodeWithException("code 【"+input.getCode()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
             }
         }
 

@@ -285,11 +285,11 @@ public class ServiceService {
         BaseServiceMySqlModel baseModel = baseServiceRepository.findOne("name", input.getName(),
                 BaseServiceMySqlModel.class);
         if (baseModel != null) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "服务名称");
+            throw new StatusCodeWithException("服务名称 【"+input.getName()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
         TableServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), TableServiceMySqlModel.class);
         if (model != null) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getUrl(), "服务英文名称");
+            throw new StatusCodeWithException("服务英文名称 【"+input.getUrl()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
         model = ModelMapper.map(input, TableServiceMySqlModel.class);
         model.setCreatedBy(CurrentAccount.id());
@@ -441,13 +441,13 @@ public class ServiceService {
         List<BaseServiceMySqlModel> baseModels = baseServiceRepository
                 .findAll(Where.create().equal("name", input.getName()).build(BaseServiceMySqlModel.class));
         if (baseModels != null && !baseModels.isEmpty()) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "服务名称");
+            throw new StatusCodeWithException("服务名称 【"+input.getName()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
         
         baseModels = baseServiceRepository
                 .findAll(Where.create().equal("url", input.getUrl()).build(BaseServiceMySqlModel.class));
         if (baseModels != null && baseModels.size() >= 2) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "服务英文名称");
+            throw new StatusCodeWithException("服务英文名称 【"+input.getUrl()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
         
         if (StringUtils.isNotBlank(input.getName())) {
