@@ -440,7 +440,7 @@ public class ServiceService {
         }
         List<BaseServiceMySqlModel> baseModels = baseServiceRepository
                 .findAll(Where.create().equal("name", input.getName()).build(BaseServiceMySqlModel.class));
-        if (baseModels != null && baseModels.size() >= 2) {
+        if (baseModels != null && !baseModels.isEmpty()) {
             throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getName(), "服务名称");
         }
         
