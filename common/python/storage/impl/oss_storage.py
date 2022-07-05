@@ -151,7 +151,7 @@ class OssStorage(FCStorage):
             enable = conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
             if enable == "true":
                 sm4_util = SM4CBC()
-                key = conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY)
+                key = bytes.fromhex(conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
                 access_key_id = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID))
                 key_secret = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET))
             else:
