@@ -95,15 +95,18 @@ class FCStorage(object):
     def create_cloud_store_temp_auth(self):
 
         # TODO：check whether the sts_token expires, if it does not expire, it will not be regenerated
-        enable = conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
-        if enable == "true":
-            sm4_util = SM4CBC()
-            key = bytes.fromhex(conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
-            access_key_id = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID))
-            access_key_secret = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET))
-        else:
-            access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
-            access_key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
+        # enable = conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
+        # if enable == "true":
+        #     sm4_util = SM4CBC()
+        #     key = bytes.fromhex(conf_utils.get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
+        #     access_key_id = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID))
+        #     access_key_secret = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET))
+        # else:
+        access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
+        access_key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
+
+        print(f'access_key_id: {access_key_id}, access_key_secret:{access_key_secret}   11111')
+
         role_arn = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_ARN)
         region_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_REGION)
         temp_auth_internal_end_point = conf_utils.get_comm_config(
