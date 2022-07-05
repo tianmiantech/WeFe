@@ -21,6 +21,7 @@
                         prop="service_type"
                         label="服务类型:"
                         style="min-width: 280px;"
+                        label-width="100px"
                     >
                         <el-select
                             v-model="form.service_type"
@@ -61,6 +62,7 @@
                     prop="name"
                     label="服务名称:"
                     class="maxlength"
+                    label-width="100px"
                 >
                     <el-input
                         v-model="form.name"
@@ -70,18 +72,19 @@
                     />
                 </el-form-item>
 
-                <el-form-item v-if="form.service_type > 0 && this.form.service_type < 7"
+                <el-form-item
+                    v-if="form.service_type > 0 && form.service_type < 7"
                     prop="url"
                     label="服务英文名称:"
                     class="maxlength"
+                    label-width="100px"
                 >
                     <el-input
                         v-model="form.url"
                         :maxlength="100"
                         :minlength="4"
                         size="medium"
-                    >
-                    </el-input>
+                    />
                 </el-form-item>
 
                 <template v-if="form.service_type">
@@ -167,12 +170,13 @@
                             :key="`paramsArr-${index}`"
                             :prop="`paramsArr.${index}.value`"
                             :rules="{ required: true, message: '参数名称不能为空', trigger: 'blur' }"
+                            label-width="30px"
                         >
                             <label style="color: #6C757D;">
                                 <span>参数名称：</span>
                                 <el-input
                                     v-model.trim="item.value"
-                                    style="width: 230px;"
+                                    style="width: 24%;"
                                     clearable
                                     @input="paramsValidate(index)"
                                 />
@@ -206,7 +210,8 @@
                     <!--                    </el-form-item>-->
                     </template>
 
-                    <template v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
+                    <template
+                        v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
                     >
                         <el-divider />
                         <p
@@ -215,7 +220,10 @@
                         >
                             SQL 配置：
                         </p>
-                        <el-form-item label="数据源:">
+                        <el-form-item
+                            label="数据源:"
+                            label-width="100px"
+                        >
                             <el-select
                                 v-model="form.data_source.id"
                                 clearable
@@ -236,7 +244,10 @@
                                 添加数据源
                             </el-button>
                         </el-form-item>
-                        <el-form-item label="数据表:">
+                        <el-form-item
+                            label="数据表:"
+                            label-width="100px"
+                        >
                             <el-select
                                 v-model="form.data_source.table"
                                 clearable
@@ -255,6 +266,7 @@
                             <el-form-item
                                 label="求交主键:"
                                 required
+                                label-width="100px"
                             >
                                 <el-button
                                     type="primary"
@@ -269,6 +281,7 @@
                         <el-form-item
                             v-else
                             label="返回字段:"
+                            label-width="100px"
                         >
                             <el-select
                                 v-model="form.data_source.return_fields"
@@ -293,10 +306,11 @@
                                 :key="`condition_field-${$index}`"
                                 class="condition_fields"
                                 label="查询条件:"
+                                label-width="100px"
                             >
                                 <el-select
                                     v-model="sqlOperator"
-                                    class="ml10 no-arrow"
+                                    class="no-arrow"
                                     style="width:40px;"
                                     @change="sqlShow"
                                 >
@@ -348,6 +362,7 @@
                                     placeholder="从查询参数配置中选择"
                                     class="ml10"
                                     clearable
+                                    style="width: 32%"
                                     @change="sqlShow"
                                 >
                                     <el-option
@@ -413,19 +428,24 @@
                         </el-form-item>
 
                         <el-divider />
-                        <div v-if="form.service_type === 7 && form.model_data.model_id">
+                        <div
+                            v-if="form.service_type === 7 && form.model_data.model_id"
+                            class="model_preview"
+                        >
                             <p
                                 name="模型概览"
                                 class="nav-title mb10"
                             >
                                 模型概览：
                             </p>
-                            <el-form-item class="service-list">
-                                <p><strong>Id: </strong> {{ form.model_data.model_id }}</p>
-                                <p><strong>算法: </strong> {{ form.model_data.model_algorithm }}</p>
-                                <p><strong>训练类型: </strong> {{ flType(form.model_data.model_fl_type) }}</p>
+                            <el-form-item
+                                class="service-list"
+                            >
+                                <p><strong>Id：</strong> {{ form.model_data.model_id }}</p>
+                                <p><strong>算法：</strong> {{ form.model_data.model_algorithm }}</p>
+                                <p><strong>训练类型：</strong> {{ flType(form.model_data.model_fl_type) }}</p>
                                 <p>
-                                    <strong>我的角色: </strong>
+                                    <strong>我的角色：</strong>
                                     <el-tag
                                         v-for="each in form.model_data.model_roles"
                                         :key="each"
@@ -434,7 +454,7 @@
                                     </el-tag>
                                 </p>
                                 <p>
-                                    <strong>模型结构: </strong>
+                                    <strong>模型结构：</strong>
                                     <el-button
                                         v-if="algorithm === 'XGBoost'"
                                         size="mini"
@@ -2334,6 +2354,13 @@ export default {
     //         }
     //     }
     // }
+    .model_preview {
+        strong {
+            display: inline-block;
+            width: 75px;
+            // text-align: right;
+        }
+    }
 }
 .maxlength {
     max-width: 400px;
