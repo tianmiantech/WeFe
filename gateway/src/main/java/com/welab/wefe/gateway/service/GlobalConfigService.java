@@ -17,6 +17,9 @@
 package com.welab.wefe.gateway.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.util.SM4Util;
+import com.welab.wefe.gateway.common.EncryptEnableEnum;
+import com.welab.wefe.gateway.config.CommonConfig;
 import com.welab.wefe.gateway.dto.*;
 import com.welab.wefe.gateway.entity.GlobalConfigEntity;
 import com.welab.wefe.gateway.repository.GlobalConfigRepository;
@@ -32,6 +35,9 @@ import java.util.List;
 public class GlobalConfigService extends AbstractService {
     @Autowired
     private GlobalConfigRepository globalConfigRepository;
+
+    @Autowired
+    private CommonConfig commonConfig;
 
     protected static class Group {
         public static String MEMBER_INFO = "member_info";
@@ -72,7 +78,18 @@ public class GlobalConfigService extends AbstractService {
      * Get aliyun function compute config
      */
     public AliyunFunctionComputeConfigModel getAliyunFunctionComputeConfig() {
-        return getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
+        AliyunFunctionComputeConfigModel model = getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
+        if (EncryptEnableEnum.ENABLE.getValue().equals(commonConfig.getIsDatabaseEncryptEnable())) {
+            String secretKey = commonConfig.getPrivacyDatabaseEncryptSecretKey();
+            try {
+                model.setAccessKeyId(SM4Util.decrypt(secretKey, model.getAccessKeyId()));
+                model.setAccessKeySecret(SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        return model;
     }
 
     /**
