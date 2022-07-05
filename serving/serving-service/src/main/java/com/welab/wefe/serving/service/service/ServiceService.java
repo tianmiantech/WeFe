@@ -627,7 +627,7 @@ public class ServiceService {
         JObject res = check(service, data, service.getUrl(), input, clientIp);
         if (res != null) {
             res.append("responseId", UUID.randomUUID().toString().replaceAll("-", ""));
-            afterExecute(serviceOrderId, callLogId, ServiceOrderEnum.FAILED.name(), res, beginTime);
+            afterExecute(serviceOrderId, callLogId, ServiceOrderEnum.FAILED.getValue(), res, beginTime);
             return res;
         }
         JObject result = JObject.create();
@@ -642,7 +642,11 @@ public class ServiceService {
         } finally {
             log(service, partner, start, clientIp, result.getIntValue("code"));
             result.append("responseId", UUID.randomUUID().toString().replaceAll("-", ""));
-            afterExecute(serviceOrderId, callLogId, callLogId, result, beginTime);
+            afterExecute(serviceOrderId, callLogId,
+                    result.getIntValue("code") == ServiceResultEnum.SUCCESS.getCode()
+                            ? ServiceOrderEnum.SUCCESS.getValue()
+                            : ServiceOrderEnum.FAILED.getValue(),
+                    result, beginTime);
         }
     }
 
@@ -655,7 +659,7 @@ public class ServiceService {
     private String preExecuteOrderLog(TableServiceMySqlModel service, PartnerMysqlModel client, RouteApi.Input input,
             String clientIp) {
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
-                service.getServiceType(), CallByMeEnum.NO.getValue(), ServiceOrderEnum.ORDERING.name(), client.getId(),
+                service.getServiceType(), CallByMeEnum.NO.getValue(), ServiceOrderEnum.ORDERING.getValue(), client.getId(),
                 client.getName(), CacheObjects.getMemberId(), CacheObjects.getMemberName());
         return serviceOrderModel.getId();
     }
