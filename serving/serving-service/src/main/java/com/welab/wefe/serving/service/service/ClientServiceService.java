@@ -119,6 +119,7 @@ public class ClientServiceService {
                 }
                 model.setUrl(input.getUrl());
             }
+            model.setType(input.getType());
             model.setCreatedTime(new Date());
             model.setUpdatedBy(model.getCreatedBy());
             model.setUpdatedTime(new Date());
@@ -168,6 +169,7 @@ public class ClientServiceService {
             } else {
                 output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
                 output.setUnitPrice(x.getUnitPrice() + "");
+                output.setUrl(ServiceService.SERVICE_PRE_URL + x.getUrl());
             }
             list.add(output);
         });
