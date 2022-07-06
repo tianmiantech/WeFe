@@ -120,6 +120,7 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         final JObject trainObj = getTrainObjByTaskId(taskId);
         final JObject validateObj = getValidateObjByTaskId(taskId);
 
+
         switch (type) {
             case "ks":
                 JObject ks = JObject.create();
@@ -160,10 +161,12 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
                 topn.putAll(parserTopN(trainObj, normalName, "train"));
                 topn.putAll(parserTopN(validateObj, normalName, "validate"));
                 return topn;
-            case "distribution_scores":
-                JObject distribution_scores = JObject.create();
-                distribution_scores.putAll(parserTopN(trainObj, normalName, "train"));
-                return distribution_scores;
+            case "scores_distribution":
+                final JObject distributionObj = getDistributionObjByTaskId(taskId);
+                JObject scores_distribution = JObject.create();
+//                scores_distribution.putAll(parserTrainCurveData(trainObj, "gain", normalName));
+                scores_distribution.putAll(parserScoresDistributionCurveData(distributionObj, normalName));
+                return scores_distribution;
             default:
                 return JObject.create();
         }
@@ -228,6 +231,11 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         return validateTaskResult != null ? JObject.create(validateTaskResult.getResult()) : JObject.create("");
     }
 
+    private JObject getDistributionObjByTaskId(String taskId) {
+        TaskResultMySqlModel result = findEvaluationDistributionTaskResultByTaskId(taskId);
+        return result != null ? JObject.create(result.getResult()) : JObject.create("");
+    }
+
     private TaskResultMySqlModel findEvaluationTaskResultByTaskId(String taskId) {
         TaskResultMySqlModel trainTaskResult = findEvaluationTrainTaskResultByTaskId(taskId);
         // Training and validation evaluation task_result only has different types,
@@ -244,6 +252,10 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
     private TaskResultMySqlModel findEvaluationValidateTaskResultByTaskId(String taskId) {
         return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_validate.name());
+    }
+
+    private TaskResultMySqlModel findEvaluationDistributionTaskResultByTaskId(String taskId) {
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.distribution_train_validate.name());
     }
 
     /**
@@ -265,6 +277,35 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
     private JObject parserValidateCurveData(JObject obj, String type, String normalName) {
         return parserCurveData(obj, type, normalName, "validate_");
+    }
+
+    private JObject parserScoresDistributionCurveData(JObject obj, String normalName) {
+        JObject result = extractScoreDistributionData(obj, normalName);
+        List<String> dataKey = result.keySet().stream().sorted()
+                .collect(Collectors.toList());
+
+        List<List<Object>> dataList = new ArrayList<>();
+
+        for (int i = 0; i < dataKey.size(); i++) {
+            String key = dataKey.get(i);
+            String beforeKey = i == 0 ? "0" : dataKey.get(i - 1);
+            String xAxis = beforeKey + "~" + key;
+
+            int yAxis = result.getJObject(key).getIntValue("count");
+            double yAxis2 = result.getJObject(key).getDoubleValue("count_rate");
+
+            dataList.add(Arrays.asList(xAxis, yAxis, yAxis2));
+        }
+
+        return JObject.create().append("scores_distribution", dataList);
+    }
+
+    private JObject extractScoreDistributionData(JObject obj, String normalName) {
+        String curveKey = "train_validate_" + normalName + "_scores_distribution";
+        JObject scoresDistributionData = obj.getJObject(curveKey);
+        JObject data = scoresDistributionData.getJObject("data");
+        JObject result = data.getJObject("bin_result");
+        return result;
     }
 
     /**
