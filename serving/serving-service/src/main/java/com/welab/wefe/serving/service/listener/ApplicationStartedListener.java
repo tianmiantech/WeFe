@@ -68,7 +68,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-//        checkAndSaveFeeDetail();
+        checkAndSaveFeeDetail();
         checkAndSaveOrderStatistics();
         logger.info("config wefe.service.cache.type=" + config.getServiceCacheType());
         // init PrivateInformationRetrievalServer
