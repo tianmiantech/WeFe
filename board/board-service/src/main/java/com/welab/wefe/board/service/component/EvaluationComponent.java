@@ -34,6 +34,7 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -164,7 +165,6 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
             case "scores_distribution":
                 final JObject distributionObj = getDistributionObjByTaskId(taskId);
                 JObject scores_distribution = JObject.create();
-//                scores_distribution.putAll(parserTrainCurveData(trainObj, "gain", normalName));
                 scores_distribution.putAll(parserScoresDistributionCurveData(distributionObj, normalName));
                 return scores_distribution;
             default:
@@ -281,23 +281,38 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
     private JObject parserScoresDistributionCurveData(JObject obj, String normalName) {
         JObject result = extractScoreDistributionData(obj, normalName);
+
         List<String> dataKey = result.keySet().stream().sorted()
                 .collect(Collectors.toList());
 
-        List<List<Object>> dataList = new ArrayList<>();
+        List<List<Object>> dataList = Lists.newArrayList();
 
         for (int i = 0; i < dataKey.size(); i++) {
             String key = dataKey.get(i);
-            String beforeKey = i == 0 ? "0" : dataKey.get(i - 1);
-            String xAxis = beforeKey + "~" + key;
-
-            int yAxis = result.getJObject(key).getIntValue("count");
-            double yAxis2 = result.getJObject(key).getDoubleValue("count_rate");
-
-            dataList.add(Arrays.asList(xAxis, yAxis, yAxis2));
+            dataList.add(
+                    Arrays.asList(
+                            extractXAxis(dataKey, i, key),
+                            extractYAxis(result, key),
+                            extractYAxis2(result, key)
+                    )
+            );
         }
 
         return JObject.create().append("scores_distribution", dataList);
+    }
+
+    private double extractYAxis2(JObject result, String key) {
+        return result.getJObject(key).getDoubleValue("count_rate");
+    }
+
+    private int extractYAxis(JObject result, String key) {
+        return result.getJObject(key).getIntValue("count");
+    }
+
+    private String extractXAxis(List<String> dataKey, int i, String key) {
+        String beforeKey = i == 0 ? "0" : dataKey.get(i - 1);
+        String xAxis = beforeKey + "~" + key;
+        return xAxis;
     }
 
     private JObject extractScoreDistributionData(JObject obj, String normalName) {
