@@ -16,12 +16,25 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.member.QueryApi;
 import com.welab.wefe.serving.service.api.partner.DetailPartnerApi;
+import com.welab.wefe.serving.service.api.partner.QueryPartnerAllApi;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Input;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Output;
@@ -37,17 +50,6 @@ import com.welab.wefe.serving.service.database.repository.PartnerRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class PartnerService {
@@ -176,6 +178,13 @@ public class PartnerService {
                 .map(x -> ModelMapper.map(x, QueryPartnerListApi.Output.class)).collect(Collectors.toList());
 
         return PagingOutput.of(page.getTotal(), list);
+    }
+    
+    public List<QueryPartnerAllApi.Output> queryAll() {
+        List<PartnerMysqlModel> list = partnerRepository.findAll();
+        List<QueryPartnerAllApi.Output> output = list.stream()
+                .map(x -> ModelMapper.map(x, QueryPartnerAllApi.Output.class)).collect(Collectors.toList());
+        return output;
     }
 
     public void update(com.welab.wefe.serving.service.api.partner.UpdateApi.Input input)
