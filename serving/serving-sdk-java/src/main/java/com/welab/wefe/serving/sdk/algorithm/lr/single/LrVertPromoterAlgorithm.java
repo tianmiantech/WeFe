@@ -20,6 +20,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
@@ -40,9 +41,12 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
         //Calculation results
         LrPredictResultModel result = execute(predictParams);
 
+        if (StringUtil.isNotEmpty(result.getError())) {
+            return result;
+        }
+
         if (CollectionUtils.isEmpty(federatedResult)) {
             normalize(result);
-
             return result;
         }
 
