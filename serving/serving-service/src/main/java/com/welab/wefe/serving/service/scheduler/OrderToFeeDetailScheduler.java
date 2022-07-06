@@ -27,6 +27,8 @@ import com.welab.wefe.serving.service.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -40,16 +42,13 @@ import java.util.TimeZone;
  * @author ivenn.zheng
  * @date 2021/12/24
  */
-//@Component
+@Component
 public class OrderToFeeDetailScheduler {
 
     private Logger logger = LoggerFactory.getLogger(OrderToFeeDetailScheduler.class);
 
     @Autowired
     private FeeDetailService feeDetailService;
-
-    @Autowired
-    private ApiRequestRecordService apiRequestRecordService;
 
     @Autowired
     private FeeConfigService feeConfigService;
@@ -60,7 +59,7 @@ public class OrderToFeeDetailScheduler {
     @Autowired
     private ServiceOrderService serviceOrderService;
 
-    //    @Scheduled(cron = "0 0 0-23 * * ?")
+    @Scheduled(cron = "0 0 0-23 * * ?")
     public void feeRecord() {
 
         try {
