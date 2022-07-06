@@ -46,7 +46,6 @@
                 seriesLength: 0,
             });
 
-            console.log(props.config);
             const options = {
                 tooltip: {
                     confine:     true,

@@ -149,10 +149,6 @@
                                         itemStyle: {
                                             color: 'rgba(5, 115, 107, .7)',
                                         },
-                                        // label: {
-                                        //     show:     true,
-                                        //     position: 'inside',
-                                        // },
                                     },
                                     {
                                         name:      'bad',
@@ -162,10 +158,6 @@
                                         itemStyle: {
                                             color: 'rgba(174, 6, 23, .7)',
                                         },
-                                        // label: {
-                                        //     show:     true,
-                                        //     position: 'inside',
-                                        // },
                                     },
                                     {
                                         type:       'line',
@@ -177,6 +169,9 @@
                                         label: {
                                             show:     true,
                                             position: 'inside',
+                                            formatter (value) {
+                                                return Number(value.data).toFixed(3);
+                                            },
                                         },
                                     },
                                 );
