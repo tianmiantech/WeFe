@@ -16,8 +16,8 @@
                 </el-select>
             </el-form-item>
 
-            <el-form-item label="客户：" prop="serviceId">
-                <el-select v-model="paymentsRecords.clientId" filterable clearable placeholder="请选择客户">
+            <el-form-item label="合作者：" prop="clientId">
+                <el-select v-model="paymentsRecords.clientId" filterable clearable placeholder="请选择合作者">
                     <el-option
                         v-for="item in clients"
                         :key="item.value"
@@ -37,17 +37,6 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-
-            <!--            <el-form-item label="状态" prop="status">-->
-            <!--                <el-select v-model="paymentsRecords.status" filterable clearable placeholder="请选择类型">-->
-            <!--                    <el-option-->
-            <!--                        v-for="item in statusMap"-->
-            <!--                        :key="item.value"-->
-            <!--                        :label="item.label"-->
-            <!--                        :value="item.value">-->
-            <!--                    </el-option>-->
-            <!--                </el-select>-->
-            <!--            </el-form-item>-->
 
             <el-form-item label="金额(￥)" prop="amount" class="amount">
                 <el-input v-model="paymentsRecords.amount"></el-input>
@@ -114,10 +103,6 @@ export default {
                 {value: '1', label: '充值'},
                 {value: '2', label: '支出'},
             ],
-            // statusMap: [
-            //     {value: '1', label: '正常'},
-            //     {value: '2', label: '冲正'},
-            // ],
             rules: {
 
                 clientId: [
@@ -211,11 +196,11 @@ export default {
 
         async getClients() {
             const {code, data} = await this.$http.post({
-                url: '/client/query-list',
+                url: '/partner/query-all',
             });
 
             if (code === 0) {
-                this.handleClients(data.list)
+                this.handleClients(data)
             }
         },
 
