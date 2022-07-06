@@ -18,6 +18,7 @@ package com.welab.wefe.serving.sdk.algorithm.lr;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.enums.StateCode;
 import com.welab.wefe.serving.sdk.model.lr.LrModel;
