@@ -96,14 +96,22 @@
                 </template>
             </el-table-column>
 
-            <!-- <el-table-column
+            <el-table-column
                 label="URL"
                 min-width="140px"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.url }}
+                    <el-tooltip
+                        class="item"
+                        effect="dark"
+                        :content="scope.row.url"
+                        placement="left-start"
+                    >
+                        <p v-if="scope.row.url.length >= 30">{{ scope.row.url.substring(0, 30) }} ...</p>
+                        <p v-if="scope.row.url.length < 30">{{ scope.row.url }} </p>
+                    </el-tooltip>
                 </template>
-            </el-table-column> -->
+            </el-table-column>
 
             <el-table-column
                 label="服务类型"

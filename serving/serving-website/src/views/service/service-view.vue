@@ -2146,15 +2146,15 @@ export default {
         },
         async saveService(event) {
             if (!this.form.name) {
-                this.$message.error('请将必填项填写完整！');
+                this.$message.error('服务名称不能为空！');
                 return;
             }
-            if (!this.form.name || !this.form.url || !this.form.service_type) {
-                this.$message.error('请将必填项填写完整！');
+            if (!this.form.url) {
+                this.$message.error('服务英文名称不能为空！');
                 return;
             }
-            if (!this.form.name || !this.form.url || !this.form.service_type) {
-                this.$message.error('请将必填项填写完整！');
+            if (!this.form.service_type) {
+                this.$message.error('服务类型不能为空！');
                 return;
             }
 
@@ -2191,7 +2191,7 @@ export default {
                         const x = this.form.paramsArr[i];
 
                         if (!x.value) {
-                            return this.$message.error('请将查询字段填写完整!');
+                            return this.$message.error('查询参数配置不能为空');
                         } else {
                             params.push({
                                 name: x.value,
@@ -2246,7 +2246,7 @@ export default {
                         const item = obj.condition_fields[i];
 
                         if (!item.field_on_param || !item.field_on_table) {
-                            return this.$message.error('查询条件不能为空!');
+                            return this.$message.error('SQL配置不能为空!');
                         }
                     }
 
