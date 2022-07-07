@@ -161,12 +161,13 @@ class VertDPSecureBoostingPromoter(BoostingTree):
         self.feature_sitenames = [(feature_num,promoter_sitename)]
         for data_bin in privider_data_bins:
             self.data_bin = binning_obj.merge_data_bins(self.data_bin, data_bin)
-        for bin_split_points, bin_sparse_points, sitename in privider_split_points:
-            self.bin_split_points = np.vstack((self.bin_split_points,bin_split_points))
-            for k,v in bin_sparse_points.items():
+        for bin_shape, bin_sparse_points, sitename in privider_split_points:
+            self.bin_split_points = np.zeros((self.bin_split_points.shape[0]+bin_shape[0], self.bin_num))
+
+            for k, v in bin_sparse_points.items():
                 self.bin_sparse_points[k+feature_num] = v
-            feature_num += bin_split_points.shape[0]
-            self.feature_sitenames.append((feature_num,sitename))
+            feature_num += bin_shape[0]
+            self.feature_sitenames.append((feature_num, sitename))
 
     def set_y(self):
         LOGGER.info("set label from data and check label")
