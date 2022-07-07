@@ -73,7 +73,10 @@ public class HorzLRComponent extends AbstractModelingComponent<HorzLRComponent.P
                 .append("fit_intercept", params.getInitParam().getFitIntercept())
                 .append("n_splits", params.getCvParam().getnSplits())
                 .append("shuffle", params.getCvParam().isShuffle())
-                .append("need_cv", params.getCvParam().isNeedCv());
+                .append("need_cv", params.getCvParam().isNeedCv())
+                .append("need_scorecard", params.getScoreParam().isNeedScorecard())
+                .append("p0", params.getScoreParam().getP0())
+                .append("pdo", params.getScoreParam().getPdo());
 
         return output;
     }

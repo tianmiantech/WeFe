@@ -105,4 +105,48 @@ public class AbstractLRInput extends AbstractCheckModel {
         }
     }
 
+
+    @Check(name = "评分卡基准分设置")
+    private ScoreParam scoreParam;
+
+    public ScoreParam getScoreParam() {
+        return scoreParam;
+    }
+
+    public void setScoreParam(ScoreParam scoreParam) {
+        this.scoreParam = scoreParam;
+    }
+
+    public static class ScoreParam extends AbstractCheckModel {
+        @Check(name = "是否需要设置评分卡", require = true)
+        private boolean needScorecard;
+
+        private int p0;
+
+        private int pdo;
+
+        public boolean isNeedScorecard() {
+            return needScorecard;
+        }
+
+        public void setNeedScorecard(boolean needScorecard) {
+            this.needScorecard = needScorecard;
+        }
+
+        public int getP0() {
+            return p0;
+        }
+
+        public void setP0(int p0) {
+            this.p0 = p0;
+        }
+
+        public int getPdo() {
+            return pdo;
+        }
+
+        public void setPdo(int pdo) {
+            this.pdo = pdo;
+        }
+    }
 }
