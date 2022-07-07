@@ -58,6 +58,11 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
         if (memberCount > 2 && "sshe-lr".equalsIgnoreCase(params.getOtherParam().getLrMethod())) {
             throw new FlowNodeException(node, "sshe-lr 只支持两个参与方");
         }
+
+        FlowGraphNode binningNode = graph.findOneNodeFromParent(node, ComponentType.Binning);
+        if (params.getScoreParam().isNeedScorecard() && binningNode == null) {
+            throw new FlowNodeException(node, "请在前面添加分箱组件。");
+        }
     }
 
 
