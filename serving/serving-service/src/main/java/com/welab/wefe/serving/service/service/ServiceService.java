@@ -425,6 +425,7 @@ public class ServiceService {
         page.getList().stream().forEach(s -> {
             s.setCreatedBy(accountMap.get(s.getCreatedBy()));
             s.setUpdatedBy(accountMap.get(s.getUpdatedBy()));
+            s.setUrl(SERVICE_PRE_URL + s.getUrl());
         });
         List<QueryApi.Output> list = page.getList().stream().map(x -> ModelMapper.map(x, QueryApi.Output.class))
                 .collect(Collectors.toList());
