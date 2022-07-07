@@ -201,7 +201,7 @@ public class HttpResponse {
         if (contentType != null && contentType.toLowerCase().contains("json")) {
             try {
                 JSONObject json = getBodyAsJson();
-                content = JSON.toJSONString(json.getInnerMap(), new LoggerValueFilter());
+                content = JSON.toJSONString(json.getInnerMap(), LoggerValueFilter.DEFAULT);
             } catch (Exception e) {
             }
         }
