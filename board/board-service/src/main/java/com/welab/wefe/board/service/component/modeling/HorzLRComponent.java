@@ -45,10 +45,7 @@ public class HorzLRComponent extends AbstractModelingComponent<HorzLRComponent.P
 
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
-        FlowGraphNode binningNode = graph.findOneNodeFromParent(node, ComponentType.HorzFeatureBinning);
-        if (params.getScoreParam().isNeedScorecard() && binningNode == null) {
-            throw new FlowNodeException(node, "请在前面添加分箱组件。");
-        }
+
     }
 
 
@@ -76,10 +73,7 @@ public class HorzLRComponent extends AbstractModelingComponent<HorzLRComponent.P
                 .append("fit_intercept", params.getInitParam().getFitIntercept())
                 .append("n_splits", params.getCvParam().getnSplits())
                 .append("shuffle", params.getCvParam().isShuffle())
-                .append("need_cv", params.getCvParam().isNeedCv())
-                .append("need_scorecard", params.getScoreParam().isNeedScorecard())
-                .append("p0", params.getScoreParam().getP0())
-                .append("pdo", params.getScoreParam().getPdo());
+                .append("need_cv", params.getCvParam().isNeedCv());
 
         return output;
     }

@@ -58,11 +58,6 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
         if (memberCount > 2 && "sshe-lr".equalsIgnoreCase(params.getOtherParam().getLrMethod())) {
             throw new FlowNodeException(node, "sshe-lr 只支持两个参与方");
         }
-
-        FlowGraphNode binningNode = graph.findOneNodeFromParent(node, ComponentType.Binning);
-        if (params.getScoreParam().isNeedScorecard() && binningNode == null) {
-            throw new FlowNodeException(node, "请在前面添加分箱组件。");
-        }
     }
 
 
@@ -95,10 +90,7 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
                 .append("n_splits", params.getCvParam().getnSplits())
                 .append("shuffle", params.getCvParam().isShuffle())
                 .append("need_cv", params.getCvParam().isNeedCv())
-                .append("lr_method", params.getOtherParam().getLrMethod())
-                .append("need_scorecard", params.getScoreParam().isNeedScorecard())
-                .append("p0", params.getScoreParam().getP0())
-                .append("pdo", params.getScoreParam().getPdo());
+                .append("lr_method", params.getOtherParam().getLrMethod());
 
         return output;
     }
