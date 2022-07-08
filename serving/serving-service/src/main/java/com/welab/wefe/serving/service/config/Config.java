@@ -26,9 +26,6 @@ public class Config extends CommonConfig {
     @Value("${wefe.service.cache.type}")
     private String serviceCacheType;
 
-    @Value("${sm4.secret.key:}")
-    private String sm4SecretKey;
-
     @Value("${verification.code.send.channel:email}")
     private String verificationCodeSendChannel;
 
@@ -105,14 +102,6 @@ public class Config extends CommonConfig {
 
     public void setServiceCacheType(String serviceCacheType) {
         this.serviceCacheType = serviceCacheType;
-    }
-
-    public String getSm4SecretKey() {
-        return sm4SecretKey;
-    }
-
-    public void setSm4SecretKey(String sm4SecretKey) {
-        this.sm4SecretKey = sm4SecretKey;
     }
 
     public String getVerificationCodeSendChannel() {

@@ -29,7 +29,7 @@ public class ServingSM4Util {
     private static final Logger LOG = LoggerFactory.getLogger(ServingSM4Util.class);
 
     public static String encryptPhoneNumber(String phoneNumber) throws StatusCodeWithException {
-        if(StringUtil.isEmpty(phoneNumber)) {
+        if (StringUtil.isEmpty(phoneNumber)) {
             return phoneNumber;
         }
         try {
@@ -45,7 +45,7 @@ public class ServingSM4Util {
     }
 
     public static String decryptPhoneNumber(String phoneNumber) throws StatusCodeWithException {
-        if(StringUtil.isEmpty(phoneNumber)) {
+        if (StringUtil.isEmpty(phoneNumber)) {
             return phoneNumber;
         }
         try {
@@ -65,7 +65,7 @@ public class ServingSM4Util {
         if (!config.isDatabaseEncryptEnable()) {
             return plaintext;
         }
-        return SM4Util.encrypt(config.getSm4SecretKey(), plaintext);
+        return SM4Util.encrypt(config.getDatabaseEncryptSecretKey(), plaintext);
     }
 
     private static String decrypt(String ciphertext) throws Exception {
@@ -73,6 +73,6 @@ public class ServingSM4Util {
         if (!config.isDatabaseEncryptEnable()) {
             return ciphertext;
         }
-        return SM4Util.decrypt(config.getSm4SecretKey(), ciphertext);
+        return SM4Util.decrypt(config.getDatabaseEncryptSecretKey(), ciphertext);
     }
 }
