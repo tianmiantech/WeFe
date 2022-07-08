@@ -56,16 +56,16 @@ public class Config extends CommonConfig {
     @Value("${sms.access_key_secret:xxx}")
     private String smsAccessKeySecret;
 
-    @Value("${wefe.mail_server.mail_host}")
+    @Value("${mail_server.mail_host}")
     private String mailHost;
 
-    @Value("${wefe.mail_server.mail_password}")
+    @Value("${mail_server.mail_password}")
     private String mailPassword;
 
-    @Value("${wefe.mail_server.port}")
+    @Value("${mail_server.port}")
     private String mailPort;
 
-    @Value("${wefe.mail_server.username}")
+    @Value("${mail_server.username}")
     private String mailUsername;
 
 
