@@ -107,7 +107,7 @@
                             </el-form-item>
                         </fieldset>
 
-                        <el-dialog title="初始化" v-model="dialogVisibleInfo" width="40%">
+                        <el-dialog title="初始化" v-model="dialogVisibleInfo" width="40%" custom-class="unset-dialog-height">
                             <el-form :model="form">
                                 <el-form-item label="账号" :label-width="formLabelWidth">
                                     <el-input v-model="form.phone_number" type="text" clearable
