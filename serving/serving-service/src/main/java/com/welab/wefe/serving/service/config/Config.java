@@ -11,9 +11,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
-    @Value("${wefe.serving.base-url}")
-    private String SERVING_BASE_URL;
-
     @Value("${wefe.serving.file-path}")
     private String fileBasePath;
 
@@ -77,13 +74,6 @@ public class Config extends CommonConfig {
         this.fileBasePath = fileBasePath;
     }
 
-    public String getSERVING_BASE_URL() {
-        return SERVING_BASE_URL;
-    }
-
-    public void setSERVING_BASE_URL(String sERVING_BASE_URL) {
-        SERVING_BASE_URL = sERVING_BASE_URL;
-    }
 
     public String getRedisHost() {
         return redisHost;
