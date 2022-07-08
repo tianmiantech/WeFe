@@ -68,4 +68,4 @@ ALTER TABLE `message`
 -- 将历史数据中的枚举改为字符串
 update `message`
 set `level`='error'
-where `level` in (0, 1, 2, 3, 4, 5);
+where `level` in ('0', '1', '2', '3', '4', '5');
