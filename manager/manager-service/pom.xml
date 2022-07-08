@@ -37,7 +37,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.53.Final</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -51,6 +50,28 @@
             <artifactId>common-data-mongodb</artifactId>
             <version>1.0.0</version>
         </dependency>
+
+<!-- https://mvnrepository.com/artifact/org.web3j/core -->
+<dependency>
+    <groupId>org.web3j</groupId>
+    <artifactId>core</artifactId>
+    <version>3.4.0</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on -->
+<dependency>
+    <groupId>org.bouncycastle</groupId>
+    <artifactId>bcpkix-jdk15on</artifactId>
+    <version>1.60</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
+<dependency>
+    <groupId>org.bouncycastle</groupId>
+    <artifactId>bcprov-jdk15on</artifactId>
+    <version>1.60</version>
+</dependency>
+
 
     </dependencies>
 
