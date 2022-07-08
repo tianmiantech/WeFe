@@ -52,11 +52,6 @@ public class Config extends CommonConfig {
     @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
     private String smsAliyunMemberregisterVerificationCodeTemplateCode;
 
-    @Value("${sm4.secret.key:}")
-    private String sm4SecretKey;
-
-    @Value("${encrypt.phone.number.open:false}")
-    private boolean encryptPhoneNumberOpen;
 
     // region getter/setter
 
@@ -92,21 +87,6 @@ public class Config extends CommonConfig {
         this.smsAliyunSignName = smsAliyunSignName;
     }
 
-    public String getSm4SecretKey() {
-        return sm4SecretKey;
-    }
-
-    public void setSm4SecretKey(String sm4SecretKey) {
-        this.sm4SecretKey = sm4SecretKey;
-    }
-
-    public boolean isEncryptPhoneNumberOpen() {
-        return encryptPhoneNumberOpen;
-    }
-
-    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
-        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
-    }
 
     public String getSmsAccessKeyId() {
         return smsAccessKeyId;
