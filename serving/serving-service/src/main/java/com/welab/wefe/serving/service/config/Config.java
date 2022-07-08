@@ -55,22 +55,18 @@ public class Config extends CommonConfig {
 
     @Value("${sms.access_key_secret:xxx}")
     private String smsAccessKeySecret;
-    
+
     @Value("${wefe.mail_server.mail_host}")
     private String mailHost;
-    
+
     @Value("${wefe.mail_server.mail_password}")
     private String mailPassword;
-    
+
     @Value("${wefe.mail_server.port}")
     private String mailPort;
-    
+
     @Value("${wefe.mail_server.username}")
     private String mailUsername;
-    
-    
-    @Value("${encrypt.phone.number.open:false}")
-    private boolean encryptPhoneNumberOpen;
 
 
     public String getFileBasePath() {
@@ -226,12 +222,5 @@ public class Config extends CommonConfig {
     public void setMailUsername(String mailUsername) {
         this.mailUsername = mailUsername;
     }
-    
-    public boolean isEncryptPhoneNumberOpen() {
-        return encryptPhoneNumberOpen;
-    }
 
-    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
-        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
-    }
 }
