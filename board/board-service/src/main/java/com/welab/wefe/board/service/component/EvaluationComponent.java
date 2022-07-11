@@ -151,12 +151,12 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
                 precision_recall.putAll(parserValidateCurveData(validateObj, "precision", normalName));
                 precision_recall.putAll(parserTrainCurveData(trainObj, "recall", normalName));
                 precision_recall.putAll(parserValidateCurveData(validateObj, "recall", normalName));
-                break;
+                return precision_recall;
             case "roc":
                 JObject roc = JObject.create();
                 roc.putAll(parserTrainCurveData(trainObj, "roc", normalName));
                 roc.putAll(parserValidateCurveData(validateObj, "roc", normalName));
-                break;
+                return roc;
             case "topn":
                 JObject topn = JObject.create();
                 topn.putAll(parserTopN(trainObj, normalName, "train"));
@@ -170,7 +170,6 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
             default:
                 return JObject.create();
         }
-        return JObject.create();
     }
 
     private String extractModelComponentType(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
