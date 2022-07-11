@@ -63,6 +63,7 @@
         data() {
             return {
                 ChartsMap,
+                orginChartsMap:   ChartsMap,
                 componentType:    '',
                 tabName:          '',
                 loading:          false,
@@ -101,6 +102,13 @@
                 }
             }
         },
+        watch: {
+            prob_need_to_bin: {
+                handler(val) {
+                    console.log('prob_need_to_bin', val);
+                },
+            },
+        },
         methods: {
             async readResult() {
                 if (this.loading) return;
@@ -124,9 +132,18 @@
 
                 if (code === 0 && data) {
                     const $data = Array.isArray(data) ? data[0] : data;
-                    const { result, component_type } = $data;
+                    const { result, component_type, task_config } = $data;
 
                     this.componentType = component_type;
+                    this.prob_need_to_bin = task_config.params.prob_need_to_bin || false;
+
+                    if (!this.prob_need_to_bin) {
+                        console.log(this.ChartsMap[this.componentType].tabs);
+                        this.ChartsMap[this.componentType].tabs = this.ChartsMap[this.componentType].tabs.filter(item => item.name !== 'scoresDistribution');
+                    } else {
+                        this.ChartsMap[this.componentType].tabs = this.orginChartsMap[this.componentType].tabs;
+                    }
+                    console.log(this.ChartsMap[this.componentType].tabs);
 
                     if (result) {
                         const currentChart = this.ChartsMap[this.componentType];
