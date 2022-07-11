@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.cert.toolkit.service;
+package com.welab.wefe.manager.service.service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.web3j.utils.Numeric;
 
 import com.webank.cert.toolkit.model.X500NameInfo;
+import com.webank.cert.toolkit.service.CertService;
 import com.webank.cert.toolkit.utils.CertUtils;
 import com.webank.cert.toolkit.utils.KeyUtils;
 

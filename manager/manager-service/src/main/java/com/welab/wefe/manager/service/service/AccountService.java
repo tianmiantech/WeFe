@@ -53,7 +53,6 @@ public class AccountService extends AbstractAccountService {
 
     @Autowired
     private AccountMongoRepo accountMongoRepo;
-    private AccountMapper mAccountMapper = Mappers.getMapper(AccountMapper.class);
 
     public void register(Account account) throws StatusCodeWithException {
         boolean isExist = accountMongoRepo.checkAccountIsExist(ManagerSM4Util.encryptPhoneNumber(account.getPhoneNumber()));

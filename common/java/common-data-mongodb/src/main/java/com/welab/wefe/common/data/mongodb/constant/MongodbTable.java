@@ -54,4 +54,7 @@ public class MongodbTable {
     }
 
     public static final String ACCOUNT = "account";
+    public static final String CERT_INFO = "certInfo";
+    public static final String CERT_KEY_INFO = "certKeyInfo";
+    public static final String CERT_REQUEST_INFO = "certRequestInfo";
 }
