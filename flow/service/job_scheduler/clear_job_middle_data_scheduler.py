@@ -79,7 +79,8 @@ class ClearJobMiddleDataScheduler(threading.Thread):
             # if backend is FC, unnecessary.
             backend = None
             try:
-                backend = Backend.get_by_task_config(json.loads(task.task_conf))
+                backend = Backend.get_by_job_config(json.loads(job.job_config))
+                schedule_logger().info('backend: %s', backend.value)
                 if backend.is_fc():
                     return
             except Exception as e:
