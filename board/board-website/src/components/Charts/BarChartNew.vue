@@ -4,10 +4,10 @@
             v-if="vData.seriesLength === 0"
             class="chart-empty"
         >暂无数据</div>
-
         <div
             ref="chartDom"
             class="chart"
+            style="width: 100%;"
         />
     </div>
 </template>
@@ -57,7 +57,7 @@
                 },
                 grid:   props.config.grid || {},
                 xAxis:  props.config.xAxis,
-                yAxis:  props.config.yAxis,
+                yAxis:  props.config.yAxis || {},
                 legend: {},
                 series: props.config.series,
             };
@@ -74,6 +74,9 @@
                 if(props.config.series) {
                     vData.seriesLength = props.config.series.length;
                     options.legend = props.config.legend || [];
+                    options.xAxis = props.config.xAxis || [];
+                    options.yAxis = props.config.yAxis || { type: 'value' };
+                    options.series = props.config.series || [];
 
                     if(chart) {
                         chart.clear();

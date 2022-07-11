@@ -14,11 +14,12 @@
                 :key="`${tab.name}-${index}`"
                 :name="tab.name"
                 :label="tab.label"
+                :nova="tab.chart.type"
             >
                 <TopN ref="topn" v-if="tab.name === 'topn'"></TopN>
                 <component
                     :ref="tab.name"
-                    :is="`${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}Chart`"
+                    :is="charts[tab.name] && tab.name === 'scoresDistribution' ? `${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}ChartNew` : `${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}Chart`"
                     v-if="charts[tab.name] && tab.name !== 'topn'"
                     :config="charts[tab.name].config"
                 >
@@ -62,10 +63,11 @@
         data() {
             return {
                 ChartsMap,
-                componentType: '',
-                tabName:       '',
-                loading:       false,
-                charts:        {},
+                componentType:    '',
+                tabName:          '',
+                loading:          false,
+                charts:           {},
+                prob_need_to_bin: false,
             };
         },
         created() {
@@ -190,7 +192,9 @@
                 if (res.length === 1) {
                     // for one chart
                     if (res[0].code === 0 && res[0].data) {
-                        const { result } = Array.isArray(res[0].data) ? res[0].data[0] : res[0].data;
+                        const { result, task_config } = Array.isArray(res[0].data) ? res[0].data[0] : res[0].data;
+
+                        console.log(ChartsMap[this.componentType].tabs);
 
                         if(tabName === 'roc') {
                             // render roc with ks
@@ -333,6 +337,12 @@
 
                         } else if (tabName === 'topn') {
                             ref.renderTopnTable(result);
+                        } else if (tabName === 'scoresDistribution') {
+                            const { task_config } = Array.isArray(res[0].data) ? res[0].data[0] : res[0].data;
+
+                            console.log(task_config.params.prob_need_to_bin);
+                            this.prob_need_to_bin = task_config.params.prob_need_to_bin;
+                            this.renderScoreDistribution({ result });
                         } else {
                             const lineNames = [`train_${tabName}`, `validate_${tabName}`];
 
@@ -346,6 +356,68 @@
                 setTimeout(_ => {
                     ref.loading = false;
                 }, 200);
+            },
+
+            renderScoreDistribution({ result }) {
+                const { tabName } = this;
+                const { scores_distribution } = result;
+                const score_d_bar = [],
+                      score_d_line = [],
+                      series = [],
+                      xAxisData = [];
+
+                let xAxis = {}, yAxis = [];
+
+                if (scores_distribution) {
+                    for (let i=0; i<scores_distribution.length; i++) {
+                        xAxisData.push(scores_distribution[i][0]);
+                        score_d_bar.push(scores_distribution[i][1]);
+                        score_d_line.push(scores_distribution[i][2]);
+                    }
+                    xAxis = {
+                        type:        'category',
+                        name:        '分箱区间',
+                        data:        xAxisData,
+                        // min:         5,
+                        axisPointer: {
+                            type: 'shadow',
+                        },
+                    };
+                    yAxis = [
+                        { type: 'value', name: '样本占比' },
+                        { type: 'value', name: '' },
+                    ];
+                    series.push(
+                        {
+                            name:      'train',
+                            type:      'bar',
+                            data:      score_d_bar,
+                            itemStyle: {
+                                color: '#3398DB',
+                            },
+                        },
+                        {
+                            name:       'line',
+                            type:       'line',
+                            yAxisIndex: 1,
+                            itemStyle:  {
+                                color: 'rgba(217, 135, 19, 1)',
+                            },
+                            data:  score_d_line,
+                            label: {
+                                show:     true,
+                                position: 'inside',
+                                formatter (value) {
+                                    return Number(value.data).toFixed(3);
+                                },
+                            },
+                        },
+                    );
+                }
+
+                this.charts[tabName].config.xAxis = xAxis;
+                this.charts[tabName].config.yAxis = yAxis;
+                this.charts[tabName].config.series = series;
             },
 
             renderRoc({ result }) {
