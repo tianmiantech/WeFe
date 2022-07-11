@@ -73,6 +73,9 @@ public class TaskResultOutputModel extends AbstractOutputModel {
      */
     private List<JObject> members;
 
+    @Check(name = "是否计算了得分分布")
+    private boolean probNeedToBin;
+
     public JSONObject getResult() {
         return result;
     }
@@ -225,6 +228,18 @@ public class TaskResultOutputModel extends AbstractOutputModel {
 
     public void setTaskConfig(JSONObject taskConfig) {
         this.taskConfig = taskConfig;
+    }
+
+    public void setResult(JSONObject result) {
+        this.result = result;
+    }
+
+    public boolean isProbNeedToBin() {
+        return probNeedToBin;
+    }
+
+    public void setProbNeedToBin(boolean probNeedToBin) {
+        this.probNeedToBin = probNeedToBin;
     }
 
     //endregion
