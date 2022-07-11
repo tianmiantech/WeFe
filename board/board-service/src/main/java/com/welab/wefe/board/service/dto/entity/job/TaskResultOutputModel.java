@@ -230,10 +230,6 @@ public class TaskResultOutputModel extends AbstractOutputModel {
         this.taskConfig = taskConfig;
     }
 
-    public void setResult(JSONObject result) {
-        this.result = result;
-    }
-
     public boolean isProbNeedToBin() {
         return probNeedToBin;
     }
