@@ -28,7 +28,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -148,8 +147,7 @@ public class ProjectMemberAuditService {
         projectMemberAuditRepository.save(model);
 
 
-        // 如果我是 promoter，别人的审核事件会触发添加 message。
-        if (input.fromGateway() && project.getMyRole() == JobMemberRole.promoter) {
+        if (input.fromGateway()) {
             messageService.addAuditJoinProjectMessage(
                     input.callerMemberInfo.getMemberId(),
                     project,

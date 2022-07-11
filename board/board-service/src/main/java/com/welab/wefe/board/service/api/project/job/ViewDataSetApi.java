@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * @author zane.luo
  */
-@Api(path = "job/data_set/view", name = "view data set data rows", login = false)
+@Api(path = "job/data_set/view", name = "view data set data rows")
 public class ViewDataSetApi extends AbstractApi<ViewDataSetApi.Input, ResponseEntity> {
 
     @Autowired
