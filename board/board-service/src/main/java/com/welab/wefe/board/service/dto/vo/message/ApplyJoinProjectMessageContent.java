@@ -16,12 +16,12 @@
 package com.welab.wefe.board.service.dto.vo.message;
 
 /**
- * 消息体：邀请加入项目
+ * 消息体：邀请/申请 加入项目
  *
  * @author zane
  * @date 2022/6/7
  */
-public class CreateProjectMessageContent extends AbstractMessageContentWithProject {
+public class ApplyJoinProjectMessageContent extends AbstractMessageContentWithProject {
     @Override
     public String getTitle() {
         return "成员【" + getFromMemberName() +

@@ -20,6 +20,7 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.api.message.QueryApi;
 import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectMemberAuditMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.repository.MessageRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
@@ -31,6 +32,7 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.MessageEvent;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,8 @@ public class MessageService extends AbstractService {
     private MessageRepository messageRepository;
     @Autowired
     private DataResourceService dataResourceService;
+    @Autowired
+    private ProjectMemberAuditService projectMemberAuditService;
 
     public PagingOutput<MessageOutputModel> query(QueryApi.Input input) {
 
@@ -73,16 +77,24 @@ public class MessageService extends AbstractService {
     }
 
     public void add(MessageEvent event, AbstractMessageContent content) {
-        add(event, null, content);
+        add(event, null, content, null);
     }
 
-    public void add(MessageEvent event, String title, AbstractMessageContent content) {
+    public void add(MessageEvent event, AbstractMessageContent content, boolean isTodo) {
+        add(event, null, content, isTodo);
+    }
+
+    public void add(MessageEvent event, String title, AbstractMessageContent content, Boolean isTodo) {
         if (StringUtil.isEmpty(title)) {
             title = content.getTitle();
         }
 
         if (StringUtil.isEmpty(title)) {
             throw new RuntimeException("你怎么能不写标题呢~");
+        }
+
+        if (isTodo == null) {
+            isTodo = event.isTodo();
         }
 
         MessageMysqlModel model = new MessageMysqlModel();
@@ -92,7 +104,7 @@ public class MessageService extends AbstractService {
         model.setTitle(title);
         model.setContent(content.toString());
         model.setUnread(true);
-        model.setTodo(event.isTodo());
+        model.setTodo(isTodo);
         model.setTodoComplete(false);
         model.setTodoRelatedId1(content.getRelatedId1());
         model.setTodoRelatedId2(content.getRelatedId2());
@@ -159,7 +171,7 @@ public class MessageService extends AbstractService {
      * 添加一条 event 为 ApplyJoinProject 的消息
      */
     public void addApplyJoinProjectMessage(String fromMemberId, String projectId, String projectName) {
-        CreateProjectMessageContent content = new CreateProjectMessageContent();
+        ApplyJoinProjectMessageContent content = new ApplyJoinProjectMessageContent();
         content.fromMemberId = fromMemberId;
         content.projectId = projectId;
         content.projectName = projectName;
@@ -170,7 +182,41 @@ public class MessageService extends AbstractService {
      * 添加一条 event 为 AgreeJoinProject/DisagreeJoinProject 的消息
      */
     public void addAuditJoinProjectMessage(String fromMemberId, ProjectMySqlModel project, AuditStatus auditStatus, String auditComment) {
-        AuditJoinProjectMessageContent content = new AuditJoinProjectMessageContent();
+
+        /**
+         * 【拒绝】
+         * 1. 知会 promoter
+         *
+         * 【同意】
+         * 1. 知会 promoter
+         * 2. 提醒 provider 审核
+         */
+        AuditJoinProjectMessageContent content = null;
+        boolean isTodo = false;
+
+        // 如果被邀请人同意加入项目
+        if (auditStatus == AuditStatus.agree) {
+            // 如果需要我对其进行二次审核
+            ProjectMemberAuditMySqlModel memberAudit = projectMemberAuditService.findOne(project.getProjectId(), fromMemberId, CacheObjects.getMemberId());
+            if (memberAudit != null && memberAudit.getAuditResult() == AuditStatus.auditing) {
+                content = new AuditJoinProjectMessageContent(memberAudit);
+                isTodo = true;
+            }
+        }
+
+        // 不需要我审核的情况
+        if (content == null) {
+            // 如果我是 promoter，知会。
+            if (project.getMyRole() == JobMemberRole.promoter) {
+                content = new AuditJoinProjectMessageContent();
+                isTodo = false;
+            }
+            // 不需要知会
+            else {
+                return;
+            }
+        }
+
         content.fromMemberId = fromMemberId;
         content.projectId = project.getProjectId();
         content.projectName = project.getName();
@@ -181,6 +227,6 @@ public class MessageService extends AbstractService {
                 ? MessageEvent.AgreeJoinProject
                 : MessageEvent.DisagreeJoinProject;
 
-        add(event, content);
+        add(event, content, isTodo);
     }
 }
