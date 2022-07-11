@@ -44,7 +44,11 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
 
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
-
+        FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Binning);
+        FlowGraphNode intersectionNode2 = graph.findOneNodeFromParent(node, ComponentType.HorzFeatureBinning);
+        if (intersectionNode == null && intersectionNode2==null) {
+            throw new FlowNodeException(node, "请在前面添加分箱组件。");
+        }
     }
 
 
@@ -90,24 +94,24 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
 
     public static class Params extends AbstractCheckModel {
         @Check(name = "基准分", require = true)
-        private int p0;
+        private double p0;
 
         @Check(name = "pdo", require = true)
-        private int pdo;
+        private double pdo;
 
-        public int getP0() {
+        public double getP0() {
             return p0;
         }
 
-        public void setP0(int p0) {
+        public void setP0(double p0) {
             this.p0 = p0;
         }
 
-        public int getPdo() {
+        public double getPdo() {
             return pdo;
         }
 
-        public void setPdo(int pdo) {
+        public void setPdo(double pdo) {
             this.pdo = pdo;
         }
     }
