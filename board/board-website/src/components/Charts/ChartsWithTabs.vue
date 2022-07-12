@@ -380,46 +380,71 @@
                         type:        'category',
                         name:        '分箱区间',
                         data:        xAxisData,
-                        // min:         5,
+                        // min:         2,
                         axisPointer: {
                             type: 'shadow',
                         },
                     };
                     yAxis = [
-                        { type: 'value', name: '样本占比' },
-                        { type: 'value', name: '' },
+                        // { type: 'value', name: '样本占比' },
+                        {
+                            type:      'value',
+                            name:      '样本占比',
+                            data:      score_d_line,
+                            axisLabel: {
+                                formatter (value) {
+                                    return Number(value).toFixed(2) /10 + '%';
+                                },
+                            },
+                        },
                     ];
                     series.push(
                         {
-                            name:      'train',
+                            name:      '占比',
                             type:      'bar',
                             data:      score_d_bar,
                             itemStyle: {
                                 color: '#3398DB',
                             },
-                        },
-                        {
-                            name:       'line',
-                            type:       'line',
-                            yAxisIndex: 1,
-                            itemStyle:  {
-                                color: 'rgba(217, 135, 19, 1)',
-                            },
-                            data:  score_d_line,
                             label: {
                                 show:     true,
                                 position: 'inside',
-                                formatter (value) {
-                                    return Number(value.data).toFixed(3);
-                                },
+                                // formatter (value) {
+                                //     return Number(value).toFixed(2)*100 + '%';
+                                // },
                             },
                         },
+                        // {
+                        //     name:      '',
+                        //     type:      'bar',
+                        //     itemStyle: {
+                        //         color: 'rgba(217, 135, 19, 1)',
+                        //     },
+                        //     data:  score_d_line,
+                        //     label: {
+                        //         show:     true,
+                        //         position: 'inside',
+                        //         formatter (value) {
+                        //             return Number(value.data).toFixed(2)*100;
+                        //         },
+                        //     },
+                        // },
                     );
                 }
 
                 this.charts[tabName].config.xAxis = xAxis;
                 this.charts[tabName].config.yAxis = yAxis;
                 this.charts[tabName].config.series = series;
+                // this.charts[tabName].config.tooltip = {
+                //     trigger:     'axis',
+                //     axisPointer: {
+                //         type: 'shadow',
+                //     },
+                //     formatter(params) {
+                //         return params[0].data.value + '<br>'+ params[0].data.test;
+                //     },
+                // };
+
             },
 
             renderRoc({ result }) {
