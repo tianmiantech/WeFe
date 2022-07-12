@@ -275,7 +275,7 @@ public class ServingService extends AbstractService {
         params.put("myRole", role);
         params.put("modelId", taskResult.getModelId());
         params.put("serviceId", taskResult.getModelId());
-        params.put("name", job.getName());
+        params.put("name", extractName(job));
         // The v2 version job does not have Algorithm and flType parameters
         params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
         params.put("modelParam", taskResult.getResult());
@@ -284,6 +284,10 @@ public class ServingService extends AbstractService {
         params.put("featureEngineerMap", featureEngineerMap);
 
         return params;
+    }
+
+    private String extractName(JobMySqlModel job) {
+        return job.getName() + "_" + job.getJobId();
     }
 
     private Map<Integer, Object> getFeatureEngineerMap(String taskId, JobMemberRole role) throws StatusCodeWithException {
