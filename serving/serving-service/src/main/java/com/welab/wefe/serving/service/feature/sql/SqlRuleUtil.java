@@ -17,6 +17,7 @@ package com.welab.wefe.serving.service.feature.sql;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.StringUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
@@ -28,15 +29,18 @@ import net.sf.jsqlparser.statement.select.Select;
  */
 public class SqlRuleUtil {
 
+    private static final String DISABLE_SYMBOLS = "--";
+
     public static void checkQueryContext(String sqlScript) throws StatusCodeWithException {
         try {
             Statement statement = CCJSqlParserUtil.parse(sqlScript);
-
-            if (statement instanceof Select) {
-                return;
+            if (!(statement instanceof Select)) {
+                StatusCode.ILLEGAL_REQUEST.throwException("请输入正确的查询脚本再尝试！");
             }
 
-            StatusCode.ILLEGAL_REQUEST.throwException("请输入正确的查询脚本再尝试！");
+            if (StringUtil.contains(sqlScript, DISABLE_SYMBOLS)) {
+                StatusCode.ILLEGAL_REQUEST.throwException("请输入正确的查询脚本再尝试！");
+            }
         } catch (JSQLParserException e) {
             e.printStackTrace();
             StatusCode.ILLEGAL_REQUEST.throwException("请输入正确的查询脚本再尝试！");
@@ -44,8 +48,8 @@ public class SqlRuleUtil {
     }
 
     public static void main(String[] args) throws StatusCodeWithException {
-        String sql = "-- SELECT * FROM wefe_board_4.task_progress\n" +
-                "drop table tables;\n";
+        String sql = "SELECT * FROM wefe_board_4.task_progress\n" +
+                "-- drop table tables;\n";
 
         checkQueryContext(sql);
     }
