@@ -669,7 +669,7 @@
                                             <el-input
                                                 v-model="form.model_data.model_sql_config.sql_script"
                                                 type="textarea"
-                                                placeholder="如：select x0,x1,x2 form table where user_id = ?"
+                                                placeholder="如：select x0,x1,x2 form table"
                                                 clearable
                                                 rows="4"
                                             />
@@ -698,7 +698,7 @@
                                                 style="width: 95px;"
                                                 @click="sqlTestPreview"
                                             >
-                                                测试预览
+                                                脚本测试
                                             </el-button>
                                         </el-form-item>
                                     </div>

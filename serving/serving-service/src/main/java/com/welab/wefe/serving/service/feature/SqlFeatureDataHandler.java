@@ -24,6 +24,7 @@ import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.feature.sql.AbstractTemplate;
+import com.welab.wefe.serving.service.feature.sql.SqlRuleUtil;
 import com.welab.wefe.serving.service.feature.sql.hive.HiveTemplate;
 import com.welab.wefe.serving.service.feature.sql.impala.ImpalaTemplate;
 import com.welab.wefe.serving.service.feature.sql.mysql.MySqlTemplate;
@@ -97,13 +98,13 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
         return FeatureDataModel.of(template.handle(sql));
     }
 
-    private String buildSqlContextByModelId(String modelId, String userId) {
+    private String buildSqlContextByModelId(String modelId, String userId) throws StatusCodeWithException {
         TableModelMySqlModel modelConfig = modelService.findOne(modelId);
         return buildSqlContext(userId, modelConfig.getSqlScript(), modelConfig.getSqlConditionField());
     }
 
-    private static String buildSqlContext(String userId, String sqlScript, String sqlConditionField) {
-        return new StringBuilder(16)
+    private static String buildSqlContext(String userId, String sqlScript, String sqlConditionField) throws StatusCodeWithException {
+        String sql = new StringBuilder(16)
                 .append(sqlScript)
                 .append(" where ")
                 .append(sqlConditionField)
@@ -112,6 +113,10 @@ public class SqlFeatureDataHandler extends AbstractFeatureDataHandler {
                 .append("'")
                 .append(" limit 1")
                 .toString();
+
+        SqlRuleUtil.checkQueryContext(sql);
+
+        return sql;
     }
 
     private AbstractTemplate generateTemplate(String modelId) throws StatusCodeWithException {
