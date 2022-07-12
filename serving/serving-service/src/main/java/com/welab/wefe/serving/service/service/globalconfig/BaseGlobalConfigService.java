@@ -16,19 +16,11 @@
 
 package com.welab.wefe.serving.service.service.globalconfig;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -37,12 +29,18 @@ import com.welab.wefe.serving.service.database.repository.GlobalConfigRepository
 import com.welab.wefe.serving.service.dto.GlobalConfigInput;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.UnionServiceService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author zane
  */
-public class BaseGlobalConfigService{
-    
+public class BaseGlobalConfigService {
+
     public static class Group {
         public static String IDENTITY_INFO = "identity_info";
         public static String WEFE_UNION = "wefe_union";
@@ -52,7 +50,7 @@ public class BaseGlobalConfigService{
 
     @Autowired
     protected GlobalConfigRepository globalConfigRepository;
-    
+
     @Autowired
     private UnionServiceService unionServiceService;
 
@@ -96,7 +94,7 @@ public class BaseGlobalConfigService{
             one.setCreatedBy(CurrentAccount.id());
         } else {
             if (one.getValue() != null && value == null) {
-                StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非空值");
+                return;
             }
 
             // If there is no need to update, jump out
