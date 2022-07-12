@@ -16,13 +16,6 @@
 
 package com.welab.wefe.serving.service.service.globalconfig;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -38,6 +31,12 @@ import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 /**
  * @author Zane
@@ -113,6 +112,8 @@ public class GlobalConfigService extends BaseGlobalConfigService {
                 put(groupName, key, value, null);
             }
         }
+
+        CacheObjects.refreshGlobalConfig();
     }
 
 
@@ -168,7 +169,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     public UnionInfoModel getUnionInfoModel() {
         return getModel(Group.WEFE_UNION, UnionInfoModel.class);
     }
-    
+
     public MailServerModel getMailServerModel() {
         return getModel(Group.MAIL_SERVER, MailServerModel.class);
     }
