@@ -384,51 +384,57 @@
                         axisPointer: {
                             type: 'shadow',
                         },
+                        axisTick: {
+                            alignWithLabel: true,
+                        },
                     };
                     yAxis = [
                         // { type: 'value', name: '样本占比' },
                         {
-                            type:      'value',
-                            name:      '样本占比',
-                            data:      score_d_line,
-                            axisLabel: {
-                                formatter (value) {
-                                    return Number(value).toFixed(2) /10 + '%';
-                                },
-                            },
+                            type: 'value',
+                            name: '样本占比',
+                            // data:      score_d_line,
+                            // axisLabel: {
+                            //     formatter (value) {
+                            //         return Number(value).toFixed(2) *100 + '%';
+                            //     },
+                            // },
                         },
                     ];
                     series.push(
-                        {
-                            name:      '占比',
-                            type:      'bar',
-                            data:      score_d_bar,
-                            itemStyle: {
-                                color: '#3398DB',
-                            },
-                            label: {
-                                show:     true,
-                                position: 'inside',
-                                // formatter (value) {
-                                //     return Number(value).toFixed(2)*100 + '%';
-                                // },
-                            },
-                        },
+                        // 1. 直方图展示原来折线图数据
                         // {
-                        //     name:      '',
+                        //     name:      '占比',
                         //     type:      'bar',
+                        //     data:      score_d_line,
                         //     itemStyle: {
-                        //         color: 'rgba(217, 135, 19, 1)',
+                        //         color: '#3398DB',
                         //     },
-                        //     data:  score_d_line,
                         //     label: {
                         //         show:     true,
                         //         position: 'inside',
                         //         formatter (value) {
-                        //             return Number(value.data).toFixed(2)*100;
+                        //             return Number(value.data).toFixed(2)*100 + '%';
                         //         },
                         //     },
                         // },
+
+                        // 2. 直方图展示依旧
+                        {
+                            name:      '占比',
+                            type:      'bar',
+                            itemStyle: {
+                                color: 'rgba(217, 135, 19, 1)',
+                            },
+                            data:  score_d_bar,
+                            label: {
+                                show:     true,
+                                position: 'top',
+                                // formatter (value) {
+                                //     return Number(value).toFixed(2)*100;
+                                // },
+                            },
+                        },
                     );
                 }
 
