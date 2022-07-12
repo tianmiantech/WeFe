@@ -49,6 +49,7 @@
     // import { getCurrentInstance } from 'vue';
     import ChartsMap from './ChartTypesMap';
     import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN.vue';
+    const orginChartsMap = JSON.parse(JSON.stringify(ChartsMap));
 
     export default {
         name:  'ChartsWithTabs',
@@ -63,7 +64,6 @@
         data() {
             return {
                 ChartsMap,
-                orginChartsMap:   ChartsMap,
                 componentType:    '',
                 tabName:          '',
                 loading:          false,
@@ -71,8 +71,8 @@
                 prob_need_to_bin: false,
             };
         },
-        created() {
-            this.readResult();
+        async created() {
+            await this.readResult();
             // show topn or not for modeling-list
             if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
                 this.ChartsMap.Evaluation.tabs.forEach((item, idx) => {
@@ -102,13 +102,6 @@
                 }
             }
         },
-        watch: {
-            prob_need_to_bin: {
-                handler(val) {
-                    console.log('prob_need_to_bin', val);
-                },
-            },
-        },
         methods: {
             async readResult() {
                 if (this.loading) return;
@@ -132,18 +125,16 @@
 
                 if (code === 0 && data) {
                     const $data = Array.isArray(data) ? data[0] : data;
-                    const { result, component_type, task_config } = $data;
+                    const { result, component_type, task_config, prob_need_to_bin } = $data;
 
                     this.componentType = component_type;
-                    this.prob_need_to_bin = task_config.params.prob_need_to_bin || false;
+                    this.prob_need_to_bin = task_config && task_config.params && task_config.params.prob_need_to_bin ? task_config.params.prob_need_to_bin : prob_need_to_bin ? prob_need_to_bin : false;
 
-                    if (!this.prob_need_to_bin) {
-                        console.log(this.ChartsMap[this.componentType].tabs);
-                        this.ChartsMap[this.componentType].tabs = this.ChartsMap[this.componentType].tabs.filter(item => item.name !== 'scoresDistribution');
+                    if (this.prob_need_to_bin) {
+                        this.ChartsMap[this.componentType].tabs = orginChartsMap[this.componentType].tabs;
                     } else {
-                        this.ChartsMap[this.componentType].tabs = this.orginChartsMap[this.componentType].tabs;
+                        this.ChartsMap[this.componentType].tabs = this.ChartsMap[this.componentType].tabs.filter(item => item.name !== 'scoresDistribution');
                     }
-                    console.log(this.ChartsMap[this.componentType].tabs);
 
                     if (result) {
                         const currentChart = this.ChartsMap[this.componentType];
@@ -209,9 +200,7 @@
                 if (res.length === 1) {
                     // for one chart
                     if (res[0].code === 0 && res[0].data) {
-                        const { result, task_config } = Array.isArray(res[0].data) ? res[0].data[0] : res[0].data;
-
-                        console.log(ChartsMap[this.componentType].tabs);
+                        const { result } = Array.isArray(res[0].data) ? res[0].data[0] : res[0].data;
 
                         if(tabName === 'roc') {
                             // render roc with ks
@@ -355,10 +344,6 @@
                         } else if (tabName === 'topn') {
                             ref.renderTopnTable(result);
                         } else if (tabName === 'scoresDistribution') {
-                            const { task_config } = Array.isArray(res[0].data) ? res[0].data[0] : res[0].data;
-
-                            console.log(task_config.params.prob_need_to_bin);
-                            this.prob_need_to_bin = task_config.params.prob_need_to_bin;
                             this.renderScoreDistribution({ result });
                         } else {
                             const lineNames = [`train_${tabName}`, `validate_${tabName}`];
