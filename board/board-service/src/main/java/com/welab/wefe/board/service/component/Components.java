@@ -102,6 +102,8 @@ public class Components {
     private PaddleClassifyComponent paddleClassifyComponent;
     @Autowired
     private PaddleDetectionComponent paddleDetectionComponent;
+    @Autowired
+    private ScoreCardComponent scoreCardComponent;
 
 
     public static AbstractComponent<?> get(ComponentType componentType) {
@@ -175,6 +177,8 @@ public class Components {
                 return Launcher.getBean(Components.class).paddleClassifyComponent;
             case PaddleDetection:
                 return Launcher.getBean(Components.class).paddleDetectionComponent;
+            case ScoreCard:
+                return Launcher.getBean(Components.class).scoreCardComponent;
             default:
                 return null;
         }
