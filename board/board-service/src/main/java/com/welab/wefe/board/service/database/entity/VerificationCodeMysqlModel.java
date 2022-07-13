@@ -18,8 +18,8 @@ package com.welab.wefe.board.service.database.entity;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
 import com.welab.wefe.board.service.database.listener.VerificationCodeMysqlModelListener;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
 import com.welab.wefe.common.verification.code.common.VerificationCodeBusinessType;
-import com.welab.wefe.common.verification.code.common.VerificationCodeSendChannel;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -55,7 +55,7 @@ public class VerificationCodeMysqlModel extends AbstractMySqlModel {
      * Verification code send channel
      */
     @Enumerated(EnumType.STRING)
-    private VerificationCodeSendChannel sendChannel;
+    private CaptchaSendChannel sendChannel;
     /**
      * Verification code business type
      */
@@ -87,11 +87,11 @@ public class VerificationCodeMysqlModel extends AbstractMySqlModel {
         this.success = success;
     }
 
-    public VerificationCodeSendChannel getSendChannel() {
+    public CaptchaSendChannel getSendChannel() {
         return sendChannel;
     }
 
-    public void setSendChannel(VerificationCodeSendChannel sendChannel) {
+    public void setSendChannel(CaptchaSendChannel sendChannel) {
         this.sendChannel = sendChannel;
     }
 
