@@ -43,15 +43,16 @@ public class CertServiceTest {
     @Test
     public void testGenerateKPAndRootCert() throws Exception {
         // 签发机构
-        X500NameInfo issuer = X500NameInfo.builder().commonName("welab") // CN 常用名
-                .organizationName("汇立集团") // O 组织名称
-                .organizationalUnitName("welab inc") // OU 组织单位名称
-                .countryName("CN").stateOrProvinceName("GDSZ").build();
+        X500NameInfo issuer = X500NameInfo.builder().commonName("root") // CN 常用名
+                .organizationName("Welab") // O 组织名称
+                .organizationalUnitName("IT") // OU 组织单位名称
+                .countryName("CN").stateOrProvinceName("GuangDong").localityName("ShenZhen").build();
         // 自动生成私钥（默认为RSA），并写入指定路径
         // 自动生成公私钥KP以及根证书
         certService.generateKPAndRootCert(issuer, "out1", "root");
         // 导入到jks供Java使用
-        // keytool -import -noprompt -file root.crt -alias root -keystore mytrust.jks -storepass 123456
+        // keytool -import -noprompt -file root.crt -alias root -keystore mytrust.jks
+        // -storepass 123456
     }
 
     // csr 全称为Certificate Signing Request，即证书请求文件
@@ -61,9 +62,10 @@ public class CertServiceTest {
     public void testGenerateCertRequest() {
         CertService certService = new CertService();
         // 申请人信息
-        X500NameInfo subject = X500NameInfo.builder().commonName("welab1") // 常用名
-                .organizationName("汇立集团").organizationalUnitName("welab inc").countryName("CN")
-                .stateOrProvinceName("GDSZ").build();
+        X500NameInfo subject = X500NameInfo.builder().commonName("welab") // CN 常用名
+                .organizationName("Welab") // O 组织名称
+                .organizationalUnitName("IT") // OU 组织单位名称
+                .countryName("CN").stateOrProvinceName("GuangDong").localityName("ShenZhen").build();
         // 自动生成RSA私钥，KeyUtils为证书组件密钥工具类
         KeyPair keyPair = KeyUtils.generateKeyPair();
         PrivateKey privateKey = keyPair.getPrivate();
@@ -86,13 +88,16 @@ public class CertServiceTest {
         String childStr2 = certService.generateChildCertByDefaultConf("out1/root.crt", "out1/welab1.csr",
                 "out1/root_pri.key", "out1", "welab1");
         System.out.println(childStr2);
-        // keytool -import -noprompt -file welab1.crt -alias welab1 -keystore mytrust.jks -storepass 123456
+        // keytool -import -noprompt -file welab1.crt -alias welab1 -keystore
+        // mytrust.jks -storepass 123456
     }
 
     @Test
     public void testCreateCertRequest() throws OperatorCreationException, FileNotFoundException {
-        X500NameInfo info = X500NameInfo.builder().commonName("yinlian").organizationalUnitName("银联商务")
-                .organizationName("银联商务 inc").build();
+        X500NameInfo info = X500NameInfo.builder().commonName("yinlian") // CN 常用名
+                .organizationName("yinlian") // O 组织名称
+                .organizationalUnitName("IT") // OU 组织单位名称
+                .countryName("CN").stateOrProvinceName("GuangDong").localityName("ShenZhen").build();
         KeyPair keyPair = KeyUtils.generateKeyPair();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -117,12 +122,14 @@ public class CertServiceTest {
         childCert.verify(parentCert.getPublicKey());
         CertUtils.writeCrt(childCert, "out1/yinlian.crt");
         // crt -> p12
-        // openssl pkcs12 -export -in yinlian.crt -inkey yinlian_pri.key -out yinlian.p12 -name "yinlian"
+        // openssl pkcs12 -export -in yinlian.crt -inkey yinlian_pri.key -out
+        // yinlian.p12 -name "yinlian"
         // yinlian1
     }
 
     @Test
-    public void testImportCertToTrust() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    public void testImportCertToTrust()
+            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
         X509Certificate rootCert = CertUtils.readCrt("out1/root.crt");
         CertUtils.importCertToTrustStore("root", rootCert, "out1/truststore1.jks", "123456");
         X509Certificate welab1Cert = CertUtils.readCrt("out1/welab1.crt");

@@ -62,6 +62,11 @@ public class X500NameInfo {
         return this;
     }
 
+    public X500NameInfo localityName(String localityName) {
+        this.localityName = localityName;
+        return this;
+    }
+
     public X500NameInfo build() {
         return this;
     }
