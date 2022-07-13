@@ -98,7 +98,7 @@ public class BaseGlobalConfigService extends AbstractService {
             one.setCreatedBy(CurrentAccount.id());
         } else {
             if (one.getValue() != null && value == null) {
-                StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非控值");
+                StatusCode.SQL_ERROR.throwException("不能使用 null 覆盖非空值");
             }
 
             // If there is no need to update, jump out
