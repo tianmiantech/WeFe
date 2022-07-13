@@ -24,6 +24,7 @@ import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
 import com.welab.wefe.common.fieldvalidate.secret.Secret;
 
 /**
@@ -38,8 +39,9 @@ public class MailServerModel extends AbstractConfigModel {
     private Integer mailPort;
     @Check(name = "邮件用户名")
     private String mailUsername;
-    @Secret
+
     @Check(name = "邮件密码")
+    @Secret(maskStrategy = MaskStrategy.PASSWORD)
     private String mailPassword;
 
     // region getter/setter
