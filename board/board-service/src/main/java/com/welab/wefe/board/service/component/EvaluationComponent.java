@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -313,9 +312,7 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
     private String extractXAxis(List<String> dataKey, int i, String key) {
         String beforeKey = i == 0 ? "0" : dataKey.get(i - 1);
-        String xAxis = beforeKey + "~" + key;
-
-        return precisionProcessByString(xAxis);
+        return precisionProcessByString(beforeKey) + "~" + precisionProcessByString(key);
     }
 
 
