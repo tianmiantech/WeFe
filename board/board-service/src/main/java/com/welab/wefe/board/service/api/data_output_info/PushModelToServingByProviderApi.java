@@ -15,10 +15,7 @@
  */
 package com.welab.wefe.board.service.api.data_output_info;
 
-import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.service.ServingService;
-import com.welab.wefe.board.service.service.TaskResultService;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -26,7 +23,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -44,31 +40,17 @@ public class PushModelToServingByProviderApi extends AbstractNoneOutputApi<PushM
     @Autowired
     private ServingService servingService;
 
-    @Autowired
-    private TaskResultService taskResultService;
-
-
     @Override
     protected ApiResult handler(PushModelToServingByProviderApi.Input input) throws StatusCodeWithException {
-        servingService.syncModelToServing(extractTaskId(input), input.getRole());
+        servingService.syncModelToServing(input.getTaskId(), input.getRole());
         return success();
-    }
-
-    private String extractTaskId(Input input) throws StatusCodeWithException {
-        String[] taskStr = input.getModelId().split("_");
-
-        TaskResultMySqlModel model = taskResultService.findOne(taskStr[0], taskStr[2], input.getRole(), TaskResultType.model_train.name());
-        if (model == null) {
-            StatusCode.DATA_NOT_FOUND.throwException("未查找到模型数据！");
-        }
-        return model.getTaskId();
     }
 
 
     public static class Input extends AbstractApiInput {
 
-        @Check(name = "modelId", require = true)
-        private String modelId;
+        @Check(name = "taskId", require = true)
+        private String taskId;
 
         @Check(name = "模型角色", require = true)
         private JobMemberRole role;
@@ -76,12 +58,12 @@ public class PushModelToServingByProviderApi extends AbstractNoneOutputApi<PushM
         //region getter/setter
 
 
-        public String getModelId() {
-            return modelId;
+        public String getTaskId() {
+            return taskId;
         }
 
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
+        public void setTaskId(String taskId) {
+            this.taskId = taskId;
         }
 
         public JobMemberRole getRole() {
@@ -92,9 +74,9 @@ public class PushModelToServingByProviderApi extends AbstractNoneOutputApi<PushM
             this.role = role;
         }
 
-        public static PushModelToServingByProviderApi.Input of(String modelId, JobMemberRole role) {
+        public static PushModelToServingByProviderApi.Input of(String taskId, JobMemberRole role) {
             PushModelToServingByProviderApi.Input input = new PushModelToServingByProviderApi.Input();
-            input.modelId = modelId;
+            input.taskId = taskId;
             input.role = role;
             return input;
         }

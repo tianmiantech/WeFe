@@ -196,20 +196,20 @@ public class ServingService extends AbstractService {
      * @throws StatusCodeWithException
      */
     private List<ProviderModelPushResult> callMembersPushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
-        String modelId = getModelIdByTaskIdAndRole(taskId, role);
+
         List<JobMemberOutputModel> memberList = getMemberListByTaskIdAndRole(taskId, role);
 
         return memberList
                 .stream()
                 .filter(x -> !x.getMemberId().equals(CacheObjects.getMemberId()))
                 .filter(x -> x.getJobRole().equals(JobMemberRole.provider))
-                .map(member -> callSingleMemberPushToServing(modelId, member))
+                .map(member -> callSingleMemberPushToServing(extractProviderTaskId(taskId), member))
                 .collect(Collectors.toList());
     }
 
-    private ProviderModelPushResult callSingleMemberPushToServing(String modelId, JobMemberOutputModel member) {
+    private ProviderModelPushResult callSingleMemberPushToServing(String taskId, JobMemberOutputModel member) {
         try {
-            callOtherMemberPushServing(member.getMemberId(), modelId, member.getJobRole());
+            callOtherMemberPushServing(member.getMemberId(), taskId, member.getJobRole());
 
             return ProviderModelPushResult.create(
                     member.getMemberId(),
@@ -225,8 +225,12 @@ public class ServingService extends AbstractService {
         }
     }
 
+    private String extractProviderTaskId(String taskId) {
+        return taskId.replace("promoter", "provider");
+    }
+
     public static void main(String[] args) {
-        ProviderModelPushResult result =  ProviderModelPushResult.create(
+        ProviderModelPushResult result = ProviderModelPushResult.create(
                 "mem",
                 "name",
                 false);
@@ -248,11 +252,11 @@ public class ServingService extends AbstractService {
     }
 
 
-    private void callOtherMemberPushServing(String memberId, String modelId, JobMemberRole role) throws StatusCodeWithException {
+    private void callOtherMemberPushServing(String memberId, String taskId, JobMemberRole role) throws StatusCodeWithException {
         gatewayService.callOtherMemberBoard(
                 memberId,
                 PushModelToServingByProviderApi.class,
-                PushModelToServingByProviderApi.Input.of(modelId, role),
+                PushModelToServingByProviderApi.Input.of(taskId, role),
                 JSONObject.class
         );
     }
