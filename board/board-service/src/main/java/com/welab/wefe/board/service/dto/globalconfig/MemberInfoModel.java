@@ -21,6 +21,7 @@ import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
 
 /**
  * @author zane.luo
@@ -40,7 +41,7 @@ public class MemberInfoModel extends AbstractConfigModel {
     private String memberGatewayUri;
     @Check(name = "是否允许对外公开数据集基础信息")
     private Boolean memberAllowPublicDataSet;
-
+    @Secret
     @Check(name = "私钥")
     private String rsaPrivateKey;
     @Check(name = "公钥")

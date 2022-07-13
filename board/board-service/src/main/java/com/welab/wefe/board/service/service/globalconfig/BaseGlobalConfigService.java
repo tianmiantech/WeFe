@@ -126,6 +126,11 @@ public class BaseGlobalConfigService extends AbstractService {
         return globalConfigRepository.findByGroup(group);
     }
 
+    public <T extends AbstractConfigModel> T getModel(String group) {
+        Class<T> clazz = (Class<T>) AbstractConfigModel.getModelClass(group);
+        return getModel(clazz);
+    }
+
     /**
      * Get the entity corresponding to the specified group
      */

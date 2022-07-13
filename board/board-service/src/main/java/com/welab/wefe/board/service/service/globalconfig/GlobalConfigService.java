@@ -23,7 +23,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.board.service.api.global_config.GlobalConfigUpdateApi;
 import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigFlag;
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
@@ -33,7 +33,6 @@ import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.IpAddressUtil;
-import com.welab.wefe.common.util.ReflectionsUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
@@ -139,14 +138,10 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     public synchronized void init() throws StatusCodeWithException, InstantiationException, IllegalAccessException {
         LOG.info("start init global config");
 
-        // 反射获取所有 ConfigModel
-        List<Class<?>> classes = ReflectionsUtil.getClassesWithAnnotation(
-                GlobalConfigFlag.class.getPackage().getName(),
-                ConfigModel.class
-        );
+
 
         // 遍历所有 ConfigModel，将配置项添加到数据库。
-        for (Class<?> aClass : classes) {
+        for (Class<?> aClass : AbstractConfigModel.getModelClasses()) {
             SerializeConfig config = new SerializeConfig();
             config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
             String jsonString = JSON.toJSONString(aClass.newInstance(), config, SerializerFeature.WriteMapNullValue);

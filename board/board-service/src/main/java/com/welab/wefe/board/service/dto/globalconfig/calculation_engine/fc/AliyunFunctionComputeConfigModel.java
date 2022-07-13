@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc;
 import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
 
 /**
  * @author zane
@@ -44,6 +45,7 @@ public class AliyunFunctionComputeConfigModel extends AbstractConfigModel {
     /**
      * AccessKeySecret
      */
+    @Secret
     public String accessKeySecret;
     /**
      * OSS的bucketName

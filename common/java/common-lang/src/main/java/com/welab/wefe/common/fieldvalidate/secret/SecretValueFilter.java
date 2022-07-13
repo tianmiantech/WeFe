@@ -56,6 +56,7 @@ public class SecretValueFilter implements ValueFilter {
 
     public static class TestModel {
         public String username = "username";
+
         @Secret(maskStrategy = MaskStrategy.BLOCK)
         public String password = "password";
     }
