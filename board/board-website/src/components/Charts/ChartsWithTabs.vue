@@ -374,7 +374,7 @@
                     for (let i=0; i<scores_distribution.length; i++) {
                         xAxisData.push(scores_distribution[i][0]);
                         score_d_bar.push(scores_distribution[i][1]);
-                        score_d_line.push(scores_distribution[i][2]);
+                        score_d_line.push(scores_distribution[i][2]*100);
                     }
                     xAxis = {
                         type:        'category',
@@ -391,40 +391,44 @@
                     yAxis = [
                         // { type: 'value', name: '样本占比' },
                         {
-                            type: 'value',
-                            name: '样本占比',
+                            type:      'value',
+                            name:      '样本数量',
                             // data:      score_d_line,
-                            // axisLabel: {
-                            //     formatter (value) {
-                            //         return Number(value).toFixed(2) *100 + '%';
-                            //     },
-                            // },
+                            axisLabel: {
+                                // formatter (value) {
+                                //     console.log(value);
+                                //     return Number(value).toFixed(2) /10 + '%';
+                                // },
+                            },
                         },
                     ];
                     series.push(
                         // 1. 直方图展示原来折线图数据
-                        // {
-                        //     name:      '占比',
-                        //     type:      'bar',
-                        //     data:      score_d_line,
-                        //     itemStyle: {
-                        //         color: '#3398DB',
-                        //     },
-                        //     label: {
-                        //         show:     true,
-                        //         position: 'inside',
-                        //         formatter (value) {
-                        //             return Number(value.data).toFixed(2)*100 + '%';
-                        //         },
-                        //     },
-                        // },
+                        {
+                            name:      '占比',
+                            type:      'line',
+                            data:      score_d_line,
+                            itemStyle: {
+                                // color: '#3398DB',
+                                color:       'transparent',
+                                borderColor: 'transparent',
+                            },
+                            label: {
+                                show:     true,
+                                position: 'top',
+                                formatter (value) {
+                                    return Number(value.data).toFixed(2) + '%';
+                                },
+                            },
+                        },
 
                         // 2. 直方图展示依旧
                         {
-                            name:      '占比',
+                            name:      '数量',
                             type:      'bar',
                             itemStyle: {
                                 color: 'rgba(217, 135, 19, 1)',
+                                // color: 'transparent',
                             },
                             data:  score_d_bar,
                             label: {
@@ -441,15 +445,6 @@
                 this.charts[tabName].config.xAxis = xAxis;
                 this.charts[tabName].config.yAxis = yAxis;
                 this.charts[tabName].config.series = series;
-                // this.charts[tabName].config.tooltip = {
-                //     trigger:     'axis',
-                //     axisPointer: {
-                //         type: 'shadow',
-                //     },
-                //     formatter(params) {
-                //         return params[0].data.value + '<br>'+ params[0].data.test;
-                //     },
-                // };
 
             },
 
