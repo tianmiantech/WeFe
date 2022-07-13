@@ -30,17 +30,22 @@
  */
 package com.webank.cert.toolkit.utils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
@@ -52,6 +57,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
@@ -79,30 +85,28 @@ import org.slf4j.LoggerFactory;
  * @author wesleywang
  */
 public class CertUtils {
-    
+
     protected static final Logger LOG = LoggerFactory.getLogger(CertUtils.class);
-    
+
     static {
         if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
             Security.addProvider(new BouncyCastleProvider());
         }
     }
 
-
     private static SubjectKeyIdentifier getSubjectKeyId(final PublicKey publicKey) throws OperatorCreationException {
         final SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-        final DigestCalculator digCalc =
-                new BcDigestCalculatorProvider().get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
+        final DigestCalculator digCalc = new BcDigestCalculatorProvider()
+                .get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
 
         return new X509ExtensionUtils(digCalc).createSubjectKeyIdentifier(publicKeyInfo);
     }
 
-
     private static AuthorityKeyIdentifier getAuthorityKeyId(final PublicKey publicKey)
             throws OperatorCreationException {
         final SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-        final DigestCalculator digCalc =
-                new BcDigestCalculatorProvider().get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
+        final DigestCalculator digCalc = new BcDigestCalculatorProvider()
+                .get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
 
         return new X509ExtensionUtils(digCalc).createAuthorityKeyIdentifier(publicKeyInfo);
     }
@@ -118,8 +122,8 @@ public class CertUtils {
     public static Key readRSAKey(String filePath) throws Exception {
         Object object = readPEMObject(filePath);
         if (object instanceof PEMKeyPair) {
-            return KeyFactory.getInstance("RSA").generatePrivate(
-                    new PKCS8EncodedKeySpec(((PEMKeyPair) object).getPrivateKeyInfo().getEncoded()));
+            return KeyFactory.getInstance("RSA")
+                    .generatePrivate(new PKCS8EncodedKeySpec(((PEMKeyPair) object).getPrivateKeyInfo().getEncoded()));
         }
         return null;
     }
@@ -131,8 +135,7 @@ public class CertUtils {
     public static X509Certificate readCrt(String filePath) throws CertificateException, FileNotFoundException {
         Object object = readPEMObject(filePath);
         if (object instanceof X509CertificateHolder) {
-            return new JcaX509CertificateConverter().setProvider("BC")
-                    .getCertificate((X509CertificateHolder) object);
+            return new JcaX509CertificateConverter().setProvider("BC").getCertificate((X509CertificateHolder) object);
         }
         return null;
     }
@@ -140,8 +143,7 @@ public class CertUtils {
     public static X509CRL readCrl(String filePath) throws FileNotFoundException, CRLException {
         Object object = readPEMObject(filePath);
         if (object instanceof X509CRLHolder) {
-            return new JcaX509CRLConverter().setProvider("BC")
-                    .getCRL((X509CRLHolder) object);
+            return new JcaX509CRLConverter().setProvider("BC").getCRL((X509CRLHolder) object);
         }
         return null;
     }
@@ -150,12 +152,10 @@ public class CertUtils {
         writeToFile(crl, filePath);
     }
 
-
     public static X509Certificate convertStrToCert(String crtStr) throws CertificateException {
         Object object = readStringAsPEM(crtStr);
         if (object instanceof X509CertificateHolder) {
-            return new JcaX509CertificateConverter().setProvider("BC")
-                    .getCertificate((X509CertificateHolder) object);
+            return new JcaX509CertificateConverter().setProvider("BC").getCertificate((X509CertificateHolder) object);
         }
         return null;
     }
@@ -258,25 +258,24 @@ public class CertUtils {
         return object;
     }
 
-
     /**
-     * Save the PFX file that contains the public key, private key, and certificate chain alias
+     * Save the PFX file that contains the public key, private key, and certificate
+     * chain alias
      *
-     * @param alias certificate chain alias
-     * @param privKey  private key
-     * @param pwd password
-     * @param certChain certificate chain
-     * @param saveDirectory  save directory
+     * @param alias         certificate chain alias
+     * @param privKey       private key
+     * @param pwd           password
+     * @param certChain     certificate chain
+     * @param saveDirectory save directory
      */
-    public static void savePfx(String alias, PrivateKey privKey, String pwd,
-                               List<X509Certificate> certChain, String saveDirectory, String name) throws Exception {
+    public static void savePfx(String alias, PrivateKey privKey, String pwd, List<X509Certificate> certChain,
+            String saveDirectory, String name) throws Exception {
         FileOutputStream out = null;
         try {
             KeyStore outputKeyStore = KeyStore.getInstance("pkcs12");
             outputKeyStore.load(null, pwd.toCharArray());
             X509Certificate[] arX509certificate = new X509Certificate[certChain.size()];
-            outputKeyStore.setKeyEntry(alias, privKey, pwd.toCharArray(),
-                    certChain.toArray(arX509certificate));
+            outputKeyStore.setKeyEntry(alias, privKey, pwd.toCharArray(), certChain.toArray(arX509certificate));
             out = new FileOutputStream(saveDirectory + "/" + name + ".pfx");
             outputKeyStore.store(out, pwd.toCharArray());
         } finally {
@@ -287,22 +286,23 @@ public class CertUtils {
 
     /**
      * read PriKey from Pfx
+     * 
      * @param filePath pfx filepath
-     * @param pwd password
+     * @param pwd      password
      * @return PrivateKey
      */
     public static PrivateKey readPriKeyFromPfx(String filePath, String pwd) throws Exception {
-		KeyStore ks = KeyStore.getInstance("PKCS12");
-		FileInputStream fis = new FileInputStream(filePath);
-		// If the keystore password is empty(""), then we have to set
-		// to null, otherwise it won't work!!!
-		char[] nPassword = null;
-		if ((pwd != null) && !pwd.trim().equals("")) {
-			nPassword = pwd.toCharArray();
-		}
-		ks.load(fis, nPassword);
-		fis.close();
-		Enumeration<String> enum1 = ks.aliases();
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        FileInputStream fis = new FileInputStream(filePath);
+        // If the keystore password is empty(""), then we have to set
+        // to null, otherwise it won't work!!!
+        char[] nPassword = null;
+        if ((pwd != null) && !pwd.trim().equals("")) {
+            nPassword = pwd.toCharArray();
+        }
+        ks.load(fis, nPassword);
+        fis.close();
+        Enumeration<String> enum1 = ks.aliases();
         String keyAlias = null;
         if (enum1.hasMoreElements()) {
             keyAlias = enum1.nextElement();
@@ -310,4 +310,25 @@ public class CertUtils {
         return (PrivateKey) ks.getKey(keyAlias, nPassword);
     }
 
+    public static void importCertToTrustStore(final String alias, final X509Certificate cert, String filename, String password)
+            throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
+        if (StringUtils.isBlank(password)) {
+            password = "0xCafebabe";
+        }
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType()); // jks
+        try (final InputStream is = new FileInputStream(filename)) {
+            ks.load(is, password.toCharArray());
+        } catch (FileNotFoundException e) {
+            ks.load(null, password.toCharArray());
+        }
+        ks.setCertificateEntry(alias, cert);
+        final File f = new File(filename);
+        final File dir = f.getParentFile();
+        if (dir != null && !dir.exists()) {
+            dir.mkdirs();
+        }
+        try (final OutputStream os = new FileOutputStream(filename)) {
+            ks.store(os, password.toCharArray());
+        }
+    }
 }
