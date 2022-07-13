@@ -31,6 +31,13 @@ public class XgboostPredictResultModel extends PredictModel {
         return model;
     }
 
+    public static XgboostPredictResultModel fail(String userId, String error) {
+        XgboostPredictResultModel model = new XgboostPredictResultModel();
+        model.userId = userId;
+        model.error = error;
+        return model;
+    }
+
     public Object getScores() {
         return scores;
     }

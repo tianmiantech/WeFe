@@ -19,6 +19,7 @@ package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
@@ -72,6 +73,10 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
             }
 
             XgbProviderPredictResultModel predictModel = remote.getJObject("result").toJavaObject(XgbProviderPredictResultModel.class);
+
+            if (StringUtil.isNotEmpty(predictModel.getError())) {
+                StatusCode.REMOTE_SERVICE_ERROR.throwException(predictModel.getError());
+            }
 
             Map<String, Object> tree = (Map) predictModel.getXgboostTree();
 
