@@ -77,7 +77,12 @@ public class BaseGlobalConfigService extends AbstractService {
 
         JSONObject json = JSON.parseObject(json_string);
         for (String name : json.keySet()) {
-            put(annotation.group(), name, json.getString(name), null);
+            String value = json.getString(name);
+            // value 为 null 时说明前端未指定，需要跳过。
+            if (value == null) {
+                continue;
+            }
+            put(annotation.group(), name, value, null);
         }
     }
 
