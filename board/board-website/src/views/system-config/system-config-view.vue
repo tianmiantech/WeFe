@@ -224,6 +224,7 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import Rsa from '@/utils/rsa.js';
 
     export default {
         data() {
@@ -231,17 +232,23 @@
                 loading: false,
                 // model
                 config:  {
-                    wefe_board:   {},
-                    wefe_gateway: {},
-                    wefe_flow:    {},
-                    wefe_serving: {},
-                    alert_config: {},
-                    mail_server:  {},
-                    storage_config: {},
+                    wefe_board:                {},
+                    wefe_gateway:              {},
+                    wefe_flow:                 {},
+                    wefe_serving:              {},
+                    alert_config:              {},
+                    mail_server:               {},
+                    storage_config:            {},
                     clickhouse_storage_config: {},
-                    aliyun_sms_channel: {},
+                    aliyun_sms_channel:        {},
                 },
-                visible: true,
+                visible:        true,
+                rasEncryptData: { // 加密后数据
+                    reqStr:     'Nova李小娟', // 加密前数据
+                    encryptStr: '', // 加密后数据
+                    decryptStr: '', // 解密后数据
+                },
+
             };
         },
         computed: {
@@ -249,8 +256,22 @@
         },
         created() {
             this.getData();
+            // this.getGenerate_rsa_key_pair();
+            this.rsaTest();
         },
         methods: {
+            rsaTest() {
+                this.rasEncryptData.encryptStr = Rsa.encrypt(this.rasEncryptData.reqStr); // 加密
+                this.rasEncryptData.decryptStr = Rsa.decrypt(this.rasEncryptData.encryptStr); // 解密
+                console.log(this.rasEncryptData);
+            },
+            async getGenerate_rsa_key_pair() {
+                const { code, data } = await this.$http.get('/crypto/generate_rsa_key_pair');
+
+                if (code === 0) {
+                    console.log(data);
+                }
+            },
             async getData() {
                 this.loading = true;
                 const { code, data } = await this.$http.post({
