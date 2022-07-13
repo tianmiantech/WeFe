@@ -17,7 +17,6 @@ package com.welab.wefe.common.fieldvalidate.secret;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.ValueFilter;
-import com.welab.wefe.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,16 +36,8 @@ public class SecretValueFilter implements ValueFilter {
 
     @Override
     public Object process(Object object, String name, Object value) {
+        Secret secret = SecretUtil.getAnnotation(object.getClass(), name);
 
-        Secret secret = null;
-        try {
-            secret = object.getClass()
-                    .getDeclaredField(StringUtil.underLineCaseToCamelCase(name))
-                    .getAnnotation(Secret.class);
-        } catch (NoSuchFieldException e) {
-            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-            return value;
-        }
         if (secret == null) {
             return value;
         }

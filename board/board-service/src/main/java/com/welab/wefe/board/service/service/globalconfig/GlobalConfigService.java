@@ -56,7 +56,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     @Autowired
     private DataSetStorageService dataSetStorageService;
 
-    public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
+    public void update(GlobalConfigUpdateApi.Input input) throws Exception {
         if (!CurrentAccount.isAdmin()) {
             StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
         }
@@ -68,13 +68,8 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
 
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
-            String groupName = group.getKey();
-            Map<String, String> groupItems = group.getValue();
-            for (Map.Entry<String, String> item : groupItems.entrySet()) {
-                String key = item.getKey();
-                String value = item.getValue();
-                put(groupName, key, value, null);
-            }
+            AbstractConfigModel model = toModel(group.getKey(), group.getValue());
+            put(model);
         }
 
         // Notify the gateway to update the system configuration cache
