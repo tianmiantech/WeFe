@@ -38,6 +38,8 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -301,7 +303,8 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
     }
 
     private double extractYAxis2(JObject result, String key) {
-        return result.getJObject(key).getDoubleValue("count_rate");
+        double rate = result.getJObject(key).getDoubleValue("count_rate");
+        return precisionProcessByDouble(rate);
     }
 
     private int extractYAxis(JObject result, String key) {
@@ -311,7 +314,18 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
     private String extractXAxis(List<String> dataKey, int i, String key) {
         String beforeKey = i == 0 ? "0" : dataKey.get(i - 1);
         String xAxis = beforeKey + "~" + key;
-        return xAxis;
+
+        return precisionProcessByString(xAxis);
+    }
+
+
+    private double precisionProcessByDouble(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        return bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    private String precisionProcessByString(String value) {
+        return String.format("%.2f", Double.parseDouble(value));
     }
 
     private JObject extractScoreDistributionData(JObject obj, String normalName) {
