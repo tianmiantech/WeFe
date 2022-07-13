@@ -59,6 +59,11 @@
                         params: vData.form,
                     };
                 },
+                formatter(params) {
+                    vData.form = {
+                        ...params,
+                    };
+                },
             };
 
             const { $data, $methods } = dataStore.mixin({
