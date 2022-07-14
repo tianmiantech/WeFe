@@ -16,6 +16,8 @@
 
 package com.welab.wefe.common.data.mongodb.entity.manager;
 
+import java.util.UUID;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
@@ -29,30 +31,43 @@ public class CertInfo extends AbstractNormalMongoModel {
 
     private static final long serialVersionUID = 2536000530329139954L;
 
-    private String pkId;
+    // 主键ID
+    private String pkId = UUID.randomUUID().toString().replaceAll("-", "");
 
+    // 用户ID
     private String userId;
 
+    // 签发机构私钥ID
     private String issuerKeyId;
 
-    private String subjectKeyId;
-
-    private String subjectPubKey;
-
-    private String serialNumber;
-
-    private String certContent;
-
-    private String pCertId;
-
+    // 签发机构组织名称
     private String issuerOrg;
 
+    // 签发机构常用名
     private String issuerCN;
 
+    // 申请人私钥ID
+    private String subjectKeyId;
+
+    // 申请人公钥内容
+    private String subjectPubKey;
+
+    // 申请人组织名称
     private String subjectOrg;
 
+    // 申请人常用名
     private String subjectCN;
 
+    // 证书序列号
+    private String serialNumber;
+
+    // 证书内容
+    private String certContent;
+
+    // 父证书ID
+    private String pCertId;
+
+    // 是否是CA证书
     private Boolean isCACert;
 
     public String getPkId() {

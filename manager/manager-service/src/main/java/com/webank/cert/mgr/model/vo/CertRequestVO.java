@@ -9,15 +9,15 @@ public class CertRequestVO implements Serializable {
 
     private static final long serialVersionUID = -4440215451372304317L;
 
-    private Long pkId;
+    private String pkId;
 
     private String userId;
 
-    private Long subjectKeyId;
+    private String subjectKeyId;
 
     private String certRequestContent;
 
-    private Long pCertId;
+    private String pCertId;
 
     private String subjectOrg;
 
@@ -27,11 +27,11 @@ public class CertRequestVO implements Serializable {
 
     private String pCertUserId;
 
-    public Long getPkId() {
+    public String getPkId() {
         return pkId;
     }
 
-    public void setPkId(Long pkId) {
+    public void setPkId(String pkId) {
         this.pkId = pkId;
     }
 
@@ -43,11 +43,11 @@ public class CertRequestVO implements Serializable {
         this.userId = userId;
     }
 
-    public Long getSubjectKeyId() {
+    public String getSubjectKeyId() {
         return subjectKeyId;
     }
 
-    public void setSubjectKeyId(Long subjectKeyId) {
+    public void setSubjectKeyId(String subjectKeyId) {
         this.subjectKeyId = subjectKeyId;
     }
 
@@ -59,11 +59,11 @@ public class CertRequestVO implements Serializable {
         this.certRequestContent = certRequestContent;
     }
 
-    public Long getpCertId() {
+    public String getpCertId() {
         return pCertId;
     }
 
-    public void setpCertId(Long pCertId) {
+    public void setpCertId(String pCertId) {
         this.pCertId = pCertId;
     }
 
@@ -97,6 +97,13 @@ public class CertRequestVO implements Serializable {
 
     public void setpCertUserId(String pCertUserId) {
         this.pCertUserId = pCertUserId;
+    }
+
+    @Override
+    public String toString() {
+        return "CertRequestVO [pkId=" + pkId + ", userId=" + userId + ", subjectKeyId=" + subjectKeyId
+                + ", certRequestContent=" + certRequestContent + ", pCertId=" + pCertId + ", subjectOrg=" + subjectOrg
+                + ", subjectCN=" + subjectCN + ", issue=" + issue + ", pCertUserId=" + pCertUserId + "]";
     }
 
 }

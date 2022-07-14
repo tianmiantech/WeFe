@@ -9,7 +9,7 @@ public class CertVO implements Serializable {
 
     private static final long serialVersionUID = 5882479979815938267L;
 
-    private Long pkId;
+    private String pkId;
 
     private String userId;
 
@@ -19,7 +19,7 @@ public class CertVO implements Serializable {
 
     private String certContent;
 
-    private Long pCertId;
+    private String pCertId;
 
     private String issuerOrg;
 
@@ -31,15 +31,15 @@ public class CertVO implements Serializable {
 
     private Boolean isCACert;
 
-    private Long issuerKeyId;
+    private String issuerKeyId;
 
-    private Long subjectKeyId;
+    private String subjectKeyId;
 
-    public Long getPkId() {
+    public String getPkId() {
         return pkId;
     }
 
-    public void setPkId(Long pkId) {
+    public void setPkId(String pkId) {
         this.pkId = pkId;
     }
 
@@ -75,11 +75,11 @@ public class CertVO implements Serializable {
         this.certContent = certContent;
     }
 
-    public Long getpCertId() {
+    public String getpCertId() {
         return pCertId;
     }
 
-    public void setpCertId(Long pCertId) {
+    public void setpCertId(String pCertId) {
         this.pCertId = pCertId;
     }
 
@@ -123,20 +123,28 @@ public class CertVO implements Serializable {
         this.isCACert = isCACert;
     }
 
-    public Long getIssuerKeyId() {
+    public String getIssuerKeyId() {
         return issuerKeyId;
     }
 
-    public void setIssuerKeyId(Long issuerKeyId) {
+    public void setIssuerKeyId(String issuerKeyId) {
         this.issuerKeyId = issuerKeyId;
     }
 
-    public Long getSubjectKeyId() {
+    public String getSubjectKeyId() {
         return subjectKeyId;
     }
 
-    public void setSubjectKeyId(Long subjectKeyId) {
+    public void setSubjectKeyId(String subjectKeyId) {
         this.subjectKeyId = subjectKeyId;
     }
 
+    @Override
+    public String toString() {
+        return "CertVO [pkId=" + pkId + ", userId=" + userId + ", subjectPubKey=" + subjectPubKey + ", serialNumber="
+                + serialNumber + ", certContent=" + certContent + ", pCertId=" + pCertId + ", issuerOrg=" + issuerOrg
+                + ", issuerCN=" + issuerCN + ", subjectOrg=" + subjectOrg + ", subjectCN=" + subjectCN + ", isCACert="
+                + isCACert + ", issuerKeyId=" + issuerKeyId + ", subjectKeyId=" + subjectKeyId + "]";
+    }
+    
 }

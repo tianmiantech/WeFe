@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author wesleywang
+ * 
  */
 public enum CertDigestAlgEnums {
 
@@ -12,7 +13,9 @@ public enum CertDigestAlgEnums {
 
     protected static final Logger LOG = LoggerFactory.getLogger(CertDigestAlgEnums.class);
 
+    // 私钥生成算法
     private String keyAlgorithm;
+    // 数字签名算法
     private String algorithmName;
 
     private CertDigestAlgEnums(String keyAlgorithm, String algorithmName) {

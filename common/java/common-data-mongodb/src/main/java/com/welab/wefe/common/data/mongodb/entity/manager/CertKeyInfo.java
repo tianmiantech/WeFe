@@ -16,6 +16,8 @@
 
 package com.welab.wefe.common.data.mongodb.entity.manager;
 
+import java.util.UUID;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
@@ -29,12 +31,16 @@ public class CertKeyInfo extends AbstractNormalMongoModel {
 
     private static final long serialVersionUID = -7731011364389900165L;
 
-    private String pkId;
+    // 主键ID
+    private String pkId = UUID.randomUUID().toString().replaceAll("-", "");
 
+    // 私钥pem格式内容
     private String keyPem;
 
+    // 用户ID
     private String userId;
 
+    // 私钥算法
     private String keyAlg;
 
     public String getPkId() {

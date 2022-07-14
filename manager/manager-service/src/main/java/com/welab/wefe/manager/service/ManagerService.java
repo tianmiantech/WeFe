@@ -17,6 +17,7 @@
 package com.welab.wefe.manager.service;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
+import com.webank.cert.mgr.CertApp;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -51,7 +52,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         nameGenerator = ApiBeanNameGenerator.class,
         basePackageClasses = {
                 Launcher.class,
-                ManagerService.class
+                ManagerService.class,
+                CertApp.class
         }
 )
 public class ManagerService implements ApplicationContextAware {

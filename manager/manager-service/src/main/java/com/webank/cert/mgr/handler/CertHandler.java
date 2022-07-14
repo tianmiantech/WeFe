@@ -33,9 +33,6 @@ import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertKeyInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertRequestInfo;
 
-/**
- * @author wesleywang
- */
 @Service
 public class CertHandler {
 
@@ -45,6 +42,81 @@ public class CertHandler {
     private CertService certService;
     @Autowired
     private CertDao certDao;
+
+    /**
+     * 用户ID
+     * 
+     * 根证书私钥ID / 根证书私钥pem内容
+     * 
+     * 根证书私钥算法
+     * 
+     * 签发机构信息
+     * 
+     * 证书使用用途
+     * 
+     * 证书有效期
+     * 
+     * @throws Exception
+     */
+    public CertInfo createRootCert(String userId, String certKeyId, String pemPrivateKey,
+            KeyAlgorithmEnums keyAlgorithm, X500NameInfo issuer, KeyUsage keyUsage, Date beginDate, Date endDate)
+            throws Exception {
+        if (StringUtils.isBlank(userId)) {
+            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
+        }
+        // 如果根证书私钥ID不为空
+        if (StringUtils.isNotBlank(certKeyId) && pemPrivateKey == null) {
+            // 私钥信息
+            CertKeyInfo certKeyInfo = certDao.findCertKeyById(certKeyId);
+            // 私钥pem内容
+            pemPrivateKey = certKeyInfo.getKeyPem();
+            // 私钥算法
+            keyAlgorithm = KeyAlgorithmEnums.getByKeyAlg(certKeyInfo.getKeyAlg());
+        }
+        CertDigestAlgEnums certDigestAlgEnums = getCertDigestAlg(keyAlgorithm);
+        // 获取公私钥对
+        KeyPair keyPair = getKeyPair(keyAlgorithm, pemPrivateKey);
+        // 生成根证书
+        X509Certificate certificate = certService.createRootCertificate(certDigestAlgEnums.getAlgorithmName(), issuer,
+                keyUsage, beginDate, endDate, keyPair.getPublic(), keyPair.getPrivate());
+        // 证书转为pem格式
+        String certificatePemStr = CertUtils.readPEMAsString(certificate);
+        return certDao.save(buildCertInfo(certificatePemStr, issuer.getCommonName(), issuer.getOrganizationName(),
+                issuer.getCommonName(), issuer.getOrganizationName(), keyPair.getPublic(), userId,
+                certificate.getSerialNumber(), certKeyId, certKeyId, true, ""));
+    }
+
+    /**
+     * 私钥算法
+     */
+    private CertDigestAlgEnums getCertDigestAlg(KeyAlgorithmEnums keyAlgorithm) throws CertMgrException {
+        if (keyAlgorithm == null) {
+            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_KEY_ALG_NOT_EXIST);
+        }
+        CertDigestAlgEnums certDigestAlgEnums = CertDigestAlgEnums.getByKeyAlg(keyAlgorithm.getKeyAlgorithm());
+        if (certDigestAlgEnums == null) {
+            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_KEY_ALG_NOT_EXIST);
+        }
+        return certDigestAlgEnums;
+    }
+
+    private KeyPair getKeyPair(KeyAlgorithmEnums keyAlgorithm, String pemPrivateKey) throws Exception {
+        KeyPair keyPair = null;
+        if (keyAlgorithm.equals(KeyAlgorithmEnums.ECDSA) || keyAlgorithm.equals(KeyAlgorithmEnums.SM2)) {
+            keyPair = KeyUtils.getECKeyPair(pemPrivateKey);
+        }
+        if (keyAlgorithm.equals(KeyAlgorithmEnums.RSA)) {
+            keyPair = KeyUtils.getRSAKeyPair(pemPrivateKey);
+        }
+        if (keyPair == null) {
+            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_KEY_ALG_NOT_EXIST);
+        }
+        return keyPair;
+    }
+
+    public CertKeyInfo queryCertKey(String pkId) {
+        return certDao.findByPkId(pkId);
+    }
 
     public String importPrivateKey(String userId, String pemPrivateKey, String priAlg) throws Exception {
         if (StringUtils.isBlank(userId)) {
@@ -65,52 +137,6 @@ public class CertHandler {
     }
 
     @Transactional
-    public CertInfo createRootCert(String userId, String certKeyId, String pemPrivateKey, KeyAlgorithmEnums keyAlgorithm,
-            X500NameInfo issuer, KeyUsage keyUsage, Date beginDate, Date endDate) throws Exception {
-        if (StringUtils.isBlank(userId)) {
-            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
-        }
-        if (StringUtils.isNotBlank(certKeyId) && pemPrivateKey == null) {
-            CertKeyInfo certKeyInfo = certDao.findCertKeyById(certKeyId);
-            pemPrivateKey = certKeyInfo.getKeyPem();
-            keyAlgorithm = KeyAlgorithmEnums.getByKeyAlg(certKeyInfo.getKeyAlg());
-        }
-        CertDigestAlgEnums certDigestAlgEnums = getCertDigestAlg(keyAlgorithm);
-        KeyPair keyPair = getKeyPair(keyAlgorithm, pemPrivateKey);
-
-        X509Certificate certificate = certService.createRootCertificate(certDigestAlgEnums.getAlgorithmName(), issuer,
-                keyUsage, beginDate, endDate, keyPair.getPublic(), keyPair.getPrivate());
-        String certStr = CertUtils.readPEMAsString(certificate);
-
-        return certDao.save(buildCertInfo(certStr, issuer.getCommonName(), issuer.getOrganizationName(),
-                issuer.getCommonName(), issuer.getOrganizationName(), keyPair.getPublic(), userId,
-                certificate.getSerialNumber(), certKeyId, certKeyId, true, ""));
-    }
-
-    @Transactional
-    public CertRequestInfo createCertRequest(String userId, String certKeyId, String pemPrivateKey,
-            KeyAlgorithmEnums keyAlgorithm, String parentCertId, X500NameInfo subject) throws Exception {
-        if (StringUtils.isBlank(userId)) {
-            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
-        }
-        if (StringUtils.isNotBlank(certKeyId) && pemPrivateKey == null) {
-            CertKeyInfo certKeyInfo = certDao.findCertKeyById(certKeyId);
-            pemPrivateKey = certKeyInfo.getKeyPem();
-            keyAlgorithm = KeyAlgorithmEnums.getByKeyAlg(certKeyInfo.getKeyAlg());
-        }
-        CertDigestAlgEnums certDigestAlgEnums = getCertDigestAlg(keyAlgorithm);
-        KeyPair keyPair = getKeyPair(keyAlgorithm, pemPrivateKey);
-
-        PKCS10CertificationRequest request = certService.createCertRequest(subject, keyPair.getPublic(),
-                keyPair.getPrivate(), certDigestAlgEnums.getAlgorithmName());
-        String csrStr = CertUtils.readPEMAsString(request);
-
-        CertInfo certInfo = certDao.findCertById(parentCertId);
-        return certDao.save(buildCertRequestInfo(csrStr, subject.getCommonName(), subject.getOrganizationName(),
-                parentCertId, userId, certKeyId, certInfo.getUserId()));
-    }
-
-    @Transactional
     public CertInfo createChildCert(String userId, String csrId, boolean isCaCert, KeyUsage keyUsage, Date beginDate,
             Date endDate) throws Exception {
         if (StringUtils.isBlank(userId)) {
@@ -120,7 +146,7 @@ public class CertHandler {
         if (requestInfo == null) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_REQUEST_NOT_EXIST);
         }
-        CertInfo certInfo = certDao.findCertById(requestInfo.getpCertId());
+        CertInfo certInfo = certDao.findCertById(requestInfo.getIssuerCertId());
         if (certInfo == null) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_NOT_EXIST);
         }
@@ -151,6 +177,29 @@ public class CertHandler {
                 certInfo.getIssuerOrg(), requestInfo.getSubjectCN(), requestInfo.getSubjectOrg(),
                 certificate.getPublicKey(), userId, certificate.getSerialNumber(), keyInfo.getPkId(),
                 requestInfo.getSubjectKeyId(), isCaCert, certInfo.getPkId()));
+    }
+
+    @Transactional
+    public CertRequestInfo createCertRequest(String userId, String certKeyId, String pemPrivateKey,
+            KeyAlgorithmEnums keyAlgorithm, String parentCertId, X500NameInfo subject) throws Exception {
+        if (StringUtils.isBlank(userId)) {
+            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
+        }
+        if (StringUtils.isNotBlank(certKeyId) && pemPrivateKey == null) {
+            CertKeyInfo certKeyInfo = certDao.findCertKeyById(certKeyId);
+            pemPrivateKey = certKeyInfo.getKeyPem();
+            keyAlgorithm = KeyAlgorithmEnums.getByKeyAlg(certKeyInfo.getKeyAlg());
+        }
+        CertDigestAlgEnums certDigestAlgEnums = getCertDigestAlg(keyAlgorithm);
+        KeyPair keyPair = getKeyPair(keyAlgorithm, pemPrivateKey);
+
+        PKCS10CertificationRequest request = certService.createCertRequest(subject, keyPair.getPublic(),
+                keyPair.getPrivate(), certDigestAlgEnums.getAlgorithmName());
+        String csrStr = CertUtils.readPEMAsString(request);
+
+        CertInfo certInfo = certDao.findCertById(parentCertId);
+        return certDao.save(buildCertRequestInfo(csrStr, subject.getCommonName(), subject.getOrganizationName(),
+                parentCertId, userId, certKeyId, certInfo.getUserId()));
     }
 
     @Transactional
@@ -226,47 +275,27 @@ public class CertHandler {
         return certDao.findCertRequestById(csrId);
     }
 
-    private CertDigestAlgEnums getCertDigestAlg(KeyAlgorithmEnums keyAlgorithm) throws CertMgrException {
-        if (keyAlgorithm == null) {
-            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_KEY_ALG_NOT_EXIST);
-        }
-        CertDigestAlgEnums certDigestAlgEnums = CertDigestAlgEnums.getByKeyAlg(keyAlgorithm.getKeyAlgorithm());
-        if (certDigestAlgEnums == null) {
-            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_KEY_ALG_NOT_EXIST);
-        }
-        return certDigestAlgEnums;
-    }
-
-    private KeyPair getKeyPair(KeyAlgorithmEnums keyAlgorithm, String pemPrivateKey) throws Exception {
-        KeyPair keyPair = null;
-        if (keyAlgorithm.equals(KeyAlgorithmEnums.ECDSA) || keyAlgorithm.equals(KeyAlgorithmEnums.SM2)) {
-            keyPair = KeyUtils.getECKeyPair(pemPrivateKey);
-        }
-        if (keyAlgorithm.equals(KeyAlgorithmEnums.RSA)) {
-            keyPair = KeyUtils.getRSAKeyPair(pemPrivateKey);
-        }
-        if (keyPair == null) {
-            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_KEY_ALG_NOT_EXIST);
-        }
-        return keyPair;
-    }
-
-    private CertInfo buildCertInfo(String certificate, String issuerCommonName, String issuerOrgName,
+    private CertInfo buildCertInfo(String certificatePemStr, String issuerCommonName, String issuerOrgName,
             String subjectCommonName, String subjectOrgName, PublicKey publicKey, String userId,
-            BigInteger serialNumber, String certKeyId, String subjectKeyId, boolean isCACert, String issuerCertId) {
+            BigInteger serialNumber, String issuerCertKeyId, String subjectKeyId, boolean isCACert,
+            String issuerCertId) {
         CertInfo certInfo = new CertInfo();
         certInfo.setUserId(userId);
-        certInfo.setIssuerKeyId(certKeyId);
-        certInfo.setSubjectKeyId(subjectKeyId);
-        certInfo.setCertContent(certificate);
+
+        certInfo.setIssuerKeyId(issuerCertKeyId);// 根证书需要
         certInfo.setIssuerCN(issuerCommonName);
         certInfo.setIssuerOrg(issuerOrgName);
+        certInfo.setpCertId(issuerCertId); // optional 根证书为空
+
+        certInfo.setSubjectKeyId(subjectKeyId); // optional 非根证书为空
         certInfo.setSubjectCN(subjectCommonName);
         certInfo.setSubjectOrg(subjectOrgName);
         certInfo.setSubjectPubKey(CertUtils.readPEMAsString(publicKey));
-        certInfo.setSerialNumber(String.valueOf(serialNumber));
+
+        certInfo.setCertContent(certificatePemStr);
+        certInfo.setSerialNumber(String.valueOf(serialNumber)); // optional
         certInfo.setIsCACert(isCACert);
-        certInfo.setpCertId(issuerCertId);
+
         return certInfo;
     }
 
@@ -274,14 +303,13 @@ public class CertHandler {
             String parentCertId, String userId, String certKeyId, String pCertUserId) {
         CertRequestInfo certRequestInfo = new CertRequestInfo();
         certRequestInfo.setUserId(userId);
-        certRequestInfo.setpCertId(parentCertId);
+        certRequestInfo.setIssuerCertId(parentCertId);
         certRequestInfo.setSubjectKeyId(certKeyId);
         certRequestInfo.setSubjectCN(commonName);
         certRequestInfo.setSubjectOrg(organizationName);
         certRequestInfo.setCertRequestContent(csrStr);
-        certRequestInfo.setpCertUserId(pCertUserId);
+        certRequestInfo.setIssuerCertUserId(pCertUserId);
         certRequestInfo.setIssue(false);
         return certRequestInfo;
     }
-
 }

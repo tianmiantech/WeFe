@@ -70,4 +70,8 @@ public class CertDao {
     public List<CertKeyInfo> findKeyByUserId(String userId) {
         return certKeyInfoRepo.findByUserId(userId);
     }
+
+    public CertKeyInfo findByPkId(String pkId) {
+        return certKeyInfoRepo.findByPkId(pkId);
+    }
 }

@@ -5,32 +5,16 @@
 
 package com.webank.cert.mgr.service;
 
-import java.math.BigInteger;
-import java.security.KeyFactory;
 import java.security.KeyPair;
-import java.security.PrivateKey;
 import java.security.Security;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Date;
 import java.util.List;
 
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.DERBitString;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.asn1.sec.ECPrivateKey;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x9.X962Parameters;
-import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
-import org.bouncycastle.jcajce.provider.asymmetric.util.ECUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.BigIntegers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.web3j.crypto.ECKeyPair;
-import org.web3j.utils.Numeric;
 
 import com.webank.cert.mgr.enums.KeyAlgorithmEnums;
 import com.webank.cert.mgr.enums.MgrExceptionCodeEnums;
@@ -61,15 +45,14 @@ public class CertManagerService {
     public CertManagerService() {
     }
 
-    // Certificate Issuer表示证书的签发者/颁发者
-    // 创建根证书
+    // 创建根证书1
     public CertVO createRootCert(String userId, X500NameInfo issuer) throws Exception {
         Date beginDate = new Date();
         Date endDate = new Date(beginDate.getTime() + 315360000000L); // 过期时间
         return this.createRootCert(userId, issuer, beginDate, endDate);
     }
 
-    // 创建根证书
+    // 创建根证书2
     public CertVO createRootCert(String userId, X500NameInfo issuer, Date beginDate, Date endDate) throws Exception {
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
@@ -80,13 +63,13 @@ public class CertManagerService {
         return this.createRootCert(userId, certKeyId, issuer, beginDate, endDate);
     }
 
-    // 创建根证书
+    // 创建根证书3
     public CertVO createRootCert(String userId, String certKeyId, X500NameInfo issuer, Date beginDate, Date endDate)
             throws Exception {
         return this.createRootCert(userId, certKeyId, issuer, (KeyUsage) null, beginDate, endDate);
     }
 
-    // 创建根证书
+    // 创建根证书4
     public CertVO createRootCert(String userId, String certKeyId, X500NameInfo issuer, KeyUsage keyUsage,
             Date beginDate, Date endDate) throws Exception {
         CertInfo certInfo = this.certHandler.createRootCert(userId, certKeyId, (String) null, (KeyAlgorithmEnums) null,
@@ -94,19 +77,18 @@ public class CertManagerService {
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
-    // 私钥Hex格式作为入参生成根证书
-    public CertVO createRootCertByHexPriKey(String userId, String hexPrivateKey, KeyAlgorithmEnums keyAlgorithm,
-            X500NameInfo issuer) throws Exception {
-        Date beginDate = new Date();
-        Date endDate = new Date(beginDate.getTime() + 315360000000L);
-        return this.createRootCertByHexPriKey(userId, hexPrivateKey, keyAlgorithm, issuer, beginDate, endDate);
-    }
+    // 创建根证书5
+    public CertVO createRootCert(String userId, X500NameInfo issuer, KeyUsage keyUsage, Date beginDate, Date endDate)
+            throws Exception {
+        // 生成公私钥 算法为RSA
+        KeyPair keyPair = KeyUtils.generateKeyPair();
+        String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
+        // 保存私钥
+        String certKeyId = this.importPrivateKey(userId, pemPrivateKey, KeyAlgorithmEnums.RSA.getKeyAlgorithm());
 
-    // 私钥Hex格式作为入参生成根证书
-    public CertVO createRootCertByHexPriKey(String userId, String hexPrivateKey, KeyAlgorithmEnums keyAlgorithm,
-            X500NameInfo issuer, Date beginDate, Date endDate) throws Exception {
-        String pemPrivateKey = this.getPemPrivateKey(hexPrivateKey, keyAlgorithm);
-        return this.createRootCert(userId, pemPrivateKey, keyAlgorithm, issuer, beginDate, endDate);
+        CertInfo certInfo = this.certHandler.createRootCert(userId, certKeyId, (String) null, (KeyAlgorithmEnums) null,
+                issuer, keyUsage, beginDate, endDate);
+        return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
     // 私钥pem格式作为入参生成根证书
@@ -132,35 +114,11 @@ public class CertManagerService {
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
-    // 生成证书请求
-    public CertRequestVO createCertRequest(String userId, String issuerCertId, X500NameInfo subject) throws Exception {
-        KeyPair keyPair = KeyUtils.generateKeyPair();
-        String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
-        return this.createCertRequest(userId, pemPrivateKey, KeyAlgorithmEnums.RSA, issuerCertId, subject);
-    }
-
-    // 私钥Hex格式作为入参生成请求
-    public CertRequestVO createCertRequestByHexPriKey(String userId, String hexPrivateKey,
-            KeyAlgorithmEnums keyAlgorithm, String issuerCertId, X500NameInfo subject) throws Exception {
-        String pemPrivateKey = this.getPemPrivateKey(hexPrivateKey, keyAlgorithm);
-        return this.createCertRequest(userId, pemPrivateKey, keyAlgorithm, issuerCertId, subject);
-    }
-
-    // 私钥pem格式作为入参生成请求
-    public CertRequestVO createCertRequest(String userId, String pemPrivateKey, KeyAlgorithmEnums keyAlgorithm,
-            String issuerCertId, X500NameInfo subject) throws Exception {
-        String certKeyId = this.importPrivateKey(userId, pemPrivateKey, keyAlgorithm.getKeyAlgorithm());
-        CertRequestInfo requestInfo = this.certHandler.createCertRequest(userId, certKeyId, pemPrivateKey, keyAlgorithm,
+    public CertRequestVO createCertRequestByKey(String userId, String subjectKeyId, String issuerCertId,
+            X500NameInfo subject) throws Exception {
+        CertRequestInfo certRequestInfo = this.certHandler.createCertRequest(userId, subjectKeyId, null, null,
                 issuerCertId, subject);
-        return (CertRequestVO) TransformUtils.simpleTransform(requestInfo, CertRequestVO.class);
-    }
-
-    // 根据已有私钥创建证书请求
-    public CertRequestVO createCertRequest(String userId, String certKeyId, String issuerCertId, X500NameInfo subject)
-            throws Exception {
-        CertRequestInfo requestInfo = this.certHandler.createCertRequest(userId, certKeyId, (String) null,
-                (KeyAlgorithmEnums) null, issuerCertId, subject);
-        return (CertRequestVO) TransformUtils.simpleTransform(requestInfo, CertRequestVO.class);
+        return (CertRequestVO) TransformUtils.simpleTransform(certRequestInfo, CertRequestVO.class);
     }
 
     // 生成子证书
@@ -261,42 +219,4 @@ public class CertManagerService {
         return this.certHandler.importPrivateKey(userId, pemPrivateKey, priAlg);
     }
 
-    // 根据hex私钥获取pem私钥
-    private String getPemPrivateKey(String hexPrivateKey, KeyAlgorithmEnums keyAlgorithm) throws Exception {
-        String pemPrivate = null;
-        byte[] privateByte = Numeric.hexStringToByteArray(hexPrivateKey);
-        if (keyAlgorithm.equals(KeyAlgorithmEnums.ECDSA)) {
-            BigInteger key = Numeric.toBigInt(privateByte);
-            BigInteger pubKey = create(privateByte).getPublicKey();
-            ASN1ObjectIdentifier curveOid = ECUtil.getNamedCurveOid("secp256k1");
-            X962Parameters params = new X962Parameters(curveOid);
-            ECPrivateKey keyStructure = new ECPrivateKey(256, key,
-                    new DERBitString(get65BytePubKey(BigIntegers.asUnsignedByteArray(pubKey))), (ASN1Encodable) null);
-            PrivateKeyInfo privateKeyInfo = new PrivateKeyInfo(
-                    new AlgorithmIdentifier(X9ObjectIdentifiers.id_ecPublicKey, params), keyStructure);
-            PrivateKey privateKey = KeyFactory.getInstance("EC", "BC")
-                    .generatePrivate(new PKCS8EncodedKeySpec(privateKeyInfo.getEncoded()));
-            pemPrivate = CertUtils.readPEMAsString(privateKey);
-        } else if (keyAlgorithm.equals(KeyAlgorithmEnums.RSA)) {
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateByte);
-            pemPrivate = CertUtils.readPEMAsString(KeyFactory.getInstance("RSA").generatePrivate(keySpec));
-        }
-
-        return pemPrivate;
-    }
-
-    private static ECKeyPair create(byte[] privKeyBytes) throws Exception {
-        return ECKeyPair.create(privKeyBytes);
-    }
-
-    private static byte[] get65BytePubKey(byte[] pubKey) {
-        if (pubKey.length != 64) {
-            throw new RuntimeException("pubKey length not 64");
-        } else {
-            byte[] bytes = new byte[65];
-            bytes[0] = 4;
-            System.arraycopy(pubKey, 0, bytes, 1, pubKey.length);
-            return bytes;
-        }
-    }
 }

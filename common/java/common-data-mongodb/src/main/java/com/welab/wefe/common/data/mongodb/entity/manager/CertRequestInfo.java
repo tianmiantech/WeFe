@@ -16,6 +16,8 @@
 
 package com.welab.wefe.common.data.mongodb.entity.manager;
 
+import java.util.UUID;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
@@ -29,25 +31,33 @@ public class CertRequestInfo extends AbstractNormalMongoModel {
 
     private static final long serialVersionUID = 7150886210876056683L;
 
-    private String pkId;
-    
+    // 主键ID
+    private String pkId = UUID.randomUUID().toString().replaceAll("-", "");
+
+    // 用户ID
     private String userId;
 
+    // 申请人私钥ID
     private String subjectKeyId;
 
-    private String certRequestContent;
-
-    private String pCertId;
-
-    private String pCertUserId;
-
+    // 申请人组织名称
     private String subjectOrg;
 
+    // 申请人常用名
     private String subjectCN;
 
+    // 证书申请内容
+    private String certRequestContent;
+
+    // 签发机构的证书ID
+    private String issuerCertId;
+
+    // 签发机构的证书的用户ID
+    private String issuerCertUserId;
+
+    // 是否签发
     private Boolean issue;
 
-    
     public String getPkId() {
         return pkId;
     }
@@ -80,20 +90,20 @@ public class CertRequestInfo extends AbstractNormalMongoModel {
         this.certRequestContent = certRequestContent;
     }
 
-    public String getpCertId() {
-        return pCertId;
+    public String getIssuerCertId() {
+        return issuerCertId;
     }
 
-    public void setpCertId(String pCertId) {
-        this.pCertId = pCertId;
+    public void setIssuerCertId(String issuerCertId) {
+        this.issuerCertId = issuerCertId;
     }
 
-    public String getpCertUserId() {
-        return pCertUserId;
+    public String getIssuerCertUserId() {
+        return issuerCertUserId;
     }
 
-    public void setpCertUserId(String pCertUserId) {
-        this.pCertUserId = pCertUserId;
+    public void setIssuerCertUserId(String issuerCertUserId) {
+        this.issuerCertUserId = issuerCertUserId;
     }
 
     public String getSubjectOrg() {

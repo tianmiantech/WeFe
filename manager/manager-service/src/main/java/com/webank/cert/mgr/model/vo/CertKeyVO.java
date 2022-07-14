@@ -9,7 +9,7 @@ public class CertKeyVO implements Serializable {
 
     private static final long serialVersionUID = 3902274893320956610L;
 
-    private Long pkId;
+    private String pkId;
 
     private String userId;
 
@@ -17,11 +17,11 @@ public class CertKeyVO implements Serializable {
 
     private String keyPem;
 
-    public Long getPkId() {
+    public String getPkId() {
         return pkId;
     }
 
-    public void setPkId(Long pkId) {
+    public void setPkId(String pkId) {
         this.pkId = pkId;
     }
 
@@ -47,6 +47,11 @@ public class CertKeyVO implements Serializable {
 
     public void setKeyPem(String keyPem) {
         this.keyPem = keyPem;
+    }
+
+    @Override
+    public String toString() {
+        return "CertKeyVO [pkId=" + pkId + ", userId=" + userId + ", keyAlg=" + keyAlg + ", keyPem=" + keyPem + "]";
     }
 
 }
