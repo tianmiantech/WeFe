@@ -53,6 +53,15 @@ public class DataSetStorageService extends AbstractService {
             switch (storageConfig.storageType) {
                 case CLICKHOUSE:
                     ClickHouseStorageConfigModel configModel = globalConfigService.getModel(ClickHouseStorageConfigModel.class);
+                    // 如果前端没配完整，不做初始化。
+                    if (StringUtil.isEmpty(configModel.host) || StringUtil.isEmpty(configModel.password) || StringUtil.isEmpty(configModel.username)) {
+                        try {
+                            PersistentStorage.getInstance().dataSource.close();
+                        } catch (Exception e) {
+                            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+                        }
+                        return;
+                    }
                     PersistentStorage.init(configModel.toStorageConfig());
                 default:
             }
