@@ -19,6 +19,8 @@ package com.welab.wefe.common.web;
 import com.welab.wefe.common.util.RSAUtil;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  * @author Zane
  */
 public class TempRsaCache {
+    private static final Logger LOG = LoggerFactory.getLogger(TempRsaCache.class);
 
     /**
      * user id : KeyPair
@@ -58,7 +61,16 @@ public class TempRsaCache {
      */
     public static String decrypt(String ciphertext) throws Exception {
         RSAUtil.RsaKeyPair rsaKeyPair = KEY_PAIR_MAP_BY_USER.get(CurrentAccount.id());
-        return RSAUtil.decryptByPrivateKey(ciphertext, rsaKeyPair.privateKey);
+        try {
+            return RSAUtil.decryptByPrivateKey(ciphertext, rsaKeyPair.privateKey);
+        } catch (Exception e) {
+            String message = System.lineSeparator()
+                    + "ciphertext:" + ciphertext + System.lineSeparator()
+                    + "publicKey:" + rsaKeyPair.publicKey + System.lineSeparator()
+                    + "privateKey:" + rsaKeyPair.privateKey + System.lineSeparator();
+            LOG.error(message);
+            throw e;
+        }
     }
 
 
@@ -66,7 +78,7 @@ public class TempRsaCache {
         RSAUtil.RsaKeyPair rsaKeyPair = RSAUtil.generateKeyPair();
 
         System.out.println("publicKey:" + rsaKeyPair.publicKey);
-        System.out.println("PrivateKey:" + rsaKeyPair.privateKey);
+        System.out.println("privateKey:" + rsaKeyPair.privateKey);
 
         String plaintext = "hello";
         System.out.println("plaintext:" + plaintext);
