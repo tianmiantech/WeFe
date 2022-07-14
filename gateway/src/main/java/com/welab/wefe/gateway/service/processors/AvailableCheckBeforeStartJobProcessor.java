@@ -25,10 +25,10 @@ import com.welab.wefe.gateway.common.ReturnStatusEnum;
 import com.welab.wefe.gateway.init.InitStorageManager;
 
 /**
- * Persistent service check processor
+ * Available check before start job processor
  */
-@Processor(type = GatewayProcessorType.persistentServiceCheckProcessor, desc = "Persistent service check processor")
-public class PersistentServiceCheckProcessor extends AbstractProcessor {
+@Processor(type = GatewayProcessorType.availableCheckBeforeStartJobProcessor, desc = "Available check before start job processor")
+public class AvailableCheckBeforeStartJobProcessor extends AbstractProcessor {
 
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
