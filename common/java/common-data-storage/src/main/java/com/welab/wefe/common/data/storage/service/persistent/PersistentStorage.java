@@ -85,27 +85,49 @@ public abstract class PersistentStorage {
 
     public DruidDataSource dataSource;
 
+    public volatile boolean inited = false;
+
+
+
     /**
      * 初始化对象
      * <p>
      * 当配置信息变化时，重新初始化即可刷新对象。
      */
-    public synchronized static void init(ClickhouseConfig config) throws SQLException {
-        if (storage != null && storage.dataSource != null) {
-            storage.dataSource.close();
+    public synchronized static boolean init(ClickhouseConfig config) throws SQLException {
+        try {
+            if (storage != null && storage.dataSource != null) {
+                storage.dataSource.close();
+                storage.inited = false;
+            }
+            storage = new ClickhouseStorage(config);
+            storage.dataSource = buildDruidDataSource(config);
+            storage.checkConnection();
+            storage.inited = true;
+        } catch (SQLException e) {
+            log.error("storage clickhouse init failed", e);
         }
-        storage = new ClickhouseStorage(config);
-        storage.dataSource = buildDruidDataSource(config);
-        storage.checkConnection();
+        return storage.inited;
     }
 
-    public synchronized static void init(MysqlConfig config) throws SQLException {
-        if (storage != null && storage.dataSource != null) {
-            storage.dataSource.close();
+    public synchronized static boolean init(MysqlConfig config) throws SQLException {
+        try {
+            if (storage != null && storage.dataSource != null) {
+                storage.dataSource.close();
+                storage.inited = false;
+            }
+            storage = new MysqlStorage(config);
+            storage.dataSource = buildDruidDataSource(config);
+            storage.checkConnection();
+            storage.inited = true;
+        } catch (SQLException e) {
+            log.error("storage mysql init failed", e);
         }
-        storage = new MysqlStorage(config);
-        storage.dataSource = buildDruidDataSource(config);
-        storage.checkConnection();
+        return storage.inited;
+    }
+
+    public static boolean inited() {
+        return storage.inited;
     }
 
     public static PersistentStorage getInstance() {
