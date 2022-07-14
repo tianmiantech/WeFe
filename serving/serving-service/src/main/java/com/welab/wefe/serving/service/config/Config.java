@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class Config extends CommonConfig {
 
+    @Value("${wefe.serving.base-url}")
+    private String servingBaseUrl;
+
     @Value("${wefe.serving.file-path}")
     private String fileBasePath;
 
@@ -202,4 +205,11 @@ public class Config extends CommonConfig {
         this.mailUsername = mailUsername;
     }
 
+    public String getServingBaseUrl() {
+        return servingBaseUrl;
+    }
+
+    public void setServingBaseUrl(String servingBaseUrl) {
+        this.servingBaseUrl = servingBaseUrl;
+    }
 }
