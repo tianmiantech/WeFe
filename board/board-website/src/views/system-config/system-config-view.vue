@@ -130,6 +130,8 @@
                                     placeholder="请输入密码"
                                     autocomplete="new-password"
                                     @contextmenu.prevent
+                                    @change="dataStoragePwdChange"
+                                    clearable
                                 />
                             </el-form-item>
                         </fieldset>
@@ -172,6 +174,8 @@
                                     placeholder="请输入密码"
                                     autocomplete="new-password"
                                     @contextmenu.prevent
+                                    @change="mailPasswordChange"
+                                    clearable
                                 />
                             </el-form-item>
                         </fieldset>
@@ -187,6 +191,8 @@
                                     placeholder="请输入密码"
                                     autocomplete="new-password"
                                     @contextmenu.prevent
+                                    @change="accessKeySecretChange"
+                                    clearable
                                 />
                             </el-form-item>
                             <el-form-item label="找回密码短信模板码：">
@@ -242,13 +248,11 @@
                     clickhouse_storage_config: {},
                     aliyun_sms_channel:        {},
                 },
-                visible:        true,
-                rasEncryptData: { // 加密后数据
-                    reqStr:     'Nova李小娟', // 加密前数据
-                    encryptStr: '', // 加密后数据
-                    decryptStr: '', // 解密后数据
-                },
-
+                visible:                    true,
+                publicKey:                  '',
+                isChangeMailpwd:            false,
+                isChangeAccessKeySecretPwd: false,
+                isChangeDataStoragePwd:     false,
             };
         },
         computed: {
@@ -256,21 +260,25 @@
         },
         created() {
             this.getData();
-            // this.getGenerate_rsa_key_pair();
-            this.rsaTest();
         },
         methods: {
-            rsaTest() {
-                this.rasEncryptData.encryptStr = Rsa.encrypt(this.rasEncryptData.reqStr); // 加密
-                this.rasEncryptData.decryptStr = Rsa.decrypt(this.rasEncryptData.encryptStr); // 解密
-                console.log(this.rasEncryptData);
-            },
             async getGenerate_rsa_key_pair() {
                 const { code, data } = await this.$http.get('/crypto/generate_rsa_key_pair');
 
-                if (code === 0) {
-                    console.log(data);
+                if (code === 0 && data && data.public_key) {
+                    const { public_key } = data;
+
+                    this.publicKey = public_key;
                 }
+            },
+            dataStoragePwdChange() {
+                this.isChangeDataStoragePwd = true;
+            },
+            mailPasswordChange(val) {
+                this.isChangeMailpwd = true;
+            },
+            accessKeySecretChange() {
+                this.isChangeAccessKeySecretPwd = true;
             },
             async getData() {
                 this.loading = true;
@@ -296,6 +304,27 @@
                 this.loading = false;
             },
             async update() {
+                // 检查配置的密码部分是否有修改
+                // 1. 如果 数据集存储密码、邮件密码、AccessKeySecret密码 都没有被修改，则三个密码置空
+                if (!this.isChangeDataStoragePwd && !this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                    this.config.clickhouse_storage_config.password = null;
+                    this.config.mail_server.mail_password = null;
+                    this.config.aliyun_sms_channel.access_key_secret = null;
+                }
+
+                // 2. 如果 数据集存储密码、邮件密码、AccessKeySecret密码 三个中有其中一个被修改，调用接口获取public_key
+                if (this.isChangeDataStoragePwd || this.isChangeMailpwd || this.isChangeAccessKeySecretPwd) {
+                    await this.getGenerate_rsa_key_pair();
+                    if (this.isChangeDataStoragePwd) {
+                        this.config.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.config.clickhouse_storage_config.password);
+                    }
+                    if (this.isChangeMailpwd) {
+                        this.config.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.config.mail_server.mail_password);
+                    }
+                    if (this.isChangeAccessKeySecretPwd) {
+                        this.config.aliyun_sms_channel.access_key_secret = Rsa.encrypt(this.publicKey, this.config.aliyun_sms_channel.access_key_secret);
+                    }
+                }
                 this.loading = true;
                 const { code } = await this.$http.post({
                     url:  '/global_config/update',
@@ -306,6 +335,9 @@
                     this.$message.success('保存成功!');
                     this.$router.push({ name: 'system-config-view' });
                     this.getData();
+                    this.isChangeMailpwd = false;
+                    this.isChangeAccessKeySecretPwd = false;
+                    this.isChangeDataStoragePwd = false;
                 }
                 this.loading = false;
             },
