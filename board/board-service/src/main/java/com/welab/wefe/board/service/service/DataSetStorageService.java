@@ -25,6 +25,7 @@ import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
+import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
@@ -53,16 +54,18 @@ public class DataSetStorageService extends AbstractService {
             switch (storageConfig.storageType) {
                 case CLICKHOUSE:
                     ClickHouseStorageConfigModel configModel = globalConfigService.getModel(ClickHouseStorageConfigModel.class);
+                    ClickhouseConfig config = configModel.toStorageConfig();
                     // 如果前端没配完整，不做初始化。
-                    if (StringUtil.isEmpty(configModel.host) || StringUtil.isEmpty(configModel.password) || StringUtil.isEmpty(configModel.username)) {
+                    if (config == null) {
                         try {
                             PersistentStorage.getInstance().dataSource.close();
                         } catch (Exception e) {
                             LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
                         }
-                        return;
+                    } else {
+                        PersistentStorage.init(config);
                     }
-                    PersistentStorage.init(configModel.toStorageConfig());
+
                 default:
             }
 
