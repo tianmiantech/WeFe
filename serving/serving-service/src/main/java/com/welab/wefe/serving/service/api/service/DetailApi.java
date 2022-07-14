@@ -51,6 +51,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         try {
             return success(service.detail(input));
         } catch (Exception e) {
+            e.printStackTrace();
             return fail(e.getMessage());
         }
     }

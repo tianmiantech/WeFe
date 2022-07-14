@@ -175,7 +175,7 @@ CREATE TABLE `service`
     `created_time`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_by`     varchar(32)           DEFAULT NULL COMMENT '更新人',
     `updated_time`   datetime              DEFAULT NULL COMMENT '更新时间',
-    `name`           varchar(32)  NOT NULL COMMENT '服务名',
+    `name`           varchar(255)  NOT NULL COMMENT '服务名',
     `url`            varchar(128) NOT NULL COMMENT '服务地址',
     `service_type`   tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
     `query_params`   text COMMENT '查询参数配置',
@@ -240,7 +240,7 @@ CREATE TABLE `client_service`
     `updated_by`   varchar(32)           DEFAULT NULL COMMENT '更新人',
     `updated_time` datetime              DEFAULT NULL COMMENT '更新时间',
     `status`       tinyint(1) NOT NULL COMMENT '是否启用',
-    `service_name` varchar(100)          DEFAULT NULL COMMENT '服务名称',
+    `service_name` varchar(255)          DEFAULT NULL COMMENT '服务名称',
     `client_name`  varchar(100)          DEFAULT NULL COMMENT '客户名称',
     `type`         tinyint(1) DEFAULT NULL COMMENT '服务类型 0开通，1激活 ',
     `public_key`   text COMMENT '调用者公钥',
@@ -261,7 +261,7 @@ DROP TABLE IF EXISTS fee_config;
 CREATE TABLE fee_config
 (
     id           VARCHAR(32) NOT NULL COMMENT '全局唯一标识',
-    service_id   VARCHAR(32) COMMENT '服务id',
+    service_id   VARCHAR(255) COMMENT '服务id',
     client_id    VARCHAR(32) COMMENT '客户id',
     created_by   varchar(32)          DEFAULT NULL COMMENT '创建人',
     created_time datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -277,10 +277,10 @@ DROP TABLE IF EXISTS api_request_record;
 CREATE TABLE api_request_record
 (
     id             VARCHAR(32)  NOT NULL COMMENT '租户号',
-    service_id     VARCHAR(32)  NOT NULL COMMENT '服务id',
+    service_id     VARCHAR(255)  NOT NULL COMMENT '服务id',
     client_id      VARCHAR(32)  NOT NULL COMMENT '客户id',
     client_name    VARCHAR(32)  NOT NULL COMMENT '客户名称',
-    service_name   VARCHAR(32)  NOT NULL COMMENT '服务名称',
+    service_name   VARCHAR(255)  NOT NULL COMMENT '服务名称',
     service_type   tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
     ip_add         VARCHAR(255) NOT NULL COMMENT '请求ip地址',
     spend          BIGINT       NOT NULL COMMENT '耗时',
@@ -298,7 +298,7 @@ DROP TABLE IF EXISTS fee_detail;
 CREATE TABLE fee_detail
 (
     id                  VARCHAR(32) NOT NULL COMMENT '',
-    service_id          VARCHAR(32) NOT NULL COMMENT '服务id',
+    service_id          VARCHAR(255) NOT NULL COMMENT '服务id',
     client_id           VARCHAR(32) NOT NULL COMMENT '客户id',
     fee_config_id       varchar(32) NOT NULL COMMENT '计费规则id',
     total_fee           DECIMAL(24, 6) COMMENT '总费用',
@@ -387,7 +387,7 @@ CREATE TABLE service_call_log
     response_partner_id   VARCHAR(255) NOT NULL COMMENT '响应方id',
     response_partner_name VARCHAR(32)  NOT NULL COMMENT '响应方名称',
     service_id            VARCHAR(255) NOT NULL COMMENT '服务id',
-    service_name          VARCHAR(32)  NOT NULL COMMENT '服务名称',
+    service_name          VARCHAR(255)  NOT NULL COMMENT '服务名称',
     service_type          tinyint(2) NOT NULL COMMENT '服务类型',
     request_id            VARCHAR(255) NOT NULL COMMENT '请求id',
     response_id           VARCHAR(255) COMMENT '相应id',
@@ -413,7 +413,7 @@ CREATE TABLE service_order
 (
     id                    VARCHAR(32) NOT NULL COMMENT '订单号',
     service_id            VARCHAR(255) COMMENT '服务id',
-    service_name          VARCHAR(32) COMMENT '服务名称',
+    service_name          VARCHAR(255) COMMENT '服务名称',
     service_type          tinyint(2) COMMENT '服务类型',
     order_type            BOOL        NOT NULL DEFAULT 1 COMMENT '是否为己方生成的订单;1 是, 0否',
     status                VARCHAR(32) NOT NULL COMMENT '订单状态;成功、失败、进行中',
@@ -505,7 +505,7 @@ CREATE TABLE `base_service`
     `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
     `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
-    `name`         varchar(32) NOT NULL COMMENT '服务名',
+    `name`         varchar(255) NOT NULL COMMENT '服务名',
     `url`          varchar(128)         DEFAULT '' COMMENT '服务地址',
     `service_type` tinyint(2) NOT NULL COMMENT '服务类型',
     `status`       tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',

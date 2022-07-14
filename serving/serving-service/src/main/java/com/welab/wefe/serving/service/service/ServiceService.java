@@ -145,7 +145,7 @@ public class ServiceService {
     private List<ModelStatusOutput> getModelStatus(TableModelMySqlModel model, DetailApi.Output output) {
         return output.getMyRole().contains(JobMemberRole.promoter)
                 && FederatedLearningType.vertical.equals(output.getFlType()) ? checkModelStatus(model.getServiceId())
-                        : null;
+                : null;
     }
 
     private com.welab.wefe.serving.service.api.service.DetailApi.Output detailService(
@@ -182,13 +182,13 @@ public class ServiceService {
                 JSONObject jo = arr.getJSONObject(i);
                 String name = jo.getString("name");
                 String desc = jo.getString("desc");
-                sb.append("参数"+(i+1)+":"+name + ",描述:"+desc+";");
+                sb.append("参数" + (i + 1) + ":" + name + ",描述:" + desc + ";");
             }
             return sb.toString();
         }
         return queryParams;
     }
-    
+
 
     private List<JobMemberRole> findMyRoles(String modelId) {
         List<ModelMemberMySqlModel> memberBaseInfo = modelMemberRepository.findByModelIdAndMemberId(modelId,
@@ -210,24 +210,46 @@ public class ServiceService {
         /**
          * xgboost Tree structure settings
          * <p>
-         * tree:[ { "children":[ Object{...}, Object{...} ], "data":{ "feature":"x15",
-         * "leaf":false, "left_node":1, "right_node":2,
-         * "sitename":"promoter:d3c9199e15154d9eac22690a55abc0f4",
-         * "split_maskdict":0.3127503322540728, "weight":-1.6183986372 }, "id":0 } ]
+         * tree:[
+         *    {
+         *        "children":[
+         *            Object{...},
+         *            Object{...}
+         *        ],
+         *        "data":{
+         *            "feature":"x15",
+         *            "leaf":false,
+         *            "left_node":1,
+         *            "right_node":2,
+         *            "sitename":"promoter:d3c9199e15154d9eac22690a55abc0f4",
+         *            "split_maskdict":0.3127503322540728,
+         *            "weight":-1.6183986372
+         *        },
+         *       "id":0
+         *    }
+         * ]
          * </p>
          */
         List<TreeNode> xgboost = new ArrayList<>();
-
         List<XgboostDecisionTreeModel> trees = model.getTrees();
+
         for (int i = 0; i < trees.size(); i++) {
 
             Map<Integer, TreeNode> map = new HashMap<>(16);
             List<XgboostNodeModel> tree = trees.get(i).getTree();
             Map<Integer, Double> splitMaskdict = trees.get(i).getSplitMaskdict();
 
-            // Composite node
+            //When the tree is on each other
+            if (CollectionUtils.isEmpty(tree)) {
+                TreeNode node = new TreeNode();
+                node.setId(i + "-" + 0);
+                xgboost.add(node);
+                continue;
+            }
+
+            //Composite node
             for (XgboostNodeModel xgboostNodeModel : tree) {
-                // Find child nodes
+                //Find child nodes
                 TreeNode node = new TreeNode();
                 TreeNodeData data = new TreeNodeData();
                 node.setId(i + "-" + xgboostNodeModel.getId().toString());
@@ -239,16 +261,18 @@ public class ServiceService {
                 data.setRightNode(xgboostNodeModel.getRightNodeId());
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
-                data.setThreshold(flType == FederatedLearningType.vertical ? splitMaskdict.get(xgboostNodeModel.getId())
-                        : xgboostNodeModel.getBid());
+                data.setThreshold(
+                        flType == FederatedLearningType.vertical ?
+                                splitMaskdict.get(xgboostNodeModel.getId()) : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
             }
 
-            // Traversing the processing node tree
+            //Traversing the processing node tree
             TreeNode root = map.get(0);
-            recursive(map, root);
-
+            if (root.getData().getLeftNode() != -1 && root.getData().getRightNode() != -1) {
+                recursive(map, root);
+            }
             xgboost.add(root);
         }
 
@@ -285,11 +309,11 @@ public class ServiceService {
         BaseServiceMySqlModel baseModel = baseServiceRepository.findOne("name", input.getName(),
                 BaseServiceMySqlModel.class);
         if (baseModel != null) {
-            throw new StatusCodeWithException("服务名称 【"+input.getName()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+            throw new StatusCodeWithException("服务名称 【" + input.getName() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
         TableServiceMySqlModel model = serviceRepository.findOne("url", input.getUrl(), TableServiceMySqlModel.class);
         if (model != null) {
-            throw new StatusCodeWithException("服务英文名称 【"+input.getUrl()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+            throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
         model = ModelMapper.map(input, TableServiceMySqlModel.class);
         model.setCreatedBy(CurrentAccount.id());
@@ -442,15 +466,15 @@ public class ServiceService {
         List<BaseServiceMySqlModel> baseModels = baseServiceRepository
                 .findAll(Where.create().equal("name", input.getName()).build(BaseServiceMySqlModel.class));
         if (baseModels != null && !baseModels.isEmpty()) {
-            throw new StatusCodeWithException("服务名称 【"+input.getName()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+            throw new StatusCodeWithException("服务名称 【" + input.getName() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
-        
+
         baseModels = baseServiceRepository
                 .findAll(Where.create().equal("url", input.getUrl()).build(BaseServiceMySqlModel.class));
         if (baseModels != null && baseModels.size() >= 2) {
-            throw new StatusCodeWithException("服务英文名称 【"+input.getUrl()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+            throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
-        
+
         if (StringUtils.isNotBlank(input.getName())) {
             model.setName(input.getName());
         }
@@ -565,7 +589,7 @@ public class ServiceService {
     }
 
     public JObject check(BaseServiceMySqlModel service, JObject res, String serviceUrl,
-            com.welab.wefe.serving.service.api.service.RouteApi.Input input, String clientIp) {
+                         com.welab.wefe.serving.service.api.service.RouteApi.Input input, String clientIp) {
         long start = System.currentTimeMillis();
         if (service == null) {
             return JObject.create("message", "service not found: url = " + serviceUrl).append("code",
@@ -658,7 +682,7 @@ public class ServiceService {
     }
 
     private String preExecuteOrderLog(TableServiceMySqlModel service, PartnerMysqlModel client, RouteApi.Input input,
-            String clientIp) {
+                                      String clientIp) {
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
                 service.getServiceType(), CallByMeEnum.NO.getValue(), ServiceOrderEnum.ORDERING.getValue(), client.getId(),
                 client.getName(), CacheObjects.getMemberId(), CacheObjects.getMemberName());
@@ -666,7 +690,7 @@ public class ServiceService {
     }
 
     private String preExecuteCallLog(String serviceOrderId, TableServiceMySqlModel service, PartnerMysqlModel client,
-            RouteApi.Input input, String clientIp) {
+                                     RouteApi.Input input, String clientIp) {
         ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderId, 0, client.getId(),
                 client.getName(), service.getId(), service.getName(), service.getServiceType(), input.getRequestId(),
                 JSONObject.toJSONString(input), clientIp);
