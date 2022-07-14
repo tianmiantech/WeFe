@@ -33,6 +33,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.secret.Secret;
 import com.welab.wefe.common.fieldvalidate.secret.SecretUtil;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.TempRsaCache;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,7 +176,7 @@ public class BaseGlobalConfigService extends AbstractService {
 
         for (Map.Entry<String, String> entry : map.entrySet()) {
             Secret secret = SecretUtil.getAnnotation(clazz, entry.getKey());
-            if (secret != null) {
+            if (secret != null && StringUtil.isNotEmpty(entry.getValue())) {
                 String decrypt = TempRsaCache.decrypt(entry.getValue());
                 entry.setValue(decrypt);
             }
