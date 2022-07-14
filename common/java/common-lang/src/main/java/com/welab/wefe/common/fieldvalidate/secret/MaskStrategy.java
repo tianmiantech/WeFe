@@ -15,6 +15,8 @@
  */
 package com.welab.wefe.common.fieldvalidate.secret;
 
+import com.welab.wefe.common.util.Masker;
+
 import java.util.function.Function;
 
 /**
@@ -25,9 +27,18 @@ public enum MaskStrategy {
     /**
      * 阻止字段输出任何字节，输出 null。
      */
-    BLOCK;
+    BLOCK,
+    /**
+     * 密码，固定长度的星号。
+     */
+    PASSWORD,
+    PHONE_NUMBER,
+    EMAIL;
 
     private static Function<String, String> BLOCK_FUNC = x -> null;
+    private static Function<String, String> PASSWORD_FUNC = x -> "***************";
+    private static Function<String, String> PHONE_NUMBER_FUNC = Masker::maskPhoneNumber;
+    private static Function<String, String> EMAIL_FUNC = Masker::maskEmail;
 
 
     public String get(Object value) {
@@ -40,10 +51,15 @@ public enum MaskStrategy {
         switch (this) {
             case BLOCK:
                 return BLOCK_FUNC.apply(str);
+            case PASSWORD:
+                return PASSWORD_FUNC.apply(str);
+            case PHONE_NUMBER:
+                return PHONE_NUMBER_FUNC.apply(str);
+            case EMAIL:
+                return EMAIL_FUNC.apply(str);
             default:
                 throw new RuntimeException("意料之外的枚举：" + this);
         }
-
 
     }
 }

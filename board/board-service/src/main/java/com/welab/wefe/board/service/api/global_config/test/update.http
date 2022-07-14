@@ -5,4 +5,48 @@ Content-Type: application/json
 token:{{token}}
 
 {
+  "groups": {
+    "alert_config": {
+      "email_alert_on_job_error": "true",
+      "retrieve_password_captcha_channel": "email"
+    },
+    "wefe_board": {
+      "account_need_audit_when_register": "true",
+      "intranet_base_uri": "https://xbd-fat.wolaidai.com/board-service-03/"
+    },
+    "clickhouse_storage_config": {
+      "tcp_port": "9020",
+      "password": "welab2020",
+      "host": "10.90.0.86",
+      "http_port": "8143",
+      "username": "welab"
+    },
+    "wefe_flow": {
+      "visual_fl_base_url": "http://10.90.0.86:10002",
+      "intranet_base_uri": "http://10.90.0.86:5502"
+    },
+    "storage_config": {
+      "storage_type": "CLICKHOUSE"
+    },
+    "aliyun_sms_channel": {
+      "access_key_id": "LTAI4G2Ecp81rr7hm2hbcND7",
+      "sign_name": "天冕",
+      "access_key_secret": "nxLUp4RRSfXavTXpC3LrBRFYFuvsfv",
+      "retrieve_password_template_code": "SMS_227737637"
+    },
+    "wefe_gateway": {
+      "ip_white_list": "*\n#10.5.210.15:8080\n# board 内网IP地址，由 board 自主上报。\n10.5.210.*\n\n# board 外网IP地址，由 board 自主上报。\n120.78.238.167\n\n# flow 内网IP地址，由 flow 自主上报。\n192.168.160.*\n\n# flow 上报IP地址，由 flow 自主上报。\n10.90.0.86\n\n# board 内网IP地址，由 board 自主上报。\n169.69.50.*\n\n# board 外网IP地址，由 board 自主上报。\n183.3.218.18\n\n# board 内网IP地址，由 board 自主上报。\n172.29.20.*\n\n# board 内网IP地址，由 board 自主登记。\n172.29.24.*\n\n# board 内网IP地址，由 board 自主登记。\n172.20.10.*\n\n# board 内网IP地址，由 board 自主登记。\n192.168.3.*\n\r\n# board 内网IP地址，由 board 自主登记。\r\n169.69.34.*\r\n\n# board 内网IP地址，由 board 自主登记。\n127.0.0.*\n\n# board 内网IP地址，由 board 自主登记。\n10.5.0.*\n\n# board 内网IP地址，由 board 自主登记。\n172.31.21.*\n\n# board 内网IP地址，由 board 自主登记。\n172.31.24.*\n\r\n# board 内网IP地址，由 board 自主登记。\r\n192.168.111.*\r\n\n# board 内网IP地址，由 board 自主登记。\n192.168.2.*\n",
+      "intranet_base_uri": "10.5.210.8:8080"
+    },
+    "mail_server": {
+      "mail_password": "XMGHTVQVUMFZLAJU",
+      "mail_port": "465",
+      "mail_host": "smtp.163.com",
+      "mail_username": "wefe_aaron_test@163.com"
+    },
+    "wefe_serving": {
+      "aes_key": "x8vKdTCC9stW7C7pYmx92A==",
+      "intranet_base_uri": "https://xbd-fat.wolaidai.com/serving-service-01/"
+    }
+  }
 }
