@@ -139,7 +139,7 @@ public class ModelService {
 
     private void openService(SaveModelApi.Input input) {
         if (JobMemberRole.provider.equals(input.getMyRole())) {
-            openPartnerService(input.getServiceId(), input.getMemberParams());
+            openPartnerService(input.getServiceId(), input.getName(), input.getMemberParams());
         } else {
             activatePartnerService(input.getServiceId(), input.getName(), input.getMemberParams());
         }
@@ -183,16 +183,17 @@ public class ModelService {
      * @param modelId
      * @param memberParams
      */
-    private void openPartnerService(String modelId, List<MemberParams> memberParams) {
+    private void openPartnerService(String modelId,String modelName, List<MemberParams> memberParams) {
         memberParams.stream()
                 .filter(x -> JobMemberRole.promoter.equals(x.getRole()))
-                .forEach(x -> openService(modelId, x));
+                .forEach(x -> openService(modelId,modelName, x));
     }
 
-    private void openService(String modelId, MemberParams x) {
+    private void openService(String modelId,String name, MemberParams x) {
         try {
             clientServiceService.openService(
                     modelId,
+                    name,
                     x.getMemberId(),
                     x.getPublicKey(),
                     ServiceTypeEnum.MachineLearning
