@@ -75,7 +75,7 @@
             </el-table-column>
             <el-table-column
                 label="服务名称"
-                width="230"
+                width="310"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
@@ -129,11 +129,19 @@
             </el-table-column>
 
             <el-table-column
-                label="创建人/修改人"
+                label="创建人"
                 width="100"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_by ? scope.row.created_by:"-" }} / {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
+                    {{ scope.row.created_by ? scope.row.created_by:"-" }}
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="修改人"
+                width="100"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
                 </template>
             </el-table-column>
 
