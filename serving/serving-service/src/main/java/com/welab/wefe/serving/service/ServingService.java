@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service;
 
+import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
