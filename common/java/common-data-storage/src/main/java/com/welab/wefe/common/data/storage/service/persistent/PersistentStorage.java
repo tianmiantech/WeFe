@@ -88,7 +88,6 @@ public abstract class PersistentStorage {
     public volatile boolean inited = false;
 
 
-
     /**
      * 初始化对象
      * <p>
@@ -116,6 +115,11 @@ public abstract class PersistentStorage {
                 storage.dataSource.close();
                 storage.inited = false;
             }
+
+            if (config == null) {
+                return false;
+            }
+
             storage = new MysqlStorage(config);
             storage.dataSource = buildDruidDataSource(config);
             storage.checkConnection();

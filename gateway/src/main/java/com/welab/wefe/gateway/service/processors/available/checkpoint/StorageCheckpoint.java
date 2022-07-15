@@ -52,6 +52,10 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck(String value) throws Exception {
+        if (PersistentStorage.inited()) {
+            throw new Exception("数据集存储不可用，请在[全局设置][系统设置]中检查数据集存储配置是否正确。");
+        }
+
         String name = RandomStringUtils.randomAlphabetic(6);
         PersistentStorage storage = PersistentStorage.getInstance();
         storage.put(Constant.DBName.WEFE_DATA, name, new DataItemModel<>(name, "test"));
