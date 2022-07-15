@@ -283,6 +283,32 @@ public class CertUtils {
                 out.close();
         }
     }
+    
+    /**
+     * Save the PFX file that contains the public key, private key, and certificate
+     * chain alias
+     *
+     * @param alias         certificate chain alias
+     * @param privKey       private key
+     * @param pwd           password
+     * @param certChain     certificate chain
+     * @param saveDirectory save directory
+     */
+    public static void saveJks(String alias, PrivateKey privKey, String pwd, List<X509Certificate> certChain,
+            String saveDirectory, String name) throws Exception {
+        FileOutputStream out = null;
+        try {
+            KeyStore outputKeyStore = KeyStore.getInstance("JKS");
+            outputKeyStore.load(null, pwd.toCharArray());
+            X509Certificate[] arX509certificate = new X509Certificate[certChain.size()];
+            outputKeyStore.setKeyEntry(alias, privKey, pwd.toCharArray(), certChain.toArray(arX509certificate));
+            out = new FileOutputStream(saveDirectory + "/" + name + ".jks");
+            outputKeyStore.store(out, pwd.toCharArray());
+        } finally {
+            if (out != null)
+                out.close();
+        }
+    }
 
     /**
      * read PriKey from Pfx
@@ -293,6 +319,32 @@ public class CertUtils {
      */
     public static PrivateKey readPriKeyFromPfx(String filePath, String pwd) throws Exception {
         KeyStore ks = KeyStore.getInstance("PKCS12");
+        FileInputStream fis = new FileInputStream(filePath);
+        // If the keystore password is empty(""), then we have to set
+        // to null, otherwise it won't work!!!
+        char[] nPassword = null;
+        if ((pwd != null) && !pwd.trim().equals("")) {
+            nPassword = pwd.toCharArray();
+        }
+        ks.load(fis, nPassword);
+        fis.close();
+        Enumeration<String> enum1 = ks.aliases();
+        String keyAlias = null;
+        if (enum1.hasMoreElements()) {
+            keyAlias = enum1.nextElement();
+        }
+        return (PrivateKey) ks.getKey(keyAlias, nPassword);
+    }
+    
+    /**
+     * read PriKey from Pfx
+     * 
+     * @param filePath pfx filepath
+     * @param pwd      password
+     * @return PrivateKey
+     */
+    public static PrivateKey readPriKeyFromJks(String filePath, String pwd) throws Exception {
+        KeyStore ks = KeyStore.getInstance("JKS");
         FileInputStream fis = new FileInputStream(filePath);
         // If the keystore password is empty(""), then we have to set
         // to null, otherwise it won't work!!!

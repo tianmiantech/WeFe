@@ -219,4 +219,10 @@ public class CertManagerService {
         return this.certHandler.importPrivateKey(userId, pemPrivateKey, priAlg);
     }
 
+    // 查询私钥
+    public CertKeyVO queryCertKey(String pkId) {
+        CertKeyInfo info = this.certHandler.queryCertKey(pkId);
+        return (CertKeyVO) TransformUtils.simpleTransform(info, CertKeyVO.class);
+    }
+
 }
