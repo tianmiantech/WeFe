@@ -192,10 +192,8 @@ export default {
                             this.$message('提交成功!');
                         }, 1000);
                         this.$router.push({
-                            name:  'partner-edit',
-                            query: { id: this.client.id},
+                            name: 'partner-list',
                         });
-                        this.$router.go(0);
                     }
                 }
             });
