@@ -655,7 +655,7 @@ public class ServiceService {
 //                log(service, client, duration, clientIp, res.getIntValue("code"));
                 return res;
             }
-            if (StringUtils.isNotBlank(clientServiceMysqlModel.getIpAdd())
+            if (!input.isModelService() && StringUtils.isNotBlank(clientServiceMysqlModel.getIpAdd())
                     && !"*".equalsIgnoreCase(clientServiceMysqlModel.getIpAdd())
                     && !Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp)) {
                 res.append("code", ServiceResultEnum.IP_NOT_AUTHORITY.getCode());

@@ -333,8 +333,9 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void openService(String serviceId,
-                            String clientId,
                             String serviceName,
+                            String url,
+                            String clientId,
                             String publicKey,
                             ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
@@ -347,6 +348,7 @@ public class ClientServiceService {
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         clientService.setCreatedBy(CacheObjects.getMemberName());
         clientService.setServiceName(serviceName);
+        clientService.setUrl(url);
         add(clientService);
     }
 

@@ -189,11 +189,12 @@ public class ModelService {
                 .forEach(x -> openService(modelId,modelName, x));
     }
 
-    private void openService(String modelId,String name, MemberParams x) {
+    private void openService(String modelId, String name, MemberParams x) {
         try {
             clientServiceService.openService(
                     modelId,
                     name,
+                    setModelServiceUrl(modelId),
                     x.getMemberId(),
                     x.getPublicKey(),
                     ServiceTypeEnum.MachineLearning
