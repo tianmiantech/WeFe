@@ -18,7 +18,6 @@ package com.welab.wefe.serving.service.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -26,9 +25,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.dto.ServiceResultOutput;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
-import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.service.ServiceService;
 
 @Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = true, domain = Caller.Customer)
@@ -36,18 +33,12 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
     @Autowired
     private ServiceService serviceService;
-    
-    @Autowired
-    private ModelService modelService;
+
 
     @Override
     protected ApiResult<JObject> handle(Input input) {
         LOG.info("request =" + JObject.toJSONString(input));
         try {
-            if (input.isModelService()) {
-                ServiceResultOutput output = modelService.predict(input);
-                return success(JObject.create(JSON.toJSONString(output)));
-            }
             JObject result = serviceService.executeService(input);
             LOG.info("response =" + JObject.toJSONString(result));
             return success(result);

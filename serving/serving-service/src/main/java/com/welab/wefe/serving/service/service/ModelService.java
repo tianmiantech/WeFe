@@ -355,20 +355,20 @@ public class ModelService {
 
         String responseId = ServiceResultOutput.buildId();
         PredictResult result = null;
-        ServiceOrderEnum status = ServiceOrderEnum.SUCCESS;
-        Integer responseCode = 0;
+//        ServiceOrderEnum status = ServiceOrderEnum.SUCCESS;
+//        Integer responseCode = 0;
         try {
             JObject data = initParam(input);
             result = forward(data);
 
             return ServiceResultOutput.of(input.getRequestId(), responseId, result);
         } catch (StatusCodeWithException e) {
-            status = ServiceOrderEnum.FAILED;
-            responseCode = StatusCode.SYSTEM_ERROR.getCode();
+//            status = ServiceOrderEnum.FAILED;
+//            responseCode = StatusCode.SYSTEM_ERROR.getCode();
             throw e;
         } finally {
-            String orderId = createOrder(input, status);
-            callLog(input, orderId, responseId, result, responseCode);
+//            String orderId = createOrder(input, status);
+//            callLog(input, orderId, responseId, result, responseCode);
         }
     }
 
