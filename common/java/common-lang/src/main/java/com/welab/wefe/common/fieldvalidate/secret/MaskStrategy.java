@@ -17,6 +17,8 @@ package com.welab.wefe.common.fieldvalidate.secret;
 
 import com.welab.wefe.common.util.Masker;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -35,31 +37,28 @@ public enum MaskStrategy {
     PHONE_NUMBER,
     EMAIL;
 
-    private static Function<String, String> BLOCK_FUNC = x -> null;
-    private static Function<String, String> PASSWORD_FUNC = x -> "***************";
-    private static Function<String, String> PHONE_NUMBER_FUNC = Masker::maskPhoneNumber;
-    private static Function<String, String> EMAIL_FUNC = Masker::maskEmail;
+    private static final Map<MaskStrategy, Function<String, String>> FUNCTION_MAP = new HashMap<>();
 
+    static {
+        FUNCTION_MAP.put(BLOCK, x -> null);
+        FUNCTION_MAP.put(PASSWORD, x -> "***************");
+        FUNCTION_MAP.put(PHONE_NUMBER, Masker::maskPhoneNumber);
+        FUNCTION_MAP.put(EMAIL, Masker::maskEmail);
+    }
 
     public String get(Object value) {
         if (value == null) {
             return null;
         }
 
-        String str = String.valueOf(value);
-
-        switch (this) {
-            case BLOCK:
-                return BLOCK_FUNC.apply(str);
-            case PASSWORD:
-                return PASSWORD_FUNC.apply(str);
-            case PHONE_NUMBER:
-                return PHONE_NUMBER_FUNC.apply(str);
-            case EMAIL:
-                return EMAIL_FUNC.apply(str);
-            default:
-                throw new RuntimeException("意料之外的枚举：" + this);
+        Function<String, String> function = FUNCTION_MAP.get(this);
+        if (function == null) {
+            throw new RuntimeException("意料之外的枚举：" + this);
         }
+
+        String str = String.valueOf(value);
+        return function.apply(str);
+
 
     }
 }

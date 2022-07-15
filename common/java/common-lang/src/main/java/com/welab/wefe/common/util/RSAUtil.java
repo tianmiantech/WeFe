@@ -18,6 +18,8 @@ package com.welab.wefe.common.util;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Base64Utils;
 
 import javax.crypto.Cipher;
@@ -35,6 +37,7 @@ import java.util.Enumeration;
  * @author zane.luo
  */
 public class RSAUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(RSAUtil.class);
 
     public static final String KEY_ALGORITHM = "RSA";
     private static final String SIGN_ALGORITHM = "SHA1withRSA";
@@ -398,9 +401,15 @@ public class RSAUtil {
         return hexRetSb.toString();
     }
 
-    public static RsaKeyPair generateKeyPair() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyPairGen = KeyPairGenerator
-                .getInstance(KEY_ALGORITHM);
+    public static RsaKeyPair generateKeyPair() {
+        KeyPairGenerator keyPairGen = null;
+        try {
+            keyPairGen = KeyPairGenerator
+                    .getInstance(KEY_ALGORITHM);
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
+            return null;
+        }
         keyPairGen.initialize(2048);
         KeyPair keyPair = keyPairGen.generateKeyPair();
         PublicKey publicKey = keyPair.getPublic();
