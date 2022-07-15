@@ -35,7 +35,7 @@ public class BaseServiceMySqlModel extends AbstractBaseMySqlModel {
     private static final long serialVersionUID = 6086376958829410311L;
 
     @Column(name = "service_id")
-    private String serviceId;
+    private String serviceId = super.getId();
     // 服务名
     private String name;
     // 服务地址

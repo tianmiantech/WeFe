@@ -128,8 +128,6 @@ public class ServiceService {
     @Autowired
     private DataSourceService dataSourceService;
     @Autowired
-    private ApiRequestRecordService apiRequestRecordService;
-    @Autowired
     private AccountRepository accountRepository;
     @Autowired
     private UnionServiceService unionServiceService;
@@ -466,6 +464,9 @@ public class ServiceService {
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
 
         Where where = Where.create();
+        if(StringUtils.isNotBlank(input.getServiceId())) {
+            where = where.contains("serviceId", input.getServiceId());   
+        }
         if (StringUtils.isNotBlank(input.getName())) {
             where = where.contains("name", input.getName());
         }
