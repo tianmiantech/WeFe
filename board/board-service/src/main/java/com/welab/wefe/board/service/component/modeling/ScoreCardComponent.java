@@ -31,8 +31,11 @@ import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,7 +49,7 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Binning);
         FlowGraphNode intersectionNode2 = graph.findOneNodeFromParent(node, ComponentType.HorzFeatureBinning);
-        if (intersectionNode == null && intersectionNode2==null) {
+        if (intersectionNode == null && intersectionNode2 == null) {
             throw new FlowNodeException(node, "请在前面添加分箱组件。");
         }
     }
@@ -76,7 +79,128 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
     @Override
     protected TaskResultMySqlModel getResult(String taskId, String type) {
 
-        return super.getResult(taskId, type);
+        TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndType(taskId, type);
+
+        taskResult.setResult(getScoreCardResult(taskResult));
+
+        return taskResult;
+    }
+
+    private String getScoreCardResult(TaskResultMySqlModel taskResult) {
+        double bScore = extractBScore(taskResult);
+        JObject binningResult = getBinningResult(taskResult);
+        JObject modelResult = getModelResult(taskResult);
+
+        JObject result = JObject.create();
+        binningResult.entrySet().stream().forEach(x -> {
+            double weight = modelResult.getDouble(x.getKey());
+            List<Double> splitPoints = extractSplitPoints(JObject.create(x.getValue()));
+            List<Double> woeArray = extractWoeArray(JObject.create(x.getValue()));
+
+            List<Output> outputs = Lists.newArrayList();
+            for (int i = 0; i < splitPoints.size(); i++) {
+                Output output = new Output();
+                output.setBinning(getBinningSplit(splitPoints, i));
+                output.setWoe(woeArray.get(i));
+                output.setScore(woeArray.get(i) * bScore * weight);
+                output.setWeight(weight);
+                outputs.add(output);
+            }
+
+            result.append(x.getKey(), outputs);
+        });
+        return result.toJSONString();
+    }
+
+    private List<Double> extractWoeArray(JObject obj) {
+        return obj.getJSONList("woeArray", Double.class);
+    }
+
+    private List<Double> extractSplitPoints(JObject obj) {
+        return obj.getJSONList("splitPoints", Double.class);
+    }
+
+    private JObject getBinningResult(TaskResultMySqlModel taskResult) {
+        TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
+                taskResult.getJobId(),
+                null,
+                taskResult.getRole(),
+                TaskResultType.model_binning.name()
+        );
+
+        JObject binning = JObject.create(binningTaskResult.getResult());
+        return binning.getJObjectByPath("model_param.binningResult.binningResult");
+    }
+
+    private JObject getModelResult(TaskResultMySqlModel taskResult) {
+        TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
+                taskResult.getJobId(),
+                null,
+                taskResult.getRole(),
+                TaskResultType.model_train.name()
+        );
+
+        JObject binning = JObject.create(binningTaskResult.getResult());
+        return binning.getJObjectByPath("model_param.weight");
+    }
+
+    private double extractBScore(TaskResultMySqlModel taskResult) {
+        JObject scoreCard = JObject.create(taskResult.getResult());
+        String jsonPath = "train_ScoreCard_" + taskResult.getFlowNodeId() + ".data.b_score";
+        return scoreCard.getDoubleByPath(jsonPath);
+    }
+
+    private String getBinningSplit(List<Double> list, int i) {
+        String beforeKey = i == 0 ? "-∞" : precisionProcessByDouble(list.get(i - 1));
+        return beforeKey + "," + precisionProcessByDouble(list.get(i));
+    }
+
+    private String precisionProcessByDouble(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        return bd.setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+    }
+
+
+    private static class Output {
+        private String binning;
+
+        private Double woe;
+
+        private Double score;
+
+        private Double weight;
+
+        public String getBinning() {
+            return binning;
+        }
+
+        public void setBinning(String binning) {
+            this.binning = binning;
+        }
+
+        public Double getWoe() {
+            return woe;
+        }
+
+        public void setWoe(Double woe) {
+            this.woe = woe;
+        }
+
+        public Double getScore() {
+            return score;
+        }
+
+        public void setScore(Double score) {
+            this.score = score;
+        }
+
+        public Double getWeight() {
+            return weight;
+        }
+
+        public void setWeight(Double weight) {
+            this.weight = weight;
+        }
     }
 
     @Override
