@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.service;
 
+import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -46,7 +47,7 @@ public class ServingService implements ApplicationContextAware {
                 .apiPackageClass(ServingService.class)
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
-//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((request, annotation, params) -> {
                     if (!annotation.rsaVerify()) {
                         return;
