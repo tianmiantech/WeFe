@@ -104,7 +104,7 @@
                 width="70"
             >
                 <template slot-scope="scope">
-                    <p>{{scope.row.is_union_member}}</p>
+                    <p>{{scope.row.is_union_member ? '是':'否'}}</p>
                 </template>
             </el-table-column>
 

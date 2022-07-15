@@ -110,6 +110,7 @@ public class ClientServiceService {
                 model.setStatus(ServiceStatusEnum.USED.getCode());
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
+                model.setServiceName(input.getServiceName());
                 if (StringUtils.isBlank(input.getPrivateKey()) || !input.getPrivateKey().contains("******")) {
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
@@ -119,7 +120,7 @@ public class ClientServiceService {
                 }
                 model.setUrl(input.getUrl());
             }
-            model.setType(input.getType());
+//            model.setType(input.getType());
             model.setCreatedTime(new Date());
             model.setUpdatedBy(model.getCreatedBy());
             model.setUpdatedTime(new Date());
@@ -332,6 +333,8 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void openService(String serviceId,
+                            String serviceName,
+                            String url,
                             String clientId,
                             String publicKey,
                             ServiceTypeEnum serviceType) throws StatusCodeWithException {
@@ -344,6 +347,8 @@ public class ClientServiceService {
         clientService.setType(ServiceClientTypeEnum.OPEN.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         clientService.setCreatedBy(CacheObjects.getMemberName());
+        clientService.setServiceName(serviceName);
+        clientService.setUrl(url);
         add(clientService);
     }
 
