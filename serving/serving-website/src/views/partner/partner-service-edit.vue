@@ -2,7 +2,7 @@
 
     <el-card v-loading="loading" class="page" shadow="never">
 
-        <h2 class="title">编辑客户服务</h2>
+        <h2 class="title">编辑合作者服务</h2>
 
         <el-form :model="clientService" label-width="112px" :rules="rules" ref="clientService">
             <el-form-item label="服务名称：">

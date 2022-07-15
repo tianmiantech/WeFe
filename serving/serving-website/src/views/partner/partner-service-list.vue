@@ -32,22 +32,6 @@
                     />
                 </el-select>
             </el-form-item>
-
-<!--            <el-form-item label="类型：">-->
-<!--                <el-select-->
-<!--                    v-model="search.type"-->
-<!--                    placeholder="请选择"-->
-<!--                    clearable-->
-<!--                >-->
-<!--                    <el-option-->
-<!--                        v-for="item in types"-->
-<!--                        :key="item.value"-->
-<!--                        :label="item.label"-->
-<!--                        :value="item.value"-->
-<!--                    />-->
-<!--                </el-select>-->
-<!--            </el-form-item>-->
-
             <el-form-item>
                 <el-button
                     type="primary"
@@ -63,15 +47,6 @@
                         为合作者开通服务
                     </el-button>
                 </router-link>
-
-<!--                <router-link-->
-<!--                    class="ml10"-->
-<!--                    :to="{name: 'activate-service-add'}"-->
-<!--                >-->
-<!--                    <el-button>-->
-<!--                        激活服务-->
-<!--                    </el-button>-->
-<!--                </router-link>-->
             </el-form-item>
         </el-form>
 
@@ -100,7 +75,7 @@
             </el-table-column>
             <el-table-column
                 label="服务名称"
-                width="230"
+                width="310"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
@@ -123,22 +98,6 @@
             >
                 <template slot-scope="scope">
                     {{ scope.row.ip_add }}
-                </template>
-            </el-table-column>
-
-            <el-table-column
-                label="请求地址"
-                width="200"
-            >
-                <template slot-scope="scope">
-                    <el-tooltip
-                        class="item"
-                        effect="dark"
-                        :content="scope.row.url"
-                        placement="left-start"
-                    >
-                        <p>{{ scope.row.url }} </p>
-                    </el-tooltip>
                 </template>
             </el-table-column>
 
@@ -170,11 +129,19 @@
             </el-table-column>
 
             <el-table-column
-                label="创建人/修改人"
+                label="创建人"
                 width="100"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_by ? scope.row.created_by:"-" }} / {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
+                    {{ scope.row.created_by ? scope.row.created_by:"-" }}
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="修改人"
+                width="100"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
                 </template>
             </el-table-column>
 

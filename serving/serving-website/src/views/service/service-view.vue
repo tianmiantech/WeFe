@@ -1004,7 +1004,7 @@
                 v-if="form.service_type"
                 class="f16"
             >
-                配置说明
+                服务配置说明
             </h3>
             <div class="config_box">
                 <div
@@ -1664,7 +1664,8 @@ export default {
                         this.myRole = data.my_role[0];
                     }
                     this.activeName = data.feature_source;
-                    if (data.id) {
+                    console.log(data);
+                    if (data.id && data.service_type > 6) {
                         this.form.model_data.model_sql_config.model_id = data.model_id;
                         this.form.model_data.model_id = data.service_id;
                         this.form.model_data.model_overview = data.xgboost_tree;

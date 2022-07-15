@@ -7,6 +7,9 @@
             class="mb20"
             inline
         >
+            <el-form-item label="服务ID:">
+                <el-input v-model="search.service_id" />
+            </el-form-item>
             <el-form-item label="服务名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
@@ -92,7 +95,7 @@
                     <router-link :to="{ name: 'service-view', query: { id: scope.row.id, service_type: scope.row.service_type } }">
                         {{ scope.row.name }}
                     </router-link>
-                    <p class="id">{{ scope.row.id }}</p>
+                    <p class="id">{{ scope.row.service_id }}</p>
                 </template>
             </el-table-column>
 
@@ -276,6 +279,7 @@
             return {
                 accounts: [],
                 search:   {
+                    service_id: '',
                     name:         '',
                     created_by:   '',
                     service_type: '',
