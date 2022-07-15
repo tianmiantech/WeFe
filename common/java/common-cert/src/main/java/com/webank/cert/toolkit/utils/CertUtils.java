@@ -269,14 +269,14 @@ public class CertUtils {
      * @param saveDirectory save directory
      */
     public static void savePfx(String alias, PrivateKey privKey, String pwd, List<X509Certificate> certChain,
-            String saveDirectory, String name) throws Exception {
+            String savePath) throws Exception {
         FileOutputStream out = null;
         try {
             KeyStore outputKeyStore = KeyStore.getInstance("pkcs12");
             outputKeyStore.load(null, pwd.toCharArray());
             X509Certificate[] arX509certificate = new X509Certificate[certChain.size()];
             outputKeyStore.setKeyEntry(alias, privKey, pwd.toCharArray(), certChain.toArray(arX509certificate));
-            out = new FileOutputStream(saveDirectory + "/" + name + ".pfx");
+            out = new FileOutputStream(savePath);
             outputKeyStore.store(out, pwd.toCharArray());
         } finally {
             if (out != null)
@@ -284,31 +284,6 @@ public class CertUtils {
         }
     }
     
-    /**
-     * Save the PFX file that contains the public key, private key, and certificate
-     * chain alias
-     *
-     * @param alias         certificate chain alias
-     * @param privKey       private key
-     * @param pwd           password
-     * @param certChain     certificate chain
-     * @param saveDirectory save directory
-     */
-    public static void saveJks(String alias, PrivateKey privKey, String pwd, List<X509Certificate> certChain,
-            String saveDirectory, String name) throws Exception {
-        FileOutputStream out = null;
-        try {
-            KeyStore outputKeyStore = KeyStore.getInstance("JKS");
-            outputKeyStore.load(null, pwd.toCharArray());
-            X509Certificate[] arX509certificate = new X509Certificate[certChain.size()];
-            outputKeyStore.setKeyEntry(alias, privKey, pwd.toCharArray(), certChain.toArray(arX509certificate));
-            out = new FileOutputStream(saveDirectory + "/" + name + ".jks");
-            outputKeyStore.store(out, pwd.toCharArray());
-        } finally {
-            if (out != null)
-                out.close();
-        }
-    }
 
     /**
      * read PriKey from Pfx

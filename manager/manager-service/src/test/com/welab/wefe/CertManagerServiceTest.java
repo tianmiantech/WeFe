@@ -54,6 +54,7 @@ public class CertManagerServiceTest {
 
     @Test
     public void testCreateRootCert() throws Exception {
+        FileOperationUtils.mkdir("out1");
         X500NameInfo issuer = X500NameInfo.builder().commonName("root").organizationName("welab")
                 .organizationalUnitName("it").build();
         String userId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -61,9 +62,9 @@ public class CertManagerServiceTest {
         Date endDate = new Date(beginDate.getTime() + CertConstants.DEFAULT_VALIDITY);
         KeyUsage keyUsage = new KeyUsage(KeyUsage.dataEncipherment); // 证书使用用途
         CertVO cert = certManagerService.createRootCert(userId, issuer, keyUsage, beginDate, endDate);
-        System.out.println(cert.getUserId()); // 1672c86067944280b66c818b28ef8921
-        System.out.println(cert.getIssuerKeyId());// 4b02a3b3ba5e47ba9e708a21ded28439
-        System.out.println(cert.getPkId());// f3a76f8b1ac8414ebf3872be01dd8a17
+        System.out.println(cert.getUserId()); // c5c5e50368714ce79d72d82c2eb1ff1b
+        System.out.println(cert.getIssuerKeyId());// 94307ce619cc4f7fa940bfb0c58add0f
+        System.out.println(cert.getPkId());// 9128d83224b84d70b906d84a6d688b94
     }
 
     // 生成私钥
@@ -72,12 +73,14 @@ public class CertManagerServiceTest {
         String userId = UUID.randomUUID().toString().replaceAll("-", "");
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
+        CertUtils.writeKey(keyPair.getPrivate(), "out1/welab_pri.key");
+        CertUtils.writeKey(keyPair.getPublic(), "out1/welab_pub.key");
         String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
         // 保存私钥
         String certKeyId = certManagerService.importPrivateKey(userId, pemPrivateKey,
                 KeyAlgorithmEnums.RSA.getKeyAlgorithm());
-        System.out.println(certKeyId); // 677150aa36fe470dbba68603e0e0f714
-        System.out.println(userId);
+        System.out.println(certKeyId); // 8f9556c985fc4838b9e5c2a89263a358
+        System.out.println(userId); // 3db9399b780949c6ae18b3f55f2200e8
     }
 
     // 生成csr
@@ -86,23 +89,23 @@ public class CertManagerServiceTest {
         X500NameInfo subject = X500NameInfo.builder().commonName("wefe").organizationName("welab")
                 .organizationalUnitName("it").build();
         // 申请人私钥ID
-        String subjectKeyId = "677150aa36fe470dbba68603e0e0f714";
+        String subjectKeyId = "8f9556c985fc4838b9e5c2a89263a358";
         // 申请人用户ID
-        String subjectUserId = "a2c9a8edcf754bcb9370d27f84fc719b";
+        String subjectUserId = "3db9399b780949c6ae18b3f55f2200e8";
         // issuer证书ID
-        String issuerCertId = "f3a76f8b1ac8414ebf3872be01dd8a17";
-        CertRequestVO vo = certManagerService.createCertRequestByKey(subjectUserId, subjectKeyId, issuerCertId,
+        String issuerCertId = "419d830e12514d3db9f1ff0e6c7032f5";
+        CertRequestVO vo = certManagerService.createCertRequestByKey("welab", subjectUserId, subjectKeyId, issuerCertId,
                 subject);
-        System.out.println(vo.getPkId()); // a3574b69a19f46a9909ec7bae2519735
+        System.out.println(vo.getPkId()); // 7de5dae82ad14a21b6f6ed9cdc306f0e
     }
 
     // 签发证书
     @Test
     public void testCreateChildCert() throws Exception {
-        String userId = "a2c9a8edcf754bcb9370d27f84fc719b";
-        String csrId = "a3574b69a19f46a9909ec7bae2519735";
-        CertVO cert = certManagerService.createChildCert(userId, csrId);
-        System.out.println(cert.getPkId());// f2555e5664294e47b7367960a6d98187
+        String userId = "3db9399b780949c6ae18b3f55f2200e8";
+        String csrId = "7de5dae82ad14a21b6f6ed9cdc306f0e";
+        CertVO cert = certManagerService.createChildCert("welab", userId, csrId);
+        System.out.println(cert.getPkId());// 47cd3be276bb407d9a4da4318a54a23a
     }
 
     // 一次性签发证书
@@ -110,12 +113,14 @@ public class CertManagerServiceTest {
     public void testOnceCreateChildCert() throws Exception {
         String commonName = "yinlian";
         // issuer签发机构证书ID
-        String issuerCertId = "f2555e5664294e47b7367960a6d98187";
+        String issuerCertId = "9128d83224b84d70b906d84a6d688b94";
 
         String userId = UUID.randomUUID().toString().replaceAll("-", "");
         System.out.println("为用户生成证书 userId=: " + userId);
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
+        CertUtils.writeKey(keyPair.getPrivate(), "out1/yinlian_pri.key");
+        CertUtils.writeKey(keyPair.getPublic(), "out1/yinlian_pub.key");
         String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
         // 保存私钥
         String certKeyId = certManagerService.importPrivateKey(userId, pemPrivateKey,
@@ -128,27 +133,32 @@ public class CertManagerServiceTest {
         String subjectKeyId = certKeyId;
         // 申请人用户ID
         String subjectUserId = userId;
-        CertRequestVO vo = certManagerService.createCertRequestByKey(subjectUserId, subjectKeyId, issuerCertId,
-                subject);
+        CertRequestVO vo = certManagerService.createCertRequestByKey(commonName, subjectUserId, subjectKeyId,
+                issuerCertId, subject);
         System.out.println("为用户生成证书请求 csrId = " + vo.getPkId());
 
         String csrId = vo.getPkId();
-        CertVO cert = certManagerService.createChildCert(userId, csrId);
+        CertVO cert = certManagerService.createChildCert(commonName, userId, csrId);
         System.out.println("为用户生成证书 : certId = " + cert.getPkId());
-
-        String certId = cert.getPkId();
-        FileOperationUtils.mkdir("out1");
-        certManagerService.exportCertToFile(certId, "out1/" + commonName + ".crt");
         System.out.println("为用户导出证书 : file = " + "out1/" + commonName + ".crt");
+
+        // 导入到jks供Java使用
+        // keytool -import -noprompt -file root.crt -alias root -keystore mytrust.jks
+        // -storepass 123456
+        // keytool -import -noprompt -file welab.crt -alias welab1 -keystore mytrust.jks
+        // -storepass 123456
+        // crt -> p12
+        // openssl pkcs12 -export -in yinlian.crt -inkey yinlian_pri.key -out
+        // yinlian.p12 -name "yinlian"
     }
 
-    // 通过私钥将证书转为p12/pfx
+    // 通过私钥将证书转为p12/pfx/jks
     @Test
     public void cert2P12() throws Exception {
         // 私钥ID
-        String userKeyId = "359e39346baf43bfb7ff3121c0f27ec2";
+        String userKeyId = "7f4075ec23c2462e80f1d038cfa0f9b8";
         // 证书ID
-        String certId = "63cd3411ba2441d19daefcf944ae432e";
+        String certId = "41550ac12b904bf3b0c4a4f8af6f4a69";
         CertKeyVO keyVo = certManagerService.queryCertKey(userKeyId);
         CertVO certVO = certManagerService.queryCertInfoByCertId(certId);
 
@@ -158,11 +168,11 @@ public class CertManagerServiceTest {
         List<X509Certificate> list = new ArrayList<>();
         list.add(cert);
         // 生成pfx文件，参数分别为：证书别名，私钥，keyStore密码，证书信息，保存路径，证书名
-        CertUtils.saveJks("yinlian", privateKey, "yinlian", list, "out1/", "yinlian");
+        CertUtils.savePfx("yinlian", privateKey, "yinlian", list, "out1/yinlian.jks");
         // 从pfx中导出私钥信息
-        PrivateKey key = CertUtils.readPriKeyFromJks("out1/yinlian.jks", "yinlian");
+//        PrivateKey key = CertUtils.readPriKeyFromJks("out1/yinlian1.p12", "yinlian");
         // 在控制台输出导出私钥的BASE64编码信息
-        System.out.println(Base64.toBase64String(key.getEncoded()));
+//        System.out.println(Base64.toBase64String(key.getEncoded()));
     }
 
     // 将证书导入到jks中
@@ -175,8 +185,7 @@ public class CertManagerServiceTest {
 //        CertVO rootCertVO = certManagerService.queryCertInfoByCertId(rootCertId);
 //        X509Certificate rootCert = CertUtils.convertStrToCert(rootCertVO.getCertContent());
 //        CertUtils.importCertToTrustStore("root", rootCert, "out1/truststore.jks", "123456");
-//        
-        String welabCertId = "f2555e5664294e47b7367960a6d98187";
+        String welabCertId = "9128d83224b84d70b906d84a6d688b94";
         CertVO welabCertVO = certManagerService.queryCertInfoByCertId(welabCertId);
         X509Certificate welabCert = CertUtils.convertStrToCert(welabCertVO.getCertContent());
         CertUtils.importCertToTrustStore("welab", welabCert, "out1/truststore.jks", "123456");

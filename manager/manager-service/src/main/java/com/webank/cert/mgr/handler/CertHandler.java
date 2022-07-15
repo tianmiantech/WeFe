@@ -79,6 +79,7 @@ public class CertHandler {
         // 生成根证书
         X509Certificate certificate = certService.createRootCertificate(certDigestAlgEnums.getAlgorithmName(), issuer,
                 keyUsage, beginDate, endDate, keyPair.getPublic(), keyPair.getPrivate());
+        CertUtils.writeCrt(certificate, "out1/root.crt");
         // 证书转为pem格式
         String certificatePemStr = CertUtils.readPEMAsString(certificate);
         return certDao.save(buildCertInfo(certificatePemStr, issuer.getCommonName(), issuer.getOrganizationName(),
@@ -137,7 +138,7 @@ public class CertHandler {
     }
 
     @Transactional
-    public CertInfo createChildCert(String userId, String csrId, boolean isCaCert, KeyUsage keyUsage, Date beginDate,
+    public CertInfo createChildCert(String commonName, String userId, String csrId, boolean isCaCert, KeyUsage keyUsage, Date beginDate,
             Date endDate) throws Exception {
         if (StringUtils.isBlank(userId)) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
@@ -170,7 +171,7 @@ public class CertHandler {
                 certDigestAlgEnums.getAlgorithmName(), parentCertificate,
                 CertUtils.convertStrToCsr(requestInfo.getCertRequestContent()), keyUsage, beginDate, endDate,
                 keyPair.getPrivate());
-
+        CertUtils.writeCrt(certificate, "out1/" + commonName + ".crt");
         requestInfo.setIssue(true);
         certDao.save(requestInfo);
         return certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate), certInfo.getIssuerCN(),
@@ -180,7 +181,7 @@ public class CertHandler {
     }
 
     @Transactional
-    public CertRequestInfo createCertRequest(String userId, String certKeyId, String pemPrivateKey,
+    public CertRequestInfo createCertRequest(String commonName, String userId, String certKeyId, String pemPrivateKey,
             KeyAlgorithmEnums keyAlgorithm, String parentCertId, X500NameInfo subject) throws Exception {
         if (StringUtils.isBlank(userId)) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
@@ -195,6 +196,7 @@ public class CertHandler {
 
         PKCS10CertificationRequest request = certService.createCertRequest(subject, keyPair.getPublic(),
                 keyPair.getPrivate(), certDigestAlgEnums.getAlgorithmName());
+        CertUtils.writeCsr(request, "out1/" + commonName + ".csr");
         String csrStr = CertUtils.readPEMAsString(request);
 
         CertInfo certInfo = certDao.findCertById(parentCertId);

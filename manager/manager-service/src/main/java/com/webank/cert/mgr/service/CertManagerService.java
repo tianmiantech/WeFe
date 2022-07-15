@@ -6,6 +6,8 @@
 package com.webank.cert.mgr.service;
 
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Security;
 import java.util.Date;
 import java.util.List;
@@ -83,6 +85,10 @@ public class CertManagerService {
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
         String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+        CertUtils.writeKey(privateKey, "out1/root_pri.key");
+        CertUtils.writeKey(publicKey, "out1/root_pub.key");
         // 保存私钥
         String certKeyId = this.importPrivateKey(userId, pemPrivateKey, KeyAlgorithmEnums.RSA.getKeyAlgorithm());
 
@@ -114,35 +120,35 @@ public class CertManagerService {
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
-    public CertRequestVO createCertRequestByKey(String userId, String subjectKeyId, String issuerCertId,
+    public CertRequestVO createCertRequestByKey(String commonName, String userId, String subjectKeyId, String issuerCertId,
             X500NameInfo subject) throws Exception {
-        CertRequestInfo certRequestInfo = this.certHandler.createCertRequest(userId, subjectKeyId, null, null,
+        CertRequestInfo certRequestInfo = this.certHandler.createCertRequest(commonName, userId, subjectKeyId, null, null,
                 issuerCertId, subject);
         return (CertRequestVO) TransformUtils.simpleTransform(certRequestInfo, CertRequestVO.class);
     }
 
     // 生成子证书
-    public CertVO createChildCert(String userId, String csrId) throws Exception {
-        return this.createChildCert(userId, csrId, true);
+    public CertVO createChildCert(String commonName, String userId, String csrId) throws Exception {
+        return this.createChildCert(commonName, userId, csrId, true);
     }
 
     // 生成子证书
-    public CertVO createChildCert(String userId, String csrId, boolean isCaCert) throws Exception {
+    public CertVO createChildCert(String commonName, String userId, String csrId, boolean isCaCert) throws Exception {
         Date beginDate = new Date();
         Date endDate = new Date(beginDate.getTime() + 315360000000L);
-        return this.createChildCert(userId, csrId, isCaCert, beginDate, endDate);
+        return this.createChildCert(commonName, userId, csrId, isCaCert, beginDate, endDate);
     }
 
     // 生成子证书
-    public CertVO createChildCert(String userId, String csrId, boolean isCaCert, Date beginDate, Date endDate)
+    public CertVO createChildCert(String commonName, String userId, String csrId, boolean isCaCert, Date beginDate, Date endDate)
             throws Exception {
-        return this.createChildCert(userId, csrId, isCaCert, (KeyUsage) null, beginDate, endDate);
+        return this.createChildCert(commonName, userId, csrId, isCaCert, (KeyUsage) null, beginDate, endDate);
     }
 
     // 生成子证书
-    public CertVO createChildCert(String userId, String csrId, boolean isCaCert, KeyUsage keyUsage, Date beginDate,
+    public CertVO createChildCert(String commonName, String userId, String csrId, boolean isCaCert, KeyUsage keyUsage, Date beginDate,
             Date endDate) throws Exception {
-        CertInfo certInfo = this.certHandler.createChildCert(userId, csrId, isCaCert, keyUsage, beginDate, endDate);
+        CertInfo certInfo = this.certHandler.createChildCert(commonName , userId, csrId, isCaCert, keyUsage, beginDate, endDate);
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
