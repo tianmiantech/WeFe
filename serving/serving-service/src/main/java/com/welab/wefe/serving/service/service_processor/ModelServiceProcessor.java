@@ -39,7 +39,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
         PredictApi.Input input = data.toJavaObject(PredictApi.Input.class);
         input.checkAndStandardize();
 
-        if (!ModelManager.getModelEnable(input.getModelId())) {
+        if (!ModelManager.getModelEnable(input.getServiceId())) {
             throw StatusCode.INVALID_PARAMETER
                     .throwException("模型成员 " + CacheObjects.getMemberName() + " 未上线该模型");
         }
@@ -51,7 +51,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
         if (CollectionUtils.isNotEmpty(input.getUserIds())) {
             PredictResult result = Predictor.batch(
                     input.getRequestId(),
-                    input.getModelId(),
+                    input.getServiceId(),
                     input.getUserIds(),
                     input.getFeatureDataMap()
             );
@@ -66,7 +66,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
          */
         PredictResult result = Predictor.predict(
                 input.getRequestId(),
-                input.getModelId(),
+                input.getServiceId(),
                 input.getUserId(),
                 input.getFeatureData()
         );

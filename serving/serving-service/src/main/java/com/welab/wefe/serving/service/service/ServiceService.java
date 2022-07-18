@@ -661,7 +661,7 @@ public class ServiceService {
             }
 
             AbstractServiceProcessor serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
-            JObject serviceResult = (JObject) serviceProcessor.process(JObject.create(input.getData()), service);
+            JObject serviceResult = serviceProcessor.process(JObject.create(input.getData()), service);
             result.putAll(serviceResult);
             return result;
 

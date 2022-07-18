@@ -44,7 +44,7 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
 
     @Override
     protected ApiResult<PredictResult> handle(Input input) throws Exception {
-        if (!ModelManager.getModelEnable(input.getModelId())) {
+        if (!ModelManager.getModelEnable(input.getServiceId())) {
             return fail(CacheObjects.getMemberName() + " 未上线该模型");
         }
 
@@ -53,8 +53,8 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
          */
         if (CollectionUtils.isNotEmpty(input.getUserIds())) {
             PredictResult result = Predictor.batch(
+                    input.getServiceId(),
                     input.getRequestId(),
-                    input.getModelId(),
                     input.getUserIds(),
                     input.getFeatureDataMap()
             );
@@ -66,7 +66,7 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
          */
         PredictResult result = Predictor.predict(
                 input.getRequestId(),
-                input.getModelId(),
+                input.getServiceId(),
                 input.getUserId(),
                 input.getFeatureData()
         );
@@ -80,7 +80,7 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
         private String requestId;
 
         @Check(require = true, name = "模型唯一标识")
-        private String modelId;
+        private String serviceId;
 
         @Check(require = true, name = "调用者身份 id")
         private String partnerCode;
@@ -111,12 +111,12 @@ public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
             this.requestId = requestId;
         }
 
-        public String getModelId() {
-            return modelId;
+        public String getServiceId() {
+            return serviceId;
         }
 
-        public void setModelId(String modelId) {
-            this.modelId = modelId;
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
         }
 
         public String getPartnerCode() {
