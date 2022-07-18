@@ -33,7 +33,7 @@ import com.welab.wefe.serving.service.service.ClientServiceService;
 /**
  * @author hunter.zhao
  */
-public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject>{
+public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel>{
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 

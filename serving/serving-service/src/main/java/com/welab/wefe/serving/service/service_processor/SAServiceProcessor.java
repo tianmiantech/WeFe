@@ -35,7 +35,7 @@ import com.welab.wefe.serving.service.utils.ServiceUtil;
 /**
  * @author hunter.zhao
  */
-public class SAServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
+public class SAServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel> {
 
     @Override
     public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {

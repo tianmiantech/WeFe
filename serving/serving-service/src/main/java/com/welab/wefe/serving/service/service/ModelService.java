@@ -16,34 +16,26 @@
 
 package com.welab.wefe.serving.service.service;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.api.model.EnableApi;
 import com.welab.wefe.serving.service.api.model.QueryApi;
 import com.welab.wefe.serving.service.api.model.SaveModelApi;
-import com.welab.wefe.serving.service.api.service.RouteApi;
-import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
 import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.ModelStatusOutput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.dto.ServiceResultOutput;
-import com.welab.wefe.serving.service.enums.*;
+import com.welab.wefe.serving.service.enums.MemberModelStatusEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.service_processor.ModelServiceProcessor;
-import com.welab.wefe.serving.service.utils.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -183,10 +175,10 @@ public class ModelService {
      * @param modelId
      * @param memberParams
      */
-    private void openPartnerService(String modelId,String modelName, List<MemberParams> memberParams) {
+    private void openPartnerService(String modelId, String modelName, List<MemberParams> memberParams) {
         memberParams.stream()
                 .filter(x -> JobMemberRole.promoter.equals(x.getRole()))
-                .forEach(x -> openService(modelId,modelName, x));
+                .forEach(x -> openService(modelId, modelName, x));
     }
 
     private void openService(String modelId, String name, MemberParams x) {
@@ -351,78 +343,5 @@ public class ModelService {
             model.setUpdatedTime(new Date());
             modelRepository.save(model);
         }
-    }
-
-    public ServiceResultOutput predict(RouteApi.Input input) throws StatusCodeWithException {
-
-        String responseId = ServiceResultOutput.buildId();
-        PredictResult result = null;
-//        ServiceOrderEnum status = ServiceOrderEnum.SUCCESS;
-//        Integer responseCode = 0;
-        try {
-            JObject data = initParam(input);
-            result = forward(data);
-
-            return ServiceResultOutput.of(input.getRequestId(), responseId, result);
-        } catch (StatusCodeWithException e) {
-//            status = ServiceOrderEnum.FAILED;
-//            responseCode = StatusCode.SYSTEM_ERROR.getCode();
-            throw e;
-        } finally {
-//            String orderId = createOrder(input, status);
-//            callLog(input, orderId, responseId, result, responseCode);
-        }
-    }
-
-    private JObject initParam(RouteApi.Input input) {
-        return JObject.create(input.getData())
-                .append("requestId", input.getRequestId())
-                .append("partnerCode", input.getPartnerCode());
-    }
-
-    private void callLog(RouteApi.Input input, String orderId, String responseId, PredictResult result, Integer responseCode) {
-        ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
-        callLog.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
-        callLog.setOrderId(orderId);
-        callLog.setServiceId(input.getServiceId());
-        callLog.setServiceName(CacheObjects.getServiceName(input.getServiceId()));
-        callLog.setRequestData(input.getData());
-        callLog.setRequestPartnerId(input.getPartnerCode());
-        callLog.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
-        callLog.setRequestId(input.getRequestId());
-        callLog.setRequestIp(ServiceUtil.getIpAddr(input.request));
-        callLog.setResponseCode(responseCode);
-        callLog.setResponseId(responseId);
-        callLog.setResponsePartnerId(CacheObjects.getMemberId());
-        callLog.setResponsePartnerName(CacheObjects.getMemberName());
-        callLog.setResponseData(JSON.toJSONString(result));
-        callLog.setCallByMe(CallByMeEnum.NO.getValue());
-        callLog.setResponseStatus(getResponseStatus(result));
-        serviceCallLogService.save(callLog);
-    }
-
-    private String getResponseStatus(PredictResult result) {
-        return result == null ? ServiceCallStatusEnum.RESPONSE_ERROR.name() : ServiceCallStatusEnum.SUCCESS.name();
-    }
-
-    private String createOrder(RouteApi.Input input, ServiceOrderEnum status) {
-        SaveApi.Input order = new SaveApi.Input();
-        order.setServiceId(input.getServiceId());
-        order.setServiceName(CacheObjects.getServiceName(input.getServiceId()));
-        order.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
-        order.setRequestPartnerId(input.getPartnerCode());
-        order.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
-        order.setResponsePartnerId(CacheObjects.getMemberId());
-        order.setResponsePartnerName(CacheObjects.getMemberName());
-        //是否自己发起的订单
-        order.setOrderType(CallByMeEnum.NO.getValue());
-        order.setStatus(status.getValue());
-        serviceOrderService.save(order);
-        return order.getId();
-    }
-
-    private PredictResult forward(JObject data) throws StatusCodeWithException {
-        ModelServiceProcessor processor = new ModelServiceProcessor();
-        return processor.process(data, new TableModelMySqlModel());
     }
 }

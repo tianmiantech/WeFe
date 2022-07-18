@@ -36,7 +36,7 @@ import com.welab.wefe.serving.service.service.ClientServiceService;
 /**
  * @author hunter.zhao
  */
-public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
+public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel> {
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 

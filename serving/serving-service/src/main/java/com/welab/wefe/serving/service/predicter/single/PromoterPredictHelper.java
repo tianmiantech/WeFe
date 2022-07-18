@@ -51,7 +51,7 @@ public class PromoterPredictHelper {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PromoterPredictHelper.class);
 
-    public static JObject callProviders(String modelId, String requestId, ProviderParams obj, String requestParam) throws StatusCodeWithException {
+    public static JObject callProviders(String serviceId, String requestId, ProviderParams obj, String requestParam) throws StatusCodeWithException {
 
         HttpResponse response = null;
         ServiceOrderEnum orderStatus = ServiceOrderEnum.SUCCESS;
@@ -74,8 +74,8 @@ public class PromoterPredictHelper {
             orderStatus = ServiceOrderEnum.FAILED;
             throw e;
         } finally {
-            SaveApi.Input order = createOrder(modelId, obj.getMemberId(), orderStatus);
-            callLog(modelId, requestId, obj.getMemberId(), order.getId(), requestParam, extractData(response), extractCode(response), extractResponseId(response));
+            SaveApi.Input order = createOrder(serviceId, obj.getMemberId(), orderStatus);
+            callLog(serviceId, requestId, obj.getMemberId(), order.getId(), requestParam, extractData(response), extractCode(response), extractResponseId(response));
         }
     }
 
@@ -90,14 +90,14 @@ public class PromoterPredictHelper {
     /**
      * Set request body(single)
      */
-    protected static String buildFederatedPredictParam(String modelId, String requestId, String userId) throws StatusCodeWithException {
+    protected static String buildFederatedPredictParam(String serviceId, String requestId, String userId) throws StatusCodeWithException {
 
         /**
          * params
          * <p>predictParams will be sent to the provider. You need to be cautious about sensitive data</p>
          */
         TreeMap<String, Object> params = new TreeMap<>();
-        params.put("modelId", modelId);
+        params.put("serviceId", serviceId);
         params.put("requestId", requestId);
         params.put("partnerCode", Config.MEMBER_ID);
         params.put("userId", userId);
@@ -129,14 +129,14 @@ public class PromoterPredictHelper {
     /**
      * Set request body(single)
      */
-    public static String buildBatchFederatedPredictParam(String modelId, String requestId, List<String> userIds) throws StatusCodeWithException {
+    public static String buildBatchFederatedPredictParam(String serviceId, String requestId, List<String> userIds) throws StatusCodeWithException {
 
         /**
          * params
          * <p>predictParams will be sent to the provider. You need to be cautious about sensitive data</p>
          */
         TreeMap<String, Object> params = new TreeMap<>();
-        params.put("modelId", modelId);
+        params.put("serviceId", serviceId);
         params.put("requestId", requestId);
         params.put("partnerCode", Config.MEMBER_ID);
         params.put("userIds", userIds);
@@ -184,12 +184,12 @@ public class PromoterPredictHelper {
     }
 
 
-    private static void callLog(String modelId, String requestId, String memberId, String orderId, String requestData, JObject result, Integer responseCode, String responseId) {
+    private static void callLog(String serviceId, String requestId, String memberId, String orderId, String requestData, JObject result, Integer responseCode, String responseId) {
         ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         callLog.setOrderId(orderId);
-        callLog.setServiceId(modelId);
-        callLog.setServiceName(CacheObjects.getServiceName(modelId));
+        callLog.setServiceId(serviceId);
+        callLog.setServiceName(CacheObjects.getServiceName(serviceId));
         callLog.setRequestData(requestData);
         callLog.setRequestPartnerId(CacheObjects.getMemberId());
         callLog.setRequestPartnerName(CacheObjects.getMemberName());
@@ -230,7 +230,7 @@ public class PromoterPredictHelper {
             return JObject.create();
         }
         JSONObject json = response.getBodyAsJson();
-        return JObject.create(json.getJSONObject("data").getJSONObject("data"));
+        return JObject.create(json.getJSONObject("data"));
     }
 
     private static boolean isSuccess(HttpResponse response) throws StatusCodeWithException {

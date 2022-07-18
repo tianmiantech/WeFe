@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
@@ -29,11 +30,11 @@ import org.apache.commons.collections4.CollectionUtils;
 /**
  * @author hunter.zhao
  */
-public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMySqlModel, PredictResult> {
+public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMySqlModel> {
 
 
     @Override
-    public PredictResult process(JObject data, TableModelMySqlModel model) throws StatusCodeWithException {
+    public JObject process(JObject data, TableModelMySqlModel model) throws StatusCodeWithException {
 
         PredictApi.Input input = data.toJavaObject(PredictApi.Input.class);
         input.checkAndStandardize();
@@ -54,7 +55,9 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
                     input.getUserIds(),
                     input.getFeatureDataMap()
             );
-            return result;
+            return JObject.create(JSON.toJSONString(result));
+
+//            return result;
         }
 
 
@@ -68,6 +71,7 @@ public class ModelServiceProcessor extends AbstractServiceProcessor<TableModelMy
                 input.getFeatureData()
         );
 
-        return result;
+        return JObject.create(JSON.toJSONString(result));
+//        return result;
     }
 }

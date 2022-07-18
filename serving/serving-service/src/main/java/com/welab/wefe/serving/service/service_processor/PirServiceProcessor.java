@@ -44,7 +44,7 @@ import com.welab.wefe.serving.service.utils.ServiceUtil;
  * @author hunter.zhao
  * @date 2022/5/19
  */
-public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
+public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel> {
 
     @Override
     public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {

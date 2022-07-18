@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractServiceProcessor<T, R> {
+public abstract class AbstractServiceProcessor<T> {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     protected final DataSourceService dataSourceService = Launcher.getBean(DataSourceService.class);
 
-    public abstract R process(JObject data, T input) throws Exception;
+    public abstract JObject process(JObject data, T input) throws Exception;
 }

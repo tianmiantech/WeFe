@@ -35,7 +35,7 @@ import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 /**
  * @author hunter.zhao
  */
-public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel, JObject> {
+public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel> {
 
     @Override
     public JObject process(JObject data, TableServiceMySqlModel model) throws StatusCodeWithException {
