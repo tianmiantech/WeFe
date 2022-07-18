@@ -44,7 +44,7 @@ public class AutoEncryptPhoneNumberListener implements ApplicationListener<Appli
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
-        if (configurableEnvironment.containsProperty("has.auto.encrypt.phone.number") || !config.isEncryptPhoneNumberOpen()) {
+        if (!config.isDatabaseEncryptEnable()) {
             return;
         }
         try {

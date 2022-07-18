@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.board.service.dto.vo.message;
 
+import com.welab.wefe.board.service.database.entity.job.ProjectMemberAuditMySqlModel;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 
 /**
@@ -23,9 +24,23 @@ import com.welab.wefe.common.wefe.enums.AuditStatus;
  * @author zane
  * @date 2022/6/7
  */
-public class AuditJoinProjectMessageContent extends CreateProjectMessageContent {
+public class AuditJoinProjectMessageContent extends ApplyJoinProjectMessageContent {
     public AuditStatus auditStatus;
     public String auditComment;
+    /**
+     * 我对被邀请成员的审核记录
+     * <p>
+     * 1. 如果被邀请的成员是创建项目时的初创成员，则不会有此记录。
+     * 2. 如果是项目已经创建后邀请的成员，则在被邀请成员自己同意后，还需要其他正式成员的审核。
+     */
+    private ProjectMemberAuditMySqlModel needMeAuditRecord;
+
+    public AuditJoinProjectMessageContent() {
+    }
+
+    public AuditJoinProjectMessageContent(ProjectMemberAuditMySqlModel needMeAuditRecord) {
+        this.needMeAuditRecord = needMeAuditRecord;
+    }
 
     @Override
     public String getTitle() {
@@ -33,7 +48,15 @@ public class AuditJoinProjectMessageContent extends CreateProjectMessageContent 
                 ? "同意"
                 : "拒绝";
 
-        return "成员【" + getFromMemberName() +
-                "】已" + status + "加入项目【" + projectName + "】";
+        // 如果需要我进行二次审核。
+        if (needMeAuditRecord != null) {
+            return "请审核成员【" + getFromMemberName() +
+                    "】加入项目【" + projectName + "】的请求";
+        } else {
+            return "成员【" + getFromMemberName() +
+                    "】已" + status + "加入项目【" + projectName + "】";
+        }
+
+
     }
 }

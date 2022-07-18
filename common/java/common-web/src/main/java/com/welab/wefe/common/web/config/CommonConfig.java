@@ -38,6 +38,7 @@ public class CommonConfig {
     @Value("${wefe.union.base-url:}")
     private String unionBaseUrl;
 
+
     @Value("${wefe.file.upload.dir:}")
     private String fileUploadDir;
 
@@ -130,6 +131,7 @@ public class CommonConfig {
     public void setDatabaseEncryptSecretKey(String databaseEncryptSecretKey) {
         this.databaseEncryptSecretKey = databaseEncryptSecretKey;
     }
+
 
     // endregion
 
