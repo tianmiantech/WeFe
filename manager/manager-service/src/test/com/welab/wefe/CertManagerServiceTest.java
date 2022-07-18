@@ -110,7 +110,7 @@ public class CertManagerServiceTest {
     // 一次性签发证书
     @Test
     public void testOnceCreateChildCert() throws Exception {
-        String commonName = "yinlian";
+        String commonName = "welab1";
         // issuer签发机构证书ID
         String issuerCertId = "9128d83224b84d70b906d84a6d688b94";
 
@@ -118,8 +118,8 @@ public class CertManagerServiceTest {
         System.out.println("为用户生成证书 userId=: " + userId);
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
-        CertUtils.writeKey(keyPair.getPrivate(), "out1/yinlian_pri.key");
-        CertUtils.writeKey(keyPair.getPublic(), "out1/yinlian_pub.key");
+        CertUtils.writeToPKCS8File(keyPair.getPrivate(), "out1/welab1_pri.key");
+        CertUtils.writeKey(keyPair.getPublic(), "out1/welab1_pub.key");
         String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
         // 保存私钥
         String certKeyId = certManagerService.importPrivateKey(userId, pemPrivateKey,
@@ -140,6 +140,11 @@ public class CertManagerServiceTest {
         CertVO cert = certManagerService.createChildCert(commonName, userId, csrId);
         System.out.println("为用户生成证书 : certId = " + cert.getPkId());
         System.out.println("为用户导出证书 : file = " + "out1/" + commonName + ".crt");
+        
+        List<X509Certificate> list = new ArrayList<>();
+        X509Certificate certificate = CertUtils.convertStrToCert(cert.getCertContent());
+        list.add(certificate);
+        CertUtils.savePfx(commonName, keyPair.getPrivate(), "welab", list, "out1/" + commonName + ".jks");
 
         // 导入到jks供Java使用
         // keytool -import -noprompt -file root.crt -alias root -keystore mytrust.jks
@@ -178,10 +183,10 @@ public class CertManagerServiceTest {
     @Test
     public void exportKey() throws Exception {
      // 私钥ID
-        String userKeyId = "7f4075ec23c2462e80f1d038cfa0f9b8";
+        String userKeyId = "120c5633b404497690b33a8aa5143b5b";
         CertKeyVO keyVo = certManagerService.queryCertKey(userKeyId);
         PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
-        CertUtils.writeKey(privateKey, "out1/yinlian_pri.key");
+        CertUtils.writeToPKCS8File(privateKey, "out1/welab1_pri.key");
     }
 
     // 将证书导入到jks中

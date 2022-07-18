@@ -72,6 +72,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
 import org.bouncycastle.operator.DigestCalculator;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
@@ -187,6 +188,14 @@ public class CertUtils {
     public static void writeToFile(Object object, String filePath) {
         try (JcaPEMWriter pw = new JcaPEMWriter(new FileWriter(filePath))) {
             pw.writeObject(object);
+        } catch (IOException e) {
+            LOG.error("writeObject failed", e);
+        }
+    }
+    
+    public static void writeToPKCS8File(PrivateKey key, String filePath) {
+        try (JcaPEMWriter pw = new JcaPEMWriter(new FileWriter(filePath))) {
+            pw.writeObject(new JcaPKCS8Generator(key, null));
         } catch (IOException e) {
             LOG.error("writeObject failed", e);
         }
