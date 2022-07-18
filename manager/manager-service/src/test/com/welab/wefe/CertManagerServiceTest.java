@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.encoders.Base64;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,6 +173,16 @@ public class CertManagerServiceTest {
         // 在控制台输出导出私钥的BASE64编码信息
 //        System.out.println(Base64.toBase64String(key.getEncoded()));
     }
+    
+    // 导出私钥
+    @Test
+    public void exportKey() throws Exception {
+     // 私钥ID
+        String userKeyId = "7f4075ec23c2462e80f1d038cfa0f9b8";
+        CertKeyVO keyVo = certManagerService.queryCertKey(userKeyId);
+        PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
+        CertUtils.writeKey(privateKey, "out1/yinlian_pri.key");
+    }
 
     // 将证书导入到jks中
     // 如果重复导入也不会报错
@@ -188,15 +197,15 @@ public class CertManagerServiceTest {
         String welabCertId = "9128d83224b84d70b906d84a6d688b94";
         CertVO welabCertVO = certManagerService.queryCertInfoByCertId(welabCertId);
         X509Certificate welabCert = CertUtils.convertStrToCert(welabCertVO.getCertContent());
-        CertUtils.importCertToTrustStore("welab", welabCert, "out1/truststore.jks", "123456");
+        CertUtils.importCertToTrustStore("root", welabCert, "out1/truststore.jks", "123456");
     }
 
     // 导出证书
     @Test
     public void testExportCertToFile() throws Exception {
-        String certId = "f2555e5664294e47b7367960a6d98187";
+        String certId = "41550ac12b904bf3b0c4a4f8af6f4a69";
         FileOperationUtils.mkdir("out1");
-        certManagerService.exportCertToFile(certId, "out1/welab.crt");
+        certManagerService.exportCertToFile(certId, "out1/yinlian.crt");
     }
 
     // 重置证书
