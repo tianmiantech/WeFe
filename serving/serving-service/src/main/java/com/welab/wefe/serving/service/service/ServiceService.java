@@ -489,8 +489,10 @@ public class ServiceService {
             accountMap.put(s.getId(), s.getNickname());
         });
         page.getList().stream().forEach(s -> {
-            s.setCreatedBy(accountMap.get(s.getCreatedBy()));
-            s.setUpdatedBy(accountMap.get(s.getUpdatedBy()));
+            s.setCreatedBy(StringUtils.isNotBlank(accountMap.get(s.getCreatedBy())) ? accountMap.get(s.getCreatedBy())
+                    : s.getCreatedBy());
+            s.setUpdatedBy(StringUtils.isNotBlank(accountMap.get(s.getUpdatedBy())) ? accountMap.get(s.getUpdatedBy())
+                    : s.getUpdatedBy());
             s.setUrl(SERVICE_PRE_URL + s.getUrl());
         });
         List<QueryApi.Output> list = page.getList().stream().map(x -> ModelMapper.map(x, QueryApi.Output.class))
