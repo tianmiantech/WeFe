@@ -141,7 +141,7 @@
 
             <el-table-column
                 label="创建时间"
-                min-width="145px"
+                min-width="110px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -150,7 +150,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="145px"
+                min-width="110px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
