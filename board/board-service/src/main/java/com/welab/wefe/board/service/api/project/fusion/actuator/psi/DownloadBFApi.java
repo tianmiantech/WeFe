@@ -36,8 +36,7 @@ import java.io.IOException;
 @Api(path = "fusion/psi/download_bloom_filter",
         name = "download bloomfilter",
         desc = "download bloomfilter",
-        login = false,
-        rsaVerify = true
+        allowAccessWithSign = true
 )
 public class DownloadBFApi extends AbstractApi<DownloadBFApi.Input, PsiActuatorMeta> {
 

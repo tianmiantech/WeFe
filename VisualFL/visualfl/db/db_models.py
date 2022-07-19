@@ -66,25 +66,37 @@ class ModelBase(Model):
         return self.__dict__['__data__']
 
 
-# GlobalSetting
-class GlobalSetting(object):
-    """
-    Get global setting
+class GlobalConfigModel(ModelBase):
+    id = CharField()
+    group = CharField()
+    name = CharField()
+    value = CharField()
 
-    Due to the adjustment of the GlobalSetting table,
-    it is now necessary to obtain the relevant configuration from GlobalConfig
-    """
+    class Meta:
+        db_table = "global_config"
 
-    @staticmethod
-    def get_member_id():
-        from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.getMemberInfo().member_id
 
-    @staticmethod
-    def get_member_name():
-        from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.getMemberInfo().member_name
-
+class MemberInfo(object):
+    # 全局唯一，默认为uuid。
+    member_id: str
+    # 联邦成员名称
+    member_name: str
+    # 联邦成员邮箱
+    member_email: str
+    # 联邦成员电话
+    member_mobile: str
+    # 联邦成员网关访问地址
+    member_gateway_uri: str
+    # 是否允许对外公开数据集基础信息
+    member_allow_public_data_set: bool
+    # 私钥
+    rsa_private_key: str
+    # 公钥
+    rsa_public_key: str
+    # 成员头像
+    member_logo: str
+    # 成员隐身状态
+    member_hidden: bool
 
 # Job
 class Job(ModelBase):
@@ -133,8 +145,6 @@ class Job(ModelBase):
                 return []
 
 
-
-
 # Task
 class Task(ModelBase):
     created_by = CharField(null=True)
@@ -181,7 +191,6 @@ class Task(ModelBase):
                 return []
 
 
-
 class TaskResult(ModelBase):
     """
     Component result save
@@ -208,7 +217,6 @@ class TaskResult(ModelBase):
         indexes = (
             (('task_id', 'type', 'role'), True),
         )
-
 
 
 class TaskProgress(ModelBase):
@@ -240,6 +248,7 @@ class TaskProgress(ModelBase):
         indexes = (
             (('task_id', 'role'), True),
         )
+
 
 if __name__ == '__main__':
     pass

@@ -73,7 +73,7 @@ public class BoardService implements ApplicationContextAware {
                 .apiLogger(new BoardApiLogger())
                 .apiPackageClass(BoardService.class)
                 // 禁止未登录且无验签的访问
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.rsaVerify())
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
                 .onApiExceptionFunction((api, e) -> {
 
                     // When an exception occurs in a node,
@@ -105,7 +105,7 @@ public class BoardService implements ApplicationContextAware {
                         }
                     }
 
-                    if (annotation.rsaVerify()) {
+                    if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);
                     }
                 })
@@ -140,10 +140,15 @@ public class BoardService implements ApplicationContextAware {
         // such as gateway and flow, so the same set of public and private keys are used for rsa signatures.
         String publicKey = CacheObjects.getRsaPublicKey();
 
+        if (signedApiInput.getData() == null) {
+            throw new StatusCodeWithException("非法请求", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
         boolean verified = RSAUtil.verify(
                 signedApiInput.getData().getBytes(StandardCharsets.UTF_8),
                 RSAUtil.getPublicKey(publicKey),
-                signedApiInput.getSign()
+                // 在 get 请求时，即便是对参数做了转义，也不能正确处理+号，加号总是被decode为空格，所以这里将空格还原为加号。
+                signedApiInput.getSign().replace(" ", "+")
         );
         if (!verified) {
             throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);

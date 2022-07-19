@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/service/query", name = "member_service_query", rsaVerify = true, login = false)
+@Api(path = "member/service/query", name = "member_service_query", allowAccessWithSign = true, login = false)
 public class QueryApi extends AbstractApi<QueryApi.Input, PageOutput<ApiMemberServiceQueryOutput>> {
     @Autowired
     private MemberServiceMongoReop memberServiceMongoReop;
