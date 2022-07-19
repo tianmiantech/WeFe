@@ -44,13 +44,14 @@ public class GlobalConfigService extends AbstractService {
 
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-    protected static class Group {
+    public static class Group {
         public static String MEMBER_INFO = "member_info";
         public static String MAIL_SERVER = "mail_server";
         public static String ALERT_CONFIG = "alert_config";
         public static String WEFE_GATEWAY = "wefe_gateway";
         public static String WEFE_BOARD = "wefe_board";
         public static String CLICKHOUSE_STORAGE_CONFIG = "clickhouse_storage_config";
+        public static final String CALCULATION_ENGINE_CONFIG = "calculation_engine_config";
         public static String ALIYUN_FUNCTION_COMPUTE_CONFIG = "aliyun_function_compute_config";
     }
 
@@ -122,7 +123,7 @@ public class GlobalConfigService extends AbstractService {
     /**
      * Gets the entity corresponding to the specified group
      */
-    protected <T> T getModel(String group, Class<T> clazz) {
+    public <T> T getModel(String group, Class<T> clazz) {
         List<GlobalConfigEntity> list = list(group);
         return toModel(list, clazz);
     }

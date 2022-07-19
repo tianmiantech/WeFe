@@ -53,7 +53,7 @@ public class FusionService implements ApplicationContextAware {
                 .apiPackageClass(FusionService.class)
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
-                    if (annotation.rsaVerify()) {
+                    if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);
                     }
                 })

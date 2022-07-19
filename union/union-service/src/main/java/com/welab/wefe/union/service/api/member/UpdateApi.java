@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @author Jervis
  **/
-@Api(path = "member/update", name = "member_update", rsaVerify = true, login = false)
+@Api(path = "member/update", name = "member_update", allowAccessWithSign = true, login = false)
 public class UpdateApi extends AbstractApi<UpdateApi.Input, MemberOutput> {
 
 

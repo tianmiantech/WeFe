@@ -25,7 +25,6 @@ import com.welab.wefe.common.SamplingLogger;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.FlowLimitByIp;
@@ -206,7 +205,7 @@ public class ApiExecutor {
 
         // Checking token Validity
         String token = CurrentAccount.token();
-        if (StringUtil.isEmpty(token) || !Launcher.CHECK_SESSION_TOKEN_FUNCTION.check(api, annotation, token)) {
+        if (!Launcher.CHECK_SESSION_TOKEN_FUNCTION.check(api, annotation, token)) {
             throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
         }
     }

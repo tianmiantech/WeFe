@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author aaron.li
  */
-@Api(path = "account/query_by_member_id", name = "Query account information by member ID", login = false)
+@Api(path = "account/query_by_member_id", name = "Query account information by member ID")
 public class QueryMemberAccountsApi extends AbstractApi<QueryMemberAccountsApi.Input, PagingOutput<AccountOutputModel>> {
 
     @Autowired

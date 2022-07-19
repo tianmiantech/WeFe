@@ -142,60 +142,6 @@ class MixDecisionTreeProvider(DecisionTree):
         self.data_bin_dense = data_bin_dense
         self.bin_num = bin_num
 
-    def encode_split_info(self, split_info_list):
-
-        final_split_info = []
-        for i, split_info in enumerate(split_info_list):
-
-            if split_info.best_fid != -1:
-                LOGGER.debug('sitename is {}, self.sitename is {}'
-                             .format(split_info.sitename, self.sitename))
-                assert split_info.sitename == self.sitename
-                split_info.best_fid = self.encode("feature_idx", split_info.best_fid)
-                assert split_info.best_fid is not None
-                split_info.best_bid = self.encode("feature_val", split_info.best_bid, self.cur_split_nodes[i].id)
-                split_info.missing_dir = self.encode("missing_dir", split_info.missing_dir, self.cur_split_nodes[i].id)
-                split_info.mask_id = None
-            else:
-                LOGGER.debug('this node can not be further split by provider feature: {}'.format(split_info))
-
-            final_split_info.append(split_info)
-
-        return final_split_info
-
-    def encode(self, etype="feature_idx", val=None, nid=None):
-        if etype == "feature_idx":
-            return val
-
-        if etype == "feature_val":
-            self.split_maskdict[nid] = val
-            return None
-
-        if etype == "missing_dir":
-            self.missing_dir_maskdict[nid] = val
-            return None
-
-        raise TypeError("encode type %s is not support!" % (str(etype)))
-
-    @staticmethod
-    def decode(dtype="feature_idx", val=None, nid=None, split_maskdict=None, missing_dir_maskdict=None):
-        if dtype == "feature_idx":
-            return val
-
-        if dtype == "feature_val":
-            if nid in split_maskdict:
-                return split_maskdict[nid]
-            else:
-                raise ValueError("decode val %s cause error, can't reconize it!" % (str(val)))
-
-        if dtype == "missing_dir":
-            if nid in missing_dir_maskdict:
-                return missing_dir_maskdict[nid]
-            else:
-                raise ValueError("decode val %s cause error, can't reconize it!" % (str(val)))
-
-        return TypeError("decode type %s is not support!" % (str(dtype)))
-
     def sync_encrypted_grad_and_hess(self):
         LOGGER.info("get encrypted grad and hess")
         self.grad_and_hess = self.transfer_inst.encrypted_grad_and_hess.get(idx=0, member_id_list=[
@@ -288,10 +234,8 @@ class MixDecisionTreeProvider(DecisionTree):
         return dispatch_node_provider
 
     @staticmethod
-    def dispatch_node(value1, value2, sitename=None, decoder=None,
-                      split_maskdict=None, bin_sparse_points=None,
-                      use_missing=False, zero_as_missing=False,
-                      missing_dir_maskdict=None):
+    def dispatch_node(value1, value2, bin_sparse_points=None,
+                      use_missing=False, zero_as_missing=False):
 
         unleaf_state, fid, bid, node_sitename, nodeid, left_nodeid, right_nodeid = value1
 
@@ -301,8 +245,7 @@ class MixDecisionTreeProvider(DecisionTree):
             else:
                 return unleaf_state, right_nodeid
         else:
-            missing_dir = decoder("missing_dir", 1, nodeid,
-                                  missing_dir_maskdict=missing_dir_maskdict)
+            missing_dir = 1
             missing_val = False
             if zero_as_missing:
                 if value2.features.get_data(fid, None) is None or \
@@ -342,13 +285,9 @@ class MixDecisionTreeProvider(DecisionTree):
     def find_dispatch(self, dispatch_node_provider, dep=-1):
         LOGGER.info("start to find provider dispath of depth {}".format(dep))
         dispatch_node_method = functools.partial(self.dispatch_node,
-                                                 sitename=self.sitename,
-                                                 decoder=self.decode,
-                                                 split_maskdict=self.split_maskdict,
                                                  bin_sparse_points=self.bin_sparse_points,
                                                  use_missing=self.use_missing,
-                                                 zero_as_missing=self.zero_as_missing,
-                                                 missing_dir_maskdict=self.missing_dir_maskdict)
+                                                 zero_as_missing=self.zero_as_missing)
         dispatch_node_provider_result = dispatch_node_provider.join(self.data_bin, dispatch_node_method, need_send=True)
         self.sync_dispatch_node_provider_result(dispatch_node_provider_result, dep)
 
@@ -376,29 +315,9 @@ class MixDecisionTreeProvider(DecisionTree):
             if not node.is_leaf and node.sitename == self.sitename:
                 node.bid = self.bin_split_points[node.fid][node.bid]
 
-    def convert_bin_to_real(self):
-        LOGGER.info("convert tree node bins to real value")
-        split_nid_used = []
-        for i in range(len(self.tree_)):
-            if self.tree_[i].is_leaf is True:
-                continue
-
-            if self.tree_[i].sitename == self.sitename:
-                fid = self.decode("feature_idx", self.tree_[i].fid, split_maskdict=self.split_maskdict)
-                bid = self.decode("feature_val", self.tree_[i].bid, self.tree_[i].id, self.split_maskdict)
-                LOGGER.debug("shape of bin_split_points is {}".format(len(self.bin_split_points[fid])))
-                real_splitval = self.encode("feature_val", self.bin_split_points[fid][bid], self.tree_[i].id)
-                self.tree_[i].bid = real_splitval
-
-                split_nid_used.append(self.tree_[i].id)
-
-        self.remove_duplicated_split_nodes(split_nid_used)
-
     @staticmethod
-    def traverse_tree(predict_state, data_inst, tree_=None,
-                      decoder=None, split_maskdict=None, sitename=consts.PROVIDER,
-                      use_missing=False, zero_as_missing=False,
-                      missing_dir_maskdict=None):
+    def traverse_tree(predict_state, data_inst, tree_=None, sitename=consts.PROVIDER,
+                      use_missing=False, zero_as_missing=False):
 
         nid, _ = predict_state
         if tree_[nid].sitename != sitename:
@@ -587,12 +506,9 @@ class MixDecisionTreeProvider(DecisionTree):
 
             traverse_tree = functools.partial(self.traverse_tree,
                                               tree_=self.tree_,
-                                              decoder=self.decode,
-                                              split_maskdict=self.split_maskdict,
                                               sitename=self.sitename,
                                               use_missing=self.use_missing,
-                                              zero_as_missing=self.zero_as_missing,
-                                              missing_dir_maskdict=self.missing_dir_maskdict)
+                                              zero_as_missing=self.zero_as_missing)
             predict_data = predict_data.join(data_inst, traverse_tree)
 
             self.sync_data_predicted_by_provider(predict_data, site_promoter_send_times)
