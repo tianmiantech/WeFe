@@ -110,7 +110,7 @@ public class UnionServiceService {
 	public JSONObject add2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("queryParams", model.getQueryParams())
 				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
-				.append("baseUrl", config.getSERVING_BASE_URL())
+				.append("baseUrl", config.getServingBaseUrl())
 				.append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl()).append("serviceId", model.getId())
 				.append("name", model.getName()).append("serviceStatus", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));
@@ -120,7 +120,7 @@ public class UnionServiceService {
 	public JSONObject offline2Union(ServiceMySqlModel model) throws StatusCodeWithException {
 		JObject params = JObject.create().put("queryParams", model.getQueryParams())
 				.put("serviceType", model.getServiceType()).put("memberId", CacheObjects.getMemberId())
-				.append("baseUrl", config.getSERVING_BASE_URL())
+				.append("baseUrl", config.getServingBaseUrl())
 				.append("apiName", ServiceService.SERVICE_PRE_URL + model.getUrl()).append("serviceId", model.getId())
 				.append("name", model.getName()).append("serviceStatus", model.getStatus());
 		LOG.info("union add2union params = " + JSONObject.toJSONString(params));

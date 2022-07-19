@@ -171,23 +171,33 @@ class RunTaskAction:
         default_driver_memory = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MEMORY)
         default_driver_max_result_size = conf_utils.get_comm_config(
             consts.COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE, "2g")
-        default_num_executors = int(conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS))
+        default_num_executors = int(conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS, 1))
         default_executor_memory = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY)
-        default_executor_cores = int(conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES))
+        default_executor_cores = int(conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES, 1))
         if self.task.role == 'arbiter':
             default_num_executors = 1 if default_num_executors < 4 else int(default_num_executors / 4)
         default_total_executor_cores = default_num_executors * default_executor_cores
 
-        spark_submit_config = task_config_json['job']['env'].get("spark_submit_config", dict())
-        deploy_mode = spark_submit_config.get("deploy-mode", "client")
-        queue = spark_submit_config.get("queue", "default")
-        driver_memory = spark_submit_config.get("driver-memory", default_driver_memory)
-        num_executors = spark_submit_config.get("num-executors", default_num_executors)
-        executor_memory = spark_submit_config.get("executor-memory", default_executor_memory)
-        executor_cores = spark_submit_config.get("executor-cores", default_executor_cores)
-        total_executor_cores = spark_submit_config.get("total_executor_cores",
-                                                       default_total_executor_cores)
+        # spark_submit_config = task_config_json['job']['env'].get("spark_submit_config", dict())
+        # deploy_mode = spark_submit_config.get("deploy-mode", "client")
+        # queue = spark_submit_config.get("queue", "default")
+        # driver_memory = spark_submit_config.get("driver-memory", default_driver_memory)
+        # num_executors = spark_submit_config.get("num-executors", default_num_executors)
+        # executor_memory = spark_submit_config.get("executor-memory", default_executor_memory)
+        # executor_cores = spark_submit_config.get("executor-cores", default_executor_cores)
+        # total_executor_cores = spark_submit_config.get("total_executor_cores",
+        #                                                default_total_executor_cores)
 
+        deploy_mode = "client"
+        queue = "default"
+        driver_memory = default_driver_memory
+        num_executors = default_num_executors
+        executor_memory = default_executor_memory
+        executor_cores = default_executor_cores
+        total_executor_cores = default_total_executor_cores
+
+        print(
+            f'deploy_mode:{deploy_mode},queue:{queue},driver_memory:{driver_memory},num_executors:{num_executors},executor_memory:{executor_memory},executor_cores:{executor_cores}')
         if deploy_mode not in ["client"]:
             raise ValueError(f"deploy mode {deploy_mode} not supported")
         spark_home = os.environ["SPARK_HOME"]
@@ -217,13 +227,14 @@ class RunTaskAction:
         """
         splicing the startup command
         """
-        task_config_json = json.loads(self.task.task_conf)
-        backend = Backend.get_by_task_config(task_config_json)
+        job_config_json = json.loads(self.job.job_config)
+        backend = Backend.get_by_job_config(job_config_json)
 
+        print(f'build_process_cmd, job_config_json: {job_config_json}')
         if backend.is_local() or backend.is_fc():
             process_cmd = self.build_process_cmd_for_local_or_fc()
         elif backend.is_spark():
-            process_cmd = self.build_process_cmd_for_spark(task_config_json)
+            process_cmd = self.build_process_cmd_for_spark(job_config_json)
         else:
             raise ValueError(f"${backend} supported")
 

@@ -427,6 +427,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     title:           '系统设置',
+                    normalUserCanSee: false,
                 },
                 component: () => import('../views/system-config/system-config-view'),
             },
@@ -436,6 +437,7 @@ const baseRoutes = [
                 meta: {
                     loginAndRefresh: true,
                     title:           '计算引擎设置',
+                    normalUserCanSee: false,
                 },
                 component: () => import('../views/system-config/calculation-engine-config'),
             },

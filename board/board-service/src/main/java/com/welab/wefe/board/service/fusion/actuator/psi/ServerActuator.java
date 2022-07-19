@@ -52,7 +52,11 @@ public class ServerActuator extends AbstractPsiServerActuator {
             headers.add(header);
         }
 
-        PsiDumpHelper.dump(businessId, headers, fruit);
+        try {
+            PsiDumpHelper.dump(businessId, headers, fruit);
+        } catch (Exception ex) {
+            LOG.error(ex.getClass().getSimpleName() + " " + ex.getMessage(), ex);
+        }
 
         LOG.info("fruit insert end...");
 

@@ -16,14 +16,11 @@
 package com.welab.wefe.gateway.service.processors.available.checkpoint;
 
 import com.welab.wefe.common.data.storage.common.Constant;
-import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.repo.Storage;
-import com.welab.wefe.common.data.storage.service.StorageService;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,11 +29,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StorageCheckpoint extends AbstractCheckpoint {
-
-    @Autowired
-    private StorageService storageService;
-    @Autowired
-    private JdbcParamConfig jdbcParamConfig;
 
     @Override
     protected ServiceType service() {
@@ -50,7 +42,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected String getConfigValue() {
-        return jdbcParamConfig.getUrl();
+        return null;
     }
 
     @Override
@@ -60,8 +52,12 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck(String value) throws Exception {
+        if (PersistentStorage.inited()) {
+            throw new Exception("数据集存储不可用，请在[全局设置][系统设置]中检查数据集存储配置是否正确。");
+        }
+
         String name = RandomStringUtils.randomAlphabetic(6);
-        Storage storage = storageService.getStorage();
+        PersistentStorage storage = PersistentStorage.getInstance();
         storage.put(Constant.DBName.WEFE_DATA, name, new DataItemModel<>(name, "test"));
         storage.dropTB(Constant.DBName.WEFE_DATA, name);
     }

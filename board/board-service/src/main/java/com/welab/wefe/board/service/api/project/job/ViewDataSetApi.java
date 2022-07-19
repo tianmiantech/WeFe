@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.api.project.job;
 
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.globalconfig.FlowConfigModel;
 import com.welab.wefe.board.service.service.TaskResultService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -56,7 +57,7 @@ public class ViewDataSetApi extends AbstractApi<ViewDataSetApi.Input, ResponseEn
             JObject root = JObject.create(one.getResult());
             String tableName = root.getString("table_name");
             String tableNamespace = root.getString("table_namespace");
-            String url = globalConfigService.getFlowConfig().intranetBaseUri
+            String url = globalConfigService.getModel(FlowConfigModel.class).intranetBaseUri
                     + String.format("/data_set/view?table_name=%s&table_namespace=%s", tableName, tableNamespace);
             RequestEntity requestEntity = new RequestEntity<>(null, null, HttpMethod.GET, UrlUtil.createUri(url));
             RestTemplate restTemplate = new RestTemplate();

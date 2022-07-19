@@ -16,13 +16,17 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane.luo
  */
-public class MemberInfoModel {
+@ConfigModel(group = ConfigGroupConstant.MEMBER_INFO)
+public class MemberInfoModel extends AbstractConfigModel {
 
     @Check(name = "联邦成员 Id", desc = "全局唯一，默认为uuid。")
     private String memberId;
