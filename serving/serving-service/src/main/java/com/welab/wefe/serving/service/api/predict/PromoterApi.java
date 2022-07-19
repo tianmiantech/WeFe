@@ -40,8 +40,7 @@ import java.util.Map;
         path = "predict/promoter",
         name = "模型预测",
         login = false,
-        rsaVerify = true
-//        domain = Caller.Member
+        allowAccessWithSign = true
 )
 public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
 

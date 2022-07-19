@@ -25,6 +25,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import time
 
 import numpy as np
 
@@ -32,6 +33,7 @@ from common.python.utils import log_utils
 from kernel.components.correlation.multivertpearson.multi_vert_pearson_base import MultiVertPearsonBase
 from kernel.security.protol.spdz.tensor.fixedpoint_table import table_dot
 from kernel.utils import consts
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
 
 LOGGER = log_utils.get_logger()
 

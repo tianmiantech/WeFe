@@ -31,7 +31,6 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.List;
 
 /**

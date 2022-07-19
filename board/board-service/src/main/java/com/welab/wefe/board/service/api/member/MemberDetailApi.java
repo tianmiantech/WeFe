@@ -35,7 +35,7 @@ public class MemberDetailApi extends AbstractNoneInputApi<MemberInfoModel> {
 
     @Override
     protected ApiResult<MemberInfoModel> handle() throws StatusCodeWithException {
-        MemberInfoModel output = globalConfigService.getMemberInfo();
+        MemberInfoModel output = globalConfigService.getModel(MemberInfoModel.class);
         output.setRsaPrivateKey(null);
         return success(output);
     }

@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.service;
 
-import com.welab.wefe.common.web.CurrentAccount;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -25,12 +24,23 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
+import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.serving.sdk.manager.ModelProcessorManager;
-import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
+import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
+import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
 import com.welab.wefe.serving.service.operation.ServingApiLogger;
-import com.welab.wefe.serving.service.utils.sign.VerifySignUtil;
+import com.welab.wefe.serving.service.service.CacheObjects;
+import com.welab.wefe.serving.service.service.ClientService;
+import com.welab.wefe.serving.service.service.MemberService;
 
 /**
  * @author hunter.zhao
@@ -49,7 +59,7 @@ public class ServingService implements ApplicationContextAware {
                 // Login status check method
                 .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((request, annotation, params) -> {
-                    if (!annotation.rsaVerify()) {
+                    if (!annotation.allowAccessWithSign()) {
                         return;
                     }
                     VerifySignUtil.rsaVerify(annotation.domain(), request, params);

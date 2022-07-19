@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author hunter.zhao
  * @date 2022/4/19
  */
-@Api(path = "task/delete_callback", name = "接收删除请求", desc = "接收删除请求", login = false, rsaVerify = true)
+@Api(path = "task/delete_callback", name = "接收删除请求", desc = "接收删除请求", allowAccessWithSign = true)
 public class DeleteCallbackApi extends AbstractNoneOutputApi<DeleteCallbackApi.Input> {
 
     @Autowired

@@ -16,15 +16,6 @@
 
 package com.welab.wefe.board.service.service.data_resource.table_data_set;
 
-import java.io.File;
-import java.sql.Connection;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.welab.wefe.board.service.api.data_resource.table_data_set.TableDataSetDeleteApi;
 import com.welab.wefe.board.service.base.file_system.WeFeFileSystem;
 import com.welab.wefe.board.service.constant.DataSetAddMethod;
@@ -49,6 +40,14 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.sql.Connection;
+import java.util.List;
 
 /**
  * @author Zane
@@ -99,7 +98,7 @@ public class TableDataSetService extends DataResourceService {
     /**
      * delete data set
      */
-    public void delete(TableDataSetDeleteApi.Input input) throws StatusCodeWithException {
+    public void delete(TableDataSetDeleteApi.Input input) throws Exception {
         TableDataSetMysqlModel model = tableDataSetRepository.findById(input.getId()).orElse(null);
         if (model == null) {
             return;
@@ -113,7 +112,7 @@ public class TableDataSetService extends DataResourceService {
     /**
      * delete data set
      */
-    public void delete(String dataSetId) throws StatusCodeWithException {
+    public void delete(String dataSetId) throws Exception {
         TableDataSetMysqlModel model = tableDataSetRepository.findById(dataSetId).orElse(null);
         if (model == null) {
             return;
@@ -125,7 +124,7 @@ public class TableDataSetService extends DataResourceService {
     /**
      * delete data set
      */
-    public void delete(TableDataSetMysqlModel model) throws StatusCodeWithException {
+    public void delete(TableDataSetMysqlModel model) throws Exception {
 
         // delete data set from database
         tableDataSetRepository.deleteById(model.getId());

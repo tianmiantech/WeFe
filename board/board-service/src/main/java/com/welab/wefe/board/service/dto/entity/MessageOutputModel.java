@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.dto.entity;
 
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.wefe.enums.MessageEvent;
 import com.welab.wefe.common.wefe.enums.MessageLevel;
 
 /**
@@ -29,12 +30,18 @@ public class MessageOutputModel extends AbstractOutputModel {
     private String producer;
     @Check(name = "消息级别;枚举（info/success/error/warning）")
     private MessageLevel level;
+    @Check(name = "消息关联的事件")
+    private MessageEvent event;
     @Check(name = "标题")
     private String title;
     @Check(name = "内容")
     private String content;
     @Check(name = "未读")
     private Boolean unread;
+    @Check(name = "是否是待办事项")
+    private Boolean todo;
+    @Check(name = "待办事项是否已完成")
+    private Boolean todoComplete;
 
     //region getter/setter
 
@@ -78,6 +85,29 @@ public class MessageOutputModel extends AbstractOutputModel {
         this.unread = unread;
     }
 
+    public MessageEvent getEvent() {
+        return event;
+    }
+
+    public void setEvent(MessageEvent event) {
+        this.event = event;
+    }
+
+    public Boolean getTodo() {
+        return todo;
+    }
+
+    public void setTodo(Boolean todo) {
+        this.todo = todo;
+    }
+
+    public Boolean getTodoComplete() {
+        return todoComplete;
+    }
+
+    public void setTodoComplete(Boolean todoComplete) {
+        this.todoComplete = todoComplete;
+    }
 
     //endregion
 }

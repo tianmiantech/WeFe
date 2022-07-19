@@ -16,10 +16,15 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+
 /**
  * @author zane.luo
  */
-public class ServingConfigModel {
+@ConfigModel(group = ConfigGroupConstant.WEFE_SERVING)
+public class ServingConfigModel extends AbstractConfigModel {
 
     /***
      * Serving service intranet address

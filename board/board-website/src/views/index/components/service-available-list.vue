@@ -1,5 +1,5 @@
 <template>
-    <el-card>
+    <el-card class="service-box">
         <template #header>
             <div style="line-height:32px;">
                 服务状态
@@ -65,5 +65,11 @@
 <style lang="scss" scoped>
 .el-card{
     :deep(.el-card__body) {padding-top: 0px;}
+}
+.service-box {
+    :deep(.el-card__body) {
+        max-height: 500px;
+        overflow-y: auto;
+    }
 }
 </style>
