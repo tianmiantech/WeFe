@@ -37,7 +37,13 @@ class DataViewService:
         # Judge Whether Have Label Y
         if len(storage_data.take()[0][1].to_csv().split(",")) == len(header_list) + 1:
             header_list.insert(0, "y")
-        header_list.insert(0, json.loads(my_str)["sid_name"])
+        new_str = json.loads(my_str)
+        if 'schema' in new_str.keys():
+            header_list.insert(0, new_str['schema']["sid_name"])
+        elif 'sid_name' in new_str.keys():
+            header_list.insert(0, new_str["sid_name"])
+        else:
+            raise Exception('不存在 sid_name,请检查数据集元信息')
         for x in header_list:
             result["header"].append(x)
         print(result)

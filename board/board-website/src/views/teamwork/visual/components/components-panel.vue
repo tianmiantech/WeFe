@@ -25,6 +25,13 @@
                 />
             </div>
             <template v-if="showComponentPanel">
+                <el-alert
+                    v-if="(!isProjectAdmin || isProjectAdmin === 'false') && isCreator"
+                    title="当前项目由管理员创建，您仅有查看权限，不能编辑。"
+                    type="warning"
+                    show-icon
+                    class="unedit-tips">
+                </el-alert>
                 <el-scrollbar
                     v-if="componentType === 'defaultPanel'"
                     height="100%"
@@ -402,8 +409,10 @@
 
             // save component form
             saveComponentData($event) {
+                const type = this.componentType.split('-')[1] === 'params' ? this.componentType : this.componentType.split('-')[0] + '-params';
+
                 if(this.currentObj.nodeId) {
-                    const ref = this.$refs[this.componentType];
+                    const ref = this.$refs[type];
                     const refInstance = Array.isArray(ref) ? ref[0]: ref;
 
                     if(refInstance) {
@@ -427,7 +436,7 @@
                     url:  '/project/flow/node/update',
                     data: {
                         nodeId:        this.currentObj.nodeId,
-                        componentType: this.currentObj.componentType.replace('-params', ''),
+                        componentType: this.componentType.indexOf('result') !== -1 ? this.componentType.replace('-result', '') : this.currentObj.componentType.replace('-params', ''),
                         flowId,
                         params,
                     },
@@ -574,6 +583,22 @@
     :deep(.el-tabs__item){
         font-size: 13px;
         color:#909399;
+    }
+}
+</style>
+
+<style lang="scss">
+.unedit-tips {
+    z-index: 201;
+    padding: 8px 0 8px 8px;
+    .el-alert__content {
+        height: 18px;
+        line-height: 23px;
+        padding: unset;
+        .el-alert__close-btn {
+            top: 10px;
+            right: 6px;
+        }
     }
 }
 </style>

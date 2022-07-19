@@ -257,7 +257,7 @@
 
                 // uploader account list
                 async getUploaders() {
-                    const { code, data } = await $http.get('/account/query');
+                    const { code, data } = await $http.get('/account/list_all');
 
                     if (code === 0) {
                         vData.userList = data.list;

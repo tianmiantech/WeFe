@@ -2,6 +2,13 @@
     <el-card class="page_layer" v-loading="vData.startLoading">
         <div class="deep_flow">
             <div class="left_content">
+                <el-alert
+                    v-if="!vData.is_project_admin || vData.is_project_admin === 'false'"
+                    title="当前项目由管理员创建，您仅有查看权限，不能编辑。"
+                    type="warning"
+                    show-icon
+                    class="unedit-tips">
+                </el-alert>
                 <div class="step_content">
                     <el-collapse v-model="vData.activeNames">
                         <el-collapse-item title="基本设置" name="base">
@@ -1360,6 +1367,17 @@
             color: $--color-danger;
             padding-left: 6px;
         }
+    }
+}
+</style>
+
+<style lang="scss">
+.unedit-tips {
+    margin-bottom: 10px;
+    .el-alert__content {
+        height: 18px;
+        line-height: 23px;
+        padding: 0 6px;
     }
 }
 </style>

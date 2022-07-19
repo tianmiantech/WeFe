@@ -849,7 +849,9 @@ class DataIO(ModelBase):
         if isinstance(data_inst.first()[1], str):
             return self.reader.read_data(data_inst, "fit")
         else:
-            return self.filter_data_instance(data_inst)
+            data_instance = self.filter_data_instance(data_inst)
+            self.add_reader_result(data_instance)
+            return data_instance
 
     def transform(self, data_inst):
         return self.reader.read_data(data_inst, "transform")
@@ -878,6 +880,15 @@ class DataIO(ModelBase):
             schema['column_types'] = [column_types[i] for i in need_feature_index]
         set_schema(new_data_instance, schema)
         return new_data_instance
+
+    def add_reader_result(self, data_instance):
+        schema = data_instance.schema
+        header = data_util.get_header(data_instance)
+        column_types = schema.get('column_types', None)
+        sid_name = schema.get('sid_name', None)
+        self.reader.header = header
+        self.reader.column_types = column_types
+        self.reader.sid_name = sid_name
 
     def process_data_instance_value(self, value, feature_index):
         features = value.features

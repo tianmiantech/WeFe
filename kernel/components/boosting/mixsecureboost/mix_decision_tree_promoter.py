@@ -181,39 +181,6 @@ class MixDecisionTreePromoter(DecisionTree):
     def decrypt(self, val):
         return self.encrypter.decrypt(val)
 
-    def encode(self, etype="feature_idx", val=None, nid=None):
-        if etype == "feature_idx":
-            return val
-
-        if etype == "feature_val":
-            self.split_maskdict[nid] = val
-            return None
-
-        if etype == "missing_dir":
-            self.missing_dir_maskdict[nid] = val
-            return None
-
-        raise TypeError("encode type %s is not support!" % (str(etype)))
-
-    @staticmethod
-    def decode(dtype="feature_idx", val=None, nid=None, split_maskdict=None, missing_dir_maskdict=None):
-        if dtype == "feature_idx":
-            return val
-
-        if dtype == "feature_val":
-            if nid in split_maskdict:
-                return split_maskdict[nid]
-            else:
-                raise ValueError("decode val %s cause error, can't reconize it!" % (str(val)))
-
-        if dtype == "missing_dir":
-            if nid in missing_dir_maskdict:
-                return missing_dir_maskdict[nid]
-            else:
-                raise ValueError("decode val %s cause error, can't reconize it!" % (str(val)))
-
-        return TypeError("decode type %s is not support!" % (str(dtype)))
-
     def set_valid_features(self, valid_features=None):
         LOGGER.info("set valid features")
         self.valid_features = valid_features
@@ -472,10 +439,8 @@ class MixDecisionTreePromoter(DecisionTree):
         self.tree_node_queue = new_tree_node_queue
 
     @staticmethod
-    def dispatch_node(value, tree_=None, decoder=None, sitename=consts.PROMOTER,
-                      split_maskdict=None, bin_sparse_points=None,
-                      use_missing=False, zero_as_missing=False,
-                      missing_dir_maskdict=None):
+    def dispatch_node(value, tree_=None, sitename=consts.PROMOTER,bin_sparse_points=None,
+                      use_missing=False, zero_as_missing=False):
         unleaf_state, nodeid = value[1]
 
         if tree_[nodeid].is_leaf is True:
@@ -531,13 +496,10 @@ class MixDecisionTreePromoter(DecisionTree):
         LOGGER.info("redispatch node of depth {}".format(dep))
         dispatch_node_method = functools.partial(self.dispatch_node,
                                                  tree_=self.tree_,
-                                                 decoder=self.decode,
                                                  sitename=self.sitename,
-                                                 split_maskdict=self.split_maskdict,
                                                  bin_sparse_points=self.bin_sparse_points,
                                                  use_missing=self.use_missing,
-                                                 zero_as_missing=self.zero_as_missing,
-                                                 missing_dir_maskdict=self.missing_dir_maskdict)
+                                                 zero_as_missing=self.zero_as_missing)
 
         dispatch_promoter_result = self.data_bin_with_node_dispatch.mapValues(dispatch_node_method)
         LOGGER.info("remask dispatch node result of depth {}".format(dep))
@@ -739,9 +701,8 @@ class MixDecisionTreePromoter(DecisionTree):
         return hist_bags
 
     @staticmethod
-    def traverse_tree(predict_state, data_inst, tree_=None,
-                      decoder=None, sitename=consts.PROMOTER, split_maskdict=None,
-                      use_missing=None, zero_as_missing=None, missing_dir_maskdict=None, return_leaf_id=False):
+    def traverse_tree(predict_state, data_inst, tree_=None,sitename=consts.PROMOTER,
+                      use_missing=None, zero_as_missing=None,  return_leaf_id=False):
 
         nid, tag = predict_state
 
@@ -752,15 +713,8 @@ class MixDecisionTreePromoter(DecisionTree):
             fid = tree_[nid].fid
             bid = tree_[nid].bid
             missing_dir = tree_[nid].missing_dir
-            # fid = decoder("feature_idx", tree_[nid].fid, split_maskdict=split_maskdict)
-            # bid = decoder("feature_val", tree_[nid].bid, nid, split_maskdict=split_maskdict)
-            # if use_missing:
-            #     missing_dir = decoder("missing_dir", 1, nid, missing_dir_maskdict=missing_dir_maskdict)
-            # else:
-            #     missing_dir = 1
 
             if use_missing and zero_as_missing:
-                # missing_dir = decoder("missing_dir", 1, nid, missing_dir_maskdict=missing_dir_maskdict)
                 if data_inst.features.get_data(fid) == NoneType() or data_inst.features.get_data(fid, None) is None:
                     if missing_dir == 1:
                         nid = tree_[nid].right_nodeid
@@ -834,12 +788,9 @@ class MixDecisionTreePromoter(DecisionTree):
         while True:
             traverse_tree = functools.partial(self.traverse_tree,
                                               tree_=self.tree_,
-                                              decoder=self.decode,
                                               sitename=self.sitename,
-                                              split_maskdict=self.split_maskdict,
                                               use_missing=self.use_missing,
-                                              zero_as_missing=self.zero_as_missing,
-                                              missing_dir_maskdict=self.missing_dir_maskdict)
+                                              zero_as_missing=self.zero_as_missing)
             predict_data = predict_data.join(data_inst,
                                              traverse_tree)  # list[(data_index,(nid,1)) or (data_index,weight)]
             predict_leaf = predict_data.filter(

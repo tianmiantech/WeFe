@@ -69,9 +69,22 @@ public @interface Api {
      * The level of logging
      */
     String logLevel() default "info";
-    
+
+    /**
+     * 日志采样打印周期（ms）
+     * 此参数用于减少日志打印，节省磁盘。
+     * 采样输出策略仅针对响应 code 为 0 时，code 不为 0 的响应不会被省略日志输出。
+     * <p>
+     * 默认值：0
+     * 不使用采样，将每次 api 响应内容进行打印。
+     * <p>
+     * 大于0：
+     * 在周期内仅输出一次完整的 api 响应结果，其它响应省略输出。
+     */
+    long logSaplingInterval() default 0L;
+
     /**
      * forward matching uri
-     * */
+     */
     boolean forward() default false;
 }

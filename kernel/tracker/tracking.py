@@ -663,8 +663,8 @@ class Tracking(object):
             # y positive count
             y_positive_count = data_table.filter(lambda k, v: int(v.label) > 0).count()
             y_positive_ratio = round(y_positive_count / data_input['table_create_count'], 4)
-            table_data_set.y_positive_example_count = y_positive_count
-            table_data_set.y_positive_example_ratio = y_positive_ratio
+            table_data_set.y_positive_sample_count = y_positive_count
+            table_data_set.y_positive_sample_ratio = y_positive_ratio
 
         if len(header_list) == 0:
             table_data_set.column_name_list = table_data_set.column_name_list[1:]

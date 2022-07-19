@@ -42,7 +42,7 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
-        List<ProjectDataResourceOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.memberId, input.memberRole, input.containsY, input.forJobType);
+        List<ProjectDataResourceOutputModel> list = projectDataSetService.listRawDataSet(input.projectId, input.dataResourceType, input.dataResourceId, input.memberId, input.memberRole, input.containsY, input.forJobType);
         return success(new Output(list));
     }
 
@@ -55,6 +55,9 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
         @Check(name = "数据集类型", require = true)
         private DataResourceType dataResourceType;
+
+        @Check(name = "数据资源Id")
+        private String dataResourceId;
 
         @Check(name = "成员角色", require = true)
         private JobMemberRole memberRole;
@@ -89,6 +92,14 @@ public class RawDataSetListApi extends AbstractApi<RawDataSetListApi.Input, RawD
 
         public void setDataResourceType(DataResourceType dataResourceType) {
             this.dataResourceType = dataResourceType;
+        }
+
+        public String getDataResourceId() {
+            return dataResourceId;
+        }
+
+        public void setDataResourceId(String dataResourceId) {
+            this.dataResourceId = dataResourceId;
         }
 
         public JobMemberRole getMemberRole() {

@@ -8,7 +8,7 @@
             <router-link
                 :to="{
                     name: 'data-update',
-                    query: { id, type: 'img' }
+                    query: { id, type: addDataType }
                 }"
             >
                 <el-button class="ml5" plain size="small"><el-icon><elicon-edit-pen /></el-icon> 编辑</el-button>
@@ -130,7 +130,7 @@
                 </el-tab-pane>
 
                 <el-tab-pane name="preview" label="数据预览">
-                    <h4 v-if="!dataInfo.source_type" class="mb10">主键已被 hash</h4>
+                    <h4 v-if="!dataInfo.derived_from" class="mb10">主键已被 hash</h4>
                     <DataSetPreview ref="DataSetPreview" />
                 </el-tab-pane>
             </el-tabs>
