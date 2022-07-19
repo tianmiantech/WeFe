@@ -44,6 +44,10 @@ public class ApiBeanNameGenerator extends AnnotationBeanNameGenerator {
         if (api == null || ClassUtils.isAbstract(clazz)) {
             return super.buildDefaultBeanName(definition);
         } else {
+            if (api.allowAccessWithSign() && !api.login()) {
+                throw new RuntimeException("不合理的接口身份检查限制：接口 " + api.path() + " 声明为需要验签，但无需登录，存在访问漏洞。");
+            }
+
 
             String path = api.path();
             if (path.startsWith("/") || path.endsWith("/")) {

@@ -23,7 +23,6 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.mpc.pir.PrivateInformationRetrievalApiName;
-import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasRandomResponse;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultRequest;
 import com.welab.wefe.mpc.pir.request.naor.QueryNaorPinkasResultResponse;
 import com.welab.wefe.mpc.pir.server.service.naor.NaorPinkasResultService;

@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "data_resource/default_tag/query", name = "data_resource_default_tag_query", rsaVerify = true, login = false)
+@Api(path = "data_resource/default_tag/query", name = "data_resource_default_tag_query", allowAccessWithSign = true, login = false)
 public class DefaultTagQueryApi extends AbstractApi<DefaultTagQueryApi.Input, JObject> {
     @Autowired
     protected DataResourceDefaultTagMongoRepo dataResourceDefaultTagMongoRepo;

@@ -80,7 +80,7 @@ public class UnionService implements ApplicationContextAware {
                 .apiLogger(new UnionApiLogger())
                 .apiPackageClass(UnionService.class)
                 .apiPermissionPolicy((api, annotation, params) -> {
-                    if (annotation.rsaVerify()) {
+                    if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);
                     }
                     if (annotation.sm2Verify()) {

@@ -278,7 +278,7 @@ class RESTService(Logger):
             config = data["env"]
             data_set = data["data_set"]
             download_url = data_set["download_url"]
-            data_name = data_set["name"]
+            data_name = data_set["download_file_name"]
             algorithm_config = data.get("algorithm_config")
             program = algorithm_config["program"]
             config["max_iter"] = algorithm_config["max_iter"]

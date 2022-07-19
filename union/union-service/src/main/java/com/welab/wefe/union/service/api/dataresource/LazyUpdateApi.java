@@ -17,8 +17,8 @@
 package com.welab.wefe.union.service.api.dataresource;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.entity.union.DataResourceLazyUpdateModel;
+import com.welab.wefe.common.data.mongodb.entity.union.ImageDataSet;
 import com.welab.wefe.common.data.mongodb.repo.DataResourceLazyUpdateModelMongoReop;
 import com.welab.wefe.common.data.mongodb.repo.ImageDataSetMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/lazy_update", name = "image_data_set_update_labeled_count", rsaVerify = true, login = false)
+@Api(path = "data_resource/lazy_update", name = "image_data_set_update_labeled_count", allowAccessWithSign = true, login = false)
 public class LazyUpdateApi extends AbstractApi<LazyUpdateApi.Input, AbstractApiOutput> {
     @Autowired
     private ImageDataSetMongoReop imageDataSetMongoReop;

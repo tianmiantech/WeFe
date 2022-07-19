@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Jervis
  **/
-@Api(path = "data_set/detail", name = "data_set_detail", rsaVerify = true, login = false)
+@Api(path = "data_set/detail", name = "data_set_detail", allowAccessWithSign = true, login = false)
 public class DetailApi extends AbstractApi<DetailApi.Input, DataSetDetailOutput> {
 
     @Autowired
