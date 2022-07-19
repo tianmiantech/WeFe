@@ -8,8 +8,7 @@
   "scripts": {
     "build": "vue-cli-service build",
     "dev": "vue-cli-service serve",
-    "report": "vue-cli-service build --report",
-    "prepare": "cd ../../ && husky install board/board-website/.husky"
+    "report": "vue-cli-service build --report"
   },
   "dependencies": {
     "@antv/g6": "^4.3.11",
@@ -34,7 +33,6 @@
     "@babel/eslint-parser": "^7.15.4",
     "@babel/plugin-transform-runtime": "^7.15.0",
     "@babel/polyfill": "^7.12.1",
-    "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
     "@vue/babel-preset-app": "^4.5.15",
     "@vue/cli-plugin-babel": "~4.5.15",
