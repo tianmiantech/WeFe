@@ -110,7 +110,7 @@ public class CertManagerServiceTest {
     // 一次性签发证书
     @Test
     public void testOnceCreateChildCert() throws Exception {
-        String commonName = "welab1";
+        String commonName = "welab2";
         // issuer签发机构证书ID
         String issuerCertId = "9128d83224b84d70b906d84a6d688b94";
 
@@ -118,8 +118,8 @@ public class CertManagerServiceTest {
         System.out.println("为用户生成证书 userId=: " + userId);
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
-        CertUtils.writeToPKCS8File(keyPair.getPrivate(), "out1/welab1_pri.key");
-        CertUtils.writeKey(keyPair.getPublic(), "out1/welab1_pub.key");
+        CertUtils.writeToPKCS8File(keyPair.getPrivate(), "out1/" + commonName + "_pri.key");
+        CertUtils.writeKey(keyPair.getPublic(), "out1/" + commonName + "_pub.key");
         String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
         // 保存私钥
         String certKeyId = certManagerService.importPrivateKey(userId, pemPrivateKey,

@@ -119,8 +119,8 @@ public class X509CertHandler {
         }
         
         List<GeneralName> namesList = new ArrayList<GeneralName>();
-        namesList.add(new GeneralName(GeneralName.dNSName, "*.test"));
-        namesList.add(new GeneralName(GeneralName.iPAddress, "127.0.0.1"));
+        namesList.add(new GeneralName(GeneralName.dNSName, "wefe.tianmiantech.com.test"));
+//        namesList.add(new GeneralName(GeneralName.iPAddress, "127.0.0.1"));
         
         GeneralNames subjectAltNames = new GeneralNames((GeneralName[])namesList.toArray(new GeneralName [] {}));
         v3CertGen.addExtension(Extension.subjectAlternativeName, false, subjectAltNames);
