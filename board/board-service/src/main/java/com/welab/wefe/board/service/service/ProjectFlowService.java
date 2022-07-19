@@ -87,7 +87,8 @@ public class ProjectFlowService extends AbstractService {
     private JobRepository jobRepository;
     @Autowired
     private TaskResultRepository taskResultRepository;
-
+    @Autowired
+    private TaskResultService taskResultService;
     @Autowired
     private ModelOotRecordService modelOotRecordService;
 
@@ -561,6 +562,10 @@ public class ProjectFlowService extends AbstractService {
                         .get(ComponentType.Evaluation)
                         .getTaskResult(evaluationTask.getTaskId(), input.getType());
             }
+            if (result != null) {
+                result.setProbNeedToBin(isCalculateScoreDistribution(evaluationTask));
+            }
+
         } else {
             result = Components
                     .get(modelTask.getTaskType())
@@ -568,6 +573,15 @@ public class ProjectFlowService extends AbstractService {
         }
 
         return result;
+    }
+
+    private boolean isCalculateScoreDistribution(TaskMySqlModel evaluationTask) {
+        TaskResultMySqlModel model = taskResultService.findByTaskIdAndType(evaluationTask.getTaskId(), TaskResultType.distribution_train_validate.name());
+        if (model == null) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

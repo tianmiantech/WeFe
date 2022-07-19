@@ -53,6 +53,7 @@ public enum TaskResultType {
 
     metric_train_eval,
 
-    metric_predict
+    metric_predict,
 
+    distribution_train_validate
 }
