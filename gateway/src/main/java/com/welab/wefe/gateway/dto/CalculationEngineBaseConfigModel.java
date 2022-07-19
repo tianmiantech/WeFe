@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.common.wefe.enums;
+package com.welab.wefe.gateway.dto;
+
+import com.welab.wefe.common.wefe.enums.JobBackendType;
 
 /**
+ * 计算引擎相关配置
+ *
  * @author zane
- * @date 2021/12/16
+ * @date 2021/12/3
  */
-public enum ServiceType {
+
+public class CalculationEngineBaseConfigModel {
     /**
-     *
+     * SPARK、FC
      */
-    UnionService,
-    BoardService,
-    GatewayService,
-    FlowService,
-    StorageService,
-    FcService,
-    ServingService,
-    MysqlService,
-    FileSystem,
-    BlockChainService,
-    MongodbService
+    public JobBackendType backend = JobBackendType.SPARK;
 }
