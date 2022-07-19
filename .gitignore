@@ -9,7 +9,7 @@ gen
 .classpath
 .vscode/
 **/sdk.zip
-
+.factorypath
 # 排除编译输出
 *.class
 target/
