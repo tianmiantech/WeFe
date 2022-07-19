@@ -45,14 +45,14 @@ cp -f $WORKSPACE/deploy_package_resource/board-service.jar $IMAGE_WORK_DIR/app/w
 cp -f $WORKSPACE/deploy_package_resource/gateway.jar $IMAGE_WORK_DIR/app/wefe_gateway_service
 cp -rf $WORKSPACE/deploy_package_resource/python_project $IMAGE_WORK_DIR/app/wefe_python_service
 cp -rf $WORKSPACE/deploy_package_resource/python_project $IMAGE_WORK_DIR/app/wefe_python_gpu_service
-#cp -f $WORKSPACE/deploy_package_resource/fusion-service.jar $IMAGE_WORK_DIR/app/wefe_fusion_service
-#cp -f $WORKSPACE/deploy_package_resource/manager-service.jar $IMAGE_WORK_DIR/app/wefe_manager_service
-#cp -f $WORKSPACE/deploy_package_resource/serving-service.jar $IMAGE_WORK_DIR/app/wefe_serving_service
-#cp -f $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar $IMAGE_WORK_DIR/app/wefe_blockchain_data_sync
-#cp -f $WORKSPACE/deploy_package_resource/wefe-union-service.jar $IMAGE_WORK_DIR/app/wefe_union_service
-#cp -f $WORKSPACE/deploy_package_resource/fusion-website.tar $IMAGE_WORK_DIR/app/wefe_fusion_website
-#cp -f $WORKSPACE/deploy_package_resource/manager-website.tar $IMAGE_WORK_DIR/app/wefe_manager_website
-#cp -f $WORKSPACE/deploy_package_resource/serving-website.tar $IMAGE_WORK_DIR/app/wefe_serving_website
+cp -f $WORKSPACE/deploy_package_resource/fusion-service.jar $IMAGE_WORK_DIR/app/wefe_fusion_service
+cp -f $WORKSPACE/deploy_package_resource/manager-service.jar $IMAGE_WORK_DIR/app/wefe_manager_service
+cp -f $WORKSPACE/deploy_package_resource/serving-service.jar $IMAGE_WORK_DIR/app/wefe_serving_service
+cp -f $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar $IMAGE_WORK_DIR/app/wefe_blockchain_data_sync
+cp -f $WORKSPACE/deploy_package_resource/wefe-union-service.jar $IMAGE_WORK_DIR/app/wefe_union_service
+cp -f $WORKSPACE/deploy_package_resource/fusion-website.tar $IMAGE_WORK_DIR/app/wefe_fusion_website
+cp -f $WORKSPACE/deploy_package_resource/manager-website.tar $IMAGE_WORK_DIR/app/wefe_manager_website
+cp -f $WORKSPACE/deploy_package_resource/serving-website.tar $IMAGE_WORK_DIR/app/wefe_serving_website
 echo 'SEND RESOURCES TO DOCKER IMAGE FINISHED'
 
 # 分发文件到相应的 docker_service 的 resources 目录下，挂载支持动态更新
@@ -61,14 +61,14 @@ cp -rf $WORKSPACE/deploy_package_resource/board-website $SERVICE_WORK_DIR/wefe_b
 cp -f $WORKSPACE/deploy_package_resource/board-service.jar $SERVICE_WORK_DIR/wefe_board_service/resources/mount/
 cp -f $WORKSPACE/deploy_package_resource/gateway.jar $SERVICE_WORK_DIR/wefe_gateway_service/resources/mount/
 cp -rf $WORKSPACE/deploy_package_resource/python_project $SERVICE_WORK_DIR/wefe_python_service/resources/mount/
-#cp -f $WORKSPACE/deploy_package_resource/fusion-service.jar $SERVICE_WORK_DIR/wefe_fusion_service/resources/mount/
-#cp -f $WORKSPACE/deploy_package_resource/manager-service.jar $SERVICE_WORK_DIR/wefe_manager_service/resources/mount/
-#cp -f $WORKSPACE/deploy_package_resource/serving-service.jar $SERVICE_WORK_DIR/wefe_serving_service/resources/mount/
-#cp -f $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar $SERVICE_WORK_DIR/wefe_blockchain_data_sync/resources/mount/
-#cp -f $WORKSPACE/deploy_package_resource/wefe-union-service.jar $SERVICE_WORK_DIR/wefe_union_service/resources/mount/
-#cp -rf $WORKSPACE/deploy_package_resource/fusion-website $SERVICE_WORK_DIR/wefe_fusion_website/resources/mount/
-#cp -rf $WORKSPACE/deploy_package_resource/manager-website $SERVICE_WORK_DIR/wefe_manager_website/resources/mount/
-#cp -rf $WORKSPACE/deploy_package_resource/serving-website $SERVICE_WORK_DIR/wefe_serving_website/resources/mount/
+  cp -f $WORKSPACE/deploy_package_resource/fusion-service.jar $SERVICE_WORK_DIR/wefe_fusion_service/resources/mount/
+  cp -f $WORKSPACE/deploy_package_resource/manager-service.jar $SERVICE_WORK_DIR/wefe_manager_service/resources/mount/
+  cp -f $WORKSPACE/deploy_package_resource/serving-service.jar $SERVICE_WORK_DIR/wefe_serving_service/resources/mount/
+  cp -f $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar $SERVICE_WORK_DIR/wefe_blockchain_data_sync/resources/mount/
+  cp -f $WORKSPACE/deploy_package_resource/wefe-union-service.jar $SERVICE_WORK_DIR/wefe_union_service/resources/mount/
+  cp -rf $WORKSPACE/deploy_package_resource/fusion-website $SERVICE_WORK_DIR/wefe_fusion_website/resources/mount/
+  cp -rf $WORKSPACE/deploy_package_resource/manager-website $SERVICE_WORK_DIR/wefe_manager_website/resources/mount/
+  cp -rf $WORKSPACE/deploy_package_resource/serving-website $SERVICE_WORK_DIR/wefe_serving_website/resources/mount/
 cp -rf $WORKSPACE/deploy_package_resource/solidity $SERVICE_WORK_DIR/wefe_blockchain_data_sync/resources/mount/
 
 echo 'SEND RESOURCES TO MOUNT DIR FINISHED'

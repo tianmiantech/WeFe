@@ -84,50 +84,50 @@ if [[ ! -f $WORKSPACE/gateway/target/wefe-gateway.jar ]]; then
 fi
 echo 'FINISHED'
 
-#echo 'PACK FUSION-SERVICE'
-#rm -rf $WORKSPACE/fusion/fusion-service/target
-#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl fusion/fusion-service
-#if [[ ! -f $WORKSPACE/fusion/fusion-service/target/fusion-service.jar ]]; then
-#    echo '文件 fusion-service.jar 不存在，请检查此模块打包流程是否正常'
-#    exit 1
-#fi
-#echo 'FINISHED'
-#
-#echo 'PACK MANAGER-SERVICE'
-#rm -rf $WORKSPACE/manager/manager-service/target
-#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl manager/manager-service
-#if [[ ! -f $WORKSPACE/manager/manager-service/target/manager-service.jar ]]; then
-#    echo '文件 manager-service.jar 不存在，请检查此模块打包流程是否正常'
-#    exit 1
-#fi
-#echo 'FINISHED'
-#
-#echo 'PACK SERVING-SERVICE'
-#rm -rf $WORKSPACE/serving/serving-service/target
-#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl serving/serving-service
-#if [[ ! -f $WORKSPACE/serving/serving-service/target/serving-service.jar ]]; then
-#    echo '文件 serving-service.jar 不存在，请检查此模块打包流程是否正常'
-#    exit 1
-#fi
-#echo 'FINISHED'
-#
-#echo 'PACK BLOCKCHAIN-DATA-SYNC'
-#rm -rf $WORKSPACE/union/blockchain-data-sync/target
-#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl union/blockchain-data-sync
-#if [[ ! -f $WORKSPACE/union/blockchain-data-sync/target/wefe-blockchain-data-sync.jar ]]; then
-#    echo '文件 wefe-blockchain-data-sync.jar 不存在，请检查此模块打包流程是否正常'
-#    exit 1
-#fi
-#echo 'FINISHED'
-#
-#echo 'PACK UNION-SERVICE'
-#rm -rf $WORKSPACE/union/union-service/target
-#mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl union/union-service
-#if [[ ! -f $WORKSPACE/union/union-service/target/wefe-union-service.jar ]]; then
-#    echo '文件 wefe-union-service.jar 不存在，请检查此模块打包流程是否正常'
-#    exit 1
-#fi
-#echo 'FINISHED'
+echo 'PACK FUSION-SERVICE'
+rm -rf $WORKSPACE/fusion/fusion-service/target
+mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl fusion/fusion-service
+if [[ ! -f $WORKSPACE/fusion/fusion-service/target/fusion-service.jar ]]; then
+    echo '文件 fusion-service.jar 不存在，请检查此模块打包流程是否正常'
+    exit 1
+fi
+echo 'FINISHED'
+
+echo 'PACK MANAGER-SERVICE'
+rm -rf $WORKSPACE/manager/manager-service/target
+mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl manager/manager-service
+if [[ ! -f $WORKSPACE/manager/manager-service/target/manager-service.jar ]]; then
+    echo '文件 manager-service.jar 不存在，请检查此模块打包流程是否正常'
+    exit 1
+fi
+echo 'FINISHED'
+
+echo 'PACK SERVING-SERVICE'
+rm -rf $WORKSPACE/serving/serving-service/target
+mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl serving/serving-service
+if [[ ! -f $WORKSPACE/serving/serving-service/target/serving-service.jar ]]; then
+    echo '文件 serving-service.jar 不存在，请检查此模块打包流程是否正常'
+    exit 1
+fi
+echo 'FINISHED'
+
+echo 'PACK BLOCKCHAIN-DATA-SYNC'
+rm -rf $WORKSPACE/union/blockchain-data-sync/target
+mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl union/blockchain-data-sync
+if [[ ! -f $WORKSPACE/union/blockchain-data-sync/target/wefe-blockchain-data-sync.jar ]]; then
+    echo '文件 wefe-blockchain-data-sync.jar 不存在，请检查此模块打包流程是否正常'
+    exit 1
+fi
+echo 'FINISHED'
+
+echo 'PACK UNION-SERVICE'
+rm -rf $WORKSPACE/union/union-service/target
+mvn clean install -Dmaven.test.skip=true -Dfile.encoding=utf-8 -am -pl union/union-service
+if [[ ! -f $WORKSPACE/union/union-service/target/wefe-union-service.jar ]]; then
+    echo '文件 wefe-union-service.jar 不存在，请检查此模块打包流程是否正常'
+    exit 1
+fi
+echo 'FINISHED'
 
 echo '###### JAVA FINISHED ######'
 echo '###### NPM ######'
