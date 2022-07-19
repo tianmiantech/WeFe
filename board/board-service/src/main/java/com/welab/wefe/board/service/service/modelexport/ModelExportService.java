@@ -85,7 +85,7 @@ public class ModelExportService {
             if (ComponentType.HorzLR.equals(taskResultMySqlModel.getComponentType())) {
                 return logisticRegressionModelExportService.export(modelParam.getJObject("model_param"), language);
             }
-            return xgboostModelExportService.export(modelParam.getJObject("model_param"), language);
+            return xgboostModelExportService.export(modelParam.getJObject("model_meta"), modelParam.getJObject("model_param"), language);
 
         } catch (StatusCodeWithException e) {
             LOG.error("Export model exception：", e);
