@@ -79,7 +79,6 @@ public class CertHandler {
         // 生成根证书
         X509Certificate certificate = certService.createRootCertificate(certDigestAlgEnums.getAlgorithmName(), issuer,
                 keyUsage, beginDate, endDate, keyPair.getPublic(), keyPair.getPrivate());
-        CertUtils.writeCrt(certificate, "out1/root.crt");
         // 证书转为pem格式
         String certificatePemStr = CertUtils.readPEMAsString(certificate);
         return certDao.save(buildCertInfo(certificatePemStr, issuer.getCommonName(), issuer.getOrganizationName(),
@@ -137,30 +136,38 @@ public class CertHandler {
         return certKeyInfo.getPkId();
     }
 
+    /**
+     * @param commonName 证书常用名
+     * @param userId 证书申请人用户ID
+     * @param csrId 证书申请ID
+     * @param isCaCert 是否是根证书
+     * */
     @Transactional
     public CertInfo createChildCert(String commonName, String userId, String csrId, boolean isCaCert, KeyUsage keyUsage, Date beginDate,
             Date endDate) throws Exception {
         if (StringUtils.isBlank(userId)) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
         }
-        CertRequestInfo requestInfo = certDao.findCertRequestById(csrId);
-        if (requestInfo == null) {
+        CertRequestInfo subjectRequestInfo = certDao.findCertRequestById(csrId);
+        if (subjectRequestInfo == null) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_REQUEST_NOT_EXIST);
         }
-        CertInfo certInfo = certDao.findCertById(requestInfo.getIssuerCertId());
-        if (certInfo == null) {
+        // 签发机构的证书
+        CertInfo issuerCertInfo = certDao.findCertById(subjectRequestInfo.getIssuerCertId());
+        if (issuerCertInfo == null) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_NOT_EXIST);
         }
-        CertKeyInfo keyInfo = certDao.findCertKeyById(certInfo.getIssuerKeyId());
-        if (keyInfo == null) {
+        // 签发机构的证书对应的私钥ID
+        CertKeyInfo issuerKeyInfo = certDao.findCertKeyById(issuerCertInfo.getSubjectKeyId());
+        if (issuerKeyInfo == null) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_KEY_NOT_EXIST);
         }
 
-        KeyAlgorithmEnums keyAlgorithm = KeyAlgorithmEnums.getByKeyAlg(keyInfo.getKeyAlg());
-        CertDigestAlgEnums certDigestAlgEnums = getCertDigestAlg(keyAlgorithm);
-        KeyPair keyPair = getKeyPair(keyAlgorithm, keyInfo.getKeyPem());
+        KeyAlgorithmEnums issuerKeyAlgorithm = KeyAlgorithmEnums.getByKeyAlg(issuerKeyInfo.getKeyAlg());
+        CertDigestAlgEnums issuerCertDigestAlgEnums = getCertDigestAlg(issuerKeyAlgorithm);
+        KeyPair issuerKeyPair = getKeyPair(issuerKeyAlgorithm, issuerKeyInfo.getKeyPem());
 
-        X509Certificate parentCertificate = CertUtils.convertStrToCert(certInfo.getCertContent());
+        X509Certificate parentCertificate = CertUtils.convertStrToCert(issuerCertInfo.getCertContent());
         try {
             parentCertificate.checkValidity();
         } catch (CertificateExpiredException | CertificateNotYetValidException e) {
@@ -168,16 +175,15 @@ public class CertHandler {
         }
 
         X509Certificate certificate = certService.createChildCertificate(isCaCert,
-                certDigestAlgEnums.getAlgorithmName(), parentCertificate,
-                CertUtils.convertStrToCsr(requestInfo.getCertRequestContent()), keyUsage, beginDate, endDate,
-                keyPair.getPrivate());
-        CertUtils.writeCrt(certificate, "out1/" + commonName + ".crt");
-        requestInfo.setIssue(true);
-        certDao.save(requestInfo);
-        return certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate), certInfo.getIssuerCN(),
-                certInfo.getIssuerOrg(), requestInfo.getSubjectCN(), requestInfo.getSubjectOrg(),
-                certificate.getPublicKey(), userId, certificate.getSerialNumber(), keyInfo.getPkId(),
-                requestInfo.getSubjectKeyId(), isCaCert, certInfo.getPkId()));
+                issuerCertDigestAlgEnums.getAlgorithmName(), parentCertificate,
+                CertUtils.convertStrToCsr(subjectRequestInfo.getCertRequestContent()), keyUsage, beginDate, endDate,
+                issuerKeyPair.getPrivate());
+        subjectRequestInfo.setIssue(true);
+        certDao.save(subjectRequestInfo);
+        return certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate), issuerCertInfo.getSubjectCN(),
+                issuerCertInfo.getSubjectOrg(), subjectRequestInfo.getSubjectCN(), subjectRequestInfo.getSubjectOrg(),
+                certificate.getPublicKey(), userId, certificate.getSerialNumber(), issuerKeyInfo.getPkId(),
+                subjectRequestInfo.getSubjectKeyId(), isCaCert, issuerCertInfo.getPkId()));
     }
 
     @Transactional
@@ -196,7 +202,6 @@ public class CertHandler {
 
         PKCS10CertificationRequest request = certService.createCertRequest(subject, keyPair.getPublic(),
                 keyPair.getPrivate(), certDigestAlgEnums.getAlgorithmName());
-        CertUtils.writeCsr(request, "out1/" + commonName + ".csr");
         String csrStr = CertUtils.readPEMAsString(request);
 
         CertInfo certInfo = certDao.findCertById(parentCertId);
@@ -277,6 +282,20 @@ public class CertHandler {
         return certDao.findCertRequestById(csrId);
     }
 
+    /**
+     * @param certificatePemStr 证书的pem格式内容
+     * @param issuerCommonName 签发机构的常用名
+     * @param issuerOrgName 签发机构的组织机构名称
+     * @param subjectCommonName 证书申请人的常用名
+     * @param subjectOrgName 证书申请人的组织名称
+     * @param publicKey 证书的公钥
+     * @param userId 证书申请人用户ID
+     * @param serialNumber 证书序列号
+     * @param issuerCertKeyId 签发机构的证书的私钥ID
+     * @param subjectKeyId 证书申请人私钥ID
+     * @param isCACert 是否是根证书
+     * @param issuerCertId 签发机构证书ID
+     * */
     private CertInfo buildCertInfo(String certificatePemStr, String issuerCommonName, String issuerOrgName,
             String subjectCommonName, String subjectOrgName, PublicKey publicKey, String userId,
             BigInteger serialNumber, String issuerCertKeyId, String subjectKeyId, boolean isCACert,
@@ -284,7 +303,7 @@ public class CertHandler {
         CertInfo certInfo = new CertInfo();
         certInfo.setUserId(userId);
 
-        certInfo.setIssuerKeyId(issuerCertKeyId);// 根证书需要
+//        certInfo.setIssuerKeyId(issuerCertKeyId);// 根证书需要？？？？
         certInfo.setIssuerCN(issuerCommonName);
         certInfo.setIssuerOrg(issuerOrgName);
         certInfo.setpCertId(issuerCertId); // optional 根证书为空

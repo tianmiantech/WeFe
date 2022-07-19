@@ -6,8 +6,6 @@
 package com.webank.cert.mgr.service;
 
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Security;
 import java.util.Date;
 import java.util.List;
@@ -85,13 +83,8 @@ public class CertManagerService {
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
         String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
-        PrivateKey privateKey = keyPair.getPrivate();
-        PublicKey publicKey = keyPair.getPublic();
-        CertUtils.writeKey(privateKey, "out1/root_pri.key");
-        CertUtils.writeKey(publicKey, "out1/root_pub.key");
         // 保存私钥
         String certKeyId = this.importPrivateKey(userId, pemPrivateKey, KeyAlgorithmEnums.RSA.getKeyAlgorithm());
-
         CertInfo certInfo = this.certHandler.createRootCert(userId, certKeyId, (String) null, (KeyAlgorithmEnums) null,
                 issuer, keyUsage, beginDate, endDate);
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
