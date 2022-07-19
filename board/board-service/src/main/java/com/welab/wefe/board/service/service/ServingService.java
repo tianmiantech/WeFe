@@ -271,6 +271,11 @@ public class ServingService extends AbstractService {
 
         Map<Integer, Object> featureEngineerMap = getFeatureEngineerMap(taskId, role);
 
+        //TODO 得分分布
+       TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(),
+                taskResult.getFlowNodeId(),
+                taskResult.getRole(),
+                TaskResultType.distribution_train_validate.name());
 
         //TODO 评估数据集合
 
@@ -286,6 +291,7 @@ public class ServingService extends AbstractService {
         params.put("flType", job.getFederatedLearningType().name());
         params.put("memberParams", members);
         params.put("featureEngineerMap", featureEngineerMap);
+        params.put("scoresDistribution", task.getResult());
 
         return params;
     }

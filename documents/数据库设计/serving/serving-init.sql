@@ -550,5 +550,6 @@ CREATE TABLE `table_model`
     `sql_script`          varchar(1024)        DEFAULT NULL COMMENT 'sql脚本',
     `sql_condition_field` varchar(100)         DEFAULT NULL COMMENT 'sql查询条件字段',
     `data_source_id`      varchar(100)         DEFAULT NULL COMMENT '数据源ID',
+    `scores_distribution` TEXT                 DEFAULT NULL COMMENT '得分分布',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';

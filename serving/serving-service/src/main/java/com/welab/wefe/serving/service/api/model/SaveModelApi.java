@@ -74,6 +74,8 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
         Map<Integer, Object> featureEngineerMap;
         @Check(name = "服务地址")
         private String url;
+        @Check(name = "服务地址")
+        private String scoresDistribution;
 
 
         //region getter/setter
@@ -149,6 +151,14 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
 
         public void setUrl(String url) {
             this.url = url;
+        }
+
+        public String getScoresDistribution() {
+            return scoresDistribution;
+        }
+
+        public void setScoresDistribution(String scoresDistribution) {
+            this.scoresDistribution = scoresDistribution;
         }
 
         //endregion

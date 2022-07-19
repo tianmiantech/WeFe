@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,11 +20,7 @@ import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author hunter.zhao
@@ -68,6 +64,9 @@ public class TableModelMySqlModel extends BaseServiceMySqlModel {
 
     @Column(name = "data_source_id")
     private String dataSourceId;
+
+    @Column(name = "scores_distribution")
+    private String scoresDistribution;
 
     public Algorithm getAlgorithm() {
         return algorithm;
@@ -147,5 +146,13 @@ public class TableModelMySqlModel extends BaseServiceMySqlModel {
 
     public void setDataSourceId(String dataSourceId) {
         this.dataSourceId = dataSourceId;
+    }
+
+    public String getScoresDistribution() {
+        return scoresDistribution;
+    }
+
+    public void setScoresDistribution(String scoresDistribution) {
+        this.scoresDistribution = scoresDistribution;
     }
 }
