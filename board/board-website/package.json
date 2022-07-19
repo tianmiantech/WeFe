@@ -48,7 +48,6 @@
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-plugin-html": "^6.1.2",
     "eslint-plugin-vue": "^7.17.0",
-    "husky": "^7.0.2",
     "jsencrypt": "^3.2.1",
     "lint-staged": "^10.5.4",
     "minimist": "^1.2.5",
