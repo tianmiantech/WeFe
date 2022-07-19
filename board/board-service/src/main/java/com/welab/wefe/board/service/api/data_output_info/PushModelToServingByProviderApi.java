@@ -32,8 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(
         path = "data_output_info/provider/push_model_to_serving",
         name = "push model to serving service",
-        login = false,
-        rsaVerify = true
+        allowAccessWithSign = true
 )
 public class PushModelToServingByProviderApi extends AbstractNoneOutputApi<PushModelToServingByProviderApi.Input> {
 

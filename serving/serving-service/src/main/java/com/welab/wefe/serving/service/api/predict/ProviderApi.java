@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.service.api.predict;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -26,12 +25,10 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.predicter.Predicter;
+import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Map;
 
@@ -42,7 +39,6 @@ import java.util.Map;
 @Api(
         path = "predict/provider",
         name = "Model to predict",
-        login = false,
         allowAccessWithSign = true,
         domain = Caller.Member
 )

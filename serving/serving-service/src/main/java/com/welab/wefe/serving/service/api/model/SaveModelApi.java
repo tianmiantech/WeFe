@@ -39,7 +39,6 @@ import com.welab.wefe.serving.service.service.ModelService;
 @Api(
         path = "model_save",
         name = "保存模型信息",
-        login = false,
         allowAccessWithSign = true,
         domain = Caller.Board
 )

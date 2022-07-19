@@ -36,8 +36,8 @@ import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import com.welab.wefe.serving.service.api.account.*;
 import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.verificationcode.VerificationCodeService;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
@@ -63,7 +63,7 @@ public class AccountService extends AbstractAccountService {
 
     @Autowired
     private VerificationCodeService verificationCodeService;
-    
+
     /**
      * Paging query
      */
@@ -201,7 +201,7 @@ public class AccountService extends AbstractAccountService {
      * Paging query account
      */
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) throws StatusCodeWithException {
-        
+
         Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus()).contains("nickname", input.getNickname())
                 .orderBy("createdTime", OrderBy.desc).build(AccountMySqlModel.class);
@@ -360,7 +360,7 @@ public class AccountService extends AbstractAccountService {
         model.setHistoryPasswordList(historyPasswords);
         accountRepository.save(model);
     }
-    
+
     public void forgetPassword(ForgetPasswordApi.Input input) throws StatusCodeWithException {
         if (StringUtil.isEmpty(input.getPhoneNumber())) {
             throw new StatusCodeWithException("手机号不能为空。", StatusCode.PARAMETER_VALUE_INVALID);

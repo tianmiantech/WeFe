@@ -95,7 +95,7 @@ public class SystemInitializeService extends AbstractService {
      * Synchronize member information to union for the recovery of membership after union data is lost.
      */
     public synchronized void syncMemberToServing(String phoneNumber, String password) throws StatusCodeWithException {
-        servingService.refreshMemberInfo(globalConfigService.getMemberInfo(), config.getUnionBaseUrl(), phoneNumber, password);
+        servingService.refreshMemberInfo(globalConfigService.getModel(MemberInfoModel.class), config.getUnionBaseUrl(), phoneNumber, password);
     }
 
     /**
