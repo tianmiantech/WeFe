@@ -61,9 +61,9 @@ public class CertManagerServiceTest {
         Date endDate = new Date(beginDate.getTime() + CertConstants.DEFAULT_VALIDITY);
         KeyUsage keyUsage = new KeyUsage(KeyUsage.dataEncipherment); // 证书使用用途
         CertVO cert = certManagerService.createRootCert(userId, issuer, keyUsage, beginDate, endDate);
-        System.out.println(cert.getUserId()); // c5c5e50368714ce79d72d82c2eb1ff1b
-        System.out.println(cert.getIssuerKeyId());// 94307ce619cc4f7fa940bfb0c58add0f
-        System.out.println(cert.getPkId());// 9128d83224b84d70b906d84a6d688b94
+        System.out.println(cert.getUserId());
+        System.out.println(cert.getIssuerKeyId());
+        System.out.println(cert.getPkId());
     }
 
     // 生成私钥
@@ -78,8 +78,8 @@ public class CertManagerServiceTest {
         // 保存私钥
         String certKeyId = certManagerService.importPrivateKey(userId, pemPrivateKey,
                 KeyAlgorithmEnums.RSA.getKeyAlgorithm());
-        System.out.println(certKeyId); // 8f9556c985fc4838b9e5c2a89263a358
-        System.out.println(userId); // 3db9399b780949c6ae18b3f55f2200e8
+        System.out.println(certKeyId);
+        System.out.println(userId);
     }
 
     // 生成csr
@@ -95,7 +95,7 @@ public class CertManagerServiceTest {
         String issuerCertId = "419d830e12514d3db9f1ff0e6c7032f5";
         CertRequestVO vo = certManagerService.createCertRequestByKey("welab", subjectUserId, subjectKeyId, issuerCertId,
                 subject);
-        System.out.println(vo.getPkId()); // 7de5dae82ad14a21b6f6ed9cdc306f0e
+        System.out.println(vo.getPkId());
     }
 
     // 签发证书
@@ -104,7 +104,7 @@ public class CertManagerServiceTest {
         String userId = "3db9399b780949c6ae18b3f55f2200e8";
         String csrId = "7de5dae82ad14a21b6f6ed9cdc306f0e";
         CertVO cert = certManagerService.createChildCert("welab", userId, csrId);
-        System.out.println(cert.getPkId());// 47cd3be276bb407d9a4da4318a54a23a
+        System.out.println(cert.getPkId());
     }
 
     // 一次性签发证书
@@ -115,7 +115,7 @@ public class CertManagerServiceTest {
         String issuerCertId = "9128d83224b84d70b906d84a6d688b94";
 
         String userId = UUID.randomUUID().toString().replaceAll("-", "");
-        System.out.println("为用户生成证书 userId=: " + userId);
+        System.out.println("为用户签发证书 userId=: " + userId);
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
         CertUtils.writeToPKCS8File(keyPair.getPrivate(), "out1/" + commonName + "_pri.key");
@@ -138,14 +138,14 @@ public class CertManagerServiceTest {
 
         String csrId = vo.getPkId();
         CertVO cert = certManagerService.createChildCert(commonName, userId, csrId);
-        System.out.println("为用户生成证书 : certId = " + cert.getPkId());
+        System.out.println("为用户签发证书 : certId = " + cert.getPkId());
         System.out.println("为用户导出证书 : file = " + "out1/" + commonName + ".crt");
-        
+
         List<X509Certificate> list = new ArrayList<>();
         X509Certificate certificate = CertUtils.convertStrToCert(cert.getCertContent());
         list.add(certificate);
+        // 导出证书到p12/pfx/jks, 参数分别为：证书别名，私钥，keyStore密码，证书信息，保存路径
         CertUtils.savePfx(commonName, keyPair.getPrivate(), "welab", list, "out1/" + commonName + ".jks");
-
         // 导入到jks供Java使用
         // keytool -import -noprompt -file root.crt -alias root -keystore mytrust.jks
         // -storepass 123456
@@ -171,18 +171,18 @@ public class CertManagerServiceTest {
 
         List<X509Certificate> list = new ArrayList<>();
         list.add(cert);
-        // 生成pfx文件，参数分别为：证书别名，私钥，keyStore密码，证书信息，保存路径，证书名
+        
         CertUtils.savePfx("yinlian", privateKey, "yinlian", list, "out1/yinlian.jks");
         // 从pfx中导出私钥信息
 //        PrivateKey key = CertUtils.readPriKeyFromJks("out1/yinlian1.p12", "yinlian");
         // 在控制台输出导出私钥的BASE64编码信息
 //        System.out.println(Base64.toBase64String(key.getEncoded()));
     }
-    
+
     // 导出私钥
     @Test
     public void exportKey() throws Exception {
-     // 私钥ID
+        // 私钥ID
         String userKeyId = "120c5633b404497690b33a8aa5143b5b";
         CertKeyVO keyVo = certManagerService.queryCertKey(userKeyId);
         PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
