@@ -31,8 +31,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 @Api(path = "fusion/psi/server_is_ready",
         name = "query server status",
         desc = "query server status",
-        login = false,
-        rsaVerify = true
+        allowAccessWithSign = true
 )
 public class ServerSynStatusApi extends AbstractApi<ServerSynStatusApi.Input, JObject> {
 

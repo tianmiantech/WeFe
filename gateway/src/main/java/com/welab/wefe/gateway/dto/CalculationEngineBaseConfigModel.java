@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.board.service.dto.vo.message;
+package com.welab.wefe.gateway.dto;
+
+import com.welab.wefe.common.wefe.enums.JobBackendType;
 
 /**
- * 消息体：邀请加入项目
+ * 计算引擎相关配置
  *
  * @author zane
- * @date 2022/6/7
+ * @date 2021/12/3
  */
-public class CreateProjectMessageContent extends AbstractMessageContentWithProject {
-    @Override
-    public String getTitle() {
-        return "成员【" + getFromMemberName() +
-                "】邀请您加入项目【" + projectName + "】";
-    }
 
-    @Override
-    public String getRelatedId2() {
-        return null;
-    }
+public class CalculationEngineBaseConfigModel {
+    /**
+     * SPARK、FC
+     */
+    public JobBackendType backend = JobBackendType.SPARK;
 }

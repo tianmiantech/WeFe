@@ -307,9 +307,7 @@ class MixSecureBoostingProvider(BoostingTree):
     @staticmethod
     def traverse_a_tree(tree: MixDecisionTreeProvider, sample, cur_node_idx):
 
-        nid, _ = tree.traverse_tree(predict_state=(cur_node_idx, -1), data_inst=sample,
-                                    decoder=tree.decode, split_maskdict=tree.split_maskdict,
-                                    missing_dir_maskdict=tree.missing_dir_maskdict, sitename=tree.sitename,
+        nid, _ = tree.traverse_tree(predict_state=(cur_node_idx, -1), data_inst=sample, sitename=tree.sitename,
                                     tree_=tree.tree_, zero_as_missing=tree.zero_as_missing,
                                     use_missing=tree.use_missing)
 

@@ -366,7 +366,7 @@ public class ProjectFlowService extends AbstractService {
                 .equal("federatedLearningType", input.federatedLearningType)
                 .equal("createdBy", input.creator)
                 .in("flowId", input.flowIdList)
-                .in("flowStatus", input.status.toList())
+                .in("flowStatus", input.status == null ? null : input.status.toList())
                 .orderBy("top", OrderBy.desc)
                 .orderBy("sortNum", OrderBy.desc)
                 .orderBy("createdTime", OrderBy.desc)

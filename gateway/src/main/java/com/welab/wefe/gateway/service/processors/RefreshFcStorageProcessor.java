@@ -29,10 +29,7 @@ import com.welab.wefe.gateway.init.InitStorageManager;
 public class RefreshFcStorageProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
-        if (InitStorageManager.initFC(true)) {
-            return ReturnStatusBuilder.ok(transferMeta.getSessionId());
-        } else {
-            return ReturnStatusBuilder.sysExc("刷新FC服务失败.", transferMeta.getSessionId());
-        }
+        InitStorageManager.initFC(true);
+        return ReturnStatusBuilder.ok(transferMeta.getSessionId());
     }
 }

@@ -65,3 +65,7 @@ ALTER TABLE `message`
     ADD COLUMN `todo_related_id1` varchar(128) COMMENT '待办事项关联对象Id1';
 ALTER TABLE `message`
     ADD COLUMN `todo_related_id2` varchar(128) COMMENT '待办事项关联对象Id2';
+-- 将历史数据中的枚举改为字符串
+update `message`
+set `level`='error'
+where `level` in ('0', '1', '2', '3', '4', '5');

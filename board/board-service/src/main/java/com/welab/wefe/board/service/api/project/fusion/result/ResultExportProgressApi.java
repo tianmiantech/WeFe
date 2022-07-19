@@ -27,7 +27,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/result/export_progress", name = "结果导出", desc = "结果导出", login = false)
+@Api(path = "fusion/result/export_progress", name = "结果导出", desc = "结果导出")
 public class ResultExportProgressApi extends AbstractApi<ResultExportProgressApi.Input, FusionResultExportProgress> {
 
 

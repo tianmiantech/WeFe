@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author lonnie
  */
-@Api(path = "project/job/finished", name = "callback on job finished", login = false)
+@Api(path = "project/job/finished", name = "callback on job finished", allowAccessWithSign = true)
 public class OnJobFinishedApi extends AbstractNoneOutputApi<OnJobFinishedApi.Input> {
 
     @Autowired

@@ -73,9 +73,7 @@ public class InitStorageManager {
      */
     public static boolean initFC(boolean force) {
         LOG.info("Start init FC storage.....");
-        if (force) {
-            FC_INIT.set(initFcStorage());
-        } else if (!FC_INIT.get()) {
+        if (force || !FC_INIT.get()) {
             FC_INIT.set(initFcStorage());
         }
         if (!FC_INIT.get()) {

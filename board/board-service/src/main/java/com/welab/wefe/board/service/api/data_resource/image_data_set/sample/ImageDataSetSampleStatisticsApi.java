@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @author zane
  * @date 2021/11/15
  */
-@Api(path = "image_data_set_sample/statistics", name = "statistics the data set labels distribute", login = false)
+@Api(path = "image_data_set_sample/statistics", name = "statistics the data set labels distribute")
 public class ImageDataSetSampleStatisticsApi extends AbstractApi<ImageDataSetSampleStatisticsApi.Input, ImageDataSetSampleStatisticsApi.Output> {
     @Autowired
     private ImageDataSetSampleService imageDataSetSampleService;

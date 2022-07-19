@@ -16,20 +16,6 @@
 
 package com.welab.wefe.union.service.api.member;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.welab.wefe.union.service.util.FileCheckerUtil;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
@@ -53,11 +39,24 @@ import com.welab.wefe.common.wefe.enums.FileRurpose;
 import com.welab.wefe.union.service.cache.UnionNodeConfigCache;
 import com.welab.wefe.union.service.service.MemberFileInfoContractService;
 import com.welab.wefe.union.service.task.UploadFileSyncToUnionTask;
+import com.welab.wefe.union.service.util.FileCheckerUtil;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/file/upload", name = "member_file_upload", rsaVerify = true, login = false)
+@Api(path = "member/file/upload", name = "member_file_upload", allowAccessWithSign = true, login = false)
 public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileApiOutput> {
     @Autowired
     private UnionNodeMongoRepo unionNodeMongoRepo;

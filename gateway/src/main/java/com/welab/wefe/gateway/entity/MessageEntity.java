@@ -55,6 +55,7 @@ public class MessageEntity extends AbstractUniqueIDEntity {
      * Message level enumeration（info/success/error/warning）
      */
     @Column(name = "level")
+    @Enumerated(EnumType.STRING)
     private MessageLevel level;
     /**
      * 消息关联的事件

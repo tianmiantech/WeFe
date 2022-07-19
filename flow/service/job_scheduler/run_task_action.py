@@ -228,7 +228,7 @@ class RunTaskAction:
         splicing the startup command
         """
         job_config_json = json.loads(self.job.job_config)
-        backend = Backend.get_by_task_config(job_config_json)
+        backend = Backend.get_by_job_config(job_config_json)
 
         print(f'build_process_cmd, job_config_json: {job_config_json}')
         if backend.is_local() or backend.is_fc():
