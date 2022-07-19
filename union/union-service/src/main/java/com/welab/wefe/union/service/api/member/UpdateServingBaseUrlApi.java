@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Jervis
  **/
-@Api(path = "member/update_serving_base_url", name = "member_update_serving_base_url", rsaVerify = true, login = false)
+@Api(path = "member/update_serving_base_url", name = "member_update_serving_base_url", allowAccessWithSign = true, login = false)
 public class UpdateServingBaseUrlApi extends AbstractApi<UpdateServingBaseUrlApi.Input, MemberOutput> {
 
     @Autowired
