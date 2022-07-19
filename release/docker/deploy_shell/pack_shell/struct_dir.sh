@@ -68,7 +68,7 @@ cp -f $WORKSPACE/deploy_package_resource/wefe-blockchain-data-sync.jar $SERVICE_
 cp -f $WORKSPACE/deploy_package_resource/wefe-union-service.jar $SERVICE_WORK_DIR/wefe_union_service/resources/mount/
 cp -rf $WORKSPACE/deploy_package_resource/fusion-website $SERVICE_WORK_DIR/wefe_fusion_website/resources/mount/
 cp -rf $WORKSPACE/deploy_package_resource/manager-website $SERVICE_WORK_DIR/wefe_manager_website/resources/mount/
-  cp -rf $WORKSPACE/deploy_package_resource/serving-website $SERVICE_WORK_DIR/wefe_serving_website/resources/mount/
+cp -rf $WORKSPACE/deploy_package_resource/serving-website $SERVICE_WORK_DIR/wefe_serving_website/resources/mount/
 cp -rf $WORKSPACE/deploy_package_resource/solidity $SERVICE_WORK_DIR/wefe_blockchain_data_sync/resources/mount/
 
 echo 'SEND RESOURCES TO MOUNT DIR FINISHED'
