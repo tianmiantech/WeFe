@@ -321,8 +321,9 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         return bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
-    private String precisionProcessByString(String value) {
-        return String.format("%.3f", Double.parseDouble(value));
+    private double precisionProcessByString(String value) {
+        BigDecimal bd = new BigDecimal(value);
+        return bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     private JObject extractScoreDistributionData(JObject obj, String normalName) {

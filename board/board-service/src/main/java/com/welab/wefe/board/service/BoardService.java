@@ -73,7 +73,7 @@ public class BoardService implements ApplicationContextAware {
                 .apiLogger(new BoardApiLogger())
                 .apiPackageClass(BoardService.class)
                 // 禁止未登录且无验签的访问
-//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.rsaVerify())
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.rsaVerify())
                 .onApiExceptionFunction((api, e) -> {
 
                     // When an exception occurs in a node,

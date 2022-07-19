@@ -43,7 +43,6 @@ import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -272,8 +271,8 @@ public class ServingService extends AbstractService {
         Map<Integer, Object> featureEngineerMap = getFeatureEngineerMap(taskId, role);
 
         //TODO 得分分布
-       TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(),
-                taskResult.getFlowNodeId(),
+        TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(),
+                null,
                 taskResult.getRole(),
                 TaskResultType.distribution_train_validate.name());
 
@@ -319,35 +318,34 @@ public class ServingService extends AbstractService {
     }
 
     private List<JSONObject> fillPublicKey(List<JobMemberOutputModel> memberList) {
-        List<JSONObject> members = new ArrayList<>();
-        memberList.forEach(mem -> {
-            JSONObject member = new JSONObject();
-            member.put("memberId", mem.getMemberId());
-            member.put("role", mem.getJobRole());
-
-            // Find the public key
-            try {
-                JSONObject json = unionService.queryMemberById(mem.getMemberId());
-                member.put("name", json.getJSONObject("data").
-                        getJSONArray("list").
-                        getJSONObject(0).
-                        getString("name"));
-                member.put("publicKey", json.getJSONObject("data").
-                        getJSONArray("list").
-                        getJSONObject(0).
-                        getString("public_key"));
-                member.put("url", json.getJSONObject("data").
-                        getJSONArray("list").
-                        getJSONObject(0).
-                        getJSONObject("ext_json").
-                        getString("serving_base_url"));
-            } catch (StatusCodeWithException e) {
-                super.log(e);
-            }
-
-            members.add(member);
-        });
-        return members;
+        return memberList
+                .stream()
+                .filter(x -> !x.getMemberId().equals(CacheObjects.getMemberId()))
+                .map(mem -> {
+                    JSONObject member = new JSONObject();
+                    member.put("memberId", mem.getMemberId());
+                    member.put("role", mem.getJobRole());
+                    // Find the public key
+                    try {
+                        JSONObject json = unionService.queryMemberById(mem.getMemberId());
+                        member.put("name", json.getJSONObject("data").
+                                getJSONArray("list").
+                                getJSONObject(0).
+                                getString("name"));
+                        member.put("publicKey", json.getJSONObject("data").
+                                getJSONArray("list").
+                                getJSONObject(0).
+                                getString("public_key"));
+                        member.put("url", json.getJSONObject("data").
+                                getJSONArray("list").
+                                getJSONObject(0).
+                                getJSONObject("ext_json").
+                                getString("serving_base_url"));
+                    } catch (StatusCodeWithException e) {
+                        super.log(e);
+                    }
+                    return member;
+                }).collect(Collectors.toList());
     }
 
     private String getModelIdByTaskIdAndRole(String taskId, JobMemberRole role) {
