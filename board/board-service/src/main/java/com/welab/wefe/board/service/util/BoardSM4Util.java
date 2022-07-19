@@ -99,17 +99,17 @@ public class BoardSM4Util {
 
     private static String encrypt(String plaintext) throws Exception {
         Config config = Launcher.CONTEXT.getBean(Config.class);
-        if (!config.isEncryptPhoneNumberOpen()) {
+        if (!config.isDatabaseEncryptEnable()) {
             return plaintext;
         }
-        return SM4Util.encrypt(config.getSm4SecretKey(), plaintext);
+        return SM4Util.encrypt(config.getDatabaseEncryptSecretKey(), plaintext);
     }
 
     private static String decrypt(String ciphertext) throws Exception {
         Config config = Launcher.CONTEXT.getBean(Config.class);
-        if (!config.isEncryptPhoneNumberOpen()) {
+        if (!config.isDatabaseEncryptEnable()) {
             return ciphertext;
         }
-        return SM4Util.decrypt(config.getSm4SecretKey(), ciphertext);
+        return SM4Util.decrypt(config.getDatabaseEncryptSecretKey(), ciphertext);
     }
 }

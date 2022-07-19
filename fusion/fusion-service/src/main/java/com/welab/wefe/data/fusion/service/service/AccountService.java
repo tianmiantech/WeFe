@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
@@ -89,7 +90,7 @@ public class AccountService extends AbstractAccountService {
         }
 
         // generate salt
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
 
         // sha hash
         String password = Sha1.of(input.getPassword() + salt);
@@ -256,7 +257,7 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
         }
 
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         String newPassword = RandomStringUtils.randomAlphanumeric(2) + new Random().nextInt(999999);
 
         String websitePassword = model.getPhoneNumber() + newPassword + model.getPhoneNumber() + model.getPhoneNumber().substring(0, 3) + newPassword.substring(newPassword.length() - 3);
@@ -359,7 +360,7 @@ public class AccountService extends AbstractAccountService {
         }
 
         // Regenerate salt
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         model.setSalt(salt);
         model.setPassword(Sha1.of(input.getPassword() + salt));
         accountRepository.save(model);

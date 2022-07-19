@@ -16,7 +16,12 @@
 package com.welab.wefe.board.service.database.entity.data_resource;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import com.welab.wefe.board.service.dto.vo.data_set.table_data_set.LabelDistribution;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,6 +33,7 @@ import javax.persistence.Table;
  */
 @Entity(name = "table_data_set")
 @Table(name = "table_data_set")
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class TableDataSetMysqlModel extends DataResourceMysqlModel {
     /**
      * 数据集字段列表
@@ -74,9 +80,20 @@ public class TableDataSetMysqlModel extends DataResourceMysqlModel {
      * 正例比例
      */
     private Double yPositiveSampleRatio;
+    /**
+     * label 的分布情况
+     */
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private JSONObject labelDistribution;
+
 
     public TableDataSetMysqlModel() {
         super.setDataResourceType(DataResourceType.TableDataSet);
+    }
+
+    public void setLabelDistribution(LabelDistribution labelDistribution) {
+        this.labelDistribution = labelDistribution.toJson();
     }
 
     // region getter/setter
@@ -169,6 +186,13 @@ public class TableDataSetMysqlModel extends DataResourceMysqlModel {
         this.yPositiveSampleRatio = yPositiveSampleRatio;
     }
 
+    public JSONObject getLabelDistribution() {
+        return labelDistribution;
+    }
+
+    public void setLabelDistribution(JSONObject labelDistribution) {
+        this.labelDistribution = labelDistribution;
+    }
 
     // endregion
 }

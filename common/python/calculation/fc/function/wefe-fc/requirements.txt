@@ -3,8 +3,8 @@ six==1.15.0
 cachetools==4.1.1
 numba==0.50.1
 numpy==1.19.0
-pycryptodome==3.4.7
-pycryptodomex==3.9.8
+pycryptodome==3.14.1
+pycryptodomex==3.14.1
 Deprecated==1.2.10
 scipy==1.5.1
 psutil==5.7.2

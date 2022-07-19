@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.api.predict;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
@@ -35,9 +36,8 @@ import java.util.Map;
 @Api(
         path = "predict",
         name = "模型预测",
-        login = false,
-        rsaVerify = true
-//        domain = Caller.Customer
+        allowAccessWithSign = true,
+        domain = Caller.Customer
 )
 public class PredictApi extends AbstractApi<PredictApi.Input, PredictResult> {
 

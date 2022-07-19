@@ -86,7 +86,8 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
     # backend = conf_utils.get_backend_from_string(
     #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
     # )
-    storage_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE)
+    # 默认都为 OSS
+    storage_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE, consts.STORAGETYPE.OSS)
     if recv_meta.action == TransferAction.DSOURCE:
 
         if backend == Backend.FC:

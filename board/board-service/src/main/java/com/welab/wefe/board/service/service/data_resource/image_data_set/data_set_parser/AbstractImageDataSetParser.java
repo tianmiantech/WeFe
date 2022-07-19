@@ -61,15 +61,15 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
         }
     }
 
-    public static String getDataSetFileName(String jobId, String version) {
-        return jobId + "_" + version + ".zip";
+    public static String getDataSetFileName(String dataSetId, String version) {
+        return dataSetId + "_" + version + ".zip";
     }
 
-    public static File getDataSetFile(ImageDataSetMysqlModel dataSet, String jobId, String version) {
+    public static File getDataSetFile(ImageDataSetMysqlModel dataSet, String version) {
         return Paths.get(
                 dataSet.getStorageNamespace(),
                 "output",
-                getDataSetFileName(jobId, version)
+                getDataSetFileName(dataSet.getId(), version)
         ).toFile();
     }
 
@@ -91,7 +91,7 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
         ).max().orElse(0);
         String version = trainTestSplitRatio + "-" + samples.size() + "-" + samplesLastUpdateTime;
 
-        File file = getDataSetFile(dataSet, jobId, version);
+        File file = getDataSetFile(dataSet, version);
         // 如果数据集文件已经存在，不重复生成，节省磁盘。
         if (file.exists()) {
             return version;
@@ -139,7 +139,7 @@ public abstract class AbstractImageDataSetParser extends AbstractService {
         emitSamplesToDataSetFileDir(dataSet, trainList, testList, outputDir);
         new Zip().compression(
                 outputDir.toString(),
-                getDataSetFile(dataSet, jobId, version).getAbsolutePath()
+                getDataSetFile(dataSet, version).getAbsolutePath()
         );
         return version;
     }

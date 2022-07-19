@@ -113,6 +113,7 @@ public class ProjectFlowJobService extends AbstractService {
         if (flow == null) {
             throw new StatusCodeWithException("未找到相应的流程！", StatusCode.ILLEGAL_REQUEST);
         }
+
         ProjectMySqlModel project = projectService.findByProjectId(flow.getProjectId());
 
         if (!input.fromGateway() && (!isCreator(flow, project))) {
@@ -178,11 +179,14 @@ public class ProjectFlowJobService extends AbstractService {
 
             // create Graph
             FlowGraph graph = new FlowGraph(job, lastJob, jobMembers, projectFlowNodeService.findNodesByFlowId(job.getFlowId()), flow.getCreatorMemberId());
+            // 设置 JobConfig
+            setJobConfig(input, job, graph, isOotMode);
 
-            // check
-            if (jobMember.getJobRole() == JobMemberRole.promoter) {
+            // 在任务的启动方做启动前的检查
+            if (jobMember.getJobRole() == JobMemberRole.promoter && !input.fromGateway()) {
                 checkBeforeStartFlow(graph, project, isOotMode);
             }
+
             // create task
             createJobTasks(jobBuilder, project, graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
 
@@ -197,6 +201,64 @@ public class ProjectFlowJobService extends AbstractService {
 
         return input.getJobId();
 
+    }
+
+    /**
+     * 设置 job config
+     */
+    private void setJobConfig(StartFlowApi.Input input, JobMySqlModel job, FlowGraph graph, boolean isOotMode) throws StatusCodeWithException {
+
+        // 创建 KernelJob
+        KernelJob jobInfo = new KernelJob();
+
+        Project project = new Project();
+        project.setProjectId(job.getProjectId());
+
+        List<JobDataSet> dataSets = listJobDataSets(job, graph.getJobSteps(input.getEndNodeId()));
+
+        jobInfo.setFederatedLearningType(job.getFederatedLearningType());
+        jobInfo.setProject(project);
+        jobInfo.setMembers(Member.forMachineLearning(graph.getMembers()));
+
+        Member arbiter = jobInfo
+                .getMembers()
+                .stream()
+                .filter(x -> x.getMemberRole() == JobMemberRole.arbiter)
+                .findFirst()
+                .orElse(null);
+
+        if (arbiter == null) {
+            if (job.getFederatedLearningType() == FederatedLearningType.horizontal
+                    || job.getFederatedLearningType() == FederatedLearningType.mix) {
+                Member promoter = jobInfo
+                        .getMembers()
+                        .stream()
+                        .filter(x -> x.getMemberRole() == JobMemberRole.promoter)
+                        .findFirst()
+                        .orElse(null);
+
+                if (promoter != null) {
+                    arbiter = Member.forMachineLearning(promoter.getMemberId(), JobMemberRole.arbiter);
+                    jobInfo.getMembers().add(arbiter);
+                }
+            }
+        }
+
+        jobInfo.setEnv(Env.get());
+        jobInfo.setDataSets(dataSets);
+        if (isOotMode) {
+            jobInfo.setFederatedLearningMode(FederatedLearningModel.oot);
+        }
+
+
+        // 更新 job
+        job.setJobConfig(jobInfo);
+        jobRepo.save(job);
+
+        // 在这里顺便更新一下数据集的使用情况
+        if (graph.getJob().getMyRole() != JobMemberRole.arbiter) {
+            updateDataSetUsageCountInJob(jobInfo);
+        }
     }
 
     public boolean isCreator(ProjectFlowMySqlModel flow, ProjectMySqlModel project) {
@@ -424,15 +486,12 @@ public class ProjectFlowJobService extends AbstractService {
         job.setFlowId(flow.getFlowId());
         job.setGraph(flow.getGraph());
 
-        job = jobRepo.save(job);
-
         return job;
 
     }
 
     private List<TaskMySqlModel> createJobTasks(JobBuilder jobBuilder, ProjectMySqlModel project, FlowGraph graph, boolean useCache, String endNodeId,
                                                 FederatedLearningType federatedLearningType) throws StatusCodeWithException {
-
         List<FlowGraphNode> startNodes = graph.getStartNodes();
 
         if (CollectionUtils.isEmpty(startNodes)) {
@@ -479,8 +538,6 @@ public class ProjectFlowJobService extends AbstractService {
 
         }
 
-        KernelJob kernelJob = createKernelJob(graph.getJob(), graph.getMembers(), graph.getJobSteps(endNodeId));
-
         List<TaskMySqlModel> tasks = new ArrayList<>();
 
         for (FlowGraphNode node : noCacheNodes) {
@@ -505,12 +562,12 @@ public class ProjectFlowJobService extends AbstractService {
             try {
                 addPreTasks(node, tasks, cacheTasks);
                 if (federatedLearningType == FederatedLearningType.mix) {
-                    List<TaskMySqlModel> subTasks = component.buildMixTask(jobBuilder, graph, tasks, kernelJob, node);
+                    List<TaskMySqlModel> subTasks = component.buildMixTask(jobBuilder, graph, tasks, node);
                     if (subTasks != null && !subTasks.isEmpty()) {
                         tasks.addAll(subTasks);
                     }
                 } else {
-                    TaskMySqlModel task = component.buildTask(jobBuilder, project, graph, tasks, kernelJob, node);
+                    TaskMySqlModel task = component.buildTask(jobBuilder, project, graph, tasks, node);
                     if (task != null) {
                         tasks.add(task);
                     }
@@ -535,10 +592,6 @@ public class ProjectFlowJobService extends AbstractService {
             if (firstNode.getParamsVersion() < graph.getLastJob().getCreatedTime().getTime()) {
                 copyIterationResult(graph.getLastJob(), graph.getJob(), firstNode);
             }
-        }
-
-        if (graph.getJob().getMyRole() != JobMemberRole.arbiter) {
-            updateDataSetUsageCountInJob(kernelJob);
         }
 
         return tasks;
@@ -574,49 +627,6 @@ public class ProjectFlowJobService extends AbstractService {
             copyNodeInfoFromLastJob(oldJob, newJob, node, false);
         }
 
-    }
-
-    private KernelJob createKernelJob(JobMySqlModel job, List<JobMemberMySqlModel> memberList, List<FlowGraphNode> nodes) throws StatusCodeWithException {
-
-        KernelJob jobInfo = new KernelJob();
-
-        Project project = new Project();
-        project.setProjectId(job.getProjectId());
-
-        List<JobDataSet> dataSets = listJobDataSets(job, nodes);
-
-        jobInfo.setFederatedLearningType(job.getFederatedLearningType());
-        jobInfo.setProject(project);
-        jobInfo.setMembers(Member.forMachineLearning(memberList));
-
-        Member arbiter = jobInfo
-                .getMembers()
-                .stream()
-                .filter(x -> x.getMemberRole() == JobMemberRole.arbiter)
-                .findFirst()
-                .orElse(null);
-
-        if (arbiter == null) {
-            if (job.getFederatedLearningType() == FederatedLearningType.horizontal
-                    || job.getFederatedLearningType() == FederatedLearningType.mix) {
-                Member promoter = jobInfo
-                        .getMembers()
-                        .stream()
-                        .filter(x -> x.getMemberRole() == JobMemberRole.promoter)
-                        .findFirst()
-                        .orElse(null);
-
-                if (promoter != null) {
-                    arbiter = Member.forMachineLearning(promoter.getMemberId(), JobMemberRole.arbiter);
-                    jobInfo.getMembers().add(arbiter);
-                }
-            }
-        }
-
-        jobInfo.setEnv(Env.get());
-        jobInfo.setDataSets(dataSets);
-
-        return jobInfo;
     }
 
     private void addPreTasks(FlowGraphNode node, List<TaskMySqlModel> tasks, List<TaskMySqlModel> cacheTasks) {

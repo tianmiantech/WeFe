@@ -105,6 +105,8 @@ public class ProjectService extends AbstractService {
     private ProjectFlowNodeRepository projectFlowNodeRepository;
     @Autowired
     private DataResourceService dataResourceService;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * New Project
@@ -162,6 +164,14 @@ public class ProjectService extends AbstractService {
         project.setProjectType(input.getProjectType());
         projectRepo.save(project);
 
+        if (input.fromGateway()) {
+            messageService.addApplyJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project.getProjectId(),
+                    project.getName()
+            );
+        }
+
         // create and save ProjectMember to database
         for (ProjectMemberInput item : input.getMembers()) {
             ProjectMemberMySqlModel member = new ProjectMemberMySqlModel();
@@ -203,6 +213,15 @@ public class ProjectService extends AbstractService {
                 // Update the usage count of the dataset in the project
                 if (auditStatus == AuditStatus.agree && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
                     dataResourceService.updateUsageCountInProject(dataSet.getDataSetId());
+                }
+
+                // 如果申请使用我方数据资源，添加一条消息予以提醒。
+                if (input.fromGateway() && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
+                    messageService.addApplyDataResourceMessage(
+                            input.callerMemberInfo.getMemberId(),
+                            project,
+                            dataSet
+                    );
                 }
             }
 
@@ -503,6 +522,14 @@ public class ProjectService extends AbstractService {
                 dataResourceService.updateUsageCountInProject(projectDataSet.getDataSetId());
             }
 
+            // 如果申请使用我方数据资源，添加一条消息予以提醒。
+            if (input.fromGateway() && CacheObjects.isCurrentMember(item.getMemberId())) {
+                messageService.addApplyDataResourceMessage(
+                        input.callerMemberInfo.getMemberId(),
+                        project,
+                        projectDataSet
+                );
+            }
         }
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AddDataSetApi.class);
@@ -515,7 +542,7 @@ public class ProjectService extends AbstractService {
      * Remove the data set in the project
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void removeDataSet(RemoveDataSetApi.Input input) throws StatusCodeWithException {
+    public synchronized void removeDataSet(RemoveDataSetApi.Input input) throws Exception {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
@@ -833,6 +860,8 @@ public class ProjectService extends AbstractService {
             project.setAuditComment(input.getAuditComment());
             project.setStatusUpdatedTime(new Date());
             projectRepo.save(project);
+
+            messageService.completeApplyJoinProjectTodo(project.getProjectId());
         }
 
         // update the audit status of project members
@@ -908,6 +937,15 @@ public class ProjectService extends AbstractService {
             if (input.getAuditResult() == AuditStatus.agree) {
                 syncAuditProjectInfo(input.getProjectId(), input);
             }
+        }
+
+        if (input.fromGateway()) {
+            messageService.addAuditJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project,
+                    input.getAuditResult(),
+                    input.getAuditComment()
+            );
         }
 
     }

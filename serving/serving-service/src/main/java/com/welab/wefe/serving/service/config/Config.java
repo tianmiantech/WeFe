@@ -26,9 +26,6 @@ public class Config extends CommonConfig {
     @Value("${wefe.service.cache.type}")
     private String serviceCacheType;
 
-    @Value("${sm4.secret.key:}")
-    private String sm4SecretKey;
-
     @Value("${verification.code.send.channel:email}")
     private String verificationCodeSendChannel;
 
@@ -52,9 +49,18 @@ public class Config extends CommonConfig {
 
     @Value("${sms.access_key_secret:xxx}")
     private String smsAccessKeySecret;
-    
-    @Value("${encrypt.phone.number.open:false}")
-    private boolean encryptPhoneNumberOpen;
+
+    @Value("${mail_server.mail_host}")
+    private String mailHost;
+
+    @Value("${mail_server.mail_password}")
+    private String mailPassword;
+
+    @Value("${mail_server.port}")
+    private String mailPort;
+
+    @Value("${mail_server.username}")
+    private String mailUsername;
 
 
     public String getFileBasePath() {
@@ -64,6 +70,7 @@ public class Config extends CommonConfig {
     public void setFileBasePath(String fileBasePath) {
         this.fileBasePath = fileBasePath;
     }
+
 
     public String getRedisHost() {
         return redisHost;
@@ -95,14 +102,6 @@ public class Config extends CommonConfig {
 
     public void setServiceCacheType(String serviceCacheType) {
         this.serviceCacheType = serviceCacheType;
-    }
-
-    public String getSm4SecretKey() {
-        return sm4SecretKey;
-    }
-
-    public void setSm4SecretKey(String sm4SecretKey) {
-        this.sm4SecretKey = sm4SecretKey;
     }
 
     public String getVerificationCodeSendChannel() {
@@ -170,12 +169,37 @@ public class Config extends CommonConfig {
     public void setSmsAccessKeySecret(String smsAccessKeySecret) {
         this.smsAccessKeySecret = smsAccessKeySecret;
     }
-    
-    public boolean isEncryptPhoneNumberOpen() {
-        return encryptPhoneNumberOpen;
+
+    public String getMailHost() {
+        return mailHost;
     }
 
-    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
-        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
+    public void setMailHost(String mailHost) {
+        this.mailHost = mailHost;
     }
+
+    public String getMailPassword() {
+        return mailPassword;
+    }
+
+    public void setMailPassword(String mailPassword) {
+        this.mailPassword = mailPassword;
+    }
+
+    public String getMailPort() {
+        return mailPort;
+    }
+
+    public void setMailPort(String mailPort) {
+        this.mailPort = mailPort;
+    }
+
+    public String getMailUsername() {
+        return mailUsername;
+    }
+
+    public void setMailUsername(String mailUsername) {
+        this.mailUsername = mailUsername;
+    }
+
 }

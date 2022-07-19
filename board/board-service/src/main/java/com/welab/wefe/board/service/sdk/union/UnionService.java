@@ -30,8 +30,8 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
@@ -70,7 +70,7 @@ public class UnionService extends AbstractUnionService {
      * 更新资源信息，使用此接口更新时，数据不会立即更新，有延迟。
      */
     public void lazyUpdateDataResource(DataResourceMysqlModel model) throws StatusCodeWithException {
-        MemberInfoModel member = globalConfigService.getMemberInfo();
+        MemberInfoModel member = globalConfigService.getModel(MemberInfoModel.class);
         if (!member.getMemberAllowPublicDataSet() || member.getMemberHidden()) {
             return;
         }
@@ -95,7 +95,7 @@ public class UnionService extends AbstractUnionService {
         JObject params = JObject.create(model)
                 .append("data_resource_id", model.getId());
 
-        MemberInfoModel member = globalConfigService.getMemberInfo();
+        MemberInfoModel member = globalConfigService.getModel(MemberInfoModel.class);
         // If data exposure is prohibited globally, it will not be reported.
         if (!member.getMemberAllowPublicDataSet() || member.getMemberHidden()) {
             return;

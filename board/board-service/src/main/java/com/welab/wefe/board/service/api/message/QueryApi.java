@@ -25,7 +25,10 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.MessageEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * @author Zane
@@ -43,30 +46,18 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<MessageOu
 
     public static class Input extends PagingInput {
         @Check(name = "消息级别")
-        private String level;
+        public String level;
 
         @Check(name = "是否未读")
-        private Boolean unread;
+        public Boolean unread;
 
-        //region getter/setter
+        @Check(name = "事件列表")
+        public List<MessageEvent> eventList;
 
-        public String getLevel() {
-            return level;
-        }
+        @Check(name = "是否是待办事项")
+        public Boolean todo;
 
-        public void setLevel(String level) {
-            this.level = level;
-        }
-
-        public Boolean getUnread() {
-            return unread;
-        }
-
-        public void setUnread(Boolean unread) {
-            this.unread = unread;
-        }
-
-
-        //endregion
+        @Check(name = "待办事项是否已处理")
+        public Boolean todoComplete;
     }
 }

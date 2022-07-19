@@ -31,10 +31,15 @@ import operator
 import numpy as np
 
 from common.python.calculation.acceleration import aclr
+from common.python.calculation.acceleration.operator import cal
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
+from common.python.common import consts
 from common.python.session import is_table
+from common.python.utils import conf_utils
 from common.python.utils import log_utils
 from common.python.utils.member import Member
 from kernel.security.fixedpoint import FixedPointEndec
+from kernel.security.paillier import PaillierEncryptedNumber
 from kernel.security.protol.spdz.beaver_triples import beaver_triplets
 from kernel.security.protol.spdz.tensor import fixedpoint_numpy
 from kernel.security.protol.spdz.tensor.base import TensorBase
@@ -42,6 +47,11 @@ from kernel.security.protol.spdz.utils import NamingService
 from kernel.security.protol.spdz.utils import urand_tensor
 
 LOGGER = log_utils.get_logger()
+
+
+def get_gpu_batch(algo_type='paillier_table_dot'):
+    return int(aclr.gpu_device_info('max_array_size', algo_type) / int(conf_utils.get_comm_config(
+        consts.COMM_CONF_KEY_GPU_INSTANCE, 1)))
 
 
 def _table_binary_op(x, y, op):
@@ -75,10 +85,53 @@ def _table_dot_func(it):
 
 
 def table_dot(a_table, b_table):
-    # source code
-    return a_table.join(b_table, lambda x, y: [x, y]) \
-        .applyPartitions(lambda it: _table_dot_func(it)) \
-        .reduce(lambda x, y: x if y is None else y if x is None else x + y)
+    if check_aclr_support() and isinstance(a_table.take()[0][1][0], PaillierEncryptedNumber):
+        new_table = list(a_table.join(b_table, lambda x, y: [x, y]).collect())
+
+        if a_table.count() > 0:
+            a_tables = [x[1][0] for x in new_table]
+            b_tables = [x[1][1] for x in new_table]
+            if type(a_tables[0][0]) == int:
+                # 此处如果用type== int 进行转换，程序会自动转为 int64，后续的table_dot 会溢出，随后报错
+                a_new_tables = np.array(a_tables)
+                b_new_tables = np.array(b_tables)
+                print(f'int type(b_tables[0][0]): {type(b_tables[0][0])}')
+            else:
+                a_new_tables = np.array(a_tables).astype(type(a_tables[0][0]))
+                b_new_tables = np.array(b_tables).astype(type(b_tables[0][0]))
+                print(f'type(b_tables[0][0]): {type(b_tables[0][0])}')
+
+            rows, cols = a_new_tables.shape
+            print(f'a_new_tables len :{len(a_new_tables)}, rows:{rows}, cols:{cols}')
+            print(f'b_new_tables len :{len(b_new_tables)}')
+            # 获取 GPU 可执行批量数
+            gpu_table_dot_batch = int(get_gpu_batch() / cols)
+            LOGGER.debug(f'gpu_table_dot_batch: {gpu_table_dot_batch}')
+            # 分批调用，防止 GPU 显存不足
+            table_batch_a = [a_new_tables[i:i + gpu_table_dot_batch] for i in
+                             range(0, len(a_new_tables), gpu_table_dot_batch)]
+            table_batch_b = [b_new_tables[i:i + gpu_table_dot_batch] for i in
+                             range(0, len(b_new_tables), gpu_table_dot_batch)]
+            rs = None
+
+            for i in range(len(table_batch_a)):
+                i_rs = aclr.table_dot_gpu(table_batch_a[i], table_batch_b[i])
+                if rs is None:
+                    rs = i_rs
+                else:
+                    # 调用 矩阵相加
+                    row, col = rs.shape
+                    arr1 = rs.flatten('A')
+                    arr2 = i_rs.flatten('A')
+                    rs = cal.gpu_paillier_array_pen_add_pen(arr1, arr2).reshape(row, col)
+            return rs
+        else:
+            return []
+    else:
+        rs = a_table.join(b_table, lambda x, y: [x, y]) \
+            .applyPartitions(lambda it: _table_dot_func(it)) \
+            .reduce(lambda x, y: x if y is None else y if x is None else x + y)
+        return rs
 
 
 def table_dot_mod(a_table, b_table, q_field):

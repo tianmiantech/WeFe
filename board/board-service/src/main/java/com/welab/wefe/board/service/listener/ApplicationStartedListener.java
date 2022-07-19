@@ -17,11 +17,12 @@
 package com.welab.wefe.board.service.listener;
 
 import cn.hutool.core.thread.ThreadUtil;
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.chat.MessageQueueMySqlModel;
 import com.welab.wefe.board.service.database.repository.ChatUnreadMessageRepository;
+import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.MemberChatService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,18 +43,25 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationStartedListener.class);
 
     @Autowired
+    private Config config;
+
+    @Autowired
     MemberChatService memberChatService;
 
     @Autowired
     ChatUnreadMessageRepository statUnreadMessageRepository;
     @Autowired
     private GlobalConfigService globalConfigService;
+    @Autowired
+    private DataSetStorageService dataSetStorageService;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         try {
             globalConfigService.init();
-        } catch (StatusCodeWithException e) {
+
+            dataSetStorageService.initStorage();
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
         startChatListener();

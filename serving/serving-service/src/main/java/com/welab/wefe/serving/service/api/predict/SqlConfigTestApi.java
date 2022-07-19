@@ -29,7 +29,6 @@ import com.welab.wefe.serving.service.feature.SqlFeatureDataHandler;
 @Api(
         path = "predict/sql_config_test",
         name = "sql脚本测试i"
-//        domain = Caller.Customer
 )
 public class SqlConfigTestApi extends AbstractApi<SqlConfigTestApi.Input, Object> {
 

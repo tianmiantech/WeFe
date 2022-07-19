@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.api.project.dataset;
 
 import com.welab.wefe.board.service.service.ProjectService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -36,7 +35,7 @@ public class RemoveDataSetApi extends AbstractNoneOutputApi<RemoveDataSetApi.Inp
     ProjectService service;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<?> handler(Input input) throws Exception {
         service.removeDataSet(input);
         return success();
     }

@@ -77,7 +77,7 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        unionService.initializeSystem(globalConfigService.getMemberInfo());
+        unionService.initializeSystem(globalConfigService.getModel(MemberInfoModel.class));
 
         for (TableDataSetMysqlModel model : tableDataSetRepository.findAll()) {
             unionService.upsertDataResource(model);
@@ -95,14 +95,14 @@ public class SystemInitializeService extends AbstractService {
      * Synchronize member information to union for the recovery of membership after union data is lost.
      */
     public synchronized void syncMemberToServing(String phoneNumber, String password) throws StatusCodeWithException {
-        servingService.refreshMemberInfo(globalConfigService.getMemberInfo(), config.getUnionBaseUrl(), phoneNumber, password);
+        servingService.refreshMemberInfo(globalConfigService.getModel(MemberInfoModel.class), config.getUnionBaseUrl(), phoneNumber, password);
     }
 
     /**
      * Is the system initialized
      */
     public boolean isInitialized() {
-        return globalConfigService.getMemberInfo() != null;
+        return globalConfigService.getModel(MemberInfoModel.class) != null;
     }
 
     /**
@@ -137,7 +137,7 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         CacheObjects.refreshMemberInfo();
 
@@ -153,7 +153,7 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
         model.setMemberName(input.getMemberName());
         model.setMemberEmail(input.getMemberEmail());
         model.setMemberMobile(input.getMemberMobile());
@@ -161,7 +161,7 @@ public class SystemInitializeService extends AbstractService {
         model.setMemberGatewayUri(input.getMemberGatewayUri());
         model.setMemberHidden(input.getMemberHidden());
 
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         unionService.uploadMemberInfoExcludeLogo(model);
 
@@ -179,7 +179,7 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
 
         try {
             SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(model.getSecretKeyType());
@@ -191,7 +191,7 @@ public class SystemInitializeService extends AbstractService {
 
         // notify union
         unionService.resetPublicKey(model);
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         // Update serving global settings
 //        servingService.asynRefreshMemberInfo(model);
@@ -213,9 +213,9 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
         model.setMemberLogo(input.getMemberLogo());
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         unionService.updateMemberLogo(model);
     }

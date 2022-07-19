@@ -23,13 +23,23 @@ public enum DataResourceType {
     /**
      * 二维表结构的数据集，用于常规机器学习（LR、XGB）
      */
-    TableDataSet,
+    TableDataSet("结构化数据集"),
     /**
      * 图片形式的数据集，用于深度学习。
      */
-    ImageDataSet,
+    ImageDataSet("图像数据集"),
     /**
      * 布隆过滤器
      */
-    BloomFilter
+    BloomFilter("过滤器数据");
+
+    private final String label;
+
+    DataResourceType(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
+    }
 }

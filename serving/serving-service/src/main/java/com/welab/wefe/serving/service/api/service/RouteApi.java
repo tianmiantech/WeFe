@@ -16,8 +16,6 @@
 
 package com.welab.wefe.serving.service.api.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -27,8 +25,9 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.service.ServiceService;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Api(path = "api", name = "api service", forward = true, login = false, rsaVerify = true, domain = Caller.Customer)
+@Api(path = "api", name = "api service", forward = true, allowAccessWithSign = true, domain = Caller.Customer)
 public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
     @Autowired

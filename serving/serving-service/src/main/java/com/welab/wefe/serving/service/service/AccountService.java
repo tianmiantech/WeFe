@@ -17,19 +17,9 @@
 package com.welab.wefe.serving.service.service;
 
 
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
@@ -44,19 +34,23 @@ import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
-import com.welab.wefe.serving.service.api.account.AuditApi;
-import com.welab.wefe.serving.service.api.account.EnableApi;
-import com.welab.wefe.serving.service.api.account.ForgetPasswordApi;
+import com.welab.wefe.serving.service.api.account.*;
 import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
-import com.welab.wefe.serving.service.api.account.QueryApi;
-import com.welab.wefe.serving.service.api.account.RegisterApi;
-import com.welab.wefe.serving.service.api.account.ResetPasswordApi;
-import com.welab.wefe.serving.service.api.account.UpdateApi;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.verificationcode.VerificationCodeService;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * @author Zane
@@ -69,7 +63,7 @@ public class AccountService extends AbstractAccountService {
 
     @Autowired
     private VerificationCodeService verificationCodeService;
-    
+
     /**
      * Paging query
      */
@@ -119,7 +113,7 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("该手机号已注册", StatusCode.DATA_EXISTED);
         }
 
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
 
         String password = hashPasswordWithSalt(input.getPassword(), salt);
 
@@ -207,7 +201,7 @@ public class AccountService extends AbstractAccountService {
      * Paging query account
      */
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) throws StatusCodeWithException {
-        
+
         Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus()).contains("nickname", input.getNickname())
                 .orderBy("createdTime", OrderBy.desc).build(AccountMySqlModel.class);
@@ -342,7 +336,7 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
         }
 
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         String newPassword = RandomStringUtils.randomAlphanumeric(2) + new Random().nextInt(999999);
 
         String websitePassword = model.getPhoneNumber() + newPassword + model.getPhoneNumber() + model.getPhoneNumber().substring(0, 3) + newPassword.substring(newPassword.length() - 3);
@@ -366,7 +360,7 @@ public class AccountService extends AbstractAccountService {
         model.setHistoryPasswordList(historyPasswords);
         accountRepository.save(model);
     }
-    
+
     public void forgetPassword(ForgetPasswordApi.Input input) throws StatusCodeWithException {
         if (StringUtil.isEmpty(input.getPhoneNumber())) {
             throw new StatusCodeWithException("手机号不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
@@ -402,7 +396,7 @@ public class AccountService extends AbstractAccountService {
         String historyPasswordListString = JSON.toJSONString(accountInfo.getPasswordHistoryList(historyCount - 1));
 
         // Regenerate salt
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         model.setSalt(salt);
         model.setPassword(Sha1.of(input.getPassword() + salt));
         model.setHistoryPasswordList(JSON.parseArray(historyPasswordListString));

@@ -22,6 +22,7 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
@@ -38,9 +39,8 @@ import java.util.Map;
 @Api(
         path = "predict/provider",
         name = "Model to predict",
-        login = false,
-        rsaVerify = true
-//        domain = Caller.Member
+        allowAccessWithSign = true,
+        domain = Caller.Member
 )
 public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {
 
