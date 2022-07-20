@@ -54,7 +54,7 @@
 </template>
 
 <script>
-    import { reactive } from 'vue';
+    import { reactive, getCurrentInstance } from 'vue';
     import dataStore from '../data-store-mixin';
 
     export default {
@@ -69,6 +69,9 @@
             class:        String,
         },
         setup(props) {
+            const { appContext } = getCurrentInstance();
+            const { $http } = appContext.config.globalProperties;
+
             let vData = reactive({
                 bin_method: [
                     { value: 'bucket',text: '等宽' },
@@ -99,6 +102,19 @@
                     return {
                         params: vData.form,
                     };
+                },
+                async getNodeDetail(model) {
+                    const { code, data } = await $http.get({
+                        url:    '/project/flow/node/detail',
+                        params: {
+                            nodeId:  model.id,
+                            flow_id: props.flowId,
+                        },
+                    });
+
+                    if (code === 0 && data && data.params && Object.keys(data.params).length) {
+                        vData.form = data.params;
+                    }
                 },
             };
 
