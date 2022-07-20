@@ -59,6 +59,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
@@ -112,159 +113,78 @@ public class CertUtils {
         return new X509ExtensionUtils(digCalc).createAuthorityKeyIdentifier(publicKeyInfo);
     }
 
-    public static PEMKeyPair readKey(String filePath) throws FileNotFoundException {
-        Object object = readPEMObject(filePath);
-        if (object instanceof PEMKeyPair) {
-            return (PEMKeyPair) object;
+    /**
+     * read PriKey from Pfx
+     * 
+     * @param filePath pfx filepath
+     * @param pwd      password
+     * @return PrivateKey
+     */
+    public static PrivateKey readPriKeyFromPfx(String filePath, String pwd) throws Exception {
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        FileInputStream fis = new FileInputStream(filePath);
+        // If the keystore password is empty(""), then we have to set
+        // to null, otherwise it won't work!!!
+        char[] nPassword = null;
+        if ((pwd != null) && !pwd.trim().equals("")) {
+            nPassword = pwd.toCharArray();
         }
-        return null;
+        ks.load(fis, nPassword);
+        fis.close();
+        Enumeration<String> enum1 = ks.aliases();
+        String keyAlias = null;
+        if (enum1.hasMoreElements()) {
+            keyAlias = enum1.nextElement();
+        }
+        return (PrivateKey) ks.getKey(keyAlias, nPassword);
     }
 
-    public static Key readRSAKey(String filePath) throws Exception {
-        Object object = readPEMObject(filePath);
-        if (object instanceof PEMKeyPair) {
-            return KeyFactory.getInstance("RSA")
-                    .generatePrivate(new PKCS8EncodedKeySpec(((PEMKeyPair) object).getPrivateKeyInfo().getEncoded()));
+    /**
+     * read PriKey from Pfx
+     * 
+     * @param filePath pfx filepath
+     * @param pwd      password
+     * @return PrivateKey
+     */
+    public static PrivateKey readPriKeyFromJks(String filePath, String pwd) throws Exception {
+        KeyStore ks = KeyStore.getInstance("JKS");
+        FileInputStream fis = new FileInputStream(filePath);
+        // If the keystore password is empty(""), then we have to set
+        // to null, otherwise it won't work!!!
+        char[] nPassword = null;
+        if ((pwd != null) && !pwd.trim().equals("")) {
+            nPassword = pwd.toCharArray();
         }
-        return null;
+        ks.load(fis, nPassword);
+        fis.close();
+        Enumeration<String> enum1 = ks.aliases();
+        String keyAlias = null;
+        if (enum1.hasMoreElements()) {
+            keyAlias = enum1.nextElement();
+        }
+        return (PrivateKey) ks.getKey(keyAlias, nPassword);
     }
 
-    public static void writeKey(Key key, String filePath) {
-        writeToFile(key, filePath);
-    }
-
-    public static X509Certificate readCrt(String filePath) throws CertificateException, FileNotFoundException {
-        Object object = readPEMObject(filePath);
-        if (object instanceof X509CertificateHolder) {
-            return new JcaX509CertificateConverter().setProvider("BC").getCertificate((X509CertificateHolder) object);
+    public static void importCertToTrustStore(final String alias, final X509Certificate cert, String filename,
+            String password) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
+        if (StringUtils.isBlank(password)) {
+            password = "0xCafebabe";
         }
-        return null;
-    }
-
-    public static X509CRL readCrl(String filePath) throws FileNotFoundException, CRLException {
-        Object object = readPEMObject(filePath);
-        if (object instanceof X509CRLHolder) {
-            return new JcaX509CRLConverter().setProvider("BC").getCRL((X509CRLHolder) object);
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType()); // jks
+        try (final InputStream is = new FileInputStream(filename)) {
+            ks.load(is, password.toCharArray());
+        } catch (FileNotFoundException e) {
+            ks.load(null, password.toCharArray());
         }
-        return null;
-    }
-
-    public static void writeCrl(X509CRL crl, String filePath) {
-        writeToFile(crl, filePath);
-    }
-
-    public static X509Certificate convertStrToCert(String crtStr) throws CertificateException {
-        Object object = readStringAsPEM(crtStr);
-        if (object instanceof X509CertificateHolder) {
-            return new JcaX509CertificateConverter().setProvider("BC").getCertificate((X509CertificateHolder) object);
+        ks.setCertificateEntry(alias, cert);
+        final File f = new File(filename);
+        final File dir = f.getParentFile();
+        if (dir != null && !dir.exists()) {
+            dir.mkdirs();
         }
-        return null;
-    }
-
-    public static PKCS10CertificationRequest convertStrToCsr(String csrStr) {
-        Object object = readStringAsPEM(csrStr);
-        if (object instanceof PKCS10CertificationRequest) {
-            return (PKCS10CertificationRequest) object;
+        try (final OutputStream os = new FileOutputStream(filename)) {
+            ks.store(os, password.toCharArray());
         }
-        return null;
-    }
-
-    public static void writeCrt(X509Certificate certificate, String filePath) {
-        writeToFile(certificate, filePath);
-    }
-
-    public static PKCS10CertificationRequest readCsr(String filePath) throws FileNotFoundException {
-        Object object = readPEMObject(filePath);
-        if (object instanceof PKCS10CertificationRequest) {
-            return (PKCS10CertificationRequest) object;
-        }
-        return null;
-    }
-
-    public static void writeCsr(PKCS10CertificationRequest request, String filePath) {
-        writeToFile(request, filePath);
-    }
-
-    public static void writeToFile(Object object, String filePath) {
-        try (JcaPEMWriter pw = new JcaPEMWriter(new FileWriter(filePath))) {
-            pw.writeObject(object);
-        } catch (IOException e) {
-            LOG.error("writeObject failed", e);
-        }
-    }
-    
-    public static void writeToPKCS8File(PrivateKey key, String filePath) {
-        try (JcaPEMWriter pw = new JcaPEMWriter(new FileWriter(filePath))) {
-            pw.writeObject(new JcaPKCS8Generator(key, null));
-        } catch (IOException e) {
-            LOG.error("writeObject failed", e);
-        }
-    }
-
-    public static Object readPEMObject(String filePath) throws FileNotFoundException {
-        if (!FileOperationUtils.exist(filePath)) {
-            throw new FileNotFoundException("filePath does't exist，path = " + filePath);
-        }
-        PemReader pemReader = null;
-        Object object = null;
-        try {
-            pemReader = new PemReader(new FileReader(filePath));
-            PEMParser pemParser = new PEMParser(pemReader);
-            object = pemParser.readObject();
-        } catch (IOException e) {
-            LOG.error("readPEMObject failed", e);
-        } finally {
-            if (pemReader != null) {
-                try {
-                    pemReader.close();
-                } catch (IOException e) {
-                    LOG.error("pemReader.close failed", e);
-                }
-            }
-        }
-        return object;
-    }
-
-    public static String readPEMAsString(Object object) {
-        String result = null;
-        StringWriter writer = new StringWriter();
-        JcaPEMWriter pw = new JcaPEMWriter(writer);
-        try {
-            pw.writeObject(object);
-        } catch (IOException e) {
-            LOG.error("pw.writeObject failed ", e);
-        } finally {
-            try {
-                writer.close();
-                pw.close();
-            } catch (IOException e) {
-                LOG.error("io close failed", e);
-            }
-        }
-        if (writer.getBuffer() != null) {
-            result = writer.getBuffer().toString();
-        }
-        return result;
-    }
-
-    public static Object readStringAsPEM(String string) {
-        StringReader reader = new StringReader(string);
-        PemReader pemReader = new PemReader(reader);
-        PEMParser pemParser = new PEMParser(pemReader);
-        Object object = null;
-        try {
-            object = pemParser.readObject();
-        } catch (IOException e) {
-            LOG.error("readPEMObject failed", e);
-        } finally {
-            try {
-                reader.close();
-                pemReader.close();
-            } catch (IOException e) {
-                LOG.error("pemReader.close failed", e);
-            }
-        }
-        return object;
     }
 
     /**
@@ -292,79 +212,263 @@ public class CertUtils {
                 out.close();
         }
     }
-    
 
     /**
-     * read PriKey from Pfx
+     * 对象转pem编码的Str
      * 
-     * @param filePath pfx filepath
-     * @param pwd      password
-     * @return PrivateKey
+     * @param object 对象
+     * @return
      */
-    public static PrivateKey readPriKeyFromPfx(String filePath, String pwd) throws Exception {
-        KeyStore ks = KeyStore.getInstance("PKCS12");
-        FileInputStream fis = new FileInputStream(filePath);
-        // If the keystore password is empty(""), then we have to set
-        // to null, otherwise it won't work!!!
-        char[] nPassword = null;
-        if ((pwd != null) && !pwd.trim().equals("")) {
-            nPassword = pwd.toCharArray();
+    public static String readPEMAsString(Object object) {
+        String result = null;
+        StringWriter writer = new StringWriter();
+        JcaPEMWriter pw = new JcaPEMWriter(writer);
+        try {
+            pw.writeObject(object);
+        } catch (IOException e) {
+            LOG.error("pw.writeObject failed ", e);
+        } finally {
+            try {
+                writer.close();
+                pw.close();
+            } catch (IOException e) {
+                LOG.error("io close failed", e);
+            }
         }
-        ks.load(fis, nPassword);
-        fis.close();
-        Enumeration<String> enum1 = ks.aliases();
-        String keyAlias = null;
-        if (enum1.hasMoreElements()) {
-            keyAlias = enum1.nextElement();
+        if (writer.getBuffer() != null) {
+            result = writer.getBuffer().toString();
         }
-        return (PrivateKey) ks.getKey(keyAlias, nPassword);
-    }
-    
-    /**
-     * read PriKey from Pfx
-     * 
-     * @param filePath pfx filepath
-     * @param pwd      password
-     * @return PrivateKey
-     */
-    public static PrivateKey readPriKeyFromJks(String filePath, String pwd) throws Exception {
-        KeyStore ks = KeyStore.getInstance("JKS");
-        FileInputStream fis = new FileInputStream(filePath);
-        // If the keystore password is empty(""), then we have to set
-        // to null, otherwise it won't work!!!
-        char[] nPassword = null;
-        if ((pwd != null) && !pwd.trim().equals("")) {
-            nPassword = pwd.toCharArray();
-        }
-        ks.load(fis, nPassword);
-        fis.close();
-        Enumeration<String> enum1 = ks.aliases();
-        String keyAlias = null;
-        if (enum1.hasMoreElements()) {
-            keyAlias = enum1.nextElement();
-        }
-        return (PrivateKey) ks.getKey(keyAlias, nPassword);
+        return result;
     }
 
-    public static void importCertToTrustStore(final String alias, final X509Certificate cert, String filename, String password)
-            throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
-        if (StringUtils.isBlank(password)) {
-            password = "0xCafebabe";
+    /**
+     * pem编码的字符串str转证书对象
+     * 
+     * @param crtStr 证书内容
+     * @return
+     */
+    public static X509Certificate convertStrToCert(String crtStr) throws CertificateException {
+        Object object = convertPemStrToObject(crtStr);
+        if (object instanceof X509CertificateHolder) {
+            return new JcaX509CertificateConverter().setProvider("BC").getCertificate((X509CertificateHolder) object);
         }
-        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType()); // jks
-        try (final InputStream is = new FileInputStream(filename)) {
-            ks.load(is, password.toCharArray());
-        } catch (FileNotFoundException e) {
-            ks.load(null, password.toCharArray());
+        return null;
+    }
+
+    /**
+     * pem编码的字符串str转证书请求对象
+     * 
+     * @param csrStr 证书请求内容
+     * @return
+     */
+    public static PKCS10CertificationRequest convertStrToCsr(String csrStr) {
+        Object object = convertPemStrToObject(csrStr);
+        if (object instanceof PKCS10CertificationRequest) {
+            return (PKCS10CertificationRequest) object;
         }
-        ks.setCertificateEntry(alias, cert);
-        final File f = new File(filename);
-        final File dir = f.getParentFile();
-        if (dir != null && !dir.exists()) {
-            dir.mkdirs();
+        return null;
+    }
+
+    /**
+     * pem编码的字符串str转对象
+     * 
+     * @param str 内容
+     * @return
+     */
+    public static Object convertPemStrToObject(String pemStr) {
+        StringReader reader = new StringReader(pemStr);
+        PemReader pemReader = new PemReader(reader);
+        PEMParser pemParser = new PEMParser(pemReader);
+        Object object = null;
+        try {
+            object = pemParser.readObject();
+        } catch (IOException e) {
+            LOG.error("readPEMObject failed", e);
+        } finally {
+            try {
+                reader.close();
+                pemReader.close();
+            } catch (IOException e) {
+                LOG.error("pemReader.close failed", e);
+            }
         }
-        try (final OutputStream os = new FileOutputStream(filename)) {
-            ks.store(os, password.toCharArray());
+        return object;
+    }
+
+    /**
+     * 将csr对象写入文件
+     * 
+     * @param request
+     * @param filePath
+     */
+    public static void writeCsr(PKCS10CertificationRequest request, String filePath) {
+        writeToFileByPem(request, filePath);
+    }
+
+    /**
+     * 将私钥对象写入文件
+     * 
+     * @param key
+     * @param filePath
+     * @see writeToPKCS8File
+     */
+    @Deprecated
+    public static void writeKey(Key key, String filePath) {
+        writeToFileByPem(key, filePath);
+    }
+
+    /**
+     * 将私钥对象写入文件
+     * 
+     * @param key
+     * @param filePath
+     */
+    public static void writeToPKCS8File(PrivateKey key, String filePath) {
+        try (JcaPEMWriter pw = new JcaPEMWriter(new FileWriter(filePath))) {
+            pw.writeObject(new JcaPKCS8Generator(key, null));
+        } catch (IOException e) {
+            LOG.error("writeObject failed", e);
         }
     }
+
+    /**
+     * 将证书吊销列表对象写入文件
+     * 
+     * @param crl
+     * @param filePath
+     */
+    public static void writeCrl(X509CRL crl, String filePath) {
+        writeToFileByPem(crl, filePath);
+    }
+
+    /**
+     * 将证书写入文件
+     * 
+     * @param certificate
+     * @param filePath
+     */
+    public static void writeCrt(X509Certificate certificate, String filePath) {
+        writeToFileByPem(certificate, filePath);
+    }
+
+    /**
+     * 以pem编码方式将对象写入文件
+     * 
+     * @param object   pem编码对象
+     * @param filePath 文件路径
+     */
+    public static void writeToFileByPem(Object object, String filePath) {
+        // // PEMWriter 不需要我们去处理Base64编码的问题
+        try (JcaPEMWriter pw = new JcaPEMWriter(new FileWriter(filePath))) {
+            pw.writeObject(object);
+        } catch (IOException e) {
+            LOG.error("writeObject failed", e);
+        }
+    }
+
+    /**
+     * 从文件中读取csr对象
+     * 
+     * @param filePath
+     * @return
+     * @throws FileNotFoundException
+     */
+    public static PKCS10CertificationRequest readCsr(String filePath) throws FileNotFoundException {
+        Object object = readPEMObjectFromFile(filePath);
+        if (object instanceof PKCS10CertificationRequest) {
+            return (PKCS10CertificationRequest) object;
+        }
+        return null;
+    }
+
+    /**
+     * 从文件中读取证书
+     * 
+     * @param filePath 证书文件路径
+     * @return
+     * @throws CertificateException
+     * @throws FileNotFoundException
+     */
+    public static X509Certificate readCrt(String filePath) throws CertificateException, FileNotFoundException {
+        Object object = readPEMObjectFromFile(filePath);
+        if (object instanceof X509CertificateHolder) {
+            return new JcaX509CertificateConverter().setProvider("BC").getCertificate((X509CertificateHolder) object);
+        }
+        return null;
+    }
+
+    /**
+     * 从文件中读取 CRL 证书吊销列表
+     * 
+     * @param filePath crl文件路径
+     * @return
+     * @throws FileNotFoundException
+     * @throws CRLException
+     */
+    public static X509CRL readCrl(String filePath) throws FileNotFoundException, CRLException {
+        Object object = readPEMObjectFromFile(filePath);
+        if (object instanceof X509CRLHolder) {
+            return new JcaX509CRLConverter().setProvider("BC").getCRL((X509CRLHolder) object);
+        }
+        return null;
+    }
+
+    /**
+     * 从文件中读取私钥
+     * 
+     * @param filePath 私钥文件
+     * @return
+     * @throws FileNotFoundException
+     */
+    public static PEMKeyPair readKey(String filePath) throws FileNotFoundException {
+        Object object = readPEMObjectFromFile(filePath);
+        if (object instanceof PEMKeyPair) {
+            return (PEMKeyPair) object;
+        }
+        return null;
+    }
+
+    /**
+     * 从文件中读取RSA私钥
+     * 
+     * @param filePath 私钥文件
+     * @return
+     * @throws Exception
+     */
+    public static Key readRSAKey(String filePath) throws Exception {
+        Object object = readPEMObjectFromFile(filePath);
+        if (object instanceof PEMKeyPair) {
+            // 获取密钥工厂
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PrivateKeyInfo privateKeyInfo = ((PEMKeyPair) object).getPrivateKeyInfo();
+            // 构建密钥规范
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyInfo.getEncoded());
+            // 生成私钥
+            return keyFactory.generatePrivate(spec);
+        }
+        return null;
+    }
+
+    /**
+     * PEM是 DER 证书的 base-64 编码机制。 DER是最流行的编码格式，用于在文件中存储 X.509 证书、PKCS8 私钥等数据。
+     * 
+     * @param filePath pem编码文件
+     * @return
+     * @throws FileNotFoundException
+     */
+    private static Object readPEMObjectFromFile(String filePath) throws FileNotFoundException {
+        if (!FileOperationUtils.exist(filePath)) {
+            throw new FileNotFoundException("filePath does't exist，path = " + filePath);
+        }
+        Object object = null;
+        // PemReader 不需要我们去处理标头和Base64解码的问题
+        try (PemReader pemReader = new PemReader(new FileReader(filePath));
+                PEMParser pemParser = new PEMParser(pemReader);) {
+            object = pemParser.readObject();
+        } catch (IOException e) {
+            LOG.error("readPEMObject failed", e);
+        }
+        return object;
+    }
+
 }

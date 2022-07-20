@@ -206,7 +206,7 @@ public class KeyUtils {
 	}
 
 	public static KeyPair getECKeyPair(String privateStr) throws Exception {
-		PEMKeyPair pemObject = (PEMKeyPair) CertUtils.readStringAsPEM(privateStr);
+		PEMKeyPair pemObject = (PEMKeyPair) CertUtils.convertPemStrToObject(privateStr);
 		PrivateKey privateKey = KeyFactory.getInstance("EC").generatePrivate(
 				new PKCS8EncodedKeySpec(pemObject.getPrivateKeyInfo().getEncoded()));
 		PublicKey publicKey = getPublicKey((ECPrivateKey) privateKey);
@@ -214,7 +214,7 @@ public class KeyUtils {
 	}
 
 	public static KeyPair getRSAKeyPair(String privateStr) throws Exception {
-		PEMKeyPair pemObject = (PEMKeyPair) CertUtils.readStringAsPEM(privateStr);
+		PEMKeyPair pemObject = (PEMKeyPair) CertUtils.convertPemStrToObject(privateStr);
 		if (pemObject == null) {
 			throw new RuntimeException("missing pemPrivateKey string coding");
 		}
