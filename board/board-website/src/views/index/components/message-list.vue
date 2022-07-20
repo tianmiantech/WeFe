@@ -91,13 +91,13 @@
                         <template #title>
                             <!-- <span :class="[item.unread ? 'warning' : 'success', 'mr5 ml5']">{{item.unread ? '[未读]' : '[已读]'}}</span> -->
                             <span v-if="item.unread" class="unread_tips"></span>
-                            {{ item.title }}
+                            <p :class="{'collapse-title': windowWidth<=1440, 'mr5': true}">{{ item.title }}</p>
                             <el-icon v-if="item.unread" class="el-icon-message unread-icon">
                                 <elicon-message />
                             </el-icon>
                             <span class="time">{{ dateFormat(item.created_time) }}</span>
                         </template>
-                        <div v-if="activeName === 'cooperateNotice' && item.level !== 'error'" class="list_detail">
+                        <div v-if="activeName === 'cooperateNotice'" class="list_detail">
                             <div>
                                 <p>{{item.project.title}}</p>
                                 <p>申请成员：{{item.project.from_member_name}}</p>
