@@ -4,14 +4,26 @@
         class="result"
     >
         <template v-if="vData.commonResultData.task">
-            <CommonResult
-                :result="vData.commonResultData"
-                :currentObj="currentObj"
-                :jobDetail="jobDetail"
-            />
-            <div v-if="vData.resultConfigs.length">
-                <el-divider></el-divider>
-            </div>
+            <el-collapse v-model="activeName">
+                <el-collapse-item title="基础信息" name="1">
+                    <CommonResult :result="vData.commonResultData"  :currentObj="currentObj" :jobDetail="jobDetail"/>
+                </el-collapse-item>
+                <el-collapse-item title="特征评分表" name="2">
+                    <el-table :data="vData.resultTableData" stripe :border="true" style="width :100%" class="fold-table">
+                        <el-table-column type="expand">
+                            <template #default="props">
+                                <el-table :data="vData.resultTableData[props.$index].inlineTable" stripe border>
+                                    <el-table-column label="分箱" prop="binning" />
+                                    <el-table-column label="评分" prop="score" />
+                                    <el-table-column label="woe" prop="woe" />
+                                    <el-table-column label="特征权重" prop="weight" />
+                                </el-table>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="特征名称" prop="feature"></el-table-column>
+                    </el-table>
+                </el-collapse-item>
+            </el-collapse>
         </template>
         <div
             v-else
@@ -23,7 +35,7 @@
 </template>
 
 <script>
-    import { reactive, ref, onBeforeMount, getCurrentInstance, nextTick } from 'vue';
+    import { reactive, ref, onBeforeMount } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
 
@@ -38,16 +50,29 @@
             ...mixin.props,
         },
         setup(props, context) {
-            const { appContext } = getCurrentInstance();
-            const { $bus } = appContext.config.globalProperties;
+            const activeName = ref('1');
 
             let vData = reactive({
-                resultTypes:   ['metric'],
-                resultConfigs: [],
+                resultTypes:     ['metric'],
+                resultConfigs:   [],
+                resultTableData: [],
             });
 
             let methods = {
-                
+                showResult(data) {
+                    if (data && data[0] && data[0].result) {
+                        const { result } = data[0], outerTable = [];
+
+                        for (const key in result) {
+                            console.log(key);
+                            outerTable.push({
+                                feature:     key,
+                                inlineTable: [...result[key]],
+                            });
+                        }
+                        vData.resultTableData = outerTable;
+                    }
+                },
             };
 
             onBeforeMount(() => {
@@ -67,6 +92,7 @@
             return {
                 vData,
                 methods,
+                activeName,
             };
         },
     };
