@@ -268,11 +268,11 @@
                 switch(val.paneName) {
                 case 'todoList':
                     this.message_search.todo = true;
-                    this.message_search.eventList = ['ApplyJoinProject', 'ApplyDataResource'];
+                    this.message_search.eventList = ['ApplyJoinProject', 'ApplyDataResource', 'AgreeJoinProject'];
                     break;
                 case 'cooperateNotice':
                     this.message_search.eventList = ['AgreeJoinProject', 'DisagreeJoinProject', 'AgreeApplyDataResource', 'DisagreeApplyDataResource'];
-                    if (this.message_search.todo !== '') delete this.message_search.todo;
+                    this.message_search.todo = false;
                     break;
                 case 'systemMsg':
                     this.message_search.eventList = ['OnGatewayError', 'OnEmailSendFail'];
