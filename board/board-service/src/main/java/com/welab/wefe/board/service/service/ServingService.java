@@ -270,12 +270,6 @@ public class ServingService extends AbstractService {
 
         Map<Integer, Object> featureEngineerMap = getFeatureEngineerMap(taskId, role);
 
-        //TODO 得分分布
-        TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(),
-                null,
-                taskResult.getRole(),
-                TaskResultType.distribution_train_validate.name());
-
         //TODO 评估数据集合
 
         // body
@@ -290,9 +284,19 @@ public class ServingService extends AbstractService {
         params.put("flType", job.getFederatedLearningType().name());
         params.put("memberParams", members);
         params.put("featureEngineerMap", featureEngineerMap);
-        params.put("scoresDistribution", task.getResult());
+        params.put("scoresDistribution", getScoresDistribution(taskResult));
 
         return params;
+    }
+
+    private Object getScoresDistribution(TaskResultMySqlModel taskResult) {
+        TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(), null, taskResult.getRole(), TaskResultType.distribution_train_validate.name());
+        if (task == null) {
+            return null;
+        }
+
+        String key = "train_validate_" + taskResult.getName() + "_scores_distribution";
+        return JObject.create(task.getResult()).get(key);
     }
 
     private String extractName(JobMySqlModel job) {

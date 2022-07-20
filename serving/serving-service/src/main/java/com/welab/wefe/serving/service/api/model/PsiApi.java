@@ -49,17 +49,18 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
     @Override
     protected ApiResult<Output> handle(Input input) throws Exception {
-        //expected
-        TableModelMySqlModel model = tableModelRepository.findOne("serviceId", input.serviceId, TableModelMySqlModel.class);
+        Output output = Output.create(extractExpectedData(input.getServiceId()), extractActualData(input));
+        return success(output);
+    }
 
-        JObject result = extractScoreDistributionData(JObject.create(model.getScoresDistribution()));
-
-        List<Double> dataKey = result
+    private List<List<Object>> extractActualData(Input input) {
+        Map<Double, Integer> count = statisticsRepository.countBy(input.getServiceId(), input.getBeginTime(), input.getEndTime());
+        List<Double> dataKey = count
                 .keySet()
                 .stream()
-                .map(x -> Double.valueOf(x))
                 .sorted()
                 .collect(Collectors.toList());
+        int total = count.entrySet().stream().mapToInt(x -> x.getValue()).sum();
 
         List<List<Object>> dataList = Lists.newArrayList();
 
@@ -68,48 +69,41 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
             dataList.add(
                     Arrays.asList(
                             extractXAxis(dataKey, i, key),
-                            extractYAxis(result, key.toString()),
-                            extractYAxis2(result, key.toString())
-                    )
-            );
-        }
-
-        //actual
-        Map<Double, Integer> count = statisticsRepository.countBy(input.getServiceId(), input.getBeginTime(), input.getEndTime());
-        List<Double> ac = count
-                .keySet()
-                .stream()
-                .sorted()
-                .collect(Collectors.toList());
-        int total = count.entrySet().stream().mapToInt(x -> x.getValue()).sum();
-
-        List<List<Object>> dataList1 = Lists.newArrayList();
-
-        for (int i = 0; i < ac.size(); i++) {
-            Double key = ac.get(i);
-            dataList1.add(
-                    Arrays.asList(
-                            extractXAxis(dataKey, i, key),
                             count.get(key),
                             count.get(key) / total
                     )
             );
         }
-
-        Output output = new Output();
-        output.setExpected(dataList);
-        output.setActual(dataList1);
-
-
-        return success(output);
+        return dataList;
     }
 
-    private JObject extractScoreDistributionData(JObject obj) {
-        String curveKey = "train_validate_VertLR_16196034768611638_scores_distribution";
-        JObject scoresDistributionData = obj.getJObject(curveKey);
-        JObject data = scoresDistributionData.getJObject("data");
-        JObject result = data.getJObject("bin_result");
-        return result;
+    private List<List<Object>> extractExpectedData(String serviceId) {
+
+        TableModelMySqlModel model = tableModelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
+        if (model == null || JObject.create(model.getScoresDistribution()).isEmpty()) {
+            return Lists.newArrayList();
+        }
+
+        JObject result = JObject.create(model.getScoresDistribution()).getJObjectByPath("data.bin_result");
+        List<Double> dataKey = result
+                .keySet()
+                .stream()
+                .map(x -> Double.valueOf(x))
+                .sorted()
+                .collect(Collectors.toList());
+
+        List<List<Object>> dataList = Lists.newArrayList();
+        for (int i = 0; i < dataKey.size(); i++) {
+            Double key = dataKey.get(i);
+            dataList.add(
+                    Arrays.asList(
+                            extractXAxis(dataKey, i, key),
+                            extractYAxis(result, key.toString()),
+                            extractYAxis2(result, key.toString()))
+            );
+        }
+
+        return dataList;
     }
 
     private double extractYAxis2(JObject result, String key) {
@@ -122,7 +116,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
     }
 
     private String extractXAxis(List<Double> dataKey, int i, Double key) {
-        Double beforeKey = i == 0 ? 0 : dataKey.get(i - 1);
+        Double beforeKey = i == 0 ? 0.0 : dataKey.get(i - 1);
         return newScale(beforeKey, 3) + "~" + newScale(key, 3);
     }
 
@@ -136,6 +130,13 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
         private Object expected;
 
         private Object actual;
+
+        public static Output create(Object expected, Object actual) {
+            Output output = new Output();
+            output.expected = expected;
+            output.actual = actual;
+            return output;
+        }
 
         public Object getExpected() {
             return expected;

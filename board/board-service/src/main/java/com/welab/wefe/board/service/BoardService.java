@@ -71,42 +71,42 @@ public class BoardService implements ApplicationContextAware {
                 .apiLogger(new BoardApiLogger())
                 .apiPackageClass(BoardService.class)
                 // 禁止未登录且无验签的访问
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
-                .onApiExceptionFunction((api, e) -> {
-
-                    // When an exception occurs in a node,
-                    // the corresponding nodeId is told to the front end to facilitate friendly prompts by the front end.
-                    if (e instanceof FlowNodeException) {
-                        FlowNodeException flowNodeException = (FlowNodeException) e;
-                        JObject info = JObject
-                                .create()
-                                .put("node_id", flowNodeException.getNode().getNodeId());
-
-                        ApiResult<JObject> response = new ApiResult<>();
-                        response.code = flowNodeException.getStatusCode().getCode();
-                        response.message = e.getMessage();
-                        response.data = info;
-                        return response;
-
-                    }
-
-                    throw e;
-                })
-                .apiPermissionPolicy((api, annotation, params) -> {
-
-                    // 在线体验版专用 api 权限检查
-                    OnlineDemoApi onlineDemoApi = api.getClass().getAnnotation(OnlineDemoApi.class);
-                    if (onlineDemoApi != null) {
-                        Config config = Launcher.getBean(Config.class);
-                        if (!config.isOnlineDemo()) {
-                            throw new StatusCodeWithException("The current environment does not allow this API to be called", StatusCode.SYSTEM_ERROR);
-                        }
-                    }
-
-                    if (annotation.allowAccessWithSign()) {
-                        rsaVerify(params);
-                    }
-                })
+//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
+//                .onApiExceptionFunction((api, e) -> {
+//
+//                    // When an exception occurs in a node,
+//                    // the corresponding nodeId is told to the front end to facilitate friendly prompts by the front end.
+//                    if (e instanceof FlowNodeException) {
+//                        FlowNodeException flowNodeException = (FlowNodeException) e;
+//                        JObject info = JObject
+//                                .create()
+//                                .put("node_id", flowNodeException.getNode().getNodeId());
+//
+//                        ApiResult<JObject> response = new ApiResult<>();
+//                        response.code = flowNodeException.getStatusCode().getCode();
+//                        response.message = e.getMessage();
+//                        response.data = info;
+//                        return response;
+//
+//                    }
+//
+//                    throw e;
+//                })
+//                .apiPermissionPolicy((api, annotation, params) -> {
+//
+//                    // 在线体验版专用 api 权限检查
+//                    OnlineDemoApi onlineDemoApi = api.getClass().getAnnotation(OnlineDemoApi.class);
+//                    if (onlineDemoApi != null) {
+//                        Config config = Launcher.getBean(Config.class);
+//                        if (!config.isOnlineDemo()) {
+//                            throw new StatusCodeWithException("The current environment does not allow this API to be called", StatusCode.SYSTEM_ERROR);
+//                        }
+//                    }
+//
+//                    if (annotation.allowAccessWithSign()) {
+//                        rsaVerify(params);
+//                    }
+//                })
                 .flowLimitByIpFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByIpService(httpServletRequest, api, params).check())
                 .flowLimitByMobileFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByMobileService(httpServletRequest, api, params).check())
                 .launch(BoardService.class, args);

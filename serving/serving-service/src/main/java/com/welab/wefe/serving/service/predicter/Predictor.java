@@ -38,7 +38,7 @@ import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
-import com.welab.wefe.serving.service.service.ModelPredictScoreRecordService;
+import com.welab.wefe.serving.service.service.ModelPredictScoreStatisticsService;
 import com.welab.wefe.serving.service.service.ModelService;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -53,12 +53,12 @@ public class Predictor {
 
     private static ModelMemberService modelMemberService;
     private static ModelService modelService;
-    private static ModelPredictScoreRecordService modelPredictScoreRecordService;
+    private static ModelPredictScoreStatisticsService modelPredictScoreStatisticsService;
 
     static {
         modelMemberService = Launcher.CONTEXT.getBean(ModelMemberService.class);
         modelService = Launcher.CONTEXT.getBean(ModelService.class);
-        modelPredictScoreRecordService = Launcher.CONTEXT.getBean(ModelPredictScoreRecordService.class);
+        modelPredictScoreStatisticsService = Launcher.CONTEXT.getBean(ModelPredictScoreStatisticsService.class);
     }
 
     /**
@@ -89,19 +89,19 @@ public class Predictor {
             return result;
         }
 
-        recordPredictScore(modelId, result);
+        recordPredictScoreIncrement(modelId, result);
 
         return result;
     }
 
-    private static void recordPredictScore(String modelId, PredictResult result) {
+    private static void recordPredictScoreIncrement(String modelId, PredictResult result) {
         if (result.getResult() instanceof XgboostPredictResultModel) {
             XgboostPredictResultModel scoreModel = (XgboostPredictResultModel) result.getResult();
-            modelPredictScoreRecordService.save(modelId, Double.valueOf(scoreModel.getScores().toString()));
+            modelPredictScoreStatisticsService.asyncIncrement(modelId, Double.valueOf(scoreModel.getScores().toString()));
         }
         if (result.getResult() instanceof LrPredictResultModel) {
             LrPredictResultModel scoreModel = (LrPredictResultModel) result.getResult();
-            modelPredictScoreRecordService.save(modelId, scoreModel.getScore());
+            modelPredictScoreStatisticsService.asyncIncrement(modelId, scoreModel.getScore());
         }
     }
 

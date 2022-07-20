@@ -554,18 +554,6 @@ CREATE TABLE `table_model`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';
 
-CREATE TABLE `model_predict_score_record`
-(
-    `id`           varchar(32) NOT NULL,
-    `service_id`   varchar(255)         DEFAULT NULL COMMENT '服务ID',
-    `score`        double               DEFAULT 0 COMMENT '概率',
-    `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `create_by`    varchar(32)          DEFAULT NULL COMMENT '更新人',
-    `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
-    `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型预测概率记录表';
-
 CREATE TABLE `model_predict_score_statistics`
 (
     `id`           varchar(32) NOT NULL,

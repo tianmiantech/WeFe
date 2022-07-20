@@ -30,11 +30,11 @@ import java.util.Map;
  */
 @Repository
 public interface ModelPredictScoreStatisticsRepository extends BaseRepository<ModelPredictScoreStatisticsMySqlModel, String> {
-    @Query(value = "select splitPoint,sum(count) " +
+    @Query(value = "select split_point,sum(count) " +
             "from model_predict_score_statistics " +
             "where service_id = :service_id " +
             "and created_time between if(:begin_time is not null, :begin_time,'1900-01-01 00:00:00') " +
             "and if(:end_time is not null ,:end_time ,NOW() ) " +
-            "group by splitPoint", nativeQuery = true)
+            "group by split_point", nativeQuery = true)
     Map<Double, Integer> countBy(@Param("service_id") String serviceId, @Param("begin_time") Date beginTime, @Param("end_time") Date endTime);
 }
