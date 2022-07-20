@@ -73,6 +73,8 @@ public enum ComponentType {
     VertXGBoostValidationDataSetLoader("载入验证数据集·纵向XGBoost", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "加载一个验证数据集用于模型评估"),
     Evaluation("评估模型", null, "对建模结果进行效果评估"),
     Oot("打分验证", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "用新的数据集对模型进行打分验证"),
+    ScoreCard("评分卡", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "模型评分卡"),
+
 
     /**
      * **************** 深度学习相关组件 ****************

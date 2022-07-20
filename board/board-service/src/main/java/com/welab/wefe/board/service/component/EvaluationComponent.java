@@ -34,9 +34,11 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -120,6 +122,7 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         final JObject trainObj = getTrainObjByTaskId(taskId);
         final JObject validateObj = getValidateObjByTaskId(taskId);
 
+
         switch (type) {
             case "ks":
                 JObject ks = JObject.create();
@@ -149,25 +152,25 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
                 precision_recall.putAll(parserValidateCurveData(validateObj, "precision", normalName));
                 precision_recall.putAll(parserTrainCurveData(trainObj, "recall", normalName));
                 precision_recall.putAll(parserValidateCurveData(validateObj, "recall", normalName));
-                break;
+                return precision_recall;
             case "roc":
                 JObject roc = JObject.create();
                 roc.putAll(parserTrainCurveData(trainObj, "roc", normalName));
                 roc.putAll(parserValidateCurveData(validateObj, "roc", normalName));
-                break;
+                return roc;
             case "topn":
                 JObject topn = JObject.create();
                 topn.putAll(parserTopN(trainObj, normalName, "train"));
                 topn.putAll(parserTopN(validateObj, normalName, "validate"));
                 return topn;
-            case "distribution_scores":
-                JObject distribution_scores = JObject.create();
-                distribution_scores.putAll(parserTopN(trainObj, normalName, "train"));
-                return distribution_scores;
+            case "scores_distribution":
+                final JObject distributionObj = getDistributionObjByTaskId(taskId);
+                JObject scores_distribution = JObject.create();
+                scores_distribution.putAll(parserScoresDistributionCurveData(distributionObj, normalName));
+                return scores_distribution;
             default:
                 return JObject.create();
         }
-        return JObject.create();
     }
 
     private String extractModelComponentType(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
@@ -228,6 +231,11 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         return validateTaskResult != null ? JObject.create(validateTaskResult.getResult()) : JObject.create("");
     }
 
+    private JObject getDistributionObjByTaskId(String taskId) {
+        TaskResultMySqlModel result = findEvaluationDistributionTaskResultByTaskId(taskId);
+        return result != null ? JObject.create(result.getResult()) : JObject.create("");
+    }
+
     private TaskResultMySqlModel findEvaluationTaskResultByTaskId(String taskId) {
         TaskResultMySqlModel trainTaskResult = findEvaluationTrainTaskResultByTaskId(taskId);
         // Training and validation evaluation task_result only has different types,
@@ -244,6 +252,10 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
     private TaskResultMySqlModel findEvaluationValidateTaskResultByTaskId(String taskId) {
         return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_validate.name());
+    }
+
+    private TaskResultMySqlModel findEvaluationDistributionTaskResultByTaskId(String taskId) {
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.distribution_train_validate.name());
     }
 
     /**
@@ -265,6 +277,60 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
     private JObject parserValidateCurveData(JObject obj, String type, String normalName) {
         return parserCurveData(obj, type, normalName, "validate_");
+    }
+
+    private JObject parserScoresDistributionCurveData(JObject obj, String normalName) {
+        JObject result = extractScoreDistributionData(obj, normalName);
+
+        List<String> dataKey = result.keySet().stream().sorted()
+                .collect(Collectors.toList());
+
+        List<List<Object>> dataList = Lists.newArrayList();
+
+        for (int i = 0; i < dataKey.size(); i++) {
+            String key = dataKey.get(i);
+            dataList.add(
+                    Arrays.asList(
+                            extractXAxis(dataKey, i, key),
+                            extractYAxis(result, key),
+                            extractYAxis2(result, key)
+                    )
+            );
+        }
+
+        return JObject.create().append("scores_distribution", dataList);
+    }
+
+    private double extractYAxis2(JObject result, String key) {
+        double rate = result.getJObject(key).getDoubleValue("count_rate");
+        return precisionProcessByDouble(rate);
+    }
+
+    private int extractYAxis(JObject result, String key) {
+        return result.getJObject(key).getIntValue("count");
+    }
+
+    private String extractXAxis(List<String> dataKey, int i, String key) {
+        String beforeKey = i == 0 ? "0" : dataKey.get(i - 1);
+        return precisionProcessByString(beforeKey) + "~" + precisionProcessByString(key);
+    }
+
+
+    private double precisionProcessByDouble(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        return bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    private String precisionProcessByString(String value) {
+        return String.format("%.3f", Double.parseDouble(value));
+    }
+
+    private JObject extractScoreDistributionData(JObject obj, String normalName) {
+        String curveKey = "train_validate_" + normalName + "_scores_distribution";
+        JObject scoresDistributionData = obj.getJObject(curveKey);
+        JObject data = scoresDistributionData.getJObject("data");
+        JObject result = data.getJObject("bin_result");
+        return result;
     }
 
     /**
