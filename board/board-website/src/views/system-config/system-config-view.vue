@@ -20,13 +20,13 @@
                             <el-form-item label="账号是否需要审核：">
                                 <el-radio
                                     v-model="config.wefe_board.account_need_audit_when_register"
-                                    :label="'true'"
+                                    :label="true"
                                 >
                                     需要审核
                                 </el-radio>
                                 <el-radio
                                     v-model="config.wefe_board.account_need_audit_when_register"
-                                    :label="'false'"
+                                    :label="false"
                                 >
                                     不需要审核
                                 </el-radio>
@@ -138,10 +138,10 @@
                         <fieldset>
                             <legend>提醒</legend>
                             <el-form-item label="任务失败邮件提醒：">
-                                <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="'true'">
+                                <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="true">
                                     开启
                                 </el-radio>
-                                <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="'false'">
+                                <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="false">
                                     关闭
                                 </el-radio>
                             </el-form-item>
