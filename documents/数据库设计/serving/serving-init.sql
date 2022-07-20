@@ -175,7 +175,7 @@ CREATE TABLE `service`
     `created_time`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_by`     varchar(32)           DEFAULT NULL COMMENT '更新人',
     `updated_time`   datetime              DEFAULT NULL COMMENT '更新时间',
-    `name`           varchar(255)  NOT NULL COMMENT '服务名',
+    `name`           varchar(255) NOT NULL COMMENT '服务名',
     `url`            varchar(128) NOT NULL COMMENT '服务地址',
     `service_type`   tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
     `query_params`   text COMMENT '查询参数配置',
@@ -277,10 +277,10 @@ DROP TABLE IF EXISTS api_request_record;
 CREATE TABLE api_request_record
 (
     id             VARCHAR(32)  NOT NULL COMMENT '租户号',
-    service_id     VARCHAR(255)  NOT NULL COMMENT '服务id',
+    service_id     VARCHAR(255) NOT NULL COMMENT '服务id',
     client_id      VARCHAR(32)  NOT NULL COMMENT '客户id',
     client_name    VARCHAR(32)  NOT NULL COMMENT '客户名称',
-    service_name   VARCHAR(255)  NOT NULL COMMENT '服务名称',
+    service_name   VARCHAR(255) NOT NULL COMMENT '服务名称',
     service_type   tinyint(2) NOT NULL COMMENT '服务类型  1匿踪查询，2交集查询，3安全聚合',
     ip_add         VARCHAR(255) NOT NULL COMMENT '请求ip地址',
     spend          BIGINT       NOT NULL COMMENT '耗时',
@@ -297,20 +297,20 @@ CREATE UNIQUE INDEX service_client_index ON api_request_record (service_id, clie
 DROP TABLE IF EXISTS fee_detail;
 CREATE TABLE fee_detail
 (
-    id                  VARCHAR(32) NOT NULL COMMENT '',
+    id                  VARCHAR(32)  NOT NULL COMMENT '',
     service_id          VARCHAR(255) NOT NULL COMMENT '服务id',
-    client_id           VARCHAR(32) NOT NULL COMMENT '客户id',
-    fee_config_id       varchar(32) NOT NULL COMMENT '计费规则id',
+    client_id           VARCHAR(32)  NOT NULL COMMENT '客户id',
+    fee_config_id       varchar(32)  NOT NULL COMMENT '计费规则id',
     total_fee           DECIMAL(24, 6) COMMENT '总费用',
     unit_price          DECIMAL(24, 6) COMMENT '单价(￥)',
     pay_type            TINYINT(1) NOT NULL COMMENT '付费类型: 1 预付费、0 后付费',
-    total_request_times INT         NOT NULL DEFAULT 0 COMMENT '总调用次数',
-    created_by          varchar(32)          DEFAULT NULL COMMENT '创建人',
-    created_time        datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_by          varchar(32)          DEFAULT NULL COMMENT '更新人',
-    updated_time        datetime             DEFAULT NULL COMMENT '更新时间',
-    service_name        varchar(32)          DEFAULT NULL COMMENT '服务名称',
-    client_name         varchar(32)          DEFAULT NULL COMMENT '客户名称',
+    total_request_times INT          NOT NULL DEFAULT 0 COMMENT '总调用次数',
+    created_by          varchar(32)           DEFAULT NULL COMMENT '创建人',
+    created_time        datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_by          varchar(32)           DEFAULT NULL COMMENT '更新人',
+    updated_time        datetime              DEFAULT NULL COMMENT '更新时间',
+    service_name        varchar(32)           DEFAULT NULL COMMENT '服务名称',
+    client_name         varchar(32)           DEFAULT NULL COMMENT '客户名称',
     service_type        INT COMMENT '服务类型',
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '结算详情表';
@@ -387,7 +387,7 @@ CREATE TABLE service_call_log
     response_partner_id   VARCHAR(255) NOT NULL COMMENT '响应方id',
     response_partner_name VARCHAR(32)  NOT NULL COMMENT '响应方名称',
     service_id            VARCHAR(255) NOT NULL COMMENT '服务id',
-    service_name          VARCHAR(255)  NOT NULL COMMENT '服务名称',
+    service_name          VARCHAR(255) NOT NULL COMMENT '服务名称',
     service_type          tinyint(2) NOT NULL COMMENT '服务类型',
     request_id            VARCHAR(255) NOT NULL COMMENT '请求id',
     response_id           VARCHAR(255) COMMENT '相应id',
@@ -499,14 +499,14 @@ CREATE TABLE `partner`
 
 CREATE TABLE `base_service`
 (
-    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `service_id`   varchar(256)         DEFAULT NULL COMMENT '服务ID',
-    `created_by`   varchar(32)          DEFAULT NULL COMMENT '创建人',
-    `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
-    `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
+    `id`           varchar(32)  NOT NULL COMMENT '全局唯一标识',
+    `service_id`   varchar(256)          DEFAULT NULL COMMENT '服务ID',
+    `created_by`   varchar(32)           DEFAULT NULL COMMENT '创建人',
+    `created_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_by`   varchar(32)           DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime              DEFAULT NULL COMMENT '更新时间',
     `name`         varchar(255) NOT NULL COMMENT '服务名',
-    `url`          varchar(128)         DEFAULT '' COMMENT '服务地址',
+    `url`          varchar(128)          DEFAULT '' COMMENT '服务地址',
     `service_type` tinyint(2) NOT NULL COMMENT '服务类型',
     `status`       tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
     PRIMARY KEY (`id`),
@@ -553,3 +553,29 @@ CREATE TABLE `table_model`
     `scores_distribution` TEXT                 DEFAULT NULL COMMENT '得分分布',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';
+
+CREATE TABLE `model_predict_score_record`
+(
+    `id`           varchar(32) NOT NULL,
+    `service_id`   varchar(255)         DEFAULT NULL COMMENT '服务ID',
+    `score`        double               DEFAULT 0 COMMENT '概率',
+    `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`    varchar(32)          DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
+    `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型预测概率记录表';
+
+CREATE TABLE `model_predict_score_statistics`
+(
+    `id`           varchar(32) NOT NULL,
+    `service_id`   varchar(255)         DEFAULT NULL COMMENT '服务ID',
+    `count`        int(11) DEFAULT 0 COMMENT '分箱计数',
+    `day`          datetime    not NULL COMMENT '日期',
+    `split_point`  double               DEFAULT NULL COMMENT '分箱分割点',
+    `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`    varchar(32)          DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
+    `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分箱统计表';

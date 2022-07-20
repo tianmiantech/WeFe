@@ -16,11 +16,11 @@
 
 package com.welab.wefe.serving.service.service;
 
-import com.welab.wefe.serving.service.database.entity.ModelPredictScoreRecordMySqlModel;
-import com.welab.wefe.serving.service.database.repository.ModelPredictScoreRecordRepository;
+import com.welab.wefe.common.data.mysql.Where;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,4 +50,16 @@ public class ModelPredictScoreRecordService {
         repository.save(record);
     }
 
+    public List<ModelPredictScoreRecordMySqlModel> listByServiceId(String serviceId, Long beginTime, Long endTime) {
+        Specification<ModelPredictScoreRecordMySqlModel> where = Where
+                .create()
+                .equal("serviceId", serviceId)
+                .betweenAndDate("createTIme", beginTime, endTime)
+                .build(ModelPredictScoreRecordMySqlModel.class);
+        return repository.findAll(where);
+    }
+
+    public List<String> allService() {
+        return repository.allServiceId();
+    }
 }

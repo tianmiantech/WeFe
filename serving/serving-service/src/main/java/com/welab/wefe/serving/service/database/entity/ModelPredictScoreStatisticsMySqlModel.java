@@ -18,16 +18,21 @@ package com.welab.wefe.serving.service.database.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.util.Date;
 
 /**
  * @author hunter.zhao
  */
-@Entity(name = "model_predict_score_record")
-public class ModelPredictScoreRecordMySqlModel extends AbstractBaseMySqlModel {
+@Entity(name = "model_predict_score_statistics")
+public class ModelPredictScoreStatisticsMySqlModel extends AbstractBaseMySqlModel {
     @Column(name = "service_id")
     private String serviceId;
 
-    private double score;
+    private Date day;
+
+    private Double splitPoint;
+
+    private int count = 0;
 
 
     public String getServiceId() {
@@ -38,11 +43,27 @@ public class ModelPredictScoreRecordMySqlModel extends AbstractBaseMySqlModel {
         this.serviceId = serviceId;
     }
 
-    public double getScore() {
-        return score;
+    public Date getDay() {
+        return day;
     }
 
-    public void setScore(double score) {
-        this.score = score;
+    public void setDay(Date day) {
+        this.day = day;
+    }
+
+    public Double getSplitPoint() {
+        return splitPoint;
+    }
+
+    public void setSplitPoint(Double splitPoint) {
+        this.splitPoint = splitPoint;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

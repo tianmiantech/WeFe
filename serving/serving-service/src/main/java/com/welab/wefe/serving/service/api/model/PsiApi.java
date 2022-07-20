@@ -23,6 +23,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
+import com.welab.wefe.serving.service.database.repository.ModelPredictScoreStatisticsRepository;
 import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +44,9 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
     @Autowired
     TableModelRepository tableModelRepository;
 
+    @Autowired
+    ModelPredictScoreStatisticsRepository statisticsRepository;
+
     @Override
     protected ApiResult<Output> handle(Input input) throws Exception {
         //expected
@@ -49,24 +54,51 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
         JObject result = extractScoreDistributionData(JObject.create(model.getScoresDistribution()));
 
-        List<String> dataKey = result.keySet().stream().sorted()
+        List<Double> dataKey = result
+                .keySet()
+                .stream()
+                .map(x -> Double.valueOf(x))
+                .sorted()
                 .collect(Collectors.toList());
 
         List<List<Object>> dataList = Lists.newArrayList();
 
         for (int i = 0; i < dataKey.size(); i++) {
-            String key = dataKey.get(i);
+            Double key = dataKey.get(i);
             dataList.add(
                     Arrays.asList(
                             extractXAxis(dataKey, i, key),
-                            extractYAxis(result, key),
-                            extractYAxis2(result, key)
+                            extractYAxis(result, key.toString()),
+                            extractYAxis2(result, key.toString())
+                    )
+            );
+        }
+
+        //actual
+        Map<Double, Integer> count = statisticsRepository.countBy(input.getServiceId(), input.getBeginTime(), input.getEndTime());
+        List<Double> ac = count
+                .keySet()
+                .stream()
+                .sorted()
+                .collect(Collectors.toList());
+        int total = count.entrySet().stream().mapToInt(x -> x.getValue()).sum();
+
+        List<List<Object>> dataList1 = Lists.newArrayList();
+
+        for (int i = 0; i < ac.size(); i++) {
+            Double key = ac.get(i);
+            dataList1.add(
+                    Arrays.asList(
+                            extractXAxis(dataKey, i, key),
+                            count.get(key),
+                            count.get(key) / total
                     )
             );
         }
 
         Output output = new Output();
         output.setExpected(dataList);
+        output.setActual(dataList1);
 
 
         return success(output);
@@ -82,34 +114,28 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
     private double extractYAxis2(JObject result, String key) {
         double rate = result.getJObject(key).getDoubleValue("count_rate");
-        return precisionProcessByDouble(rate);
+        return newScale(rate, 2);
     }
 
     private int extractYAxis(JObject result, String key) {
         return result.getJObject(key).getIntValue("count");
     }
 
-    private String extractXAxis(List<String> dataKey, int i, String key) {
-        String beforeKey = i == 0 ? "0" : dataKey.get(i - 1);
-        return precisionProcessByString(beforeKey) + "~" + precisionProcessByString(key);
+    private String extractXAxis(List<Double> dataKey, int i, Double key) {
+        Double beforeKey = i == 0 ? 0 : dataKey.get(i - 1);
+        return newScale(beforeKey, 3) + "~" + newScale(key, 3);
     }
 
-    private double precisionProcessByDouble(double value) {
+    private double newScale(double value, int scale) {
         BigDecimal bd = new BigDecimal(value);
-        return bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return bd.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
-
-    private double precisionProcessByString(String value) {
-        BigDecimal bd = new BigDecimal(value);
-        return bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
-    }
-
 
 
     public static class Output extends AbstractApiOutput {
         private Object expected;
 
-        private String actual;
+        private Object actual;
 
         public Object getExpected() {
             return expected;
@@ -119,11 +145,11 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
             this.expected = expected;
         }
 
-        public String getActual() {
+        public Object getActual() {
             return actual;
         }
 
-        public void setActual(String actual) {
+        public void setActual(Object actual) {
             this.actual = actual;
         }
     }
