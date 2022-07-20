@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * @author aaron.li
  **/
-@Api(path = "project/flow_node/query", name = "query flow node list by flow id", login = false)
+@Api(path = "project/flow_node/query", name = "query flow node list by flow id")
 public class QueryFlowNodeListApi extends AbstractApi<QueryFlowNodeListApi.Input, QueryFlowNodeListApi.Output> {
 
     @Autowired

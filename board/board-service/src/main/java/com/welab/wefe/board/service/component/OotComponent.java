@@ -29,8 +29,6 @@ import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
-import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
-import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
@@ -41,7 +39,10 @@ import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDa
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.*;
+import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -225,7 +226,6 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
             // Add the OOT mode parameters and the required parameters in the corresponding OOT mode on the basis of the original task configuration
             TaskConfig taskConfig = JObject.parseObject(taskMySqlModel.getTaskConf(), TaskConfig.class);
-            updateKernelJob(taskConfig, params);
             taskConfig.setTask(getTaskMembers(graph, node));
             JObject taskConfigObj = JObject.create(JObject.toJSONString(taskConfig));
             // If it is a dataio component, replace it with a new dataset
@@ -644,14 +644,6 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
         return "";
     }
-
-
-    private void updateKernelJob(TaskConfig taskConfig, Params params) throws StatusCodeWithException {
-        KernelJob kernelJob = taskConfig.getJob();
-        kernelJob.setEnv(Env.get());
-        kernelJob.setFederatedLearningMode(FederatedLearningModel.oot);
-    }
-
 
     /**
      * Is it OOT mode

@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Zane
  */
-@Api(path = "global_setting/is_initialize", name = "判断系统是否初始化", desc = "判断系统是否初始化",login = false)
+@Api(path = "global_setting/is_initialize", name = "判断系统是否初始化", desc = "判断系统是否初始化", login = false)
 public class IsInitializeApi extends AbstractNoneInputApi<JObject> {
 
     @Autowired

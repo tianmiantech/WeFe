@@ -43,7 +43,7 @@ public class PaddleVisualService extends AbstractService {
     }
 
     private JObject request(String api, JSONObject params) throws StatusCodeWithException {
-        DeepLearningConfigModel deepLearningConfig = globalConfigService.getDeepLearningConfig();
+        DeepLearningConfigModel deepLearningConfig = globalConfigService.getModel(DeepLearningConfigModel.class);
 
         if (deepLearningConfig == null || StringUtil.isEmpty(deepLearningConfig.paddleVisualDlBaseUrl)) {
             StatusCode.RPC_ERROR.throwException("尚未设置VisualFL服务地址，请在[全局设置][计算引擎设置]中设置VisualFL服务地址。");

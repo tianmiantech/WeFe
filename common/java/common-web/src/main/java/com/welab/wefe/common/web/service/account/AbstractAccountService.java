@@ -17,9 +17,9 @@ package com.welab.wefe.common.web.service.account;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -28,9 +28,7 @@ import com.welab.wefe.common.web.LoginSecurityPolicy;
 import com.welab.wefe.common.web.config.CommonConfig;
 import com.welab.wefe.common.web.service.CaptchaService;
 
-import java.security.SecureRandom;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author zane
@@ -83,7 +81,7 @@ public abstract class AbstractAccountService {
         // 历史密码
         String historyPasswordListString = JSON.toJSONString(model.getPasswordHistoryList(historyCount - 1));
         // 生成新的盐和密码
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         newPassword = hashPasswordWithSalt(newPassword, salt);
 
         saveSelfPassword(newPassword, salt, JSON.parseArray(historyPasswordListString));
@@ -185,17 +183,6 @@ public abstract class AbstractAccountService {
      */
     protected String hashPasswordWithSalt(String inputPassword, String salt) {
         return Sha1.of(inputPassword + salt);
-    }
-
-    /**
-     * 生产随机盐
-     */
-    protected String createRandomSalt() {
-        final Random r = new SecureRandom();
-        byte[] salt = new byte[16];
-        r.nextBytes(salt);
-
-        return Base64Util.encode(salt);
     }
 
     /**

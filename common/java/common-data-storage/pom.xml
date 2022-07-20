@@ -39,6 +39,7 @@
             <artifactId>spring-context</artifactId>
         </dependency>
 
+
         <dependency>
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>
@@ -78,6 +79,12 @@
         <dependency>
             <groupId>com.welab.wefe</groupId>
             <artifactId>common-proto</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>common-wefe</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>

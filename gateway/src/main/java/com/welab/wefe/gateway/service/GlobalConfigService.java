@@ -17,11 +17,15 @@
 package com.welab.wefe.gateway.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.gateway.dto.BoardConfigModel;
-import com.welab.wefe.gateway.dto.GatewayConfigModel;
-import com.welab.wefe.gateway.dto.MemberInfoModel;
+import com.welab.wefe.common.util.SM4Util;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.gateway.common.EncryptEnableEnum;
+import com.welab.wefe.gateway.config.CommonConfig;
+import com.welab.wefe.gateway.dto.*;
 import com.welab.wefe.gateway.entity.GlobalConfigEntity;
 import com.welab.wefe.gateway.repository.GlobalConfigRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,12 +39,20 @@ public class GlobalConfigService extends AbstractService {
     @Autowired
     private GlobalConfigRepository globalConfigRepository;
 
-    protected static class Group {
+    @Autowired
+    private CommonConfig commonConfig;
+
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+
+    public static class Group {
         public static String MEMBER_INFO = "member_info";
         public static String MAIL_SERVER = "mail_server";
         public static String ALERT_CONFIG = "alert_config";
         public static String WEFE_GATEWAY = "wefe_gateway";
         public static String WEFE_BOARD = "wefe_board";
+        public static String CLICKHOUSE_STORAGE_CONFIG = "clickhouse_storage_config";
+        public static final String CALCULATION_ENGINE_CONFIG = "calculation_engine_config";
+        public static String ALIYUN_FUNCTION_COMPUTE_CONFIG = "aliyun_function_compute_config";
     }
 
     public GatewayConfigModel getGatewayConfig() {
@@ -62,6 +74,46 @@ public class GlobalConfigService extends AbstractService {
     }
 
     /**
+     * Get clickhouse storage config
+     */
+    public ClickhouseStorageConfigModel getClickhouseStorageConfig() {
+        return getModel(Group.CLICKHOUSE_STORAGE_CONFIG, ClickhouseStorageConfigModel.class);
+    }
+
+    /**
+     * Get aliyun function compute config
+     */
+    public AliyunFunctionComputeConfigModel getAliyunFunctionComputeConfig() {
+        AliyunFunctionComputeConfigModel model = getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
+        LOG.info("getIsDatabaseEncryptEnable: " + commonConfig.getIsDatabaseEncryptEnable());
+        if (EncryptEnableEnum.ENABLE.getValue().equals(commonConfig.getIsDatabaseEncryptEnable())) {
+
+            String secretKey = commonConfig.getPrivacyDatabaseEncryptSecretKey();
+            LOG.info("secretKey: " + secretKey);
+            if (StringUtil.isEmpty(secretKey)) {
+                throw new NullPointerException("databaseEncryptEnable is true, but secretKey is Null");
+            }
+            try {
+                if (StringUtil.isNotEmpty(model.getAccessKeyId())) {
+                    LOG.info("old AccessKeyId:" + model.getAccessKeyId());
+                    LOG.info("decrypt AccessKeyId:" + SM4Util.decrypt(secretKey, model.getAccessKeyId()));
+                    model.setAccessKeyId(SM4Util.decrypt(secretKey, model.getAccessKeyId()));
+                }
+
+                if (StringUtil.isNotEmpty(model.getAccessKeySecret())) {
+                    LOG.info("old getAccessKeySecret:" + model.getAccessKeySecret());
+                    LOG.info("decrypt getAccessKeySecret:" + SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
+                    model.setAccessKeySecret(SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        return model;
+    }
+
+    /**
      * Query list by group
      */
     public List<GlobalConfigEntity> list(String group) {
@@ -71,7 +123,7 @@ public class GlobalConfigService extends AbstractService {
     /**
      * Gets the entity corresponding to the specified group
      */
-    protected <T> T getModel(String group, Class<T> clazz) {
+    public <T> T getModel(String group, Class<T> clazz) {
         List<GlobalConfigEntity> list = list(group);
         return toModel(list, clazz);
     }

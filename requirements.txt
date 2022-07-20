@@ -6,11 +6,11 @@ numba==0.50.1
 numpy~=1.19.2
 requests==2.24.0
 protobuf==3.12.2
-pycryptodome==3.4.7
-pycryptodomex==3.9.8
+pycryptodome==3.14.1
+pycryptodomex==3.14.1
 PyMySQL==0.10.0
 Deprecated==1.2.10
-gmpy2==2.0.8
+gmpy2==2.1.2
 grpcio~=1.32.0
 grpcio-tools==1.29.0
 scipy==1.5.1
@@ -37,3 +37,4 @@ pandas==1.1.5
 pytorch-lightning
 # 用于获取网络接口相关信息 https://pypi.org/project/netifaces/
 netifaces==0.11.0
+gmssl==3.2.1

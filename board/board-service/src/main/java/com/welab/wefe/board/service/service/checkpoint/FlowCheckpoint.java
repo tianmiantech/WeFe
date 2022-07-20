@@ -46,7 +46,7 @@ public class FlowCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected String getConfigValue() {
-        FlowConfigModel flowConfig = globalConfigService.getFlowConfig();
+        FlowConfigModel flowConfig = globalConfigService.getModel(FlowConfigModel.class);
         if (flowConfig == null) {
             return null;
         }

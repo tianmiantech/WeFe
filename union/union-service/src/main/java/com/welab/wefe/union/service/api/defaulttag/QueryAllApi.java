@@ -22,7 +22,6 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.dto.dataresource.dataset.table.ApiDataSetDefaultTagOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,7 @@ import java.util.stream.Collectors;
  *
  * @author yuxin.zhang
  */
-@Api(path = "default_tag/query", name = "default_tag_query", rsaVerify = true, login = false)
+@Api(path = "default_tag/query", name = "default_tag_query", allowAccessWithSign = true, login = false)
 public class QueryAllApi extends AbstractApi<BaseInput, JObject> {
     @Autowired
     protected DataSetDefaultTagMongoRepo dataSetDefaultTagMongoRepo;

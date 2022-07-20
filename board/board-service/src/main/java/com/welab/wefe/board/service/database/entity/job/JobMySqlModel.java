@@ -16,11 +16,17 @@
 
 package com.welab.wefe.board.service.database.entity.job;
 
+import com.alibaba.fastjson.JSONObject;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.JobStatus;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -30,6 +36,7 @@ import java.util.Date;
  * @author Zane
  */
 @Entity(name = "job")
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class JobMySqlModel extends AbstractBaseMySqlModel {
     private static final long serialVersionUID = 8933206598650203308L;
     /**
@@ -103,6 +110,17 @@ public class JobMySqlModel extends AbstractBaseMySqlModel {
      * 备注
      */
     private String remark;
+    /**
+     * job配置信息
+     */
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private JSONObject jobConfig;
+
+
+    public void setJobConfig(KernelJob kernelJob) {
+        this.jobConfig = kernelJob.toJson();
+    }
 
     //region getter/setter
 
@@ -243,6 +261,13 @@ public class JobMySqlModel extends AbstractBaseMySqlModel {
         this.remark = remark;
     }
 
+    public JSONObject getJobConfig() {
+        return jobConfig;
+    }
+
+    public void setJobConfig(JSONObject jobConfig) {
+        this.jobConfig = jobConfig;
+    }
 
     //endregion
 }

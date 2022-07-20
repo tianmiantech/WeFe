@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.api.account;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
+import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.board.service.util.BoardSM4Util;
@@ -60,7 +61,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
          *
          * An exception is thrown when it is not initialized. When the front end obtains the exception, it will jump to the initialization interface.
          */
-        if (globalConfigService.getMemberInfo() == null) {
+        if (globalConfigService.getModel(MemberInfoModel.class) == null) {
 
             // If the login is a super administrator, jump to the initialization page.
             if (output.superAdminRole) {

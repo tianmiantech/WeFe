@@ -16,32 +16,14 @@
 
 package com.welab.wefe.manager.service.config;
 
+import com.welab.wefe.common.web.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
+@PropertySource(value = {"file:${config.common.path}"}, encoding = "utf-8")
 @ConfigurationProperties
-public class Config {
-    @Value("${sm4.secret.key:}")
-    private String sm4SecretKey;
-
-    @Value("${encrypt.phone.number.open:false}")
-    private boolean encryptPhoneNumberOpen;
-
-    public String getSm4SecretKey() {
-        return sm4SecretKey;
-    }
-
-    public void setSm4SecretKey(String sm4SecretKey) {
-        this.sm4SecretKey = sm4SecretKey;
-    }
-
-    public boolean isEncryptPhoneNumberOpen() {
-        return encryptPhoneNumberOpen;
-    }
-
-    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
-        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
-    }
+public class Config extends CommonConfig {
 }

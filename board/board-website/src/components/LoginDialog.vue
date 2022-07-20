@@ -185,13 +185,11 @@
             },
             async getUserList() {
                 const { code, data } = await this.$http.post({
-                    url:  '/account/query',
+                    url:  '/account/list_all',
                     data: {
-                        phone_number: '',
-                        nickname:     '',
-                        audit_status: '',
-                        page_index:   '',
-                        page_size:    '',
+                        nickname:   '',
+                        page_index: '',
+                        page_size:  '',
                     },
                 });
 

@@ -34,7 +34,7 @@ import java.util.TreeMap;
 /**
  * @author zane.luo
  */
-@Api(path = "gateway/redirect", name = "Redirect requests from gateway to internal api", login = false, rsaVerify = true)
+@Api(path = "gateway/redirect", name = "Redirect requests from gateway to internal api", allowAccessWithSign = true)
 public class RedirectApi extends AbstractApi<RedirectApi.Input, Object> {
 
     @Override
