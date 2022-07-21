@@ -57,23 +57,34 @@
                                 <el-table-column
                                     label="woe"
                                     prop="woeArray"
+                                    width="200"
                                 />
                                 <el-table-column
                                     label="event_count"
                                     prop="eventCountArray"
+                                    width="200"
                                 />
                                 <el-table-column
                                     label="event_rate"
                                     prop="eventRateArray"
+                                    width="200"
                                 />
                                 <el-table-column
                                     label="non_event_count"
                                     prop="nonEventCountArray"
+                                    width="200"
                                 />
                                 <el-table-column
                                     label="non_event_rate"
                                     prop="nonEventRateArray"
+                                    width="200"
                                 />
+                                <el-table-column label="分布" align="center" width="300">
+                                    <template v-slot="scope">
+                                        <BarChartNew ref="BarChart" v-if="scope.row.isCheckBarChart" :config="scope.row.mapdata"/>
+                                        <el-button v-else type="primary" size="small" @click="scope.row.isCheckBarChart = true">查看分布</el-button>
+                                    </template>
+                                </el-table-column>
                             </el-table>
                         </el-tab-pane>
                     </el-tabs>
@@ -127,6 +138,62 @@
 
                             for(const column in binningResult) {
                                 const val = binningResult[column];
+                                const series = [], xAxis = [];
+
+                                series.push(
+                                    {
+                                        name:      'good',
+                                        stack:     'Ad',
+                                        type:      'bar',
+                                        data:      val.eventCountArray,
+                                        itemStyle: {
+                                            color: 'rgba(5, 115, 107, .7)',
+                                        },
+                                    },
+                                    {
+                                        name:      'bad',
+                                        stack:     'Ad',
+                                        type:      'bar',
+                                        data:      val.nonEventCountArray,
+                                        itemStyle: {
+                                            color: 'rgba(174, 6, 23, .7)',
+                                        },
+                                    },
+                                    {
+                                        type:       'line',
+                                        yAxisIndex: 1,
+                                        itemStyle:  {
+                                            color: 'rgba(11, 89, 153, 1)',
+                                        },
+                                        data:  val.splitPoints,
+                                        label: {
+                                            show:     true,
+                                            position: 'inside',
+                                            formatter (value) {
+                                                return Number(value.data).toFixed(3);
+                                            },
+                                        },
+                                    },
+                                );
+                                for(let i=0; i<val.eventCountArray.length; i++) {
+                                    xAxis.push(i);
+                                }
+                                const mapdata = {
+                                    xAxis: {
+                                        type: 'category',
+                                        data: val.eventCountArray || [],
+                                    },
+                                    yAxis: [
+                                        {
+                                            type: 'value',
+                                        },
+                                        {
+                                            type: 'value',
+                                        },
+                                    ],
+                                    series,
+                                    legend: {},
+                                };
 
                                 dataList.push({
                                     column,
@@ -136,6 +203,8 @@
                                     eventRateArray:     val.eventRateArray.length ? val.eventRateArray.join(','): '',
                                     nonEventCountArray: val.nonEventCountArray.length ? val.nonEventCountArray.join(','): '',
                                     nonEventRateArray:  val.nonEventRateArray.length ? val.nonEventRateArray.join(','): '',
+                                    mapdata,
+                                    isCheckBarChart:    false,
                                 });
                             }
 

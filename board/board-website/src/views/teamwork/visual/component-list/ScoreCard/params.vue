@@ -5,25 +5,22 @@
         :disabled="disabled"
         @submit.prevent
         inline
+        label-width="64px"
+        :model="vData.form"
     >
-        <el-form-item label="对齐算法">
-            <el-select
-                v-model="vData.form.intersect_method"
-                placeholder="请选择类型"
-                style="width:150px;"
-            >
-                <el-option
-                    label="dh"
-                    value="dh"
-                />
-            </el-select>
+        <el-form-item label="基准分：" prop="pd0">
+            <el-input
+                v-model="vData.form.pd0"
+                type="number"
+                placeholder="10"
+            />
         </el-form-item>
 
-        <el-form-item label="是否保存对齐后数据">
-            <el-switch
-                v-model="vData.form.save_dataset"
-                inactive-color="#ff4949"
-                active-color="#13ce66"
+        <el-form-item label="pdo：" prop="pdo">
+            <el-input
+                v-model="vData.form.pdo"
+                type="number"
+                placeholder="50"
             />
         </el-form-item>
     </el-form>
@@ -34,7 +31,7 @@
     import dataStore from '../data-store-mixin';
 
     export default {
-        name:  'Intersection',
+        name:  'ScoreCard',
         props: {
             projectId:    String,
             flowId:       String,
@@ -45,16 +42,15 @@
             class:        String,
         },
         mixins: [dataStore],
-        setup(props, context) {
+        setup(props) {
+            const formData = {
+                pd0: 10,
+                pdo: 50,
+            };
+
             let vData = reactive({
-                originForm: {
-                    intersect_method: 'dh',
-                    save_dataset:     true,
-                },
-                form: {
-                    intersect_method: 'dh',
-                    save_dataset:     true,
-                },
+                originForm: { ...formData },
+                form:       { ...formData },
             });
 
             let methods = {
