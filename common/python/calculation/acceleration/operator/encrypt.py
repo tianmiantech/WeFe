@@ -116,14 +116,6 @@ def gpu_diffiehellman_encrypt_decrypt(k_array, r, p):
     PLAIN_BYTE = 256
     device_type = 1
 
-    # if (not isinstance(k_array[0], int)) and (not isinstance(k_array[0], mpz)):
-    #    raise TypeError("k_array[0] should be int or mpz, \
-    #                     not: %s" % type(k_array[0]))
-
-    # if not isinstance(k_array[0], int):
-    # raise TypeError("k_array[0] should be int, \
-    # not: %s" % type(k_array[0]))
-
     if not isinstance(r, int):
         raise TypeError("r should be int, \
                          not: %s" % type(r))
@@ -132,10 +124,7 @@ def gpu_diffiehellman_encrypt_decrypt(k_array, r, p):
         raise TypeError("p should be int, \
                          not: %s" % type(p))
 
-    if isinstance(k_array, list):
-        array_element_count = len(k_array)
-    else:
-        array_element_count = k_array.shape[0]
+    array_element_count = k_array.shape[0]
     if array_element_count < 1:
         raise ValueError("k_array's element count < 1")
 
@@ -174,7 +163,7 @@ def gpu_diffiehellman_encrypt_decrypt(k_array, r, p):
 
         # y
         gpu_lib.GPU_H_C_Memcpy(c_void_p(k_array_structure + ii),
-                               k_array[i].to_bytes(
+                               int(k_array[i]).to_bytes(
                                    CIPHER_BYTE, 'little'),
                                c_size_t(CIPHER_BYTE))
         ii = ii + CIPHER_BYTE
