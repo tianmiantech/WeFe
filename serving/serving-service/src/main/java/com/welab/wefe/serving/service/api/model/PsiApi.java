@@ -24,13 +24,14 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.database.entity.StatisticsSumModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
-import com.welab.wefe.serving.service.database.repository.ModelPredictScoreStatisticsRepository;
+import com.welab.wefe.serving.service.database.repository.PredictScoreStatisticsRepository;
 import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
     TableModelRepository tableModelRepository;
 
     @Autowired
-    ModelPredictScoreStatisticsRepository statisticsRepository;
+    PredictScoreStatisticsRepository statisticsRepository;
 
     @Override
     protected ApiResult<Output> handle(Input input) throws Exception {
@@ -54,26 +55,24 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
     }
 
     private List<List<Object>> extractActualData(Input input) {
+
         List<StatisticsSumModel> count = statisticsRepository.countBy(input.getServiceId(), input.getBeginTime(), input.getEndTime());
-//        List<Double> dataKey = count
-//                .stream()
-//                .map(x -> Double.valueOf(x.get(0).toString()))
-//                .sorted()
-//                .collect(Collectors.toList());
-//        int total = count.stream().mapToInt(x -> Integer.valueOf(x.get(1).toString())).sum();
+        List<StatisticsSumModel> modelList = count
+                .stream()
+                .sorted(Comparator.comparing(StatisticsSumModel::getSplitPoint))
+                .collect(Collectors.toList());
+        int total = count.stream().mapToInt(StatisticsSumModel::getCount).sum();
 
         List<List<Object>> dataList = Lists.newArrayList();
 
-//        for (int i = 0; i < dataKey.size(); i++) {
-//            Double key = dataKey.get(i);
-//            dataList.add(
-//                    Arrays.asList(
-//                            extractXAxis(dataKey, i, key),
-//                            count.get(key),
-//                            count.get(key) / total
-//                    )
-//            );
-//        }
+        for (int i = 0; i < modelList.size(); i++) {
+            StatisticsSumModel model = modelList.get(i);
+            dataList.add(
+                    Arrays.asList(
+                            extractXAxis2(modelList, i, model.getSplitPoint()),
+                            model.getCount(),
+                            total == 0 ? 0 : model.getCount().doubleValue() / total));
+        }
         return dataList;
     }
 
@@ -117,6 +116,11 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
     private String extractXAxis(List<Double> dataKey, int i, Double key) {
         Double beforeKey = i == 0 ? 0.0 : dataKey.get(i - 1);
+        return newScale(beforeKey, 3) + "~" + newScale(key, 3);
+    }
+
+    private String extractXAxis2(List<StatisticsSumModel> dataKey, int i, Double key) {
+        Double beforeKey = i == 0 ? 0.0 : dataKey.get(i - 1).getSplitPoint();
         return newScale(beforeKey, 3) + "~" + newScale(key, 3);
     }
 

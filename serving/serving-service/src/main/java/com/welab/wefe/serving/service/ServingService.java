@@ -46,13 +46,13 @@ public class ServingService implements ApplicationContextAware {
                 .apiPackageClass(ServingService.class)
                 .apiLogger(new ServingApiLogger())
                 // Login status check method
-//                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
-//                .apiPermissionPolicy((request, annotation, params) -> {
-//                    if (!annotation.allowAccessWithSign()) {
-//                        return;
-//                    }
-//                    VerifySignUtil.rsaVerify(annotation.domain(), request, params);
-//                })
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                .apiPermissionPolicy((request, annotation, params) -> {
+                    if (!annotation.allowAccessWithSign()) {
+                        return;
+                    }
+                    VerifySignUtil.rsaVerify(annotation.domain(), request, params);
+                })
                 .launch(ServingService.class, args);
 
         //Initialize model processor

@@ -169,7 +169,11 @@ public class Predictor {
                                       JSONObject extendParams) throws Exception {
 
         AbstractBasePredictor predictor = constructDebugPredictor(modelId, userId, featureData, featureSource, extendParams);
-        return predictor.predict();
+        PredictResult result = predictor.predict();
+
+        recordPredictScoreIncrement(modelId, result);
+
+        return result;
     }
 
     private static AbstractBasePredictor constructDebugPredictor(String modelId,

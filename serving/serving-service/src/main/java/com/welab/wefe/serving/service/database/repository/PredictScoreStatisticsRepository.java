@@ -16,7 +16,6 @@
 
 package com.welab.wefe.serving.service.database.repository;
 
-import com.welab.wefe.serving.service.database.entity.ModelPredictScoreStatisticsMySqlModel;
 import com.welab.wefe.serving.service.database.entity.StatisticsSumModel;
 import com.welab.wefe.serving.service.database.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,14 +24,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author ivenn.zheng
  */
 @Repository
-public interface ModelPredictScoreStatisticsRepository extends BaseRepository<ModelPredictScoreStatisticsMySqlModel, String> {
-    @Query(value = "select split_point as splitPoint,sum(`count`) as count " +
+public interface PredictScoreStatisticsRepository extends BaseRepository<StatisticsSumModel, String> {
+    @Query(value = "select split_point,sum(`count`) as count " +
             "from model_predict_score_statistics " +
             "where service_id = :service_id " +
             "and created_time between if(:begin_time is not null, :begin_time,'1900-01-01 00:00:00') " +

@@ -562,7 +562,7 @@ CREATE TABLE `model_predict_score_statistics`
     `day`          datetime    not NULL COMMENT '日期',
     `split_point`  double               DEFAULT NULL COMMENT '分箱分割点',
     `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `create_by`    varchar(32)          DEFAULT NULL COMMENT '更新人',
+    `created_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
     `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
     `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`id`)

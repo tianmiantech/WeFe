@@ -16,11 +16,14 @@
 package com.welab.wefe.serving.service.database.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * @author hunter.zhao
  */
+@Entity
 public class StatisticsSumModel {
+    @Id
     private Double splitPoint;
 
     private Integer count;
