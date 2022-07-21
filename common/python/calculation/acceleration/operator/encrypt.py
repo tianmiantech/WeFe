@@ -124,7 +124,11 @@ def gpu_diffiehellman_encrypt_decrypt(k_array, r, p):
         raise TypeError("p should be int, \
                          not: %s" % type(p))
 
-    array_element_count = k_array.shape[0]
+    if isinstance(k_array, list):
+        array_element_count = len(k_array)
+    else:
+        array_element_count = k_array.shape[0]
+
     if array_element_count < 1:
         raise ValueError("k_array's element count < 1")
 
