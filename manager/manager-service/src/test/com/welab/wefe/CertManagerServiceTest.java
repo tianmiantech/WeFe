@@ -67,7 +67,7 @@ public class CertManagerServiceTest {
         System.out.println(cert.getIssuerKeyId());
         System.out.println(cert.getPkId());
         // 导出证书
-        certManagerService.exportCertToFile(cert.getPkId(), basePATH + "/root.crt");
+        certManagerService.exportCertToPemFile(cert.getPkId(), basePATH + "/root.crt");
         // 私钥ID
         String userKeyId = cert.getIssuerKeyId();
         CertKeyVO keyVo = certManagerService.queryCertKey(userKeyId);
@@ -128,7 +128,7 @@ public class CertManagerServiceTest {
         // 生成公私钥 算法为RSA
         KeyPair keyPair = KeyUtils.generateKeyPair();
         CertUtils.writeToPKCS8File(keyPair.getPrivate(), basePATH + "/" + commonName + "_pri.key");
-        CertUtils.writeKey(keyPair.getPublic(), basePATH + "/" + commonName + "_pub.key");
+        CertUtils.writePublicKey(keyPair.getPublic(), basePATH + "/" + commonName + "_pub.key");
         String pemPrivateKey = CertUtils.readPEMAsString(keyPair.getPrivate());
         // 保存私钥
         String certKeyId = certManagerService.importPrivateKey(userId, pemPrivateKey,
@@ -150,7 +150,7 @@ public class CertManagerServiceTest {
         CertVO cert = certManagerService.createChildCert(commonName, userId, csrId);
         System.out.println("为用户签发证书 : certId = " + cert.getPkId());
 
-        certManagerService.exportCertToFile(cert.getPkId(), basePATH + "/" + commonName + ".crt");
+        certManagerService.exportCertToPemFile(cert.getPkId(), basePATH + "/" + commonName + ".crt");
         System.out.println("为用户导出证书 : file = " + basePATH + "/" + commonName + ".crt");
 
         List<X509Certificate> list = new ArrayList<>();
@@ -206,11 +206,11 @@ public class CertManagerServiceTest {
     @Test
     public void testImportCertToTrust()
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-        // 证书ID
-//        String rootCertId = "f3a76f8b1ac8414ebf3872be01dd8a17";
-//        CertVO rootCertVO = certManagerService.queryCertInfoByCertId(rootCertId);
-//        X509Certificate rootCert = CertUtils.convertStrToCert(rootCertVO.getCertContent());
-//        CertUtils.importCertToTrustStore("root", rootCert, basePATH + "/truststore.jks", "123456");
+//         证书ID
+        String rootCertId = "f3a76f8b1ac8414ebf3872be01dd8a17";
+        CertVO rootCertVO = certManagerService.queryCertInfoByCertId(rootCertId);
+        X509Certificate rootCert = CertUtils.convertStrToCert(rootCertVO.getCertContent());
+        CertUtils.importCertToTrustStore("root", rootCert, basePATH + "/truststore.jks", "123456");
         String welabCertId = "9128d83224b84d70b906d84a6d688b94";
         CertVO welabCertVO = certManagerService.queryCertInfoByCertId(welabCertId);
         X509Certificate welabCert = CertUtils.convertStrToCert(welabCertVO.getCertContent());
@@ -220,9 +220,10 @@ public class CertManagerServiceTest {
     // 导出证书
     @Test
     public void testExportCertToFile() throws Exception {
-        String certId = "41550ac12b904bf3b0c4a4f8af6f4a69";
+        String certId = "9c29d8f181b34d3f8eb5cb07ca6e43c6";
         FileOperationUtils.mkdir(basePATH);
-        certManagerService.exportCertToFile(certId, basePATH + "/yinlian.crt");
+//        certManagerService.exportCertToPemFile(certId, basePATH + "/yinlian2.crt");
+        certManagerService.exportCertToDerFile(certId, basePATH + "/yinlian2.cer");
     }
 
     // 重置证书

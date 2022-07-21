@@ -50,6 +50,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CRLException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
@@ -306,6 +307,17 @@ public class CertUtils {
     }
 
     /**
+     * 将公钥对象写入文件
+     * 
+     * @param key
+     * @param filePath
+     * @see writeToPKCS8File
+     */
+    public static void writePublicKey(Key key, String filePath) {
+        writeToFileByPem(key, filePath);
+    }
+    
+    /**
      * 将私钥对象写入文件
      * 
      * @param key
@@ -352,17 +364,58 @@ public class CertUtils {
     }
 
     /**
+     * 将证书写入文件
+     * 
+     * @param certificate
+     * @param filePath
+     * @throws CertificateEncodingException 
+     */
+    public static void writeDer(X509Certificate certificate, String filePath) throws CertificateEncodingException {
+        writeToFileByDer(certificate, filePath);
+    }
+    
+    /**
+     * 将证书写入文件
+     * 
+     * @param certificate
+     * @param filePath
+     * @throws CertificateEncodingException 
+     */
+    public static void writeCer(X509Certificate certificate, String filePath) throws CertificateEncodingException {
+        writeToFileByDer(certificate, filePath);
+    }
+    
+    /**
      * 以pem编码方式将对象写入文件
      * 
      * @param object   pem编码对象
      * @param filePath 文件路径
      */
     public static void writeToFileByPem(Object object, String filePath) {
-        // // PEMWriter 不需要我们去处理Base64编码的问题
+        // PEMWriter 不需要我们去处理Base64编码的问题
         try (JcaPEMWriter pw = new JcaPEMWriter(new FileWriter(filePath))) {
             pw.writeObject(object);
         } catch (IOException e) {
             LOG.error("writeObject failed", e);
+        }
+    }
+    
+    /**
+     * 以der编码方式将对象写入文件
+     * 
+     * openssl x509 -in cert.crt -outform der -out cert.der
+     * 
+     * @param object   pem编码对象
+     * @param filePath 文件路径
+     * @throws CertificateEncodingException
+     */
+    public static void writeToFileByDer(X509Certificate certificate, String filePath)
+            throws CertificateEncodingException {
+        byte[] bytes = certificate.getEncoded();
+        try (OutputStream pw = new FileOutputStream(filePath)) {
+            pw.write(bytes);
+        } catch (IOException e) {
+            LOG.error("writeToFileByDer failed", e);
         }
     }
 

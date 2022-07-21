@@ -113,10 +113,10 @@ public class CertManagerService {
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
-    public CertRequestVO createCertRequestByKey(String commonName, String userId, String subjectKeyId, String issuerCertId,
-            X500NameInfo subject) throws Exception {
-        CertRequestInfo certRequestInfo = this.certHandler.createCertRequest(commonName, userId, subjectKeyId, null, null,
-                issuerCertId, subject);
+    public CertRequestVO createCertRequestByKey(String commonName, String userId, String subjectKeyId,
+            String issuerCertId, X500NameInfo subject) throws Exception {
+        CertRequestInfo certRequestInfo = this.certHandler.createCertRequest(commonName, userId, subjectKeyId, null,
+                null, issuerCertId, subject);
         return (CertRequestVO) TransformUtils.simpleTransform(certRequestInfo, CertRequestVO.class);
     }
 
@@ -133,23 +133,34 @@ public class CertManagerService {
     }
 
     // 生成子证书
-    public CertVO createChildCert(String commonName, String userId, String csrId, boolean isCaCert, Date beginDate, Date endDate)
-            throws Exception {
+    public CertVO createChildCert(String commonName, String userId, String csrId, boolean isCaCert, Date beginDate,
+            Date endDate) throws Exception {
         return this.createChildCert(commonName, userId, csrId, isCaCert, (KeyUsage) null, beginDate, endDate);
     }
 
     // 生成子证书
-    public CertVO createChildCert(String commonName, String userId, String csrId, boolean isCaCert, KeyUsage keyUsage, Date beginDate,
-            Date endDate) throws Exception {
-        CertInfo certInfo = this.certHandler.createChildCert(commonName , userId, csrId, isCaCert, keyUsage, beginDate, endDate);
+    public CertVO createChildCert(String commonName, String userId, String csrId, boolean isCaCert, KeyUsage keyUsage,
+            Date beginDate, Date endDate) throws Exception {
+        CertInfo certInfo = this.certHandler.createChildCert(commonName, userId, csrId, isCaCert, keyUsage, beginDate,
+                endDate);
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
     // 导出证书到文件
-    public void exportCertToFile(String certId, String filePath) throws Exception {
+    public void exportCertToPemFile(String certId, String filePath) throws Exception {
         CertVO certVO = this.queryCertInfoByCertId(certId);
         if (certVO != null && !StringUtils.isEmpty(certVO.getCertContent())) {
             CertUtils.writeCrt(CertUtils.convertStrToCert(certVO.getCertContent()), filePath);
+        } else {
+            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_NOT_EXIST);
+        }
+    }
+
+    // 导出证书到文件
+    public void exportCertToDerFile(String certId, String filePath) throws Exception {
+        CertVO certVO = this.queryCertInfoByCertId(certId);
+        if (certVO != null && !StringUtils.isEmpty(certVO.getCertContent())) {
+            CertUtils.writeDer(CertUtils.convertStrToCert(certVO.getCertContent()), filePath);
         } else {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_NOT_EXIST);
         }
