@@ -47,7 +47,7 @@ public class ModelPredictScoreStatisticsService {
     @Autowired
     private ModelPredictScoreStatisticsRepository statisticsRepository;
 
-    public List<Double> findBinningSplitPoint(String serviceId) {
+    private List<Double> findBinningSplitPoint(String serviceId) {
         TableModelMySqlModel model = modelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
         JObject scoresDistribution = JObject.create(model.getScoresDistribution());
         JObject binning = scoresDistribution.getJObjectByPath("data.bin_result");
@@ -78,7 +78,7 @@ public class ModelPredictScoreStatisticsService {
         }
     }
 
-    private void initCurrentDay(String serviceId) {
+    public void initCurrentDay(String serviceId) {
         Specification<ModelPredictScoreStatisticsMySqlModel> where = Where
                 .create()
                 .equal("serviceId", serviceId)

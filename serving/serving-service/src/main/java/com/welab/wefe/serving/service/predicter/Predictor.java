@@ -85,16 +85,17 @@ public class Predictor {
         AbstractBasePredictor predictor = constructPredictor(requestId, modelId, userId, featureData);
         PredictResult result = predictor.predict();
 
-        if (JobMemberRole.provider.equals(findMyRole(modelId)) && FederatedLearningType.vertical.equals(findFlType(modelId))) {
-            return result;
-        }
-
         recordPredictScoreIncrement(modelId, result);
 
         return result;
     }
 
-    private static void recordPredictScoreIncrement(String modelId, PredictResult result) {
+    private static void recordPredictScoreIncrement(String modelId, PredictResult result) throws StatusCodeWithException {
+
+        if (JobMemberRole.provider.equals(findMyRole(modelId)) && FederatedLearningType.vertical.equals(findFlType(modelId))) {
+            return;
+        }
+
         if (result.getResult() instanceof XgboostPredictResultModel) {
             XgboostPredictResultModel scoreModel = (XgboostPredictResultModel) result.getResult();
             modelPredictScoreStatisticsService.asyncIncrement(modelId, Double.valueOf(scoreModel.getScores().toString()));
