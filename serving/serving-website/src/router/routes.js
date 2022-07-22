@@ -26,17 +26,17 @@ const baseRoutes = [
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
-            // {
-            //     path: `${prefixPath}`,
-            //     name: 'index',
-            //     meta: {
-            //         title:           '首页',
-            //         hidden: true,
-            //         active:          `${prefixPath}index`,
-            //         loginAndRefresh: true,
-            //     },
-            //     component: () => import('@views/index.vue'),
-            // },
+            {
+                path: `${prefixPath}`,
+                name: 'index',
+                meta: {
+                    title:           '首页',
+                    hidden: true,
+                    active:          `${prefixPath}index`,
+                    loginAndRefresh: true,
+                },
+                component: () => import('@views/service/service-list.vue'),
+            },
             {
                 path: `${prefixPath}`,
                 name: 'service-list',
