@@ -296,7 +296,6 @@ class VertDPDecisionTreePromoter(DecisionTree):
             node_dispatch = self.node_dispatch
         return node_dispatch
 
-
     def fit(self):
         LOGGER.info("begin to fit dp promoter decision tree")
 
@@ -336,6 +335,10 @@ class VertDPDecisionTreePromoter(DecisionTree):
         LOGGER.info("end to fit promoter decision tree")
 
     def compute_best_splits(self, node_map, dep):
+        LOGGER.info('solving node num is {}'.format(len(self.cur_split_nodes)))
+        node_dispatch = self.get_computing_node_dispatch()
+        node_sample_count = self.count_node_sample_num(node_dispatch, node_map)
+        LOGGER.debug('sample count is {}'.format(node_sample_count))
 
         LOGGER.info('solving node num is {}'.format(len(self.cur_split_nodes)))
         node_dispatch = self.get_computing_node_dispatch()

@@ -62,7 +62,7 @@ public class XgboostRubyLanguage extends XgboostPythonLanguage {
     }
 
     @Override
-    protected String build2ClassificationsResultLogicCode(int treeNum, String initScore) {
+    protected String build2ClassificationsResultLogicCode(int treeNum, String initScore, double learningRate) {
         StringBuilder methodCalcCode = new StringBuilder();
         String summaryVar = "s1";
         methodCalcCode.append(indentationByNodeLayer(1, false));
@@ -71,7 +71,7 @@ public class XgboostRubyLanguage extends XgboostPythonLanguage {
                 .append(indentationByNodeLayer(1, false))
                 .append(summaryVar)
                 .append(" = 1.fdiv(1 + Math.exp(0 - (")
-                .append(generateTreeSum(treeNum, initScore))
+                .append(generateTreeSum(treeNum, initScore, learningRate))
                 .append(")))")
                 .append(lineEndSymbol())
                 .append("\n")
@@ -92,7 +92,7 @@ public class XgboostRubyLanguage extends XgboostPythonLanguage {
 
 
     @Override
-    protected String buildMultipleClassificationsResultLogicCode(int treeNum, int treeDim, String initScore) {
+    protected String buildMultipleClassificationsResultLogicCode(int treeNum, int treeDim, String initScore, double learningRate) {
         StringBuilder methodCalcCode = new StringBuilder();
         Map<Integer, List<String>> treeClassificationMap = treeMultipleClassificationsModMap(treeNum, treeDim);
 
@@ -107,7 +107,7 @@ public class XgboostRubyLanguage extends XgboostPythonLanguage {
                     .append(resultIndentationNum(2))
                     .append(rVarName)
                     .append(" = 1.fdiv(1 + ")
-                    .append(buildExpFunction(entry.getValue(), initScore))
+                    .append(buildExpFunction(entry.getValue(), initScore, learningRate))
                     .append(")")
                     .append(lineEndSymbol())
                     .append("\n");
@@ -121,10 +121,10 @@ public class XgboostRubyLanguage extends XgboostPythonLanguage {
 
 
     @Override
-    protected String buildExpFunction(List<String> treeVarNameList, String initScore) {
+    protected String buildExpFunction(List<String> treeVarNameList, String initScore, double learningRate) {
         StringBuilder code = new StringBuilder();
         code.append("Math.exp(0 - (")
-                .append(generateTreeSum(treeVarNameList, initScore))
+                .append(generateTreeSum(treeVarNameList, initScore, learningRate))
                 .append("))");
 
         return code.toString();

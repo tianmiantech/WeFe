@@ -166,7 +166,7 @@ class VertDPSecureBoostingPromoter(BoostingTree):
             for k,v in bin_sparse_points.items():
                 self.bin_sparse_points[k+feature_num] = v
             feature_num += bin_shape[0]
-            self.feature_sitenames.append((feature_num,sitename))
+            self.feature_sitenames.append((feature_num, sitename))
 
     def set_y(self):
         LOGGER.info("set label from data and check label")

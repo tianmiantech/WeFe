@@ -17,9 +17,9 @@
 package com.welab.wefe.data.fusion.service.database.listener;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.data.fusion.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.data.fusion.service.service.globalconfig.BaseGlobalConfigService;
-import com.welab.wefe.data.fusion.service.utils.FusionSM4Util;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
@@ -35,7 +35,7 @@ public class GlobalConfigMysqlModelListener {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
             if (BaseGlobalConfigService.Group.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
-                model.setValue(FusionSM4Util.encryptCommonText(model.getValue()));
+                model.setValue(DatabaseEncryptUtil.encrypt(model.getValue()));
             }
         }
     }
@@ -57,9 +57,7 @@ public class GlobalConfigMysqlModelListener {
             GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
             if (BaseGlobalConfigService.Group.MEMBER_INFO.equals(model.getGroup())
                     && "member_mobile".equals(model.getName())) {
-                if (FusionSM4Util.isEncryptText(model.getValue())) {
-                    model.setValue(FusionSM4Util.decryptCommonText(model.getValue()));
-                }
+                model.setValue(DatabaseEncryptUtil.decrypt(model.getValue()));
             }
         }
     }
