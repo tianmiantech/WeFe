@@ -36,7 +36,8 @@ class OotParam(BaseParam):
     """
 
     def __init__(self, mode=consts.VERT, feature_columns='', with_label=False, label_name='y',
-                 label_type='int', flow_node_id='', sub_component_name_list=[], sub_component_task_config_dick={}):
+                 label_type='int', flow_node_id='', sub_component_name_list=[], sub_component_task_config_dick={},
+                 job={}):
         self.mode = mode
         self.feature_columns = feature_columns
         self.with_label = with_label
@@ -45,6 +46,7 @@ class OotParam(BaseParam):
         self.flow_node_id = flow_node_id
         self.sub_component_name_list = sub_component_name_list
         self.sub_component_task_config_dick = sub_component_task_config_dick
+        self.job = job
 
     def check(self):
         descr = "oot param's"

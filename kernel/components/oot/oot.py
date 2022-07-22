@@ -155,6 +155,9 @@ class Oot(ModelBase):
         member_id = self.tracker.member_id
         sub_module_name = sub_component_task_config['module']
         sub_component_name = sub_component_task_config['oot_params']['component_name']
+
+        sub_component_task_config['job'] = self.model_param.job
+
         parameters = TaskExecutor.get_parameters(role, member_id, sub_module_name, sub_component_name,
                                                  sub_component_task_config)
         return parameters
