@@ -15,7 +15,9 @@
  */
 package com.welab.wefe.serving.service.api.model;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -30,10 +32,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +49,11 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
     @Override
     protected ApiResult<Output> handle(Input input) throws Exception {
-        Output output = Output.create(extractExpectedData(input.getServiceId()), extractActualData(input));
+        Output output = Output.create(
+                extractExpectedData(input.getServiceId()),
+                extractActualData(input),
+                extractActualCountData(input)
+        );
         return success(output);
     }
 
@@ -74,6 +77,87 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
                             total == 0 ? 0 : model.getCount().doubleValue() / total));
         }
         return dataList;
+    }
+
+    private List<Object> extractActualCountData(Input input) {
+        List<DayModel> days = getDayList(input);
+
+        return days.stream()
+                .map(x -> {
+                    List<StatisticsSumModel> count = statisticsRepository.countBy(input.getServiceId(), x.getBeginTime(), x.getEndTime());
+                    List<StatisticsSumModel> modelList = count
+                            .stream()
+                            .sorted(Comparator.comparing(StatisticsSumModel::getSplitPoint))
+                            .collect(Collectors.toList());
+
+                    List<List<Object>> dataList = Lists.newArrayList();
+
+                    for (int i = 0; i < modelList.size(); i++) {
+                        StatisticsSumModel model = modelList.get(i);
+                        dataList.add(
+                                Arrays.asList(
+                                        extractXAxis2(modelList, i, model.getSplitPoint()),
+                                        model.getCount()));
+                    }
+
+                    Map<String, Object> map = new HashMap();
+                    map.put(formatDate(x.getBeginTime()), dataList);
+                    return map;
+                }).collect(Collectors.toList());
+    }
+
+    private String formatDate(Date date) {
+        return DateUtil.timeInMillisToDate(date.getTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2);
+    }
+
+    private List<DayModel> getDayList(Input input) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(input.getBeginTime());
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+
+        List<DayModel> list = Lists.newArrayList();
+
+        Date start;
+        Date end;
+        do {
+            start = calendar.getTime();
+            calendar.add(Calendar.DATE, input.getStep());
+            end = calendar.getTime();
+            list.add(DayModel.of(start, end));
+        } while (end.getTime() < input.getEndTime().getTime());
+
+        return list;
+    }
+
+    public static void main(String[] args) {
+        Date startDate = new Date();
+        Date endDate = new Date();
+        int step = 1;
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+
+        Date start = calendar.getTime();
+        Date end = calendar.getTime();
+        List<Map<Date, Date>> list = Lists.newArrayList();
+        while (end.getTime() < endDate.getTime()) {
+            start = calendar.getTime();
+            calendar.add(Calendar.DATE, step);
+            end = calendar.getTime();
+
+            Map<Date, Date> map = new HashMap<>();
+            map.put(start, end);
+            list.add(map);
+        }
+
+        System.out.println(JSON.toJSONString(list));
     }
 
     private List<List<Object>> extractExpectedData(String serviceId) {
@@ -135,10 +219,13 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
         private Object actual;
 
-        public static Output create(Object expected, Object actual) {
+        private Object count;
+
+        public static Output create(Object expected, Object actual, Object count) {
             Output output = new Output();
             output.expected = expected;
             output.actual = actual;
+            output.count = count;
             return output;
         }
 
@@ -157,6 +244,14 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
         public void setActual(Object actual) {
             this.actual = actual;
         }
+
+        public Object getCount() {
+            return count;
+        }
+
+        public void setCount(Object count) {
+            this.count = count;
+        }
     }
 
     public static class Input extends AbstractApiInput {
@@ -164,12 +259,14 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
         @Check(name = "主键id", require = true)
         private String serviceId;
 
-        @Check(name = "开始时间")
+        @Check(name = "开始时间", require = true)
         private Date beginTime;
 
-        @Check(name = "结束时间")
+        @Check(name = "结束时间", require = true)
         private Date endTime = new Date();
 
+        @Check(name = "周期")
+        private int step = 1;
 
         public String getServiceId() {
             return serviceId;
@@ -193,6 +290,45 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
         public void setEndTime(Date endTime) {
             this.endTime = endTime;
+        }
+
+        public int getStep() {
+            return step;
+        }
+
+        public void setStep(int step) {
+            this.step = step;
+        }
+    }
+
+
+    public static class DayModel {
+
+        private Date beginTime;
+
+        private Date endTime;
+
+        public Date getBeginTime() {
+            return beginTime;
+        }
+
+        public void setBeginTime(Date beginTime) {
+            this.beginTime = beginTime;
+        }
+
+        public Date getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(Date endTime) {
+            this.endTime = endTime;
+        }
+
+        private static DayModel of(Date beginTime, Date endTime) {
+            DayModel dayModel = new DayModel();
+            dayModel.beginTime = beginTime;
+            dayModel.endTime = endTime;
+            return dayModel;
         }
     }
 }
