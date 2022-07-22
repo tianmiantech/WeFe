@@ -266,7 +266,7 @@ public class CertManagerServiceTest {
     @Test
     public void testQueryCertRequestList() {
         String userId = "d84194f4ba1d40a2a06b7c63132c8ea9";
-        List<CertRequestVO> list = certManagerService.queryCertRequestList(userId, null);
+        List<CertRequestVO> list = certManagerService.queryCertRequestList(userId, null, 0, 100);
         list.stream().forEach(System.out::println);
     }
 

@@ -23,7 +23,6 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x509.KeyUsage;
@@ -39,6 +38,8 @@ import com.webank.cert.mgr.enums.CertDigestAlgEnums;
 import com.webank.cert.mgr.enums.KeyAlgorithmEnums;
 import com.webank.cert.mgr.enums.MgrExceptionCodeEnums;
 import com.webank.cert.mgr.exception.CertMgrException;
+import com.webank.cert.mgr.model.vo.CertKeyVO;
+import com.webank.cert.mgr.model.vo.CertRequestVO;
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.utils.TransformUtils;
 import com.webank.cert.toolkit.constants.CertConstants;
@@ -46,6 +47,7 @@ import com.webank.cert.toolkit.model.X500NameInfo;
 import com.webank.cert.toolkit.service.CertService;
 import com.webank.cert.toolkit.utils.CertUtils;
 import com.webank.cert.toolkit.utils.KeyUtils;
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertKeyInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertRequestInfo;
@@ -88,6 +90,18 @@ public class CertOperationService {
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
+    // 根据ID查询证书请求
+    public CertRequestVO findCertRequestById(String pkId) {
+        CertRequestInfo info = certDao.findCertRequestById(pkId);
+        return (CertRequestVO) TransformUtils.simpleTransform(info, CertRequestVO.class);
+    }
+
+    // 根据ID查询私钥
+    public CertKeyVO findCertKeyById(String certKeyId) {
+        CertKeyInfo keyInfo = certDao.findKeyByPkId(certKeyId);
+        return (CertKeyVO) TransformUtils.simpleTransform(keyInfo, CertKeyVO.class);
+    }
+
     // 根据序列号查找证书
     public CertVO findBySerialNumber(String serialNumber) {
         CertInfo certInfo = certDao.findBySerialNumber(serialNumber);
@@ -95,14 +109,21 @@ public class CertOperationService {
     }
 
     // 证书请求列表查询
-    public List<CertRequestInfo> queryCertRequestList(String userId, String pCertId) {
-        return certDao.findCertRequestList(userId, pCertId);
+    public PageOutput<CertRequestInfo> queryCertRequestList(String userId, String pCertId, int pageIndex,
+            int pageSize) {
+        return certDao.findCertRequestList(userId, pCertId, pageIndex, pageSize);
+    }
+
+    // 私钥列表查询
+    public PageOutput<CertKeyInfo> findKeys(String userId, int pageIndex, int pageSize) {
+        return certDao.findKeys(userId, pageIndex, pageSize);
     }
 
     // 证书列表查询
-    public List<CertVO> queryCertList(String userId, String pCertId, boolean isCACert, boolean isRootCert) {
-        List<CertInfo> certInfos = certDao.findCertList(userId, pCertId, isCACert, isRootCert);
-        return TransformUtils.simpleTransform(certInfos, CertVO.class);
+    public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert,
+            int pageIndex, int pageSize) {
+        PageOutput<CertInfo> certInfos = certDao.findCertList(userId, pCertId, isCACert, isCACert, pageIndex, pageSize);
+        return certInfos;
     }
 
     // 初始化根证书

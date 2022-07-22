@@ -44,6 +44,7 @@ import com.webank.cert.toolkit.model.X500NameInfo;
 import com.webank.cert.toolkit.service.CertService;
 import com.webank.cert.toolkit.utils.CertUtils;
 import com.webank.cert.toolkit.utils.KeyUtils;
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertKeyInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertRequestInfo;
@@ -130,7 +131,7 @@ public class CertHandler {
     }
 
     public CertKeyInfo queryCertKey(String pkId) {
-        return certDao.findByPkId(pkId);
+        return certDao.findKeyByPkId(pkId);
     }
 
     public String importPrivateKey(String userId, String pemPrivateKey, String priAlg) throws Exception {
@@ -278,8 +279,9 @@ public class CertHandler {
         return certDao.findCertList(userId, pCertId, isCACert, isRootCert);
     }
 
-    public List<CertRequestInfo> queryCertRequestList(String userId, String pCertId) {
-        return certDao.findCertRequestList(userId, pCertId);
+    public PageOutput<CertRequestInfo> queryCertRequestList(String userId, String pCertId, int pageIndex,
+            int pageSize) {
+        return certDao.findCertRequestList(userId, pCertId, pageIndex, pageSize);
     }
 
     public List<CertKeyInfo> queryCertKeyList(String userId) {

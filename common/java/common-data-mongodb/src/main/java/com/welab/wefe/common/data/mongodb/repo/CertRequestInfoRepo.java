@@ -24,6 +24,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertRequestInfo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 
@@ -48,17 +49,18 @@ public class CertRequestInfoRepo extends AbstractMongoRepo<CertRequestInfo> {
         return mongoManagerTemplate.findOne(query, CertRequestInfo.class);
     }
 
-    public List<CertRequestInfo> findCertRequestList(String userId, String pCertId) {
+    public PageOutput<CertRequestInfo> findCertRequestList(String userId, String pCertId, int pageIndex, int pageSize) {
         QueryBuilder queryBuilder = new QueryBuilder();
         if (StringUtils.isNotBlank(userId)) {
             queryBuilder.append("userId", userId);
         }
         if (StringUtils.isNotBlank(pCertId)) {
-            queryBuilder.append("issuerCertId", pCertId);
+            queryBuilder.append("pCertId", pCertId);
         }
-        Query query = queryBuilder.build();
+        Query query = queryBuilder.page(pageIndex, pageSize).build();
         List<CertRequestInfo> list = mongoManagerTemplate.find(query, CertRequestInfo.class);
-        return list;
+        long count = mongoManagerTemplate.count(query, CertRequestInfo.class);
+        return new PageOutput<>(pageIndex, count, pageSize, list);
     }
 
 }

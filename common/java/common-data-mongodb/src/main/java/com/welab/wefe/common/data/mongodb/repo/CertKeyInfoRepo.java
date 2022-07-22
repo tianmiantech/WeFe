@@ -18,11 +18,13 @@ package com.welab.wefe.common.data.mongodb.repo;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertKeyInfo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
 
@@ -47,6 +49,17 @@ public class CertKeyInfoRepo extends AbstractMongoRepo<CertKeyInfo> {
         Query query = queryBuilder.build();
         List<CertKeyInfo> list = mongoManagerTemplate.find(query, CertKeyInfo.class);
         return list;
+    }
+
+    public PageOutput<CertKeyInfo> findKeys(String userId, int pageIndex, int pageSize) {
+        QueryBuilder queryBuilder = new QueryBuilder();
+        if (StringUtils.isNotBlank(userId)) {
+            queryBuilder.append("userId", userId);
+        }
+        Query query = queryBuilder.page(pageIndex, pageSize).build();
+        List<CertKeyInfo> list = mongoManagerTemplate.find(query, CertKeyInfo.class);
+        long count = mongoManagerTemplate.count(query, CertKeyInfo.class);
+        return new PageOutput<>(pageIndex, count, pageSize, list);
     }
 
 }

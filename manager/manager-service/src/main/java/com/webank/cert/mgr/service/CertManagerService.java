@@ -38,6 +38,7 @@ import com.webank.cert.mgr.utils.TransformUtils;
 import com.webank.cert.toolkit.model.X500NameInfo;
 import com.webank.cert.toolkit.utils.CertUtils;
 import com.webank.cert.toolkit.utils.KeyUtils;
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertKeyInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertRequestInfo;
@@ -204,13 +205,14 @@ public class CertManagerService {
 
     // 证书请求列表查询
     public List<CertRequestVO> queryCertRequestList() {
-        return queryCertRequestList(null, null);
+        return queryCertRequestList(null, null, 0, 100);
     }
 
     // 证书请求列表查询
-    public List<CertRequestVO> queryCertRequestList(String userId, String pCertId) {
-        List<CertRequestInfo> certRequestInfos = this.certHandler.queryCertRequestList(userId, pCertId);
-        return TransformUtils.simpleTransform(certRequestInfos, CertRequestVO.class);
+    public List<CertRequestVO> queryCertRequestList(String userId, String pCertId, int pageIndex, int pageSize) {
+        PageOutput<CertRequestInfo> certRequestInfos = this.certHandler.queryCertRequestList(userId, pCertId, pageIndex,
+                pageSize);
+        return TransformUtils.simpleTransform(certRequestInfos.getList(), CertRequestVO.class);
     }
 
     // 证书私钥列表查询

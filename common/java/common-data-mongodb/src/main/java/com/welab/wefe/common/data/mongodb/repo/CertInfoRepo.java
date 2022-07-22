@@ -51,26 +51,20 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
         return mongoManagerTemplate.findOne(query, CertInfo.class);
     }
 
-    public PageOutput<CertInfo> findCertList(String userId, String issuerKeyId, String pCertId, String issuerOrg,
-            String issuerCN, Boolean isCACert, int pageIndex, int pageSize) {
+    public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert,
+            int pageIndex, int pageSize) {
         QueryBuilder queryBuilder = new QueryBuilder();
         if (StringUtils.isNotBlank(userId)) {
             queryBuilder.append("userId", userId);
         }
-        if (StringUtils.isNotBlank(issuerKeyId)) {
-            queryBuilder.append("issuerKeyId", issuerKeyId);
-        }
         if (StringUtils.isNotBlank(pCertId)) {
             queryBuilder.append("pCertId", pCertId);
         }
-        if (StringUtils.isNotBlank(issuerOrg)) {
-            queryBuilder.append("issuerOrg", issuerOrg);
-        }
-        if (StringUtils.isNotBlank(issuerCN)) {
-            queryBuilder.append("issuerCN", issuerCN);
-        }
         if (isCACert != null) {
             queryBuilder.append("isCACert", isCACert);
+        }
+        if (isRootCert != null) {
+            queryBuilder.append("isRootCert", isRootCert);
         }
 
         Query query = queryBuilder.page(pageIndex, pageSize).build();

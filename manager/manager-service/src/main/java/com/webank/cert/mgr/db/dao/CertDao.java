@@ -20,6 +20,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertKeyInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertRequestInfo;
@@ -79,19 +80,28 @@ public class CertDao {
         return certInfoRepo.findBySerialNumber(serialNumber);
     }
 
-    public List<CertInfo> findCertList(String userId, String pCertId, boolean isCACert, boolean isRootCert) {
+    public List<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert) {
         return certInfoRepo.findCerts(userId, pCertId, isCACert, isCACert);
     }
 
-    public List<CertRequestInfo> findCertRequestList(String userId, String pCertId) {
-        return certRequestInfoRepo.findCertRequestList(userId, pCertId);
+    public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert,
+            int pageIndex, int pageSize) {
+        return certInfoRepo.findCertList(userId, pCertId, isCACert, isCACert, pageIndex, pageSize);
+    }
+
+    public PageOutput<CertRequestInfo> findCertRequestList(String userId, String pCertId, int pageIndex, int pageSize) {
+        return certRequestInfoRepo.findCertRequestList(userId, pCertId, pageIndex, pageSize);
+    }
+
+    public PageOutput<CertKeyInfo> findKeys(String userId, int pageIndex, int pageSize) {
+        return certKeyInfoRepo.findKeys(userId, pageIndex, pageSize);
     }
 
     public List<CertKeyInfo> findKeyByUserId(String userId) {
         return certKeyInfoRepo.findByUserId(userId);
     }
 
-    public CertKeyInfo findByPkId(String pkId) {
+    public CertKeyInfo findKeyByPkId(String pkId) {
         return certKeyInfoRepo.findByPkId(pkId);
     }
 }
