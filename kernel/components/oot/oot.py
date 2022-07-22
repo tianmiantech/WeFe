@@ -26,6 +26,7 @@ from kernel.model_base import ModelBase
 from kernel.task_executor import TaskExecutor
 from kernel.tracker.tracking import Tracking
 from kernel.utils import consts
+from common.python.db.db_models import DB, Job
 
 LOGGER = log_utils.get_logger()
 
