@@ -30,6 +30,7 @@
  */
 package com.webank.cert.toolkit.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +40,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.security.Key;
@@ -316,7 +318,7 @@ public class CertUtils {
     public static void writePublicKey(Key key, String filePath) {
         writeToFileByPem(key, filePath);
     }
-    
+
     /**
      * 将私钥对象写入文件
      * 
@@ -363,28 +365,40 @@ public class CertUtils {
         writeToFileByPem(certificate, filePath);
     }
 
+    public static byte[] toBytes(X509Certificate object) {
+        byte[] dataBytes = null;
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream();
+                JcaPEMWriter pw = new JcaPEMWriter(new OutputStreamWriter(output))) {
+            pw.writeObject(object);
+            dataBytes = output.toByteArray();
+        } catch (IOException e) {
+            LOG.error("writeObject failed", e);
+        }
+        return dataBytes;
+    }
+
     /**
      * 将证书写入文件
      * 
      * @param certificate
      * @param filePath
-     * @throws CertificateEncodingException 
+     * @throws CertificateEncodingException
      */
     public static void writeDer(X509Certificate certificate, String filePath) throws CertificateEncodingException {
         writeToFileByDer(certificate, filePath);
     }
-    
+
     /**
      * 将证书写入文件
      * 
      * @param certificate
      * @param filePath
-     * @throws CertificateEncodingException 
+     * @throws CertificateEncodingException
      */
     public static void writeCer(X509Certificate certificate, String filePath) throws CertificateEncodingException {
         writeToFileByDer(certificate, filePath);
     }
-    
+
     /**
      * 以pem编码方式将对象写入文件
      * 
@@ -399,7 +413,7 @@ public class CertUtils {
             LOG.error("writeObject failed", e);
         }
     }
-    
+
     /**
      * 以der编码方式将对象写入文件
      * 

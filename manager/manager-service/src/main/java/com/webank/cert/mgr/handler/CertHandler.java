@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.cert.mgr.handler;
 
 import java.math.BigInteger;
@@ -138,13 +153,13 @@ public class CertHandler {
 
     /**
      * @param commonName 证书常用名
-     * @param userId 证书申请人用户ID
-     * @param csrId 证书申请ID
-     * @param isCaCert 是否是根证书
-     * */
+     * @param userId     证书申请人用户ID
+     * @param csrId      证书申请ID
+     * @param isCaCert   是否是根证书
+     */
     @Transactional
-    public CertInfo createChildCert(String commonName, String userId, String csrId, boolean isCaCert, KeyUsage keyUsage, Date beginDate,
-            Date endDate) throws Exception {
+    public CertInfo createChildCert(String commonName, String userId, String csrId, boolean isCaCert, KeyUsage keyUsage,
+            Date beginDate, Date endDate) throws Exception {
         if (StringUtils.isBlank(userId)) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
         }
@@ -259,15 +274,12 @@ public class CertHandler {
         return certDao.save(certInfo);
     }
 
-    public List<CertInfo> queryCertInfoList(String userId, String issuerKeyId, String pCertId, String issuerOrg,
-            String issuerCN, Boolean isCACert) {
-
-        return certDao.findCertList(userId, issuerKeyId, pCertId, issuerOrg, issuerCN, isCACert);
+    public List<CertInfo> queryCertInfoList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert) {
+        return certDao.findCertList(userId, pCertId, isCACert, isRootCert);
     }
 
-    public List<CertRequestInfo> queryCertRequestList(String userId, String subjectKeyId, String pCertId,
-            String subjectOrg, String subjectCN, String pCertUserId) {
-        return certDao.findCertRequestList(userId, subjectKeyId, pCertId, subjectOrg, subjectCN, pCertUserId);
+    public List<CertRequestInfo> queryCertRequestList(String userId, String pCertId) {
+        return certDao.findCertRequestList(userId, pCertId);
     }
 
     public List<CertKeyInfo> queryCertKeyList(String userId) {
@@ -284,18 +296,18 @@ public class CertHandler {
 
     /**
      * @param certificatePemStr 证书的pem格式内容
-     * @param issuerCommonName 签发机构的常用名
-     * @param issuerOrgName 签发机构的组织机构名称
+     * @param issuerCommonName  签发机构的常用名
+     * @param issuerOrgName     签发机构的组织机构名称
      * @param subjectCommonName 证书申请人的常用名
-     * @param subjectOrgName 证书申请人的组织名称
-     * @param publicKey 证书的公钥
-     * @param userId 证书申请人用户ID
-     * @param serialNumber 证书序列号
-     * @param issuerCertKeyId 签发机构的证书的私钥ID
-     * @param subjectKeyId 证书申请人私钥ID
-     * @param isCACert 是否是根证书
-     * @param issuerCertId 签发机构证书ID
-     * */
+     * @param subjectOrgName    证书申请人的组织名称
+     * @param publicKey         证书的公钥
+     * @param userId            证书申请人用户ID
+     * @param serialNumber      证书序列号
+     * @param issuerCertKeyId   签发机构的证书的私钥ID
+     * @param subjectKeyId      证书申请人私钥ID
+     * @param isCACert          是否是根证书
+     * @param issuerCertId      签发机构证书ID
+     */
     private CertInfo buildCertInfo(String certificatePemStr, String issuerCommonName, String issuerOrgName,
             String subjectCommonName, String subjectOrgName, PublicKey publicKey, String userId,
             BigInteger serialNumber, String issuerCertKeyId, String subjectKeyId, boolean isCACert,

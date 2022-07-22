@@ -22,11 +22,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
 import com.welab.wefe.common.data.mongodb.util.QueryBuilder;
+import com.welab.wefe.common.data.mongodb.util.UpdateBuilder;
 
 @Repository
 public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
@@ -41,6 +43,11 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
 
     public CertInfo findByPkId(String pkId) {
         Query query = new QueryBuilder().append("pkId", pkId).build();
+        return mongoManagerTemplate.findOne(query, CertInfo.class);
+    }
+
+    public CertInfo findBySerialNumber(String serialNumber) {
+        Query query = new QueryBuilder().append("serialNumber", serialNumber).build();
         return mongoManagerTemplate.findOne(query, CertInfo.class);
     }
 
@@ -72,26 +79,19 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
         return new PageOutput<>(pageIndex, count, pageSize, list);
     }
 
-    public List<CertInfo> findCerts(String userId, String issuerKeyId, String pCertId, String issuerOrg,
-            String issuerCN, Boolean isCACert) {
+    public List<CertInfo> findCerts(String userId, String pCertId, Boolean isCACert, Boolean isRootCert) {
         QueryBuilder queryBuilder = new QueryBuilder();
         if (StringUtils.isNotBlank(userId)) {
             queryBuilder.append("userId", userId);
         }
-        if (StringUtils.isNotBlank(issuerKeyId)) {
-            queryBuilder.append("issuerKeyId", issuerKeyId);
-        }
         if (StringUtils.isNotBlank(pCertId)) {
             queryBuilder.append("pCertId", pCertId);
         }
-        if (StringUtils.isNotBlank(issuerOrg)) {
-            queryBuilder.append("issuerOrg", issuerOrg);
-        }
-        if (StringUtils.isNotBlank(issuerCN)) {
-            queryBuilder.append("issuerCN", issuerCN);
-        }
         if (isCACert != null) {
             queryBuilder.append("isCACert", isCACert);
+        }
+        if (isRootCert != null) {
+            queryBuilder.append("isRootCert", isRootCert);
         }
 
         Query query = queryBuilder.build();
@@ -107,4 +107,10 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
         return mongoManagerTemplate.findAll(CertInfo.class);
     }
 
+    public void updateStatus(String serialNumber, String status) {
+        Query query = new QueryBuilder().append("serialNumber", serialNumber).build();
+        Update update = new UpdateBuilder().append("status", status).append("updateTime", System.currentTimeMillis())
+                .build();
+        mongoManagerTemplate.updateFirst(query, update, CertInfo.class);
+    }
 }

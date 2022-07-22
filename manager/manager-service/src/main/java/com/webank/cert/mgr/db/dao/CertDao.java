@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.cert.mgr.db.dao;
 
 import java.util.List;
@@ -56,15 +71,20 @@ public class CertDao {
         return certInfoRepo.findByPkId(certId);
     }
 
-    public List<CertInfo> findCertList(String userId, String issuerKeyId, String pCertId, String issuerOrg,
-            String issuerCN, Boolean isCACert) {
-        return certInfoRepo.findCerts(userId, issuerKeyId, pCertId, issuerOrg, issuerCN, isCACert);
+    public void updateStatus(String serialNumber, String status) {
+        certInfoRepo.updateStatus(serialNumber, status);
     }
 
-    public List<CertRequestInfo> findCertRequestList(String userId, String subjectKeyId, String pCertId,
-            String subjectOrg, String subjectCN, String pCertUserId) {
-        return certRequestInfoRepo.findCertRequestList(userId, subjectKeyId, pCertId, subjectOrg, subjectCN,
-                pCertUserId);
+    public CertInfo findBySerialNumber(String serialNumber) {
+        return certInfoRepo.findBySerialNumber(serialNumber);
+    }
+
+    public List<CertInfo> findCertList(String userId, String pCertId, boolean isCACert, boolean isRootCert) {
+        return certInfoRepo.findCerts(userId, pCertId, isCACert, isCACert);
+    }
+
+    public List<CertRequestInfo> findCertRequestList(String userId, String pCertId) {
+        return certRequestInfoRepo.findCertRequestList(userId, pCertId);
     }
 
     public List<CertKeyInfo> findKeyByUserId(String userId) {

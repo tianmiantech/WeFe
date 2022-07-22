@@ -16,7 +16,14 @@
 
 package com.welab.wefe.manager.service.api.member;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.webank.cert.mgr.model.vo.CertVO;
+import com.webank.cert.mgr.service.CertOperationService;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
+import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -24,7 +31,6 @@ import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.member.RealNameAuthInput;
 import com.welab.wefe.manager.service.service.MemberContractService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
@@ -34,13 +40,51 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
     @Autowired
     protected MemberContractService memberContractService;
 
+    @Autowired
+    private CertOperationService certOperationService;
+
+    @Autowired
+    private MemberMongoReop memberMongoReop;
+
     @Override
     protected ApiResult<AbstractApiOutput> handle(RealNameAuthInput input) throws StatusCodeWithException {
         MemberExtJSON memberExtJSON = new MemberExtJSON();
         memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
         memberExtJSON.setAuditComment(input.getAuditComment());
-        if(input.getRealNameAuthStatus() == 2) {
+        
+        if (input.getRealNameAuthStatus() == 2) {
+            Member member = memberMongoReop.findMemberId(input.getId());
+            if (member == null) {
+                throw new StatusCodeWithException("成员不存在", StatusCode.DATA_NOT_FOUND);
+            }
+            memberExtJSON = member.getExtJson();
+            memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
+            memberExtJSON.setAuditComment(input.getAuditComment());
             memberExtJSON.setRealNameAuthTime(System.currentTimeMillis());
+            // 常用名
+            String commonName = memberExtJSON.getPrincipalName();
+            // 用户ID
+            String userId = input.getCurMemberId();
+            // 组织机构单位名称固定为 IT
+            String organizationUnitName = "IT";
+            // 组织单位名称
+            String organizationName = memberExtJSON.getOrganizationName();
+            // 邮箱
+            String email = memberExtJSON.getEmail();
+            // 证书请求内容
+            String certRequestContent = memberExtJSON.getCertRequestContent();
+            // 签发机构的证书ID
+            String issuerCertId = input.getIssuerCertId();
+            try {
+                // 签发证书
+                CertVO cert = certOperationService.createUserCert(issuerCertId, commonName, userId,
+                        organizationUnitName, organizationName, email, certRequestContent);
+                // 将证书内容写入
+                memberExtJSON.setCertPemContent(cert.getCertContent());
+                memberExtJSON.setCertSerialNumber(cert.getSerialNumber());
+            } catch (Exception e) {
+                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+            }
         }
         memberContractService.updateExtJson(input.getId(), memberExtJSON);
         return success();

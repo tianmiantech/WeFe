@@ -31,10 +31,24 @@ public class MemberExtJSON {
     private String authType;
     private String auditComment;
     private long realNameAuthTime;
+    private long updatedTime;
     private String description;
     private List<RealnameAuthFileInfo> realnameAuthFileInfoList;
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
+    // 证书相关字段
+    // 企业所在省市
+    private String provinceCityName;
+    // 企业所属组织
+    private String organizationName;
+    // 邮箱
+    private String email;
+    // 证书请求内容
+    private String certRequestContent;
+    // 证书pem内容
+    private String certPemContent;
+    // 证书序列号
+    private String certSerialNumber;
 
     public int getRealNameAuthStatus() {
         return realNameAuthStatus;
@@ -68,7 +82,6 @@ public class MemberExtJSON {
         this.description = description;
     }
 
-
     public String getAuditComment() {
         return auditComment;
     }
@@ -76,7 +89,6 @@ public class MemberExtJSON {
     public void setAuditComment(String auditComment) {
         this.auditComment = auditComment;
     }
-
 
     public List<RealnameAuthFileInfo> getRealnameAuthFileInfoList() {
         return realnameAuthFileInfoList;
@@ -109,4 +121,61 @@ public class MemberExtJSON {
     public void setSecretKeyType(SecretKeyType secretKeyType) {
         this.secretKeyType = secretKeyType;
     }
+
+    public String getProvinceCityName() {
+        return provinceCityName;
+    }
+
+    public void setProvinceCityName(String provinceCityName) {
+        this.provinceCityName = provinceCityName;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getCertRequestContent() {
+        return certRequestContent;
+    }
+
+    public void setCertRequestContent(String certRequestContent) {
+        this.certRequestContent = certRequestContent;
+    }
+
+    public String getCertPemContent() {
+        return certPemContent;
+    }
+
+    public void setCertPemContent(String certPemContent) {
+        this.certPemContent = certPemContent;
+    }
+
+    public String getCertSerialNumber() {
+        return certSerialNumber;
+    }
+
+    public void setCertSerialNumber(String certSerialNumber) {
+        this.certSerialNumber = certSerialNumber;
+    }
+
+    public long getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(long updatedTime) {
+        this.updatedTime = updatedTime;
+    }
+
 }

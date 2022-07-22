@@ -1,7 +1,18 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
+/*
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.webank.cert.mgr.service;
 
@@ -182,27 +193,23 @@ public class CertManagerService {
 
     // 证书列表查询
     public List<CertVO> queryCertInfoList() {
-        return queryCertList(null, null, null, null, null, null);
+        return queryCertList(null, null, null, null);
     }
 
     // 证书列表查询
-    public List<CertVO> queryCertList(String userId, String issuerKeyId, String pCertId, String issuerOrg,
-            String issuerCN, Boolean isCACert) {
-        List<CertInfo> certInfos = this.certHandler.queryCertInfoList(userId, issuerKeyId, pCertId, issuerOrg, issuerCN,
-                isCACert);
+    public List<CertVO> queryCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert) {
+        List<CertInfo> certInfos = this.certHandler.queryCertInfoList(userId, pCertId, isCACert, isRootCert);
         return TransformUtils.simpleTransform(certInfos, CertVO.class);
     }
 
     // 证书请求列表查询
     public List<CertRequestVO> queryCertRequestList() {
-        return queryCertRequestList(null, null, null, null, null, null);
+        return queryCertRequestList(null, null);
     }
 
     // 证书请求列表查询
-    public List<CertRequestVO> queryCertRequestList(String userId, String subjectKeyId, String pCertId,
-            String subjectOrg, String subjectCN, String pCertUserId) {
-        List<CertRequestInfo> certRequestInfos = this.certHandler.queryCertRequestList(userId, subjectKeyId, pCertId,
-                subjectOrg, subjectCN, pCertUserId);
+    public List<CertRequestVO> queryCertRequestList(String userId, String pCertId) {
+        List<CertRequestInfo> certRequestInfos = this.certHandler.queryCertRequestList(userId, pCertId);
         return TransformUtils.simpleTransform(certRequestInfos, CertRequestVO.class);
     }
 

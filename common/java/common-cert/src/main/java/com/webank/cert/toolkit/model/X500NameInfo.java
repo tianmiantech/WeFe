@@ -67,6 +67,11 @@ public class X500NameInfo {
         return this;
     }
 
+    public X500NameInfo email(String email) {
+        this.emailAddress = email;
+        return this;
+    }
+
     public X500NameInfo build() {
         return this;
     }

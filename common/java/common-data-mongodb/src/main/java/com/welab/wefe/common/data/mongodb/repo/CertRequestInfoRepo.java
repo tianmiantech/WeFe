@@ -48,26 +48,13 @@ public class CertRequestInfoRepo extends AbstractMongoRepo<CertRequestInfo> {
         return mongoManagerTemplate.findOne(query, CertRequestInfo.class);
     }
 
-    public List<CertRequestInfo> findCertRequestList(String userId, String subjectKeyId, String pCertId,
-            String subjectOrg, String subjectCN, String pCertUserId) {
+    public List<CertRequestInfo> findCertRequestList(String userId, String pCertId) {
         QueryBuilder queryBuilder = new QueryBuilder();
         if (StringUtils.isNotBlank(userId)) {
             queryBuilder.append("userId", userId);
         }
-        if (StringUtils.isNotBlank(subjectKeyId)) {
-            queryBuilder.append("subjectKeyId", subjectKeyId);
-        }
         if (StringUtils.isNotBlank(pCertId)) {
             queryBuilder.append("issuerCertId", pCertId);
-        }
-        if (StringUtils.isNotBlank(subjectOrg)) {
-            queryBuilder.append("subjectOrg", subjectOrg);
-        }
-        if (StringUtils.isNotBlank(subjectCN)) {
-            queryBuilder.append("subjectCN", subjectCN);
-        }
-        if (StringUtils.isNotBlank(pCertUserId)) {
-            queryBuilder.append("issuerCertUserId", pCertUserId);
         }
         Query query = queryBuilder.build();
         List<CertRequestInfo> list = mongoManagerTemplate.find(query, CertRequestInfo.class);

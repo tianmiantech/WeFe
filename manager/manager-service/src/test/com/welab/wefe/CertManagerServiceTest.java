@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.welab.wefe;
 
 import java.io.IOException;
@@ -16,6 +31,7 @@ import java.util.UUID;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.util.encoders.Base64;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +110,8 @@ public class CertManagerServiceTest {
     // 生成csr
     @Test
     public void testCreateCertRequestByKey() throws Exception {
-        X500NameInfo subject = X500NameInfo.builder().commonName("wefe").organizationName("welab")
+        String commonName = "wefe";
+        X500NameInfo subject = X500NameInfo.builder().commonName(commonName).organizationName("welab")
                 .organizationalUnitName("it").build();
         // 申请人私钥ID
         String subjectKeyId = "8f9556c985fc4838b9e5c2a89263a358";
@@ -102,8 +119,8 @@ public class CertManagerServiceTest {
         String subjectUserId = "3db9399b780949c6ae18b3f55f2200e8";
         // issuer证书ID
         String issuerCertId = "419d830e12514d3db9f1ff0e6c7032f5";
-        CertRequestVO vo = certManagerService.createCertRequestByKey("welab", subjectUserId, subjectKeyId, issuerCertId,
-                subject);
+        CertRequestVO vo = certManagerService.createCertRequestByKey(commonName, subjectUserId, subjectKeyId,
+                issuerCertId, subject);
         System.out.println(vo.getPkId());
     }
 
@@ -186,9 +203,9 @@ public class CertManagerServiceTest {
 
         CertUtils.savePfx("yinlian", privateKey, "yinlian", list, basePATH + "/yinlian.jks");
         // 从pfx中导出私钥信息
-//        PrivateKey key = CertUtils.readPriKeyFromJks(basePATH + "/yinlian1.p12", "yinlian");
-        // 在控制台输出导出私钥的BASE64编码信息
-//        System.out.println(Base64.toBase64String(key.getEncoded()));
+        PrivateKey key = CertUtils.readPriKeyFromJks(basePATH + "/yinlian1.p12", "yinlian");
+//         在控制台输出导出私钥的BASE64编码信息
+        System.out.println(Base64.toBase64String(key.getEncoded()));
     }
 
     // 导出私钥
@@ -242,14 +259,14 @@ public class CertManagerServiceTest {
     @Test
     public void testQueryCertList() {
         String userId = "1672c86067944280b66c818b28ef8921";
-        List<CertVO> list = certManagerService.queryCertList(userId, null, null, null, null, null);
+        List<CertVO> list = certManagerService.queryCertList(userId, null, null, null);
         list.stream().forEach(System.out::println);
     }
 
     @Test
     public void testQueryCertRequestList() {
         String userId = "d84194f4ba1d40a2a06b7c63132c8ea9";
-        List<CertRequestVO> list = certManagerService.queryCertRequestList(userId, null, null, null, null, null);
+        List<CertRequestVO> list = certManagerService.queryCertRequestList(userId, null);
         list.stream().forEach(System.out::println);
     }
 

@@ -70,6 +70,15 @@ public class CertInfo extends AbstractNormalMongoModel {
     // 是否是CA证书
     private Boolean isCACert;
 
+    // 是否是根证书
+    private Boolean isRootCert;
+
+    // 证书请求ID
+    private String csrId;
+
+    // 证书状态
+    private String status;
+
     public String getPkId() {
         return pkId;
     }
@@ -173,4 +182,29 @@ public class CertInfo extends AbstractNormalMongoModel {
     public void setIsCACert(Boolean isCACert) {
         this.isCACert = isCACert;
     }
+
+    public Boolean getIsRootCert() {
+        return isRootCert;
+    }
+
+    public void setIsRootCert(Boolean isRootCert) {
+        this.isRootCert = isRootCert;
+    }
+
+    public String getCsrId() {
+        return csrId;
+    }
+
+    public void setCsrId(String csrId) {
+        this.csrId = csrId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 }
