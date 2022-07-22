@@ -15,7 +15,6 @@
  */
 package com.welab.wefe.serving.service.api.model;
 
-import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
@@ -51,59 +50,123 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
     protected ApiResult<Output> handle(Input input) throws Exception {
         Output output = Output.create(
                 extractExpectedData(input.getServiceId()),
-                extractActualData(input),
-                extractActualCountData(input)
+                extractActualData(input.getServiceId(), input.getStartTime(), input.getEndTime()),
+                extractActualDataByGroup(input)
         );
         return success(output);
     }
 
-    private List<List<Object>> extractActualData(Input input) {
+    private List<List<Object>> extractActualData(String serviceId, Date startTime, Date endTime) {
 
-        List<StatisticsSumModel> count = statisticsRepository.countBy(input.getServiceId(), input.getBeginTime(), input.getEndTime());
-        List<StatisticsSumModel> modelList = count
-                .stream()
-                .sorted(Comparator.comparing(StatisticsSumModel::getSplitPoint))
-                .collect(Collectors.toList());
-        int total = count.stream().mapToInt(StatisticsSumModel::getCount).sum();
+        List<StatisticsSumModel> binningList = getBinningInfo(serviceId, startTime, endTime);
+
+        List<StatisticsSumModel> temp = sort(binningList);
+
+        int total = sum(temp);
 
         List<List<Object>> dataList = Lists.newArrayList();
 
-        for (int i = 0; i < modelList.size(); i++) {
-            StatisticsSumModel model = modelList.get(i);
+        for (int i = 0; i < temp.size(); i++) {
+            StatisticsSumModel model = temp.get(i);
             dataList.add(
                     Arrays.asList(
-                            extractXAxis2(modelList, i, model.getSplitPoint()),
+                            extractXAxis2(temp, i, model.getSplitPoint()),
                             model.getCount(),
-                            total == 0 ? 0 : model.getCount().doubleValue() / total));
+                            rate(total, model.getCount().doubleValue())));
         }
+
         return dataList;
     }
 
-    private List<Object> extractActualCountData(Input input) {
+    private List<StatisticsSumModel> sort(List<StatisticsSumModel> count) {
+        return count
+                .stream()
+                .sorted(Comparator.comparing(StatisticsSumModel::getSplitPoint))
+                .collect(Collectors.toList());
+    }
+
+    private List<StatisticsSumModel> getBinningInfo(String serviceId, Date startTime, Date endTime) {
+        return statisticsRepository.countBy(serviceId, startTime, endTime);
+    }
+
+    private List<Object> extractActualDataByGroup(Input input) {
         List<DayModel> days = getDayList(input);
 
-        return days.stream()
+        return days
+                .stream()
                 .map(x -> {
-                    List<StatisticsSumModel> count = statisticsRepository.countBy(input.getServiceId(), x.getBeginTime(), x.getEndTime());
-                    List<StatisticsSumModel> modelList = count
-                            .stream()
-                            .sorted(Comparator.comparing(StatisticsSumModel::getSplitPoint))
-                            .collect(Collectors.toList());
-
-                    List<List<Object>> dataList = Lists.newArrayList();
-
-                    for (int i = 0; i < modelList.size(); i++) {
-                        StatisticsSumModel model = modelList.get(i);
-                        dataList.add(
-                                Arrays.asList(
-                                        extractXAxis2(modelList, i, model.getSplitPoint()),
-                                        model.getCount()));
-                    }
-
+                    List<List<Object>> psiList = psiList(input.getServiceId(), x.getStartTime(), x.getEndTime());
                     Map<String, Object> map = new HashMap();
-                    map.put(formatDate(x.getBeginTime()), dataList);
+                    map.put(formatDate(x.getStartTime()), psiList);
                     return map;
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
+    }
+
+    private double rate(int total, double count) {
+        return total == 0 ? 0 : count / total;
+    }
+
+    public List<List<Object>> psiList(String serviceId, Date startTime, Date endTime) {
+
+        List<StatisticsSumModel> temp = getBinningInfo(serviceId, startTime, endTime);
+
+        List<StatisticsSumModel> temp1 = sort(temp);
+
+        int total = sum(temp);
+
+        TableModelMySqlModel model = tableModelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
+        JObject result = JObject.create(model.getScoresDistribution()).getJObjectByPath("data.bin_result");
+
+        List<List<Object>> dataList = Lists.newArrayList();
+
+        for (int i = 0; i < temp1.size(); i++) {
+            StatisticsSumModel split = temp1.get(i);
+            double actualRate = rate(total, split.getCount().doubleValue());
+            double expectedRate = extractYAxis2(result, split.getSplitPoint().toString());
+            dataList.add(
+                    Arrays.asList(
+                            extractXAxis2(temp, i, split.getSplitPoint()),
+                            split.getCount(),
+                            actualRate,
+                            psi(actualRate, expectedRate)
+                    ));
+        }
+
+
+        return dataList;
+    }
+
+    private double psi(double actual, double expected) {
+        return subtract(actual, expected) * ln(actual, expected);
+    }
+
+    private double subtract(double actual, double expected) {
+        double temp = actual == 0.0 ? 0.1 : actual;
+        return temp - expected;
+    }
+
+    private double ln(double actual, double expected) {
+        double temp = actual == 0.0 ? 0.1 : actual;
+        return Math.log(temp / expected);
+    }
+
+    public static void main(String[] args) {
+        double actual = 0;
+        double expected = 0.4;
+
+        actual = actual == 0.0 ? 0.1 : actual;
+
+        double temp = actual - expected;
+        double ln = Math.log(actual / expected);
+        System.out.println(temp * ln);
+    }
+
+    private int sum(List<StatisticsSumModel> count) {
+        return count
+                .stream()
+                .mapToInt(StatisticsSumModel::getCount)
+                .sum();
     }
 
     private String formatDate(Date date) {
@@ -112,7 +175,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
     private List<DayModel> getDayList(Input input) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(input.getBeginTime());
+        calendar.setTime(input.getStartTime());
         calendar.set(Calendar.MILLISECOND, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MINUTE, 0);
@@ -132,34 +195,6 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
         return list;
     }
 
-    public static void main(String[] args) {
-        Date startDate = new Date();
-        Date endDate = new Date();
-        int step = 1;
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-
-        Date start = calendar.getTime();
-        Date end = calendar.getTime();
-        List<Map<Date, Date>> list = Lists.newArrayList();
-        while (end.getTime() < endDate.getTime()) {
-            start = calendar.getTime();
-            calendar.add(Calendar.DATE, step);
-            end = calendar.getTime();
-
-            Map<Date, Date> map = new HashMap<>();
-            map.put(start, end);
-            list.add(map);
-        }
-
-        System.out.println(JSON.toJSONString(list));
-    }
-
     private List<List<Object>> extractExpectedData(String serviceId) {
 
         TableModelMySqlModel model = tableModelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
@@ -168,6 +203,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
         }
 
         JObject result = JObject.create(model.getScoresDistribution()).getJObjectByPath("data.bin_result");
+
         List<Double> dataKey = result
                 .keySet()
                 .stream()
@@ -219,13 +255,13 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
         private Object actual;
 
-        private Object count;
+        private Object dataGrid;
 
-        public static Output create(Object expected, Object actual, Object count) {
+        public static Output create(Object expected, Object actual, Object dataGrid) {
             Output output = new Output();
             output.expected = expected;
             output.actual = actual;
-            output.count = count;
+            output.dataGrid = dataGrid;
             return output;
         }
 
@@ -245,12 +281,12 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
             this.actual = actual;
         }
 
-        public Object getCount() {
-            return count;
+        public Object getDataGrid() {
+            return dataGrid;
         }
 
-        public void setCount(Object count) {
-            this.count = count;
+        public void setDataGrid(Object dataGrid) {
+            this.dataGrid = dataGrid;
         }
     }
 
@@ -260,7 +296,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
         private String serviceId;
 
         @Check(name = "开始时间", require = true)
-        private Date beginTime;
+        private Date startTime;
 
         @Check(name = "结束时间", require = true)
         private Date endTime = new Date();
@@ -276,12 +312,12 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
             this.serviceId = serviceId;
         }
 
-        public Date getBeginTime() {
-            return beginTime;
+        public Date getStartTime() {
+            return startTime;
         }
 
-        public void setBeginTime(Date beginTime) {
-            this.beginTime = beginTime;
+        public void setStartTime(Date startTime) {
+            this.startTime = startTime;
         }
 
         public Date getEndTime() {
@@ -304,16 +340,16 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
     public static class DayModel {
 
-        private Date beginTime;
+        private Date startTime;
 
         private Date endTime;
 
-        public Date getBeginTime() {
-            return beginTime;
+        public Date getStartTime() {
+            return startTime;
         }
 
-        public void setBeginTime(Date beginTime) {
-            this.beginTime = beginTime;
+        public void setStartTime(Date startTime) {
+            this.startTime = startTime;
         }
 
         public Date getEndTime() {
@@ -326,7 +362,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
 
         private static DayModel of(Date beginTime, Date endTime) {
             DayModel dayModel = new DayModel();
-            dayModel.beginTime = beginTime;
+            dayModel.startTime = beginTime;
             dayModel.endTime = endTime;
             return dayModel;
         }
