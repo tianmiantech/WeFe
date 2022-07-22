@@ -91,7 +91,7 @@ public class ClientServiceService {
                         PartnerMysqlModel.class);
 
                 // 保存服务类型
-                BaseServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
+                BaseServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("serviceId", input.getServiceId(),
                         BaseServiceMySqlModel.class);
                 if (serviceMySqlModel != null) {
                     model.setServiceType(serviceMySqlModel.getServiceType());
@@ -228,7 +228,7 @@ public class ClientServiceService {
             model.setPayType(input.getPayType());
             model.setIpAdd(input.getIpAdd());
             // 保存服务类型
-            BaseServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("id", input.getServiceId(),
+            BaseServiceMySqlModel serviceMySqlModel = serviceRepository.findOne("serviceId", input.getServiceId(),
                     BaseServiceMySqlModel.class);
             // 开通
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
