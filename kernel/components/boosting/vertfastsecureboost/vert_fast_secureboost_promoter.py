@@ -271,7 +271,10 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
 
     def set_model_meta(self, model_meta):
         super(VertFastSecureBoostingTreePromoter, self).set_model_meta(model_meta)
-        self.work_mode = model_meta.work_mode
+        if type(model_meta) is dict:
+            self.work_mode = model_meta.get('workMode')
+        else:
+            self.work_mode = model_meta.work_mode
 
     def set_model_param(self, model_param):
         super(VertFastSecureBoostingTreePromoter, self).set_model_param(model_param)
