@@ -106,7 +106,7 @@
 
 <style lang="scss" scoped>
     .tip {
-        padding: 8px 8px 8px 16px;
+        padding: 22px 8px 22px 16px;
         border-radius: 4px;
         margin-top: 15px;
 

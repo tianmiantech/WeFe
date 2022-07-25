@@ -27,7 +27,7 @@
 # limitations under the License.
 
 import functools
-from kernel.security.cipher_compressor.compressor import get_horz_encryption_max_int
+from kernel.security.cipher_compressor.compressor import get_horz_encryption_max_int, NormalCipherPackage
 from kernel.security.encrypt_mode import EncryptModeCalculator
 from kernel.security.cipher_compressor.compressor import PackingCipherTensor
 from kernel.security.cipher_compressor.compressor import CipherPackage
@@ -36,6 +36,8 @@ from kernel.transfer.variables.transfer_class.cipher_compressor_transfer_variabl
     import CipherCompressorTransferVariable
 from kernel.utils import consts
 from common.python.utils import log_utils
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
+from common.python.calculation.acceleration.operator.decrypt import gpu_paillier_raw_decrypt
 
 LOGGER = log_utils.get_logger()
 
@@ -130,7 +132,7 @@ class PromoterIntegerPacker(object):
 
         rs_list = []
         for bit_assign in reversed(bit_assign_list[1:]):
-            mask_int = (2**bit_assign) - 1
+            mask_int = (2 ** bit_assign) - 1
             unpack_int = integer & mask_int
             rs_list.append(unpack_int)
             integer = integer >> bit_assign
@@ -145,18 +147,18 @@ class PromoterIntegerPacker(object):
     def pack_and_encrypt(self, data_table, post_process_func=cipher_list_to_cipher_tensor):
 
         packing_data_table = self.pack(data_table)
-        en_packing_data_table = self.calculator.raw_encrypt(packing_data_table)
-
+        if check_aclr_support():
+            en_packing_data_table = self.calculator.gpu_raw_encrypt(packing_data_table)
+        else:
+            en_packing_data_table = self.calculator.raw_encrypt(packing_data_table)
         if post_process_func:
             en_packing_data_table = en_packing_data_table.mapValues(post_process_func)
-
         return en_packing_data_table
 
     def unpack_result(self, decrypted_result_list: list, post_func=None):
 
         final_rs = []
         for l_ in decrypted_result_list:
-
             rs_list = self.unpack_an_int_list(l_, post_func)
             final_rs.append(rs_list)
 
@@ -188,6 +190,50 @@ class PromoterIntegerPacker(object):
         else:
             raise ValueError('illegal input type')
 
+    def gpu_decrypt_cipher_packages(self, contents):
+        from kernel.security.paillier import PaillierEncryptedNumber
+        if type(contents) == list:
+
+            assert issubclass(type(contents[0]), CipherPackage), 'content is not CipherPackages'
+            encrypt_text = []
+            cur_cipher_contained_padding_num = []
+
+            for content in contents:
+                encrypt_text.append(content._cipher_text)
+                cur_cipher_contained_padding_num.append((content.cur_cipher_contained(), content._padding_num))
+            # gpu 解密
+            compressed_plain_text_list = gpu_paillier_raw_decrypt(self.calculator.encrypter.privacy_key, encrypt_text)
+
+            gh = []
+            for i in range(len(compressed_plain_text_list)):
+                unpack_ = PromoterIntegerPacker.unpack2(compressed_plain_text_list[i],
+                                                        cur_cipher_contained_padding_num[i][0],
+                                                        cur_cipher_contained_padding_num[i][1])
+                for split_info, g_h in zip(contents[i]._split_info_without_gh, unpack_):
+                    split_info.sum_grad = g_h
+                gh += contents[i]._split_info_without_gh
+
+            # [(fid None bid None, sum_grad 51320563274899083207985580725485500100, sum_hess 0, gain None, sitename provider:10002, missing dir 2, mask_id 619, sample_count 157)
+
+            return gh
+
+        else:
+            raise ValueError('illegal input type')
+
+    @staticmethod
+    def unpack2(compressed_plain_text, cur_cipher_contained=0, padding_num=0):
+        if cur_cipher_contained == 1:
+            return [compressed_plain_text]
+
+        unpack_result = []
+        bit_len = (padding_num - 1).bit_length()
+        for i in range(cur_cipher_contained):
+            num = (compressed_plain_text & (padding_num - 1))
+            compressed_plain_text = compressed_plain_text >> bit_len
+            unpack_result.insert(0, num)
+
+        return unpack_result
+
     def decrypt_cipher_package_and_unpack(self, data_table):
 
         de_func = functools.partial(self.decrypt_cipher_packages)
@@ -195,4 +241,3 @@ class PromoterIntegerPacker(object):
         unpack_table = de_table.mapValues(self.unpack_result)
 
         return unpack_table
-

@@ -20,12 +20,16 @@ package com.welab.wefe.board.service.dto.globalconfig;
  * @author Zane
  */
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 /**
  * @author zane.luo
  */
-public class MailServerModel {
+@ConfigModel(group = ConfigGroupConstant.MAIL_SERVER)
+public class MailServerModel extends AbstractConfigModel {
 
     @Check(name = "邮件服务器地址")
     private String mailHost;

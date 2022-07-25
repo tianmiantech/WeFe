@@ -55,7 +55,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
 
     // region abstract method
 
-    protected abstract void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws StatusCodeWithException;
+    protected abstract void doAdd(AbstractDataResourceUpdateInputModel in, DataResourceUploadTaskMysqlModel task, DataResourceMysqlModel m) throws Exception;
 
     protected abstract Class<? extends DataResourceMysqlModel> getMysqlModelClass();
 
@@ -113,7 +113,7 @@ public abstract class AbstractDataResourceAddService extends AbstractService {
             if (!availableInfo.isSuccess()) {
                 StatusCode
                         .DATABASE_LOST
-                        .throwException("storage 服务访问失败：" + availableInfo.getMessage() + "，请检服务是否正常：" + config.getDbType());
+                        .throwException("storage 服务访问失败：" + availableInfo.getMessage());
             }
 
             model.setStorageType(DataResourceStorageType.StorageService);

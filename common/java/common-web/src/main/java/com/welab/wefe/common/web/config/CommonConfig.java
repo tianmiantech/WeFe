@@ -38,6 +38,7 @@ public class CommonConfig {
     @Value("${wefe.union.base-url:}")
     private String unionBaseUrl;
 
+
     @Value("${wefe.file.upload.dir:}")
     private String fileUploadDir;
 
@@ -55,6 +56,10 @@ public class CommonConfig {
     @Value("${env.branch:master}")
     private EnvBranch envBranch;
 
+    @Value("${privacy.database.encrypt.enable:false}")
+    private boolean databaseEncryptEnable;
+    @Value("${privacy.database.encrypt.secret.key:}")
+    private String databaseEncryptSecretKey;
 
     public boolean isOnlineDemo() {
         return envBranch == EnvBranch.online_demo;
@@ -109,6 +114,22 @@ public class CommonConfig {
 
     public void setCorsAllowedOrigins(String[] corsAllowedOrigins) {
         this.corsAllowedOrigins = corsAllowedOrigins;
+    }
+
+    public boolean isDatabaseEncryptEnable() {
+        return databaseEncryptEnable;
+    }
+
+    public void setDatabaseEncryptEnable(boolean databaseEncryptEnable) {
+        this.databaseEncryptEnable = databaseEncryptEnable;
+    }
+
+    public String getDatabaseEncryptSecretKey() {
+        return databaseEncryptSecretKey;
+    }
+
+    public void setDatabaseEncryptSecretKey(String databaseEncryptSecretKey) {
+        this.databaseEncryptSecretKey = databaseEncryptSecretKey;
     }
 
 

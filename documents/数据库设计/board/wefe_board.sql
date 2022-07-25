@@ -251,6 +251,7 @@ CREATE TABLE `job`
     `star`                     tinyint(1) NOT NULL DEFAULT '0' COMMENT '收藏/置顶/标记',
     `job_middle_data_is_clear` tinyint(1) NOT NULL DEFAULT '0' COMMENT '中间数据是否已清理',
     `remark`                   text COMMENT '备注',
+    `job_config`               text COMMENT '配置信息',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `index_unique` (`job_id`, `my_role`)
 ) ENGINE = InnoDB
@@ -284,16 +285,21 @@ CREATE TABLE `job_member`
 DROP TABLE IF EXISTS `message`;
 CREATE TABLE `message`
 (
-    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `created_by`   varchar(32) COMMENT '创建人',
-    `created_time` datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
-    `updated_by`   varchar(32) COMMENT '更新人',
-    `updated_time` datetime(6) COMMENT '更新时间',
-    `producer`     varchar(32) NOT NULL COMMENT '消息生产者 枚举（board/gateway）',
-    `level`        varchar(32) COMMENT '消息级别 枚举（info/success/error/warning）',
-    `title`        varchar(128) COMMENT '标题',
-    `content`      text COMMENT '内容',
-    `unread`       tinyint(1) NOT NULL DEFAULT '0' COMMENT '未读',
+    `id`               varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`       varchar(32) COMMENT '创建人',
+    `created_time`     datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`       varchar(32) COMMENT '更新人',
+    `updated_time`     datetime(6) COMMENT '更新时间',
+    `producer`         varchar(32) NOT NULL COMMENT '消息生产者 枚举（board/gateway）',
+    `level`            varchar(32) COMMENT '消息级别 枚举（info/success/error/warning）',
+    `event`            varchar(32) NOT NULL COMMENT '消息关联的事件',
+    `title`            varchar(128) COMMENT '标题',
+    `content`          text COMMENT '内容',
+    `unread`           tinyint(1) NOT NULL DEFAULT '0' COMMENT '未读',
+    `todo`             tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是待办事项',
+    `todo_complete`    tinyint(1) NOT NULL DEFAULT '0' COMMENT '待办事项是否已处理',
+    `todo_related_id1` varchar(128) COMMENT '待办事项关联对象Id1',
+    `todo_related_id2` varchar(128) COMMENT '待办事项关联对象Id2',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='消息列表 ';
@@ -808,8 +814,8 @@ CREATE TABLE `global_config`
     `created_time` datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
     `updated_by`   varchar(32) COMMENT '更新人',
     `updated_time` datetime(6) COMMENT '更新时间',
-    `group`        varchar(32) COMMENT '配置项所在的组',
-    `name`         varchar(32) COMMENT '配置项名称',
+    `group`        varchar(128) COMMENT '配置项所在的组',
+    `name`         varchar(128) COMMENT '配置项名称',
     `value`        longtext COMMENT '配置项的值',
     `comment`      text COMMENT '配置项的解释说明',
     PRIMARY KEY (`id`) USING BTREE,
@@ -941,6 +947,7 @@ CREATE TABLE `table_data_set`
     `y_positive_sample_count` bigint(20) COMMENT '正例数量',
     `y_positive_sample_ratio` double(10, 4
 ) COMMENT '正例比例',
+    `label_distribution`      text COMMENT 'label 分布情况',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据集';

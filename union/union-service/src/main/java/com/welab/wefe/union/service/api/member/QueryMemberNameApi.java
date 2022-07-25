@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/map", name = "member_map", rsaVerify = true, login = false)
+@Api(path = "member/map", name = "member_map", allowAccessWithSign = true, login = false)
 public class QueryMemberNameApi extends AbstractApi<BaseInput, JObject> {
     @Autowired
     protected MemberMongoReop memberMongoReop;

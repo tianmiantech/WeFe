@@ -13,36 +13,40 @@
 # limitations under the License.
 
 
-
 from __future__ import print_function
 
-import requests
+import urllib.parse
+import functools
+import json
+import logging
+import os
 import shutil
 import sys
 import tarfile
 import zipfile
-import six.moves.cPickle as pickle
-import functools
-from visualfl import get_data_dir
+from multiprocessing import cpu_count
+import requests
+import urllib.request as req
+import six
+from paddle import compat as cpt
 from paddle.dataset.image import *
 from paddle.reader import *
-from paddle import compat as cpt
-import os
-from multiprocessing import cpu_count
-import six
 from six.moves import cPickle as pickle
-import logging
+from visualfl.db.global_config_dao import GlobalConfigDao
+from visualfl.utils.tools import gen_sign
+
+from visualfl import get_data_dir
 
 __all__ = ['train', 'test', 'valid']
 
 DATA_URL = 'xxx'
-DATA_MD5='XXX'
+DATA_MD5 = 'XXX'
 
-DATA_DIR = os.path.join(get_data_dir(),"flowers")
-IMAGE_FILE_NAME='image.tgz'
-TRAIN_LIST_FILE='train_list.txt'
-TEST_LIST_FILE='test_list.txt'
-VALID_LIST_FILE='val_list.txt'
+DATA_DIR = os.path.join(get_data_dir(), "flowers")
+IMAGE_FILE_NAME = 'image.tgz'
+TRAIN_LIST_FILE = 'train_list.txt'
+TEST_LIST_FILE = 'test_list.txt'
+VALID_LIST_FILE = 'val_list.txt'
 
 TRAIN_FLAG = 'trnid'
 TEST_FLAG = 'tstid'
@@ -280,8 +284,9 @@ def un_zip(file_name,target_path):
         zip_file.close()
         return os.path.dirname(names[0])
     except Exception as e:
-        print(e)
+        logging.error(f"unzip error as {e} ")
         raise Exception(f"unzip file {file_name} error as {e}")
+
 
 def make_zip(source_dir, zip_file):
     zipf = zipfile.ZipFile(zip_file, 'w')
@@ -293,19 +298,31 @@ def make_zip(source_dir, zip_file):
             zipf.write(pathfile, arcname)
     zipf.close()
 
-def job_download(url, job_id,base_dir):
+
+def job_download(url, job_id, base_dir, data_name=None):
     try:
-        data_file = download(url, base_dir, f"{job_id}.zip")
+        save_name = data_name if data_name else f"{job_id}.zip"
+        url_pre = url.split('?')[0]
+        kv_iter = url.split('?')[1].split('&')
+        params = {}
+        for kv in kv_iter:
+            arr = kv.split('=')
+            params[arr[0]] = arr[1]
+        params_str = json.dumps(params)
+        data = req.pathname2url(params_str)
+        private_str = GlobalConfigDao.get_rsa_private_key()
+        sign = gen_sign(params_str, private_str)
+        sign = req.pathname2url(sign)
+        encode_url = f'{url_pre}?data={data}&sign={sign}'
+        data_file = download(encode_url, base_dir, save_name)
         dir_name = un_zip(data_file, base_dir)
-        target_dir = os.path.join(base_dir,dir_name)
+        return os.path.join(base_dir, dir_name)
     except Exception as e:
         logging.error(f"job download with {job_id} error as {e} ")
-
-    return target_dir
+        return None
 
 
 def getImageList(dir, filelist):
-    newDir = dir
     if os.path.isfile(dir):
         if dir.endswith(".jpg") or dir.endswith(".JPG") or dir.endswith(".png") or dir.endswith(".PNG")\
             or dir.endswith(".jpeg") or dir.endswith(".webp") or dir.endswith(".bmp") or dir.endswith(".tif")\
@@ -329,4 +346,4 @@ def extractImages(src_dir):
         tmp = os.path.basename(item)
         shutil.copy(item, target_path + '/' + tmp)
     shutil.rmtree(src_dir)
-    os.rename(target_path,src_dir)
+    os.rename(target_path, src_dir)

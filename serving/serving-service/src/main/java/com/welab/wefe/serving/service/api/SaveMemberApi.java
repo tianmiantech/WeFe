@@ -31,8 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(
         path = "member_save",
         name = "保存成员信息",
-        login = false,
-        rsaVerify = true,
+        allowAccessWithSign = true,
         domain = Caller.Board
 )
 public class SaveMemberApi extends AbstractNoneOutputApi<SaveMemberApi.Input> {

@@ -435,8 +435,7 @@ class MixSecureBoostingPromoter(BoostingTree):
         reach_leaf = False
         # only need nid here, predict state is not needed
         rs = tree.traverse_tree(tree_=tree.tree_, data_inst=sample, predict_state=(cur_node_idx, -1),
-                                decoder=tree.decode, sitename=tree.sitename, use_missing=tree.use_missing,
-                                split_maskdict=tree.split_maskdict, missing_dir_maskdict=tree.missing_dir_maskdict,
+                                sitename=tree.sitename, use_missing=tree.use_missing,
                                 return_leaf_id=True)
 
         if not isinstance(rs, tuple):

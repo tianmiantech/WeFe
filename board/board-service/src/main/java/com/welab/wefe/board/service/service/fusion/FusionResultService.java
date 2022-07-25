@@ -53,7 +53,7 @@ public class FusionResultService extends AbstractService {
     @Autowired
     FusionResultStorageService fusionResultStorageService;
 
-    public String export(ResultExportApi.Input input) throws StatusCodeWithException {
+    public String export(ResultExportApi.Input input) throws Exception {
 
         FusionTaskMySqlModel taskMySqlModel = fusionTaskService.findByBusinessId(input.getBusinessId());
         if (taskMySqlModel == null) {

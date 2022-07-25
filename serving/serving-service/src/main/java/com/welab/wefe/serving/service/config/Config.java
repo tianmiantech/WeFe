@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class Config extends CommonConfig {
 
     @Value("${wefe.serving.base-url}")
-    private String SERVING_BASE_URL;
+    private String servingBaseUrl;
 
     @Value("${wefe.serving.file-path}")
     private String fileBasePath;
@@ -28,9 +28,6 @@ public class Config extends CommonConfig {
 
     @Value("${wefe.service.cache.type}")
     private String serviceCacheType;
-
-    @Value("${sm4.secret.key:}")
-    private String sm4SecretKey;
 
     @Value("${verification.code.send.channel:email}")
     private String verificationCodeSendChannel;
@@ -55,22 +52,18 @@ public class Config extends CommonConfig {
 
     @Value("${sms.access_key_secret:xxx}")
     private String smsAccessKeySecret;
-    
-    @Value("${wefe.mail_server.mail_host}")
+
+    @Value("${mail_server.mail_host}")
     private String mailHost;
-    
-    @Value("${wefe.mail_server.mail_password}")
+
+    @Value("${mail_server.mail_password}")
     private String mailPassword;
-    
-    @Value("${wefe.mail_server.port}")
+
+    @Value("${mail_server.port}")
     private String mailPort;
-    
-    @Value("${wefe.mail_server.username}")
+
+    @Value("${mail_server.username}")
     private String mailUsername;
-    
-    
-    @Value("${encrypt.phone.number.open:false}")
-    private boolean encryptPhoneNumberOpen;
 
 
     public String getFileBasePath() {
@@ -81,13 +74,6 @@ public class Config extends CommonConfig {
         this.fileBasePath = fileBasePath;
     }
 
-    public String getSERVING_BASE_URL() {
-        return SERVING_BASE_URL;
-    }
-
-    public void setSERVING_BASE_URL(String sERVING_BASE_URL) {
-        SERVING_BASE_URL = sERVING_BASE_URL;
-    }
 
     public String getRedisHost() {
         return redisHost;
@@ -119,14 +105,6 @@ public class Config extends CommonConfig {
 
     public void setServiceCacheType(String serviceCacheType) {
         this.serviceCacheType = serviceCacheType;
-    }
-
-    public String getSm4SecretKey() {
-        return sm4SecretKey;
-    }
-
-    public void setSm4SecretKey(String sm4SecretKey) {
-        this.sm4SecretKey = sm4SecretKey;
     }
 
     public String getVerificationCodeSendChannel() {
@@ -226,12 +204,12 @@ public class Config extends CommonConfig {
     public void setMailUsername(String mailUsername) {
         this.mailUsername = mailUsername;
     }
-    
-    public boolean isEncryptPhoneNumberOpen() {
-        return encryptPhoneNumberOpen;
+
+    public String getServingBaseUrl() {
+        return servingBaseUrl;
     }
 
-    public void setEncryptPhoneNumberOpen(boolean encryptPhoneNumberOpen) {
-        this.encryptPhoneNumberOpen = encryptPhoneNumberOpen;
+    public void setServingBaseUrl(String servingBaseUrl) {
+        this.servingBaseUrl = servingBaseUrl;
     }
 }

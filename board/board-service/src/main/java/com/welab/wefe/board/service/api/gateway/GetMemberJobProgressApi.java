@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author zane.luo
  */
-@Api(path = "gateway/get_job_progress", name = "get job progress", login = false, rsaVerify = true)
+@Api(path = "gateway/get_job_progress", name = "get job progress", allowAccessWithSign = true)
 public class GetMemberJobProgressApi extends AbstractApi<GetMemberJobProgressApi.Input, JobProgressOutput> {
 
     @Autowired

@@ -32,7 +32,8 @@ public class AppListener implements ApplicationListener<ApplicationEnvironmentPr
 
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent applicationEnvironmentPreparedEvent) {
-
+        LOG.info("start ApplicationEnvironmentPreparedEvent");
+        LOG.info("end ApplicationEnvironmentPreparedEvent");
     }
 
 }
