@@ -44,6 +44,9 @@ case "$application" in
     wefe-manager-website)
         /bin/bash ./manager/manager-website/assembly/scripts/install.sh $application
         ;;
+    wefe-manager-service)
+        /bin/bash ./manager/manager-service/assembly/scripts/install.sh $application
+        ;;
 esac
 
 exit 0
