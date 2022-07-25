@@ -26,7 +26,6 @@ from kernel.model_base import ModelBase
 from kernel.task_executor import TaskExecutor
 from kernel.tracker.tracking import Tracking
 from kernel.utils import consts
-from common.python.db.db_models import DB, Job
 
 LOGGER = log_utils.get_logger()
 
@@ -156,7 +155,7 @@ class Oot(ModelBase):
         sub_module_name = sub_component_task_config['module']
         sub_component_name = sub_component_task_config['oot_params']['component_name']
 
-        sub_component_task_config['job'] = self.model_param.job
+        sub_component_task_config['job'] = self.component_parameters['job']
 
         parameters = TaskExecutor.get_parameters(role, member_id, sub_module_name, sub_component_name,
                                                  sub_component_task_config)
