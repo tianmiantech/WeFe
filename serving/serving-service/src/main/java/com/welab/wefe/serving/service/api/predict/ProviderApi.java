@@ -42,7 +42,6 @@ import java.util.Map;
 @Api(
         path = "predict/provider",
         name = "Model to predict",
-        login = false,
         allowAccessWithSign = true,
         domain = Caller.Member
 )
