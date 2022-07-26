@@ -6,11 +6,11 @@
 
         <el-form :model="clientService" label-width="142px" :rules="rules" ref="clientService">
             <el-form-item label="服务名称：" prop="serviceName" class = "url">
-                <el-input v-model="clientService.serviceName"></el-input>
+                <el-input v-model="clientService.serviceName" placeholder="自定义"></el-input>
             </el-form-item>
 
             <el-form-item label="服务提供商名称：" prop="clientName" class = "url">
-                <el-input v-model="clientService.clientName"></el-input>
+                <el-input v-model="clientService.clientName" placeholder="自定义"></el-input>
             </el-form-item>
             <el-form-item label="服务访问URL：" prop="url" class = "url flex_box">
                 <el-input v-model="clientService.url" clearable/>
@@ -36,7 +36,7 @@
                           :minlength="0"
                           show-word-limit>
                 </el-input>
-                <a @click="getRsaKey">填充系统公私钥</a>
+                <a @click="getRsaKey">点击自动填充系统公私钥</a>
             </el-form-item>
 
             <el-form-item>
