@@ -38,6 +38,7 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "client_name")
     private String clientName;
 
+    // 开通服务为1-8， 激活服务服务为-1
     @Column(name = "service_type")
     private Integer serviceType;
     /**
@@ -65,6 +66,7 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "code")
     private String code;
 
+    // 开通或者激活
     @Column(name = "type")
     private Integer type = ServiceClientTypeEnum.OPEN.getValue();
 

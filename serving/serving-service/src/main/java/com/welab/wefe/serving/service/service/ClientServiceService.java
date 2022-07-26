@@ -46,13 +46,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 /**
  * @author ivenn.zheng
  */
 @Service
 public class ClientServiceService {
-
 
     @Autowired
     private ClientServiceRepository clientServiceRepository;
@@ -73,11 +71,14 @@ public class ClientServiceService {
     private PartnerService partnerService;
 
     public void add(SaveApi.Input input) throws StatusCodeWithException {
-
-        Specification<ClientServiceMysqlModel> where = Where.create()
-                .equal("serviceId", input.getServiceId())
-                .equal("clientId", input.getClientId())
-                .build(ClientServiceMysqlModel.class);
+        // 激活服务不需要用户填写serviceId
+        if (input.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
+            String tmp = input.getUrl().replaceAll("[^a-zA-Z0-9]", "");
+            input.setServiceId(tmp.substring(0, Integer.min(256, tmp.length())));
+            input.setClientId(tmp.substring(0, Integer.min(32, tmp.length())));
+        }
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId()).build(ClientServiceMysqlModel.class);
 
         // check the client-service by ids
         Optional<ClientServiceMysqlModel> clientServiceMysqlModel = clientServiceRepository.findOne(where);
@@ -105,6 +106,7 @@ public class ClientServiceService {
                     StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + model.getUnitPrice());
                 }
             } else {// 激活
+
                 model.setIpAdd("-");
                 model.setPayType(-1);
                 model.setStatus(ServiceStatusEnum.USED.getCode());
@@ -176,7 +178,6 @@ public class ClientServiceService {
         });
         return PagingOutput.of(list.size(), list);
     }
-
 
     public ClientServiceOutputModel queryOne(QueryApi.Input input) {
         return clientServiceQueryRepository.queryOne(input.getId());
@@ -304,8 +305,7 @@ public class ClientServiceService {
      * @param serviceType
      */
     public void updateAllByServiceId(String serviceId, String serviceName, String url, Integer serviceType) {
-        Specification<ClientServiceMysqlModel> where = Where.create()
-                .equal("serviceId", serviceId)
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)
                 .build(ClientServiceMysqlModel.class);
 
         List<ClientServiceMysqlModel> mysqlModels = clientServiceRepository.findAll(where);
@@ -323,7 +323,6 @@ public class ClientServiceService {
         return clientServiceRepository.findAll();
     }
 
-
     /**
      * save clientService
      *
@@ -332,12 +331,8 @@ public class ClientServiceService {
      * @param publicKey
      * @throws StatusCodeWithException
      */
-    public void openService(String serviceId,
-                            String serviceName,
-                            String url,
-                            String clientId,
-                            String publicKey,
-                            ServiceTypeEnum serviceType) throws StatusCodeWithException {
+    public void openService(String serviceId, String serviceName, String url, String clientId, String publicKey,
+            ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setServiceType(serviceType.getCode());
         clientService.setClientId(clientId);
@@ -361,13 +356,8 @@ public class ClientServiceService {
      * @param publicKey
      * @throws StatusCodeWithException
      */
-    public void activateService(String serviceId,
-                                String serviceName,
-                                String clientId,
-                                String privateKey,
-                                String publicKey,
-                                String url,
-                                ServiceTypeEnum serviceType) throws StatusCodeWithException {
+    public void activateService(String serviceId, String serviceName, String clientId, String privateKey,
+            String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setClientId(clientId);
         clientService.setClientName(CacheObjects.getPartnerName(clientId));
@@ -392,23 +382,19 @@ public class ClientServiceService {
         return response.getCode();
     }
 
-
     public List<ClientServiceMysqlModel> queryActivateListByServiceId(String serviceId) {
 
-        Specification<ClientServiceMysqlModel> where = Where.create()
-                .equal("serviceId", serviceId)
-                .equal("type", ServiceClientTypeEnum.ACTIVATE.getValue())
-                .build(ClientServiceMysqlModel.class);
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", serviceId)
+                .equal("type", ServiceClientTypeEnum.ACTIVATE.getValue()).build(ClientServiceMysqlModel.class);
 
         return clientServiceRepository.findAll(where);
     }
 
-
     public List<ProviderParams> findProviderList(String serviceId) {
-        return queryActivateListByServiceId(serviceId)
-                .stream()
-                //TODO 地址获取修改
-                .map(x -> ProviderParams.of(x.getClientId(), partnerService.findModelServiceUrl(x.getClientId()) + "/api/" + x.getUrl()))
+        return queryActivateListByServiceId(serviceId).stream()
+                // TODO 地址获取修改
+                .map(x -> ProviderParams.of(x.getClientId(),
+                        partnerService.findModelServiceUrl(x.getClientId()) + "/api/" + x.getUrl()))
                 .collect(Collectors.toList());
     }
 }
