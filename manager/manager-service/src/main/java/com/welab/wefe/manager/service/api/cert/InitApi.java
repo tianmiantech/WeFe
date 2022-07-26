@@ -17,6 +17,7 @@ package com.welab.wefe.manager.service.api.cert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -33,12 +34,16 @@ public class InitApi extends AbstractApi<InitCertInput, AbstractApiOutput> {
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(InitCertInput input) throws Exception {
-        certOperationService.initRootCert(input.getCommonName(), input.getOrganizationName(),
+        // 初始化根证书
+        CertVO rootCert = certOperationService.initRootCert(input.getCommonName(), input.getOrganizationName(),
+                input.getOrganizationUnitName());
+        // 初始化issuer签发证书
+        certOperationService.createIssuerCert(rootCert.getPkId(), input.getCommonName(), input.getOrganizationName(),
                 input.getOrganizationUnitName());
         return success();
     }
 
-    public class InitCertInput extends AbstractApiInput {
+    public static class InitCertInput extends AbstractApiInput {
         // 常用名
         private String commonName;
         // 组织名称

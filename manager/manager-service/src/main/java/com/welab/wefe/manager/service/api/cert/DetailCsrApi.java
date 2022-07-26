@@ -38,7 +38,7 @@ public class DetailCsrApi extends AbstractApi<CsrDetailInput, CertRequestVO> {
         return success(vo);
     }
 
-    public class CsrDetailInput extends AbstractApiInput {
+    public static class CsrDetailInput extends AbstractApiInput {
         @Check(require = true)
         private String csrId;
 

@@ -53,8 +53,10 @@ public class QueryCertApi extends AbstractApi<QueryCertInput, PageOutput<CertVO>
                 pageOutput.getTotalPage(), list));
     }
 
-    public class QueryCertInput extends PageInput {
+    public static class QueryCertInput extends PageInput {
+        // 用户ID
         private String userId;
+        // 签发机构证书ID
         private String pCertId;
 
         public String getUserId() {

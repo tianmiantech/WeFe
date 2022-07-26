@@ -64,7 +64,7 @@ public class CertInfo extends AbstractNormalMongoModel {
     // 证书内容
     private String certContent;
 
-    // 父证书ID
+    // 父证书ID 签发机构证书ID
     private String pCertId;
 
     // 是否是CA证书

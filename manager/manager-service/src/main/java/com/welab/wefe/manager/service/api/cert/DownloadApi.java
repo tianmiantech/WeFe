@@ -67,7 +67,7 @@ public class DownloadApi extends AbstractApi<DownloadApiInput, ResponseEntity<by
 
     }
 
-    public class DownloadApiInput extends AbstractApiInput {
+    public static class DownloadApiInput extends AbstractApiInput {
         @Check(require = true)
         private String certId;
 

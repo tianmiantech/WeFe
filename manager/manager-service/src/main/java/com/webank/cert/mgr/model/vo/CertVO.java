@@ -17,6 +17,8 @@ package com.webank.cert.mgr.model.vo;
 
 import java.io.Serializable;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 /**
  * @author wesleywang
  */
@@ -38,17 +40,29 @@ public class CertVO implements Serializable {
 
     private String issuerOrg;
 
+    @JSONField(name = "issuer_cn")
     private String issuerCN;
 
     private String subjectOrg;
 
+    @JSONField(name = "subject_cn")
     private String subjectCN;
 
+    @JSONField(name = "is_ca_cert")
     private Boolean isCACert;
 
     private String issuerKeyId;
 
     private String subjectKeyId;
+
+    @JSONField(name = "is_root_cert")
+    private Boolean isRootCert;
+
+    // 证书请求ID
+    private String csrId;
+
+    // 证书状态
+    private String status;
 
     public String getPkId() {
         return pkId;
@@ -154,12 +168,28 @@ public class CertVO implements Serializable {
         this.subjectKeyId = subjectKeyId;
     }
 
-    @Override
-    public String toString() {
-        return "CertVO [pkId=" + pkId + ", userId=" + userId + ", subjectPubKey=" + subjectPubKey + ", serialNumber="
-                + serialNumber + ", certContent=" + certContent + ", pCertId=" + pCertId + ", issuerOrg=" + issuerOrg
-                + ", issuerCN=" + issuerCN + ", subjectOrg=" + subjectOrg + ", subjectCN=" + subjectCN + ", isCACert="
-                + isCACert + ", issuerKeyId=" + issuerKeyId + ", subjectKeyId=" + subjectKeyId + "]";
+    public Boolean getIsRootCert() {
+        return isRootCert;
     }
-    
+
+    public void setIsRootCert(Boolean isRootCert) {
+        this.isRootCert = isRootCert;
+    }
+
+    public String getCsrId() {
+        return csrId;
+    }
+
+    public void setCsrId(String csrId) {
+        this.csrId = csrId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 }

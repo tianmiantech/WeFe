@@ -18,7 +18,6 @@ package com.welab.wefe.manager.service.api.member;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
@@ -54,7 +53,7 @@ public class RealNameAuthCancelApi extends AbstractApi<RealNameAuthInput, Abstra
         MemberExtJSON memberExtJSON = member.getExtJson();
         memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
         memberExtJSON.setAuditComment(input.getAuditComment());
-        if (input.getRealNameAuthStatus() == 3) {
+        if (input.getRealNameAuthStatus() == 3) { //-1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
             memberExtJSON.setUpdatedTime(System.currentTimeMillis());
             // 更新证书状态
             certOperationService.updateStatus(memberExtJSON.getCertSerialNumber(), "canceled");

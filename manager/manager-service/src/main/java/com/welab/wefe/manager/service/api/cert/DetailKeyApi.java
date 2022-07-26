@@ -26,7 +26,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.api.cert.DetailKeyApi.KeyDetailInput;
 
-@Api(path = "key/detail", name = "detail csr")
+@Api(path = "cert_key/detail", name = "detail csr")
 public class DetailKeyApi extends AbstractApi<KeyDetailInput, CertKeyVO> {
 
     @Autowired
@@ -38,7 +38,7 @@ public class DetailKeyApi extends AbstractApi<KeyDetailInput, CertKeyVO> {
         return success(vo);
     }
 
-    public class KeyDetailInput extends AbstractApiInput {
+    public static class KeyDetailInput extends AbstractApiInput {
         @Check(require = true)
         private String keyId;
 

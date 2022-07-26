@@ -45,7 +45,7 @@ public class DetailCertApi extends AbstractApi<CertDetailInput, CertVO> {
         return success(vo);
     }
 
-    public class CertDetailInput extends AbstractApiInput {
+    public static class CertDetailInput extends AbstractApiInput {
         @Check(require = true)
         private String certId;
 

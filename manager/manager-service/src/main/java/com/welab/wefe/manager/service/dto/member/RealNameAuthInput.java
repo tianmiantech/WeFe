@@ -28,7 +28,7 @@ public class RealNameAuthInput extends BaseInput {
     @Check(require = true)
     private String id;
     @Check(require = true)
-    private int realNameAuthStatus;
+    private int realNameAuthStatus; //-1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
     private String auditComment;
     private String issuerCertId;
 

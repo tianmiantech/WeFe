@@ -17,6 +17,8 @@ package com.webank.cert.mgr.model.vo;
 
 import java.io.Serializable;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 /**
  * @author wesleywang
  */
@@ -36,6 +38,7 @@ public class CertRequestVO implements Serializable {
 
     private String subjectOrg;
 
+    @JSONField(name = "subject_cn")
     private String subjectCN;
 
     private Boolean issue;

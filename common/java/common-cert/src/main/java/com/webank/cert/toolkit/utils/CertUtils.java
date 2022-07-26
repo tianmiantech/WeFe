@@ -370,6 +370,7 @@ public class CertUtils {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream();
                 JcaPEMWriter pw = new JcaPEMWriter(new OutputStreamWriter(output))) {
             pw.writeObject(object);
+            pw.flush();
             dataBytes = output.toByteArray();
         } catch (IOException e) {
             LOG.error("writeObject failed", e);
