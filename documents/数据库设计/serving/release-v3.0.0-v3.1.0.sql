@@ -158,21 +158,20 @@ alter table `service`
 alter table fee_config modify column `service_id` varchar (255) COMMENT '服务Id';
 
 
-CREATE TABLE `base_service`
-(
-    `id`           varchar(32) NOT NULL COMMENT '全局唯一标识',
-    `service_id`   varchar(256)         DEFAULT NULL COMMENT '服务ID',
-    `created_by`   varchar(32)          DEFAULT NULL COMMENT '创建人',
-    `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
-    `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
-    `name`         varchar(255) NOT NULL COMMENT '服务名',
-    `url`          varchar(128)         DEFAULT '' COMMENT '服务地址',
-    `service_type` tinyint(2) NOT NULL COMMENT '服务类型',
-    `status`       tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
-    PRIMARY KEY (`id`),
-    KEY            `url_unique` (`url`),
-    KEY            `name` (`name`)
+CREATE TABLE `base_service` (
+  `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
+  `service_id` varchar(256) DEFAULT NULL COMMENT '服务ID',
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `name` varchar(255) NOT NULL COMMENT '服务名',
+  `url` varchar(128) DEFAULT '' COMMENT '服务地址',
+  `service_type` tinyint(2) NOT NULL COMMENT '服务类型',
+  `status` tinyint(2) DEFAULT '0' COMMENT '是否在线 1在线，0离线',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_name` (`name`),
+  KEY `url_unique` (`url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务';
 
 CREATE TABLE `table_service`

@@ -470,17 +470,19 @@ public class ServiceService {
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
-        List<BaseServiceMySqlModel> baseModels = baseServiceRepository
-                .findAll(Where.create().equal("name", input.getName()).build(BaseServiceMySqlModel.class));
-        if (baseModels != null && !baseModels.isEmpty()) {
-            throw new StatusCodeWithException("服务名称 【" + input.getName() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
-        }
+     // 数据库会校验
+//        List<BaseServiceMySqlModel> baseModels = baseServiceRepository
+//                .findAll(Where.create().equal("name", input.getName()).build(BaseServiceMySqlModel.class));
+//        if (baseModels != null && (baseModels.size() > 1)) {
+//            throw new StatusCodeWithException("服务名称 【" + input.getName() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+//        }
 
-        baseModels = baseServiceRepository
-                .findAll(Where.create().equal("url", input.getUrl()).build(BaseServiceMySqlModel.class));
-        if (baseModels != null && baseModels.size() >= 2) {
-            throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
-        }
+        // 数据库会校验
+//        baseModels = baseServiceRepository
+//                .findAll(Where.create().equal("url", input.getUrl()).build(BaseServiceMySqlModel.class));
+//        if (baseModels != null && baseModels.size() >= 2) {
+//            throw new StatusCodeWithException("服务英文名称 【" + input.getUrl() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+//        }
 
         if (StringUtils.isNotBlank(input.getName())) {
             model.setName(input.getName());
