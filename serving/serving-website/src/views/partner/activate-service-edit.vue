@@ -5,16 +5,9 @@
         <h2 class="title">更新激活服务</h2>
 
         <el-form :model="clientService" label-width="142px" :rules="rules" ref="clientService">
-            <el-form-item label="服务ID：" prop="serviceId" class = "url">
-                <el-input v-model="clientService.serviceId"></el-input>
-            </el-form-item>
 
             <el-form-item label="服务名称：" prop="serviceName" class = "url">
                 <el-input v-model="clientService.serviceName"></el-input>
-            </el-form-item>
-
-            <el-form-item label="服务提供商ID：" prop="clientId" class = "url">
-                <el-input v-model="clientService.clientId"></el-input>
             </el-form-item>
 
             <el-form-item label="服务提供商名称：" prop="clientName" class = "url">
@@ -50,7 +43,7 @@
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <router-link
                     :to="{
-                            name: 'activation-service-list',
+                            name: 'activate-service-list',
                         }"
                 >
                     &nbsp;<el-button>返回</el-button>
@@ -190,7 +183,7 @@ export default {
                             this.$message('提交成功!');
                         }, 1000)
                         this.$router.push({
-                            name: 'activation-service-list'
+                            name: 'activate-service-list'
                         })
                     }
                 } else {

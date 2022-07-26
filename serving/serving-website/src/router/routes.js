@@ -78,52 +78,16 @@ const baseRoutes = [
                 component: () => import('@views/partner/partner-service-list.vue'),
             },
             {
-                path: `${prefixPath}activation-service-list`,
-                name: 'activation-service-list',
+                path: `${prefixPath}activate-service-list`,
+                name: 'activate-service-list',
                 meta: {
                     title:           '激活服务列表',
                     loginAndRefresh: true,
                 },
-                component: () => import('@views/partner/activation-service-list.vue'),
+                component: () => import('@views/partner/activate-service-list.vue'),
             },
         ],
     },
-    // {
-    //     path: `${prefixPath}model`,
-    //     meta: {
-    //         title: '模型管理',
-    //         icon:  'el-icon-monitor',
-    //     },
-    //     component: () => import('@comp/LayoutBase.vue'),
-    //     children:  [
-    //         {
-    //             path: `${prefixPath}model-list`,
-    //             name: 'index',
-    //             meta: {
-    //                 title: '模型列表',
-    //             },
-    //             component: () => import('@views/model/model-list.vue'),
-    //         },
-    //         {
-    //             path: `${prefixPath}model-view`,
-    //             name: 'model-view',
-    //             meta: {
-    //                 title:  '模型详情',
-    //                 hidden: true,
-    //                 active: `${prefixPath}model-view`,
-    //             },
-    //             component: () => import('@views/model/model-view.vue'),
-    //         },
-    //         {
-    //             path: `${prefixPath}model-import`,
-    //             name: 'model-import',
-    //             meta: {
-    //                 title: '模型部署',
-    //             },
-    //             component: () => import('@views/model/model-import.vue'),
-    //         },
-    //     ],
-    // },
     {
         path: `${prefixPath}partner`,
         meta: {
