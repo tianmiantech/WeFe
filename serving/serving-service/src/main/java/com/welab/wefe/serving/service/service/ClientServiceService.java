@@ -263,8 +263,8 @@ public class ClientServiceService {
             if (model.getType() == ServiceClientTypeEnum.OPEN.getValue()) {
                 // 修改计费规则，新增一条计费规则记录
                 FeeConfigMysqlModel feeConfigMysqlModel = new FeeConfigMysqlModel();
-                feeConfigMysqlModel.setClientId(input.getClientId());
-                feeConfigMysqlModel.setServiceId(input.getServiceId());
+                feeConfigMysqlModel.setClientId(model.getClientId());
+                feeConfigMysqlModel.setServiceId(model.getServiceId());
                 feeConfigMysqlModel.setPayType(input.getPayType());
                 feeConfigMysqlModel.setUnitPrice(input.getUnitPrice());
                 feeConfigRepository.save(feeConfigMysqlModel);
