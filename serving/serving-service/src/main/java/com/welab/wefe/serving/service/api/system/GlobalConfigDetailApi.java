@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * @author Zane
  */
-@Api(path = "global_config/detail", name = "get global settings", login = false)
+@Api(path = "global_config/detail", name = "get global settings")
 public class GlobalConfigDetailApi extends AbstractApi<GlobalConfigDetailApi.Input, Map<String, JSONObject>> {
 
 

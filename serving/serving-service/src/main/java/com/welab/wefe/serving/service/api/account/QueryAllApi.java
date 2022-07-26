@@ -27,7 +27,7 @@ import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.NoneApiInput;
 import com.welab.wefe.serving.service.service.AccountService;
 
-@Api(path = "account/queryAll", name = "account/queryAll", login = true)
+@Api(path = "account/queryAll", name = "account/queryAll")
 public class QueryAllApi extends AbstractApi<NoneApiInput, List<QueryAllApi.Output>> {
 
 	@Autowired
