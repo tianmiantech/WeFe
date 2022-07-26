@@ -110,6 +110,9 @@ public class UnionServiceService {
 		if (StringUtils.isNotBlank(input.getServiceName())) {
 			params.append("serviceName", input.getServiceName());
 		}
+		if(StringUtils.isNotBlank(input.getId())) {
+		    params.append("serviceId", input.getId());
+		}
 		LOG.info("union query params = " + JSONObject.toJSONString(params));
 		return request("member/service/query", params);
 	}
