@@ -21,7 +21,8 @@ import java.io.Serializable;
 /**
  * @author eval
  */
-public class QueryKeysResponse implements Serializable {
+public class QueryKeysResponse extends BaseResponse implements Serializable {
+    private static final long serialVersionUID = 2217113747124783613L;
     private String uuid;
     private String s;
     private Integer attemptCount;

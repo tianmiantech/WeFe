@@ -67,6 +67,9 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         request.setOtMethod(Constants.PIR.HUACK_OT);
         request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         QueryKeysResponse response = mTransferVariable.queryKeys(request);
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         uuid = response.getUuid();
 
         initObliviousTransfer(response.getS());
@@ -80,6 +83,9 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         QueryPIRResultsRequest resultsRequest = new QueryPIRResultsRequest();
         resultsRequest.setUuid(uuid);
         QueryPIRResultsResponse resultsResponse = mTransferVariable.queryResults(resultsRequest);
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         LOG.info("uuid:{} obtain results", uuid);
         return CryptUtil.decrypt(resultsResponse.getResults().get(targetIndex), targetKey.key);
     }

@@ -63,7 +63,9 @@ public class NaorPinkasQuery {
         request.setUuid(uuid);
         request.setPk(DiffieHellmanUtil.bigIntegerToHexString(pk));
         QueryNaorPinkasResultResponse response = transferVariable.queryNaorPinkasResult(request);
-
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         HashFunction hash = new Sha256();
         byte[] key = hash.digest(DiffieHellmanUtil.encrypt(secret, k, p).toByteArray());
         return CryptUtil.decrypt(response.getEncryptResults().get(targetIndex), key);
