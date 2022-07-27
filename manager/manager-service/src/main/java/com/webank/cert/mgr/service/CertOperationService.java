@@ -295,7 +295,7 @@ public class CertOperationService {
         }
         CertKeyInfo certKeyInfo = new CertKeyInfo();
         certKeyInfo.setKeyAlg(priAlg);
-        certKeyInfo.setKeyPem(pemPrivateKey); // TODO 这里需要加密存储
+        certKeyInfo.setKeyPem(pemPrivateKey);
         certKeyInfo.setUserId(userId);
         certKeyInfo = certDao.save(certKeyInfo);
         return certKeyInfo;
