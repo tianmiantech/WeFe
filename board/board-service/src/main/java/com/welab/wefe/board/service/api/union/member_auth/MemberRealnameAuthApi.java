@@ -39,8 +39,15 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
     @Override
     protected ApiResult<Object> handle(MemberRealnameAuthApi.Input input) throws StatusCodeWithException, IOException {
+        // 这里要生成csr
+        input.setCertRequestContent(generateCertRequestContent(input));
         JSONObject result = unionService.realnameAuth(input);
         return super.unionApiResultToBoardApiResult(result);
+    }
+
+    // 生成csr
+    private String generateCertRequestContent(Input input) {
+        return null;
     }
 
     public static class Input extends AbstractApiInput {
@@ -48,6 +55,10 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
         private String authType;
         private String description;
         private List<String> fileIdList;
+        private String organizationName;
+        private String provinceCityName;
+        private String email;
+        private String certRequestContent;
 
         public String getPrincipalName() {
             return principalName;
@@ -79,6 +90,38 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
         public void setFileIdList(List<String> fileIdList) {
             this.fileIdList = fileIdList;
+        }
+
+        public String getOrganizationName() {
+            return organizationName;
+        }
+
+        public void setOrganizationName(String organizationName) {
+            this.organizationName = organizationName;
+        }
+
+        public String getProvinceCityName() {
+            return provinceCityName;
+        }
+
+        public void setProvinceCityName(String provinceCityName) {
+            this.provinceCityName = provinceCityName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getCertRequestContent() {
+            return certRequestContent;
+        }
+
+        public void setCertRequestContent(String certRequestContent) {
+            this.certRequestContent = certRequestContent;
         }
     }
 }
