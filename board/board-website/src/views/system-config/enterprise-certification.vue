@@ -34,6 +34,21 @@
                         </template>
                     </el-input>
                 </el-form-item>
+                <el-form-item label="企业所在省市：">
+                    <el-input
+                        v-model="form.provinceCityName"
+                    />
+                </el-form-item>
+                <el-form-item label="企业所属组织：">
+                    <el-input
+                        v-model="form.organizationName"
+                    />
+                </el-form-item>
+                <el-form-item label="企业邮箱：">
+                    <el-input
+                        v-model="form.email"
+                    />
+                </el-form-item>
                 <el-form-item label="企业简介：">
                     <el-input
                         v-model="form.description"
@@ -136,12 +151,15 @@
                 options:     [],
                 fileList:    [],
                 form:        {
-                    realNameAuth:  0,
-                    fileIdList:    [],
-                    auditComment:  '',
-                    principalName: '',
-                    description:   '',
-                    authType:      '',
+                    realNameAuth:     0,
+                    fileIdList:       [],
+                    auditComment:     '',
+                    principalName:    '',
+                    description:      '',
+                    provinceCityName: '',
+                    organizationName: '',
+                    email:            '',
+                    authType:         '',
                 },
                 uploading: 0,
                 preview:   {
@@ -359,11 +377,14 @@
                 const { code } = await this.$http.post({
                     url:  '/union/member/realname/auth',
                     data: {
-                        memberId:      this.userInfo.member_id,
-                        fileIdList:    this.form.fileIdList.map(x => x.file_id),
-                        principalName: this.form.principalName,
-                        description:   this.form.description,
-                        authType:      this.form.authType,
+                        memberId:         this.userInfo.member_id,
+                        fileIdList:       this.form.fileIdList.map(x => x.file_id),
+                        principalName:    this.form.principalName,
+                        description:      this.form.description,
+                        authType:         this.form.authType,
+                        organizationName: this.form.organizationName,
+                        provinceCityName: this.form.provinceCityName,
+                        email:            this.form.email,
                     },
                     btnState: {
                         target: $event,
