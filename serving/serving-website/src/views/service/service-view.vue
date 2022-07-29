@@ -2469,4 +2469,10 @@ export default {
         }
     }
 }
+.uploader-file-actions .uploader-file-remove {
+    display: block !important;
+    background-position-y: -34px;
+    margin-left: auto;
+    float: none;
+  }
 </style>
