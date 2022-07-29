@@ -25,7 +25,7 @@
                         <template v-if="vData.count_by_sample_list.length>0">
                             <div class="label_info_list">
                                 <div v-for="(item, index) in vData.count_by_sample_list" :key="item.label" class="label_item">
-                                    <p class="span_label" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''">{{item.label}}</p>
+                                    <p class="span_label" @click="vData.forJobType === 'classify' ? methods.labelSampleEvent(item.label) : ''" :style="{'cursor': vData.forJobType === 'classify' ? 'pointer' : 'auto'}">{{item.label}}</p>
                                     <!-- <span v-if="item.keycode !== '' && index<10" class="span_tips">快捷键<span class="span_count">{{item.keycode}}</span></span> -->
                                     <el-icon v-if="item.iscustomized" class="el-icon-close label_close" @click="methods.deleteLabel(index)"><elicon-circle-close-filled /></el-icon>
                                 </div>
