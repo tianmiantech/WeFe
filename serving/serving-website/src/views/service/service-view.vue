@@ -1199,7 +1199,7 @@ export default {
                 name:         [{ required: true, message: '服务名称必填!' }],
                 url:          [{ required: true, message: '服务英文名必填!' }],
                 service_type: [{ required: true, message: '服务类型必选!' }],
-                paramsArr: [{ required: true, message: '查询参数不能为空!' }],
+                paramsArr:    [{ required: true, message: '查询参数不能为空!' }],
             },
             serviceId:       '',
             serviceType:     this.$route.query.service_type,
@@ -2096,7 +2096,7 @@ export default {
             const { code, data, message } = await this.$http.post({
                 url:  'model/update',
                 data: {
-                    feature_source:      'sql',
+                    feature_source:      this.activeName,
                     sql_script:          this.form.model_data.model_sql_config.sql_script,
                     data_source_id:      this.form.model_data.model_sql_config.data_source_id,
                     serviceId:           this.form.model_data.model_id,
