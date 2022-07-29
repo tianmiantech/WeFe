@@ -29,12 +29,12 @@ import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.manager.service.api.account.AuditApi;
 import com.welab.wefe.manager.service.dto.account.QueryAccountInput;
 import com.welab.wefe.manager.service.dto.account.UpdateInput;
 import com.welab.wefe.manager.service.mapper.AccountMapper;
-import com.welab.wefe.manager.service.util.ManagerSM4Util;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +56,7 @@ public class AccountService extends AbstractAccountService {
     private AccountMapper mAccountMapper = Mappers.getMapper(AccountMapper.class);
 
     public void register(Account account) throws StatusCodeWithException {
-        boolean isExist = accountMongoRepo.checkAccountIsExist(ManagerSM4Util.encryptPhoneNumber(account.getPhoneNumber()));
+        boolean isExist = accountMongoRepo.checkAccountIsExist(DatabaseEncryptUtil.encrypt(account.getPhoneNumber()));
         if (isExist) {
             throw new StatusCodeWithException("该账号已存在", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -202,7 +202,7 @@ public class AccountService extends AbstractAccountService {
 
     public PageOutput<Account> findList(QueryAccountInput input) throws StatusCodeWithException {
         PageOutput<Account> accountPageOutput = accountMongoRepo.findList(
-                ManagerSM4Util.encryptPhoneNumber(input.getPhoneNumber()),
+                DatabaseEncryptUtil.encrypt(input.getPhoneNumber()),
                 input.getNickname(),
                 input.getAdminRole(),
                 input.getPageIndex(),
@@ -217,7 +217,7 @@ public class AccountService extends AbstractAccountService {
 
     @Override
     public AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException {
-        Account account = decryptPhoneNumber(accountMongoRepo.findByPhoneNumber(ManagerSM4Util.encryptPhoneNumber(phoneNumber)));
+        Account account = decryptPhoneNumber(accountMongoRepo.findByPhoneNumber(DatabaseEncryptUtil.encrypt(phoneNumber)));
         return toAccountInfo(account);
     }
 
@@ -254,7 +254,7 @@ public class AccountService extends AbstractAccountService {
         if(null == account) {
             return null;
         }
-        account.setPhoneNumber(ManagerSM4Util.encryptPhoneNumber(account.getPhoneNumber()));
+        account.setPhoneNumber(DatabaseEncryptUtil.encrypt(account.getPhoneNumber()));
         return account;
     }
 
@@ -262,7 +262,7 @@ public class AccountService extends AbstractAccountService {
         if(null == account) {
             return null;
         }
-        account.setPhoneNumber(ManagerSM4Util.decryptPhoneNumber(account.getPhoneNumber()));
+        account.setPhoneNumber(DatabaseEncryptUtil.decrypt(account.getPhoneNumber()));
         return account;
     }
 }

@@ -17,8 +17,8 @@
 package com.welab.wefe.data.fusion.service.database.listener;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
-import com.welab.wefe.data.fusion.service.utils.FusionSM4Util;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
@@ -33,7 +33,7 @@ public class AccountMysqlModelListener {
     public void prePersist(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             AccountMysqlModel model = (AccountMysqlModel) entity;
-            model.setPhoneNumber(FusionSM4Util.encryptPhoneNumber(model.getPhoneNumber()));
+            model.setPhoneNumber(DatabaseEncryptUtil.encrypt(model.getPhoneNumber()));
         }
     }
 
@@ -52,7 +52,7 @@ public class AccountMysqlModelListener {
     public void postLoad(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             AccountMysqlModel model = (AccountMysqlModel) entity;
-            model.setPhoneNumber(FusionSM4Util.decryptPhoneNumber(model.getPhoneNumber()));
+            model.setPhoneNumber(DatabaseEncryptUtil.decrypt(model.getPhoneNumber()));
         }
     }
 }

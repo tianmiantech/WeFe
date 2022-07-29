@@ -19,7 +19,7 @@ package com.welab.wefe.manager.service.service;
 import com.welab.wefe.common.data.mongodb.entity.manager.Account;
 import com.welab.wefe.common.data.mongodb.repo.AccountMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.manager.service.util.ManagerSM4Util;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -27,7 +27,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 @Service
-public class EncryptPhoneNumberService {
+public class PrivacyDatabaseEncryptService {
     @Autowired
     private AccountMongoRepo accountMongoRepo;
 
@@ -37,7 +37,7 @@ public class EncryptPhoneNumberService {
             return;
         }
         for (Account account : list) {
-            account.setPhoneNumber(ManagerSM4Util.encryptPhoneNumber(account.getPhoneNumber()));
+            account.setPhoneNumber(DatabaseEncryptUtil.encrypt(account.getPhoneNumber()));
             accountMongoRepo.save(account);
         }
     }

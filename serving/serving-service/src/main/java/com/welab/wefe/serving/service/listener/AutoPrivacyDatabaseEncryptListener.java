@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.data.fusion.service.listener;
+package com.welab.wefe.serving.service.listener;
 
-import com.welab.wefe.data.fusion.service.config.Config;
-import com.welab.wefe.data.fusion.service.service.EncryptPhoneNumberService;
+import com.welab.wefe.serving.service.config.Config;
+import com.welab.wefe.serving.service.service.PrivacyDatabaseEncryptService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,29 +30,29 @@ import org.springframework.stereotype.Component;
  * Auto encrypt mobile phone number
  */
 @Component
-public class AutoEncryptPhoneNumberListener implements ApplicationListener<ApplicationStartedEvent> {
-    private static final Logger LOG = LoggerFactory.getLogger(AutoEncryptPhoneNumberListener.class);
+public class AutoPrivacyDatabaseEncryptListener implements ApplicationListener<ApplicationStartedEvent> {
+    private static final Logger LOG = LoggerFactory.getLogger(AutoPrivacyDatabaseEncryptListener.class);
 
     @Autowired
     private ConfigurableEnvironment configurableEnvironment;
 
     @Autowired
-    private EncryptPhoneNumberService encryptPhoneNumberService;
+    private PrivacyDatabaseEncryptService privacyDatabaseEncryptService;
 
     @Autowired
     private Config config;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
-        if (!config.isDatabaseEncryptEnable()) {
+        if (configurableEnvironment.containsProperty("database.encrypt.completed") || !config.isDatabaseEncryptEnable()) {
             return;
         }
         try {
-            LOG.info("Start auto encrypt phone number........");
-            encryptPhoneNumberService.encrypt();
-            LOG.info("End auto encrypt phone number!!!");
+            LOG.info("Start auto database data encrypt........");
+            privacyDatabaseEncryptService.encrypt();
+            LOG.info("End auto database data encrypt!!!");
         } catch (Exception e) {
-            LOG.error("Auto encrypt phone number exception: ", e);
+            LOG.error("Auto database data encrypt exception: ", e);
         }
     }
 }

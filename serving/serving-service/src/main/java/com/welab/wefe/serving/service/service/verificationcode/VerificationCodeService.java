@@ -16,19 +16,12 @@
 
 package com.welab.wefe.serving.service.service.verificationcode;
 
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.verification.code.AbstractClient;
 import com.welab.wefe.common.verification.code.AbstractResponse;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import com.welab.wefe.common.wefe.enums.VerificationCodeSendChannel;
 import com.welab.wefe.serving.service.config.Config;
@@ -36,9 +29,14 @@ import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.VerificationCodeMysqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.serving.repository.VerificationCodeRepository;
-import com.welab.wefe.serving.service.utils.ServingSM4Util;
-
 import net.jodah.expiringmap.ExpiringMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Verification code service class
@@ -91,7 +89,7 @@ public class VerificationCodeService {
             throw new StatusCodeWithException(VALID_DURATION_MINUTES + "分钟内禁止多次获取验证码", StatusCode.ILLEGAL_REQUEST);
         }
 
-        AccountMySqlModel model = accountRepository.findOne("phoneNumber", ServingSM4Util.encryptPhoneNumber(mobile), AccountMySqlModel.class);
+        AccountMySqlModel model = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(mobile), AccountMySqlModel.class);
         // phone number error
         if (model == null) {
             throw new StatusCodeWithException("手机号错误，该用户不存在", StatusCode.PARAMETER_VALUE_INVALID);

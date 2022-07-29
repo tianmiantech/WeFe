@@ -18,9 +18,9 @@ package com.welab.wefe.board.service.database.listener;
 
 import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
-import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import org.apache.commons.collections.CollectionUtils;
 
 import javax.persistence.PostLoad;
@@ -55,10 +55,7 @@ public class GlobalConfigMysqlModelListener {
             if (!check(model)) {
                 return;
             }
-
-            if (!BoardSM4Util.isEncryptText(model.getValue())) {
-                model.setValue(BoardSM4Util.encryptCommonText(model.getValue()));
-            }
+            model.setValue(DatabaseEncryptUtil.encrypt(model.getValue()));
         }
     }
 
@@ -80,10 +77,7 @@ public class GlobalConfigMysqlModelListener {
             if (!check(model)) {
                 return;
             }
-
-            if (BoardSM4Util.isEncryptText(model.getValue())) {
-                model.setValue(BoardSM4Util.decryptCommonText(model.getValue()));
-            }
+            model.setValue(DatabaseEncryptUtil.decrypt(model.getValue()));
         }
     }
 
