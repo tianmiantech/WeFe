@@ -29,6 +29,7 @@
 #
 import argparse
 import importlib
+import json
 import os
 import pickle
 import re
@@ -52,6 +53,7 @@ from kernel.tracker.parameter_util import ParameterUtil
 from kernel.tracker.runtime_config import RuntimeConfig
 from kernel.tracker.tracking import Tracking
 from kernel.utils.decorator_utils import load_config, update_task_status_env
+
 
 class TaskExecutor(object):
 
@@ -78,12 +80,29 @@ class TaskExecutor(object):
             member_id = args.member_id
             global_config.ENV = args.environment
             task_config = load_config(args)
+            print(f'task_config： {task_config}')
             params = task_config.get('params', {})
-            # params = task_config["params"]
-            job_env = task_config['job']['env']
+
+            # 改为从 job_config 中获取
+            with DB.connection_context():
+                job = Job.get(Job.job_id == job_id)
+            job_config = json.loads(job.job_config)
+            job_env = job_config['env']
             task_input_dsl = task_config['input']
             task_output_dsl = task_config['output']
             module_name = task_config['module']
+
+            # 从 job_config 中获取信息
+            task_config['job'] = {
+                'federated_learning_type': job_config['federated_learning_type'],
+                'project': {
+                    'project_id': job_config['project']['project_id']
+                },
+                'members': job_config['members'],
+                'data_sets': job_config['data_sets'],
+                'env': job_config['env']
+            }
+
             project_id = task_config['job']['project']['project_id']
 
             parameters = TaskExecutor.get_parameters(role, member_id, module_name, component_name, task_config)
@@ -106,12 +125,16 @@ class TaskExecutor(object):
             # backend = conf_utils.get_backend_from_string(
             #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
             # )
-            backend = job_env.get('backend')
+            backend = job_env['calculation_engine_config'].get('backend')
             # backend = 0
+            print(f'job_env: {job_env}')
             options = TaskExecutor.session_options(task_config)
             RuntimeConfig.init_config(WORK_MODE=job_env['work_mode'],
                                       BACKEND=backend,
-                                      DB_TYPE=job_env.get('db_type', DBTypes.CLICKHOUSE))
+                                      DB_TYPE=job_env['storage_config'].get('db_type', DBTypes.CLICKHOUSE))
+
+            print(
+                f'word_mode: {RuntimeConfig.WORK_MODE}, backend: {RuntimeConfig.BACKEND}, db_type: {RuntimeConfig.DB_TYPE}')
             session.init(job_id='{}_{}_{}'.format(task_id, role, member_id), mode=RuntimeConfig.WORK_MODE,
                          backend=RuntimeConfig.BACKEND, db_type=RuntimeConfig.DB_TYPE,
                          options=options)
@@ -131,7 +154,7 @@ class TaskExecutor(object):
             # Obtain the input data according to the rules
             task_run_args = TaskExecutor.get_task_run_args(
                 project_id=project_id, job_id=job_id, role=role, task_id=task_id,
-                member_id=member_id, job_env=job_env, params=params,
+                member_id=member_id, params=params,
                 module_name=module_name, input_dsl=task_input_dsl
             )
 
@@ -189,7 +212,7 @@ class TaskExecutor(object):
     @staticmethod
     def get_parameters(role, member_id, module_name, component_name, runtime_conf):
         component_root = os.path.join(file_utils.get_project_base_directory(), 'kernel', 'components')
-        module_name_dir = TaskExecutor.generate_module_name_dir(module_name,runtime_conf)
+        module_name_dir = TaskExecutor.generate_module_name_dir(module_name, runtime_conf)
 
         component_full_path = None
         if os.path.exists(os.path.join(component_root, module_name_dir)):
@@ -211,7 +234,7 @@ class TaskExecutor(object):
         return parameter
 
     @staticmethod
-    def get_task_run_args(project_id, job_id, role, task_id, member_id, job_env, params, module_name, input_dsl):
+    def get_task_run_args(project_id, job_id, role, task_id, member_id, params, module_name, input_dsl):
         task_run_args = {}
         # input_dsl => {'data': {'': ['']}, 'model': {'': ['']}}
         for input_type, input_detail in input_dsl.items():
@@ -395,12 +418,19 @@ class TaskExecutor(object):
         elif "NaN" in message:
             e = NaNTypeError()
         elif "spark" in message or "Py4J" in message:
-            pattern = re.compile('raise .*(.*)')
-            result = re.search(pattern, message)
-            if result is not None:
-                e = SparkError(message=result.group(0))
+
+            if "OutOfMemoryError" in message:
+                e = SparkOutOfMemoryError()
             else:
-                e = SparkError(message)
+
+                pattern = re.compile('raise .*(.*)')
+                result = re.search(pattern, message)
+                if result is not None:
+                    e = SparkError(message=result.group(0))
+                else:
+                    e = SparkError(message)
+        elif "CUDA" in message and "memory" in message:
+            e = GpuOutOfMemoryError()
         elif isinstance(e, TypeError):
             e = CustomTypeError()
 

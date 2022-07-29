@@ -103,15 +103,27 @@
                         for (const item of titles) {
                             const title = item.getAttribute('name');
                             const show = item.getAttribute('show');
+                            const idx = item.getAttribute('idx') || '';
 
-                            vData.updateTitleIdxTimer = setTimeout(()=> {
-                                let index = item.getAttribute('idx');
+                            if (idx.length) {
+                                vData.updateTitleIdxTimer = setTimeout(()=> {
+                                    let index = item.getAttribute('idx');
 
-                                index = Number(index) + 1;
-                                if (show !== 'false') {
-                                    vData.list[index] = { title, highlight: false };
-                                }
-                            }, 200);
+                                    index = Number(index) + 1;
+                                    if (show !== 'false') {
+                                        vData.list[index] = { title, highlight: false };
+                                    }
+                                }, 200);
+                            } else {
+                                if (show !== 'false') { 
+                                    vData.list.push({ 
+                                        title, 
+                                        highlight: false, 
+                                    }); 
+                                } 
+                            }
+
+                            
                         }
                     }
                 }
@@ -120,8 +132,8 @@
                         vData.showNavigation = route.meta.navigation;
                         hightlightTitle();
                     }
+                    console.log(vData.list);
                 }, 250);
-                
             };
             const hightlightTitle = () => {
                 if(route.meta.navigation) {

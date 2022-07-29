@@ -19,6 +19,7 @@ package com.welab.wefe.mpc.psi.sdk;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.welab.wefe.mpc.config.CommunicationConfig;
@@ -99,6 +100,7 @@ public class PrivateSetIntersection {
         QueryPrivateSetIntersectionRequest request = new QueryPrivateSetIntersectionRequest();
         request.setP(diffieHellmanKey.getP().toString(16));
         request.setClientIds(encryptIds);
+        request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         PrivateSetIntersectionService privateSetIntersectionService = new PrivateSetIntersectionService();
         QueryPrivateSetIntersectionResponse response = privateSetIntersectionService.handle(config, request);
         if(response.getCode() != 0) {

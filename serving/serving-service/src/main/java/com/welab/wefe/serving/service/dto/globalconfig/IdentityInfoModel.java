@@ -24,13 +24,13 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 public class IdentityInfoModel {
 
     @Check(name = "系统 id", desc = "全局唯一，独立模式默认为uuid，联邦模式为memberId。")
-    private String id;
+    private String memberId;
     @Check(name = "名称")
-    private String name;
+    private String memberName;
     @Check(name = "邮箱")
     private String email;
     @Check(name = "系统域路径")
-    private String baseUrl;
+    private String servingBaseUrl;
     @Check(name = "头像")
     private String avatar;
 
@@ -45,20 +45,20 @@ public class IdentityInfoModel {
     //region getter/setter
 
 
-    public String getId() {
-        return id;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
-    public String getName() {
-        return name;
+    public String getMemberName() {
+        return memberName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
     }
 
     public String getEmail() {
@@ -69,12 +69,12 @@ public class IdentityInfoModel {
         this.email = email;
     }
 
-    public String getBaseUrl() {
-        return baseUrl;
+    public String getServingBaseUrl() {
+        return servingBaseUrl;
     }
 
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
+    public void setServingBaseUrl(String servingBaseUrl) {
+        this.servingBaseUrl = servingBaseUrl;
     }
 
     public String getAvatar() {

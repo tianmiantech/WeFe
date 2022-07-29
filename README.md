@@ -15,7 +15,18 @@
 
 WeFe ( WeLab Federated Learning ) 是 Welab 汇立集团子公司[天冕](https://www.tianmiantech.com)科技发起的开源项目，为联邦学习生态系统提供了一套好用的可靠的安全计算框架。
 
-`Documentation：` https://tianmiantech.github.io/WeFe/
+`Documentation：` https://tianmiantech.github.io/WeFe/ or http://tianmiantech.gitee.io/wefe
+
+
+## 在线体验
+
+WeFe 不仅支持本地部署运行测试，并且提供了一套完整的线上体验环境；
+
+用户可以通过线上体验环境，模拟联邦中三位成员间的建模操作；
+
+体验环境的联邦成员角色有 DemoMember1、DemoMember2、DemoMember3；
+
+详情访问[在线体验平台](https://tianmiantech.com/federal)体验。
 
 # 项目特点
 
@@ -47,16 +58,6 @@ WeFe 提供了一套完整的在线体验环境 Demo ENV。
 ## Docker 部署
 
 单机部署，详见 [release/docker/README.md](./release/docker)
-
-## 在线体验
-
-WeFe 不仅支持本地部署运行测试，并且提供了一套完整的线上体验环境；
-
-用户可以通过线上体验环境，模拟联邦中三位成员间的建模操作；
-
-体验环境的联邦成员角色有 DemoMember1、DemoMember2、DemoMember3；
-
-详情访问[在线体验平台](https://tianmiantech.com/federal)体验。
 
 # 系统架构
 

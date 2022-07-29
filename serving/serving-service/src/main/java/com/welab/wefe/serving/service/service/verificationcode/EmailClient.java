@@ -21,7 +21,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
@@ -29,11 +28,11 @@ import com.welab.wefe.common.verification.code.AbstractClient;
 import com.welab.wefe.common.verification.code.AbstractResponse;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
-import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
-import com.welab.wefe.serving.service.dto.MailServerModel;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.serving.service.service.EmailService;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.serving.service.utils.ServingSM4Util;
 
 /**
@@ -57,9 +56,11 @@ public class EmailClient extends AbstractClient {
             throw new StatusCodeWithException("用户未设置邮箱地址", StatusCode.PERMISSION_DENIED);
         }
 
-        Config config = Launcher.CONTEXT.getBean(Config.class);
-        MailServerModel mailServer = new MailServerModel(config.getMailHost(),
-                Integer.valueOf(config.getMailPort()), config.getMailUsername(), config.getMailPassword());
+        GlobalConfigService configService = Launcher.CONTEXT.getBean(GlobalConfigService.class);
+        MailServerModel mailModel = configService.getMailServerModel();
+        if(mailModel == null) {
+            throw new StatusCodeWithException("邮箱服务器配置未设置", StatusCode.PERMISSION_DENIED);
+        }
         String businessTypeStr = String.valueOf(getExtendParams().get("businessType"));
         VerificationCodeBusinessType businessType = VerificationCodeBusinessType.valueOf(businessTypeStr);
         String subject = String.valueOf(getExtendParams().get("subject"));
@@ -71,7 +72,7 @@ public class EmailClient extends AbstractClient {
         EmailSendResult emailSendResult = new EmailSendResult();
         emailSendResult.setMessage("发送成功");
         EmailService emailService = Launcher.CONTEXT.getBean(EmailService.class);
-        emailService.sendMail(mailServer.getMailUsername(), model.getEmail(), subject, content);
+        emailService.sendMail(mailModel.getUsername(), model.getEmail(), subject, content);
         return new EmailResponse(emailSendResult);
     }
 }

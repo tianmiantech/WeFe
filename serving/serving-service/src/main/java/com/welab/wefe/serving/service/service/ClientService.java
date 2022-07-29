@@ -33,10 +33,10 @@ import com.welab.wefe.serving.service.api.client.QueryClientApi;
 import com.welab.wefe.serving.service.api.client.QueryClientListApi;
 import com.welab.wefe.serving.service.api.client.SaveClientApi;
 import com.welab.wefe.serving.service.api.client.UpdateApi;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
+import com.welab.wefe.serving.service.database.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.repository.ClientRepository;
+import com.welab.wefe.serving.service.database.repository.ClientServiceRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
 
@@ -54,7 +54,7 @@ public class ClientService {
 
         ClientMysqlModel clientMysqlModel = queryByCode(input.getCode());
         if (clientMysqlModel != null) {
-            throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
+            throw new StatusCodeWithException("code 【"+input.getCode()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
         }
 
         ClientMysqlModel clientMysqlModel1 = queryByClientName(input.getName());

@@ -36,7 +36,7 @@ public class PushModelToServingApi extends AbstractApi<PushModelToServingApi.Inp
 
     @Override
     protected ApiResult<Object> handle(Input input) throws Exception {
-        return success(servingService.syncModelToServing(input));
+        return success(servingService.syncModelToServing(input.getTaskId(), input.getRole()));
     }
 
     public static class Input extends AbstractApiInput {

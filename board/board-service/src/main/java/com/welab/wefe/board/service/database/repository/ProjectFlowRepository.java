@@ -50,6 +50,6 @@ public interface ProjectFlowRepository extends BaseRepository<ProjectFlowMySqlMo
      */
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query(value = "update #{#entityName} set top=false and sort_num=0 where flow_id=?1", nativeQuery = true)
+    @Query(value = "update #{#entityName} set top=false, sort_num=0 where flow_id=?1", nativeQuery = true)
     void cancelTop(String flowId);
 }

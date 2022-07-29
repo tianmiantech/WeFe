@@ -16,28 +16,10 @@
 
 package com.welab.wefe.serving.service.service;
 
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.serving.service.api.member.QueryApi;
-import com.welab.wefe.serving.service.api.partner.QueryPartnerApi;
-import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi;
-import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Input;
-import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Output;
-import com.welab.wefe.serving.service.api.partner.SavePartnerApi;
-import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.ClientMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.PartnerMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ClientRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ClientServiceRepository;
-import com.welab.wefe.serving.service.database.serving.repository.MemberRepository;
-import com.welab.wefe.serving.service.database.serving.repository.PartnerRepository;
-import com.welab.wefe.serving.service.dto.MemberParams;
-import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.enums.ClientStatusEnum;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,10 +28,28 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.serving.service.api.member.QueryApi;
+import com.welab.wefe.serving.service.api.partner.DetailPartnerApi;
+import com.welab.wefe.serving.service.api.partner.QueryPartnerAllApi;
+import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi;
+import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Input;
+import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Output;
+import com.welab.wefe.serving.service.api.partner.SavePartnerApi;
+import com.welab.wefe.serving.service.database.entity.ClientMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.repository.ClientRepository;
+import com.welab.wefe.serving.service.database.repository.ClientServiceRepository;
+import com.welab.wefe.serving.service.database.repository.MemberRepository;
+import com.welab.wefe.serving.service.database.repository.PartnerRepository;
+import com.welab.wefe.serving.service.dto.MemberParams;
+import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.ClientStatusEnum;
 
 @Service
 public class PartnerService {
@@ -65,9 +65,6 @@ public class PartnerService {
     @Autowired
     private ClientServiceRepository clientServiceRepository;
 
-    @Autowired
-    private Config config;
-
     @Transactional(rollbackFor = Exception.class)
     public void init() {
         partnerRepository.deleteAll();
@@ -77,7 +74,7 @@ public class PartnerService {
         for (MemberMySqlModel m : members) {
             PartnerMysqlModel model = ModelMapper.map(m, PartnerMysqlModel.class);
             model.setServingBaseUrl(m.getApi());
-            model.setPartnerId(m.getMemberId());
+            model.setId(m.getMemberId());
             model.setIsUnionMember(true);
             model.setStatus(ClientStatusEnum.NORMAL.getValue());
             partnerRepository.save(model);
@@ -86,8 +83,7 @@ public class PartnerService {
         for (ClientMysqlModel c : clients) {
             PartnerMysqlModel model = ModelMapper.map(c, PartnerMysqlModel.class);
             model.setStatus(c.getStatus());
-            model.setServingBaseUrl(config.getSERVING_BASE_URL());
-            model.setPartnerId(UUID.randomUUID().toString().replaceAll("-", ""));
+            model.setId(UUID.randomUUID().toString().replaceAll("-", ""));
             partnerRepository.save(model);
         }
     }
@@ -98,7 +94,7 @@ public class PartnerService {
         if (StringUtils.isNotBlank(input.getCode())) {
             partnerMysqlModel = queryByCode(input.getCode());
             if (partnerMysqlModel != null) {
-                throw new StatusCodeWithException(StatusCode.PRIMARY_KEY_CONFLICT, input.getCode(), "code");
+                throw new StatusCodeWithException("code 【"+input.getCode()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
             }
         }
 
@@ -106,12 +102,11 @@ public class PartnerService {
         if (null != partnerMysqlModel) {
             throw new StatusCodeWithException(StatusCode.CLIENT_NAME_EXIST);
         }
-        
-        if (StringUtils.isNotBlank(input.getPartnerId())) {
-            partnerMysqlModel = partnerRepository.findOne("partnerId", input.getPartnerId(), PartnerMysqlModel.class);
-        }
-        else {
-            input.setPartnerId(UUID.randomUUID().toString().replaceAll("-", ""));
+
+        if (StringUtils.isNotBlank(input.getId())) {
+            partnerMysqlModel = partnerRepository.findOne("id", input.getId(), PartnerMysqlModel.class);
+        } else {
+            input.setId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
         if (null == partnerMysqlModel) {
             partnerMysqlModel = new PartnerMysqlModel();
@@ -122,12 +117,13 @@ public class PartnerService {
         partnerMysqlModel.setServingBaseUrl(input.getServingBaseUrl());
         partnerMysqlModel.setCreatedBy(input.getCreatedBy());
         partnerMysqlModel.setCode(input.getCode());
-        partnerMysqlModel.setPartnerId(input.getPartnerId());
+        partnerMysqlModel.setId(input.getId());
+        partnerMysqlModel.setIsUnionMember(input.getIsUnionMember());
         partnerRepository.save(partnerMysqlModel);
     }
 
     public PartnerMysqlModel findOne(String partnerId) {
-        return partnerRepository.findOne("partnerId", partnerId, PartnerMysqlModel.class);
+        return partnerRepository.findOne("id", partnerId, PartnerMysqlModel.class);
     }
 
     /**
@@ -150,19 +146,14 @@ public class PartnerService {
         return partnerRepository.findOne("name", name, PartnerMysqlModel.class);
     }
 
-    public QueryPartnerApi.Output queryById(String id) {
+    public DetailPartnerApi.Output queryById(String id) {
         PartnerMysqlModel model = partnerRepository.findOne("id", id, PartnerMysqlModel.class);
-        return ModelMapper.map(model, QueryPartnerApi.Output.class);
+        return ModelMapper.map(model, DetailPartnerApi.Output.class);
     }
 
-    public QueryPartnerApi.Output queryByPartnerId(String partnerId) {
-        PartnerMysqlModel model = partnerRepository.findOne("partnerId", partnerId, PartnerMysqlModel.class);
-        return ModelMapper.map(model, QueryPartnerApi.Output.class);
-    }
-
-    public QueryPartnerApi.Output queryByName(String name) {
+    public DetailPartnerApi.Output queryByName(String name) {
         PartnerMysqlModel model = queryByPartnerName(name);
-        return ModelMapper.map(model, QueryPartnerApi.Output.class);
+        return ModelMapper.map(model, DetailPartnerApi.Output.class);
     }
 
     public void detele(String id) {
@@ -188,6 +179,13 @@ public class PartnerService {
 
         return PagingOutput.of(page.getTotal(), list);
     }
+    
+    public List<QueryPartnerAllApi.Output> queryAll() {
+        List<PartnerMysqlModel> list = partnerRepository.findAll();
+        List<QueryPartnerAllApi.Output> output = list.stream()
+                .map(x -> ModelMapper.map(x, QueryPartnerAllApi.Output.class)).collect(Collectors.toList());
+        return output;
+    }
 
     public void update(com.welab.wefe.serving.service.api.partner.UpdateApi.Input input)
             throws StatusCodeWithException {
@@ -203,6 +201,9 @@ public class PartnerService {
         model.setIsUnionMember(input.getIsUnionMember());
         model.setServingBaseUrl(input.getServingBaseUrl());
         model.setRemark(input.getRemark());
+        if(StringUtils.isBlank(model.getCode()) && StringUtils.isNotBlank(input.getCode())) {
+            model.setCode(input.getCode());
+        }
         partnerRepository.save(model);
         // 客户信息变动时，客户服务表中的字段也更新
         Specification<ClientServiceMysqlModel> where = Where.create().equal("clientId", input.getId())
@@ -234,9 +235,10 @@ public class PartnerService {
         memberParams.forEach(x -> {
             SavePartnerApi.Input partner = new SavePartnerApi.Input();
             partner.setIsUnionMember(true);
-            partner.setPartnerId(x.getMemberId());
+            partner.setId(x.getMemberId());
             partner.setName(x.getName());
-            partner.setServingBaseUrl("");
+            partner.setCode(x.getMemberId());
+            partner.setServingBaseUrl(x.getUrl());
             partner.setEmail("");
             try {
                 save(partner);
@@ -244,5 +246,10 @@ public class PartnerService {
                 e.printStackTrace();
             }
         });
+    }
+
+    public String findModelServiceUrl(String partnerId) {
+        PartnerMysqlModel partner = findOne(partnerId);
+        return partner == null ? "" : partner.getServingBaseUrl();
     }
 }

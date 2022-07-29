@@ -119,7 +119,7 @@
                 min-width="100"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.service_type }}</p>
+                    <p>{{ serviceTypeMap[scope.row.service_type] }}</p>
                 </template>
             </el-table-column>
 
@@ -137,7 +137,7 @@
                 min-width="120"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.order_type }}</p>
+                    <p>{{ callByMeMap[scope.row.order_type] }}</p>
                 </template>
             </el-table-column>
 
@@ -332,13 +332,19 @@ export default {
                 change_flag: false,
             },
             getListApi: '/serviceorder/query-list',
-            serviceType: {
+            serviceTypeMap: {
                 1: '两方匿踪查询',
                 2: '两方交集查询',
                 3: '多方安全统计(被查询方)',
                 4: '多方安全统计(查询方)',
                 5: '多方交集查询',
                 6: '多方匿踪查询',
+                7: '机器学习模型服务',
+                8: '深度学习模型服务',
+            },
+            callByMeMap: {
+                1: '是',
+                0: '否'
             },
             requestResult: {
                 1: '成功',
@@ -405,7 +411,7 @@ export default {
 
         downloadStatistics() {
 
-            const api = `${window.api.baseUrl}/serviceorder/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&orderType=${this.search.orderType}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}`;
+            const api = `${window.api.baseUrl}/serviceorder/download?serviceName=${this.search.serviceName}&requestPartnerName=${this.search.requestPartnerName}&responsePartnerName=${this.search.responsePartnerName}&orderType=${this.search.orderType}&startTime=${this.search.startTime}&endTime=${this.search.endTime}&token=${this.userInfo.token}&version=${Math.random()}`;
             const link = document.createElement('a');
 
             link.href = api;

@@ -22,7 +22,9 @@ import com.welab.wefe.board.service.api.account.*;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
+import com.welab.wefe.board.service.dto.entity.AccountListAllOutputModel;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
+import com.welab.wefe.board.service.dto.globalconfig.BoardConfigModel;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -31,6 +33,7 @@ import com.welab.wefe.board.service.service.WebSocketServer;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.board.service.service.verificationcode.VerificationCodeService;
 import com.welab.wefe.board.service.util.BoardSM4Util;
+import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
@@ -39,14 +42,15 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.verification.code.common.VerificationCodeBusinessType;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +76,17 @@ public class AccountService extends AbstractAccountService {
 
     @Autowired
     private VerificationCodeService verificationCodeService;
+
+    public List<AccountListAllOutputModel> listAll(ListAllApi.Input input) {
+
+        Specification<AccountMysqlModel> where = Where
+                .create()
+                .contains("nickname", input.getNickname())
+                .build(AccountMysqlModel.class);
+
+        List<AccountMysqlModel> list = accountRepository.findAll(where);
+        return ModelMapper.maps(list, AccountListAllOutputModel.class);
+    }
 
     /**
      * Paging query account
@@ -101,7 +116,7 @@ public class AccountService extends AbstractAccountService {
         }
 
         // generate salt
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
 
         // sha hash
         String password = Sha1.of(input.getPassword() + salt);
@@ -129,7 +144,7 @@ public class AccountService extends AbstractAccountService {
         // Whether others want to review it depends on the configuration.
         else {
             model.setAuditStatus(
-                    globalConfigService.getBoardConfig().accountNeedAuditWhenRegister
+                    globalConfigService.getModel(BoardConfigModel.class).accountNeedAuditWhenRegister
                             ? AuditStatus.auditing
                             : AuditStatus.agree
             );
@@ -339,7 +354,7 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("只有超级管理员才能重置管理员的密码", StatusCode.PERMISSION_DENIED);
         }
 
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         String newPassword = RandomStringUtils.randomAlphanumeric(2) + new Random().nextInt(999999);
 
         String websitePassword = model.getPhoneNumber() + newPassword + model.getPhoneNumber() + model.getPhoneNumber().substring(0, 3) + newPassword.substring(newPassword.length() - 3);
@@ -490,7 +505,7 @@ public class AccountService extends AbstractAccountService {
         String historyPasswordListString = JSON.toJSONString(accountInfo.getPasswordHistoryList(historyCount - 1));
 
         // Regenerate salt
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         model.setSalt(salt);
         model.setPassword(Sha1.of(input.getPassword() + salt));
         model.setHistoryPasswordList(JSON.parseArray(historyPasswordListString));

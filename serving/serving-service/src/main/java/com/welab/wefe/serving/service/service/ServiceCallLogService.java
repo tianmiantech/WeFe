@@ -19,8 +19,8 @@ import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.servicecalllog.QueryListApi;
-import com.welab.wefe.serving.service.database.serving.entity.ServiceCallLogMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ServiceCallLogRepository;
+import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.database.repository.ServiceCallLogRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceCallLogInput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +80,45 @@ public class ServiceCallLogService {
         serviceCallLogRepository.save(model);
     }
 
+    public ServiceCallLogMysqlModel add(String orderId, int callByMe, String requestPartnerId,
+            String requestPartnerName, String serviceId, String serviceName, Integer serviceType, String requestId,
+            String requestData, String requestIp) {
+        ServiceCallLogMysqlModel model = new ServiceCallLogMysqlModel();
+        model.setOrderId(orderId);
+        model.setCallByMe(callByMe);
+        model.setRequestPartnerId(requestPartnerId);
+        model.setRequestPartnerName(requestPartnerName);
+        model.setServiceId(serviceId);
+        model.setServiceName(serviceName);
+        model.setServiceType(serviceType);
+        model.setRequestId(requestId);
+        model.setRequestData(requestData);
+        model.setRequestIp(requestIp);
+        model.setResponsePartnerId(CacheObjects.getMemberId());
+        model.setResponsePartnerName(CacheObjects.getMemberName());
+        model.setCreatedTime(new Date());
+        model.setUpdatedTime(new Date());
+        model = serviceCallLogRepository.save(model);
+        return model;
+    }
+    
+    public ServiceCallLogMysqlModel update(String callLogId, String responsePartnerId, String responsePartnerName,
+            String responseId, String responseData, int responseCode, String responseStatus, Long spendTime) {
+        ServiceCallLogMysqlModel model = serviceCallLogRepository.findOne("id", callLogId, ServiceCallLogMysqlModel.class);
+        if (null != model) {
+            model.setResponsePartnerId(responsePartnerId);
+            model.setResponsePartnerName(responsePartnerName);
+            model.setResponseId(responseId);
+            model.setResponseData(responseData);
+            model.setResponseCode(responseCode);
+            model.setResponseStatus(responseStatus);
+            model.setSpendTime(spendTime);
+            model.setUpdatedTime(new Date());
+            model = serviceCallLogRepository.save(model);
+        }
+        return model;
+    }
+    
     /**
      * 根据参数获取服务调用日志
      *

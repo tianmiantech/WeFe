@@ -17,10 +17,12 @@ package com.welab.wefe.serving.service.scheduler;
 
 
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.serving.service.database.serving.entity.*;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeDetailMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,16 +42,13 @@ import java.util.TimeZone;
  * @author ivenn.zheng
  * @date 2021/12/24
  */
-//@Component
+@Component
 public class OrderToFeeDetailScheduler {
 
     private Logger logger = LoggerFactory.getLogger(OrderToFeeDetailScheduler.class);
 
     @Autowired
     private FeeDetailService feeDetailService;
-
-    @Autowired
-    private ApiRequestRecordService apiRequestRecordService;
 
     @Autowired
     private FeeConfigService feeConfigService;
@@ -60,7 +59,7 @@ public class OrderToFeeDetailScheduler {
     @Autowired
     private ServiceOrderService serviceOrderService;
 
-//    @Scheduled(cron = "0 0 0-23 * * ?")
+    @Scheduled(cron = "0 0 0-23 * * ?")
     public void feeRecord() {
 
         try {
@@ -117,7 +116,7 @@ public class OrderToFeeDetailScheduler {
                     feeDetailMysqlModel.setCreatedTime(endTime);
                     // 其他信息
                     feeDetailMysqlModel.setClientName(model.getClientName());
-                    feeDetailMysqlModel.setServiceType(ServiceTypeEnum.getValue(model.getServiceType()));
+                    feeDetailMysqlModel.setServiceType(model.getServiceType());
                     feeDetailMysqlModel.setServiceName(model.getServiceName());
 
                     feeDetailService.save(feeDetailMysqlModel);

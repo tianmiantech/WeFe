@@ -236,7 +236,7 @@ public class CacheObjects {
      */
     public static void refreshMemberInfo() {
         GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
-        MemberInfoModel model = service.getMemberInfo();
+        MemberInfoModel model = service.getModel(MemberInfoModel.class);
 
         if (model == null) {
             return;

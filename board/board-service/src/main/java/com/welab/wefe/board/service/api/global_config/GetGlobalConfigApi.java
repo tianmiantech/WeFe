@@ -43,6 +43,10 @@ public class GetGlobalConfigApi extends AbstractApi<GetGlobalConfigApi.Input, Ma
     @Override
     protected ApiResult<Map<String, JSONObject>> handle(Input input) throws StatusCodeWithException {
 
+        // if (!CurrentAccount.isAdmin()) {
+        //     StatusCode.PERMISSION_DENIED.throwException("非管理员禁止查看配置项");
+        // }
+
         Map<String, JSONObject> output = new HashMap<>();
 
         for (String group : input.groups) {

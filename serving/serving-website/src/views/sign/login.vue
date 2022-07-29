@@ -228,7 +228,7 @@
                             this.$store.commit('UPDATE_USERINFO', data);
                             this.$store.commit('SYSTEM_INITED', true);
                             this.$router.replace({
-                                name: 'index',
+                                name: 'service-list',
                             });
                         } else {
                             this.form.code = '';

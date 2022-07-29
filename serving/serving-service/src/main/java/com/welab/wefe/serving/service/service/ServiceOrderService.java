@@ -23,16 +23,16 @@ import com.welab.wefe.serving.service.api.serviceorder.DownloadApi;
 import com.welab.wefe.serving.service.api.serviceorder.QueryListApi;
 import com.welab.wefe.serving.service.api.serviceorder.SaveApi;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.ServiceOrderMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.ServiceOrderRepository;
+import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
+import com.welab.wefe.serving.service.database.repository.ServiceOrderRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.enums.ServiceResultEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -72,6 +72,33 @@ public class ServiceOrderService {
         serviceOrderRepository.save(model);
     }
 
+    public ServiceOrderMysqlModel add(String serviceId, String serviceName, Integer serviceType, Integer orderType, String status,
+            String requestPartnerId, String requestPartnerName, String responsePartnerId, String responsePartnerName) {
+        ServiceOrderMysqlModel model = new ServiceOrderMysqlModel();
+        model.setServiceId(serviceId);
+        model.setServiceName(serviceName);
+        model.setServiceType(serviceType);
+        model.setOrderType(orderType);
+        model.setStatus(status);
+        model.setRequestPartnerId(requestPartnerId);
+        model.setRequestPartnerName(requestPartnerName);
+        model.setResponsePartnerId(responsePartnerId);
+        model.setResponsePartnerName(responsePartnerName);
+        model.setUpdatedTime(new Date());
+        model = serviceOrderRepository.save(model);
+        return model;
+    }
+    
+    public ServiceOrderMysqlModel update(String id, String status) {
+        ServiceOrderMysqlModel model = serviceOrderRepository.findOne("id", id, ServiceOrderMysqlModel.class);
+        if (model != null) {
+            model.setStatus(status);
+            model.setUpdatedTime(new Date());
+            model = serviceOrderRepository.save(model);
+        }
+        return model;
+    }
+    
     public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
 
         Specification<ServiceOrderMysqlModel> where = Where.create()
@@ -161,7 +188,7 @@ public class ServiceOrderService {
                     model.getId(),
                     model.getServiceId(),
                     model.getServiceName(),
-                    model.getServiceType(),
+                    model.getServiceType().toString(),
                     model.getOrderType().toString(),
                     model.getStatus(),
                     model.getRequestPartnerId(),

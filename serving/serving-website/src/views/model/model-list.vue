@@ -88,6 +88,9 @@
                     <div v-if="scope.row.fl_type === 'horizontal'">
                         横向
                     </div>
+                    <div v-if="scope.row.fl_type === 'mix'">
+                        混合
+                    </div>
                     <div v-else>
                         纵向
                     </div>
@@ -131,23 +134,23 @@
                 min-width="160"
             >
                 <template slot-scope="scope">
-                    <el-button
-                        :type="scope.row.enable === true ? 'warning' : 'success'"
-                        @click="changeEnable(scope.row)"
-                    >
-                        <div v-if="scope.row.enable === true">
-                            下线
-                        </div>
-                        <div v-else>
-                            上线
-                        </div>
-                    </el-button>
+<!--                    <el-button-->
+<!--                        :type="scope.row.enable === true ? 'warning' : 'success'"-->
+<!--                        @click="changeEnable(scope.row)"-->
+<!--                    >-->
+<!--                        <div v-if="scope.row.enable === true">-->
+<!--                            下线-->
+<!--                        </div>-->
+<!--                        <div v-else>-->
+<!--                            上线-->
+<!--                        </div>-->
+<!--                    </el-button>-->
 
                     <el-button
                         type="primary"
                         @click="predict(scope.row)"
                     >
-                        配置
+                        部署
                     </el-button>
                 </template>
             </el-table-column>
@@ -244,7 +247,7 @@
                const my_role = row.my_role;
 
                 localStorage.setItem('my_role', my_role);
-                this.$router.push({ name: 'model-view', query: { id: row.id } });
+                this.$router.push({ name: 'service-view', query: { id: row.id } });
             },
             changeEnable(row) {
                 const str = row.enable ? '下线' : '上线';

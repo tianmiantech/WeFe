@@ -20,7 +20,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.RequestStatisticsMysqlModel;
+import com.welab.wefe.serving.service.database.entity.RequestStatisticsMysqlModel;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.RequestStatisticsService;

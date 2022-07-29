@@ -44,7 +44,7 @@ public class AddApi extends AbstractApi<AddApi.Input, AddApi.Output> {
 
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException, IOException {
-        Output output = service.save(input);
+        Output output = service.saveService(input);
         return success(output);
     }
 

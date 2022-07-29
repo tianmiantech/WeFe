@@ -18,14 +18,14 @@ package com.welab.wefe.mpc.pir.request.naor;
 
 import java.util.List;
 
-public class QueryNaorPinkasResultResponse {
+import com.welab.wefe.mpc.pir.request.BaseResponse;
+
+public class QueryNaorPinkasResultResponse extends BaseResponse {
 
     private String uuid;
 
     /**
-     * 加密结果集
-     * 大小跟混淆ids一样
-     * 每个元素的格式：十六进制密文;十六进制AES算法填充字符串
+     * 加密结果集 大小跟混淆ids一样 每个元素的格式：十六进制密文;十六进制AES算法填充字符串
      */
     private List<String> encryptResults;
 

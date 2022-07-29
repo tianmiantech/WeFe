@@ -27,6 +27,9 @@ import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 import com.welab.wefe.mpc.pir.sdk.crypt.CryptUtil;
 import com.welab.wefe.mpc.pir.sdk.protocol.HauckObliviousTransferReceiver;
 import com.welab.wefe.mpc.pir.sdk.trasfer.PrivateInformationRetrievalTransferVariable;
+
+import cn.hutool.core.lang.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +65,11 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         QueryKeysRequest request = new QueryKeysRequest();
         request.setIds(mConfig.getPrimaryKeys());
         request.setOtMethod(Constants.PIR.HUACK_OT);
+        request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         QueryKeysResponse response = mTransferVariable.queryKeys(request);
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         uuid = response.getUuid();
 
         initObliviousTransfer(response.getS());
@@ -76,6 +83,9 @@ public class PrivateInformationRetrievalClient extends BasePrivateInformationRet
         QueryPIRResultsRequest resultsRequest = new QueryPIRResultsRequest();
         resultsRequest.setUuid(uuid);
         QueryPIRResultsResponse resultsResponse = mTransferVariable.queryResults(resultsRequest);
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         LOG.info("uuid:{} obtain results", uuid);
         return CryptUtil.decrypt(resultsResponse.getResults().get(targetIndex), targetKey.key);
     }

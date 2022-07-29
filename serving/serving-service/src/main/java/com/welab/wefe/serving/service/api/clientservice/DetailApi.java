@@ -16,25 +16,23 @@
 
 package com.welab.wefe.serving.service.api.clientservice;
 
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
-import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceOutputModel;
-import com.welab.wefe.serving.service.dto.PagingInput;
-import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.database.entity.ClientServiceOutputModel;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
 
 /**
  * @author ivenn.zheng
  */
-@Api(path = "clientservice/detail", name = "get client service " ,login = false)
+@Api(path = "clientservice/detail", name = "get client service ")
 public class DetailApi extends AbstractApi<DetailApi.Input, ClientServiceOutputModel> {
 
     @Autowired

@@ -17,10 +17,11 @@
 package com.welab.wefe.gateway.entity;
 
 import com.welab.wefe.common.data.mysql.entity.AbstractUniqueIDEntity;
+import com.welab.wefe.common.wefe.enums.MessageEvent;
+import com.welab.wefe.common.wefe.enums.MessageLevel;
+import com.welab.wefe.common.wefe.enums.ProducerType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Message body entity
@@ -47,14 +48,20 @@ public class MessageEntity extends AbstractUniqueIDEntity {
      * Message producer enumeration（board/gateway）
      */
     @Column(name = "producer")
-    private String producer;
+    @Enumerated(EnumType.STRING)
+    private ProducerType producer;
 
     /**
      * Message level enumeration（info/success/error/warning）
      */
     @Column(name = "level")
-    private String level;
-
+    @Enumerated(EnumType.STRING)
+    private MessageLevel level;
+    /**
+     * 消息关联的事件
+     */
+    @Enumerated(EnumType.STRING)
+    private MessageEvent event;
     /**
      * title
      */
@@ -89,20 +96,28 @@ public class MessageEntity extends AbstractUniqueIDEntity {
         this.updatedBy = updatedBy;
     }
 
-    public String getProducer() {
+    public ProducerType getProducer() {
         return producer;
     }
 
-    public void setProducer(String producer) {
+    public void setProducer(ProducerType producer) {
         this.producer = producer;
     }
 
-    public String getLevel() {
+    public MessageLevel getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
+    public void setLevel(MessageLevel level) {
         this.level = level;
+    }
+
+    public MessageEvent getEvent() {
+        return event;
+    }
+
+    public void setEvent(MessageEvent event) {
+        this.event = event;
     }
 
     public String getTitle() {

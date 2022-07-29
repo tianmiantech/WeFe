@@ -23,7 +23,6 @@ import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.operation.BoardApiLogger;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.storage.StorageManager;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
@@ -32,6 +31,8 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.common.web.service.flowlimit.FlowLimitByIpService;
+import com.welab.wefe.common.web.service.flowlimit.FlowLimitByMobileService;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,6 @@ import java.nio.charset.StandardCharsets;
         basePackageClasses = {
                 BoardService.class,
                 Launcher.class,
-                StorageManager.class,
                 CheckpointManager.class
         }
 )
@@ -70,8 +70,8 @@ public class BoardService implements ApplicationContextAware {
                 .instance()
                 .apiLogger(new BoardApiLogger())
                 .apiPackageClass(BoardService.class)
-                // Login status check method
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                // 禁止未登录且无验签的访问
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
                 .onApiExceptionFunction((api, e) -> {
 
                     // When an exception occurs in a node,
@@ -103,10 +103,12 @@ public class BoardService implements ApplicationContextAware {
                         }
                     }
 
-                    if (annotation.rsaVerify()) {
+                    if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);
                     }
                 })
+                .flowLimitByIpFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByIpService(httpServletRequest, api, params).check())
+                .flowLimitByMobileFunctionFunction((httpServletRequest, api, params) -> new FlowLimitByMobileService(httpServletRequest, api, params).check())
                 .launch(BoardService.class, args);
     }
 
@@ -119,18 +121,32 @@ public class BoardService implements ApplicationContextAware {
 
     /**
      * rsa signature check
+     * 需要验签的接口有两种情况：
+     * 1. 请求来自前端，已登录状态，不需要验签，只检登录状态就好了。
+     * 2. 未登录的情况下，请求来自其他子系统，需要进行验签。
      */
     private static void rsaVerify(JSONObject params) throws Exception {
+
+        // 如果是登录状态，不验签。
+        if (CurrentAccount.get() != null) {
+            return;
+        }
+
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
 
         // At present, the board service only serves the application services of its own wefe system,
         // such as gateway and flow, so the same set of public and private keys are used for rsa signatures.
         String publicKey = CacheObjects.getRsaPublicKey();
 
+        if (signedApiInput.getData() == null) {
+            throw new StatusCodeWithException("非法请求", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
         boolean verified = RSAUtil.verify(
                 signedApiInput.getData().getBytes(StandardCharsets.UTF_8),
                 RSAUtil.getPublicKey(publicKey),
-                signedApiInput.getSign()
+                // 在 get 请求时，即便是对参数做了转义，也不能正确处理+号，加号总是被decode为空格，所以这里将空格还原为加号。
+                signedApiInput.getSign().replace(" ", "+")
         );
         if (!verified) {
             throw new StatusCodeWithException("错误的签名", StatusCode.PARAMETER_VALUE_INVALID);

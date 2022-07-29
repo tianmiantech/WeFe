@@ -24,6 +24,7 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.enums.FcCloudProvider;
 import com.welab.wefe.common.wefe.enums.JobBackendType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
@@ -40,6 +41,7 @@ public class Member {
     private String memberName;
     private JobMemberRole memberRole;
     private JobBackendType backend;
+    private FcCloudProvider fcProvider;
 
     public Member() {
     }
@@ -58,7 +60,6 @@ public class Member {
             m.memberId = member.getMemberId();
             m.memberName = CacheObjects.getMemberName(member.getMemberId());
             m.memberRole = member.getJobRole();
-            m.backend = null;
             list.add(m);
         }
         return list;
@@ -80,43 +81,42 @@ public class Member {
      * 创建一个新的 Member 对象，用于 Machine Learning 的 Job。
      */
     public static Member forMachineLearning(JobMemberMySqlModel member) {
-        Member m = new Member();
-        m.memberId = member.getMemberId();
-        m.memberName = CacheObjects.getMemberName(member.getMemberId());
-        m.memberRole = member.getJobRole();
-        m.backend = getMemberJobBackendType(member.getMemberId());
-        return m;
+        return buildMachineLearningMember(member.getMemberId(), member.getJobRole());
     }
 
     /**
      * 创建一个新的 Member 对象，用于 Machine Learning 的 Job。
      */
     public static Member forMachineLearning(DataIOComponent.DataSetItem dataSetItem) {
-        Member member = new Member();
-        member.setMemberId(dataSetItem.getMemberId());
-        member.setMemberName(CacheObjects.getMemberName(dataSetItem.getMemberId()));
-        member.setMemberRole(dataSetItem.getMemberRole());
-        member.backend = getMemberJobBackendType(dataSetItem.getMemberId());
-        return member;
+        return buildMachineLearningMember(dataSetItem.getMemberId(), dataSetItem.getMemberRole());
     }
 
     /**
      * 创建一个新的 Member 对象，用于 Machine Learning 的 Job。
      */
     public static Member forMachineLearning(String memberId, JobMemberRole role) {
+        return buildMachineLearningMember(memberId, role);
+    }
+
+    private static Member buildMachineLearningMember(String memberId, JobMemberRole memberRole) {
         Member member = new Member();
         member.setMemberId(memberId);
         member.setMemberName(CacheObjects.getMemberName(memberId));
-        member.setMemberRole(role);
-        member.backend = getMemberJobBackendType(memberId);
+        member.setMemberRole(memberRole);
+
+        Env env = getMemberEnv(memberId);
+        member.backend = env.getCalculationEngineConfig().backend;
+        if (member.backend == JobBackendType.FC) {
+            member.fcProvider = env.getCalculationEngineConfig().fcCloudProvider;
+        }
+
         return member;
     }
 
-
-    private static JobBackendType getMemberJobBackendType(String memberId) {
+    private static Env getMemberEnv(String memberId) {
         // 自己，从本地取。
         if (CacheObjects.isCurrentMember(memberId)) {
-            return Env.get().getBackend();
+            return Env.get();
         }
 
         GatewayService gatewayService = Launcher.getBean(GatewayService.class);
@@ -126,7 +126,7 @@ public class Member {
         } catch (StatusCodeWithException e) {
             return null;
         }
-        return env.getBackend();
+        return env;
     }
 
     //region getter/setter
@@ -162,6 +162,5 @@ public class Member {
     public void setBackend(JobBackendType backend) {
         this.backend = backend;
     }
-
     //endregion
 }

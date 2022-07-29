@@ -16,12 +16,10 @@
 
 package com.welab.wefe.board.service.service.checkpoint;
 
-import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.common.data.storage.config.JdbcParamConfig;
+import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
-import com.welab.wefe.common.data.storage.repo.Storage;
-import com.welab.wefe.common.data.storage.service.StorageService;
-import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -36,7 +34,7 @@ import static com.welab.wefe.board.service.service.DataSetStorageService.DATABAS
 @Service
 public class StorageCheckpoint extends AbstractCheckpoint {
     @Autowired
-    protected Config config;
+    protected GlobalConfigService configService;
 
     @Override
     public ServiceType service() {
@@ -50,8 +48,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     public String getConfigValue() {
-        JdbcParamConfig storageConfig = Launcher.getBean(JdbcParamConfig.class);
-        return storageConfig.getUrl();
+        return null;
     }
 
     @Override
@@ -61,22 +58,25 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck(String value) throws Exception {
+        if (PersistentStorage.inited()) {
+            throw new Exception("数据集存储不可用，请在[全局设置][系统设置]中检查数据集存储配置是否正确。");
+        }
 
-        StorageService service = Launcher.getBean(StorageService.class);
-        Storage storage = service.getStorage();
+        StorageBaseConfigModel config = configService.getModel(StorageBaseConfigModel.class);
+
         String name = RandomStringUtils.randomAlphabetic(6);
         try {
-            storage.put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
+            PersistentStorage.getInstance().put(DATABASE_NAME, name, new DataItemModel<>(name, "test"));
         } catch (Exception e) {
             super.log(e);
-            throw new Exception(config.getDbType().name() + " put 异常，请检查相关配置是否正确：" + e.getMessage());
+            throw new Exception(config.storageType.name() + " put 异常，请检查相关配置是否正确：" + e.getMessage());
         }
 
         try {
-            storage.dropTB(DATABASE_NAME, name);
+            PersistentStorage.getInstance().dropTB(DATABASE_NAME, name);
         } catch (Exception e) {
             super.log(e);
-            throw new Exception(config.getDbType().name() + " drop 异常，请检查相关配置是否正确：" + e.getMessage());
+            throw new Exception(config.storageType.name() + " drop 异常，请检查相关配置是否正确：" + e.getMessage());
         }
 
     }

@@ -32,7 +32,7 @@ public class CommonThreadPool {
 
         THREAD_POOL = new ThreadPoolExecutor(
                 Runtime.getRuntime().availableProcessors(),
-                Runtime.getRuntime().availableProcessors() * 2,
+                100,
                 100L,
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>());

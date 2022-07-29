@@ -21,15 +21,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.serving.service.database.serving.entity.GlobalConfigMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.GlobalConfigRepository;
+import com.welab.wefe.serving.service.database.entity.GlobalConfigMysqlModel;
+import com.welab.wefe.serving.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.serving.service.dto.GlobalConfigInput;
+import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.UnionServiceService;
-
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -39,17 +39,18 @@ import java.util.Objects;
 /**
  * @author zane
  */
-public class BaseGlobalConfigService{
+public class BaseGlobalConfigService {
 
     public static class Group {
         public static String IDENTITY_INFO = "identity_info";
         public static String WEFE_UNION = "wefe_union";
+        public static String MAIL_SERVER = "mail_server";
     }
 
 
     @Autowired
     protected GlobalConfigRepository globalConfigRepository;
-    
+
     @Autowired
     private UnionServiceService unionServiceService;
 
@@ -93,7 +94,7 @@ public class BaseGlobalConfigService{
             one.setCreatedBy(CurrentAccount.id());
         } else {
             if (one.getValue() != null && value == null) {
-                StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非空值");
+                return;
             }
 
             // If there is no need to update, jump out
@@ -104,13 +105,18 @@ public class BaseGlobalConfigService{
             }
         }
 
+        if (name.equalsIgnoreCase("serving_base_url") || name.equalsIgnoreCase("intranet_base_uri")) {
+            if (StringUtils.isNotBlank(value) && !value.endsWith("/")) {
+                value = value + "/";
+            }
+        }
         one.setValue(value);
         one.setUpdatedBy(CurrentAccount.id());
 
         if (comment != null) {
             one.setComment(comment);
         }
-        if (name.equalsIgnoreCase("serving_base_url")) {
+        if (name.equalsIgnoreCase("serving_base_url") && CacheObjects.isUnionModel()) {
             try {
                 unionServiceService.updateServingBaseUrlOnUnion(value);
             } catch (Exception e) {

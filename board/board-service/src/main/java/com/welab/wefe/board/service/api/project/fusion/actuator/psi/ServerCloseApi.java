@@ -34,8 +34,7 @@ import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
         path = "fusion/server/close",
         name = "server close",
         desc = "server close",
-        login = false,
-        rsaVerify = true
+        allowAccessWithSign = true
 )
 public class ServerCloseApi extends AbstractNoneOutputApi<ServerCloseApi.Input> {
     @Override

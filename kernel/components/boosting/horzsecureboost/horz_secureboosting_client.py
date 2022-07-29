@@ -264,10 +264,16 @@ class HorzSecureBoostingClient(BoostingTree):
         valid_feature = self.transfer_inst.valid_features.get(idx=0, suffix=('valid_features', epoch_idx, t_idx))
         return valid_feature
 
+    def callback_loss(self, iter_num, loss):
+        metric_meta = {'abscissa_name': 'iters', 'ordinate_name': 'loss', 'metric_type': 'LOSS',
+                       'pair_type': ''}
+        self.callback_metric(metric_name='loss',
+                             metric_namespace='train',
+                             metric_meta=metric_meta,
+                             metric_data=(iter_num, loss))
+
     def fit(self, data_inst, validate_data=None, ):
 
-        # print(data_inst.count())
-        # print(list(data_inst.collect()))
         # binning
         data_inst = self.data_alignment(data_inst)
         self.data_bin, self.bin_split_points, self.bin_sparse_points = self.federated_binning(data_inst)
@@ -336,7 +342,7 @@ class HorzSecureBoostingClient(BoostingTree):
 
             # sync loss status
             loss = self.compute_local_loss(self.y, self.y_hat)
-
+            self.callback_loss(epoch_idx,loss)
             LOGGER.debug('local loss of epoch {} is {}'.format(epoch_idx, loss))
 
             self.local_loss_history.append(loss)

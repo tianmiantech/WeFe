@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
 
 /**
  * 对 account 表的定时任务

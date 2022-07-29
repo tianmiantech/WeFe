@@ -72,7 +72,8 @@
                                     label="正 : 负"
                                     width="150">
                                     <template v-slot="scope">
-                                        {{scope.row.example_good / scope.row.example_good}} : {{(scope.row.example_bad / scope.row.example_good).toFixed(2)}}
+                                        <template v-if="scope.row.contains_y">{{scope.row.example_good / scope.row.example_good}} : {{(scope.row.example_bad / scope.row.example_good).toFixed(2)}}</template>
+                                        <template v-else>-</template>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -152,6 +153,7 @@
                                     example_ratio_good:  ((1 - data.result.train_y_positive_example_ratio) * 100).toFixed(2),
                                     example_ratio_bad:   (data.result.train_y_positive_example_ratio * 100).toFixed(2),
                                     example_count_ratio: 0,
+                                    contains_y:          data.result.contains_y,
                                 },
                                 // test
                                 {
@@ -162,6 +164,7 @@
                                     example_ratio_good:  ((1 - data.result.eval_y_positive_example_ratio) * 100).toFixed(2),
                                     example_ratio_bad:   data.result.eval_y_positive_example_ratio * 100,
                                     example_count_ratio: 0,
+                                    contains_y:          data.result.contains_y,
                                 },
                             );
 

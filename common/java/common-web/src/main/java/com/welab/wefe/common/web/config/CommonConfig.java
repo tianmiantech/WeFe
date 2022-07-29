@@ -38,11 +38,15 @@ public class CommonConfig {
     @Value("${wefe.union.base-url:}")
     private String unionBaseUrl;
 
+
     @Value("${wefe.file.upload.dir:}")
     private String fileUploadDir;
 
     @Value("${env.name:prod}")
     private EnvName envName;
+
+    @Value("${cors.allowed.origins:*}")
+    private String[] corsAllowedOrigins;
 
     /**
      * The branch of the environment, different branches will have different functions.
@@ -52,6 +56,10 @@ public class CommonConfig {
     @Value("${env.branch:master}")
     private EnvBranch envBranch;
 
+    @Value("${privacy.database.encrypt.enable:false}")
+    private boolean databaseEncryptEnable;
+    @Value("${privacy.database.encrypt.secret.key:}")
+    private String databaseEncryptSecretKey;
 
     public boolean isOnlineDemo() {
         return envBranch == EnvBranch.online_demo;
@@ -98,6 +106,30 @@ public class CommonConfig {
 
     public void setEnvBranch(EnvBranch envBranch) {
         this.envBranch = envBranch;
+    }
+
+    public String[] getCorsAllowedOrigins() {
+        return corsAllowedOrigins;
+    }
+
+    public void setCorsAllowedOrigins(String[] corsAllowedOrigins) {
+        this.corsAllowedOrigins = corsAllowedOrigins;
+    }
+
+    public boolean isDatabaseEncryptEnable() {
+        return databaseEncryptEnable;
+    }
+
+    public void setDatabaseEncryptEnable(boolean databaseEncryptEnable) {
+        this.databaseEncryptEnable = databaseEncryptEnable;
+    }
+
+    public String getDatabaseEncryptSecretKey() {
+        return databaseEncryptSecretKey;
+    }
+
+    public void setDatabaseEncryptSecretKey(String databaseEncryptSecretKey) {
+        this.databaseEncryptSecretKey = databaseEncryptSecretKey;
     }
 
 

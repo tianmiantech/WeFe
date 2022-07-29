@@ -16,7 +16,6 @@
 package com.welab.wefe.serving.service.service.model;
 
 import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.AESUtil;
 import com.welab.wefe.common.util.FileUtil;
@@ -25,24 +24,20 @@ import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
-import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.service.database.serving.entity.DeepLearningModelMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.MemberMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.DeepLearningModelRepository;
-import com.welab.wefe.serving.service.database.serving.repository.MemberRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ModelMemberRepository;
-import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.serving.service.api.model.SaveModelApi;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import com.welab.wefe.serving.service.service.ModelService;
 import com.welab.wefe.serving.service.utils.ServingFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -52,137 +47,102 @@ import java.util.List;
 @Service
 public class ModelImportService {
 
-    @Autowired
-    private ModelRepository modelRepository;
 
     @Autowired
-    private DeepLearningModelRepository deepLearningModelRepository;
+    private ModelService modelService;
 
     @Autowired
-    private ModelMemberRepository modelMemberRepository;
-
-
-    @Autowired
-    private MemberRepository memberRepository;
-
+    private TableModelRepository modelRepository;
 
     @Transactional(rollbackFor = Exception.class)
-    public void saveMachineLearningModel(String name, String filename) throws StatusCodeWithException {
+    public String saveMachineLearningModel(String name, String filename) throws StatusCodeWithException {
         try {
-            String path = ServingFileUtil
-                    .getBaseDir(ServingFileUtil.FileType.MachineLearningModelFile)
-                    .resolve(filename).toString();
-            List<String> jsonStr = FileUtil.readAllForLine(path, "UTF-8");
-            String aesKey = RSAUtil.decryptByPrivateKey(jsonStr.get(0), CacheObjects.getRsaPrivateKey());
-            JObject jObject = JObject.create(AESUtil.decrypt(jsonStr.get(1), aesKey));
+            List<String> jsonStr = parseFileToList(filename);
+            String aesKeyCiphertext = jsonStr.get(0);
+            String modelCiphertext = jsonStr.get(1);
 
-            String modelId = getModelId(jObject);
-            List<MemberParams> memberParams = getMemberParams(jObject);
+            String aesKey = decryptAesKey(aesKeyCiphertext);
+            JObject jObject = decryptModel(modelCiphertext, aesKey).append("name", name);
 
-
-            ModelMySqlModel model = modelRepository.findOne("modelId", modelId, ModelMySqlModel.class);
-
-            if (model == null) {
-                model = new ModelMySqlModel();
-            }
-
-            Specification<ModelMemberMySqlModel> where = Where.
-                    create().equal("modelId", modelId)
-                    .build(ModelMemberMySqlModel.class);
-
-            List<ModelMemberMySqlModel> modelList = modelMemberRepository.findAll(where);
-            modelMemberRepository.deleteAll(modelList);
-
-
-            /**
-             * Model member information
-             */
-            List<ModelMemberMySqlModel> list = new ArrayList<>();
-            memberParams.forEach(x -> {
-                ModelMemberMySqlModel member = new ModelMemberMySqlModel();
-                member.setModelId(modelId);
-                member.setMemberId(x.getMemberId());
-                member.setRole(x.getRole());
-                list.add(member);
-            });
-
-            modelMemberRepository.saveAll(list);
-
-            /**
-             * Member basic information
-             */
-            List<MemberMySqlModel> members = new ArrayList<>();
-            for (MemberParams param : memberParams) {
-
-                MemberMySqlModel member = memberRepository.findOne("memberId", param.getMemberId(), MemberMySqlModel.class);
-                if (member == null) {
-                    member = new MemberMySqlModel();
-                }
-
-                member.setMemberId(param.getMemberId());
-                member.setName(param.getName());
-                member.setPublicKey(param.getPublicKey());
-                members.add(member);
-            }
-
-            memberRepository.saveAll(members);
-
-            model.setModelId(modelId);
-            model.setAlgorithm(getAlgorithm(jObject));
-            model.setFlType(getFlType(jObject));
-            model.setFeatureSource(PredictFeatureDataSource.api);
-            model.setModelParam(getModelParam(jObject));
-            model.setEnable(false);
-            model.setName(name);
-            modelRepository.save(model);
+            SaveModelApi.Input modelContent = buildModelParam(jObject);
+            return modelService.save(modelContent);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StatusCodeWithException("导入模型失败！error: " + e.getMessage(), StatusCode.FILE_IO_ERROR);
+            throw new StatusCodeWithException("导入模型失败,确认是否已加入联邦且未更改联邦密钥!", StatusCode.FILE_IO_ERROR);
         }
     }
 
+    private SaveModelApi.Input buildModelParam(JObject jObject) {
 
-    private String getModelId(JObject jobj) {
-        return jobj.getString("modelId");
+        SaveModelApi.Input modelContent = new SaveModelApi.Input();
+        modelContent.setServiceId(jObject.getString("modelId"));
+        modelContent.setName(jObject.getString("name"));
+        modelContent.setMyRole(extractMyRole(jObject));
+        modelContent.setFlType(extractFlType(jObject));
+        modelContent.setAlgorithm(extractAlgorithm(jObject));
+        modelContent.setModelParam(jObject.getString("modelParam"));
+        modelContent.setMemberParams(extractMemberParams(jObject));
+        return modelContent;
     }
 
-    private Algorithm getAlgorithm(JObject jobj) {
+    private JobMemberRole extractMyRole(JObject jObject) {
+        return JobMemberRole.promoter;
+    }
+
+    private JObject decryptModel(String modelCiphertext, String aesKey) {
+        JObject jObject = JObject.create(AESUtil.decrypt(modelCiphertext, aesKey));
+        return jObject;
+    }
+
+    private String decryptAesKey(String aesKeyCiphertext) throws Exception {
+        return RSAUtil.decryptByPrivateKey(aesKeyCiphertext, CacheObjects.getRsaPrivateKey());
+    }
+
+    private List<String> parseFileToList(String filename) throws IOException {
+        String path = ServingFileUtil
+                .getBaseDir(ServingFileUtil.FileType.MachineLearningModelFile)
+                .resolve(filename).toString();
+        List<String> jsonStr = FileUtil.readAllForLine(path, "UTF-8");
+        return jsonStr;
+    }
+
+
+    private Algorithm extractAlgorithm(JObject jobj) {
         return Algorithm.valueOf(jobj.getString("algorithm"));
     }
 
-
-    private FederatedLearningType getFlType(JObject jobj) {
+    private FederatedLearningType extractFlType(JObject jobj) {
         return FederatedLearningType.valueOf(jobj.getString("flType"));
     }
 
-    private String getModelParam(JObject jobj) {
-        return jobj.getString("modelParam");
-    }
 
-    private List<MemberParams> getMemberParams(JObject jobj) {
+    private List<MemberParams> extractMemberParams(JObject jobj) {
         List<JObject> m = jobj.getJSONList("memberParams");
         return ModelMapper.maps(m, MemberParams.class);
     }
 
 
-    public void saveDeepLearningModel(String name, String filename) throws StatusCodeWithException {
+    public String saveDeepLearningModel(String name, String filename) throws StatusCodeWithException {
 
-        DeepLearningModelMySqlModel model = deepLearningModelRepository.findOne("name", name, DeepLearningModelMySqlModel.class);
+        TableModelMySqlModel model = modelRepository.findOne("name", name, TableModelMySqlModel.class);
         if (model != null) {
             throw new StatusCodeWithException("该模型名称已存在，请更改后再尝试提交！", StatusCode.PARAMETER_VALUE_INVALID);
         }
         String path = ServingFileUtil
                 .getBaseDir(ServingFileUtil.FileType.DeepLearningModelFile).toString();
 
-        model = new DeepLearningModelMySqlModel();
+        model = new TableModelMySqlModel();
         ServingFileUtil.DeepLearningModelFile.renameZipFile(filename, model.getId());
 
         model.setSourcePath(path);
         model.setFilename(model.getId() + ".zip");
         model.setUseCount(0);
         model.setName(name);
+        model.setServiceType(ServiceTypeEnum.DeepLearning.getCode());
+        model.setUrl("predict/deep_learning/" + model.getId());
 
-        deepLearningModelRepository.save(model);
+        modelRepository.save(model);
+        return model.getId();
     }
 
 }

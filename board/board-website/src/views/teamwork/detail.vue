@@ -9,6 +9,13 @@
             class="nav-title mb30"
             idx="-1"
         >
+            <el-alert
+                v-if="isDemo && !form.is_project_admin"
+                title="当前项目由管理员创建，您仅有查看权限，不能编辑。"
+                type="warning"
+                show-icon
+                class="unedit-tips">
+            </el-alert>
             <el-form @submit.prevent>
                 <el-alert
                     v-if="project.closed"
@@ -155,6 +162,7 @@
                 :project-type="form.project_type"
                 :sort-index="index"
                 :max-index="form.project_type === 'MachineLearning' ? moduleList.length-1 : dModuleList.length-1"
+                :form="form"
                 @move-up="moveUp"
                 @move-down="moveDown"
                 @to-top="toTop"
@@ -236,6 +244,7 @@
                     // other member's audit comment
                     audit_status_from_others: '',
                     project_type:             'MachineLearning',
+                    is_project_admin:         true,
                 },
                 cooperAuthDialog: {
                     show: false,
@@ -299,6 +308,8 @@
         computed: {
             ...mapGetters(['userInfo']),
             ...mapGetters(['uiConfig']),
+            ...mapGetters(['adminUserList']),
+            ...mapGetters(['isDemo']),
         },
         watch: {
             moduleList: {
@@ -448,6 +459,37 @@
                     this.promoter.member_name = promoter.member_name;
                     this.promoter.$data_set = promoter.data_resource_list;
 
+                    const admin_user = this.adminUserList.filter(item => item.id === this.userInfo.id) || [];
+                    const is_not_admin_created = this.adminUserList.filter(item => item.id === data.created_by) || [];
+
+
+                    // demo环境下：
+                    // 1. 管理员可以编辑所有项目
+                    // 2. 非管理员创建的项目，其他非管理员可以编辑
+                    // 3. 管理员创建的项目，非管理员不可以编辑
+                    // 4. 管理员创建的项目，其他管理员可以编辑
+                    // 5. 自己可以编辑自己创建的项目
+
+                    // 以下情况对项目有编辑权限，其他无
+                    // 1. 当前用户是管理员
+                    // 2. 该项目是当前用户自己创建
+                    // 3. 该项目是非管理员创建
+                    const is_self_project = this.userInfo.id === data.created_by;
+
+                    console.log('is_self_project=',is_self_project, 'is_admin=',this.userInfo.admin_role, 'is_not_admin_created=',is_not_admin_created.length===0);
+                    // const is_can_edit = (this.userInfo.admin_role || is_self_project || is_not_admin_created.length===0) ? true : false
+                    const is_can_edit = !!((this.userInfo.admin_role || is_self_project || is_not_admin_created.length === 0));
+
+                    console.log('is_can_edit=',is_can_edit);
+
+
+                    if (this.isDemo) {
+                        // this.form.is_project_admin = !!(this.userInfo.admin_role || (admin_user.length > 0 || this.userInfo.id === data.created_by) || (!this.userInfo.admin_role && is_not_admin_created.length === 0)); 
+                        this.form.is_project_admin = !!((this.userInfo.admin_role || is_self_project || is_not_admin_created.length===0));
+                    } else {
+                        this.form.is_project_admin = true;
+                    }
+                    // console.log('is_not_admin_created='+is_not_admin_created.length, 'isDemo='+this.isDemo, 'is_project_admin='+this.form.is_project_admin);
                     const members = {};
                     const { providerService, promoterService } = this;
 
@@ -741,6 +783,13 @@
     }
     .el-card__header {
         padding-bottom: unset;
+    }
+    .unedit-tips {
+        .el-alert__content {
+            height: 18px;
+            line-height: 23px;
+            padding: 0 6px;
+        }
     }
 </style>
 

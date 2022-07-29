@@ -16,12 +16,11 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.batch;
 
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
 
 import java.util.List;
@@ -33,20 +32,23 @@ import java.util.concurrent.CountDownLatch;
  *
  * @author hunter.zhao
  */
-public class XgboostVertProviderBatchAlgorithm extends AbstractXgBoostBatchAlgorithm<BaseXgboostModel, List<PredictModel>> {
-
-    private CopyOnWriteArrayList<PredictModel> predictModelList = new CopyOnWriteArrayList<>();
+public class XgboostVertProviderBatchAlgorithm extends AbstractXgBoostBatchAlgorithm<BaseXgboostModel, List<XgbProviderPredictResultModel>> {
 
     @Override
-    protected List<PredictModel> handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
+    protected List<XgbProviderPredictResultModel> handlePredict(BatchPredictParams batchPredictParams, List<JObject> federatedResult) {
 
+        CopyOnWriteArrayList<XgbProviderPredictResultModel> predictModelList = new CopyOnWriteArrayList<>();
         CountDownLatch latch = new CountDownLatch(fidValueMapping.size());
 
         //Multithreaded compute node
         fidValueMapping.forEach((k, v) ->
                 AlgorithmThreadPool.run(() -> {
                     try {
-                        predictModelList.add(XgboostAlgorithmHelper.providerPredict(modelParam.getModelParam(), k, v));
+                        predictModelList.add(XgboostAlgorithmHelper.providerPredict(
+                                modelParam.getModelMeta().getWorkMode(),
+                                modelParam.getModelParam(),
+                                k,
+                                v));
                     } finally {
                         latch.countDown();
                     }

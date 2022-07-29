@@ -56,7 +56,7 @@ public enum StatusCode {
     PRIMARY_KEY_CONFLICT(10026, "数据 (%s) 已经存在 (%s)"),
     UNEXPECTED_ENUM_CASE(10027, "枚举值错误：(%s)"),
     DIRECTORY_NOT_FOUND(10028, "字典不存在"),
-    PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s 参数不能唯恐!"),
+    PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s 参数不能为空!"),
     SQL_ERROR(10030, "SQL执行失败"),
     INVALID_MEMBER(10031, "非法成员 (%s)"),
     FILE_IO_ERROR(10035, "文件读写失败"),

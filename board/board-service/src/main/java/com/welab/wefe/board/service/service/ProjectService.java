@@ -35,6 +35,7 @@ import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResou
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
+import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.data_resource.DataResourceService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
@@ -104,6 +105,8 @@ public class ProjectService extends AbstractService {
     private ProjectFlowNodeRepository projectFlowNodeRepository;
     @Autowired
     private DataResourceService dataResourceService;
+    @Autowired
+    private MessageService messageService;
 
     /**
      * New Project
@@ -161,6 +164,14 @@ public class ProjectService extends AbstractService {
         project.setProjectType(input.getProjectType());
         projectRepo.save(project);
 
+        if (input.fromGateway()) {
+            messageService.addApplyJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project.getProjectId(),
+                    project.getName()
+            );
+        }
+
         // create and save ProjectMember to database
         for (ProjectMemberInput item : input.getMembers()) {
             ProjectMemberMySqlModel member = new ProjectMemberMySqlModel();
@@ -202,6 +213,15 @@ public class ProjectService extends AbstractService {
                 // Update the usage count of the dataset in the project
                 if (auditStatus == AuditStatus.agree && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
                     dataResourceService.updateUsageCountInProject(dataSet.getDataSetId());
+                }
+
+                // 如果申请使用我方数据资源，添加一条消息予以提醒。
+                if (input.fromGateway() && CacheObjects.isCurrentMember(dataSetInput.getMemberId())) {
+                    messageService.addApplyDataResourceMessage(
+                            input.callerMemberInfo.getMemberId(),
+                            project,
+                            dataSet
+                    );
                 }
             }
 
@@ -502,6 +522,14 @@ public class ProjectService extends AbstractService {
                 dataResourceService.updateUsageCountInProject(projectDataSet.getDataSetId());
             }
 
+            // 如果申请使用我方数据资源，添加一条消息予以提醒。
+            if (input.fromGateway() && CacheObjects.isCurrentMember(item.getMemberId())) {
+                messageService.addApplyDataResourceMessage(
+                        input.callerMemberInfo.getMemberId(),
+                        project,
+                        projectDataSet
+                );
+            }
         }
 
         gatewayService.syncToNotExistedMembers(input.getProjectId(), input, AddDataSetApi.class);
@@ -514,7 +542,7 @@ public class ProjectService extends AbstractService {
      * Remove the data set in the project
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void removeDataSet(RemoveDataSetApi.Input input) throws StatusCodeWithException {
+    public synchronized void removeDataSet(RemoveDataSetApi.Input input) throws Exception {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
@@ -832,6 +860,8 @@ public class ProjectService extends AbstractService {
             project.setAuditComment(input.getAuditComment());
             project.setStatusUpdatedTime(new Date());
             projectRepo.save(project);
+
+            messageService.completeApplyJoinProjectTodo(project.getProjectId());
         }
 
         // update the audit status of project members
@@ -907,6 +937,15 @@ public class ProjectService extends AbstractService {
             if (input.getAuditResult() == AuditStatus.agree) {
                 syncAuditProjectInfo(input.getProjectId(), input);
             }
+        }
+
+        if (input.fromGateway()) {
+            messageService.addAuditJoinProjectMessage(
+                    input.callerMemberInfo.getMemberId(),
+                    project,
+                    input.getAuditResult(),
+                    input.getAuditComment()
+            );
         }
 
     }
@@ -1226,11 +1265,15 @@ public class ProjectService extends AbstractService {
                 .forEach(x -> dataResourceService.updateUsageCountInProject(x.getDataSetId()));
     }
 
+    @Autowired
+    private AccountService accountService;
 
     /**
      * close project
+     *
+     * @param byScheduledJob 是否来自定时任务
      */
-    public void closeProject(CloseProjectApi.Input input) throws StatusCodeWithException {
+    public void closeProject(CloseProjectApi.Input input, boolean byScheduledJob) throws StatusCodeWithException {
 
         ProjectMySqlModel project = findByProjectId(input.getProjectId());
         if (project == null) {
@@ -1243,11 +1286,18 @@ public class ProjectService extends AbstractService {
             }
         }
 
-        OnlineDemoBranchStrategy.hackOnDelete(input, project, "只能关闭自己创建的项目。");
-
         project.setClosed(true);
         project.setClosedTime(new Date());
-        project.setClosedBy(project.getOperatorId(input));
+
+        // 如果是定时任务触发的关闭，操作者设置为超级管理员。
+        if (byScheduledJob) {
+            project.setClosedBy(accountService.getSuperAdmin().id);
+        } else {
+            project.setClosedBy(project.getOperatorId(input));
+
+            OnlineDemoBranchStrategy.hackOnDelete(input, project, "只能关闭自己创建的项目。");
+        }
+
 
         projectRepo.save(project);
 

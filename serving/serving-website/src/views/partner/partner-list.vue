@@ -104,7 +104,7 @@
                 width="70"
             >
                 <template slot-scope="scope">
-                    <p>{{scope.row.is_union_member}}</p>
+                    <p>{{scope.row.is_union_member ? '是':'否'}}</p>
                 </template>
             </el-table-column>
 
@@ -136,6 +136,7 @@
                         v-if="scope.row.status === 0"
                         type="success"
                         @click="open(scope.row,1)"
+                        style="margin-left: 3px"
                     >
                         启用
                     </el-button>
@@ -148,6 +149,7 @@
                                 status: scope.row.status
                             },
                         }"
+                        style="margin-left: 3px"
                     >
                         <el-button type="primary">
                             修改
@@ -162,6 +164,7 @@
                                 partnerId : scope.row.id
                             },
                         }"
+                        style="margin-left: 3px"
                     >
                         <el-button type="success">
                             开通服务

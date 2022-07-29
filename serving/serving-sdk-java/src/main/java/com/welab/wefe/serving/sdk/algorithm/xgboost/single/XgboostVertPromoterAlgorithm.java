@@ -16,15 +16,16 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.enums.XgboostWorkMode;
 import com.welab.wefe.serving.sdk.model.PredictModel;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.HashMap;
@@ -37,12 +38,6 @@ import java.util.Map;
  * @author hunter.zhao
  */
 public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, PredictModel> {
-
-    /**
-     * Federal forecast decision tree results
-     */
-    private Map<String, Map<String, Boolean>> remoteDecisionTreeMap = new HashMap<>();
-
 
     /**
      * Call the provider to get the federated decision tree
@@ -63,10 +58,9 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
      * }
      * </>
      */
-    private void getFederatedPredict(FederatedParams federatedParams, PredictParams predictParams) throws StatusCodeWithException {
+    private Map<String, Object> getPartnerTreeStructure(List<JObject> federatedResult) throws StatusCodeWithException {
 
-
-        List<JObject> federatedResult = federatedPredict(federatedParams.getProviders(), setFederatedPredictBody(federatedParams, predictParams.getUserId()));
+        Map<String, Object> remoteDecisionTreeMap = new HashMap<>();
 
         if (CollectionUtils.isEmpty(federatedResult)) {
             throw new StatusCodeWithException("federatedResult is null", StatusCode.REMOTE_SERVICE_ERROR);
@@ -74,33 +68,43 @@ public class XgboostVertPromoterAlgorithm extends AbstractXgboostAlgorithm<BaseX
 
         for (JObject remote : federatedResult) {
 
-            PredictModel predictModel = remote.getJObject("data").toJavaObject(PredictModel.class);
+            if (remote.isEmpty()) {
+                continue;
+            }
 
-            Map<String, Map<String, Boolean>> tree = (Map) predictModel.getData();
+            XgbProviderPredictResultModel predictModel = remote.getJObject("result").toJavaObject(XgbProviderPredictResultModel.class);
+
+            if (StringUtil.isNotEmpty(predictModel.getError())) {
+                StatusCode.REMOTE_SERVICE_ERROR.throwException(predictModel.getError());
+            }
+
+            Map<String, Object> tree = (Map) predictModel.getXgboostTree();
 
             for (String key : tree.keySet()) {
-                if (remoteDecisionTreeMap.containsKey(key)) {
-                    remoteDecisionTreeMap.get(key).putAll(tree.get(key));
+                if (remoteDecisionTreeMap.containsKey(key)
+                        && XgboostWorkMode.skip.name().equals(modelParam.getModelMeta().getWorkMode())) {
+                    Map<String, Boolean> map = (Map) remoteDecisionTreeMap.get(key);
+                    map.putAll((Map) tree.get(key));
+                    remoteDecisionTreeMap.put(key, map);
                 } else {
                     remoteDecisionTreeMap.put(key, tree.get(key));
                 }
             }
 
         }
+
+        return remoteDecisionTreeMap;
     }
 
     @Override
-    protected PredictModel handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) throws StatusCodeWithException {
-
-        //Get partner decision tree structure
-        getFederatedPredict(federatedParams, predictParams);
-
+    protected PredictModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
         return XgboostAlgorithmHelper
                 .promoterPredictByVert(
+                        modelParam.getModelMeta().getWorkMode(),
                         modelParam.getModelParam(),
                         predictParams.getUserId(),
                         fidValueMapping,
-                        remoteDecisionTreeMap
+                        getPartnerTreeStructure(federatedResult)
                 );
     }
 

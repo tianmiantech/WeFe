@@ -17,9 +17,9 @@ package com.welab.wefe.common.web.service.account;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -28,9 +28,7 @@ import com.welab.wefe.common.web.LoginSecurityPolicy;
 import com.welab.wefe.common.web.config.CommonConfig;
 import com.welab.wefe.common.web.service.CaptchaService;
 
-import java.security.SecureRandom;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author zane
@@ -83,7 +81,7 @@ public abstract class AbstractAccountService {
         // 历史密码
         String historyPasswordListString = JSON.toJSONString(model.getPasswordHistoryList(historyCount - 1));
         // 生成新的盐和密码
-        String salt = createRandomSalt();
+        String salt = SecurityUtil.createRandomSalt();
         newPassword = hashPasswordWithSalt(newPassword, salt);
 
         saveSelfPassword(newPassword, salt, JSON.parseArray(historyPasswordListString));
@@ -188,17 +186,6 @@ public abstract class AbstractAccountService {
     }
 
     /**
-     * 生产随机盐
-     */
-    protected String createRandomSalt() {
-        final Random r = new SecureRandom();
-        byte[] salt = new byte[16];
-        r.nextBytes(salt);
-
-        return Base64Util.encode(salt);
-    }
-
-    /**
      * 检查用户输入的密码是否正确
      *
      * @param realPassword  数据库储存的真实密码
@@ -216,5 +203,51 @@ public abstract class AbstractAccountService {
             CurrentAccount.logout();
         }
         return success;
+    }
+
+
+    /**
+     * @param phoneNumber 用户唯一标识（用户登录账号：通常是手机号）
+     * @param password    登录密码
+     * @return 登录成功后的 token
+     */
+    public void accountCheck(String phoneNumber, String password) throws StatusCodeWithException {
+
+        // Check if it's in the small black room
+        if (LoginSecurityPolicy.inDarkRoom(phoneNumber)) {
+            throw new StatusCodeWithException("【小黑屋】账号已被禁止登陆，请一个小时后再试。", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+
+        AccountInfo account = getAccountInfo(phoneNumber);
+        // phone number error
+        if (account == null || !verifyPassword(account.password, password, account.salt)) {
+            if (account != null) {
+                LoginSecurityPolicy.onLoginFail(phoneNumber);
+            }
+            StatusCode
+                    .PARAMETER_VALUE_INVALID
+                    .throwException("手机号或密码错误，连续错误 6 次会被禁止登陆，可以联系管理员重置密码找回账号。");
+        }
+
+        if (account.cancelled) {
+            throw new StatusCodeWithException("账号已被注销，无法使用此账号。", StatusCode.PERMISSION_DENIED);
+        }
+
+        if (!account.enable) {
+            throw new StatusCodeWithException("用户被禁用，请联系管理员。", StatusCode.PERMISSION_DENIED);
+        }
+
+        // Check audit status
+        if (account.auditStatus != null) {
+            switch (account.auditStatus) {
+                case auditing:
+                    AccountInfo superAdmin = getSuperAdmin();
+
+                    throw new StatusCodeWithException("账号尚未审核，请联系管理员 " + superAdmin.nickname + " （或其他任意管理员）对您的账号进行审核后再尝试登录！", StatusCode.PARAMETER_VALUE_INVALID);
+                case disagree:
+                    throw new StatusCodeWithException("账号审核不通过：" + account.auditStatus, StatusCode.PARAMETER_VALUE_INVALID);
+                default:
+            }
+        }
     }
 }

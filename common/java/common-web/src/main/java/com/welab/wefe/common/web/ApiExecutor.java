@@ -20,14 +20,11 @@
 
 package com.welab.wefe.common.web;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.SamplingLogger;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fastjson.LoggerSerializeConfig;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.api.base.FlowLimitByIp;
@@ -38,12 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.BeansException;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The entry class that calls the API
@@ -101,7 +98,7 @@ public class ApiExecutor {
             // Checking login Status
             checkSessionToken(api, annotation);
             // Check the permissions
-            checkApiPermission(api, annotation, params);
+            checkApiPermission(httpServletRequest, annotation, params);
 
             // IP flow control check
             checkFlowLimitByIp(httpServletRequest, api, params);
@@ -148,49 +145,47 @@ public class ApiExecutor {
         return result;
     }
 
+    private static final Map<String, Long> API_LOG_TIME_MAP = new ConcurrentHashMap<>();
+
     public static void logResponse(Api annotation, ApiResult<?> result) {
 
-        String content = "";
-        /**
-         * 警告 ⚠️:
-         * 当响应内容为 ResponseEntity<FileSystemResource> 时
-         * JSON.toJSONString(result) 序列化时会导致文件被置空
-         * 所以这里写日志时需要进行检查，避免对 FileSystemResource 进行 json 序列化。
-         */
-        if (result.data instanceof ResponseEntity) {
-            Object body = ((ResponseEntity) result.data).getBody();
-            if (body instanceof FileSystemResource) {
-                FileSystemResource fileSystemResource = (FileSystemResource) body;
-                content = "spend:" + result.spend + "ms File:" + fileSystemResource.getPath();
+        // 是否要省略此次日志打印，以减少磁盘使用。
+        boolean omitLog = false;
+        if (annotation.logSaplingInterval() > 0) {
+            if (!API_LOG_TIME_MAP.containsKey(annotation.path())) {
+                API_LOG_TIME_MAP.put(annotation.path(), 0L);
             }
-        } else if (result.data instanceof byte[]) {
-            byte[] bytes = (byte[]) result.data;
-            content = "bytes(length " + bytes.length + ")";
-        } else {
-            content = JSON.toJSONString(result, LoggerSerializeConfig.instance());
+
+            long interval = TimeSpan
+                    .fromMs(System.currentTimeMillis() - API_LOG_TIME_MAP.get(annotation.path()))
+                    .toMs();
+
+            if (interval < annotation.logSaplingInterval()) {
+                omitLog = true;
+            } else {
+                API_LOG_TIME_MAP.put(annotation.path(), System.currentTimeMillis());
+            }
         }
 
+        String content = result.toLogString(omitLog);
 
-        switch (annotation.logLevel()) {
-            case "debug":
-                LOG.debug("response({}):{}", annotation.path(), content);
-                break;
-            default:
-                LOG.info("response({}):{}", annotation.path(), content);
-
+        if ("debug".equals(annotation.logLevel())) {
+            LOG.debug("response({}):{}", annotation.path(), content);
+        } else {
+            LOG.info("response({}):{}", annotation.path(), content);
         }
     }
 
     /**
      * Check API access permissions
      */
-    private static void checkApiPermission(AbstractApi<?, ?> api, Api annotation, JSONObject params) throws Exception {
+    private static void checkApiPermission(HttpServletRequest httpServletRequest, Api annotation, JSONObject params) throws Exception {
         // If the permission check method is not set, the permission check is not performed.
         if (Launcher.API_PERMISSION_POLICY == null) {
             return;
         }
 
-        Launcher.API_PERMISSION_POLICY.check(api, annotation, params);
+        Launcher.API_PERMISSION_POLICY.check(httpServletRequest, annotation, params);
     }
 
     /**
@@ -210,7 +205,7 @@ public class ApiExecutor {
 
         // Checking token Validity
         String token = CurrentAccount.token();
-        if (StringUtil.isEmpty(token) || !Launcher.CHECK_SESSION_TOKEN_FUNCTION.check(api, annotation, token)) {
+        if (!Launcher.CHECK_SESSION_TOKEN_FUNCTION.check(api, annotation, token)) {
             throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
         }
     }
@@ -233,7 +228,7 @@ public class ApiExecutor {
      * Check mobile phone number flow control
      */
     private static void checkFlowLimitByMobile(HttpServletRequest httpServletRequest, AbstractApi<?, ?> api, JSONObject params) throws Exception {
-        if (null == Launcher.FLOW_LIMIT_BY_MOBILE_FUNCTION || null == params || StringUtil.isEmpty(params.getString("mobile"))) {
+        if (null == Launcher.FLOW_LIMIT_BY_MOBILE_FUNCTION) {
             return;
         }
         FlowLimitByMobile flowLimitByMobile = api.getClass().getAnnotation(FlowLimitByMobile.class);

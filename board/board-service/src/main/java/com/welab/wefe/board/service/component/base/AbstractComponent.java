@@ -16,13 +16,37 @@
 
 package com.welab.wefe.board.service.component.base;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
-import com.welab.wefe.board.service.component.base.io.*;
+import com.welab.wefe.board.service.component.base.io.DataTypeGroup;
+import com.welab.wefe.board.service.component.base.io.InputGroup;
+import com.welab.wefe.board.service.component.base.io.InputMatcher;
+import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
+import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
@@ -30,7 +54,6 @@ import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.database.repository.TaskRepository;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.dto.kernel.Member;
-import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelJob;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.exception.FlowNodeException;
@@ -49,17 +72,6 @@ import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.ProjectType;
 import com.welab.wefe.common.wefe.enums.TaskStatus;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -110,7 +122,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks pre task list
      * @param node     node
      */
-    public List<TaskMySqlModel> buildMixTask(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
+    public List<TaskMySqlModel> buildMixTask(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -167,7 +179,6 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                     taskParam.put("random_cipher_seed", randomCipherSeed);
                 }
             }
-            taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
             taskConfig.setParams(taskParam);
             taskConfig.setInput(generateInput(graph, node, count));
@@ -246,7 +257,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
      * @param preTasks A collection of created tasks
      * @param node     the node of flow
      */
-    public TaskMySqlModel buildTask(JobBuilder jobBuilder, ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, KernelJob jobInfo, FlowGraphNode node) throws Exception {
+    public TaskMySqlModel buildTask(JobBuilder jobBuilder, ProjectMySqlModel project, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node) throws Exception {
 
         T params = (T) node.getParamsModel();
 
@@ -278,7 +289,6 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
 
         if (project.getProjectType() == ProjectType.MachineLearning) {
             TaskConfig taskConfig = new TaskConfig();
-            taskConfig.setJob(jobInfo);
             taskConfig.setModule(taskType());
             taskConfig.setParams(taskParam);
             taskConfig.setInput(getInputs(graph, node));
@@ -497,7 +507,10 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
                     || node.getComponentType() == ComponentType.MixSecureBoost
                     || node.getComponentType() == ComponentType.MixStatistic
                     || node.getComponentType() == ComponentType.MixBinning) {
-                Member promoter = allMembers.stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
+                Member promoter = allMembers.stream()
+                        .filter(x -> x.getMemberRole() == JobMemberRole.promoter
+                                && (StringUtils.isBlank(graph.getCreatorMemberId())
+                                        || x.getMemberId().equalsIgnoreCase(graph.getCreatorMemberId())))
                         .findFirst().orElse(null);
                 if (promoter != null) {
                     arbiter = Member.forMachineLearning(promoter.getMemberId(), JobMemberRole.arbiter);

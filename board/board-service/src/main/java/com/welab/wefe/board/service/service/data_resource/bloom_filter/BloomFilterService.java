@@ -44,9 +44,8 @@ import com.welab.wefe.board.service.util.JdbcManager;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
-import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -122,7 +121,7 @@ public class BloomFilterService extends DataResourceService {
     /**
      * delete bloom_filter
      */
-    public void delete(BloomFilterDeleteApi.Input input) throws StatusCodeWithException {
+    public void delete(BloomFilterDeleteApi.Input input) throws Exception {
         BloomFilterMysqlModel model = repo.findById(input.getId()).orElse(null);
         if (model == null) {
             return;
@@ -136,7 +135,7 @@ public class BloomFilterService extends DataResourceService {
     /**
      * delete bloom_filter
      */
-    public void delete(String bloomFilterId) throws StatusCodeWithException {
+    public void delete(String bloomFilterId) throws Exception {
         BloomFilterMysqlModel model = repo.findById(bloomFilterId).orElse(null);
         if (model == null) {
             return;
@@ -148,7 +147,7 @@ public class BloomFilterService extends DataResourceService {
     /**
      * delete bloom_filter
      */
-    public void delete(BloomFilterMysqlModel model) throws StatusCodeWithException {
+    public void delete(BloomFilterMysqlModel model) throws Exception {
 
         // delete bloom_filter from database
         repo.deleteById(model.getId());

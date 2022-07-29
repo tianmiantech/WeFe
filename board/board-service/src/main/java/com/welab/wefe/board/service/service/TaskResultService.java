@@ -16,6 +16,21 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -52,15 +67,6 @@ import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -382,7 +388,8 @@ public class TaskResultService extends AbstractService {
         // Find the FeatureStatistic node in the parent node
         FlowGraphNode featureStatisticNode = flowGraph.findOneNodeFromParent(node,
                 x -> x.getComponentType() == ComponentType.FeatureStatistic
-                        || x.getComponentType() == ComponentType.MixStatistic);
+                        || x.getComponentType() == ComponentType.MixStatistic
+                        || x.getComponentType() == ComponentType.HorzStatistic);
 
         if (featureStatisticNode == null) {
             throw new FlowNodeException(node, "请添加特征统计组件。");
@@ -428,10 +435,21 @@ public class TaskResultService extends AbstractService {
 
                 missingValueMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
             }
-
-            // Get the feature column of the current member
-            List<MemberModel> currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
-                    .collect(Collectors.toList());
+            List<MemberModel> currentMembers = new ArrayList<>();
+            if(featureStatisticNode.getComponentType() == ComponentType.HorzStatistic) {
+                // Get the feature column of the members
+                currentMembers = input.getMembers().stream().collect(Collectors.toList());
+            }
+            else if(featureStatisticNode.getComponentType() == ComponentType.MixStatistic && JobMemberRole.promoter.name().equalsIgnoreCase(memberObj.getString("role"))) {
+                // Get the feature column of the current member
+                currentMembers = input.getMembers().stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
+                        .collect(Collectors.toList());
+            }
+            else {
+                // Get the feature column of the current member
+                currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
+                        .collect(Collectors.toList());
+            }
 
             // Assign values to features with missing values
             for (MemberModel model : currentMembers) {
@@ -608,61 +626,63 @@ public class TaskResultService extends AbstractService {
                 }
             }
         }
-        TableDataSetMysqlModel myTmpDataSet = tableDataSetService.query(flowGraph.getLastJob().getJobId(),
-                node.getComponentType());
-        if (myTmpDataSet != null) {
-            for (MemberFeatureInfoModel member : members) {
-                if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
-                    DetailApi.Input input = new DetailApi.Input();
-                    input.setId(myTmpDataSet.getId());
-                    try {
-                        TableDataSetOutputModel output = gatewayService.callOtherMemberBoard(member.getMemberId(),
-                                JobMemberRole.promoter, DetailApi.class, input, TableDataSetOutputModel.class);
-                        if (output != null) {
-                            LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
-                            List<String> newColumnNameList = new ArrayList<>(
-                                    Arrays.asList(output.getFeatureNameList().split(",")));
-                            List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+        if (flowGraph.getLastJob() != null) {
+            TableDataSetMysqlModel myTmpDataSet = tableDataSetService.query(flowGraph.getLastJob().getJobId(),
+                    node.getComponentType());
+            if (myTmpDataSet != null) {
+                for (MemberFeatureInfoModel member : members) {
+                    if (!member.getMemberId().equalsIgnoreCase(CacheObjects.getMemberId())) {
+                        DetailApi.Input input = new DetailApi.Input();
+                        input.setId(myTmpDataSet.getId());
+                        try {
+                            TableDataSetOutputModel output = gatewayService.callOtherMemberBoard(member.getMemberId(),
+                                    JobMemberRole.promoter, DetailApi.class, input, TableDataSetOutputModel.class);
+                            if (output != null) {
+                                LOG.info("getOneHotFeature request : " + JObject.toJSONString(input));
+                                List<String> newColumnNameList = new ArrayList<>(
+                                        Arrays.asList(output.getFeatureNameList().split(",")));
+                                List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
 
-                            List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
-                            for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
-                                if (newColumnNameList.contains(feature.getName())) {
-                                    newFeatures.add(feature);
-                                    newColumnNameList.remove(feature.getName());
+                                List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+                                for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+                                    if (newColumnNameList.contains(feature.getName())) {
+                                        newFeatures.add(feature);
+                                        newColumnNameList.remove(feature.getName());
+                                    }
                                 }
-                            }
-                            if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
-                                for (String s : newColumnNameList) {
-                                    MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
-                                    f.setName(s);
-                                    newFeatures.add(f);
+                                if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+                                    for (String s : newColumnNameList) {
+                                        MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+                                        f.setName(s);
+                                        newFeatures.add(f);
+                                    }
                                 }
+                                member.setFeatures(newFeatures);
                             }
-                            member.setFeatures(newFeatures);
+                        } catch (MemberGatewayException e) {
+                            throw new FlowNodeException(node, member.getMemberId());
                         }
-                    } catch (MemberGatewayException e) {
-                        throw new FlowNodeException(node, member.getMemberId());
-                    }
-                } else {
-                    List<String> newColumnNameList = new ArrayList<>(
-                            Arrays.asList(myTmpDataSet.getFeatureNameList().split(",")));
-                    List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
+                    } else {
+                        List<String> newColumnNameList = new ArrayList<>(
+                                Arrays.asList(myTmpDataSet.getFeatureNameList().split(",")));
+                        List<MemberFeatureInfoModel.Feature> oldFeatures = member.getFeatures();
 
-                    List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
-                    for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
-                        if (newColumnNameList.contains(feature.getName())) {
-                            newFeatures.add(feature);
-                            newColumnNameList.remove(feature.getName());
+                        List<MemberFeatureInfoModel.Feature> newFeatures = new ArrayList<>();
+                        for (MemberFeatureInfoModel.Feature feature : oldFeatures) {
+                            if (newColumnNameList.contains(feature.getName())) {
+                                newFeatures.add(feature);
+                                newColumnNameList.remove(feature.getName());
+                            }
                         }
-                    }
-                    if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
-                        for (String s : newColumnNameList) {
-                            MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
-                            f.setName(s);
-                            newFeatures.add(f);
+                        if (newColumnNameList != null && !newColumnNameList.isEmpty()) {
+                            for (String s : newColumnNameList) {
+                                MemberFeatureInfoModel.Feature f = new MemberFeatureInfoModel.Feature();
+                                f.setName(s);
+                                newFeatures.add(f);
+                            }
                         }
+                        member.setFeatures(newFeatures);
                     }
-                    member.setFeatures(newFeatures);
                 }
             }
         }

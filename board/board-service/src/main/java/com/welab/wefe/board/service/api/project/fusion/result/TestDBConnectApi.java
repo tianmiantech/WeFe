@@ -32,7 +32,7 @@ import java.sql.Connection;
 /**
  * @author hunter.zhao
  */
-@Api(path = "fusion/test_db_connect", name = "结果导出", desc = "结果导出")
+@Api(path = "fusion/test_db_connect", name = "测试数据库连接", desc = "测试数据库连接")
 public class TestDBConnectApi extends AbstractApi<TestDBConnectApi.Input, TestDBConnectApi.Output> {
 
     @Override
@@ -41,7 +41,7 @@ public class TestDBConnectApi extends AbstractApi<TestDBConnectApi.Input, TestDB
         if (conn != null) {
             boolean success = JdbcManager.testQuery(conn);
             if (!success) {
-                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "数据库连接失败");
+                throw new StatusCodeWithException(StatusCode.DATABASE_LOST, "测试连接数据库失败，请检查数据库是否正常或者账号密码是否填写错误");
             }
         }
 

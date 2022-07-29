@@ -16,14 +16,14 @@
 
 package com.welab.wefe.serving.service.feature.code;
 
-import java.util.Map;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
 
 /**
  * @author hunter.zhao
  */
 public class EmptyFeatureDataProcessor extends AbstractFeatureDataProcessor {
     @Override
-    public Map<String, Object> process(String userId) {
-        return null;
+    public FeatureDataModel process(String userId) {
+        return FeatureDataModel.of(null);
     }
 }

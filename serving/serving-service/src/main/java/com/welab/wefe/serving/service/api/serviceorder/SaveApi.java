@@ -25,6 +25,8 @@ import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.service.ServiceOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
+
 
 /**
  * @author ivenn.zheng
@@ -45,7 +47,7 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
     public static class Input extends AbstractApiInput {
 
         @Check(name = "订单 id")
-        private String id;
+        private String id = UUID.randomUUID().toString().replaceAll("-", "");
 
         @Check(name = "服务 id", require = true)
         private String serviceId;
@@ -54,7 +56,7 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
         private String serviceName;
 
         @Check(name = "服务类型")
-        private String serviceType;
+        private Integer serviceType;
 
         @Check(name = "订单类型", require = true)
         private Integer orderType;
@@ -120,11 +122,11 @@ public class SaveApi extends AbstractNoneOutputApi<SaveApi.Input> {
             this.serviceName = serviceName;
         }
 
-        public String getServiceType() {
+        public Integer getServiceType() {
             return serviceType;
         }
 
-        public void setServiceType(String serviceType) {
+        public void setServiceType(Integer serviceType) {
             this.serviceType = serviceType;
         }
 

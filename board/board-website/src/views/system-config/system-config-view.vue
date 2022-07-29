@@ -4,18 +4,20 @@
             <el-form
                 :disabled="!userInfo.admin_role"
                 @submit.prevent
+                label-width="160px"
+                :inline="true"
             >
                 <el-row :gutter="30">
                     <el-col :span="12">
                         <fieldset>
                             <legend>Board</legend>
-                            <el-form-item label="后台内网地址（board-service）：">
+                            <el-form-item label="后台内网地址：">
                                 <el-input
                                     placeholder="http(s)://ip:port/board-service"
                                     v-model="config.wefe_board.intranet_base_uri"
                                 />
                             </el-form-item>
-                            <el-form-item label="新注册的账号是否需要管理员审核：">
+                            <el-form-item label="账号是否需要审核：">
                                 <el-radio
                                     v-model="config.wefe_board.account_need_audit_when_register"
                                     :label="'true'"
@@ -90,10 +92,44 @@
                         </fieldset>
                         <fieldset>
                             <legend>Serving</legend>
-                            <el-form-item label="内网地址：">
+                            <el-form-item label="后台内网地址：">
                                 <el-input
                                     placeholder="http(s)://ip:port/serving-service"
                                     v-model="config.wefe_serving.intranet_base_uri"
+                                />
+                            </el-form-item>
+                        </fieldset>
+                        <fieldset>
+                            <legend>数据集存储</legend>
+                            <el-form-item label="类型：">
+                                <el-radio v-model="config.storage_config.storage_type" label="CLICKHOUSE">
+                                    Clickhouse
+                                </el-radio>
+                                <el-radio v-model="config.storage_config.storage_type" disabled label="HDFS">
+                                    <el-tooltip class="item" effect="dark" content="coming soon" placement="top-start">
+                                        HDFS
+                                    </el-tooltip>
+                                </el-radio>
+                            </el-form-item>
+                            <el-form-item label="host：">
+                                <el-input v-model="config.clickhouse_storage_config.host" />
+                            </el-form-item>
+                            <el-form-item label="http port：">
+                                <el-input v-model="config.clickhouse_storage_config.http_port" />
+                            </el-form-item>
+                            <el-form-item label="tcp port：">
+                                <el-input v-model="config.clickhouse_storage_config.tcp_port" />
+                            </el-form-item>
+                            <el-form-item label="username：">
+                                <el-input v-model="config.clickhouse_storage_config.username" />
+                            </el-form-item>
+                            <el-form-item label="password：">
+                                <el-input
+                                    v-model="config.clickhouse_storage_config.password"
+                                    type="password"
+                                    placeholder="请输入密码"
+                                    autocomplete="new-password"
+                                    @contextmenu.prevent
                                 />
                             </el-form-item>
                         </fieldset>
@@ -101,12 +137,20 @@
                     <el-col :span="12">
                         <fieldset>
                             <legend>提醒</legend>
-                            <el-form-item label="是否开启任务失败邮件提醒功能：">
+                            <el-form-item label="任务失败邮件提醒：">
                                 <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="'true'">
                                     开启
                                 </el-radio>
                                 <el-radio v-model="config.alert_config.email_alert_on_job_error" :label="'false'">
                                     关闭
+                                </el-radio>
+                            </el-form-item>
+                            <el-form-item label="找回密码验证码通道：">
+                                <el-radio v-model="config.alert_config.retrieve_password_captcha_channel" label="email">
+                                    邮件
+                                </el-radio>
+                                <el-radio v-model="config.alert_config.retrieve_password_captcha_channel" label="sms">
+                                    短信
                                 </el-radio>
                             </el-form-item>
                         </fieldset>
@@ -127,11 +171,31 @@
                                     type="password"
                                     placeholder="请输入密码"
                                     autocomplete="new-password"
-                                    @paste.prevent
-                                    @copy.prevent
                                     @contextmenu.prevent
                                 />
                             </el-form-item>
+                        </fieldset>
+                        <fieldset>
+                            <legend>阿里云短信通道</legend>
+                            <el-form-item label="AccessKeyId：">
+                                <el-input v-model="config.aliyun_sms_channel.access_key_id" />
+                            </el-form-item>
+                            <el-form-item label="AccessKeySecret：">
+                                <el-input
+                                    v-model="config.aliyun_sms_channel.access_key_secret"
+                                    type="password"
+                                    placeholder="请输入密码"
+                                    autocomplete="new-password"
+                                    @contextmenu.prevent
+                                />
+                            </el-form-item>
+                            <el-form-item label="找回密码短信模板码：">
+                                <el-input v-model="config.aliyun_sms_channel.retrieve_password_template_code" />
+                            </el-form-item>
+                            <el-form-item label="短信签名：">
+                                <el-input v-model="config.aliyun_sms_channel.sign_name" />
+                            </el-form-item>
+
                         </fieldset>
                     </el-col>
                 </el-row>
@@ -167,12 +231,15 @@
                 loading: false,
                 // model
                 config:  {
-                    wefe_board:   {},
-                    wefe_gateway: {},
-                    wefe_flow:    {},
-                    wefe_serving: {},
-                    alert_config: {},
-                    mail_server:  {},
+                    wefe_board:                {},
+                    wefe_gateway:              {},
+                    wefe_flow:                 {},
+                    wefe_serving:              {},
+                    alert_config:              {},
+                    mail_server:               {},
+                    storage_config:            {},
+                    clickhouse_storage_config: {},
+                    aliyun_sms_channel:        {},
                 },
                 visible: true,
             };
@@ -188,7 +255,18 @@
                 this.loading = true;
                 const { code, data } = await this.$http.post({
                     url:  '/global_config/get',
-                    data: { groups: ['wefe_board','wefe_gateway','alert_config','mail_server', 'wefe_flow', 'wefe_serving'] },
+                    data: {
+                        groups: [
+                            'wefe_board',
+                            'wefe_gateway',
+                            'alert_config',
+                            'mail_server',
+                            'wefe_flow',
+                            'wefe_serving',
+                            'storage_config',
+                            'clickhouse_storage_config',
+                            'aliyun_sms_channel',
+                        ] },
                 });
 
                 if (code === 0) {
@@ -215,6 +293,9 @@
 </script>
 
 <style lang="scss" scoped>
+    .el-form-item{
+        width: 100%;
+    }
     .el-icon-opportunity {
         font-size: 16px;
         color: $--color-warning;

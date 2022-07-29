@@ -33,33 +33,42 @@ import com.welab.wefe.serving.service.service.ServiceService;
 @Api(path = "service/query", name = "query service list")
 public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.Output>> {
 
-	@Autowired
-	ServiceService serviceService;
+    @Autowired
+    ServiceService serviceService;
 
-	@Override
-	protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException, IOException {
-		return success(serviceService.query(input));
-	}
+    @Override
+    protected ApiResult<PagingOutput<Output>> handle(Input input) throws StatusCodeWithException, IOException {
+        return success(serviceService.query(input));
+    }
 
-	public static class Output extends AbstractApiOutput {
-		private String id;
-		private String name;
-		private String url;
-		private int serviceType;
-		private int status;
-		private String createdBy;
-		private Date createdTime;
-		private String updatedBy;
-		private Date updatedTime;
+    public static class Output extends AbstractApiOutput {
+        private String id;
+        private String serviceId;
+        private String name;
+        private String url;
+        private int serviceType;
+        private int status;
+        private String createdBy;
+        private Date createdTime;
+        private String updatedBy;
+        private Date updatedTime;
 
-		public String getId() {
-			return id;
-		}
+        public String getId() {
+            return id;
+        }
 
-		public void setId(String id) {
-			this.id = id;
-		}
-		
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getServiceId() {
+            return serviceId;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
+        }
+
         public String getUrl() {
             return url;
         }
@@ -69,116 +78,127 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
         }
 
         public String getName() {
-			return name;
-		}
+            return name;
+        }
 
-		public void setName(String name) {
-			this.name = name;
-		}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-		public int getServiceType() {
-			return serviceType;
-		}
+        public int getServiceType() {
+            return serviceType;
+        }
 
-		public void setServiceType(int serviceType) {
-			this.serviceType = serviceType;
-		}
+        public void setServiceType(int serviceType) {
+            this.serviceType = serviceType;
+        }
 
-		public int getStatus() {
-			return status;
-		}
+        public int getStatus() {
+            return status;
+        }
 
-		public void setStatus(int status) {
-			this.status = status;
-		}
+        public void setStatus(int status) {
+            this.status = status;
+        }
 
-		public Date getCreatedTime() {
-			return createdTime;
-		}
+        public Date getCreatedTime() {
+            return createdTime;
+        }
 
-		public void setCreatedTime(Date createdTime) {
-			this.createdTime = createdTime;
-		}
+        public void setCreatedTime(Date createdTime) {
+            this.createdTime = createdTime;
+        }
 
-		public Date getUpdatedTime() {
-			return updatedTime;
-		}
+        public Date getUpdatedTime() {
+            return updatedTime;
+        }
 
-		public void setUpdatedTime(Date updatedTime) {
-			this.updatedTime = updatedTime;
-		}
+        public void setUpdatedTime(Date updatedTime) {
+            this.updatedTime = updatedTime;
+        }
 
-		public String getCreatedBy() {
-			return createdBy;
-		}
+        public String getCreatedBy() {
+            return createdBy;
+        }
 
-		public void setCreatedBy(String createdBy) {
-			this.createdBy = createdBy;
-		}
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
 
-		public String getUpdatedBy() {
-			return updatedBy;
-		}
+        public String getUpdatedBy() {
+            return updatedBy;
+        }
 
-		public void setUpdatedBy(String updatedBy) {
-			this.updatedBy = updatedBy;
-		}
+        public void setUpdatedBy(String updatedBy) {
+            this.updatedBy = updatedBy;
+        }
 
-	}
+    }
 
-	public static class Input extends PagingInput {
+    public static class Input extends PagingInput {
 
-		private String id;
-		// 服务名
-		private String name;
+        private String id;
+        
+        private String serviceId;
+        // 服务名
+        private String name;
 
-		// 服务类型 1=匿踪查询，2=交集查询，3=安全聚合
-		private int serviceType = -1;
+        // 服务类型 1=匿踪查询，2=交集查询，3=安全聚合
+        private int serviceType = -1;
 
-		// 是否在线 1=在线 0=离线
-		private int status = -1;
-		
-		// 创建人
-		private String createdBy;
+        // 是否在线 1=在线 0=离线
+        private int status = -1;
 
-		public String getName() {
-			return name;
-		}
+        // 创建人
+        private String createdBy;
 
-		public void setName(String name) {
-			this.name = name;
-		}
+        public String getName() {
+            return name;
+        }
 
-		public int getServiceType() {
-			return serviceType;
-		}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-		public void setServiceType(int serviceType) {
-			this.serviceType = serviceType;
-		}
+        public int getServiceType() {
+            return serviceType;
+        }
 
-		public int getStatus() {
-			return status;
-		}
+        public void setServiceType(int serviceType) {
+            this.serviceType = serviceType;
+        }
 
-		public void setStatus(int status) {
-			this.status = status;
-		}
+        public int getStatus() {
+            return status;
+        }
 
-		public String getId() {
-			return id;
-		}
+        public void setStatus(int status) {
+            this.status = status;
+        }
 
-		public void setId(String id) {
-			this.id = id;
-		}
+        public String getId() {
+            return id;
+        }
 
-		public String getCreatedBy() {
-			return createdBy;
-		}
+        public void setId(String id) {
+            this.id = id;
+        }
 
-		public void setCreatedBy(String createdBy) {
-			this.createdBy = createdBy;
-		}
-	}
+        public String getServiceId() {
+            return serviceId;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
+
+    }
 }

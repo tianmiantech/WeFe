@@ -50,7 +50,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
     }
 
     private void appendIpAddressToGatewayWhiteList() {
-        GatewayConfigModel gatewayConfig = globalConfigService.getGatewayConfig();
+        GatewayConfigModel gatewayConfig = globalConfigService.getModel(GatewayConfigModel.class);
         if (gatewayConfig == null || StringUtil.isEmpty(gatewayConfig.intranetBaseUri)) {
             LOG.error("gateway 内网地址尚未配置，board-service IP未登记到白名单。");
             return;

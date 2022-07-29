@@ -32,9 +32,6 @@ public class PirClient {
     // 客户code
     private static final String 测试客户1_code = "TEST***25";
 
-	public static final String NAORPINKAS_OT = "naorpinkas_ot";
-	public static final String HUACK_OT = "huack_ot";
-
 	public static void main(String[] args) {
 		CommunicationConfig communicationConfig = new CommunicationConfig();
 		// 服务地址
@@ -76,7 +73,7 @@ public class PirClient {
 		PrivateInformationRetrievalQuery privateInformationRetrievalQuery = new PrivateInformationRetrievalQuery();
 		try {
 			config.setTargetIndex(targetIndex);
-			String result = privateInformationRetrievalQuery.query(config, communicationConfig, NAORPINKAS_OT);;
+			String result = privateInformationRetrievalQuery.query(config, communicationConfig);
 			System.out.println("result = " + result); // get result
 		} catch (Exception e) {
 			e.printStackTrace();

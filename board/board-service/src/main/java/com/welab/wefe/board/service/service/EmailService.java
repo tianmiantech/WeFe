@@ -17,13 +17,11 @@
 package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
-import com.welab.wefe.board.service.database.entity.MessageMysqlModel;
 import com.welab.wefe.board.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.MessageLevel;
-import com.welab.wefe.common.wefe.enums.ProducerType;
+import com.welab.wefe.common.wefe.enums.MessageEvent;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
@@ -79,7 +77,7 @@ public class EmailService extends AbstractService {
                 return sendFailEmails;
             }
 
-            MailServerModel mailServer = globalConfigService.getMailServer();
+            MailServerModel mailServer = globalConfigService.getModel(MailServerModel.class);
             sendFailEmails = sendMail(mailServer.getMailUsername(), totalEmails, subject, content);
             // All sent successfully
             if (CollectionUtils.isEmpty(sendFailEmails)) {
@@ -92,7 +90,13 @@ public class EmailService extends AbstractService {
                 saveTotalSendFailMessage("不存在有效的邮件接收人地址");
                 return sendFailEmails;
             }
-            savePartSendFailMessage("部分接收人地址无效：" + sendFailEmails);
+
+            messageService.add(
+                    MessageEvent.OnEmailSendFail,
+                    "Board：审批任务邮件部分发送失败",
+                    "部分接收人地址无效：" + sendFailEmails
+            );
+
             // Send again
             sendFailEmails = sendMail(mailServer.getMailUsername(), totalEmails, subject, content);
         } catch (Exception e) {
@@ -163,13 +167,12 @@ public class EmailService extends AbstractService {
     }
 
 
-
     /**
      * Get message sender
      */
     private JavaMailSenderImpl getMailSender() throws Exception {
 
-        MailServerModel mailServer = globalConfigService.getMailServer();
+        MailServerModel mailServer = globalConfigService.getModel(MailServerModel.class);
         if (mailServer == null) {
             throw new Exception("邮件服务器未设置");
         }
@@ -227,27 +230,9 @@ public class EmailService extends AbstractService {
      * Save sending failure information
      */
     private void saveTotalSendFailMessage(String errorMsg) {
-        saveErrorMessage("Board：审批任务邮件发送失败", errorMsg);
+        messageService.add(MessageEvent.OnEmailSendFail, "Board：审批任务邮件发送失败", errorMsg);
     }
 
-    private void savePartSendFailMessage(String errorMsg) {
-        saveErrorMessage("Board：审批任务邮件部分发送失败", errorMsg);
-    }
-
-
-    private void saveErrorMessage(String title, String content) {
-        try {
-            MessageMysqlModel messageMysqlModel = new MessageMysqlModel();
-            messageMysqlModel.setProducer(ProducerType.board);
-            messageMysqlModel.setLevel(MessageLevel.error);
-            messageMysqlModel.setTitle(title);
-            messageMysqlModel.setContent(content);
-            messageMysqlModel.setUnread(true);
-            messageService.add(messageMysqlModel);
-        } catch (Exception e) {
-            LOG.error("Save sending failure information Exception：", e);
-        }
-    }
 
 
     /**

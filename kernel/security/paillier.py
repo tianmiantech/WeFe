@@ -33,6 +33,11 @@ import random
 from common.python.utils import log_utils
 from kernel.security import gmpy_math
 from kernel.security.fixedpoint import FixedPointNumber
+from ctypes import cdll, sizeof, c_buffer, cast, c_int32
+from ctypes import c_char, c_char_p, c_void_p, c_uint32, c_double, c_int64, c_int, c_size_t, c_longlong
+import ctypes
+import numpy as np
+import datetime as dt
 
 LOGGER = log_utils.get_logger()
 
@@ -96,7 +101,7 @@ class PaillierPublicKey(object):
             raise TypeError("plaintext should be int, but got: %s" %
                             type(plaintext))
 
-        if plaintext >= (self.n - self.max_int) and plaintext < self.n:
+        if (self.n - self.max_int) <= plaintext < self.n:
             # Very large plaintext, take a sneaky shortcut using inverses
             neg_plaintext = self.n - plaintext  # = abs(plaintext - nsquare)
             neg_ciphertext = (self.n * neg_plaintext + 1) % self.nsquare
@@ -108,9 +113,318 @@ class PaillierPublicKey(object):
 
         return ciphertext
 
+    def encrypt_gpu(self, value_array, precision=None, random_value=None):
+        MAX_COUNT = 20000000
+        INT64_TYPE = 1
+        FLOAT_TYPE = 2
+        PEN_BASE = 16
+
+        CHAR_BYTE = sizeof(c_char)
+        U_INT32_BYTE = sizeof(c_uint32)
+        DOUBLE_BYTE = sizeof(c_double)
+        INT64_BYTE = sizeof(c_int64)
+
+        CIPHER_BITS = 2048
+        PLAIN_BITS = 2048
+        BYTE_LEN = 8
+        CIPHER_BYTE = 256
+        PLAIN_BYTE = 256
+        device_type = 1
+
+        array_element_count = value_array.shape[0]
+        if array_element_count > MAX_COUNT:
+            raise ValueError("Total input element count = %i , too large ！[ > %i ]" % (array_element_count, MAX_COUNT))
+
+        g_bytes = self.g.to_bytes(CIPHER_BYTE, 'little')
+        n_bytes = self.n.to_bytes(CIPHER_BYTE, 'little')
+        nsquare_bytes = self.nsquare.to_bytes(CIPHER_BYTE, 'little')
+        max_int_bytes = self.max_int.to_bytes(CIPHER_BYTE, 'little')
+
+        if random_value is None:
+            obfuscator = random.SystemRandom().randrange(1, self.n)
+            is_obfuscator = True
+        else:
+            obfuscator = random_value
+            is_obfuscator = False
+
+        obfuscator_bytes = obfuscator.to_bytes(PLAIN_BYTE, 'little')
+
+        # GPU computing...
+        gpu_lib = cdll.LoadLibrary("/usr/lib/libgpuhomomorphism.so")
+        gpu_lib.GPU_H_C_Malloc.restype = c_void_p
+        gpu_lib.GPU_H_Paillier_Encode.restype = c_void_p
+        gpu_lib.GPU_H_C_GetError.restype = c_char_p
+
+        gpu_time_begin = dt.datetime.now()
+
+        value_array_size = value_array.size
+        value_array_data = gpu_lib.GPU_H_C_Malloc(
+            c_size_t(value_array_size * DOUBLE_BYTE))
+        if value_array_data is None:
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        # all turn to 64 bit data type
+        if (value_array.dtype == 'int32'):
+            value_array_astyped = value_array.astype(np.int64)
+            value_array_ctypes = value_array_astyped.ctypes.data_as(c_void_p)
+            data_type = INT64_TYPE
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_data), value_array_ctypes,
+                                   value_array_size * INT64_BYTE)
+        elif (value_array.dtype == 'int64'):
+            value_array_ctypes = value_array.ctypes.data_as(c_void_p)
+            data_type = INT64_TYPE
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_data), value_array_ctypes,
+                                   value_array_size * INT64_BYTE)
+        elif (value_array.dtype == 'float32'):
+            value_array_astyped = value_array.astype(np.float64)
+            value_array_ctypes = value_array_astyped.ctypes.data_as(c_void_p)
+            data_type = FLOAT_TYPE
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_data), value_array_ctypes,
+                                   value_array_size * DOUBLE_BYTE)
+        elif (value_array.dtype == 'float64'):
+            value_array_ctypes = value_array.ctypes.data_as(c_void_p)
+            data_type = FLOAT_TYPE
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_data), value_array_ctypes,
+                                   value_array_size * DOUBLE_BYTE)
+        else:
+            raise PermissionError("Invalid Data Type of value_array")
+
+        timebegin = dt.datetime.now()
+        value_array_encoded = gpu_lib.GPU_H_Paillier_Encode(
+            1,
+            c_longlong(data_type),
+            c_void_p(None),
+            c_void_p(None),
+            c_void_p(value_array_data),
+            c_size_t(array_element_count),
+            c_char_p(g_bytes),
+            c_char_p(n_bytes),
+            c_char_p(nsquare_bytes),
+            c_char_p(max_int_bytes)
+        )
+        if value_array_encoded is None:
+            gpu_lib.GPU_H_C_Free(c_void_p(value_array_data))
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        timeover = dt.datetime.now()
+        costtime = (timeover - timebegin).total_seconds()
+        print(
+            " gpu_lib.GPU_H_Paillier_Encode value_array, cost time:  %f " %
+            (costtime))
+        print(f' ')
+
+        timebegin = dt.datetime.now()
+        ret = gpu_lib.GPU_H_Paillier_Encrypt(
+            1,
+            c_void_p(value_array_encoded),
+            c_size_t(array_element_count),
+            c_char_p(obfuscator_bytes)
+        )
+        if 0 != ret:
+            gpu_lib.GPU_H_C_Free(c_void_p(value_array_data))
+            gpu_lib.GPU_H_C_Free(c_void_p(value_array_encoded))
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        timeover = dt.datetime.now()
+        costtime = (timeover - timebegin).total_seconds()
+        print(
+            " gpu_lib.GPU_H_Paillier_Encrypt, cost time:  %f " %
+            (costtime))
+        print(f' ')
+
+        # parse GPU encrypt result
+        out_paillier_encrypted_number_array = np.empty(
+            array_element_count, dtype=PaillierEncryptedNumber)
+        element_len = CIPHER_BYTE * 6 + INT64_BYTE * 2
+        for i in range(array_element_count):
+            iii = i * element_len
+
+            # skip x_sign
+            iii = iii + INT64_BYTE
+
+            x_string = ctypes.string_at(value_array_encoded + iii, CIPHER_BYTE)
+            x = int.from_bytes(x_string, 'little')
+            iii = iii + CIPHER_BYTE
+
+            x_exponent_string = ctypes.string_at(value_array_encoded + iii, INT64_BYTE)
+            x_exponent = int.from_bytes(x_exponent_string, 'little')
+
+            out_paillier_encrypted_number_array[i] = PaillierEncryptedNumber(
+                self, x, x_exponent)
+            out_paillier_encrypted_number_array[i].set_obfuscator(is_obfuscator)
+
+        # free memory
+        gpu_lib.GPU_H_C_Free(c_void_p(value_array_data))
+        gpu_lib.GPU_H_C_Free(c_void_p(value_array_encoded))
+
+        gpu_time_over = dt.datetime.now()
+        gpu_cost_time = (gpu_time_over - gpu_time_begin).total_seconds()
+        print(" GPU encrypt, total cost time:  %f " % (gpu_cost_time))
+        print(f' ')
+
+        return out_paillier_encrypted_number_array
+
+    def gpu_paillier_raw_encrypt(self, encoding_array, precision=None, random_value=None):
+        MAX_COUNT = 20000000
+        INT64_TYPE = 1
+        FLOAT_TYPE = 2
+        PEN_BASE = 16
+
+        CHAR_BYTE = sizeof(c_char)
+        U_INT32_BYTE = sizeof(c_uint32)
+        DOUBLE_BYTE = sizeof(c_double)
+        INT64_BYTE = sizeof(c_int64)
+
+        CIPHER_BITS = 2048
+        PLAIN_BITS = 2048
+        BYTE_LEN = 8
+        CIPHER_BYTE = 256
+        PLAIN_BYTE = 256
+        device_type = 1
+
+        if isinstance(encoding_array, list):
+            array_element_count = len(encoding_array)
+        else:
+            array_element_count = encoding_array.shape[0]
+
+        if array_element_count > MAX_COUNT:
+            raise ValueError("Total input element count = %i , too large ！[ > %i ]" % (array_element_count, MAX_COUNT))
+
+        g_bytes = self.g.to_bytes(CIPHER_BYTE, 'little')
+        n_bytes = self.n.to_bytes(CIPHER_BYTE, 'little')
+        nsquare_bytes = self.nsquare.to_bytes(CIPHER_BYTE, 'little')
+        max_int_bytes = self.max_int.to_bytes(CIPHER_BYTE, 'little')
+        zero = 0
+        zero_bytes = zero.to_bytes(INT64_BYTE, 'little')
+
+        if random_value is None:
+            obfuscator = random.SystemRandom().randrange(1, self.n)
+        else:
+            obfuscator = random_value
+
+        obfuscator_bytes = obfuscator.to_bytes(CIPHER_BYTE, 'little')
+
+        # GPU computing...
+        gpu_lib = cdll.LoadLibrary("/usr/lib/libgpuhomomorphism.so")
+        gpu_lib.GPU_H_C_Malloc.restype = c_void_p
+        gpu_lib.GPU_H_C_GetError.restype = c_char_p
+
+        gpu_time_begin = dt.datetime.now()
+
+        value_array_encoded = gpu_lib.GPU_H_C_Malloc(
+            c_size_t(array_element_count * (6 * CIPHER_BYTE + 2 * INT64_BYTE)))
+        if value_array_encoded is None:
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        ii = 0
+        for i in range(array_element_count):
+            # skip x_sign
+            ii = ii + INT64_BYTE
+
+            # x
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   encoding_array[i].to_bytes(
+                                       CIPHER_BYTE, 'little'),
+                                   c_size_t(CIPHER_BYTE))
+            ii = ii + CIPHER_BYTE
+
+            # x_exponent
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   zero_bytes,
+                                   c_size_t(INT64_BYTE))
+            ii = ii + INT64_BYTE
+
+            # g
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   g_bytes,
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # n
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   n_bytes,
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # nsquare
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   nsquare_bytes,
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # max_int
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   max_int_bytes,
+                                   CIPHER_BYTE)
+            ii = ii + CIPHER_BYTE
+
+            # random
+            gpu_lib.GPU_H_C_Memcpy(c_void_p(value_array_encoded + ii),
+                                   obfuscator_bytes,
+                                   c_size_t(CIPHER_BYTE))
+            ii = ii + CIPHER_BYTE
+
+        timebegin = dt.datetime.now()
+        ret = gpu_lib.GPU_H_Paillier_Encrypt(
+            1,
+            c_void_p(value_array_encoded),
+            c_size_t(array_element_count),
+            c_char_p(obfuscator_bytes)
+        )
+        if 0 != ret:
+            gpu_lib.GPU_H_C_Free(c_void_p(value_array_encoded))
+            error_message = gpu_lib.GPU_H_C_GetError()
+            raise ValueError("gpu_lib ERROR: " +
+                             str(error_message, encoding='utf8'))
+
+        timeover = dt.datetime.now()
+        costtime = (timeover - timebegin).total_seconds()
+        print(
+            " gpu_lib.GPU_H_Paillier_Encrypt Column, cost time:  %f " %
+            (costtime))
+        print(f' ')
+
+        # parse GPU encrypt result
+        res = []
+        element_len = CIPHER_BYTE * 6 + INT64_BYTE * 2
+        for i in range(array_element_count):
+            iii = i * element_len
+
+            # skip x_sign
+            iii = iii + INT64_BYTE
+
+            x_string = ctypes.string_at(value_array_encoded + iii, CIPHER_BYTE)
+            x = int.from_bytes(x_string, 'little')
+
+            pen = PaillierEncryptedNumber(self, x, 0)
+
+            res.append(pen)
+
+        res = np.array(res)
+
+        # free memory
+        gpu_lib.GPU_H_C_Free(c_void_p(value_array_encoded))
+
+        gpu_time_over = dt.datetime.now()
+        gpu_cost_time = (gpu_time_over - gpu_time_begin).total_seconds()
+        print(" GPU raw encrypt, total cost time:  %f " % (gpu_cost_time))
+        print(f' ')
+
+        return res
+
     def encrypt(self, value, precision=None, random_value=None):
         """Encode and Paillier encrypt a real number value.
         """
+        if isinstance(value, FixedPointNumber):
+            value = value.decode()
         encoding = FixedPointNumber.encode(value, self.n, self.max_int, precision)
         obfuscator = random_value or 1
         ciphertext = self.raw_encrypt(encoding.encoding, random_value=obfuscator)
@@ -242,6 +556,12 @@ class PaillierEncryptedNumber(object):
 
         return self.__ciphertext
 
+    def get_obfuscator(self):
+        return self.__is_obfuscator
+
+    def set_obfuscator(self, ob):
+        self.__is_obfuscator = ob
+
     def apply_obfuscator(self):
         """ciphertext by multiplying by r ** n with random r
         """
@@ -272,7 +592,8 @@ class PaillierEncryptedNumber(object):
     def __mul__(self, scalar, in_gpu=False):
         """return Multiply by an scalar(such as int, float)
         """
-
+        if isinstance(scalar, FixedPointNumber):
+            scalar = scalar.decode()
         encode = FixedPointNumber.encode(scalar, self.public_key.n, self.public_key.max_int)
         plaintext = encode.encoding
 
@@ -313,7 +634,7 @@ class PaillierEncryptedNumber(object):
         factor = pow(FixedPointNumber.BASE, new_exponent - self.exponent)
         if in_gpu:
             mul_param = self.__mul__(factor, in_gpu)
-            return (mul_param[0], new_exponent)
+            return mul_param[0], new_exponent
         new_encryptednumber = self.__mul__(factor)
         new_encryptednumber.exponent = new_exponent
 
@@ -332,6 +653,8 @@ class PaillierEncryptedNumber(object):
     def __add_scalar(self, scalar, in_gpu=False):
         """return PaillierEncryptedNumber: z = E(x) + y
         """
+        if isinstance(scalar, FixedPointNumber):
+            scalar = scalar.decode()
         encoded = FixedPointNumber.encode(scalar,
                                           self.public_key.n,
                                           self.public_key.max_int,

@@ -256,4 +256,13 @@ public class JobService extends AbstractService {
         }
     }
 
+    /**
+     * 查询尚未结束的 job_id 数量
+     * <p>
+     * 尚未结束状态：'wait_run','running','wait_stop','wait_success'
+     */
+    public int runningJobCount() {
+        return jobRepo.runningJobCount();
+    }
+
 }

@@ -28,6 +28,7 @@ public enum ServiceType {
     GatewayService,
     FlowService,
     StorageService,
+    FcService,
     ServingService,
     MysqlService,
     FileSystem,

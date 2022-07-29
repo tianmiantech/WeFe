@@ -19,8 +19,8 @@ package com.welab.wefe.serving.service.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.welab.wefe.serving.service.database.serving.entity.MessageMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.MessageRepository;
+import com.welab.wefe.serving.service.database.entity.MessageMysqlModel;
+import com.welab.wefe.serving.service.database.repository.MessageRepository;
 
 /**
  * @author Zane

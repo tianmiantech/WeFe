@@ -16,12 +16,13 @@
 
 package com.welab.wefe.serving.service.api.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ModelService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author lonnie

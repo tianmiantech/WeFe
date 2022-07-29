@@ -59,6 +59,8 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
     private String creatorMemberId;
     @Check(name = "是否置顶")
     private boolean top;
+    @Check(name = "排序号")
+    private int sortNum;
 
     public String getCreatorMemberName() {
         return CacheObjects.getMemberName(creatorMemberId);
@@ -185,6 +187,14 @@ public class ProjectFlowListOutputModel extends AbstractOutputModel {
 
     public void setTop(boolean top) {
         this.top = top;
+    }
+
+    public int getSortNum() {
+        return sortNum;
+    }
+
+    public void setSortNum(int sortNum) {
+        this.sortNum = sortNum;
     }
 
     //endregion

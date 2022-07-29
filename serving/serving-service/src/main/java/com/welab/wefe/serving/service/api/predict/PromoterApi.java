@@ -16,19 +16,17 @@
 
 package com.welab.wefe.serving.service.api.predict;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.predicter.Predicter;
+import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import org.apache.commons.collections4.MapUtils;
 
@@ -41,9 +39,7 @@ import java.util.Map;
 @Api(
         path = "predict/promoter",
         name = "模型预测",
-        login = false,
-        rsaVerify = true,
-        domain = Caller.Member
+        allowAccessWithSign = true
 )
 public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
 
@@ -52,38 +48,42 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
         try {
 
             if (!ModelManager.getModelEnable(input.getModelId())) {
-                return fail("模型成员 " + CacheObjects.getName() + " 未上线该模型");
+                return fail("模型成员 " + CacheObjects.getMemberName() + " 未上线该模型");
             }
 
             /**
              * batch prediction
              */
-            if (input.getBatch()) {
-                PredictResult result = Predicter.batchPromoterPredict(
-                        input.getModelId(),
-                        input.getFeatureDataMap()
-                );
-
-                return success(result);
-            }
+//            if (input.getBatch()) {
+//                PredictResult result = Predictor.batchPromoterPredict(
+//                        input.getModelId(),
+//                        input.getFeatureDataMap()
+//                );
+//
+//                return success(result);
+//            }
 
             /**
              * Single prediction
              */
-            PredictResult result = Predicter.promoter(
+            PredictResult result = Predictor.predict(
+                    input.getRequestId(),
                     input.getModelId(),
                     input.getUserId(),
-                    input.getFeatureData(),
-                    input.getParams() == null ? null : new JSONObject(input.getParams())
+                    input.getFeatureData()
             );
 
             return success(result);
         } catch (Exception e) {
-            return fail("predict error : " + e.getMessage());
+            return fail(e.getMessage());
         }
     }
 
     public static class Input extends AbstractApiInput {
+
+        @Check(require = true, name = "请求ID")
+        private String requestId;
+
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
 
@@ -121,6 +121,15 @@ public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
 
 
         //region getter/setter
+
+
+        public String getRequestId() {
+            return requestId;
+        }
+
+        public void setRequestId(String requestId) {
+            this.requestId = requestId;
+        }
 
         public String getModelId() {
             return modelId;

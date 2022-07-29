@@ -435,8 +435,7 @@ class MixSecureBoostingPromoter(BoostingTree):
         reach_leaf = False
         # only need nid here, predict state is not needed
         rs = tree.traverse_tree(tree_=tree.tree_, data_inst=sample, predict_state=(cur_node_idx, -1),
-                                decoder=tree.decode, sitename=tree.sitename, use_missing=tree.use_missing,
-                                split_maskdict=tree.split_maskdict, missing_dir_maskdict=tree.missing_dir_maskdict,
+                                sitename=tree.sitename, use_missing=tree.use_missing,
                                 return_leaf_id=True)
 
         if not isinstance(rs, tuple):
@@ -567,6 +566,14 @@ class MixSecureBoostingPromoter(BoostingTree):
 
         return tree
 
+    def callback_loss(self, iter_num, loss):
+        metric_meta = {'abscissa_name': 'iters', 'ordinate_name': 'loss', 'metric_type': 'LOSS',
+                       'pair_type': ''}
+        self.callback_metric(metric_name='loss',
+                             metric_namespace='train',
+                             metric_meta=metric_meta,
+                             metric_data=(iter_num, loss))
+
     def fit(self, data_inst, validate_data=None):
         LOGGER.info("begin to train secureboosting promoter model")
         self.gen_feature_fid_mapping(data_inst.schema)
@@ -614,14 +621,8 @@ class MixSecureBoostingPromoter(BoostingTree):
             self.history_loss.append(loss)
             LOGGER.info("round {} loss is {}".format(epoch_idx, loss))
             LOGGER.debug("type of loss is {}".format(type(loss).__name__))
-
+            self.callback_loss(epoch_idx,loss)
             self.aggregator.send_local_loss(loss, self.data_bin.count(), suffix=(epoch_idx,))
-
-            # metric_meta = {'abscissa_name': 'iters', 'ordinate_name': 'loss', 'metric_type': 'LOSS'}
-            # self.callback_metric(metric_name='loss',
-            #                      metric_namespace='train',
-            #                      metric_meta=metric_meta,
-            #                      metric_data=(epoch_idx, loss))
 
             if self.validation_strategy:
                 self.validation_strategy.validate(self, epoch_idx)

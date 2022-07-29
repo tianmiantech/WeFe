@@ -16,59 +16,47 @@
 
 package com.welab.wefe.serving.service.dto;
 
-import com.welab.wefe.common.wefe.enums.DatabaseType;
-
 /**
  * @author hunter.zhao
  */
 public class ModelSqlConfigOutput {
-    private DatabaseType type;
 
-    private String url;
+    private String sqlScript;
 
-    private String username;
+    private String sqlConditionField;
 
-    private String password;
+    private String dataSourceId;
 
-    private String sqlContext;
-
-    public DatabaseType getType() {
-        return type;
+    public static ModelSqlConfigOutput of(String dataSourceId, String sqlScript, String sqlConditionField) {
+        ModelSqlConfigOutput output = new ModelSqlConfigOutput();
+        output.dataSourceId = dataSourceId;
+        output.sqlScript = sqlScript;
+        output.sqlConditionField = sqlConditionField;
+        return output;
     }
 
-    public void setType(DatabaseType type) {
-        this.type = type;
+    public String getSqlScript() {
+        return sqlScript;
     }
 
-    public String getUrl() {
-        return url;
+    public void setSqlScript(String sqlScript) {
+        this.sqlScript = sqlScript;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public String getSqlConditionField() {
+        return sqlConditionField;
     }
 
-    public String getUsername() {
-        return username;
+    public void setSqlConditionField(String sqlConditionField) {
+        this.sqlConditionField = sqlConditionField;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getDataSourceId() {
+        return dataSourceId;
     }
 
-    public String getPassword() {
-        return password;
+    public void setDataSourceId(String dataSourceId) {
+        this.dataSourceId = dataSourceId;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getSqlContext() {
-        return sqlContext;
-    }
-
-    public void setSqlContext(String sqlContext) {
-        this.sqlContext = sqlContext;
-    }
 }

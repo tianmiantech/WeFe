@@ -19,7 +19,7 @@ package com.welab.wefe.serving.service.listener;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.serving.entity.*;
+import com.welab.wefe.serving.service.database.entity.*;
 import com.welab.wefe.serving.service.dto.OrderStatisticsInput;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
@@ -33,7 +33,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,7 +68,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-//        checkAndSaveFeeDetail();
+        checkAndSaveFeeDetail();
         checkAndSaveOrderStatistics();
         logger.info("config wefe.service.cache.type=" + config.getServiceCacheType());
         // init PrivateInformationRetrievalServer

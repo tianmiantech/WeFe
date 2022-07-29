@@ -2,7 +2,7 @@ POST http://localhost:8080/board-service/job/data_set/view
 Content-Type: application/json
 
 {
-  "job_id": "18bc3d0dde244035ba9a8dc16fd58fae",
-  "node_id": "16196070742596633",
-  "member_role": "promoter"
+  "jobId": "c7b34770ed38433f97607aae39f7665e",
+  "memberRole": "promoter",
+  "nodeId": "16196070742596633"
 }

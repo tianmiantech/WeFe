@@ -35,7 +35,8 @@ public class ClientFactory {
 
     /**
      * Get sending verification code client
-     * @param sendChannel Send channel
+     *
+     * @param sendChannel  Send channel
      * @param businessType verification code business type
      * @return Sending verification code client
      * @throws Exception
@@ -72,8 +73,8 @@ public class ClientFactory {
         smsRequest.put("SignName", config.getSmsAliyunSignName());
         smsRequest.put("templateCode", templateCode);
 
-        String aliyunAccessKeyId = config.getFcAccessKeyId();
-        String accessKeySecret = config.getFcAccessKeySecret();
+        String aliyunAccessKeyId = config.getSmsAccessKeyId();
+        String accessKeySecret = config.getSmsAccessKeySecret();
         return AliyunSmsClient.createClient(aliyunAccessKeyId, accessKeySecret, smsRequest);
     }
 }

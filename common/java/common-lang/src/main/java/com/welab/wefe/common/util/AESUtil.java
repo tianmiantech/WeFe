@@ -58,13 +58,14 @@ public class AESUtil {
 
     /**
      * 不同 type 调用不同 AES加密
+     *
      * @param content
      * @param key
      * @param type
      * @return
      */
     public static byte[] encrypt(byte[] content, byte[] key, String type) {
-        if(AES2.equals(type)){
+        if (AES2.equals(type)) {
             return aesSecure2(content, key, Cipher.ENCRYPT_MODE);
         }
         return aesSecure(content, key, Cipher.ENCRYPT_MODE);
@@ -90,6 +91,7 @@ public class AESUtil {
 
     /**
      * 不同type 调用不同 AES 加密
+     *
      * @param content
      * @param key
      * @param type
@@ -119,13 +121,14 @@ public class AESUtil {
 
     /**
      * 不同type 调用不同 AES 解密
+     *
      * @param content
      * @param key
      * @param type
      * @return
      */
     public static byte[] decrypt(byte[] content, byte[] key, String type) {
-        if(AES2.equals(type)){
+        if (AES2.equals(type)) {
             return aesSecure2(content, key, Cipher.DECRYPT_MODE);
         }
         return aesSecure(content, key, Cipher.DECRYPT_MODE);
@@ -229,7 +232,7 @@ public class AESUtil {
      * @return 加密的结果
      * @throws Exception
      */
-    public static String aesSecureWithViParam(String data, String key, String iv){
+    public static String aesSecureWithViParam(String data, String key, String iv) {
         try {
             //"算法/模式/补码方式"
             Cipher cipher = Cipher.getInstance(AES_CBC_NO_PADDING);

@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.api.data_resource.table_data_set;
 
 
 import com.welab.wefe.board.service.service.data_resource.table_data_set.TableDataSetService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -36,7 +35,7 @@ public class TableDataSetDeleteApi extends AbstractNoneOutputApi<TableDataSetDel
     private TableDataSetService tableDataSetService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<?> handler(Input input) throws Exception {
         tableDataSetService.delete(input);
         return success();
     }
