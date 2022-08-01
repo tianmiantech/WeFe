@@ -381,6 +381,10 @@
 
                             members.forEach(member => {
                                 totalCount += member.data_set_features;
+                                if (member.label_distribution) {
+                                    vData.label_species_count = member.label_distribution.label_species_count;
+                                    return;
+                                }
                             });
                             methods.changeInputShape(totalCount);
                         }
@@ -388,6 +392,16 @@
                 },
                 changeInputShape(data) {
                     vData.form.bottom_nn_define.layers[0].config.input_shape[0] = data;
+                },
+                setDefaulValue() {
+                    vData.form.top_nn_define.layers.forEach(item => {
+                        if (vData.label_species_count <= 2) { // 二分类
+                            item.config.units = 1;
+                        } else { // 多分类
+                            item.config.units = vData.label_species_count;
+                            item.config.activation = 'softmax';
+                        }
+                    });
                 },
 
                 reactiveInputShape() {
