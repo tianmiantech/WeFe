@@ -37,6 +37,12 @@ public class ConfigProperties {
     @Value("${rpc.server.port}")
     private Integer rpcServerPort;
 
+    /**
+     * rpc inner service port number
+     */
+    @Value("${rpc.server.inner.port}")
+    private Integer rpcServerInnerPort;
+
 
     /**
      * Message persistence type to be forwarded（The default is localfilesys）
@@ -147,4 +153,11 @@ public class ConfigProperties {
         this.sendActionConfigBlockSize = sendActionConfigBlockSize;
     }
 
+    public Integer getRpcServerInnerPort() {
+        return rpcServerInnerPort;
+    }
+
+    public void setRpcServerInnerPort(Integer rpcServerInnerPort) {
+        this.rpcServerInnerPort = rpcServerInnerPort;
+    }
 }

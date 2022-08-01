@@ -21,8 +21,10 @@ import com.welab.wefe.gateway.base.Processor;
 import com.welab.wefe.gateway.base.ProcessorAnnotate;
 import com.welab.wefe.gateway.base.RpcServer;
 import com.welab.wefe.gateway.base.RpcServerAnnotate;
+import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
 
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -46,7 +48,7 @@ public class ClassUtil {
 
 
     /**
-     * Load all processor classes marked with @RpcServer annotation
+     * Load all grpc server classes marked with @RpcServer annotation
      * <p>
      * Return value structure description:
      * Key：Full path of grpc service class
@@ -66,6 +68,24 @@ public class ClassUtil {
             }
         }
         return RpcServerAnnotate.RPC_SERVER_MAP;
+    }
+
+    /**
+     * Load grpc server classes marked with @RpcServer annotation by use scope
+     */
+    public static Map<String, RpcServerAnnotate> loadRpcClassBeans(RpcServerUseScopeEnum useScope) {
+        Map<String, RpcServerAnnotate> rpcServerAnnotateMap = loadRpcClassBeans();
+        if (rpcServerAnnotateMap.isEmpty() || useScope.equals(RpcServerUseScopeEnum.BOTH)) {
+            return rpcServerAnnotateMap;
+        }
+        Map<String, RpcServerAnnotate> result = new HashMap<>(16);
+        for (Map.Entry<String, RpcServerAnnotate> entry : rpcServerAnnotateMap.entrySet()) {
+            RpcServerAnnotate rpcServerAnnotate = entry.getValue();
+            if (useScope.equals(rpcServerAnnotate.getUseScope())) {
+                result.put(entry.getKey(), rpcServerAnnotate);
+            }
+        }
+        return result;
     }
 
 

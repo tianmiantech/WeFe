@@ -21,6 +21,7 @@ import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.NetworkDataTransferProxyServiceGrpc;
 import com.welab.wefe.gateway.api.streammessage.PushDataRequestStreamObserver;
 import com.welab.wefe.gateway.base.RpcServer;
+import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
 import com.welab.wefe.gateway.interceptor.AntiTamperServerInterceptor;
 import com.welab.wefe.gateway.interceptor.SignVerifyServerInterceptor;
 import com.welab.wefe.gateway.interceptor.SystemTimestampVerifyServerInterceptor;
@@ -36,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@RpcServer(interceptors = {AntiTamperServerInterceptor.class, SignVerifyServerInterceptor.class, SystemTimestampVerifyServerInterceptor.class})
+@RpcServer(useScope= RpcServerUseScopeEnum.OUTER, interceptors = {AntiTamperServerInterceptor.class, SignVerifyServerInterceptor.class, SystemTimestampVerifyServerInterceptor.class})
 public class NetworkDataTransferProxyGrpcServer extends NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceImplBase {
     private final Logger LOG = LoggerFactory.getLogger(NetworkDataTransferProxyGrpcServer.class);
 

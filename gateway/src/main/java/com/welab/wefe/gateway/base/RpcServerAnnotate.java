@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.base;
 
+import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 
@@ -37,6 +38,11 @@ public class RpcServerAnnotate {
      * Mark the entity class object annotated by @RpcServer
      */
     private BindableService rpcBean;
+
+    /**
+     * Server use scope
+     */
+    private RpcServerUseScopeEnum useScope;
 
     /**
      * Full path of entity class marked with @Rpcserver annotation
@@ -66,6 +72,7 @@ public class RpcServerAnnotate {
         // Create annotation entities and add to constants
         RpcServerAnnotate rpcServerAnnotate = new RpcServerAnnotate();
         rpcServerAnnotate.setRpcBean((BindableService) rpcBean);
+        rpcServerAnnotate.setUseScope(rpcServerAnnotation.useScope());
         rpcServerAnnotate.setClassFullName(superFullName);
         rpcServerAnnotate.interceptors.addAll(Arrays.asList(interceptorClassList));
         rpcServerAnnotate.setInterceptMethods(new ArrayList<>(Arrays.asList(interceptMethods)));
@@ -104,6 +111,14 @@ public class RpcServerAnnotate {
 
     public void setInterceptors(List<Class<? extends ServerInterceptor>> interceptors) {
         this.interceptors = interceptors;
+    }
+
+    public RpcServerUseScopeEnum getUseScope() {
+        return useScope;
+    }
+
+    public void setUseScope(RpcServerUseScopeEnum useScope) {
+        this.useScope = useScope;
     }
 }
 

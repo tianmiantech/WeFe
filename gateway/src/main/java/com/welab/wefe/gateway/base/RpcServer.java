@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.base;
 
+import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
 import io.grpc.ServerInterceptor;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +38,11 @@ public @interface RpcServer {
      * The name of the bean
      */
     String value() default "";
+
+    /**
+     * Rpc server use scope
+     */
+    RpcServerUseScopeEnum useScope() default RpcServerUseScopeEnum.BOTH;
 
     /**
      * Interceptor list

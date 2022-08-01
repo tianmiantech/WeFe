@@ -77,4 +77,9 @@ public class GrpcConstant {
     public static final String SIGN_KEY_TIMESTAMP = "timestamp";
     public static final String SIGN_KEY_UUID = "uuid";
 
+    /**
+     * GRPC server max transfer message size, unin: M
+     */
+    public static final int MAX_BOUND_MESSAGE_SIZE = 2000;
+
 }
