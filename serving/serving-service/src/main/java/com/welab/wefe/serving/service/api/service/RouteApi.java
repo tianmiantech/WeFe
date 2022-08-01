@@ -26,7 +26,7 @@ import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Api(path = "api", name = "api service", forward = true, login = false, allowAccessWithSign = true, domain = Caller.Customer)
+@Api(path = "api", name = "api service", forward = true, allowAccessWithSign = true, domain = Caller.Customer)
 public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
 	@Autowired

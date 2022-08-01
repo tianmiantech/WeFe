@@ -41,7 +41,6 @@ import java.util.Map;
 @Api(
         path = "predict/promoter",
         name = "模型预测",
-        login = false,
         allowAccessWithSign = true,
         domain = Caller.Member
 )

@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(
         path = "member_save",
         name = "保存成员信息",
-        login = false,
         allowAccessWithSign = true,
         domain = Caller.Board
 )

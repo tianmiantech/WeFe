@@ -69,7 +69,7 @@
                 created:          '已创建',
                 wait_run:         '等待运行',
                 running:          '运行中',
-                stop:             '人为结束',
+                stop:             '终止',
                 wait_stop:        '等待结束',
                 stop_on_running:  '人为关闭',
                 error_on_running: '程序异常关闭',
