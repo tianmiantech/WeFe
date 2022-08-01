@@ -5,30 +5,22 @@
         <h2 class="title">激活服务</h2>
 
         <el-form :model="clientService" label-width="142px" :rules="rules" ref="clientService">
-            <el-form-item label="服务ID：" prop="serviceId" class = "url">
-                <el-input v-model="clientService.serviceId" aria-placeholder="自行填写"></el-input>
-            </el-form-item>
-
             <el-form-item label="服务名称：" prop="serviceName" class = "url">
-                <el-input v-model="clientService.serviceName"></el-input>
-            </el-form-item>
-
-            <el-form-item label="服务提供商ID：" prop="clientId" class = "url">
-                <el-input v-model="clientService.clientId"></el-input>
+                <el-input v-model="clientService.serviceName" placeholder="自定义"></el-input>
             </el-form-item>
 
             <el-form-item label="服务提供商名称：" prop="clientName" class = "url">
-                <el-input v-model="clientService.clientName"></el-input>
+                <el-input v-model="clientService.clientName" placeholder="自定义"></el-input>
             </el-form-item>
             <el-form-item label="服务访问URL：" prop="url" class = "url flex_box">
                 <el-input v-model="clientService.url" clearable/>
                 <el-link @click="testUrl" type="primary" :underline="false">测试连通性</el-link>
             </el-form-item>
-            <el-form-item label="code：" prop="code" class = "url">
+            <el-form-item label="我的code：" prop="code" class = "url">
                 <el-input v-model="clientService.code"></el-input>
             </el-form-item>
 
-            <el-form-item label="公钥：" prop="publicKey" class="public_key">
+            <el-form-item label="我的公钥：" prop="publicKey" class="public_key">
                 <el-input v-model="clientService.publicKey"
                           type="textarea"
                           rows="5"
@@ -37,14 +29,14 @@
                 </el-input>
             </el-form-item>
 
-            <el-form-item label="私钥：" prop="privateKey" class="public_key">
+            <el-form-item label="我的私钥：" prop="privateKey" class="public_key">
                 <el-input v-model="clientService.privateKey"
                           type="textarea"
                           rows="5"
                           :minlength="0"
                           show-word-limit>
                 </el-input>
-                <a @click="getRsaKey">填充系统公私钥</a>
+                <a @click="getRsaKey">点击自动填充系统公私钥</a>
             </el-form-item>
 
             <el-form-item>
@@ -88,7 +80,6 @@ export default {
         };
         return {
             clientService: {
-                serviceId: '',
                 clientId: '',
                 status: '',
                 ipAdd:'',
@@ -170,8 +161,8 @@ export default {
                     const {code} = await this.$http.post({
                         url: '/clientservice/activate',
                         data: {
-                            serviceId: this.clientService.serviceId,
-                            clientId: this.clientService.clientId,
+                            serviceId: 'tempserviceidvalue',
+                            clientId: 'tempclientidvalue',
                             publicKey:this.clientService.publicKey,
                             ipAdd:this.clientService.ipAdd,
                             serviceName: this.clientService.serviceName,
@@ -188,7 +179,7 @@ export default {
                             this.$message('提交成功!');
                         }, 1000)
                         this.$router.push({
-                            name: 'partner-service-list'
+                            name: 'activate-service-list'
                         })
                     }
                 } else {

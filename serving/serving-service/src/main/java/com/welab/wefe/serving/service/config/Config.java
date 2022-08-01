@@ -50,18 +50,6 @@ public class Config extends CommonConfig {
     @Value("${sms.access_key_secret:xxx}")
     private String smsAccessKeySecret;
 
-    @Value("${mail_server.mail_host}")
-    private String mailHost;
-
-    @Value("${mail_server.mail_password}")
-    private String mailPassword;
-
-    @Value("${mail_server.port}")
-    private String mailPort;
-
-    @Value("${mail_server.username}")
-    private String mailUsername;
-
 
     public String getFileBasePath() {
         return fileBasePath;
@@ -168,38 +156,6 @@ public class Config extends CommonConfig {
 
     public void setSmsAccessKeySecret(String smsAccessKeySecret) {
         this.smsAccessKeySecret = smsAccessKeySecret;
-    }
-
-    public String getMailHost() {
-        return mailHost;
-    }
-
-    public void setMailHost(String mailHost) {
-        this.mailHost = mailHost;
-    }
-
-    public String getMailPassword() {
-        return mailPassword;
-    }
-
-    public void setMailPassword(String mailPassword) {
-        this.mailPassword = mailPassword;
-    }
-
-    public String getMailPort() {
-        return mailPort;
-    }
-
-    public void setMailPort(String mailPort) {
-        this.mailPort = mailPort;
-    }
-
-    public String getMailUsername() {
-        return mailUsername;
-    }
-
-    public void setMailUsername(String mailUsername) {
-        this.mailUsername = mailUsername;
     }
 
 }

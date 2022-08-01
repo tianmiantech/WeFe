@@ -212,20 +212,13 @@ export default {
     computed: {
         ...
             mapGetters(['userInfo']),
-    },    
+    },
     created() {
-
-
         if (this.$route.query.partnerId) {
             this.getPartnerById(this.$route.query.partnerId);
         }
-        if (this.$route.query.serviceId) {
-            this.getServiceById(this.$route.query.serviceId);
-        }
         this.getServices();
         this.getPartners();
-
-
     },
 
     methods: {
@@ -278,10 +271,10 @@ export default {
             for (let i = 0; i < data.length; i++) {
                 this.services.push({
                     label: data[i].name,
-                    value: data[i].id,
+                    value: data[i].service_id,
                 });
             }
-        },        
+        },
 
         handlePartners(data) {
             for (let i = 0; i < data.length; i++) {
@@ -290,7 +283,7 @@ export default {
                     value: data[i].id,
                 });
             }
-        },        
+        },
 
         async getServices() {
             const { code, data } = await this.$http.post({
@@ -303,7 +296,7 @@ export default {
             if (code === 0) {
                 this.handleServices(data.list);
             }
-        },        
+        },
 
         async getPartners() {
             const { code, data } = await this.$http.post({
@@ -329,26 +322,7 @@ export default {
                 this.clientService.clientName = data.name;
             }
         },
-
-        async getServiceById(id) {
-            const { code, data } = await this.$http.post({
-                url:  '/service/query-one',
-                data: {
-                    id,
-                },
-
-            });
-
-            if (code === 0) {
-                this.clientService.serviceId = data.id;
-                this.clientService.serviceName = data.name;
-            }
-        },
-
-    }
-    ,
-
-
+    },
 };
 </script>
 

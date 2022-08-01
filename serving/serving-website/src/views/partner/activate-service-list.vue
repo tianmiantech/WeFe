@@ -4,7 +4,7 @@
         shadow="never"
     >
         <el-form inline>
-            <el-form-item label="合作者名称：">
+            <el-form-item label="服务提供商名称：">
                 <el-input
                     v-model="search.clientName"
                     clearable
@@ -17,37 +17,6 @@
                     clearable
                 />
             </el-form-item>
-
-<!--            <el-form-item label="是否启用：">-->
-<!--                <el-select-->
-<!--                    v-model="search.status"-->
-<!--                    placeholder="请选择"-->
-<!--                    clearable-->
-<!--                >-->
-<!--                    <el-option-->
-<!--                        v-for="item in options"-->
-<!--                        :key="item.value"-->
-<!--                        :label="item.label"-->
-<!--                        :value="item.value"-->
-<!--                    />-->
-<!--                </el-select>-->
-<!--            </el-form-item>-->
-
-<!--            <el-form-item label="类型：">-->
-<!--                <el-select-->
-<!--                    v-model="search.type"-->
-<!--                    placeholder="请选择"-->
-<!--                    clearable-->
-<!--                >-->
-<!--                    <el-option-->
-<!--                        v-for="item in types"-->
-<!--                        :key="item.value"-->
-<!--                        :label="item.label"-->
-<!--                        :value="item.value"-->
-<!--                    />-->
-<!--                </el-select>-->
-<!--            </el-form-item>-->
-
             <el-form-item>
                 <el-button
                     type="primary"
@@ -55,15 +24,6 @@
                 >
                     查询
                 </el-button>
-<!--                <router-link-->
-<!--                    class="ml10"-->
-<!--                    :to="{name: 'partner-service-add'}"-->
-<!--                >-->
-<!--                    <el-button>-->
-<!--                        为合作者开通服务-->
-<!--                    </el-button>-->
-<!--                </router-link>-->
-
                 <router-link
                     class="ml10"
                     :to="{name: 'activate-service-add'}"
@@ -90,12 +50,11 @@
                 type="index"
             />
             <el-table-column
-                label="合作者名称"
+                label="服务提供商名称"
                 width="220"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
-                    <p class="id">{{ scope.row.client_id }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -104,30 +63,19 @@
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
-                    <p class="id">{{ scope.row.service_id }}</p>
                 </template>
             </el-table-column>
-
             <el-table-column
-                label="服务类型"
-                width="170"
+                label="我的code"
+                width="130"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.type === 0 ? scope.row.service_type : '激活服务' }}</p>
+                    <p>{{ scope.row.code }}</p>
                 </template>
             </el-table-column>
 
-<!--            <el-table-column-->
-<!--                label="调用方出口IP"-->
-<!--                width="200"-->
-<!--            >-->
-<!--                <template slot-scope="scope">-->
-<!--                    {{ scope.row.ip_add }}-->
-<!--                </template>-->
-<!--            </el-table-column>-->
-
             <el-table-column
-                label="请求地址"
+                label="服务地址"
                 width="400"
             >
                 <template slot-scope="scope">
@@ -152,11 +100,20 @@
             </el-table-column>
 
             <el-table-column
-                label="创建人/修改人"
+                label="创建人"
                 width="100"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.created_by ? scope.row.created_by:"-" }} / {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
+                    {{ scope.row.created_by ? scope.row.created_by:"-" }}
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="修改人"
+                width="100"
+            >
+                <template slot-scope="scope">
+                    {{ scope.row.updated_by ? scope.row.updated_by:"-" }}
                 </template>
             </el-table-column>
 

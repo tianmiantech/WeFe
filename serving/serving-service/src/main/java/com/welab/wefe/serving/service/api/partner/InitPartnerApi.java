@@ -8,7 +8,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.PartnerService;
 
-@Api(path = "partner/init", name = "init partner", login = false)
+@Api(path = "partner/init", name = "init partner")
 public class InitPartnerApi extends AbstractNoneInputApi<InitPartnerApi.Output> {
 
     @Autowired

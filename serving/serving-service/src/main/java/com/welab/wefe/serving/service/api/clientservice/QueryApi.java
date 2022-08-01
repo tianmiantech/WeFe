@@ -31,7 +31,7 @@ import java.io.IOException;
 /**
  * @author ivenn.zheng
  */
-@Api(path = "clientservice/query", name = "get models " ,login = false)
+@Api(path = "clientservice/query", name = "get models ")
 public class QueryApi extends AbstractApi<QueryApi.Input, ClientServiceOutputModel> {
 
     @Autowired

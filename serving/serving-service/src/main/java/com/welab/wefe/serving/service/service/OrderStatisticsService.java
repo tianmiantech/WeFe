@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.service;
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.orderstatistics.DownloadApi;
 import com.welab.wefe.serving.service.api.orderstatistics.QueryListApi;
@@ -27,6 +28,7 @@ import com.welab.wefe.serving.service.database.entity.OrderStatisticsMysqlModel;
 import com.welab.wefe.serving.service.database.repository.OrderStatisticsRepository;
 import com.welab.wefe.serving.service.dto.OrderStatisticsInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.enums.DateTypeEnum;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
@@ -186,6 +188,10 @@ public class OrderStatisticsService {
 
     public PagingOutput<QueryListApi.Output> queryList(QueryListApi.Input input) {
         List<Map<String, Object>> list = new ArrayList<>();
+
+        if (StringUtil.isEmpty(input.getStatisticalGranularity())) {
+            input.setStatisticalGranularity(DateTypeEnum.minute.name());
+        }
 
         switch (input.getStatisticalGranularity()) {
             case "month":
