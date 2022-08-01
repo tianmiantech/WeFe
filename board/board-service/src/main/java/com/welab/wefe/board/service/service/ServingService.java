@@ -324,7 +324,6 @@ public class ServingService extends AbstractService {
     private List<JSONObject> fillPublicKey(List<JobMemberOutputModel> memberList) {
         return memberList
                 .stream()
-                .filter(x -> !x.getMemberId().equals(CacheObjects.getMemberId()))
                 .map(mem -> {
                     JSONObject member = new JSONObject();
                     member.put("memberId", mem.getMemberId());
