@@ -170,7 +170,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
     }
 
     private String formatDate(Date date) {
-        return DateUtil.timeInMillisToDate(date.getTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2);
+        return DateUtil.timeInMillisToDate(date.getTime(), DateUtil.YYYY_MM_DD);
     }
 
     private List<DayModel> getDayList(Input input) {
