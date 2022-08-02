@@ -4,12 +4,12 @@
         shadow="never"
     >
         <el-form inline>
-            <el-form-item label="服务类型：" >
+            <!-- <el-form-item label="服务类型：">
                 <el-input
                     v-model="search.type"
                     clearable
                 />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="合作者名称：">
                 <el-input
                     v-model="search.clientName"
@@ -63,7 +63,7 @@
             border
         >
             <div slot="empty">
-                <TableEmptyData/>
+                <TableEmptyData />
             </div>
             <el-table-column
                 label="序号"
@@ -169,7 +169,8 @@
                     >
                         禁用
                     </el-button>
-                    <router-link style="padding-left: 3px"
+                    <router-link
+                        style="padding-left: 3px"
                         :to="{
                             name: scope.row.type === 0 ?'partner-service-edit':'activate-service-edit',
                             query: {
@@ -205,19 +206,20 @@
 <script>
 
 import table from '@src/mixins/table.js';
-import {mapGetters} from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
-    name: 'PartnerServiceList',
+    name:   'PartnerServiceList',
     mixins: [table],
     inject: ['refresh'],
     data() {
         return {
-            search: {
-                clientName: '',
-                status: '',
+            fillUrlQuery: false,
+            search:       {
+                clientName:  '',
+                status:      '',
                 serviceName: '',
-                type:'0',
+                type:        0,
             },
             options: [{
                 value: '1',
@@ -226,18 +228,18 @@ export default {
                 value: '0',
                 label: '未启用',
             }],
-            types:[
+            types: [
                 {
-                    value : '1',
-                    label:'激活',
+                    value: '1',
+                    label: '激活',
                 },
                 {
-                    value : '0',
-                    label:'开通',
-                }
+                    value: '0',
+                    label: '开通',
+                },
             ],
-            list:[],
-            getListApi:     '/clientservice/query-list',
+            list:             [],
+            getListApi:       '/clientservice/query-list',
             changeStatusType: '',
         };
     },
@@ -254,7 +256,7 @@ export default {
             }
             this.$alert(status === 1 ? '是否启用？' : '是否禁用？', '警告', {
                 confirmButtonText: '确定',
-                callback: action => {
+                callback:          action => {
                     if (action === 'confirm') {
                         this.changeStatus(row, status);
                         setTimeout(() => {
@@ -269,19 +271,19 @@ export default {
 
         async changeStatus(row, status) {
 
-            const {code} = await this.$http.post({
-                url: '/clientservice/update_status',
+            const { code } = await this.$http.post({
+                url:  '/clientservice/update_status',
                 data: {
                     serviceId: row.service_id,
-                    clientId: row.client_id,
-                    status: status,
+                    clientId:  row.client_id,
+                    status,
                     updatedBy: this.userInfo.nickname,
                 },
             });
 
             if (code === 0) {
                 this.$message({
-                    type: 'success',
+                    type:    'success',
                     message: status === 1 ? '启用成功' : '禁用成功',
                 });
             }
