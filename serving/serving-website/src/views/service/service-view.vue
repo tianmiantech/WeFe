@@ -178,7 +178,7 @@
                                     v-model.trim="item.value"
                                     style="width: 24%;"
                                     clearable
-                                    @input="paramsValidate(index)"
+                                    @blur="paramsValidate(index)"
                                 />
                             </label>
                             <label style="margin-left: 10px; color: #6C757D;">
