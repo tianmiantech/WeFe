@@ -348,7 +348,9 @@ public class ServiceService {
             model.setIdsTableName(idsTableName);
         }
         model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
-        model.setQueryParamsConfig(JSONObject.toJSONString(input.getQueryParamsConfig()));
+        if (input.getQueryParamsConfig() != null && !input.getQueryParamsConfig().isEmpty()) {
+            model.setQueryParamsConfig(JSONObject.toJSONString(input.getQueryParamsConfig()));
+        }
         serviceRepository.save(model);
         com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
         output.setId(model.getId());

@@ -158,10 +158,10 @@ public class ClientServiceService {
         Specification<ClientServiceMysqlModel> specification = where.orderBy("createdTime", OrderBy.desc)
                 .build(ClientServiceMysqlModel.class);
 
-        PagingOutput<ClientServiceMysqlModel> models = clientServiceRepository.paging(specification, input);
+        PagingOutput<ClientServiceMysqlModel> page = clientServiceRepository.paging(specification, input);
         List<QueryListApi.Output> list = new ArrayList<>();
 
-        models.getList().forEach(x -> {
+        page.getList().forEach(x -> {
             QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
             output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
             output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
@@ -176,7 +176,7 @@ public class ClientServiceService {
             }
             list.add(output);
         });
-        return PagingOutput.of(list.size(), list);
+        return PagingOutput.of(page.getTotal(), list);
     }
 
     public ClientServiceOutputModel queryOne(QueryApi.Input input) {
