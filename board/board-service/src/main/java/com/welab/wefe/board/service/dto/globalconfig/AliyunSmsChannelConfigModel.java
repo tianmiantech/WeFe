@@ -19,6 +19,8 @@ import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
 
 /**
  * 阿里云短信通道
@@ -32,6 +34,7 @@ public class AliyunSmsChannelConfigModel extends AbstractConfigModel {
     public String accessKeyId;
 
     @Check(require = true)
+    @Secret(maskStrategy = MaskStrategy.PASSWORD)
     public String accessKeySecret;
 
     @Check(name = "短信签名", require = true)

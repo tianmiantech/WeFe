@@ -19,7 +19,7 @@ POST http://localhost:8080/board-service/gateway/redirect
 Content-Type: application/json
 
 {
-  "data": "{\"caller_member_role\":\"\",\"data\":{\"member_id\":\"81051c7b7f4f4beaa581ba046f8a6048\"},\"caller_member_name\":\"fat04\",\"api\":\"member/available\",\"caller_member_id\":\"a94d7a71189c44b5a298ad4ed2668f67\"}",
-  "member_id": "81051c7b7f4f4beaa581ba046f8a6048",
-  "sign": "BUwXHp4VjdvF+xMJrZ1MiGqIteDYFOZdTLQnNR4gGWEGq/jjlcEM9OnMzM9JUwcjo7nt80QD8v9oCj6XnpX6060nhJFsyRoZV5+4E9Pfheqfs3cLXi3Mk54VsxoAVrHENRNScOjOJQq8MxWeLUvj4vHtdOQp1PdQmV9F/edJV1jdSGa7saFOGQVCxjNaUI4pbyDKwTgUFrP+8iYtLkFwBxCaOxnqR81xiD0cf4G1UX7mx7nInAs4XZVGHdvs2PWZTAMlLvGsjz2qdPyvsQ1z6+BdL5JJ03m+8DK4qTdAai00JKfcB+2bLxyK+uMdg8vP+BnLQeFV9oqVRvUqX+YOgQ=="
+  "data": "{\"caller_member_role\":\"\",\"data\":{\"member_id\":\"727c393686b74eb680a0ed8ba539f58a\"},\"caller_member_name\":\"天冕科技01\",\"api\":\"member/available\",\"caller_member_id\":\"087973c99d26410683944bf3f46c8635\"}",
+  "member_id": "727c393686b74eb680a0ed8ba539f58a",
+  "sign": "FjSJhbo89zqYzWI/BCRrun8YB6FfhFDyiWGvJRMM0/EAJ0Ye19Zh7CZLjV3Qgno30zpVNT2n9SOs91uDAvJfWy1+qH/92Qk5SWYdQXzmTkAZFRq8/D5GUxFRp4syc+txe79Gg0/4kA327qEcN6pT2q+yX759S/ziTCDUHv2t1PDJaDKDUJAdwr+Pa7L21E9E6NLM4BMzUGcnJvEH3I7Z44qkFHAfTolaOHijbYi9Wxz7khMid7lYYFqtc4CWJpPJOk4ty9hImCQstUD8gU4JEdYLtOklBRKKFA/un0A2HNZg2o0VrwPbr5WzpAjDAIm5DEyI3/ORo2F+dMUOhIJ08Q=="
 }

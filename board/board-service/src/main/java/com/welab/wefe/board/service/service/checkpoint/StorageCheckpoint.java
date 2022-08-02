@@ -58,7 +58,7 @@ public class StorageCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck(String value) throws Exception {
-        if (PersistentStorage.inited()) {
+        if (!PersistentStorage.inited()) {
             throw new Exception("数据集存储不可用，请在[全局设置][系统设置]中检查数据集存储配置是否正确。");
         }
 

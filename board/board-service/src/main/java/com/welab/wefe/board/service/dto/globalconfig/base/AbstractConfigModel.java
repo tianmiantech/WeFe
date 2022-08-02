@@ -15,11 +15,45 @@
  */
 package com.welab.wefe.board.service.dto.globalconfig.base;
 
+import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigFlag;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
+import com.welab.wefe.common.util.ReflectionsUtil;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zane
  * @date 2022/5/27
  */
 public abstract class AbstractConfigModel extends AbstractCheckModel {
+
+    private static Map<String, Class<? extends AbstractConfigModel>> MODEL_CLASSES;
+
+    /**
+     * 反射获取所有 ConfigModel
+     */
+    static {
+        List<Class<?>> classes = ReflectionsUtil.getClassesWithAnnotation(
+                GlobalConfigFlag.class.getPackage().getName(),
+                ConfigModel.class
+        );
+
+        MODEL_CLASSES = new HashMap<>();
+        for (Class<?> clazz : classes) {
+            ConfigModel annotation = clazz.getAnnotation(ConfigModel.class);
+            MODEL_CLASSES.put(annotation.group(), (Class<? extends AbstractConfigModel>) clazz);
+        }
+    }
+
+    public static Class<? extends AbstractConfigModel> getModelClass(String group) {
+        return MODEL_CLASSES.get(group);
+    }
+
+
+    public static Collection<Class<? extends AbstractConfigModel>> getModelClasses() {
+        return MODEL_CLASSES.values();
+    }
 }

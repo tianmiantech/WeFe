@@ -17,10 +17,13 @@
 package com.welab.wefe.board.service.api.account;
 
 
-import com.welab.wefe.board.service.service.verificationcode.VerificationCodeService;
+import com.welab.wefe.board.service.dto.globalconfig.AlertConfigModel;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
-import com.welab.wefe.common.web.dto.*;
+import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.web.dto.NoneApiInput;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -30,23 +33,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class VerificationCodeSendChannelApi extends AbstractApi<NoneApiInput, VerificationCodeSendChannelApi.Output> {
 
     @Autowired
-    private VerificationCodeService verificationCodeService;
+    private GlobalConfigService globalConfigService;
 
     @Override
     protected ApiResult<VerificationCodeSendChannelApi.Output> handle(NoneApiInput input) throws Exception {
-        Output output = new Output();
-        output.setChannel(verificationCodeService.getSendChannel());
-        return success(output);
+        AlertConfigModel alertConfigModel = globalConfigService.getModel(AlertConfigModel.class);
+        return success(new Output(alertConfigModel.retrievePasswordCaptchaChannel));
     }
 
     public static class Output {
-        private String channel;
+        public CaptchaSendChannel channel;
 
-        public String getChannel() {
-            return channel;
+        public Output() {
         }
 
-        public void setChannel(String channel) {
+        public Output(CaptchaSendChannel channel) {
             this.channel = channel;
         }
     }
