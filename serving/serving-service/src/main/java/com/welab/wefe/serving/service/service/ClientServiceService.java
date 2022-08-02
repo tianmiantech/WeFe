@@ -375,11 +375,15 @@ public class ClientServiceService {
 
     public int serviceUrlTest(Input input) throws Exception {
         String url = input.getUrl();
-        HttpResponse response = HttpRequest.create(url).get();
-        if (response.getCode() == -1) {
-            throw response.getError();
+        if (url.matches("^((http|https)://)([\\w-]+\\.)+[\\w$]+(\\/[\\w-?=&./]*)?$")) {
+            HttpResponse response = HttpRequest.create(url).get();
+            if (response.getCode() == -1) {
+                throw response.getError();
+            }
+            return response.getCode();
+        } else {
+            throw StatusCode.PARAMETER_VALUE_INVALID.throwException("非法的URL地址");
         }
-        return response.getCode();
     }
 
     public List<ClientServiceMysqlModel> queryActivateListByServiceId(String serviceId) {

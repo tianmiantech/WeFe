@@ -215,15 +215,18 @@ public class ServiceService {
 
     public String displayServiceQueryParams(String queryParams, String queryParamsConfig) {
         if (StringUtils.isNotBlank(queryParamsConfig)) {
-            StringBuilder sb = new StringBuilder();
+            List<JSONObject> params = new ArrayList<>();
             JSONArray arr = JSONObject.parseArray(queryParamsConfig);
             for (int i = 0; i < arr.size(); i++) {
                 JSONObject jo = arr.getJSONObject(i);
                 String name = jo.getString("name");
                 String desc = jo.getString("desc");
-                sb.append("参数" + (i + 1) + ":" + name + ",描述:" + desc + ";");
+                JSONObject j = new JSONObject();
+                j.put("参数名:", name);
+                j.put("描述:", desc);
+                params.add(j);
             }
-            return sb.toString();
+            return JSONObject.toJSONString(params);
         }
         return queryParams;
     }
