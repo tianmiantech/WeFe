@@ -95,11 +95,11 @@ public class ClientServiceMysqlModel extends AbstractBaseMySqlModel {
     }
 
     public String getUrl() {
-        return url.trim();
+        return url == null ? url : url.trim();
     }
 
     public void setUrl(String url) {
-        this.url = url.trim();
+        this.url = (url == null ? url : url.trim());
     }
 
     public Integer getServiceType() {
