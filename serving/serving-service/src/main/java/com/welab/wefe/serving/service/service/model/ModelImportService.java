@@ -21,6 +21,7 @@ import com.welab.wefe.common.util.AESUtil;
 import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.RSAUtil;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
@@ -140,6 +141,7 @@ public class ModelImportService {
         model.setName(name);
         model.setServiceType(ServiceTypeEnum.DeepLearning.getCode());
         model.setUrl("predict/deep_learning/" + model.getId());
+        model.setCreatedBy(CurrentAccount.get().getId());
 
         modelRepository.save(model);
         return model.getId();
