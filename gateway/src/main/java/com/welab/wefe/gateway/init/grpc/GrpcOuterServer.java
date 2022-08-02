@@ -17,22 +17,25 @@
 package com.welab.wefe.gateway.init.grpc;
 
 import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.handler.ssl.SslContext;
+
+import javax.net.ssl.SSLException;
 
 /**
- * Grpc inner server
+ * Grpc outer server
  */
-public class GrpcInnerServer extends AbstractGrpcServer {
-    private final Logger LOG = LoggerFactory.getLogger(GrpcInnerServer.class);
-
-    public GrpcInnerServer(int port) {
+public class GrpcOuterServer extends AbstractGrpcServer {
+    public GrpcOuterServer(int port) {
         super(port);
     }
 
     @Override
     protected RpcServerUseScopeEnum useScope() {
-        return RpcServerUseScopeEnum.INNER;
+        return RpcServerUseScopeEnum.OUTER;
     }
 
+    @Override
+    protected SslContext buildSslContext() throws SSLException {
+        return null;
+    }
 }

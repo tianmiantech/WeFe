@@ -16,27 +16,153 @@
 
 package com.welab.wefe.gateway.init.grpc;
 
-import io.grpc.ServerInterceptor;
+import com.welab.wefe.gateway.base.RpcServerAnnotate;
+import com.welab.wefe.gateway.common.GrpcConstant;
+import com.welab.wefe.gateway.common.RpcServerStatusEnum;
+import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
+import com.welab.wefe.gateway.util.ClassUtil;
+import io.grpc.*;
+import io.grpc.netty.NettyServerBuilder;
+import io.netty.handler.ssl.SslContext;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLException;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * Abstract grpc server
+ */
 public abstract class AbstractGrpcServer {
+    private final Logger LOG = LoggerFactory.getLogger(AbstractGrpcServer.class);
+    /**
+     * Grpc server port
+     */
+    private int port;
+
+    /**
+     * Grpc server object
+     */
+    private Server server;
+
+    /**
+     * Grpc service status
+     */
+    private RpcServerStatusEnum status = RpcServerStatusEnum.SHUTDOWN;
+
+    public AbstractGrpcServer(int port) {
+        this.port = port;
+    }
+
+
+    /**
+     * Start grpc server
+     */
+    public boolean start() throws Exception {
+        RpcServerUseScopeEnum useScope = useScope();
+        Map<String, RpcServerAnnotate> gRpcServerBeans = ClassUtil.loadRpcClassBeans(useScope);
+        if (gRpcServerBeans.isEmpty()) {
+            LOG.error("Start " + useScope + " gRpc server fail, is not exist available server.");
+            return false;
+        }
+        // Binding port
+        NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port);
+        for (Map.Entry<String, RpcServerAnnotate> entry : gRpcServerBeans.entrySet()) {
+            RpcServerAnnotate rpcServerAnnotateConfig = entry.getValue();
+            BindableService rpcService = rpcServerAnnotateConfig.getRpcBean();
+            List<Class<? extends ServerInterceptor>> interceptors = rpcServerAnnotateConfig.getInterceptors();
+            if (CollectionUtils.isNotEmpty(interceptors)) {
+                serverBuilder.addService(ServerInterceptors.intercept(rpcService, listToInstanceArray(interceptors)));
+            } else {
+                serverBuilder.addService(rpcService);
+            }
+        }
+
+        // Set the maximum message that the server can receive（2000M）
+        serverBuilder.maxInboundMessageSize(GrpcConstant.MAX_BOUND_MESSAGE_SIZE * 1024 * 1024);
+        serverBuilder.compressorRegistry(CompressorRegistry.getDefaultInstance());
+        serverBuilder.decompressorRegistry(DecompressorRegistry.getDefaultInstance());
+        serverBuilder.keepAliveTimeout(30, TimeUnit.SECONDS);
+        // Maximum space time
+        serverBuilder.maxConnectionIdle(120, TimeUnit.SECONDS);
+        serverBuilder.maxConnectionAge(120, TimeUnit.SECONDS);
+        serverBuilder.maxConnectionAgeGrace(180, TimeUnit.SECONDS);
+        if (tlsEnable()) {
+            serverBuilder.sslContext(buildSslContext());
+        }
+        // Start service
+        server = serverBuilder.build().start();
+        status = RpcServerStatusEnum.RUNNING;
+        // Registration tick
+        Runtime.getRuntime().addShutdownHook(new Thread(AbstractGrpcServer.this::stop));
+        // Start daemon
+        //blockUntilShutdown();
+        return true;
+    }
+
+    protected RpcServerUseScopeEnum useScope() {
+        return RpcServerUseScopeEnum.BOTH;
+    }
+
 
     /**
      * restart server
      */
-    public abstract void restart();
+    public boolean restart() throws Exception {
+        if (null != server && status.equals(RpcServerStatusEnum.RUNNING)) {
+            server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        }
+        return start();
+    }
 
     /**
      * Start daemon
      */
-    protected abstract void blockUntilShutdown() throws InterruptedException;
+    protected void blockUntilShutdown() throws InterruptedException {
+        if (null != server) {
+            server.awaitTermination();
+        }
+    }
 
 
     /**
      * Stop grpc service
      */
-    protected abstract void stop();
+    protected void stop() {
+        RpcServerUseScopeEnum useScope = useScope();
+        try {
+            LOG.info("start shutting down " + useScope + " gRpc server.....");
+            status = RpcServerStatusEnum.SHUTDOWN;
+            if (server != null) {
+                server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
+                server = null;
+            }
+            LOG.info("shutting down " + useScope + " gRpc server end.");
+        } catch (Exception e) {
+            status = RpcServerStatusEnum.RUNNING;
+            LOG.error(useScope + " gRpc server shut down exception:", e);
+        }
+    }
+
+    /**
+     * Whether the TLS function is enabled in the service
+     */
+    protected boolean tlsEnable() {
+        return false;
+    }
+
+    /**
+     * build ssl context
+     * <p>
+     * When the TLS service is enabled, the subclass needs to override this method
+     * </p>
+     */
+    protected SslContext buildSslContext() throws SSLException {
+        return null;
+    }
 
 
     /**

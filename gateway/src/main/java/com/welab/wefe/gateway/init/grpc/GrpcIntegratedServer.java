@@ -16,23 +16,15 @@
 
 package com.welab.wefe.gateway.init.grpc;
 
-import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Grpc inner server
+ * Integrated inner and outer grpc server
+ * <p>
+ * This type of service is used when the inner and outer ports are consistent
+ * </p>
  */
-public class GrpcInnerServer extends AbstractGrpcServer {
-    private final Logger LOG = LoggerFactory.getLogger(GrpcInnerServer.class);
+public class GrpcIntegratedServer extends AbstractGrpcServer {
 
-    public GrpcInnerServer(int port) {
+    public GrpcIntegratedServer(int port) {
         super(port);
     }
-
-    @Override
-    protected RpcServerUseScopeEnum useScope() {
-        return RpcServerUseScopeEnum.INNER;
-    }
-
 }
