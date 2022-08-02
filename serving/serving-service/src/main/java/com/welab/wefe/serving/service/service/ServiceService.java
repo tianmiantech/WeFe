@@ -832,7 +832,8 @@ public class ServiceService {
     }
 
     public ServiceDetailOutput queryById(QueryOneApi.Input input) throws Exception {
-        BaseServiceMySqlModel baseService = baseServiceRepository.getOne(input.getId());
+        BaseServiceMySqlModel baseService = baseServiceRepository.findOne("serviceId", input.getId(),
+                BaseServiceMySqlModel.class);
         if (baseService == null) {
             throw new Exception("data not found");
         }
@@ -841,7 +842,7 @@ public class ServiceService {
                     TableServiceMySqlModel.class);
             return ServiceDetailOutput.convertByService(service);
         } else {
-            Optional<TableModelMySqlModel> model = modelRepository.findById(input.getId());
+            Optional<TableModelMySqlModel> model = modelRepository.findById(baseService.getId());
             return ServiceDetailOutput.convertByModel(model.get());
         }
     }
