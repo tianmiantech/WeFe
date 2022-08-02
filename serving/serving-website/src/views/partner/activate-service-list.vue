@@ -75,7 +75,7 @@
             </el-table-column>
 
             <el-table-column
-                label="服务地址"
+                label="服务访问URL"
                 width="400"
             >
                 <template slot-scope="scope">
@@ -179,6 +179,7 @@ export default {
     inject: ['refresh'],
     data() {
         return {
+            fillUrlQuery: false,
             search: {
                 clientName: '',
                 status: '',
@@ -203,6 +204,7 @@ export default {
                 }
             ],
             list:[],
+            getListApi:       '/clientservice/query-list',
             changeStatusType: '',
         };
     },
@@ -212,26 +214,8 @@ export default {
             mapGetters(['userInfo']),
     },
     async created() {
-        this.loading= true;
-        await this.getList();
-        this.loading= false;
     },
     methods: {
-        async getList() {
-            this.loading= true;
-            const {code, data} = await this.$http.post({
-                url: '/clientservice/query-list',
-                data: {
-                    type: 1,
-                    serviceName:this.search.serviceName,
-                    clientName:this.search.clientName,
-                },
-            });
-            if (code === 0) {
-                this.list = data.list;
-            }
-            this.loading= false;
-        },
         open(row, status) {
             if(row.type === 1){
                 return;

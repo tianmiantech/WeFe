@@ -4,12 +4,6 @@
         shadow="never"
     >
         <el-form inline>
-            <!-- <el-form-item label="服务类型：">
-                <el-input
-                    v-model="search.type"
-                    clearable
-                />
-            </el-form-item> -->
             <el-form-item label="合作者名称：">
                 <el-input
                     v-model="search.clientName"
