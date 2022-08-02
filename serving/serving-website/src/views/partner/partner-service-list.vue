@@ -4,6 +4,12 @@
         shadow="never"
     >
         <el-form inline>
+            <el-form-item label="服务类型：" >
+                <el-input
+                    v-model="search.type"
+                    clearable
+                />
+            </el-form-item>
             <el-form-item label="合作者名称：">
                 <el-input
                     v-model="search.clientName"
@@ -211,7 +217,7 @@ export default {
                 clientName: '',
                 status: '',
                 serviceName: '',
-                type:0,
+                type:'0',
             },
             options: [{
                 value: '1',
@@ -231,6 +237,7 @@ export default {
                 }
             ],
             list:[],
+            getListApi:     '/clientservice/query-list',
             changeStatusType: '',
         };
     },
@@ -239,28 +246,8 @@ export default {
         ...
             mapGetters(['userInfo']),
     },
-    async created() {
-        this.loading= true;
-        await this.getList();
-        this.loading= false;
-    },
+    async created() {},
     methods: {
-        async getList() {
-            this.loading= true;
-            const {code, data} = await this.$http.post({
-                url: '/clientservice/query-list',
-                data: {
-                    type: 0,
-                    status:this.search.status,
-                    serviceName:this.search.serviceName,
-                    clientName:this.search.clientName,
-                },
-            });
-            if (code === 0) {
-                this.list = data.list;
-            }
-            this.loading= false;
-        },
         open(row, status) {
             if(row.type === 1){
                 return;
