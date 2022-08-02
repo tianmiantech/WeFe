@@ -551,6 +551,7 @@ CREATE TABLE `table_model`
     `sql_condition_field` varchar(100)         DEFAULT NULL COMMENT 'sql查询条件字段',
     `data_source_id`      varchar(100)         DEFAULT NULL COMMENT '数据源ID',
     `scores_distribution` TEXT                 DEFAULT NULL COMMENT '得分分布',
+    `score_card_info`     TEXT                 DEFAULT NULL COMMENT '评分卡信息',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型表';
 

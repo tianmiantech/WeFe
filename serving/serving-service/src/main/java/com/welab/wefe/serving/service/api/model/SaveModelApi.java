@@ -75,6 +75,8 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
         private String url;
         @Check(name = "服务地址")
         private String scoresDistribution;
+        @Check(name = "服务地址")
+        private String scoreCardInfo;
 
 
         //region getter/setter
@@ -158,6 +160,14 @@ public class SaveModelApi extends AbstractNoneOutputApi<SaveModelApi.Input> {
 
         public void setScoresDistribution(String scoresDistribution) {
             this.scoresDistribution = scoresDistribution;
+        }
+
+        public String getScoreCardInfo() {
+            return scoreCardInfo;
+        }
+
+        public void setScoreCardInfo(String scoreCardInfo) {
+            this.scoreCardInfo = scoreCardInfo;
         }
 
         //endregion

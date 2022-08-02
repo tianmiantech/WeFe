@@ -84,6 +84,7 @@ public class ModelImportService {
         modelContent.setModelParam(jObject.getString("modelParam"));
         modelContent.setMemberParams(extractMemberParams(jObject));
         modelContent.setScoresDistribution(jObject.getString("scoresDistribution"));
+        modelContent.setScoreCardInfo(jObject.getString("scoreCardInfo"));
         return modelContent;
     }
 
