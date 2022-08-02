@@ -17,7 +17,6 @@
 package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;

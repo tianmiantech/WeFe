@@ -59,5 +59,6 @@ public enum GatewayProcessorType {
     residentMemoryProcessor,
     refreshPersistentStorageProcessor,
     refreshFcStorageProcessor,
-    remoteCallbackProcessor
+    remoteCallbackProcessor,
+    restartExternalGrpcServer
 }

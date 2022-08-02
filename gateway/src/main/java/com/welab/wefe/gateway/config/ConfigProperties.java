@@ -38,16 +38,16 @@ public class ConfigProperties {
     private Integer rpcServerPort;
 
     /**
-     * Grpc inner service port number
+     * Grpc private service port number
      */
-    @Value("${rpc.server.inner.port:}")
-    private Integer rpcServerInnerPort;
+    @Value("${grpc.server.internal.port:}")
+    private Integer grpcServerInternalPort;
 
     /**
-     * Grpc outer service port number
+     * Grpc public service port number
      */
-    @Value("${rpc.server.outer.port:}")
-    private Integer rpcServerOuterPort;
+    @Value("${grpc.server.external.port:}")
+    private Integer grpcServerExternalPort;
 
     /**
      * Message persistence type to be forwarded（The default is localfilesys）
@@ -158,19 +158,19 @@ public class ConfigProperties {
         this.sendActionConfigBlockSize = sendActionConfigBlockSize;
     }
 
-    public Integer getRpcServerInnerPort() {
-        return rpcServerInnerPort;
+    public Integer getGrpcServerInternalPort() {
+        return grpcServerInternalPort;
     }
 
-    public void setRpcServerInnerPort(Integer rpcServerInnerPort) {
-        this.rpcServerInnerPort = rpcServerInnerPort;
+    public void setGrpcServerInternalPort(Integer grpcServerInternalPort) {
+        this.grpcServerInternalPort = grpcServerInternalPort;
     }
 
-    public Integer getRpcServerOuterPort() {
-        return rpcServerOuterPort;
+    public Integer getGrpcServerExternalPort() {
+        return grpcServerExternalPort;
     }
 
-    public void setRpcServerOuterPort(Integer rpcServerOuterPort) {
-        this.rpcServerOuterPort = rpcServerOuterPort;
+    public void setGrpcServerExternalPort(Integer grpcServerExternalPort) {
+        this.grpcServerExternalPort = grpcServerExternalPort;
     }
 }

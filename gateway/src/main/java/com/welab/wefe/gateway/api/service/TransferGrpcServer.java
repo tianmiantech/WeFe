@@ -19,8 +19,8 @@ package com.welab.wefe.gateway.api.service;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.TransferServiceGrpc;
-import com.welab.wefe.gateway.base.RpcServer;
-import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
+import com.welab.wefe.gateway.base.GrpcServer;
+import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import com.welab.wefe.gateway.interceptor.IpAddressWhiteListServerInterceptor;
 import com.welab.wefe.gateway.service.base.AbstractRecvTransferMetaService;
 import com.welab.wefe.gateway.service.base.AbstractSendTransferMetaService;
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@RpcServer(useScope = RpcServerUseScopeEnum.INNER, interceptors = {IpAddressWhiteListServerInterceptor.class})
+@GrpcServer(useScope = GrpcServerScopeEnum.INTERNAL, interceptors = {IpAddressWhiteListServerInterceptor.class})
 public class TransferGrpcServer extends TransferServiceGrpc.TransferServiceImplBase {
 
     private final Logger LOG = LoggerFactory.getLogger(TransferGrpcServer.class);

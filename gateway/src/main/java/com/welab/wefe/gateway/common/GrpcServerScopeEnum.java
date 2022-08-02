@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.gateway.init.grpc;
+package com.welab.wefe.gateway.common;
 
 /**
- * Integrated inner and outer grpc server
- * <p>
- * This type of service is used when the inner and outer ports are consistent
- * </p>
+ * Usage scope of RPC service interface
  */
-public class GrpcIntegratedServer extends AbstractGrpcServer {
+public enum GrpcServerScopeEnum {
+    INTERNAL("Internal services;In principle, the service interface provided can only be called from the internal network"),
+    EXTERNAL("External services;In principle, the provided service interface is provided for public network calls"),
+    BOTH("Internal or External services;In principle, the service interface provided can be called from internal network or external network");
 
-    public GrpcIntegratedServer(int port) {
-        super(port);
+    private String desc;
+
+    GrpcServerScopeEnum(String desc) {
+        this.desc = desc;
     }
 }

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.gateway.base;
 
-import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
+import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import io.grpc.ServerInterceptor;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Component
-public @interface RpcServer {
+public @interface GrpcServer {
     /**
      * The name of the bean
      */
@@ -42,7 +42,7 @@ public @interface RpcServer {
     /**
      * Rpc server use scope
      */
-    RpcServerUseScopeEnum useScope() default RpcServerUseScopeEnum.BOTH;
+    GrpcServerScopeEnum useScope() default GrpcServerScopeEnum.BOTH;
 
     /**
      * Interceptor list

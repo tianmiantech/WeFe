@@ -18,6 +18,7 @@ package com.welab.wefe.gateway.listener;
 
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.init.*;
+import com.welab.wefe.gateway.init.grpc.GrpcServerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,18 +55,15 @@ public class InitListener implements ApplicationListener<ApplicationStartedEvent
         LoadSendTransferMetaToCache.load();
         // Load member blacklist to cache
         LoadMemberBlacklistToCache.load();
+        // Start grpc service
+        startGrpcServer();
         // Start the forward message task
         new SendTransferMetaCacheTask().start();
-        // Start RPC service; Note: this method will block, so it should be put to the end
-        startRpcServer();
     }
 
-    private void startRpcServer() {
-        try {
-            LOG.info("start rpc server, port[{}].", configProperties.getRpcServerPort());
-            initRpcServer.start();
-        } catch (Exception e) {
-            LOG.error("start rpc server fail, system exit: ", e);
+    private void startGrpcServer() {
+        if (!GrpcServerContext.getInstance().start()) {
+            LOG.error("Start grpc server fail, system exit!!!system exit!!!system exit!!!");
             System.exit(-1);
         }
     }

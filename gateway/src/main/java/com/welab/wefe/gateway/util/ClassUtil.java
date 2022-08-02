@@ -19,9 +19,9 @@ package com.welab.wefe.gateway.util;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.base.Processor;
 import com.welab.wefe.gateway.base.ProcessorAnnotate;
-import com.welab.wefe.gateway.base.RpcServer;
-import com.welab.wefe.gateway.base.RpcServerAnnotate;
-import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
+import com.welab.wefe.gateway.base.GrpcServer;
+import com.welab.wefe.gateway.base.GrpcServerAnnotate;
+import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -57,31 +57,31 @@ public class ClassUtil {
      *
      * @return All grpc service class information
      */
-    public static Map<String, RpcServerAnnotate> loadRpcClassBeans() {
+    public static Map<String, GrpcServerAnnotate> loadRpcClassBeans() {
         String[] beanNames = GatewayServer.CONTEXT.getBeanDefinitionNames();
         for (String beanName : beanNames) {
             Object bean = GatewayServer.CONTEXT.getBean(beanName);
             Class<?> beanClass = bean.getClass();
             if (isRpcServer(beanClass)) {
                 // Load into constant and save
-                RpcServerAnnotate.addAnnotate(bean, beanClass);
+                GrpcServerAnnotate.addAnnotate(bean, beanClass);
             }
         }
-        return RpcServerAnnotate.RPC_SERVER_MAP;
+        return GrpcServerAnnotate.RPC_SERVER_MAP;
     }
 
     /**
      * Load grpc server classes marked with @RpcServer annotation by use scope
      */
-    public static Map<String, RpcServerAnnotate> loadRpcClassBeans(RpcServerUseScopeEnum useScope) {
-        Map<String, RpcServerAnnotate> rpcServerAnnotateMap = loadRpcClassBeans();
-        if (rpcServerAnnotateMap.isEmpty() || useScope.equals(RpcServerUseScopeEnum.BOTH)) {
+    public static Map<String, GrpcServerAnnotate> loadRpcClassBeans(GrpcServerScopeEnum useScope) {
+        Map<String, GrpcServerAnnotate> rpcServerAnnotateMap = loadRpcClassBeans();
+        if (rpcServerAnnotateMap.isEmpty()) {
             return rpcServerAnnotateMap;
         }
-        Map<String, RpcServerAnnotate> result = new HashMap<>(16);
-        for (Map.Entry<String, RpcServerAnnotate> entry : rpcServerAnnotateMap.entrySet()) {
-            RpcServerAnnotate rpcServerAnnotate = entry.getValue();
-            if (useScope.equals(rpcServerAnnotate.getUseScope())) {
+        Map<String, GrpcServerAnnotate> result = new HashMap<>(16);
+        for (Map.Entry<String, GrpcServerAnnotate> entry : rpcServerAnnotateMap.entrySet()) {
+            GrpcServerAnnotate rpcServerAnnotate = entry.getValue();
+            if (useScope.equals(rpcServerAnnotate.getUseScope()) || GrpcServerScopeEnum.BOTH.equals(rpcServerAnnotate.getUseScope())) {
                 result.put(entry.getKey(), rpcServerAnnotate);
             }
         }
@@ -126,7 +126,7 @@ public class ClassUtil {
             return false;
         }
 
-        RpcServer rpcServerAnnotation = c.getAnnotation(RpcServer.class);
+        GrpcServer rpcServerAnnotation = c.getAnnotation(GrpcServer.class);
         if (null == rpcServerAnnotation) {
             return false;
         }

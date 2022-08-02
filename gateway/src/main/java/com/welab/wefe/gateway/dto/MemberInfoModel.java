@@ -77,6 +77,11 @@ public class MemberInfoModel {
      */
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
+    /**
+     * Gateway public network port tls enable
+     */
+    private Boolean memberGatewayTlsEnable = false;
+
 
     //region getter/setter
 
@@ -166,6 +171,14 @@ public class MemberInfoModel {
 
     public void setSecretKeyType(SecretKeyType secretKeyType) {
         this.secretKeyType = secretKeyType;
+    }
+
+    public Boolean getMemberGatewayTlsEnable() {
+        return memberGatewayTlsEnable;
+    }
+
+    public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
+        this.memberGatewayTlsEnable = memberGatewayTlsEnable;
     }
 
     //endregion

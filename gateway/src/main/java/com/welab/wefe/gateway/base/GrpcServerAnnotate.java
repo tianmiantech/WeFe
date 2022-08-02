@@ -16,7 +16,7 @@
 
 package com.welab.wefe.gateway.base;
 
-import com.welab.wefe.gateway.common.RpcServerUseScopeEnum;
+import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 
@@ -27,12 +27,12 @@ import java.util.*;
  *
  * @author aaron.li
  **/
-public class RpcServerAnnotate {
+public class GrpcServerAnnotate {
     /**
      * All entity objects marked with @RpcServer annotation（Key：Full path of entity class marked with @Rpcserver annotation,
      * Value：Mark the entity class object annotated by @RpcServer）
      */
-    public static Map<String, RpcServerAnnotate> RPC_SERVER_MAP = new HashMap<>(16);
+    public static Map<String, GrpcServerAnnotate> RPC_SERVER_MAP = new HashMap<>(16);
 
     /**
      * Mark the entity class object annotated by @RpcServer
@@ -42,7 +42,7 @@ public class RpcServerAnnotate {
     /**
      * Server use scope
      */
-    private RpcServerUseScopeEnum useScope;
+    private GrpcServerScopeEnum useScope;
 
     /**
      * Full path of entity class marked with @Rpcserver annotation
@@ -62,7 +62,7 @@ public class RpcServerAnnotate {
      * Explain and add to constants
      */
     public static void addAnnotate(Object rpcBean, Class<?> rpcClass) {
-        RpcServer rpcServerAnnotation = rpcClass.getAnnotation(RpcServer.class);
+        GrpcServer rpcServerAnnotation = rpcClass.getAnnotation(GrpcServer.class);
         // Since the grpc interceptor can only get the parent class path and has a name without grpc suffix, the grpc suffix is removed
         String superFullName = rpcClass.getSuperclass().getName().split("\\$")[0];
         superFullName = superFullName.substring(0, superFullName.length() - 4);
@@ -70,14 +70,14 @@ public class RpcServerAnnotate {
         Class<? extends ServerInterceptor>[] interceptorClassList = rpcServerAnnotation.interceptors();
         String[] interceptMethods = rpcServerAnnotation.interceptMethods();
         // Create annotation entities and add to constants
-        RpcServerAnnotate rpcServerAnnotate = new RpcServerAnnotate();
+        GrpcServerAnnotate rpcServerAnnotate = new GrpcServerAnnotate();
         rpcServerAnnotate.setRpcBean((BindableService) rpcBean);
         rpcServerAnnotate.setUseScope(rpcServerAnnotation.useScope());
         rpcServerAnnotate.setClassFullName(superFullName);
         rpcServerAnnotate.interceptors.addAll(Arrays.asList(interceptorClassList));
         rpcServerAnnotate.setInterceptMethods(new ArrayList<>(Arrays.asList(interceptMethods)));
 
-        RpcServerAnnotate.RPC_SERVER_MAP.put(superFullName, rpcServerAnnotate);
+        GrpcServerAnnotate.RPC_SERVER_MAP.put(superFullName, rpcServerAnnotate);
     }
 
     public String getClassFullName() {
@@ -113,11 +113,11 @@ public class RpcServerAnnotate {
         this.interceptors = interceptors;
     }
 
-    public RpcServerUseScopeEnum getUseScope() {
+    public GrpcServerScopeEnum getUseScope() {
         return useScope;
     }
 
-    public void setUseScope(RpcServerUseScopeEnum useScope) {
+    public void setUseScope(GrpcServerScopeEnum useScope) {
         this.useScope = useScope;
     }
 }
