@@ -20,7 +20,6 @@ import com.welab.wefe.common.constant.Constant;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Decoder;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -269,33 +268,6 @@ public class AESUtil {
             return keySpec;
         } catch (Exception e) {
             LOG.error("AES2 generateKey error，key：{}" + key, e);
-        }
-        return null;
-    }
-
-
-    public static String encryptWithKeyBase64(String content, String key) {
-        byte[] bytes = new byte[0];
-        try {
-            bytes = encrypt(content.getBytes("UTF-8"), new BASE64Decoder().decodeBuffer(key));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return EncryptUtils.parseByte2HexStr(bytes);
-    }
-
-    public static String decryptWithKeyBase64(String content, String key) {
-        byte[] originalData = EncryptUtils.parseHexStr2Byte(content);
-        byte[] bytes = new byte[0];
-        try {
-            bytes = decrypt(originalData, new BASE64Decoder().decodeBuffer(key));
-        } catch (IOException e) {
-            LOG.error("【decryptWithKeyBase64】base64 编码异常，data：" + key, e);
-        }
-        try {
-            return new String(bytes, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("【decryptWithKeyBase64】String 编码异常，data：" + key, e);
         }
         return null;
     }

@@ -16,7 +16,7 @@
 
 package com.welab.wefe.common.verification.code;
 
-import com.welab.wefe.common.verification.code.common.VerificationCodeSendChannel;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
 import com.welab.wefe.common.verification.code.email.EmailClient;
 import com.welab.wefe.common.verification.code.sms.AliyunSmsClient;
 
@@ -38,7 +38,7 @@ public class ClientFactory {
      * @return Sending verification code client
      * @throws Exception
      */
-    public static AbstractClient getClient(VerificationCodeSendChannel sendChannel, Map<String, Object> extendParams) throws Exception {
+    public static AbstractClient getClient(CaptchaSendChannel sendChannel, Map<String, Object> extendParams) throws Exception {
         switch (sendChannel) {
             case sms:
                 return new AliyunSmsClient(extendParams);

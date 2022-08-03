@@ -22,7 +22,7 @@ package com.welab.wefe.common.verification.code.common;
  * @author aaron.li
  * @date 2022/1/19 11:25
  **/
-public enum VerificationCodeSendChannel {
+public enum CaptchaSendChannel {
     /**
      * Sms send type
      */

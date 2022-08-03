@@ -19,6 +19,9 @@ import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
+import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
+import com.welab.wefe.common.util.StringUtil;
 
 /**
  * @author zane
@@ -30,9 +33,14 @@ public class ClickHouseStorageConfigModel extends AbstractConfigModel {
     public int http_port = 8123;
     public int tcpPort = 9000;
     public String username;
+    @Secret(maskStrategy = MaskStrategy.PASSWORD)
     public String password;
 
     public ClickhouseConfig toStorageConfig() {
+        if (StringUtil.isEmpty(host) || StringUtil.isEmpty(password) || StringUtil.isEmpty(username)) {
+            return null;
+        }
+
         return new ClickhouseConfig(host, http_port, username, password);
     }
 }

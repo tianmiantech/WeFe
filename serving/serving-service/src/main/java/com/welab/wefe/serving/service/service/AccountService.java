@@ -32,6 +32,7 @@ import com.welab.wefe.common.web.service.CaptchaService;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import com.welab.wefe.serving.service.api.account.*;
@@ -40,7 +41,6 @@ import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.verificationcode.VerificationCodeService;
-import com.welab.wefe.serving.service.utils.ServingSM4Util;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -108,7 +108,7 @@ public class AccountService extends AbstractAccountService {
         }
 
         //Judge whether the account has been registered
-        AccountMySqlModel one = accountRepository.findOne("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()), AccountMySqlModel.class);
+        AccountMySqlModel one = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()), AccountMySqlModel.class);
         if (one != null) {
             throw new StatusCodeWithException("该手机号已注册", StatusCode.DATA_EXISTED);
         }
@@ -148,7 +148,7 @@ public class AccountService extends AbstractAccountService {
 
     @Override
     public AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException {
-        AccountMySqlModel model = accountRepository.findByPhoneNumber(ServingSM4Util.encryptPhoneNumber(phoneNumber));
+        AccountMySqlModel model = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(phoneNumber));
         return toAccountInfo(model);
     }
 
@@ -201,8 +201,7 @@ public class AccountService extends AbstractAccountService {
      * Paging query account
      */
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) throws StatusCodeWithException {
-
-        Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()))
+        Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus()).contains("nickname", input.getNickname())
                 .orderBy("createdTime", OrderBy.desc).build(AccountMySqlModel.class);
 
@@ -320,7 +319,7 @@ public class AccountService extends AbstractAccountService {
         if (phoneNumber == null) {
             throw new StatusCodeWithException(StatusCode.LOGIN_REQUIRED);
         }
-        AccountMySqlModel currentAdmin = accountRepository.findByPhoneNumber(ServingSM4Util.encryptPhoneNumber(phoneNumber));
+        AccountMySqlModel currentAdmin = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(phoneNumber));
         // Check password
         if (!StringUtil.equals(currentAdmin.getPassword(), hashPasswordWithSalt(input.getPassword(), currentAdmin.getSalt()))) {
             CurrentAccount.logout();
@@ -372,7 +371,7 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        AccountMySqlModel model = accountRepository.findOne("phoneNumber", ServingSM4Util.encryptPhoneNumber(input.getPhoneNumber()), AccountMySqlModel.class);
+        AccountMySqlModel model = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()), AccountMySqlModel.class);
         // phone number error
         if (model == null) {
             throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);

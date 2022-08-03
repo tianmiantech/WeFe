@@ -39,7 +39,8 @@ public class CurrentAccount {
             .expiration(60, TimeUnit.MINUTES)
             .build();
 
-    public static void init() {
+    public synchronized static void init() {
+        TempRsaCache.init();
     }
 
 
