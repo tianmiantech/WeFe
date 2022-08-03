@@ -358,7 +358,7 @@ public class ClientServiceService {
      */
     public void activateService(String serviceId, String serviceName, String clientId, String privateKey,
                                 String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
-        ClientServiceMysqlModel clientService = clientServiceRepository.findOne("service_id", serviceId, ClientServiceMysqlModel.class);
+        ClientServiceMysqlModel clientService = clientServiceRepository.findOne("serviceId", serviceId, ClientServiceMysqlModel.class);
         if (clientService == null) {
             clientService = new ClientServiceMysqlModel();
         }
