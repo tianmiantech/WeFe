@@ -28,6 +28,11 @@
         </dependency>
         <dependency>
             <groupId>com.welab.wefe</groupId>
+            <artifactId>common-cert</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
             <artifactId>common-data-storage</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
