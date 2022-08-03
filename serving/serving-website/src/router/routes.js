@@ -31,7 +31,7 @@ const baseRoutes = [
                 name: 'index',
                 meta: {
                     title:           '首页',
-                    hidden: true,
+                    hidden:          true,
                     active:          `${prefixPath}index`,
                     loginAndRefresh: true,
                 },
@@ -329,6 +329,26 @@ const baseRoutes = [
                     title: '系统配置',
                 },
                 component: () => import('@views/global_setting/global-setting-view.vue'),
+            },
+        ],
+    },
+    {
+        path: `${prefixPath}log-setting`,
+        meta: {
+            title: '日志管理',
+            icon:  'el-icon-setting',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}psi-log-list`,
+                name: 'psi-log-list',
+                meta: {
+                    title:           'psi监控日志',
+                    loginAndRefresh: true,
+                    active:          `${prefixPath}psi-log-list`,
+                },
+                component: () => import('@views/logger/psi-log-list.vue'),
             },
         ],
     },
