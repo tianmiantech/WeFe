@@ -98,7 +98,7 @@ public class XgboostHaskellLanguage extends BaseXgboostLanguage {
     }
 
     @Override
-    protected String build2ClassificationsResultLogicCode(int treeNum, String initScore) {
+    protected String build2ClassificationsResultLogicCode(int treeNum, String initScore, double learningRate) {
         StringBuilder methodCalcCode = new StringBuilder();
         String summaryVar = "s1";
         methodCalcCode.append(indentationByNodeLayer(1, true));
@@ -106,7 +106,7 @@ public class XgboostHaskellLanguage extends BaseXgboostLanguage {
                 .append("\n")
                 .append(indentationByNodeLayer(2, true))
                 .append("1 / (1 + exp(0 - (")
-                .append(generateTreeSum(treeNum, initScore))
+                .append(generateTreeSum(treeNum, initScore, learningRate))
                 .append(")))")
                 .append(lineEndSymbol())
                 .append("\n")
@@ -117,7 +117,7 @@ public class XgboostHaskellLanguage extends BaseXgboostLanguage {
 
 
     @Override
-    protected String buildMultipleClassificationsResultLogicCode(int treeNum, int treeDim, String initScore) {
+    protected String buildMultipleClassificationsResultLogicCode(int treeNum, int treeDim, String initScore, double learningRate) {
         StringBuilder methodCalcCode = new StringBuilder();
         // Tree result variable classification map (key: module; value: variable name of each tree)
         Map<Integer, List<String>> treeClassificationMap = treeMultipleClassificationsModMap(treeNum, treeDim);
@@ -131,7 +131,7 @@ public class XgboostHaskellLanguage extends BaseXgboostLanguage {
                     .append("\n")
                     .append(resultIndentationNum(3))
                     .append(" 1 / (1 + ")
-                    .append(buildExpFunction(entry.getValue(), initScore))
+                    .append(buildExpFunction(entry.getValue(), initScore, learningRate))
                     .append(")")
                     .append(lineEndSymbol())
                     .append("\n");
@@ -144,10 +144,10 @@ public class XgboostHaskellLanguage extends BaseXgboostLanguage {
     }
 
     @Override
-    protected String buildExpFunction(List<String> treeVarNameList, String initScore) {
+    protected String buildExpFunction(List<String> treeVarNameList, String initScore, double learningRate) {
         StringBuilder code = new StringBuilder();
         code.append("exp(0 - (")
-                .append(generateTreeSum(treeVarNameList, initScore))
+                .append(generateTreeSum(treeVarNameList, initScore, learningRate))
                 .append("))");
 
         return code.toString();

@@ -28,6 +28,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
 import com.welab.wefe.data.fusion.service.api.account.*;
@@ -37,7 +38,6 @@ import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.vo.AccountInputModel;
 import com.welab.wefe.data.fusion.service.dto.vo.AccountOutputModel;
 import com.welab.wefe.data.fusion.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.data.fusion.service.utils.FusionSM4Util;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -69,7 +69,7 @@ public class AccountService extends AbstractAccountService {
 
         Specification<AccountMysqlModel> where = Where
                 .create()
-                .contains("phoneNumber", FusionSM4Util.encryptPhoneNumber(input.getPhoneNumber()))
+                .contains("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus())
                 .contains("nickname", input.getNickname())
                 .orderBy("createdTime", OrderBy.desc)
@@ -84,7 +84,7 @@ public class AccountService extends AbstractAccountService {
     public void register(AccountInputModel input, BoardUserSource userSource) throws StatusCodeWithException {
 
         // Determine whether the account is registered
-        AccountMysqlModel one = accountRepository.findOne("phoneNumber", FusionSM4Util.encryptPhoneNumber(input.getPhoneNumber()), AccountMysqlModel.class);
+        AccountMysqlModel one = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()), AccountMysqlModel.class);
         if (one != null) {
             throw new StatusCodeWithException("该手机号已被注册！", StatusCode.DATA_EXISTED);
         }
@@ -350,7 +350,7 @@ public class AccountService extends AbstractAccountService {
             throw new StatusCodeWithException("短信验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", FusionSM4Util.encryptPhoneNumber(input.getPhoneNumber()), AccountMysqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()), AccountMysqlModel.class);
         // phone number error
         if (model == null) {
             throw new StatusCodeWithException("手机号错误，该用户不存在。", StatusCode.PARAMETER_VALUE_INVALID);
@@ -368,7 +368,7 @@ public class AccountService extends AbstractAccountService {
 
     @Override
     public AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException {
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(FusionSM4Util.encryptPhoneNumber(phoneNumber));
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(phoneNumber));
         return toAccountInfo(model);
     }
 

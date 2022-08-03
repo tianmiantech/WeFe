@@ -40,7 +40,7 @@ public class XgboostModelExportService {
      * @param modelParam model param
      * @param language   language
      */
-    public String export(JObject modelParam, String language) {
+    public String export(JObject modelMeta, JObject modelParam, String language) {
         // Get the corresponding language interpreter
         BaseXgboostLanguage baseXgboostLanguage = getXgboostLanguage(language);
 
@@ -54,7 +54,7 @@ public class XgboostModelExportService {
         JSONArray initScoreArray = modelParam.getJSONArray("initScore");
         String initScore = (null != initScoreArray && initScoreArray.size() > 0) ? initScoreArray.getString(0) : "0";
 
-        return baseXgboostLanguage.buildWholeCode(treeMapList, treeDim, numClasses, initScore, featureNameFidMappingObj);
+        return baseXgboostLanguage.buildWholeCode(modelMeta, treeMapList, treeDim, numClasses, initScore, featureNameFidMappingObj);
     }
 
 
