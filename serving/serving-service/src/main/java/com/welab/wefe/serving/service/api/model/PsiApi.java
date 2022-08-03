@@ -116,6 +116,9 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
         int total = sum(temp);
 
         TableModelMySqlModel model = tableModelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
+        if (model == null) {
+            return Lists.newArrayList();
+        }
         JObject result = JObject.create(model.getScoresDistribution()).getJObjectByPath("data.bin_result");
 
         List<List<Object>> dataList = Lists.newArrayList();
