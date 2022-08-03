@@ -42,6 +42,7 @@ import com.welab.wefe.common.wefe.enums.JobBackendType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 
@@ -57,8 +58,11 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     @Autowired
     private DataSetStorageService dataSetStorageService;
 
+    @Autowired
+    private EntityManager entityManager;
+
     public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
-        if (!CurrentAccount.isAdmin()) {
+       if (!CurrentAccount.isAdmin()) {
             StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
         }
 
@@ -66,7 +70,6 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         if (runningJobCount > 0) {
             StatusCode.ILLEGAL_REQUEST.throwException("当前有" + runningJobCount + "个任务正在运行，暂时不允许修改配置项，请在任务结束后重试。");
         }
-
 
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
             String groupName = group.getKey();
@@ -81,12 +84,16 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         // Notify the gateway to update the system configuration cache
         gatewayService.refreshSystemConfigCache();
 
-        // 刷新持久化存储对象
+        // Refresh persistent storage objects
         if (input.groups.containsKey(ConfigGroupConstant.STORAGE)) {
+            // Because there is a findone operation under the put method above, and this operation is in the same session as the getmodel library lookup method in initstorage below (cache lookup),
+            // The @postload callback method of globalconfigmysqlmodel is not triggered, so the data is not decrypted (the cache value has been encrypted and assigned in the put method above),
+            // Therefore, the JPA cache should be cleaned up before querying
+            entityManager.clear();
             dataSetStorageService.initStorage();
         }
         
-        // 刷新函数计算存储
+        // Refresh function calculation storage
         if (input.groups.containsKey(ConfigGroupConstant.FC_CONFIG)) {
             if (Env.get().getCalculationEngineConfig().backend == JobBackendType.FC) {
                 gatewayService.sendToMyselfGateway(
