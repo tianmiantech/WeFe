@@ -96,7 +96,7 @@ public class ModelService {
     }
 
     private void addPartners(SaveModelApi.Input input) {
-        partnerService.save(input.getMemberParams());
+        partnerService.upsert(input.getMemberParams());
     }
 
     private void saveModelMembers(SaveModelApi.Input input) {

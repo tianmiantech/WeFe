@@ -332,7 +332,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void openService(String serviceId, String serviceName, String url, String clientId, String publicKey,
-            ServiceTypeEnum serviceType) throws StatusCodeWithException {
+                            ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setServiceType(serviceType.getCode());
         clientService.setClientId(clientId);
@@ -357,8 +357,11 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void activateService(String serviceId, String serviceName, String clientId, String privateKey,
-            String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
-        SaveApi.Input clientService = new SaveApi.Input();
+                                String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
+        ClientServiceMysqlModel clientService = clientServiceRepository.findOne("service_id", serviceId, ClientServiceMysqlModel.class);
+        if (clientService == null) {
+            clientService = new ClientServiceMysqlModel();
+        }
         clientService.setClientId(clientId);
         clientService.setClientName(CacheObjects.getPartnerName(clientId));
         clientService.setServiceId(serviceId);
@@ -370,7 +373,11 @@ public class ClientServiceService {
         clientService.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         clientService.setCreatedBy(CacheObjects.getMemberName());
-        add(clientService);
+        clientService.setIpAdd("-");
+        clientService.setPayType(-1);
+        clientService.setServiceType(-1);
+
+        clientServiceRepository.save(clientService);
     }
 
     public int serviceUrlTest(Input input) throws Exception {
