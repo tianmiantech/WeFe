@@ -60,5 +60,6 @@ public enum GatewayProcessorType {
     refreshPersistentStorageProcessor,
     refreshFcStorageProcessor,
     remoteCallbackProcessor,
-    restartExternalGrpcServer
+    restartExternalGrpcServer,
+    availableCheckBeforeStartJobProcessor
 }
