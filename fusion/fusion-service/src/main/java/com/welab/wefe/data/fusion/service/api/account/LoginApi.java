@@ -25,11 +25,11 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
 import com.welab.wefe.data.fusion.service.service.AccountService;
 import com.welab.wefe.data.fusion.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.data.fusion.service.utils.FusionSM4Util;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -49,7 +49,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
         String token = accountService.login(input.phoneNumber, input.password, input.key, input.code);
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(FusionSM4Util.encryptPhoneNumber(input.phoneNumber));
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(input.phoneNumber));
 
         Output output = new Output(token, model);
 

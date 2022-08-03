@@ -93,7 +93,7 @@ public abstract class PersistentStorage {
      * <p>
      * 当配置信息变化时，重新初始化即可刷新对象。
      */
-    public synchronized static boolean init(ClickhouseConfig config) throws SQLException {
+    public synchronized static boolean init(ClickhouseConfig config) {
         try {
             if (storage != null && storage.dataSource != null) {
                 storage.dataSource.close();
@@ -103,7 +103,7 @@ public abstract class PersistentStorage {
             storage.dataSource = buildDruidDataSource(config);
             storage.checkConnection();
             storage.inited = true;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error("storage clickhouse init failed", e);
         }
         return storage.inited;

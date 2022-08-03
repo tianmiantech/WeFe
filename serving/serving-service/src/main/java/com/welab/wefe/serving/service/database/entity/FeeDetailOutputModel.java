@@ -63,7 +63,7 @@ public class FeeDetailOutputModel {
      * 付费类型
      */
     @Column(name = "pay_type")
-    private String payType;
+    private Integer payType;
 
     /**
      * 总调用次数
@@ -139,11 +139,11 @@ public class FeeDetailOutputModel {
         this.unitPrice = unitPrice;
     }
 
-    public String getPayType() {
+    public Integer getPayType() {
         return payType;
     }
 
-    public void setPayType(String payType) {
+    public void setPayType(Integer payType) {
         this.payType = payType;
     }
 

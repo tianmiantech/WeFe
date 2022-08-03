@@ -215,15 +215,18 @@ public class ServiceService {
 
     public String displayServiceQueryParams(String queryParams, String queryParamsConfig) {
         if (StringUtils.isNotBlank(queryParamsConfig)) {
-            StringBuilder sb = new StringBuilder();
+            List<JSONObject> params = new ArrayList<>();
             JSONArray arr = JSONObject.parseArray(queryParamsConfig);
             for (int i = 0; i < arr.size(); i++) {
                 JSONObject jo = arr.getJSONObject(i);
                 String name = jo.getString("name");
                 String desc = jo.getString("desc");
-                sb.append("参数" + (i + 1) + ":" + name + ",描述:" + desc + ";");
+                JSONObject j = new JSONObject();
+                j.put("参数名:", name);
+                j.put("描述:", desc);
+                params.add(j);
             }
-            return sb.toString();
+            return JSONObject.toJSONString(params);
         }
         return queryParams;
     }
@@ -348,7 +351,9 @@ public class ServiceService {
             model.setIdsTableName(idsTableName);
         }
         model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
-        model.setQueryParamsConfig(JSONObject.toJSONString(input.getQueryParamsConfig()));
+        if (input.getQueryParamsConfig() != null && !input.getQueryParamsConfig().isEmpty()) {
+            model.setQueryParamsConfig(JSONObject.toJSONString(input.getQueryParamsConfig()));
+        }
         serviceRepository.save(model);
         com.welab.wefe.serving.service.api.service.AddApi.Output output = new com.welab.wefe.serving.service.api.service.AddApi.Output();
         output.setId(model.getId());
@@ -711,8 +716,11 @@ public class ServiceService {
         PartnerMysqlModel partner = partnerService.queryByCode(input.getPartnerCode());
 
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
-                service.getServiceType(), CallByMeEnum.NO.getValue(), status.getValue(), partner.getId(),
-                partner.getName(), CacheObjects.getMemberId(), CacheObjects.getMemberName());
+                service.getServiceType(),
+                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
+                        : CallByMeEnum.NO.getValue(),
+                status.getValue(), partner.getId(), partner.getName(), CacheObjects.getMemberId(),
+                CacheObjects.getMemberName());
         return serviceOrderModel.getId();
     }
 
@@ -733,7 +741,9 @@ public class ServiceService {
         callLog.setResponsePartnerId(CacheObjects.getMemberId());
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
-        callLog.setCallByMe(CallByMeEnum.NO.getValue());
+        callLog.setCallByMe(
+                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
+                        : CallByMeEnum.NO.getValue());
         callLog.setResponseStatus(responseStatus);
         callLog.setSpendTime(System.currentTimeMillis() - beginTime);
         serviceCallLogService.save(callLog);
@@ -822,7 +832,8 @@ public class ServiceService {
     }
 
     public ServiceDetailOutput queryById(QueryOneApi.Input input) throws Exception {
-        BaseServiceMySqlModel baseService = baseServiceRepository.getOne(input.getId());
+        BaseServiceMySqlModel baseService = baseServiceRepository.findOne("serviceId", input.getId(),
+                BaseServiceMySqlModel.class);
         if (baseService == null) {
             throw new Exception("data not found");
         }
@@ -831,7 +842,7 @@ public class ServiceService {
                     TableServiceMySqlModel.class);
             return ServiceDetailOutput.convertByService(service);
         } else {
-            Optional<TableModelMySqlModel> model = modelRepository.findById(input.getId());
+            Optional<TableModelMySqlModel> model = modelRepository.findById(baseService.getId());
             return ServiceDetailOutput.convertByModel(model.get());
         }
     }

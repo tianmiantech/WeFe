@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.api.global_config;
 
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -37,7 +36,7 @@ public class GlobalConfigUpdateApi extends AbstractNoneOutputApi<GlobalConfigUpd
     private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
+    protected ApiResult<?> handler(Input input) throws Exception {
         globalConfigService.update(input);
         return success();
     }

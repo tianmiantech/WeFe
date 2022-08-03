@@ -16,21 +16,23 @@
 
 package com.welab.wefe.serving.service.api.predict;
 
+import java.util.Map;
+
+import org.apache.commons.collections4.MapUtils;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.web.api.base.Caller;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.predicter.Predictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
-import org.apache.commons.collections4.MapUtils;
-
-import java.util.Map;
 
 
 /**
@@ -39,7 +41,8 @@ import java.util.Map;
 @Api(
         path = "predict/promoter",
         name = "模型预测",
-        allowAccessWithSign = true
+        allowAccessWithSign = true,
+        domain = Caller.Member
 )
 public class PromoterApi extends AbstractApi<PromoterApi.Input, PredictResult> {
 

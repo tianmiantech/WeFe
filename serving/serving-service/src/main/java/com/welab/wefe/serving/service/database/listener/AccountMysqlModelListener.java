@@ -16,13 +16,13 @@
 
 package com.welab.wefe.serving.service.database.listener;
 
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.utils.ServingSM4Util;
-
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 
 public class AccountMysqlModelListener {
 
@@ -33,7 +33,7 @@ public class AccountMysqlModelListener {
     public void prePersist(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             AccountMySqlModel model = (AccountMySqlModel) entity;
-            model.setPhoneNumber(ServingSM4Util.encryptPhoneNumber(model.getPhoneNumber()));
+            model.setPhoneNumber(DatabaseEncryptUtil.encrypt(model.getPhoneNumber()));
         }
     }
 
@@ -52,7 +52,7 @@ public class AccountMysqlModelListener {
     public void postLoad(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             AccountMySqlModel model = (AccountMySqlModel) entity;
-            model.setPhoneNumber(ServingSM4Util.decryptPhoneNumber(model.getPhoneNumber()));
+            model.setPhoneNumber(DatabaseEncryptUtil.decrypt(model.getPhoneNumber()));
         }
     }
 }

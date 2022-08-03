@@ -158,10 +158,10 @@ public class ClientServiceService {
         Specification<ClientServiceMysqlModel> specification = where.orderBy("createdTime", OrderBy.desc)
                 .build(ClientServiceMysqlModel.class);
 
-        PagingOutput<ClientServiceMysqlModel> models = clientServiceRepository.paging(specification, input);
+        PagingOutput<ClientServiceMysqlModel> page = clientServiceRepository.paging(specification, input);
         List<QueryListApi.Output> list = new ArrayList<>();
 
-        models.getList().forEach(x -> {
+        page.getList().forEach(x -> {
             QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
             output.setServiceType(ServiceTypeEnum.getValue(x.getServiceType()));
             output.setPayType(PayTypeEnum.getValueByCode(x.getPayType()));
@@ -176,7 +176,7 @@ public class ClientServiceService {
             }
             list.add(output);
         });
-        return PagingOutput.of(list.size(), list);
+        return PagingOutput.of(page.getTotal(), list);
     }
 
     public ClientServiceOutputModel queryOne(QueryApi.Input input) {
@@ -332,7 +332,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void openService(String serviceId, String serviceName, String url, String clientId, String publicKey,
-            ServiceTypeEnum serviceType) throws StatusCodeWithException {
+                            ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setServiceType(serviceType.getCode());
         clientService.setClientId(clientId);
@@ -357,8 +357,11 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void activateService(String serviceId, String serviceName, String clientId, String privateKey,
-            String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
-        SaveApi.Input clientService = new SaveApi.Input();
+                                String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
+        ClientServiceMysqlModel clientService = clientServiceRepository.findOne("service_id", serviceId, ClientServiceMysqlModel.class);
+        if (clientService == null) {
+            clientService = new ClientServiceMysqlModel();
+        }
         clientService.setClientId(clientId);
         clientService.setClientName(CacheObjects.getPartnerName(clientId));
         clientService.setServiceId(serviceId);
@@ -370,16 +373,24 @@ public class ClientServiceService {
         clientService.setType(ServiceClientTypeEnum.ACTIVATE.getValue());
         clientService.setStatus(ServiceStatusEnum.UNUSED.getCode());
         clientService.setCreatedBy(CacheObjects.getMemberName());
-        add(clientService);
+        clientService.setIpAdd("-");
+        clientService.setPayType(-1);
+        clientService.setServiceType(-1);
+
+        clientServiceRepository.save(clientService);
     }
 
     public int serviceUrlTest(Input input) throws Exception {
         String url = input.getUrl();
-        HttpResponse response = HttpRequest.create(url).get();
-        if (response.getCode() == -1) {
-            throw response.getError();
+        if (url.matches("^((http|https)://)([\\w-]+\\.)+[\\w$]+(\\/[\\w-?=&./]*)?$")) {
+            HttpResponse response = HttpRequest.create(url).get();
+            if (response.getCode() == -1) {
+                throw response.getError();
+            }
+            return response.getCode();
+        } else {
+            throw StatusCode.PARAMETER_VALUE_INVALID.throwException("非法的URL地址");
         }
-        return response.getCode();
     }
 
     public List<ClientServiceMysqlModel> queryActivateListByServiceId(String serviceId) {

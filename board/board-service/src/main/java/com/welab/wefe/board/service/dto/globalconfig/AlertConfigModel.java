@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
 
 /**
  * @author zane
@@ -31,5 +32,5 @@ public class AlertConfigModel extends AbstractConfigModel {
     public boolean emailAlertOnJobError = false;
 
     @Check(name = "找回密码功能的验证码通道", require = true)
-    public String retrievePasswordCaptchaChannel = "email";
+    public CaptchaSendChannel retrievePasswordCaptchaChannel = CaptchaSendChannel.email;
 }

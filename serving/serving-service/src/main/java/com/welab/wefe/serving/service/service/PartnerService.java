@@ -16,29 +16,14 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.member.QueryApi;
-import com.welab.wefe.serving.service.api.partner.DetailPartnerApi;
-import com.welab.wefe.serving.service.api.partner.QueryPartnerAllApi;
-import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi;
+import com.welab.wefe.serving.service.api.partner.*;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Input;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Output;
-import com.welab.wefe.serving.service.api.partner.SavePartnerApi;
 import com.welab.wefe.serving.service.database.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
@@ -50,6 +35,17 @@ import com.welab.wefe.serving.service.database.repository.PartnerRepository;
 import com.welab.wefe.serving.service.dto.MemberParams;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.ClientStatusEnum;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PartnerService {
@@ -88,13 +84,14 @@ public class PartnerService {
         }
     }
 
+
     public void save(SavePartnerApi.Input input) throws StatusCodeWithException {
         PartnerMysqlModel partnerMysqlModel = null;
 
         if (StringUtils.isNotBlank(input.getCode())) {
             partnerMysqlModel = queryByCode(input.getCode());
             if (partnerMysqlModel != null) {
-                throw new StatusCodeWithException("code 【"+input.getCode()+"】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
+                throw new StatusCodeWithException("code 【" + input.getCode() + "】已经存在", StatusCode.PRIMARY_KEY_CONFLICT);
             }
         }
 
@@ -179,7 +176,7 @@ public class PartnerService {
 
         return PagingOutput.of(page.getTotal(), list);
     }
-    
+
     public List<QueryPartnerAllApi.Output> queryAll() {
         List<PartnerMysqlModel> list = partnerRepository.findAll();
         List<QueryPartnerAllApi.Output> output = list.stream()
@@ -201,7 +198,7 @@ public class PartnerService {
         model.setIsUnionMember(input.getIsUnionMember());
         model.setServingBaseUrl(input.getServingBaseUrl());
         model.setRemark(input.getRemark());
-        if(StringUtils.isBlank(model.getCode()) && StringUtils.isNotBlank(input.getCode())) {
+        if (StringUtils.isBlank(model.getCode()) && StringUtils.isNotBlank(input.getCode())) {
             model.setCode(input.getCode());
         }
         partnerRepository.save(model);
@@ -231,7 +228,7 @@ public class PartnerService {
     }
 
 
-    public void save(List<MemberParams> memberParams) {
+    public void upsert(List<MemberParams> memberParams) {
         memberParams.forEach(x -> {
             SavePartnerApi.Input partner = new SavePartnerApi.Input();
             partner.setIsUnionMember(true);
@@ -241,7 +238,7 @@ public class PartnerService {
             partner.setServingBaseUrl(x.getUrl());
             partner.setEmail("");
             try {
-                save(partner);
+                upsert(partner);
             } catch (StatusCodeWithException e) {
                 e.printStackTrace();
             }
@@ -252,4 +249,15 @@ public class PartnerService {
         PartnerMysqlModel partner = findOne(partnerId);
         return partner == null ? "" : partner.getServingBaseUrl();
     }
+
+
+    public void upsert(SavePartnerApi.Input input) throws StatusCodeWithException {
+        if (StringUtils.isNotBlank(input.getCode()) && queryByCode(input.getCode()) != null) {
+            update(ModelMapper.map(input, UpdateApi.Input.class));
+            return;
+        }
+
+        save(input);
+    }
+
 }
