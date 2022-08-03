@@ -34,8 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.webank.cert.mgr.db.dao.CertDao;
-import com.webank.cert.mgr.enums.CertDigestAlgEnums;
-import com.webank.cert.mgr.enums.KeyAlgorithmEnums;
 import com.webank.cert.mgr.enums.MgrExceptionCodeEnums;
 import com.webank.cert.mgr.exception.CertMgrException;
 import com.webank.cert.mgr.model.vo.CertKeyVO;
@@ -43,6 +41,8 @@ import com.webank.cert.mgr.model.vo.CertRequestVO;
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.utils.TransformUtils;
 import com.webank.cert.toolkit.constants.CertConstants;
+import com.webank.cert.toolkit.enums.CertDigestAlgEnums;
+import com.webank.cert.toolkit.enums.KeyAlgorithmEnums;
 import com.webank.cert.toolkit.model.X500NameInfo;
 import com.webank.cert.toolkit.service.CertService;
 import com.webank.cert.toolkit.utils.CertUtils;

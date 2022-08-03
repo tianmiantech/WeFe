@@ -39,7 +39,7 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
     @Override
     protected ApiResult<Object> handle(MemberRealnameAuthApi.Input input) throws StatusCodeWithException, IOException {
-        // 这里要生成csr
+        // 生成csr
         input.setCertRequestContent(generateCertRequestContent(input));
         JSONObject result = unionService.realnameAuth(input);
         return super.unionApiResultToBoardApiResult(result);
