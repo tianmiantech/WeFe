@@ -75,7 +75,7 @@ public class PromoterPredictHelper {
             throw e;
         } finally {
             SaveApi.Input order = createOrder(serviceId, obj.getMemberId(), orderStatus);
-            callLog(serviceId, requestId, obj.getMemberId(), order.getId(), requestParam, extractData(response), extractCode(response), extractResponseId(response));
+            callLog(serviceId, requestId, obj.getMemberId(), order.getId(), requestParam, JObject.create(response.getBodyAsString()), extractCode(response), extractResponseId(response));
         }
     }
 
