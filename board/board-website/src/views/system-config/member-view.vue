@@ -162,6 +162,25 @@
                                 class="color-danger f13"
                                 style="margin-top:-10px;"
                             ><strong>认证有效期：{{ real_name_auth_useful_life }}</strong></p>
+                            <p>&nbsp;</p>
+                            <el-form-item :span="10" label="开启TLS通信："
+                                          v-if="enterpriseAuth === 2 && real_name_auth_useful_life">
+                                <el-radio
+                                    v-model="form.member_gateway_tls_enable"
+                                    :label="true"
+                                    :disabled="!userInfo.super_admin_role"
+                                >
+                                    是
+                                </el-radio>
+                                <el-radio
+                                    v-model="form.member_gateway_tls_enable"
+                                    :label="false"
+                                    :disabled="!userInfo.super_admin_role"
+                                >
+                                    否
+                                </el-radio>
+                                <p class="tips-alert" v-if="form.member_gateway_tls_enable"> ※ 开启后通信更安全</p>
+                            </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
@@ -233,6 +252,7 @@
                     member_allow_public_data_set: true,
                     member_gateway_uri:           '',
                     last_activity_time:           0,
+                    member_gateway_tls_enable:  true,
                 },
                 enterpriseAuth: '',
                 audit_comment:  '',
@@ -337,6 +357,7 @@
                     this.userInfo.member_name = this.form.member_name;
                     this.userInfo.member_email = this.form.member_email;
                     this.userInfo.member_mobile = this.form.member_mobile;
+                    this.userInfo.member_gateway_tls_enable = this.form.member_gateway_tls_enable;
                     this.$store.commit('UPDATE_USERINFO', this.userInfo);
                     this.refresh();
                 }
