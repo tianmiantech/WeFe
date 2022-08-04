@@ -19,11 +19,15 @@ package com.welab.wefe.serving.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.member.QueryApi;
-import com.welab.wefe.serving.service.api.partner.*;
+import com.welab.wefe.serving.service.api.partner.DetailPartnerApi;
+import com.welab.wefe.serving.service.api.partner.QueryPartnerAllApi;
+import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Input;
 import com.welab.wefe.serving.service.api.partner.QueryPartnerListApi.Output;
+import com.welab.wefe.serving.service.api.partner.SavePartnerApi;
 import com.welab.wefe.serving.service.database.entity.ClientMysqlModel;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.entity.MemberMySqlModel;
@@ -238,7 +242,7 @@ public class PartnerService {
             partner.setServingBaseUrl(x.getUrl());
             partner.setEmail("");
             try {
-                upsert(partner);
+                upsert(x.getMemberId(), true, x.getName(), x.getMemberId(), x.getUrl());
             } catch (StatusCodeWithException e) {
                 e.printStackTrace();
             }
@@ -251,13 +255,28 @@ public class PartnerService {
     }
 
 
-    public void upsert(SavePartnerApi.Input input) throws StatusCodeWithException {
-        if (StringUtils.isNotBlank(input.getCode()) && queryByCode(input.getCode()) != null) {
-            update(ModelMapper.map(input, UpdateApi.Input.class));
-            return;
+    public void upsert(String id, Boolean isUnionMember, String name, String code, String url) throws StatusCodeWithException {
+
+        PartnerMysqlModel partnerMysqlModel = null;
+
+        if (StringUtils.isBlank(id)) {
+            partnerMysqlModel = new PartnerMysqlModel();
+        } else {
+            partnerMysqlModel = partnerRepository.findOne("id", id, PartnerMysqlModel.class);
+            if (null == partnerMysqlModel) {
+                partnerMysqlModel = new PartnerMysqlModel();
+                partnerMysqlModel.setId(id);
+            }
         }
 
-        save(input);
+        partnerMysqlModel.setName(name);
+        partnerMysqlModel.setEmail("");
+        partnerMysqlModel.setRemark("");
+        partnerMysqlModel.setServingBaseUrl(url);
+        partnerMysqlModel.setCreatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
+        partnerMysqlModel.setCode(code);
+        partnerMysqlModel.setIsUnionMember(isUnionMember);
+        partnerRepository.save(partnerMysqlModel);
     }
 
 }
