@@ -304,7 +304,8 @@ public class ServingService extends AbstractService {
             return null;
         }
 
-        JObject result = JObject.create(task.getResult());
+        JObject data = JObject.create(task.getResult());
+        JObject result = data.getJObjectByPath("train_" + task.getName() + ".data");
 
         TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
                 taskResult.getJobId(),
