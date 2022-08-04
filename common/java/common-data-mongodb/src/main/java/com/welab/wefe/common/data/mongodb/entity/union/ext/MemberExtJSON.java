@@ -46,7 +46,9 @@ public class MemberExtJSON {
     private String certPemContent;
     // 证书序列号
     private String certSerialNumber;
-
+    // 是否开启TLS通信
+    private Boolean memberGatewayTlsEnable;
+    
     public int getRealNameAuthStatus() {
         return realNameAuthStatus;
     }
@@ -158,5 +160,14 @@ public class MemberExtJSON {
     public void setCertRequestId(String certRequestId) {
         this.certRequestId = certRequestId;
     }
+
+    public Boolean getMemberGatewayTlsEnable() {
+        return memberGatewayTlsEnable;
+    }
+
+    public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
+        this.memberGatewayTlsEnable = memberGatewayTlsEnable;
+    }
+    
 
 }
