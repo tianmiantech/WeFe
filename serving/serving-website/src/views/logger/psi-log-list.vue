@@ -203,35 +203,42 @@
                     //     }
                     // });
                     
-                    let { length } = data_grid;
 
-                    if(length >= 15) length = 15;
-                    this.resize(length);
+                    let unEmptyCount = 0;
 
-                    data_grid.forEach((item, idx) => {
-                        count_rows[0] = { ['日期']: Object.keys(item)[0] };
-                        count_header[0] = '日期';
-                        console.log(item);
-                        for (const key in item) {
-                            item[key].forEach((sitem, sidx) => {
-                                console.log('sitem', sitem);
-                                count_header.push(`['${sitem[0]}']`);
-                                const label = `['${[sitem[0]]}']`, val = sitem[1];
+                    data_grid.forEach(item => {
+                        if (Object.values(item).length) {
+                            count_rows[0] = { ['日期']: Object.keys(item)[0] };
+                            count_header[0] = '日期';
+                            console.log(item);
+                            for (const key in item) {
+                                console.log(item);
+                                item[key].forEach(sitem => {
+                                    console.log('sitem', sitem);
+                                    count_header.push(`['${sitem[0]}']`);
+                                    const label = `['${[sitem[0]]}']`, val = sitem[1];
 
-                                obj[label] = val;
-                            });
+                                    obj[label] = val;
+                                });
+                            }
                         }
+                        unEmptyCount = Object.values(item).length;
                         console.log(Object.values(item));
                     });
 
                     count_rows.push(obj);
-                    const new_rows = Object.assign({
-                        ...obj,
-                    }, count_rows[0]);
+                    const new_rows = Object.assign(
+                        { ...obj }, 
+                        count_rows[0],
+                    );
 
-                        this.table_data.rows = [new_rows];
-                        this.table_data.header = count_header;
-                        console.log(this.table_data);
+                    this.table_data.rows = [new_rows];
+                    this.table_data.header = count_header;
+                    console.log(this.table_data);
+
+                        // the height of grid.
+                    if(unEmptyCount >= 15) unEmptyCount = 15;
+                    this.resize(unEmptyCount);
                 }
                 this.loading = false;
                 // await this.getList();
