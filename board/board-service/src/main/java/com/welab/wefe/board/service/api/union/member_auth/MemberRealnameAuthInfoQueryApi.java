@@ -47,6 +47,8 @@ public class MemberRealnameAuthInfoQueryApi extends AbstractApi<AbstractApiInput
         if (code == 0) {
             JSONObject data = result.getJSONObject("data");
             String certPemContent = data.getString("cert_pem_content");
+            // TODO
+            String certRequestId = data.getString("cert_request_id");
             certOperationService.saveCertInfo(certPemContent);
         }
         return unionApiResultToBoardApiResult(result);

@@ -56,6 +56,7 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
         extJSON.setAuthType(input.authType);
         extJSON.setDescription(input.description);
         extJSON.setCertRequestContent(input.certRequestContent);
+        // TODO
         extJSON.setEmail(input.email);
         extJSON.setOrganizationName(input.organizationName);
         extJSON.setProvinceCityName(input.provinceCityName);

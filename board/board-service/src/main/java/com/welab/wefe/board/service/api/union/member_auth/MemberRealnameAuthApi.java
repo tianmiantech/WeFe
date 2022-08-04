@@ -59,6 +59,7 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
         private String provinceCityName;
         private String email;
         private String certRequestContent;
+        private String certRequestId;
 
         public String getPrincipalName() {
             return principalName;
@@ -122,6 +123,14 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
         public void setCertRequestContent(String certRequestContent) {
             this.certRequestContent = certRequestContent;
+        }
+
+        public String getCertRequestId() {
+            return certRequestId;
+        }
+
+        public void setCertRequestId(String certRequestId) {
+            this.certRequestId = certRequestId;
         }
     }
 }
