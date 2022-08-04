@@ -26,6 +26,7 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
+import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
@@ -108,8 +109,6 @@ public class ServiceService {
     private ModelMemberRepository modelMemberRepository;
     @Autowired
     private ModelMemberService modelMemberService;
-    @Autowired
-    private ModelService modelService;
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
@@ -140,6 +139,13 @@ public class ServiceService {
                 output.getAlgorithm() == Algorithm.XGBoost ? xgboost(output.getModelParam(), output.getFlType())
                         : null);
         output.setModelStatus(getModelStatus(model, output));
+
+        JSONObject preview = new JSONObject();
+        preview.put("id", model.getServiceId());
+//        preview.put("params", displayServiceQueryParams(entity.getQueryParams(), entity.getQueryParamsConfig()));
+        preview.put("url", SERVICE_PRE_URL + model.getUrl());
+        preview.put("method", "POST");
+        output.setPreview(preview);
 
         return output;
     }
@@ -730,13 +736,63 @@ public class ServiceService {
     }
 
     public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
+        BaseServiceMySqlModel model = baseServiceRepository.findOne("serviceId", serviceId, BaseServiceMySqlModel.class);
+
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+
+        if (model.getServiceType() == 7) {
+            return modelServiceSdk(serviceId);
+        }
+
+        return mpcServiceSdk(serviceId);
+    }
+
+    private File modelServiceSdk(String serviceId) throws StatusCodeWithException, IOException {
+        Path outputPath = Paths.get(config.getFileBasePath()).resolve(serviceId + ".zip");
+        if (outputPath.toFile().exists()) {
+            return outputPath.toFile();
+        }
+
+        TableModelMySqlModel model = modelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+
+
+        List<File> fileList = new ArrayList<>();
+
+        Path path = Paths.get(config.getFileBasePath()).resolve(serviceId + ".java");
+        File file = new File(path.toString());
+
+        // 将需要提供的文件加到这个列表
+        List<String> stringList = FileUtil.readAllForLine(Paths.get(config.getFileBasePath()).resolve("ApiExample.java").toString(), "UTF-8");
+        stringList.stream().forEach(x -> {
+            try {
+                FileUtil.writeTextToFile(String.format(x, serviceId) + System.lineSeparator(), path, true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        fileList.add(file);
+
+        File outputFile = new File(outputPath.toString());
+        FileOutputStream fos2 = new FileOutputStream(outputFile);
+        ZipUtils.toZip(fileList, fos2);
+
+        file.delete();
+        return outputFile;
+    }
+
+    private File mpcServiceSdk(String serviceId) throws StatusCodeWithException, IOException {
         TableServiceMySqlModel model = serviceRepository.findOne("id", serviceId, TableServiceMySqlModel.class);
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
         int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
         Path basePath = Paths.get(config.getFileBasePath());
-//		String basePath = config.getFileBasePath();
         List<File> fileList = new ArrayList<>();
         File readme = new File(basePath.resolve("readme.md").toString());
         if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
