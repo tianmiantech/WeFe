@@ -30,30 +30,29 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class CommonConfig {
 
-
     @Value("${privacy.database.encrypt.enable:false}")
-    private String isDatabaseEncryptEnable;
+    private boolean databaseEncryptEnable;
 
     @Value("${privacy.database.encrypt.secret.key:}")
-    private String privacyDatabaseEncryptSecretKey;
+    private String databaseEncryptSecretKey;
 
     @Value("${wefe.union.base-url:}")
     private String unionBaseUrl;
 
-    public String getIsDatabaseEncryptEnable() {
-        return isDatabaseEncryptEnable;
+    public boolean isDatabaseEncryptEnable() {
+        return databaseEncryptEnable;
     }
 
-    public void setIsDatabaseEncryptEnable(String isDatabaseEncryptEnable) {
-        this.isDatabaseEncryptEnable = isDatabaseEncryptEnable;
+    public void setDatabaseEncryptEnable(boolean databaseEncryptEnable) {
+        this.databaseEncryptEnable = databaseEncryptEnable;
     }
 
-    public String getPrivacyDatabaseEncryptSecretKey() {
-        return privacyDatabaseEncryptSecretKey;
+    public String getDatabaseEncryptSecretKey() {
+        return databaseEncryptSecretKey;
     }
 
-    public void setPrivacyDatabaseEncryptSecretKey(String privacyDatabaseEncryptSecretKey) {
-        this.privacyDatabaseEncryptSecretKey = privacyDatabaseEncryptSecretKey;
+    public void setDatabaseEncryptSecretKey(String databaseEncryptSecretKey) {
+        this.databaseEncryptSecretKey = databaseEncryptSecretKey;
     }
 
     public String getUnionBaseUrl() {
