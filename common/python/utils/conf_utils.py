@@ -56,7 +56,7 @@ def get_db_config(key: tuple):
         return 'http://oss-' + group_config['region'] + '.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT:
         return 'http://oss-' + group_config['region'] + '-internal.aliyuncs.com'
-    elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET or consts.COMM_CONF_KEY_CK_PWD:
+    elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET or key == consts.COMM_CONF_KEY_CK_PWD:
         enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
         if "true" == enable:
             sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
@@ -193,3 +193,12 @@ def set_env(key, value):
 
     """
     os.environ[key] = value
+
+
+if __name__ == '__main__':
+    pwd = '6c9bffbfbaf5c3011b62b6232facdb78'
+    key = '66AEEF265AB8DCCC169A9C0E6AD06DA0'
+    sm4_key = bytes.fromhex(key)
+    sm4_cipher = SM4CBC()
+    result = sm4_cipher.decrypt(sm4_key, pwd)
+    print(result)
