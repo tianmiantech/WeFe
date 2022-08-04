@@ -1,5 +1,6 @@
 <template>
     <el-card
+        v-loading="loading"
         class="page"
         shadow="never"
     >
@@ -30,22 +31,73 @@
             </el-button>
         </el-form>
 
-        <el-table
+        <!-- 展开方式 -->
+        <!-- <el-table
             v-loading="loading"
             :data="list"
             stripe
             border
         >
+            <el-table-column type="expand">
+                <template #default="props">
+                    <el-table
+                        :data="list[props.$index].slist"
+                        stripe
+                        border
+                    >
+                        <el-table-column
+                            label="count"
+                            prop="count"
+                        />
+                        <el-table-column
+                            label="percent"
+                            prop="percent"
+                        />
+                        <el-table-column
+                            label="psi"
+                            prop="psi"
+                        />
+                    </el-table>
+                </template>
+            </el-table-column>
             <el-table-column
                 label="日期"
                 min-width="120px"
+                prop="date"
+            />
+        </el-table> -->
+
+        <div class="table_box">
+            <c-grid
+                v-if="table_data.rows.length"
+                :theme="gridTheme"
+                :data="table_data.rows"
+                :frozen-col-count="1"
+                font="12px sans-serif"
+                :style="{height:`${gridHeight}px`}"
             >
-                <template slot-scope="scope">
-                    {{ scope.row.name }}
-                    <p class="id">{{ scope.row.id }}</p>
-                </template>
-            </el-table-column>
-        </el-table>
+                <c-grid-column
+                    v-for="(item, index) in table_data.header"
+                    :key="index"
+                    :field="item"
+                    min-width="100"
+                    :width="item === table_data.header[0] ? 180 : 'auto'"
+                    :column-style="{textOverflow: 'ellipsis'}"
+                >
+                    {{ item.replace(/'/g, '').replace(/\[|]/g, '') }}
+                </c-grid-column>
+            </c-grid>
+            <el-table
+                v-else
+                stripe
+                border
+            >
+                <div slot="empty">
+                    <TableEmptyData />
+                </div>
+            </el-table>
+        </div>
+    
 
         <div
             v-if="pagination.total"
@@ -84,6 +136,16 @@
                 // getListApi: '/model/psi',
                 time:      '',
                 tableData: [],
+
+                table_data: {
+                    header: [],
+                    rows:   [],
+                },
+                gridTheme: {
+                    color:       '#6C757D',
+                    borderColor: '#EBEEF5',
+                },
+                gridHeight: 0,
             };
         },
         created() {
@@ -113,25 +175,69 @@
             },
             async getPsiList() {
                 this.tableData = [];
+                this.loading = true;
                 const { code, data } = await this.$http.post({
                     url:  '/model/psi',
                     data: this.search,
                 });
 
                 if (code === 0 && data) {
-                    console.log(data);
+                    // console.log(data);
                     const { data_grid } = data;
-                    const list = [];
+                    const list = [], count_header = [], count_rows = [], obj = {};
 
-                    data_grid.forEach(item => {
-                        console.log(Object.keys(item));
+                    // data_grid.forEach((item, idx) => {
+                    //     list.push({
+                    //         date:  Object.keys(item)[0],
+                    //         slist: [],
+                    //     });
+                    //     for (const key in item) {
+                    //         item[key].forEach((sitem, sidx) => {
+                    //             list[idx].slist.push({
+                    //                 section: sitem[0],
+                    //                 count:   sitem[1],
+                    //                 percent: sitem[2],
+                    //                 psi:     sitem[3],
+                    //             });
+                    //         });
+                    //     }
+                    // });
+                    
+                    let { length } = data_grid;
+
+                    if(length >= 15) length = 15;
+                    this.resize(length);
+
+                    data_grid.forEach((item, idx) => {
+                        count_rows[0] = { ['日期']: Object.keys(item)[0] };
+                        count_header[0] = '日期';
+                        console.log(item);
+                        for (const key in item) {
+                            item[key].forEach((sitem, sidx) => {
+                                console.log('sitem', sitem);
+                                count_header.push(`['${sitem[0]}']`);
+                                const label = `['${[sitem[0]]}']`, val = sitem[1];
+
+                                obj[label] = val;
+                            });
+                        }
+                        console.log(Object.values(item));
                     });
 
-                    // list.push({
-                    //     date: 
-                    // });
+                    count_rows.push(obj);
+                    const new_rows = Object.assign({
+                        ...obj,
+                    }, count_rows[0]);
+
+                        this.table_data.rows = [new_rows];
+                        this.table_data.header = count_header;
+                        console.log(this.table_data);
                 }
-                await this.getList();
+                this.loading = false;
+                // await this.getList();
+            },
+            resize(length) {
+                this.gridHeight = 41 * (length + 1) + 1;
             },
             dataChange(val) {
                 if (val) {
@@ -154,5 +260,10 @@
             padding: 10px;
             font-size:16px;
         }
+    }
+    .c-grid {
+        border: 1px solid #EBEEF5;
+        position: relative;
+        z-index: 1;
     }
 </style>
