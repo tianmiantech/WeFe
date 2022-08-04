@@ -79,9 +79,12 @@ public class CertOperationService {
         certInfoRepository.save(certInfo);
     }
 
-    // 根据证书内容读取证书
     public void saveCertInfo(String certRequestId, String certPemContent) throws StatusCodeWithException {
         try {
+            if (StringUtils.isNotBlank(certPemContent)) {
+                return;
+            }
+            // 根据证书内容读取证书
             X509Certificate certificate = CertUtils.convertStrToCert(certPemContent);
             String serialNumber = String.valueOf(certificate.getSerialNumber());
             CertInfoMysqlModel certInfo = findBySerialNumber(serialNumber);
@@ -258,7 +261,7 @@ public class CertOperationService {
      * @return
      * @throws Exception
      */
-    private KeyPair getKeyPair(KeyAlgorithmEnums keyAlgorithm, String pemPrivateKey) throws Exception {
+    public KeyPair getKeyPair(KeyAlgorithmEnums keyAlgorithm, String pemPrivateKey) throws Exception {
         KeyPair keyPair = null;
         if (keyAlgorithm.equals(KeyAlgorithmEnums.ECDSA) || keyAlgorithm.equals(KeyAlgorithmEnums.SM2)) {
             keyPair = KeyUtils.getECKeyPair(pemPrivateKey);
