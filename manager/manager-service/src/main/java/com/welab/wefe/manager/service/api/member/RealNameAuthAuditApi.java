@@ -77,6 +77,11 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
                 throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
         }
+        else if (input.getRealNameAuthStatus() == 3) { //-1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
+            memberExtJSON.setUpdatedTime(System.currentTimeMillis());
+            // 更新证书状态
+            certOperationService.updateStatus(memberExtJSON.getCertSerialNumber(), "canceled");
+        }
         memberContractService.updateExtJson(input.getId(), memberExtJSON);
         return success();
     }
