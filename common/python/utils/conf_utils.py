@@ -195,10 +195,3 @@ def set_env(key, value):
     os.environ[key] = value
 
 
-if __name__ == '__main__':
-    pwd = '6c9bffbfbaf5c3011b62b6232facdb78'
-    key = '66AEEF265AB8DCCC169A9C0E6AD06DA0'
-    sm4_key = bytes.fromhex(key)
-    sm4_cipher = SM4CBC()
-    result = sm4_cipher.decrypt(sm4_key, pwd)
-    print(result)
