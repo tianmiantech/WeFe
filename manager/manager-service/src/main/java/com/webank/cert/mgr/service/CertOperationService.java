@@ -231,8 +231,7 @@ public class CertOperationService {
      * @return
      * @throws Exception
      */
-    public CertVO createUserCert(String issuerCertId, String commonName, String userId, String organizationUnitName,
-            String organizationName, String email, String certRequestContent) throws Exception {
+    public CertVO createUserCert(String issuerCertId, String userId, String certRequestContent) throws Exception {
         Date beginDate = new Date();
         Date endDate = new Date(beginDate.getTime() + 315360000000L);
         KeyUsage keyUsage = new KeyUsage(KeyUsage.dataEncipherment);
@@ -267,13 +266,9 @@ public class CertOperationService {
                 issuerCertDigestAlgEnums.getAlgorithmName(), parentCertificate,
                 CertUtils.convertStrToCsr(certRequestContent), keyUsage, beginDate, endDate,
                 issuerKeyPair.getPrivate());
-
-        // 申请人信息
-        X500NameInfo subject = X500NameInfo.builder().commonName(commonName).organizationName(organizationName)
-                .organizationalUnitName(organizationUnitName).email(email).build();
         // 保存csr
         CertRequestInfo subjectRequestInfo = certDao
-                .save(createCertRequest(commonName, userId, certRequestContent, subject));
+                .save(createUserCertRequest(null, userId, certRequestContent, null));
         // 保存cert
         CertInfo certInfo = certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate),
                 issuerCertInfo.getSubjectCN(), issuerCertInfo.getSubjectOrg(), subjectRequestInfo.getSubjectCN(),
@@ -301,13 +296,12 @@ public class CertOperationService {
         return certKeyInfo;
     }
 
-    private CertRequestInfo createCertRequest(String commonName, String userId, String certRequestContent,
+    private CertRequestInfo createUserCertRequest(String commonName, String userId, String certRequestContent,
             X500NameInfo subject) throws Exception {
         if (StringUtils.isBlank(userId)) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
         }
-        return certDao.save(buildCertRequestInfo(certRequestContent, null, subject.getCommonName(),
-                subject.getOrganizationName(), userId));
+        return certDao.save(buildCertRequestInfo(certRequestContent, null, null, null, userId));
     }
 
     private CertRequestInfo buildCertRequestInfo(String csrStr, String subjectKeyId, String commonName,

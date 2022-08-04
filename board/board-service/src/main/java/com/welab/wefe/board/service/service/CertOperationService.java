@@ -80,13 +80,23 @@ public class CertOperationService {
     }
 
     // 根据证书内容读取证书
-    public void saveCertInfo(String certPemContent) throws StatusCodeWithException {
+    public void saveCertInfo(String certRequestId, String certPemContent) throws StatusCodeWithException {
         try {
             X509Certificate certificate = CertUtils.convertStrToCert(certPemContent);
             String serialNumber = String.valueOf(certificate.getSerialNumber());
             CertInfoMysqlModel certInfo = findBySerialNumber(serialNumber);
+
             if (certInfo == null) {
-                certInfo = buildCertInfo(certPemContent, null, null, null, serialNumber, null, null);
+                CertRequestInfoMysqlModel certRequestInfoMysqlModel = findCertRequestById(certRequestId);
+//                CertKeyInfoMysqlModel certKeyInfoMysqlModel = queryCertKeyInfoById(certRequestInfoMysqlModel.getSubjectKeyId());
+//                try {
+//                    KeyPair keyPair = getKeyPair(KeyAlgorithmEnums.getByKeyAlg(certKeyInfoMysqlModel.getKeyAlg()), certKeyInfoMysqlModel.getKeyPem());
+//                    PublicKey publicKey = keyPair.getPublic();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+                certInfo = buildCertInfo(certPemContent, certRequestInfoMysqlModel.getSubjectCN(),
+                        certRequestInfoMysqlModel.getSubjectOrg(), null, serialNumber, null, certRequestId);
                 certInfoRepository.save(certInfo);
             }
         } catch (CertificateException e) {

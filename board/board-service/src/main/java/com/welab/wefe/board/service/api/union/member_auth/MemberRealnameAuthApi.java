@@ -15,17 +15,21 @@
  */
 package com.welab.wefe.board.service.api.union.member_auth;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.database.entity.cert.CertRequestInfoMysqlModel;
 import com.welab.wefe.board.service.sdk.union.UnionService;
+import com.welab.wefe.board.service.service.CertOperationService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * @author zane
@@ -36,18 +40,28 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
     @Autowired
     private UnionService unionService;
+    @Autowired
+    private CertOperationService certOperationService;
 
     @Override
     protected ApiResult<Object> handle(MemberRealnameAuthApi.Input input) throws StatusCodeWithException, IOException {
         // 生成csr
-        input.setCertRequestContent(generateCertRequestContent(input));
+        generateCertRequestContent(input);
         JSONObject result = unionService.realnameAuth(input);
         return super.unionApiResultToBoardApiResult(result);
     }
 
     // 生成csr
-    private String generateCertRequestContent(Input input) {
-        return null;
+    private void generateCertRequestContent(Input input) throws StatusCodeWithException {
+        try {
+            CertRequestInfoMysqlModel model = certOperationService.createCertRequestInfo(input.getPrincipalName(),
+                    input.getOrganizationName(), "IT");
+            input.setCertRequestContent(model.getCertRequestContent());
+            input.setCertRequestId(model.getId());
+        } catch (Exception e) {
+            LOG.error("generateCertRequestContent error ", e);
+            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
     }
 
     public static class Input extends AbstractApiInput {

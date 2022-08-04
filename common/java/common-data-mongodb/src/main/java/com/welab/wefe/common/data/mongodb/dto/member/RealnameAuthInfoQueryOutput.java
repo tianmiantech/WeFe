@@ -16,8 +16,6 @@
 
 package com.welab.wefe.common.data.mongodb.dto.member;
 
-import com.welab.wefe.common.data.mongodb.entity.union.ext.RealnameAuthFileInfo;
-
 import java.util.List;
 
 /**
@@ -33,7 +31,17 @@ public class RealnameAuthInfoQueryOutput {
     private String authType;
     private String description;
     private String realNameAuthUsefulLife;
-
+    
+    // 证书相关字段
+    // 证书请求内容
+    private String certRequestContent;
+    // 证书请求ID
+    private String certRequestId;
+    // 证书pem内容
+    private String certPemContent;
+    // 证书序列号
+    private String certSerialNumber;
+    
     private List<FileInfo> fileInfoList;
 
     public static class FileInfo {
@@ -110,5 +118,37 @@ public class RealnameAuthInfoQueryOutput {
 
     public void setRealNameAuthUsefulLife(String realNameAuthUsefulLife) {
         this.realNameAuthUsefulLife = realNameAuthUsefulLife;
+    }
+
+    public String getCertRequestContent() {
+        return certRequestContent;
+    }
+
+    public void setCertRequestContent(String certRequestContent) {
+        this.certRequestContent = certRequestContent;
+    }
+
+    public String getCertRequestId() {
+        return certRequestId;
+    }
+
+    public void setCertRequestId(String certRequestId) {
+        this.certRequestId = certRequestId;
+    }
+
+    public String getCertPemContent() {
+        return certPemContent;
+    }
+
+    public void setCertPemContent(String certPemContent) {
+        this.certPemContent = certPemContent;
+    }
+
+    public String getCertSerialNumber() {
+        return certSerialNumber;
+    }
+
+    public void setCertSerialNumber(String certSerialNumber) {
+        this.certSerialNumber = certSerialNumber;
     }
 }

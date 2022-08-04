@@ -51,7 +51,7 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
         MemberExtJSON memberExtJSON = new MemberExtJSON();
         memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
         memberExtJSON.setAuditComment(input.getAuditComment());
-        
+
         if (input.getRealNameAuthStatus() == 2) {
             Member member = memberMongoReop.findMemberId(input.getId());
             if (member == null) {
@@ -61,24 +61,15 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
             memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
             memberExtJSON.setAuditComment(input.getAuditComment());
             memberExtJSON.setRealNameAuthTime(System.currentTimeMillis());
-            // 常用名
-            String commonName = memberExtJSON.getPrincipalName();
             // 用户ID
             String userId = input.getCurMemberId();
-            // 组织机构单位名称固定为 IT
-            String organizationUnitName = "IT";
-            // 组织单位名称
-            String organizationName = memberExtJSON.getOrganizationName();
-            // 邮箱
-            String email = memberExtJSON.getEmail();
             // 证书请求内容
             String certRequestContent = memberExtJSON.getCertRequestContent();
             // 签发机构的证书ID
             String issuerCertId = input.getIssuerCertId();
             try {
                 // 签发证书
-                CertVO cert = certOperationService.createUserCert(issuerCertId, commonName, userId,
-                        organizationUnitName, organizationName, email, certRequestContent);
+                CertVO cert = certOperationService.createUserCert(issuerCertId, userId, certRequestContent);
                 // 将证书内容写入
                 memberExtJSON.setCertPemContent(cert.getCertContent());
                 memberExtJSON.setCertSerialNumber(cert.getSerialNumber());

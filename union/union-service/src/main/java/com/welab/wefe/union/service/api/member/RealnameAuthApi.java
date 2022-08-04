@@ -56,10 +56,7 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
         extJSON.setAuthType(input.authType);
         extJSON.setDescription(input.description);
         extJSON.setCertRequestContent(input.certRequestContent);
-        // TODO
-        extJSON.setEmail(input.email);
-        extJSON.setOrganizationName(input.organizationName);
-        extJSON.setProvinceCityName(input.provinceCityName);
+        extJSON.setCertRequestId(input.certRequestId);
 
         List<RealnameAuthFileInfo> realnameAuthFileInfoList = new ArrayList<>();
         for (String fileId :
@@ -91,13 +88,9 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
         @Check(require = true)
         private List<String> fileIdList;
         @Check(require = true)
-        private String organizationName;
-        @Check(require = true)
-        private String provinceCityName;
-        @Check(require = true)
-        private String email;
-        @Check(require = true)
         private String certRequestContent;
+        @Check(require = true)
+        private String certRequestId;
 
 
         public String getPrincipalName() {
@@ -132,36 +125,20 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
             this.fileIdList = fileIdList;
         }
 
-        public String getOrganizationName() {
-            return organizationName;
-        }
-
-        public void setOrganizationName(String organizationName) {
-            this.organizationName = organizationName;
-        }
-
-        public String getProvinceCityName() {
-            return provinceCityName;
-        }
-
-        public void setProvinceCityName(String provinceCityName) {
-            this.provinceCityName = provinceCityName;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
         public String getCertRequestContent() {
             return certRequestContent;
         }
 
         public void setCertRequestContent(String certRequestContent) {
             this.certRequestContent = certRequestContent;
+        }
+
+        public String getCertRequestId() {
+            return certRequestId;
+        }
+
+        public void setCertRequestId(String certRequestId) {
+            this.certRequestId = certRequestId;
         }
     }
 }

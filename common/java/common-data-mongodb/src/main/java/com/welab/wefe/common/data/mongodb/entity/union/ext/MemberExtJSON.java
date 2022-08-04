@@ -38,14 +38,10 @@ public class MemberExtJSON {
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
     // 证书相关字段
-    // 企业所在省市
-    private String provinceCityName;
-    // 企业所属组织
-    private String organizationName;
-    // 邮箱
-    private String email;
     // 证书请求内容
     private String certRequestContent;
+    // 证书请求ID
+    private String certRequestId;
     // 证书pem内容
     private String certPemContent;
     // 证书序列号
@@ -123,30 +119,6 @@ public class MemberExtJSON {
         this.secretKeyType = secretKeyType;
     }
 
-    public String getProvinceCityName() {
-        return provinceCityName;
-    }
-
-    public void setProvinceCityName(String provinceCityName) {
-        this.provinceCityName = provinceCityName;
-    }
-
-    public String getOrganizationName() {
-        return organizationName;
-    }
-
-    public void setOrganizationName(String organizationName) {
-        this.organizationName = organizationName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getCertRequestContent() {
         return certRequestContent;
     }
@@ -177,6 +149,14 @@ public class MemberExtJSON {
 
     public void setUpdatedTime(long updatedTime) {
         this.updatedTime = updatedTime;
+    }
+
+    public String getCertRequestId() {
+        return certRequestId;
+    }
+
+    public void setCertRequestId(String certRequestId) {
+        this.certRequestId = certRequestId;
     }
 
 }
