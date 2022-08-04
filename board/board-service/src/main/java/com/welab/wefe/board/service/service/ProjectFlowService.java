@@ -361,9 +361,12 @@ public class ProjectFlowService extends AbstractService {
 
         Specification<ProjectFlowMySqlModel> where = Where
                 .create()
-                .equal("projectId", input.getProjectId())
-                .equal("deleted", input.isDeleted())
-                .in("flowId", input.getFlowIdList())
+                .equal("projectId", input.projectId)
+                .equal("deleted", input.deleted)
+                .equal("federatedLearningType", input.federatedLearningType)
+                .equal("createdBy", input.creator)
+                .in("flowId", input.flowIdList)
+                .in("flowStatus", input.status == null ? null : input.status.toList())
                 .orderBy("top", OrderBy.desc)
                 .orderBy("sortNum", OrderBy.desc)
                 .orderBy("createdTime", OrderBy.desc)
