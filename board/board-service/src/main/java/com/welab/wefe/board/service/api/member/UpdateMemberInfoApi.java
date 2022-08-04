@@ -52,6 +52,8 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
         private String memberLogo;
         @Check(name = "成员隐身状态")
         private Boolean memberHidden;
+        @Check(name = "开启TLS通信")
+        private Boolean memberGatewayTlsEnable;
 
         @Check(name = "网关通信地址", require = true, messageOnEmpty = "网关通信地址不能为空")
         private String memberGatewayUri;
@@ -87,6 +89,14 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
 
         public void setMemberGatewayUri(String memberGatewayUri) {
             this.memberGatewayUri = memberGatewayUri;
+        }
+
+        public Boolean getMemberGatewayTlsEnable() {
+            return memberGatewayTlsEnable;
+        }
+
+        public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
+            this.memberGatewayTlsEnable = memberGatewayTlsEnable;
         }
 
         //endregion

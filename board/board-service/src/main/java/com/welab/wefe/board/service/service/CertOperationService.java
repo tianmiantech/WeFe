@@ -81,7 +81,7 @@ public class CertOperationService {
 
     public void saveCertInfo(String certRequestId, String certPemContent) throws StatusCodeWithException {
         try {
-            if (StringUtils.isNotBlank(certPemContent)) {
+            if (StringUtils.isBlank(certPemContent)) {
                 return;
             }
             // 根据证书内容读取证书

@@ -149,7 +149,7 @@ public class SystemInitializeService extends AbstractService {
         model.setMemberAllowPublicDataSet(input.getMemberAllowPublicDataSet());
         model.setMemberGatewayUri(input.getMemberGatewayUri());
         model.setMemberHidden(input.getMemberHidden());
-
+        model.setMemberGatewayTlsEnable(input.getMemberGatewayTlsEnable());
         globalConfigService.put(model);
 
         unionService.uploadMemberInfoExcludeLogo(model);

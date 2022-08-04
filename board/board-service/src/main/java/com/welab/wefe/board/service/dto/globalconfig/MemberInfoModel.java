@@ -57,6 +57,9 @@ public class MemberInfoModel extends AbstractConfigModel {
 
     @Check(name = "密钥类型")
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
+    
+    @Check(name = "网关开启TLS通信")
+    private Boolean memberGatewayTlsEnable;
 
     //region getter/setter
 
@@ -147,5 +150,14 @@ public class MemberInfoModel extends AbstractConfigModel {
     public void setSecretKeyType(SecretKeyType secretKeyType) {
         this.secretKeyType = secretKeyType;
     }
+
+    public Boolean getMemberGatewayTlsEnable() {
+        return memberGatewayTlsEnable;
+    }
+
+    public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
+        this.memberGatewayTlsEnable = memberGatewayTlsEnable;
+    }
+    
     //endregion
 }
