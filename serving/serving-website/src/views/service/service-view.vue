@@ -1492,7 +1492,6 @@ export default {
         },
 
         async refreshPartnerStatus(partner_id) {
-            console.log(partner_id);
             this.checkLoading = true;
             const params = {
                 serviceId: this.form.model_data.model_id,
@@ -1632,8 +1631,8 @@ export default {
                 '多方安全统计(查询方)是协调方只能拿到最终的统计结果，但不能获取到特定参与方的统计结果。例如A公司想统计某个用户的信用卡数量，已知B，C两家公司有信用卡数据，但是为了安全起见，A只能获取信用卡总和而不能知道B，C两家公司的信用卡具体数据（用户在B，C各有几张信用卡），此时便可以使用多方安全统计算法，BC为被查询方，A为查询方',
                 '多方交集查询是两方交集查询的再次封装',
                 '多方匿踪查询是两方交集查询的再次封装',
-                '深度学习模型--描述',
-                '机器学习模型--描述'];
+                '深度学习模型--联邦深度学习模型服务',
+                '机器学习模型--联邦机器学习模型服务，支持横向、纵向、混合联邦模型服务。'];
 
             this.currentDesc = descList[this.form.service_type - 1];
         },
