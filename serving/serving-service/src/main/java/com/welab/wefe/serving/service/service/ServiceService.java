@@ -53,6 +53,7 @@ import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
 import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
 import com.welab.wefe.serving.service.utils.*;
+import com.welab.wefe.serving.service.utils.component.ScoreCardComponentUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -139,10 +140,10 @@ public class ServiceService {
                 output.getAlgorithm() == Algorithm.XGBoost ? xgboost(output.getModelParam(), output.getFlType())
                         : null);
         output.setModelStatus(getModelStatus(model, output));
+        output.setScoreCardInfo(model.getScoreCardInfo() != null ? ScoreCardComponentUtil.scoreCardInfo(model) : JObject.create());
 
         JSONObject preview = new JSONObject();
         preview.put("id", model.getServiceId());
-//        preview.put("params", displayServiceQueryParams(entity.getQueryParams(), entity.getQueryParamsConfig()));
         preview.put("url", SERVICE_PRE_URL + model.getUrl());
         preview.put("method", "POST");
         output.setPreview(preview);
@@ -257,7 +258,7 @@ public class ServiceService {
                 data.setRightNode(xgboostNodeModel.getRightNodeId());
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
-                data.setThreshold(flType == FederatedLearningType.vertical ? splitMaskdict.get(xgboostNodeModel.getId())
+                data.setThreshold(splitMaskdict.get(xgboostNodeModel.getId()) != null ? splitMaskdict.get(xgboostNodeModel.getId())
                         : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
