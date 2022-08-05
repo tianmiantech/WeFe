@@ -257,7 +257,7 @@ public class ServiceService {
                 data.setRightNode(xgboostNodeModel.getRightNodeId());
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
-                data.setThreshold(flType == FederatedLearningType.vertical ? splitMaskdict.get(xgboostNodeModel.getId())
+                data.setThreshold(splitMaskdict.get(xgboostNodeModel.getId()) != null ? splitMaskdict.get(xgboostNodeModel.getId())
                         : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
