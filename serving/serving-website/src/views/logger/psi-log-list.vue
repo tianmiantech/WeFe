@@ -5,13 +5,13 @@
         shadow="never"
     >
         <el-form inline>
-            <el-form-item label="数据源Id:">
+            <el-form-item label="模型ID:">
                 <el-input
                     v-model="search.service_id"
                     clearable
                 />
             </el-form-item>
-            <el-form-item>
+            <el-form-item label="日期：">
                 <el-date-picker
                     v-model="time"
                     type="daterange"
@@ -109,7 +109,6 @@
                 </div>
             </el-table>
         </div>
-    
 
         <div
             v-if="pagination.total"
@@ -159,7 +158,7 @@
             };
         },
         created() {
-            // this.search.service_id = this.$$route.query.service_id || '';
+            this.search.service_id = this.$route.query.service_id || '';
             this.syncUrlParams();
             this.getPsiList();
         },
