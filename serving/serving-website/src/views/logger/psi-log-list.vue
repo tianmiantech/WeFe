@@ -138,7 +138,7 @@
                 loading:      false,
                 fillUrlQuery: false,
                 search:       {
-                    service_id: 'a336b0e826214ad786e5844553ffdadd_VertLR_16196034768611638',
+                    service_id: this.$route.query.service_id,
                     start_time: '',
                     end_time:   '',
                     page_index: 0,
@@ -158,18 +158,17 @@
             };
         },
         created() {
-            this.search.service_id = this.$route.query.service_id || '';
-            this.syncUrlParams();
-            this.getPsiList();
+            if (this.search.service_id) {
+                this.syncUrlParams();
+                this.getPsiList();
+            }
         },
         methods: {
             syncUrlParams() {
                 this.search = {
-                    service_id:             'a336b0e826214ad786e5844553ffdadd_VertLR_16196034768611638',
-                    start_time:             '',
-                    end_time:               '',
-                    'request-from-refresh': false,
+                    ...this.search,
                     ...this.$route.query,
+                    'request-from-refresh': false, 
                 };
                 const date = new Date();
                 const year = date.getFullYear();
