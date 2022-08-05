@@ -322,6 +322,26 @@ const baseRoutes = [
         ],
     },
     {
+        path: `${prefixPath}log-setting`,
+        meta: {
+            title: '日志管理',
+            icon:  'el-icon-setting',
+        },
+        component: () => import('@comp/LayoutBase.vue'),
+        children:  [
+            {
+                path: `${prefixPath}psi-log-list`,
+                name: 'psi-log-list',
+                meta: {
+                    title:           'psi监控日志',
+                    loginAndRefresh: true,
+                    active:          `${prefixPath}psi-log-list`,
+                },
+                component: () => import('@views/logger/psi-log-list.vue'),
+            },
+        ],
+    },
+    {
         path: `${prefixPath}login`,
         name: 'login',
         meta: {
