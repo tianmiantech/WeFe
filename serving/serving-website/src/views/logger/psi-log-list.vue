@@ -4,10 +4,7 @@
         class="page"
         shadow="never"
     >
-        <el-form
-            class="mb20"
-            inline
-        >
+        <el-form inline>
             <el-form-item label="数据源Id:">
                 <el-input v-model="search.service_id" />
             </el-form-item>
@@ -30,6 +27,21 @@
                 查询
             </el-button>
         </el-form>
+
+        <div
+            style="text-align: right"
+            class="mb10"
+        >
+            <el-radio-group
+                v-model="currentRadio"
+                size="mini"
+                @change="statisticsRadioChange"
+            >
+                <el-radio-button label="PSI" />
+                <el-radio-button label="Count" />
+                <el-radio-button label="Percent" />
+            </el-radio-group>
+        </div>
 
         <!-- 展开方式 -->
         <!-- <el-table
@@ -81,7 +93,7 @@
                     :key="index"
                     :field="item"
                     min-width="100"
-                    :width="item === table_data.header[0] ? 180 : 'auto'"
+                    :width="item === table_data.header[0] ? 120 : 'auto'"
                     :column-style="{textOverflow: 'ellipsis'}"
                 >
                     {{ item.replace(/'/g, '').replace(/\[|]/g, '') }}
@@ -134,9 +146,7 @@
                     page_size:  20,
                 },
                 // getListApi: '/model/psi',
-                time:      '',
-                tableData: [],
-
+                time:       '',
                 table_data: {
                     header: [],
                     rows:   [],
@@ -145,7 +155,8 @@
                     color:       '#6C757D',
                     borderColor: '#EBEEF5',
                 },
-                gridHeight: 0,
+                gridHeight:   0,
+                currentRadio: 'PSI',
             };
         },
         created() {
@@ -174,7 +185,9 @@
                 }
             },
             async getPsiList() {
-                this.tableData = [];
+                this.table_data.header = [];
+                this.table_data.rows = [];
+                // this.currentRadio = 'PSI';
                 this.loading = true;
                 const { code, data } = await this.$http.post({
                     url:  '/model/psi',
@@ -182,66 +195,57 @@
                 });
 
                 if (code === 0 && data) {
-                    // console.log(data);
                     const { data_grid } = data;
-                    const list = [], count_header = [], count_rows = [], obj = {};
 
-                    // data_grid.forEach((item, idx) => {
-                    //     list.push({
-                    //         date:  Object.keys(item)[0],
-                    //         slist: [],
-                    //     });
-                    //     for (const key in item) {
-                    //         item[key].forEach((sitem, sidx) => {
-                    //             list[idx].slist.push({
-                    //                 section: sitem[0],
-                    //                 count:   sitem[1],
-                    //                 percent: sitem[2],
-                    //                 psi:     sitem[3],
-                    //             });
-                    //         });
-                    //     }
-                    // });
-                    
-
-                    let unEmptyCount = 0;
-
-                    data_grid.forEach(item => {
-                        if (Object.values(item).length) {
-                            count_rows[0] = { ['日期']: Object.keys(item)[0] };
-                            count_header[0] = '日期';
-                            console.log(item);
-                            for (const key in item) {
-                                console.log(item);
-                                item[key].forEach(sitem => {
-                                    console.log('sitem', sitem);
-                                    count_header.push(`['${sitem[0]}']`);
-                                    const label = `['${[sitem[0]]}']`, val = sitem[1];
-
-                                    obj[label] = val;
-                                });
-                            }
-                        }
-                        unEmptyCount = Object.values(item).length;
-                        console.log(Object.values(item));
-                    });
-
-                    count_rows.push(obj);
-                    const new_rows = Object.assign(
-                        { ...obj }, 
-                        count_rows[0],
-                    );
-
-                    this.table_data.rows = [new_rows];
-                    this.table_data.header = count_header;
-                    console.log(this.table_data);
-
-                        // the height of grid.
-                    if(unEmptyCount >= 15) unEmptyCount = 15;
-                    this.resize(unEmptyCount);
+                    this.data_grid = data_grid;
+                    this.dataRender();
                 }
                 this.loading = false;
-                // await this.getList();
+            },
+            statisticsRadioChange() {
+                this.table_data.rows = [];
+                this.dataRender();
+            },
+            dataRender() {
+                let count_header = [], unEmptyCount = 0, new_rows = null;
+                const count_rows = [], obj = {};
+
+                this.data_grid.forEach(item => {
+                    if (Object.values(item)[0].length) {
+                        count_header = [];
+                        count_rows[0] = { ['日期']: Object.keys(item)[0] };
+                        count_header[0] = '日期';
+                        let count_count = 0;
+
+                        for (const key in item) {
+                            item[key].forEach(sitem => {
+                                count_header.push(`['${sitem[0]}']`);
+                                let val = this.currentRadio === 'PSI' ? sitem[3] : this.currentRadio === 'Count' ? sitem[1] : sitem[2];
+                                const label = `['${[sitem[0]]}']`;
+
+                                val = Number(val.toFixed(5));
+                                obj[label] = val;
+                                count_rows.push(obj);
+                                new_rows = Object.assign(
+                                    { ...obj }, 
+                                    count_rows[0],
+                                );
+                                count_count +=val;
+                            });
+                        }
+                        
+                        count_header[Object.values(item)[0].length] = 'Sum';
+                        new_rows.Sum = this.currentRadio === 'PSI' ? count_count.toFixed(5) : count_count;
+                        this.table_data.rows.push(new_rows);
+                        unEmptyCount++;
+                    }
+                });
+
+                this.table_data.header = count_header;
+
+                // the height of grid.
+                if(unEmptyCount >= 15) unEmptyCount = 15;
+                this.resize(unEmptyCount);
             },
             resize(length) {
                 this.gridHeight = 41 * (length + 1) + 1;
