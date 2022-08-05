@@ -20,18 +20,46 @@ package com.welab.wefe.serving.service.enums;
  * @date 2022/6/24
  */
 public enum CallByMeEnum {
-    YES(1),
+    YES(1, "是"),
 
-    NO(0);
+    NO(0, "否");
 
+    private int code;
+    private String value;
 
-    private int value;
+    public static CallByMeEnum getByCode(int code) {
+        CallByMeEnum result = null;
+        switch (code) {
+            case 0:
+                result = CallByMeEnum.NO;
+                break;
+            case 1:
+                result = CallByMeEnum.YES;
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
 
-    CallByMeEnum(int value) {
+    CallByMeEnum(int code, String value) {
+        this.value = value;
+        this.code = code;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
         this.value = value;
     }
 
-    public int getValue() {
-        return value;
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 }

@@ -711,7 +711,7 @@ public class ServiceService {
         PartnerMysqlModel partner = partnerService.queryByCode(input.getPartnerCode());
 
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
-                service.getServiceType(), CallByMeEnum.NO.getValue(), status.getValue(), partner.getId(),
+                service.getServiceType(), CallByMeEnum.NO.getCode(), status.getValue(), partner.getId(),
                 partner.getName(), CacheObjects.getMemberId(), CacheObjects.getMemberName());
         return serviceOrderModel.getId();
     }
@@ -733,7 +733,7 @@ public class ServiceService {
         callLog.setResponsePartnerId(CacheObjects.getMemberId());
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
-        callLog.setCallByMe(CallByMeEnum.NO.getValue());
+        callLog.setCallByMe(CallByMeEnum.NO.getCode());
         callLog.setResponseStatus(responseStatus);
         callLog.setSpendTime(System.currentTimeMillis() - beginTime);
         serviceCallLogService.save(callLog);

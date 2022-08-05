@@ -175,7 +175,7 @@ public class PromoterPredictHelper {
         order.setRequestPartnerName(CacheObjects.getMemberName());
         order.setResponsePartnerId(partnerId);
         order.setResponsePartnerName(CacheObjects.getPartnerName(partnerId));
-        order.setOrderType(CallByMeEnum.YES.getValue());
+        order.setOrderType(CallByMeEnum.YES.getCode());
         order.setStatus(status.getValue());
 
         ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
@@ -201,7 +201,7 @@ public class PromoterPredictHelper {
         callLog.setResponsePartnerName(CacheObjects.getPartnerName(memberId));
         callLog.setResponseData(result.toJSONString());
         callLog.setResponseStatus(getResponseStatus(result));
-        callLog.setCallByMe(CallByMeEnum.YES.getValue());
+        callLog.setCallByMe(CallByMeEnum.YES.getCode());
 
         ServiceCallLogService serviceCallLogService = Launcher.CONTEXT.getBean(ServiceCallLogService.class);
         serviceCallLogService.save(callLog);

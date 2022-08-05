@@ -28,6 +28,9 @@ import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.database.repository.ServiceOrderRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
@@ -188,8 +191,8 @@ public class ServiceOrderService {
                     model.getId(),
                     model.getServiceId(),
                     model.getServiceName(),
-                    model.getServiceType().toString(),
-                    model.getOrderType().toString(),
+                    ServiceTypeEnum.getType(model.getServiceType()).getValue(),
+                    CallByMeEnum.getByCode(model.getOrderType()).getValue(),
                     model.getStatus(),
                     model.getRequestPartnerId(),
                     model.getRequestPartnerName(),
