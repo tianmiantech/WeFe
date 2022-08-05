@@ -14,31 +14,33 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.service;
+package com.welab.wefe.serving.service.service;
 
-import com.welab.wefe.common.data.mongodb.entity.manager.Account;
-import com.welab.wefe.common.data.mongodb.repo.AccountMongoRepo;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.manager.service.util.ManagerSM4Util;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
+import java.util.Date;
 import java.util.List;
 
-@Service
-public class EncryptPhoneNumberService {
-    @Autowired
-    private AccountMongoRepo accountMongoRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-    public void encrypt() throws StatusCodeWithException {
-        List<Account> list = accountMongoRepo.findAll();
-        if (CollectionUtils.isEmpty(list)) {
-            return;
-        }
-        for (Account account : list) {
-            account.setPhoneNumber(ManagerSM4Util.encryptPhoneNumber(account.getPhoneNumber()));
-            accountMongoRepo.save(account);
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+
+@Service
+public class PrivacyDatabaseEncryptService {
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Transactional(rollbackFor = Exception.class)
+    public void encrypt() {
+        List<AccountMySqlModel> accountMysqlModelList = accountRepository.findAll();
+        if (!CollectionUtils.isEmpty(accountMysqlModelList)) {
+            for (AccountMySqlModel model : accountMysqlModelList) {
+                model.setUpdatedTime(new Date());
+                accountRepository.save(model);
+            }
         }
     }
 }

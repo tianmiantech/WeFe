@@ -16,21 +16,6 @@
 
 package com.welab.wefe.board.service.service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -67,6 +52,15 @@ import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -436,16 +430,14 @@ public class TaskResultService extends AbstractService {
                 missingValueMap.put(feature, bg.setScale(4, RoundingMode.HALF_UP).doubleValue());
             }
             List<MemberModel> currentMembers = new ArrayList<>();
-            if(featureStatisticNode.getComponentType() == ComponentType.HorzStatistic) {
+            if (featureStatisticNode.getComponentType() == ComponentType.HorzStatistic) {
                 // Get the feature column of the members
                 currentMembers = input.getMembers().stream().collect(Collectors.toList());
-            }
-            else if(featureStatisticNode.getComponentType() == ComponentType.MixStatistic && JobMemberRole.promoter.name().equalsIgnoreCase(memberObj.getString("role"))) {
+            } else if (featureStatisticNode.getComponentType() == ComponentType.MixStatistic && JobMemberRole.promoter.name().equalsIgnoreCase(memberObj.getString("role"))) {
                 // Get the feature column of the current member
                 currentMembers = input.getMembers().stream().filter(x -> x.getMemberRole() == JobMemberRole.promoter)
                         .collect(Collectors.toList());
-            }
-            else {
+            } else {
                 // Get the feature column of the current member
                 currentMembers = input.getMembers().stream().filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == JobMemberRole.valueOf(role))
                         .collect(Collectors.toList());
@@ -799,20 +791,6 @@ public class TaskResultService extends AbstractService {
         return member;
     }
 
-    public List<TaskResultMySqlModel> findTaskResult(String jobId, String taskId, ComponentType componentType) {
-
-        Specification<TaskResultMySqlModel> where = Where
-                .create()
-                .equal("jobId", jobId)
-                .equal("componentType", componentType)
-                .equal("taskId", taskId)
-                .notEqual("role", JobMemberRole.arbiter)
-                .build(TaskResultMySqlModel.class);
-
-        return taskResultRepository.findAll(where);
-
-    }
-
     /**
      * Find out the task result by id, type and role.
      */
@@ -876,5 +854,18 @@ public class TaskResultService extends AbstractService {
         taskResult.setResult(root.toJSONString());
         taskResult.setUpdatedBy(CurrentAccount.id());
         taskResultRepository.save(taskResult);
+    }
+
+
+    public TaskResultMySqlModel findByJobIdAndComponentTypeAndType(String jobId, ComponentType componentType, TaskResultType type) {
+
+        Specification<TaskResultMySqlModel> where = Where
+                .create()
+                .equal("jobId", jobId)
+                .equal("componentType", componentType)
+                .equal("type", type.name())
+                .build(TaskResultMySqlModel.class);
+
+        return taskResultRepository.findOne(where).orElse(null);
     }
 }

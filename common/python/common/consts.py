@@ -88,7 +88,6 @@ COMM_CONF_KEY_SPARK_NUM_SLICES = "flow.spark.default.num.slices"
 COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS = "flow.spark.submit.default.num.executors"
 COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES = "flow.spark.submit.default.executor.cores"
 # COMM_CONF_KEY_BACKEND = "wefe.job.backend"
-COMM_CONF_KEY_ACCELERATION = "wefe.job.acceleration"
 COMM_CONF_KEY_GPU_INSTANCE = "wefe.gpu.instance"
 
 # FC config

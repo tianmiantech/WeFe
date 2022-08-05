@@ -17,8 +17,8 @@
 package com.welab.wefe.data.fusion.service.database.listener;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.data.fusion.service.database.entity.VerificationCodeMysqlModel;
-import com.welab.wefe.data.fusion.service.utils.FusionSM4Util;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
@@ -33,7 +33,7 @@ public class VerificationCodeMysqlModelListener {
     public void prePersist(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             VerificationCodeMysqlModel model = (VerificationCodeMysqlModel) entity;
-            model.setMobile(FusionSM4Util.encryptPhoneNumber(model.getMobile()));
+            model.setMobile(DatabaseEncryptUtil.encrypt(model.getMobile()));
         }
     }
 
@@ -52,7 +52,7 @@ public class VerificationCodeMysqlModelListener {
     public void postLoad(Object entity) throws StatusCodeWithException {
         if (null != entity) {
             VerificationCodeMysqlModel model = (VerificationCodeMysqlModel) entity;
-            model.setMobile(FusionSM4Util.decryptPhoneNumber(model.getMobile()));
+            model.setMobile(DatabaseEncryptUtil.decrypt(model.getMobile()));
         }
     }
 }

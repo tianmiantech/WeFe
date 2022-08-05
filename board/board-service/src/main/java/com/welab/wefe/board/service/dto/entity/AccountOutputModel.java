@@ -18,8 +18,8 @@ package com.welab.wefe.board.service.dto.entity;
 
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.util.Masker;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 
 import java.util.Date;
@@ -30,18 +30,25 @@ import java.util.Date;
 public class AccountOutputModel extends AbstractOutputModel {
 
     @Check(name = "手机号")
+    @Secret(maskStrategy = MaskStrategy.PHONE_NUMBER)
     private String phoneNumber;
 
     @Check(name = "昵称")
     private String nickname;
+
     @Check(name = "邮箱")
+    @Secret(maskStrategy = MaskStrategy.EMAIL)
     private String email;
+
     @Check(name = "是否是超级管理员;超级管理员通常是第一个创建并初始化系统的那个人")
     private Boolean superAdminRole;
+
     @Check(name = "是否是管理员;管理员有更多权限，比如设置 member 是否对外可见。")
     private Boolean adminRole;
+
     @Check(name = "审核状态")
     private AuditStatus auditStatus;
+
     @Check(name = "审核意见")
     private String auditComment;
 
@@ -56,24 +63,12 @@ public class AccountOutputModel extends AbstractOutputModel {
      */
     private Date lastActionTime;
 
-    public String getEmail() {
-        if (!CurrentAccount.isAdmin()) {
-            return "";
-        } else {
-            return Masker.maskEmail(email);
-        }
-    }
-
-    public String getPhoneNumber() {
-        if (!CurrentAccount.isAdmin()) {
-            return "";
-        } else {
-            return Masker.maskPhoneNumber(phoneNumber);
-        }
-    }
-
     //region getter/setter
 
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
@@ -89,6 +84,10 @@ public class AccountOutputModel extends AbstractOutputModel {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public Boolean getSuperAdminRole() {

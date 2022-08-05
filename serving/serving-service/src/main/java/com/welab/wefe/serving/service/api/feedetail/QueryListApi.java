@@ -154,7 +154,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         /**
          * 付费类型
          */
-        private String payType;
+        private Integer payType;
 
         /**
          * 总调用次数
@@ -227,11 +227,12 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.unitPrice = unitPrice;
         }
 
-        public String getPayType() {
+
+        public Integer getPayType() {
             return payType;
         }
 
-        public void setPayType(String payType) {
+        public void setPayType(Integer payType) {
             this.payType = payType;
         }
 

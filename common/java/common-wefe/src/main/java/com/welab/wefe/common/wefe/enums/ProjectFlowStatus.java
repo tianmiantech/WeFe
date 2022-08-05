@@ -30,10 +30,6 @@ public enum ProjectFlowStatus {
      */
     running,
     /**
-     * finished
-     */
-    finished,
-    /**
      * Process execution error
      */
     error_on_running,

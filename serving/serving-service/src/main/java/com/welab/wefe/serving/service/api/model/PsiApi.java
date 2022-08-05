@@ -116,6 +116,9 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
         int total = sum(temp);
 
         TableModelMySqlModel model = tableModelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
+        if (model == null) {
+            return Lists.newArrayList();
+        }
         JObject result = JObject.create(model.getScoresDistribution()).getJObjectByPath("data.bin_result");
 
         List<List<Object>> dataList = Lists.newArrayList();
@@ -170,7 +173,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
     }
 
     private String formatDate(Date date) {
-        return DateUtil.timeInMillisToDate(date.getTime(), DateUtil.YYYY_MM_DD_HH_MM_SS2);
+        return DateUtil.timeInMillisToDate(date.getTime(), DateUtil.YYYY_MM_DD);
     }
 
     private List<DayModel> getDayList(Input input) {

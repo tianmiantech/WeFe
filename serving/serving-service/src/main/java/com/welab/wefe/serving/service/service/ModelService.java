@@ -96,7 +96,7 @@ public class ModelService {
     }
 
     private void addPartners(SaveModelApi.Input input) {
-        partnerService.save(input.getMemberParams());
+        partnerService.upsert(input.getMemberParams());
     }
 
     private void saveModelMembers(SaveModelApi.Input input) {
@@ -111,13 +111,13 @@ public class ModelService {
         TableModelMySqlModel model = findOne(input.getServiceId());
         if (model == null) {
             model = new TableModelMySqlModel();
-            model.setCreatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getNickname());
+            model.setCreatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
         }
 
         convertTo(input, model);
 
         model.setUpdatedTime(new Date());
-        model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getNickname());
+        model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
         modelRepository.save(model);
         return model.getId();
     }

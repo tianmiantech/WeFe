@@ -83,6 +83,7 @@
                                                 placeholder="请输入密码"
                                                 autocomplete="new-password"
                                                 @contextmenu.prevent
+                                                @change="methods.accessKeySecretChange"
                                             />
                                         </el-form-item>
                                     </el-col>
@@ -126,7 +127,7 @@
                             </el-form-item>
                             <el-form-item label="VisualFL服务地址：" class="mt10">
                                 <el-input v-model="vData.form.deep_learning_config.paddle_visual_dl_base_url" style="width: 82%; margin-right: 5px;" placeholder="请输入地址" clearable />
-                                <el-button type="primary" @click="methods.jumpToNewPage">跳转</el-button>
+                                <!-- <el-button type="primary" @click="methods.jumpToNewPage">跳转</el-button> -->
                             </el-form-item>
                         </div>
                     </el-col>
@@ -149,6 +150,7 @@
     import { computed, reactive, getCurrentInstance, nextTick, onBeforeMount } from 'vue';
     import { useStore } from 'vuex';
     import { useRouter } from 'vue-router';
+    import Rsa from '@/utils/rsa.js';
     export default {
         setup() {
             const store = useStore();
@@ -191,7 +193,9 @@
                         executor_memory:        '',
                     },
                 },
-                loading: false,
+                loading:                    false,
+                isChangeAccessKeySecretPwd: false,
+                publicKey:                  '',
             });
             const methods = {
                 async getData() {
@@ -212,7 +216,27 @@
                     }
                     vData.loading = false;
                 },
+                accessKeySecretChange() {
+                    vData.isChangeAccessKeySecretPwd = true;
+                },
+                async getGenerate_rsa_key_pair() {
+                    const { code, data } = await $http.get('/crypto/generate_rsa_key_pair');
+
+                    if (code === 0 && data && data.public_key) {
+                        const { public_key } = data;
+
+                        vData.publicKey = public_key;
+                    }
+                },
                 async update() {
+                    // 判断是否修改过密码
+                    if (!vData.isChangeAccessKeySecretPwd) {
+                        vData.form.aliyun_function_compute_config.access_key_secret = null;
+                    } else {
+                        await methods.getGenerate_rsa_key_pair();
+                        vData.form.aliyun_function_compute_config.access_key_secret = Rsa.encrypt(vData.publicKey, vData.form.aliyun_function_compute_config.access_key_secret);
+                    }
+
                     vData.loading = true;
                     const { code } = await $http.post({
                         url:  '/global_config/update',
@@ -225,6 +249,7 @@
                             router.push({ name: 'calculation-engine-config' });
                             methods.getData();
                         }
+                        vData.isChangeAccessKeySecretPwd = false;
                         vData.loading = false;
                     });
                 },

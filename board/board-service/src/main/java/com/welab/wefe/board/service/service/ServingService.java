@@ -283,7 +283,7 @@ public class ServingService extends AbstractService {
         params.put("memberParams", members);
         params.put("featureEngineerMap", featureEngineerMap);
         params.put("scoresDistribution", getScoresDistribution(taskResult));
-        //TODO 评估数据集合
+        params.put("scoreCardInfo", getScoreCardInfo(taskResult));
 
         return params;
     }
@@ -299,13 +299,25 @@ public class ServingService extends AbstractService {
     }
 
     private Object getScoreCardInfo(TaskResultMySqlModel taskResult) {
-        TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(), null, taskResult.getRole(), TaskResultType.distribution_train_validate.name());
+        TaskResultMySqlModel task = taskResultService.findByJobIdAndComponentTypeAndType(taskResult.getJobId(), ComponentType.ScoreCard, TaskResultType.metric_train);
         if (task == null) {
             return null;
         }
 
-        String key = "train_validate_" + taskResult.getName() + "_scores_distribution";
-        return JObject.create(task.getResult()).get(key);
+        JObject data = JObject.create(task.getResult());
+        JObject result = data.getJObjectByPath("train_" + task.getName() + ".data");
+
+        TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
+                taskResult.getJobId(),
+                null,
+                taskResult.getRole(),
+                TaskResultType.model_binning.name()
+        );
+
+        JObject binning = JObject.create(binningTaskResult.getResult());
+        result.putAll(binning.getJObjectByPath("model_param.binningResult.binningResult"));
+
+        return result;
     }
 
     private String extractName(JobMySqlModel job) {

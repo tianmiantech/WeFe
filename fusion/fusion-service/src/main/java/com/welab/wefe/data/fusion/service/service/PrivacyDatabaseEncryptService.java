@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.service;
+package com.welab.wefe.data.fusion.service.service;
 
-import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
+import com.welab.wefe.data.fusion.service.database.entity.GlobalConfigMysqlModel;
+import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
+import com.welab.wefe.data.fusion.service.database.repository.GlobalConfigRepository;
+import com.welab.wefe.data.fusion.service.service.globalconfig.BaseGlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,18 +30,29 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class EncryptPhoneNumberService {
+public class PrivacyDatabaseEncryptService {
 
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    protected GlobalConfigRepository globalConfigRepository;
+
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
-        List<AccountMySqlModel> accountMysqlModelList = accountRepository.findAll();
+        List<AccountMysqlModel> accountMysqlModelList = accountRepository.findAll();
         if (!CollectionUtils.isEmpty(accountMysqlModelList)) {
-            for (AccountMySqlModel model : accountMysqlModelList) {
+            for (AccountMysqlModel model : accountMysqlModelList) {
                 model.setUpdatedTime(new Date());
                 accountRepository.save(model);
+            }
+        }
+
+        List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(BaseGlobalConfigService.Group.MEMBER_INFO);
+        if (!CollectionUtils.isEmpty(globalConfigMysqlModelList)) {
+            for (GlobalConfigMysqlModel model : globalConfigMysqlModelList) {
+                model.setUpdatedTime(new Date());
+                globalConfigRepository.save(model);
             }
         }
     }

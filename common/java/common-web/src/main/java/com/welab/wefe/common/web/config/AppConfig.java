@@ -18,10 +18,12 @@ package com.welab.wefe.common.web.config;
 
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.welab.wefe.common.TimeSpan;
+import com.welab.wefe.common.fieldvalidate.secret.SecretValueFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -100,6 +102,15 @@ public class AppConfig implements ApplicationListener<ContextRefreshedEvent> {
                 SerializerFeature.WriteMapNullValue,
                 SerializerFeature.IgnoreErrorGetter
         );
+
+        // 追加一个 SecretValueFilter
+        SerializeFilter[] filters = new SerializeFilter[config.getSerializeFilters().length + 1];
+        for (int i = 0; i < config.getSerializeFilters().length; i++) {
+            filters[i] = config.getSerializeFilters()[i];
+        }
+        filters[filters.length - 1] = SecretValueFilter.instance;
+        config.setSerializeFilters(filters);
+
         converter.setFastJsonConfig(config);
 
         return new HttpMessageConverters(converter);

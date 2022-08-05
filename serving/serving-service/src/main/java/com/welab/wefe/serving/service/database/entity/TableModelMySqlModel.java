@@ -68,6 +68,10 @@ public class TableModelMySqlModel extends BaseServiceMySqlModel {
     @Column(name = "scores_distribution")
     private String scoresDistribution;
 
+
+    @Column(name = "score_card_info")
+    private String scoreCardInfo;
+
     public Algorithm getAlgorithm() {
         return algorithm;
     }
@@ -154,5 +158,13 @@ public class TableModelMySqlModel extends BaseServiceMySqlModel {
 
     public void setScoresDistribution(String scoresDistribution) {
         this.scoresDistribution = scoresDistribution;
+    }
+
+    public String getScoreCardInfo() {
+        return scoreCardInfo;
+    }
+
+    public void setScoreCardInfo(String scoreCardInfo) {
+        this.scoreCardInfo = scoreCardInfo;
     }
 }

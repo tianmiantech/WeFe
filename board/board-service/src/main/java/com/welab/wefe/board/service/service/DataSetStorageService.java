@@ -19,12 +19,12 @@ package com.welab.wefe.board.service.service;
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.dto.globalconfig.storage.ClickHouseStorageConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
+import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
@@ -49,27 +49,21 @@ public class DataSetStorageService extends AbstractService {
 
     public synchronized void initStorage() throws StatusCodeWithException {
         StorageBaseConfigModel storageConfig = globalConfigService.getModel(StorageBaseConfigModel.class);
-        try {
-            switch (storageConfig.storageType) {
-                case CLICKHOUSE:
-                    ClickHouseStorageConfigModel configModel = globalConfigService.getModel(ClickHouseStorageConfigModel.class);
-                    PersistentStorage.init(configModel.toStorageConfig());
-                default:
-            }
+        switch (storageConfig.storageType) {
+            case CLICKHOUSE:
+                ClickHouseStorageConfigModel configModel = globalConfigService.getModel(ClickHouseStorageConfigModel.class);
+                ClickhouseConfig config = configModel.toStorageConfig();
+                PersistentStorage.init(config);
 
-            // 通知 gateway
-            gatewayService.sendToMyselfGateway(
-                    GatewayActionType.none,
-                    "",
-                    GatewayProcessorType.refreshPersistentStorageProcessor
-            );
-        } catch (Exception e) {
-            LOG.error(e.getClass().getSimpleName() + " " + e.getMessage(), e);
-
-            StatusCode
-                    .PARAMETER_VALUE_INVALID
-                    .throwException("数据集存储配置应用失败(" + e.getClass().getSimpleName() + ")：" + e.getMessage());
+            default:
         }
+
+        // 通知 gateway
+        gatewayService.sendToMyselfGateway(
+                GatewayActionType.none,
+                "",
+                GatewayProcessorType.refreshPersistentStorageProcessor
+        );
     }
 
     /**

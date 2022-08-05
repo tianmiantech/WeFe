@@ -28,17 +28,6 @@ const baseRoutes = [
         children:  [
             {
                 path: `${prefixPath}`,
-                name: 'index',
-                meta: {
-                    title:           '首页',
-                    hidden:          true,
-                    active:          `${prefixPath}index`,
-                    loginAndRefresh: true,
-                },
-                component: () => import('@views/service/service-list.vue'),
-            },
-            {
-                path: `${prefixPath}`,
                 name: 'service-list',
                 meta: {
                     title:           '我的服务',

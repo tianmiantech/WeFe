@@ -83,5 +83,6 @@ public class ManagerService implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         CONTEXT = applicationContext;
+        Launcher.CONTEXT = applicationContext;
     }
 }

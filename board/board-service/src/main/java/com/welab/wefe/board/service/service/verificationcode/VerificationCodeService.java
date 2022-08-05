@@ -25,16 +25,16 @@ import com.welab.wefe.board.service.dto.globalconfig.AlertConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.AliyunSmsChannelConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.verification.code.AbstractResponse;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
 import com.welab.wefe.common.verification.code.common.VerificationCodeBusinessType;
-import com.welab.wefe.common.verification.code.common.VerificationCodeSendChannel;
 import com.welab.wefe.common.verification.code.email.EmailClient;
 import com.welab.wefe.common.verification.code.service.AbstractVerificationCodeService;
 import com.welab.wefe.common.verification.code.sms.AliyunSmsClient;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class VerificationCodeService extends AbstractVerificationCodeService {
         if (!StringUtil.checkPhoneNumber(mobile)) {
             throw new StatusCodeWithException("非法的手机号", StatusCode.PARAMETER_VALUE_INVALID);
         }
-        AccountMysqlModel model = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(mobile), AccountMysqlModel.class);
+        AccountMysqlModel model = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(mobile), AccountMysqlModel.class);
         // phone number error
         if (model == null) {
             throw new StatusCodeWithException("手机号错误，该用户不存在", StatusCode.PARAMETER_VALUE_INVALID);
@@ -84,8 +84,8 @@ public class VerificationCodeService extends AbstractVerificationCodeService {
         }
 
         // check channel config
-        VerificationCodeSendChannel sendChannel = getVerificationCodeSendChannel();
-        if (VerificationCodeSendChannel.email.equals(sendChannel)) {
+        CaptchaSendChannel sendChannel = getVerificationCodeSendChannel();
+        if (CaptchaSendChannel.email.equals(sendChannel)) {
             checkEmailConfig();
         } else {
             checkSmsConfig();
@@ -94,10 +94,10 @@ public class VerificationCodeService extends AbstractVerificationCodeService {
 
     @Override
     public Map<String, Object> buildExtendParams(String mobile, String verificationCode, VerificationCodeBusinessType businessType) throws StatusCodeWithException {
-        VerificationCodeSendChannel sendChannel = getVerificationCodeSendChannel();
-        AccountMysqlModel accountMysqlModel = accountRepository.findOne("phoneNumber", BoardSM4Util.encryptPhoneNumber(mobile), AccountMysqlModel.class);
+        CaptchaSendChannel sendChannel = getVerificationCodeSendChannel();
+        AccountMysqlModel accountMysqlModel = accountRepository.findOne("phoneNumber", DatabaseEncryptUtil.encrypt(mobile), AccountMysqlModel.class);
         // email
-        if (VerificationCodeSendChannel.email.equals(sendChannel)) {
+        if (CaptchaSendChannel.email.equals(sendChannel)) {
             String subject = "忘记密码";
             String content = "您正在执行忘记密码操作。您的验证码是" + verificationCode + "，2分钟内有效，请勿泄漏于他人!";
             MailServerModel mailServerModel = globalConfigService.getModel(MailServerModel.class);
@@ -124,16 +124,9 @@ public class VerificationCodeService extends AbstractVerificationCodeService {
     }
 
     @Override
-    public VerificationCodeSendChannel getVerificationCodeSendChannel() {
+    public CaptchaSendChannel getVerificationCodeSendChannel() {
         AlertConfigModel alertConfigModel = globalConfigService.getModel(AlertConfigModel.class);
-        if (null == alertConfigModel || StringUtil.isEmpty(alertConfigModel.retrievePasswordCaptchaChannel)) {
-            return VerificationCodeSendChannel.email;
-        }
-        return "email".equalsIgnoreCase(alertConfigModel.retrievePasswordCaptchaChannel) ? VerificationCodeSendChannel.email : VerificationCodeSendChannel.sms;
-    }
-
-    public String getSendChannel() {
-        return getVerificationCodeSendChannel().name();
+        return alertConfigModel.retrievePasswordCaptchaChannel;
     }
 
     private void checkEmailConfig() throws StatusCodeWithException {
