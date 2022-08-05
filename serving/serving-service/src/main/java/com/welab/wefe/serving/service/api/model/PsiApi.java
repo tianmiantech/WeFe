@@ -193,7 +193,7 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
             calendar.add(Calendar.DATE, input.getStep());
             end = calendar.getTime();
             list.add(DayModel.of(start, end));
-        } while (end.getTime() < input.getEndTime().getTime());
+        } while (end.getTime() <= input.getEndTime().getTime());
 
         return list;
     }
