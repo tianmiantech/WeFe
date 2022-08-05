@@ -6,7 +6,10 @@
     >
         <el-form inline>
             <el-form-item label="数据源Id:">
-                <el-input v-model="search.service_id" />
+                <el-input
+                    v-model="search.service_id"
+                    clearable
+                />
             </el-form-item>
             <el-form-item>
                 <el-date-picker
@@ -28,10 +31,7 @@
             </el-button>
         </el-form>
 
-        <div
-            style="text-align: right"
-            class="mb10"
-        >
+        <div class="radio_filter mb10">
             <el-radio-group
                 v-model="currentRadio"
                 size="mini"
@@ -145,7 +145,6 @@
                     page_index: 0,
                     page_size:  20,
                 },
-                // getListApi: '/model/psi',
                 time:       '',
                 table_data: {
                     header: [],
@@ -160,6 +159,7 @@
             };
         },
         created() {
+            // this.search.service_id = this.$$route.query.service_id || '';
             this.syncUrlParams();
             this.getPsiList();
         },
@@ -263,6 +263,11 @@
     };
 </script>
 
+<style lang="scss" scoped>
+.radio_filter {
+    text-align: right;
+}
+</style>
 <style lang="scss">
     .structure-table{
         .ant-table-title{
