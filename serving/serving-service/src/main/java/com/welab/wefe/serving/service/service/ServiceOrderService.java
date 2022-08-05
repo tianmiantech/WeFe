@@ -121,7 +121,7 @@ public class ServiceOrderService {
             QueryListApi.Output output = ModelMapper.map(x, QueryListApi.Output.class);
             list.add(output);
         });
-        return PagingOutput.of(list.size(), list);
+        return PagingOutput.of(models.getTotal(), list);
 
     }
 
