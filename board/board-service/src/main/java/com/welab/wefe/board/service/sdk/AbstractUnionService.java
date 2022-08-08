@@ -134,7 +134,8 @@ public abstract class AbstractUnionService extends AbstractService {
                 .put("email", model.getMemberEmail())
                 .put("gateway_uri", model.getMemberGatewayUri())
                 .put("hidden", model.getMemberHidden())
-                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa.name() : model.getSecretKeyType().name());
+                .put("secret_key_type", null == model.getSecretKeyType() ? SecretKeyType.rsa.name() : model.getSecretKeyType().name())
+                .put("member_gateway_tls_enable", model.getMemberGatewayTlsEnable());
 
         request("member/update_exclude_logo", params);
     }
