@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.database.serving.entity;
+package com.welab.wefe.serving.service.database.entity;
+
+import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.serving.service.database.listener.DataSourceMysqlModelListener;
 
 import javax.persistence.*;
-
-import com.welab.wefe.serving.service.database.serving.listener.DataSourceMysqlModelListener;
-import com.welab.wefe.serving.service.enums.DatabaseType;
 
 /**
  * @author Johnny.lin
@@ -28,12 +28,12 @@ import com.welab.wefe.serving.service.enums.DatabaseType;
 @Entity(name = "data_source")
 @EntityListeners(DataSourceMysqlModelListener.class)
 public class DataSourceMySqlModel extends AbstractBaseMySqlModel {
-	
-	public static final String PASSWORD_MASK = "*************";
-	
-	private static final long serialVersionUID = 4348703828245457696L;
 
-	/**
+    public static final String PASSWORD_MASK = "*************";
+
+    private static final long serialVersionUID = 4348703828245457696L;
+
+    /**
      * Data source name
      */
     private String name;
@@ -42,7 +42,7 @@ public class DataSourceMySqlModel extends AbstractBaseMySqlModel {
      * Database type，The enumeration(hive、impala、mysql)
      */
     @Enumerated(EnumType.STRING)
-    @Column(name="database_type")
+    @Column(name = "database_type")
     private DatabaseType databaseType;
 
     /**

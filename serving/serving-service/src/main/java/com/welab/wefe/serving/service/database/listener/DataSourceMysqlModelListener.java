@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.serving.service.database.serving.listener;
+package com.welab.wefe.serving.service.database.listener;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
-import com.welab.wefe.serving.service.database.serving.entity.DataSourceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
