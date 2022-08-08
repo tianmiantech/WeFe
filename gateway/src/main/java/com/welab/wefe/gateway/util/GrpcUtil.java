@@ -32,10 +32,17 @@ import com.welab.wefe.gateway.interceptor.AntiTamperClientInterceptor;
 import com.welab.wefe.gateway.interceptor.SignVerifyClientInterceptor;
 import com.welab.wefe.gateway.interceptor.SystemTimestampVerifyClientInterceptor;
 import io.grpc.*;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLException;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -53,8 +60,28 @@ public class GrpcUtil {
     }
 
     public static ManagedChannel getManagedChannel(String ip, int port) {
-        return ManagedChannelBuilder.forTarget(ip + ":" + port).maxInboundMessageSize(2000 * 1024 * 1024).usePlaintext().build();
+        return ManagedChannelBuilder.forTarget(ip + ":" + port).maxInboundMessageSize(GrpcConstant.MAX_BOUND_MESSAGE_SIZE * 1024 * 1024).usePlaintext().build();
     }
+
+    public static ManagedChannel getSslManagedChannel(BasicMetaProto.Endpoint endpoint, X509Certificate[] x509Certificates) throws SSLException {
+        return getSslManagedChannel(endpoint.getIp(), endpoint.getPort(), x509Certificates);
+    }
+
+    public static ManagedChannel getSslManagedChannel(String ip, int port, X509Certificate[] x509Certificates) throws SSLException {
+        SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
+        if (null == x509Certificates || x509Certificates.length == 0) {
+            sslContextBuilder.trustManager(InsecureTrustManagerFactory.INSTANCE);
+        } else {
+            sslContextBuilder.trustManager(x509Certificates);
+        }
+        return NettyChannelBuilder.forTarget(ip + ":" + port)
+                .negotiationType(NegotiationType.TLS)
+                .overrideAuthority("wefe.tianmiantech.com.test")
+                .sslContext(sslContextBuilder.build())
+                .maxInboundMetadataSize(GrpcConstant.MAX_BOUND_MESSAGE_SIZE * 1024 * 1024)
+                .build();
+    }
+
 
     public static String toJsonString(MessageOrBuilder message) {
         try {
