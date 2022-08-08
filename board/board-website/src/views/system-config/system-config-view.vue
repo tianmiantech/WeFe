@@ -83,7 +83,7 @@
                         </fieldset>
                         <fieldset>
                             <legend>Flow</legend>
-                            <el-form-item label="内网地址：">
+                            <el-form-item label="后台内网地址：">
                                 <el-input
                                     placeholder="http(s)://ip:port"
                                     v-model="config.wefe_flow.intranet_base_uri"
@@ -97,6 +97,13 @@
                                     placeholder="http(s)://ip:port/serving-service"
                                     v-model="config.wefe_serving.intranet_base_uri"
                                 />
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="success"
+                                           @click="showDialog"
+                                >
+                                    初始化
+                                </el-button>
                             </el-form-item>
                         </fieldset>
                         <fieldset>
@@ -135,6 +142,23 @@
                                 />
                             </el-form-item>
                         </fieldset>
+
+                        <el-dialog title="初始化" v-model="dialogVisibleInfo" width="40%" custom-class="unset-dialog-height">
+                            <el-form :model="form">
+                                <el-form-item label="账号" :label-width="formLabelWidth">
+                                    <el-input v-model="form.phone_number" type="text" clearable
+                                              placeholder="请输入Serving管理员账号(手机号)"></el-input>
+                                </el-form-item>
+                                <el-form-item label="密码" :label-width="formLabelWidth">
+                                    <el-input v-model="form.password" type="password" clearable
+                                              placeholder="请输入密码"></el-input>
+                                </el-form-item>
+                            </el-form>
+                            <div class="dialog-footer">
+                                <el-button @click="dialogVisibleInfo = false">取 消</el-button>
+                                <el-button type="primary" @click="init">确 定</el-button>
+                            </div>
+                        </el-dialog>
                     </el-col>
                     <el-col :span="12">
                         <fieldset>
@@ -205,15 +229,10 @@
                         </fieldset>
                     </el-col>
                 </el-row>
+
+
                 <el-divider/>
-                <el-row :gutter="30">
-                    <el-col :span="12">
 
-                    </el-col>
-                    <el-col :span="12">
-
-                    </el-col>
-                </el-row>
                 <el-button
                     v-loading="loading"
                     class="save-btn mt10"
@@ -230,6 +249,7 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import md5 from 'js-md5';
     import Rsa from '@/utils/rsa.js';
 
     export default {
@@ -248,7 +268,14 @@
                     clickhouse_storage_config: {},
                     aliyun_sms_channel:        {},
                 },
-                visible:                    true,
+                form: {
+                    phone_number: '',
+                    password:     '',
+                },
+                visible:           true,
+                dialogVisibleInfo: false,
+                formLabelWidth:    '20px',
+            // initDialogVisible: false,
                 publicKey:                  '',
                 isChangeMailpwd:            false,
                 isChangeAccessKeySecretPwd: false,
@@ -262,6 +289,41 @@
             this.getData();
         },
         methods: {
+            showDialog() {
+                this.dialogVisibleInfo = true;
+            },
+
+            async init() {
+
+                const password = [
+                    this.form.phone_number,
+                    this.form.password,
+                    this.form.phone_number,
+                    this.form.phone_number.substr(0, 3),
+                    this.form.password.substr(this.form.password.length - 3),
+                ].join('');
+
+                const { code, message } = await this.$http.post({
+                    url:  '/member/sync_to_serving',
+                    data: {
+                        phone_number: this.form.phone_number,
+                        password:     md5(password),
+                    },
+                });
+
+                if (code === 0) {
+                    this.$message.success('初始化成功');
+                    this.dialogVisibleInfo = false;
+                } else {
+                    this.$message.error('初始化失败：', message);
+                    this.dialogVisibleInfo = false;
+
+                }
+
+
+            },
+
+
             async getGenerate_rsa_key_pair() {
                 const { code, data } = await this.$http.get('/crypto/generate_rsa_key_pair');
 
