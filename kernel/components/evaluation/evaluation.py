@@ -136,7 +136,7 @@ class Evaluation(ModelBase):
         super().__init__()
         self.model_param = EvaluateParam()
         self.eval_results = defaultdict(list)
-
+        self.prob_bins_result = defaultdict(list)
         self.save_single_value_metric_list = [consts.AUC,
                                               consts.EXPLAINED_VARIANCE,
                                               consts.MEAN_ABSOLUTE_ERROR,
@@ -237,8 +237,44 @@ class Evaluation(ModelBase):
             for mode, data in split_data_with_label.items():
                 eval_result = self.evaluate_metircs(mode, data)
                 self.eval_results[key].append(eval_result)
-
+            self.prob_bins_result = self.prob_bin_result(eval_data_local)
         return self.callback_metric_data(return_single_val_metrics=return_result)
+
+    def prob_bin_result(self, data):
+        classes = len(set([d[1][0] for d in data]))
+        if classes < 3 and self.model_param.prob_need_to_bin:
+            sample_pro_result_list = []
+            for index, sample_pro_result in enumerate(data):
+                sample_pro_result_list.append(sample_pro_result[1][2])
+            data_count = len(sample_pro_result_list)
+
+            if self.model_param.bin_method == consts.QUANTILE:
+                bin = pd.qcut(np.array(sample_pro_result_list, dtype=float),
+                              self.model_param.bin_num, duplicates='drop',retbins= True)
+            elif self.model_param.bin_method == consts.BUCKET:
+                bin = pd.cut(np.array(sample_pro_result_list, dtype=float),
+                             bins = self.model_param.bin_num,retbins=True)
+
+            bin_values_counts = bin[0].value_counts()
+            bin_result ={}
+            staitic_count = sum([ bin_values_counts[i] for i in range(len(bin_values_counts))])
+            if staitic_count == data_count:
+                for i in range(len(bin_values_counts)):
+                    per_bin_result = { "count" : int(bin_values_counts[i]),
+                             "count_rate": float(bin_values_counts[i] / data_count) }
+                    bin_result[str(np.round(bin[1][i+1], 4))] = per_bin_result
+            else:
+                return ValueError("Staitic_count and count are not the same, check the binning statistics!")
+            scores_distribution ={
+                "bin_method": self.model_param.bin_method,
+                "bin_result": bin_result,
+                "max": max(sample_pro_result_list),
+                "min": min(sample_pro_result_list)}
+            return scores_distribution
+
+    def __save_bin_score_value(self,metric_name, metric_namespace, metric_meta, kv, need_value):
+        if kv:
+            self.tracker.saveProbBinsResult(metric_name, metric_namespace, metric_meta, kv, need_value)
 
     def __save_single_value(self, result, metric_name, metric_namespace, eval_name):
         self.tracker.saveMetricData(metric_name, metric_namespace, {'metric_type': 'EVALUATION_SUMMARY'},
@@ -480,6 +516,10 @@ class Evaluation(ModelBase):
                     else:
                         LOGGER.warning("Unknown metric:{}".format(metric))
 
+            metric_name = '_'.join([data_type, 'scores_distribution'])
+            self.__save_bin_score_value(metric_name= metric_name, metric_namespace = "train_validate",
+                                            metric_meta = "SCORE_DISTRIBUTION", kv = self.prob_bins_result,
+                                             need_value = False)
         if return_single_val_metrics:
             if len(self.validate_metric) != 0:
                 LOGGER.debug("return validate metric")
