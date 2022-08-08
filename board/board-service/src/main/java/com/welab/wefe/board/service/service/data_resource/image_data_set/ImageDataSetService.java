@@ -136,7 +136,7 @@ public class ImageDataSetService extends DataResourceService {
     public File download(String dataSetId, String jobId, String version) throws StatusCodeWithException {
         ImageDataSetMysqlModel dataSet = findOneById(dataSetId);
 
-        File file = AbstractImageDataSetParser.getDataSetFile(dataSet, jobId, version);
+        File file = AbstractImageDataSetParser.getDataSetFile(dataSet, version);
         if (!file.exists()) {
             StatusCode
                     .PARAMETER_VALUE_INVALID

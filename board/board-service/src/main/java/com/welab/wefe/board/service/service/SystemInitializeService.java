@@ -29,13 +29,12 @@ import com.welab.wefe.board.service.database.repository.data_resource.ImageDataS
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,12 +68,12 @@ public class SystemInitializeService extends AbstractService {
      */
     public synchronized void syncMemberToUnion() throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccount.phoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        unionService.initializeSystem(globalConfigService.getMemberInfo());
+        unionService.initializeSystem(globalConfigService.getModel(MemberInfoModel.class));
 
         for (TableDataSetMysqlModel model : tableDataSetRepository.findAll()) {
             unionService.upsertDataResource(model);
@@ -92,7 +91,7 @@ public class SystemInitializeService extends AbstractService {
      * Is the system initialized
      */
     public boolean isInitialized() {
-        return globalConfigService.getMemberInfo() != null;
+        return globalConfigService.getModel(MemberInfoModel.class) != null;
     }
 
     /**
@@ -104,7 +103,7 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，不能重复操作。");
         }
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccount.phoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
@@ -127,7 +126,7 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
 
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         CacheObjects.refreshMemberInfo();
 
@@ -138,12 +137,12 @@ public class SystemInitializeService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberInfo(UpdateMemberInfoApi.Input input) throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccount.phoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
         model.setMemberName(input.getMemberName());
         model.setMemberEmail(input.getMemberEmail());
         model.setMemberMobile(input.getMemberMobile());
@@ -151,7 +150,7 @@ public class SystemInitializeService extends AbstractService {
         model.setMemberGatewayUri(input.getMemberGatewayUri());
         model.setMemberHidden(input.getMemberHidden());
 
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         unionService.uploadMemberInfoExcludeLogo(model);
 
@@ -164,12 +163,12 @@ public class SystemInitializeService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberRsaKey() throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccount.phoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
 
         try {
             SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(model.getSecretKeyType());
@@ -181,7 +180,7 @@ public class SystemInitializeService extends AbstractService {
 
         // notify union
         unionService.resetPublicKey(model);
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         // Update serving global settings
         servingService.asynRefreshMemberInfo(model);
@@ -198,14 +197,14 @@ public class SystemInitializeService extends AbstractService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberLogo(UpdateMemberLogoApi.Input input) throws StatusCodeWithException {
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccount.phoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        MemberInfoModel model = globalConfigService.getMemberInfo();
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
         model.setMemberLogo(input.getMemberLogo());
-        globalConfigService.setMemberInfo(model);
+        globalConfigService.put(model);
 
         unionService.updateMemberLogo(model);
     }

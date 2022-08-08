@@ -29,8 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Api(
         path = "global_setting/refresh",
         name = "更新 全局设置",
-        rsaVerify = true,
-        login = false,
+        allowAccessWithSign = true,
         domain = Caller.Board
 )
 public class GlobalSettingRefreshApi extends AbstractNoneOutputApi<GlobalSettingUpdateApi.Input> {

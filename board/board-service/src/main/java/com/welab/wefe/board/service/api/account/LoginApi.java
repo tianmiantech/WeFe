@@ -19,9 +19,9 @@ package com.welab.wefe.board.service.api.account;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
+import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.board.service.util.BoardSM4Util;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -31,6 +31,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -51,7 +52,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
         String token = accountService.login(input.phoneNumber, input.password, input.key, input.code);
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(BoardSM4Util.encryptPhoneNumber(input.phoneNumber));
+        AccountMysqlModel model = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(input.phoneNumber));
         Output output = new Output(token, model);
         output.uiConfig = model.getUiConfig();
 
@@ -60,7 +61,7 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
          *
          * An exception is thrown when it is not initialized. When the front end obtains the exception, it will jump to the initialization interface.
          */
-        if (globalConfigService.getMemberInfo() == null) {
+        if (globalConfigService.getModel(MemberInfoModel.class) == null) {
 
             // If the login is a super administrator, jump to the initialization page.
             if (output.superAdminRole) {

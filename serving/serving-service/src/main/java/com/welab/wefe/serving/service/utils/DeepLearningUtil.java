@@ -93,7 +93,7 @@ public class DeepLearningUtil {
         return convertStreamToStr(process.getInputStream());
     }
 
-    public void callShellCommand(){
+    public void callShellCommand() {
 
     }
 

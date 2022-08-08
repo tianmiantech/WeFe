@@ -25,6 +25,8 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.ProjectFlowStatisticsStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -46,35 +48,18 @@ public class FlowQueryApi extends AbstractApi<FlowQueryApi.Input, PagingOutput<P
     public static class Input extends PagingInput {
 
         @Check(name = "是否已被删除")
-        private boolean deleted = false;
+        public boolean deleted = false;
         @Check(name = "项目ID 主键")
-        private String projectId;
+        public String projectId;
         @Check(name = "flow id 列表")
-        private List<String> flowIdList;
+        public List<String> flowIdList;
 
+        @Check(name = "联邦任务类型（横向/纵向）")
+        public FederatedLearningType federatedLearningType;
+        @Check(name = "状态")
+        public ProjectFlowStatisticsStatus status;
+        @Check(name = "上传者")
+        public String creator;
 
-        public boolean isDeleted() {
-            return deleted;
-        }
-
-        public void setDeleted(boolean deleted) {
-            this.deleted = deleted;
-        }
-
-        public String getProjectId() {
-            return projectId;
-        }
-
-        public void setProjectId(String projectId) {
-            this.projectId = projectId;
-        }
-
-        public List<String> getFlowIdList() {
-            return flowIdList;
-        }
-
-        public void setFlowIdList(List<String> flowIdList) {
-            this.flowIdList = flowIdList;
-        }
     }
 }

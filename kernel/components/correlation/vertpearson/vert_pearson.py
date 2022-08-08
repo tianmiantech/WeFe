@@ -25,6 +25,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import time
 
 import numpy as np
 
@@ -35,6 +36,7 @@ from kernel.model_base import ModelBase
 from kernel.security.protol.spdz.tensor.fixedpoint_table import table_dot
 from kernel.transfer.variables.transfer_class.vert_pearson_transfer_variable import VertPearsonTransferVariable
 from kernel.utils import consts
+from common.python.calculation.acceleration.utils.aclr_utils import check_aclr_support
 
 LOGGER = log_utils.get_logger()
 
@@ -72,7 +74,7 @@ class VertPearson(ModelBase):
         return base_pearson.select_columns(self, data_instance)
 
     @staticmethod
-    def _standardized(data):
+    def _standardized(data, features):
         n = data.count()
         sum_x, sum_square_x = data.mapValues(lambda x: (x, x ** 2)) \
             .reduce(lambda pair1, pair2: (pair1[0] + pair2[0], pair1[1] + pair2[1]))
@@ -82,13 +84,16 @@ class VertPearson(ModelBase):
         LOGGER.debug(
             f'n={n},sum_x={sum_x},sum_square_x={sum_square_x},mu={mu},sigma_square={sigma_square},sigma={sigma}')
         if (sigma <= 0).any():
-            raise ValueError(f"zero standard deviation detected, sigma={sigma}")
+            zero_idx = [i for i in range(len(sigma)) if sigma[i] <= 0]
+            LOGGER.error(f'features={features}, zero_idx={zero_idx}')
+            zero_feature = np.array(features)[zero_idx]
+            raise ValueError(f"zero standard deviation detected, features={zero_feature}, sigma={sigma}")
         return n, data.mapValues(lambda x: (x - mu) / sigma)
 
     def fit(self, data_instance):
         # local
         data = self._select_columns(data_instance)
-        n, normed = self._standardized(data)
+        n, normed = self._standardized(data, self.names)
         self.local_corr = table_dot(normed, normed)
         self.local_corr /= n
         self._summary["local_corr"] = self.local_corr.tolist()

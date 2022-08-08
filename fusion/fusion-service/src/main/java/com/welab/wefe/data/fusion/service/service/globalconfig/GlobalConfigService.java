@@ -21,13 +21,13 @@ import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.data.fusion.service.api.system.GlobalConfigUpdateApi;
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
 import com.welab.wefe.data.fusion.service.dto.entity.globalconfig.FusionConfigModel;
 import com.welab.wefe.data.fusion.service.dto.entity.globalconfig.MemberInfoModel;
 import com.welab.wefe.data.fusion.service.service.CacheObjects;
-import com.welab.wefe.data.fusion.service.utils.FusionSM4Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,7 +67,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     @Transactional(rollbackFor = Exception.class)
     public void updateMemberRsaKey() throws StatusCodeWithException {
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(FusionSM4Util.encryptPhoneNumber(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccount.phoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }

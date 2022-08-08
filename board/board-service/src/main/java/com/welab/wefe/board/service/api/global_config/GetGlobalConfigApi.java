@@ -16,8 +16,7 @@
 
 package com.welab.wefe.board.service.api.global_config;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -35,21 +34,19 @@ import java.util.Map;
  * @author zane
  */
 @Api(path = "global_config/get", name = "get system global configs")
-public class GetGlobalConfigApi extends AbstractApi<GetGlobalConfigApi.Input, Map<String, JSONObject>> {
+public class GetGlobalConfigApi extends AbstractApi<GetGlobalConfigApi.Input, Map<String, AbstractConfigModel>> {
 
     @Autowired
     private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<Map<String, JSONObject>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Map<String, AbstractConfigModel>> handle(Input input) throws StatusCodeWithException {
 
-        Map<String, JSONObject> output = new HashMap<>();
+        Map<String, AbstractConfigModel> output = new HashMap<>();
 
         for (String group : input.groups) {
-            List<GlobalConfigMysqlModel> list = globalConfigService.list(group);
-            JSONObject json = new JSONObject();
-            list.forEach(x -> json.put(x.getName(), x.getValue()));
-            output.put(group, json);
+            AbstractConfigModel model = globalConfigService.getModel(group);
+            output.put(group, model);
         }
 
         return success(output);

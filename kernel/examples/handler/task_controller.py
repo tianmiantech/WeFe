@@ -85,24 +85,32 @@ class TaskController(object):
             default_driver_max_result_size = conf_utils.get_comm_config(
                 consts.COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MAX_RESULT_SIZE, "2g")
             default_num_executors = int(
-                conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS))
+                conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_NUM_EXECUTORS, 1))
             default_executor_memory = conf_utils.get_comm_config(
                 consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_MEMORY)
             default_executor_cores = int(
-                conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES))
+                conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_EXECUTOR_CORES, 1))
             if role == 'arbiter':
                 default_num_executors = 1 if default_num_executors < 4 else int(default_num_executors / 4)
             default_total_executor_cores = default_num_executors * default_executor_cores
 
-            spark_submit_config = task_config_json['job']['env'].get("spark_submit_config", dict())
-            deploy_mode = spark_submit_config.get("deploy-mode", "client")
-            queue = spark_submit_config.get("queue", "default")
-            driver_memory = spark_submit_config.get("driver-memory", default_driver_memory)
-            num_executors = spark_submit_config.get("num-executors", default_num_executors)
-            executor_memory = spark_submit_config.get("executor-memory", default_executor_memory)
-            executor_cores = spark_submit_config.get("executor-cores", default_executor_cores)
-            total_executor_cores = spark_submit_config.get("total_executor_cores",
-                                                           default_total_executor_cores)
+            # spark_submit_config = task_config_json['job']['env'].get("spark_submit_config", dict())
+            # deploy_mode = spark_submit_config.get("deploy-mode", "client")
+            # queue = spark_submit_config.get("queue", "default")
+            # driver_memory = spark_submit_config.get("driver-memory", default_driver_memory)
+            # num_executors = spark_submit_config.get("num-executors", default_num_executors)
+            # executor_memory = spark_submit_config.get("executor-memory", default_executor_memory)
+            # executor_cores = spark_submit_config.get("executor-cores", default_executor_cores)
+            # total_executor_cores = spark_submit_config.get("total_executor_cores",
+            #                                                default_total_executor_cores)
+
+            deploy_mode = "client"
+            queue = "default"
+            driver_memory = default_driver_memory
+            num_executors = default_num_executors
+            executor_memory = default_executor_memory
+            executor_cores = default_executor_cores
+            total_executor_cores = default_total_executor_cores
 
             if deploy_mode not in ["client"]:
                 raise ValueError(f"deploy mode {deploy_mode} not supported")

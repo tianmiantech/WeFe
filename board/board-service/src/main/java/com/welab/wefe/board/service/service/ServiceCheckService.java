@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.member.MemberAvailableCheckApi;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
+import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.sdk.FlowService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -109,7 +110,7 @@ public class ServiceCheckService extends AbstractService {
         List<GatewayOnlineCheckResult> checkResultList = new ArrayList<>();
         GatewayOnlineCheckResult result = null;
         if (local) {
-            result = checkGatewayConnect(globalConfigService.getGatewayConfig().intranetBaseUri);
+            result = checkGatewayConnect(globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri);
             checkResultList.add(result);
         }
 

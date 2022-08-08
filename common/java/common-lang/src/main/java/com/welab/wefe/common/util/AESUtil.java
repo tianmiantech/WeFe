@@ -20,7 +20,6 @@ import com.welab.wefe.common.constant.Constant;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Decoder;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -58,13 +57,14 @@ public class AESUtil {
 
     /**
      * 不同 type 调用不同 AES加密
+     *
      * @param content
      * @param key
      * @param type
      * @return
      */
     public static byte[] encrypt(byte[] content, byte[] key, String type) {
-        if(AES2.equals(type)){
+        if (AES2.equals(type)) {
             return aesSecure2(content, key, Cipher.ENCRYPT_MODE);
         }
         return aesSecure(content, key, Cipher.ENCRYPT_MODE);
@@ -90,6 +90,7 @@ public class AESUtil {
 
     /**
      * 不同type 调用不同 AES 加密
+     *
      * @param content
      * @param key
      * @param type
@@ -119,13 +120,14 @@ public class AESUtil {
 
     /**
      * 不同type 调用不同 AES 解密
+     *
      * @param content
      * @param key
      * @param type
      * @return
      */
     public static byte[] decrypt(byte[] content, byte[] key, String type) {
-        if(AES2.equals(type)){
+        if (AES2.equals(type)) {
             return aesSecure2(content, key, Cipher.DECRYPT_MODE);
         }
         return aesSecure(content, key, Cipher.DECRYPT_MODE);
@@ -229,7 +231,7 @@ public class AESUtil {
      * @return 加密的结果
      * @throws Exception
      */
-    public static String aesSecureWithViParam(String data, String key, String iv){
+    public static String aesSecureWithViParam(String data, String key, String iv) {
         try {
             //"算法/模式/补码方式"
             Cipher cipher = Cipher.getInstance(AES_CBC_NO_PADDING);
@@ -266,33 +268,6 @@ public class AESUtil {
             return keySpec;
         } catch (Exception e) {
             LOG.error("AES2 generateKey error，key：{}" + key, e);
-        }
-        return null;
-    }
-
-
-    public static String encryptWithKeyBase64(String content, String key) {
-        byte[] bytes = new byte[0];
-        try {
-            bytes = encrypt(content.getBytes("UTF-8"), new BASE64Decoder().decodeBuffer(key));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return EncryptUtils.parseByte2HexStr(bytes);
-    }
-
-    public static String decryptWithKeyBase64(String content, String key) {
-        byte[] originalData = EncryptUtils.parseHexStr2Byte(content);
-        byte[] bytes = new byte[0];
-        try {
-            bytes = decrypt(originalData, new BASE64Decoder().decodeBuffer(key));
-        } catch (IOException e) {
-            LOG.error("【decryptWithKeyBase64】base64 编码异常，data：" + key, e);
-        }
-        try {
-            return new String(bytes, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("【decryptWithKeyBase64】String 编码异常，data：" + key, e);
         }
         return null;
     }

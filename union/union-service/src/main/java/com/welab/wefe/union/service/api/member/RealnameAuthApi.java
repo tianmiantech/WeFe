@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/realname/auth", name = "member_realname_auth", rsaVerify = true, login = false)
+@Api(path = "member/realname/auth", name = "member_realname_auth", allowAccessWithSign = true, login = false)
 public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, AbstractApiOutput> {
 
     @Autowired

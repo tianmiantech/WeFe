@@ -16,13 +16,19 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
 
 /**
  * @author zane.luo
  */
-public class MemberInfoModel {
+@ConfigModel(group = ConfigGroupConstant.MEMBER_INFO)
+public class MemberInfoModel extends AbstractConfigModel {
 
     @Check(name = "联邦成员 Id", desc = "全局唯一，默认为uuid。")
     private String memberId;
@@ -38,6 +44,7 @@ public class MemberInfoModel {
     private Boolean memberAllowPublicDataSet;
 
     @Check(name = "私钥")
+    @Secret(maskStrategy = MaskStrategy.BLOCK)
     private String rsaPrivateKey;
     @Check(name = "公钥")
     private String rsaPublicKey;

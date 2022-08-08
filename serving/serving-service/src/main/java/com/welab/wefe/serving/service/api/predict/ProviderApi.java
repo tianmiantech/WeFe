@@ -42,8 +42,7 @@ import java.util.Map;
 @Api(
         path = "predict/provider",
         name = "Model to predict",
-        login = false,
-        rsaVerify = true,
+        allowAccessWithSign = true,
         domain = Caller.Member
 )
 public class ProviderApi extends AbstractApi<ProviderApi.Input, PredictResult> {

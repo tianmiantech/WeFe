@@ -16,14 +16,21 @@
 
 package com.welab.wefe.board.service.dto.globalconfig;
 
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
+
 /**
  * @author zane
  */
-public class AlertConfigModel {
-    /**
-     * 开关：Job 执行失败的通知
-     * 渠道：邮件
-     */
+@ConfigModel(group = ConfigGroupConstant.ALERT_CONFIG)
+public class AlertConfigModel extends AbstractConfigModel {
+
+    @Check(name = "是否在任务失败时发送邮件提醒", require = true)
     public boolean emailAlertOnJobError = false;
 
+    @Check(name = "找回密码功能的验证码通道", require = true)
+    public CaptchaSendChannel retrievePasswordCaptchaChannel = CaptchaSendChannel.email;
 }

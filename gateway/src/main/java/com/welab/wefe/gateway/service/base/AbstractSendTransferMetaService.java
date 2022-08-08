@@ -18,6 +18,7 @@ package com.welab.wefe.gateway.service.base;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.cache.MemberCache;
@@ -25,6 +26,7 @@ import com.welab.wefe.gateway.common.EndpointBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusEnum;
 import com.welab.wefe.gateway.entity.MemberEntity;
+import com.welab.wefe.gateway.init.InitStorageManager;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import com.welab.wefe.gateway.service.MessageService;
 import com.welab.wefe.gateway.util.ActionProcessorMappingUtil;
@@ -66,6 +68,10 @@ public abstract class AbstractSendTransferMetaService {
             mMessageService.saveError("消息参数非法", returnStatus, transferMeta);
             return returnStatus;
         }
+        /*if (!GatewayProcessorType.refreshPersistentStorageProcessor.name().equals(transferMeta.getProcessor()) && !InitStorageManager.PERSISTENT_INIT.get()) {
+            mMessageService.saveError("资源未初始化完成", "Clickhouse未初始化完成，请在Board系统里正确配置Clickhouse相关信息", transferMeta);
+            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "Persistent service uninitialized.", transferMeta.getSessionId());
+        }*/
 
         // Set the receiver and sender of the message
         transferMeta = setMemberInfo(transferMeta);
