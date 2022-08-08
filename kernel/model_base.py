@@ -92,6 +92,8 @@ class ModelBase(object):
         # common variable transfer
         self.common_transfer_variable = CommonTransferVariable()
 
+        self.component_parameters = None
+
     def set_show_name(self, name):
         self.show_name = name
 
@@ -112,6 +114,7 @@ class ModelBase(object):
         self.federated_learning_type = componentProperties.federated_learning_type
         self._init_model(param)
         self.set_save_dataset_flag(param)
+        self.component_parameters = component_parameters
         return param
 
     def set_save_dataset_flag(self, param):

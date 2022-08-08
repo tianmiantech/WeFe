@@ -524,7 +524,7 @@ public class XgboostAlgorithmHelper {
      * @return PredictModel
      */
     private static XgbProviderPredictResultModel skipProviderPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
-        Map<Integer, Integer> result = new HashMap<>(16);
+        Map<String, Integer> result = new HashMap<>(16);
         int[] treeNodeIds = new int[model.getTreeNum()];
 
         /**
@@ -542,7 +542,7 @@ public class XgboostAlgorithmHelper {
 
             treeNodeIds[i] = providerDecision(model, i, treeNodeIds[i], featureDataMap);
 
-            result.put(i, treeNodeIds[i]);
+            result.put(String.valueOf(i), treeNodeIds[i]);
         }
 
 
