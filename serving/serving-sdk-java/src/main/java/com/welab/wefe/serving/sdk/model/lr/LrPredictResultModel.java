@@ -23,6 +23,7 @@ import com.welab.wefe.serving.sdk.model.PredictModel;
  */
 public class LrPredictResultModel extends PredictModel {
     private Double score;
+    private Object scoreCard;
 
     public static LrPredictResultModel of(String userId, Double score) {
         LrPredictResultModel model = new LrPredictResultModel();
@@ -45,5 +46,13 @@ public class LrPredictResultModel extends PredictModel {
 
     public void setScore(Double score) {
         this.score = score;
+    }
+
+    public Object getScoreCard() {
+        return scoreCard;
+    }
+
+    public void setScoreCard(Object scoreCard) {
+        this.scoreCard = scoreCard;
     }
 }

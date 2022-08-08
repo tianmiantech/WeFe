@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,35 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.serving.sdk.model;
+
+import com.welab.wefe.common.util.JObject;
 
 /**
  * @author hunter.zhao
  */
-public class BaseAlgorithmModel {
+public class ScoreCardInfoModel {
+    private JObject scoreCard;
 
-    private ModelMeta modelMeta;
+    private JObject bin;
 
-    private ScoreCardInfoModel scoreCardInfo;
-
-    protected Double getLearningRate() {
-        return modelMeta.getLearningRate();
+    public JObject getScoreCard() {
+        return scoreCard;
     }
 
-    public ModelMeta getModelMeta() {
-        return modelMeta;
+    public void setScoreCard(JObject scoreCard) {
+        this.scoreCard = scoreCard;
     }
 
-    public void setModelMeta(ModelMeta modelMeta) {
-        this.modelMeta = modelMeta;
+    public JObject getBin() {
+        return bin;
     }
 
-    public ScoreCardInfoModel getScoreCardInfo() {
-        return scoreCardInfo;
-    }
-
-    public void setScoreCardInfo(ScoreCardInfoModel scoreCardInfo) {
-        this.scoreCardInfo = scoreCardInfo;
+    public void setBin(JObject bin) {
+        this.bin = bin;
     }
 }

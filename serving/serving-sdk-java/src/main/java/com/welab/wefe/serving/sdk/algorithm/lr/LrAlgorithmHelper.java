@@ -18,12 +18,14 @@ package com.welab.wefe.serving.sdk.algorithm.lr;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.TypeUtils;
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.enums.StateCode;
+import com.welab.wefe.serving.sdk.model.ScoreCardInfoModel;
 import com.welab.wefe.serving.sdk.model.lr.LrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
+import com.welab.wefe.serving.sdk.model.lr.LrScoreCardModel;
 import com.welab.wefe.serving.sdk.utils.AlgorithmThreadPool;
+import org.apache.commons.compress.utils.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +79,45 @@ public class LrAlgorithmHelper {
         return LrPredictResultModel.of(userId, score);
     }
 
+    /**
+     * Calculate points based on features
+     */
+    public static LrPredictResultModel scoreCardCompute(LrModel model, ScoreCardInfoModel scoreCardInfo, String userId, Map<String, Object> featureData) {
+//        if (featureData == null) {
+//            return LrPredictResultModel.of(userId, 0.0);
+//        }
+
+        double score = 0;
+        int featureNum = 0;
+
+        List<LrScoreCardModel> models = Lists.newArrayList();
+
+        for (String key : featureData.keySet()) {
+            if (model.getWeight().containsKey(key)) {
+                Double x = TypeUtils.castToDouble(featureData.get(key));
+                Double w = TypeUtils.castToDouble(model.getWeight().get(key));
+                score += w * x;
+                featureNum++;
+
+                LrScoreCardModel scoreCardModel = new LrScoreCardModel();
+                scoreCardModel.setValue(x);
+                scoreCardInfo.getBin().getJObject(key);
+                scoreCardModel.setBin("x");
+                scoreCardModel.setProbability(score);
+                scoreCardModel.setWoe(0.0);
+                scoreCardModel.setScore(0.0);
+                models.add(scoreCardModel);
+            }
+        }
+
+        //Features do not match at all
+        if (featureNum <= 0) {
+            LOG.error("featureData error, userId : {}, featureData: {} ,weight: {}", userId, JSON.toJSONString(featureData), JSON.toJSONString(model.getWeight()));
+            return LrPredictResultModel.fail(userId, StateCode.FEATURE_ERROR.getMessage());
+        }
+
+        return LrPredictResultModel.of(userId, score);
+    }
 
     public static List<LrPredictResultModel> batchCompute(LrModel lrModel, BatchPredictParams batchPredictParams) {
         CopyOnWriteArrayList<LrPredictResultModel> outputs = new CopyOnWriteArrayList<>();
@@ -106,4 +147,9 @@ public class LrAlgorithmHelper {
     public static Double intercept(double score, double intercept) {
         return score + intercept;
     }
+//
+//    private static String getBinningSplit(List<Double> list, int i) {
+//        String beforeKey = i == 0 ? "-∞" : precisionProcessByDouble(list.get(i - 1));
+//        return beforeKey + "," + precisionProcessByDouble(list.get(i));
+//    }
 }
