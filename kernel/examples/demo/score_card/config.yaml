@@ -1,0 +1,13 @@
+data_promoter: "data/breast_vert_promoter.csv"
+data_provider: "data/breast_vert_provider.csv"
+promoter_data_table: "breast_vert_promoter"
+provider_data_table: "breast_vert_provider"
+idx: "id"
+label_name: "y"
+penalty: "L2"
+max_iter: 2
+alpha: 0.01
+learning_rate: 0.15
+optimizer: "adam"
+batch_size: -1
+early_stop: "diff"

@@ -1,0 +1,8 @@
+{
+  "param_class": "param.py/ScorecardParam",
+  "role": {
+    "promoter|provider": {
+      "program": "scorecard.py/ScoreCard"
+    }
+  }
+}
