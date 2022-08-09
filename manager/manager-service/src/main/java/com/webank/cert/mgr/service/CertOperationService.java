@@ -293,6 +293,7 @@ public class CertOperationService {
         certKeyInfo.setKeyAlg(priAlg);
         certKeyInfo.setKeyPem(pemPrivateKey);
         certKeyInfo.setUserId(userId);
+        certKeyInfo.setCreatedBy(CurrentAccount.id());
         certKeyInfo = certDao.save(certKeyInfo);
         return certKeyInfo;
     }
@@ -309,6 +310,7 @@ public class CertOperationService {
             String organizationName, String userId) {
         CertRequestInfo certRequestInfo = new CertRequestInfo();
         certRequestInfo.setUserId(userId);
+        certRequestInfo.setCreatedBy(CurrentAccount.id());
 //        certRequestInfo.setIssuerCertId(parentCertId);
         certRequestInfo.setSubjectKeyId(subjectKeyId);
         certRequestInfo.setSubjectCN(commonName);
@@ -340,7 +342,7 @@ public class CertOperationService {
             String csrId) {
         CertInfo certInfo = new CertInfo();
         certInfo.setUserId(userId);
-
+        certInfo.setCreatedBy(CurrentAccount.id());
 //        certInfo.setIssuerKeyId(issuerCertKeyId);// 貌似不需要？？？？
         certInfo.setIssuerCN(issuerCommonName);
         certInfo.setIssuerOrg(issuerOrgName);

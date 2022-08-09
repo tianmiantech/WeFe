@@ -57,6 +57,9 @@ public class CertRequestInfo extends AbstractNormalMongoModel {
 
     // 是否签发
     private Boolean issue;
+    
+    // 创建人
+    private String createdBy;
 
     public String getPkId() {
         return pkId;
@@ -128,6 +131,14 @@ public class CertRequestInfo extends AbstractNormalMongoModel {
 
     public void setIssue(Boolean issue) {
         this.issue = issue;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
 }

@@ -45,7 +45,11 @@ public class CertKeyInfo extends AbstractNormalMongoModel {
 
     // 私钥算法
     private String keyAlg;
-
+    
+    // 创建人
+    private String createdBy;
+    
+    
     public String getPkId() {
         return pkId;
     }
@@ -84,4 +88,11 @@ public class CertKeyInfo extends AbstractNormalMongoModel {
         this.keyAlg = keyAlg;
     }
 
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
 }

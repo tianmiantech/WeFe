@@ -79,6 +79,9 @@ public class CertInfo extends AbstractNormalMongoModel {
     // 证书状态
     private int status;
 
+    // 创建人
+    private String createdBy;
+
     public String getPkId() {
         return pkId;
     }
@@ -205,6 +208,14 @@ public class CertInfo extends AbstractNormalMongoModel {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
 }
