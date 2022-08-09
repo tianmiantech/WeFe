@@ -77,7 +77,7 @@ public class CertInfo extends AbstractNormalMongoModel {
     private String csrId;
 
     // 证书状态
-    private String status;
+    private int status;
 
     public String getPkId() {
         return pkId;
@@ -199,11 +199,11 @@ public class CertInfo extends AbstractNormalMongoModel {
         this.csrId = csrId;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

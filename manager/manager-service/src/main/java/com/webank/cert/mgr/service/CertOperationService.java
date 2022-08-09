@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.webank.cert.mgr.db.dao.CertDao;
+import com.webank.cert.mgr.enums.CertStatusEnums;
 import com.webank.cert.mgr.enums.MgrExceptionCodeEnums;
 import com.webank.cert.mgr.exception.CertMgrException;
 import com.webank.cert.mgr.model.vo.CertKeyVO;
@@ -70,7 +71,7 @@ public class CertOperationService {
     }
 
     // 更新证书状态
-    public void updateStatus(String serialNumber, String status) {
+    public void updateStatus(String serialNumber, int status) {
         certDao.updateStatus(serialNumber, status);
     }
 
@@ -355,6 +356,7 @@ public class CertOperationService {
         certInfo.setIsCACert(isCACert);
         certInfo.setIsRootCert(isRootCert);
         certInfo.setCsrId(csrId);
+        certInfo.setStatus(CertStatusEnums.VALID.getCode());
         return certInfo;
     }
 

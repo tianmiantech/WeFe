@@ -18,6 +18,7 @@ package com.welab.wefe.manager.service.api.member;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.webank.cert.mgr.enums.CertStatusEnums;
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
 import com.welab.wefe.common.StatusCode;
@@ -70,6 +71,7 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
             try {
                 // 签发证书
                 CertVO cert = certOperationService.createUserCert(issuerCertId, userId, certRequestContent);
+                memberExtJSON.setCertStatus(CertStatusEnums.VALID.name());
                 // 将证书内容写入
                 memberExtJSON.setCertPemContent(cert.getCertContent());
                 memberExtJSON.setCertSerialNumber(cert.getSerialNumber());
@@ -79,8 +81,9 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
         }
         else if (input.getRealNameAuthStatus() == 3) { //-1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
             memberExtJSON.setUpdatedTime(System.currentTimeMillis());
+            memberExtJSON.setCertStatus(CertStatusEnums.INVALID.name());
             // 更新证书状态
-            certOperationService.updateStatus(memberExtJSON.getCertSerialNumber(), "canceled");
+            certOperationService.updateStatus(memberExtJSON.getCertSerialNumber(), CertStatusEnums.INVALID.getCode());
         }
         memberContractService.updateExtJson(input.getId(), memberExtJSON);
         return success();

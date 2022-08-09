@@ -46,6 +46,8 @@ public class MemberExtJSON {
     private String certPemContent;
     // 证书序列号
     private String certSerialNumber;
+    // 证书状态
+    private String certStatus;
     // 是否开启TLS通信
     private Boolean memberGatewayTlsEnable;
     
@@ -168,6 +170,13 @@ public class MemberExtJSON {
     public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
         this.memberGatewayTlsEnable = memberGatewayTlsEnable;
     }
-    
+
+    public String getCertStatus() {
+        return certStatus;
+    }
+
+    public void setCertStatus(String certStatus) {
+        this.certStatus = certStatus;
+    }
 
 }

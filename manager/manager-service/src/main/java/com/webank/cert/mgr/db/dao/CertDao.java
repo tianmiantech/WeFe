@@ -72,7 +72,7 @@ public class CertDao {
         return certInfoRepo.findByPkId(certId);
     }
 
-    public void updateStatus(String serialNumber, String status) {
+    public void updateStatus(String serialNumber, int status) {
         certInfoRepo.updateStatus(serialNumber, status);
     }
 

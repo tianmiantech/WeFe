@@ -101,7 +101,7 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
         return mongoManagerTemplate.findAll(CertInfo.class);
     }
 
-    public void updateStatus(String serialNumber, String status) {
+    public void updateStatus(String serialNumber, int status) {
         Query query = new QueryBuilder().append("serialNumber", serialNumber).build();
         Update update = new UpdateBuilder().append("status", status).append("updateTime", System.currentTimeMillis())
                 .build();

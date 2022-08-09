@@ -18,6 +18,7 @@ package com.webank.cert.mgr.model.vo;
 import java.io.Serializable;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.webank.cert.mgr.enums.CertStatusEnums;
 
 /**
  * @author wesleywang
@@ -62,7 +63,7 @@ public class CertVO implements Serializable {
     private String csrId;
 
     // 证书状态
-    private String status;
+    private int status;
 
     public String getPkId() {
         return pkId;
@@ -184,11 +185,11 @@ public class CertVO implements Serializable {
         this.csrId = csrId;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

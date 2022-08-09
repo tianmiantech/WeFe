@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -44,11 +45,11 @@ public class InitApi extends AbstractApi<InitCertInput, AbstractApiOutput> {
     }
 
     public static class InitCertInput extends AbstractApiInput {
-        // 常用名
+        @Check(name = "常用名", require = true)
         private String commonName;
-        // 组织名称
+        @Check(name = "组织名称", require = true)
         private String organizationName;
-        // 组织单位名称
+        @Check(name = "组织单位名称", require = true)
         private String organizationUnitName;
 
         public String getCommonName() {
