@@ -46,6 +46,11 @@
                     </el-tag>
                 </template>
             </el-table-column>
+            <el-table-column label="创建时间" width="200">
+                <template v-slot="scope">
+                    <p>{{ dateFormat(scope.row.create_time) }}</p>
+                </template>
+            </el-table-column>
         </el-table>
 
         <div

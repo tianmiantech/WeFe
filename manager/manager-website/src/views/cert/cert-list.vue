@@ -72,6 +72,11 @@
                     {{ scope.row.is_root_cert }}
                 </template>
             </el-table-column>
+            <el-table-column label="创建时间" width="200">
+                <template v-slot="scope">
+                    <p>{{ dateFormat(scope.row.create_time) }}</p>
+                </template>
+            </el-table-column>
             <el-table-column label="状态" width="100">
                 <template v-slot="scope">
                     <el-tag :type="scope.row.status ? 'success' : 'danger'">
@@ -85,7 +90,7 @@
                 min-width="240"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.status === 0">
+                    <template v-if="scope.row.status === 0 && !scope.row.is_ca_cert">
                         <el-button
                             type="primary"
                             @click="changeStatus($event, scope.row.pk_id, 1)"
@@ -93,7 +98,7 @@
                             置为有效
                         </el-button>
                     </template>
-                    <template v-else>
+                    <template v-if="scope.row.status === 1 && !scope.row.is_ca_cert">
                         <el-button
                             type="danger"
                             @click="changeStatus($event, scope.row.pk_id, 0)"
