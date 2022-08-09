@@ -17,10 +17,13 @@
 
 package com.welab.wefe.gateway.util;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * TLS tool class
@@ -45,5 +48,12 @@ public class TlsUtil {
     }
 
 
+    public static X509Certificate[] buildCertificates(List<String> crtList) {
+        if (CollectionUtils.isEmpty(crtList)) {
+            return null;
+        }
+        //X509Certificate[] certificates = new X509Certificate[crtPaths.length];
+        return null;
+    }
 
 }
