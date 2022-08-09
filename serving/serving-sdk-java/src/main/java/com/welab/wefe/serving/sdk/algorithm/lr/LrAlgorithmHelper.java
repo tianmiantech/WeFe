@@ -18,6 +18,7 @@ package com.welab.wefe.serving.sdk.algorithm.lr;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.enums.StateCode;
 import com.welab.wefe.serving.sdk.model.ScoreCardInfoModel;
@@ -29,6 +30,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -99,13 +101,15 @@ public class LrAlgorithmHelper {
                 score += w * x;
                 featureNum++;
 
+                List<Double> splitPoints = extractSplitPoints(scoreCardInfo.getBin().getJObject(key));
+                List<Double> woeArray = extractWoeArray(scoreCardInfo.getBin().getJObject(key));
+
                 LrScoreCardModel scoreCardModel = new LrScoreCardModel();
                 scoreCardModel.setValue(x);
-                scoreCardInfo.getBin().getJObject(key);
-                scoreCardModel.setBin("x");
+                scoreCardModel.setBin(getBin(splitPoints, x));
+                scoreCardModel.setWoe(getWoe(woeArray, x));
                 scoreCardModel.setProbability(score);
-                scoreCardModel.setWoe(0.0);
-                scoreCardModel.setScore(0.0);
+                scoreCardModel.setScore(w * getWoe(woeArray, x) * 0.0);
                 models.add(scoreCardModel);
             }
         }
@@ -116,7 +120,7 @@ public class LrAlgorithmHelper {
             return LrPredictResultModel.fail(userId, StateCode.FEATURE_ERROR.getMessage());
         }
 
-        return LrPredictResultModel.of(userId, score);
+        return LrPredictResultModel.of(userId, models);
     }
 
     public static List<LrPredictResultModel> batchCompute(LrModel lrModel, BatchPredictParams batchPredictParams) {
@@ -152,4 +156,42 @@ public class LrAlgorithmHelper {
 //        String beforeKey = i == 0 ? "-∞" : precisionProcessByDouble(list.get(i - 1));
 //        return beforeKey + "," + precisionProcessByDouble(list.get(i));
 //    }
+
+    private static List<Double> extractSplitPoints(JObject obj) {
+        return obj.getJSONList("splitPoints", Double.class);
+    }
+
+
+    private static List<Double> extractWoeArray(JObject obj) {
+        return obj.getJSONList("woeArray", Double.class);
+    }
+
+
+    private static String getBin(List<Double> splits, Double value) {
+        for (int i = 0; i < splits.size(); i++) {
+            if (value <= splits.get(i)) {
+                return getBinningSplit(splits, i);
+            }
+        }
+        return null;
+    }
+
+    private static String getBinningSplit(List<Double> list, int i) {
+        String beforeKey = i == 0 ? "-∞" : precisionProcessByDouble(list.get(i - 1));
+        return beforeKey + "," + precisionProcessByDouble(list.get(i));
+    }
+
+    private static String precisionProcessByDouble(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        return bd.setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+    }
+
+    private static double getWoe(List<Double> woeList, Double value) {
+        for (int i = 0; i < woeList.size(); i++) {
+            if (value <= woeList.get(i)) {
+                return woeList.get(i);
+            }
+        }
+        return 0;
+    }
 }

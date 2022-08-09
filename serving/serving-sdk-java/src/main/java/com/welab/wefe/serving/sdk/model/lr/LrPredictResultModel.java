@@ -32,6 +32,13 @@ public class LrPredictResultModel extends PredictModel {
         return model;
     }
 
+    public static LrPredictResultModel of(String userId, Object scoreCard) {
+        LrPredictResultModel model = new LrPredictResultModel();
+        model.userId = userId;
+        model.scoreCard = scoreCard;
+        return model;
+    }
+
     public static LrPredictResultModel fail(String userId, String error) {
         LrPredictResultModel model = new LrPredictResultModel();
         model.userId = userId;
