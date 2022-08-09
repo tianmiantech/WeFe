@@ -52,7 +52,7 @@ public class TlsUtil {
         if (CollectionUtils.isEmpty(crtList)) {
             return null;
         }
-        //X509Certificate[] certificates = new X509Certificate[crtPaths.length];
+        X509Certificate[] certificates = new X509Certificate[crtList.size()];
         return null;
     }
 
