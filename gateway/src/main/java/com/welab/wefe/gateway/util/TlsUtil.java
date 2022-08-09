@@ -19,8 +19,10 @@ package com.welab.wefe.gateway.util;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -48,12 +50,19 @@ public class TlsUtil {
     }
 
 
-    public static X509Certificate[] buildCertificates(List<String> crtList) {
+    public static X509Certificate[] buildCertificates(List<String> crtList) throws Exception {
         if (CollectionUtils.isEmpty(crtList)) {
             return null;
         }
         X509Certificate[] certificates = new X509Certificate[crtList.size()];
-        return null;
+        for (int i = 0; i < crtList.size(); i++) {
+            try (InputStream inputStream = new ByteArrayInputStream(crtList.get(i).getBytes(StandardCharsets.UTF_8))) {
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                X509Certificate cert = (X509Certificate) cf.generateCertificate(inputStream);
+                certificates[i] = cert;
+            }
+        }
+        return certificates;
     }
 
 }
