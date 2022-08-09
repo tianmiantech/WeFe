@@ -55,14 +55,14 @@ public class CertKeyInfo extends AbstractNormalMongoModel {
     }
 
     public String getKeyPem() throws StatusCodeWithException {
-        if (StringUtils.isNotBlank(keyPem)) {
+        if (StringUtils.isNotBlank(keyPem) && keyPem.startsWith("-----BEGIN")) {
             keyPem = DatabaseEncryptUtil.decrypt(keyPem);
         }
         return keyPem;
     }
 
     public void setKeyPem(String keyPem) throws StatusCodeWithException {
-        if (StringUtils.isNotBlank(keyPem)) {
+        if (StringUtils.isNotBlank(keyPem) && !keyPem.startsWith("-----BEGIN")) {
             keyPem = DatabaseEncryptUtil.encrypt(keyPem);
         }
         this.keyPem = keyPem;
