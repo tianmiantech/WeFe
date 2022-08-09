@@ -509,6 +509,10 @@ class Tracking(object):
     def saveMetricData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
         self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level)
 
+    def saveScoreData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
+        self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level,
+                                             need_value=False)
+
     def _get_item_metric(self, metric_name: str, metric_namespace: str, metric_meta: {}, data: {}):
         """
         Get metric item
