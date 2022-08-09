@@ -39,9 +39,11 @@ public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends Abst
         return predictResult;
     }
 
-    public void normalize(LrPredictResultModel predictResult) {
+    public LrPredictResultModel normalize(LrPredictResultModel predictResult) {
         intercept(predictResult);
         sigmod(predictResult);
+
+        return predictResult;
     }
 
     /**
@@ -54,5 +56,9 @@ public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends Abst
     private void intercept(LrPredictResultModel predictResult) {
         Double score = LrAlgorithmHelper.intercept(predictResult.getScore(), modelParam.getModelParam().getIntercept());
         predictResult.setScore(score);
+    }
+
+    protected boolean isScoreCard() {
+        return modelParam.getScoreCardInfo() != null;
     }
 }

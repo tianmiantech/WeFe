@@ -46,8 +46,7 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
         }
 
         if (CollectionUtils.isEmpty(federatedResult)) {
-            normalize(result);
-            return result;
+            return isScoreCard() ? result:normalize(result);
         }
 
         /**
