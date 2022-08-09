@@ -32,7 +32,7 @@ public class CertRequestVO implements Serializable {
 
     private String subjectKeyId;
 
-    private String certRequestContent;
+//    private String certRequestContent;
 
     private String pCertId;
 
@@ -68,14 +68,14 @@ public class CertRequestVO implements Serializable {
     public void setSubjectKeyId(String subjectKeyId) {
         this.subjectKeyId = subjectKeyId;
     }
-
-    public String getCertRequestContent() {
-        return certRequestContent;
-    }
-
-    public void setCertRequestContent(String certRequestContent) {
-        this.certRequestContent = certRequestContent;
-    }
+//
+//    public String getCertRequestContent() {
+//        return certRequestContent;
+//    }
+//
+//    public void setCertRequestContent(String certRequestContent) {
+//        this.certRequestContent = certRequestContent;
+//    }
 
     public String getpCertId() {
         return pCertId;
@@ -117,11 +117,5 @@ public class CertRequestVO implements Serializable {
         this.pCertUserId = pCertUserId;
     }
 
-    @Override
-    public String toString() {
-        return "CertRequestVO [pkId=" + pkId + ", userId=" + userId + ", subjectKeyId=" + subjectKeyId
-                + ", certRequestContent=" + certRequestContent + ", pCertId=" + pCertId + ", subjectOrg=" + subjectOrg
-                + ", subjectCN=" + subjectCN + ", issue=" + issue + ", pCertUserId=" + pCertUserId + "]";
-    }
 
 }
