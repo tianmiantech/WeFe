@@ -119,7 +119,7 @@ public class GrpcServer {
             status = RpcServerStatusEnum.RUNNING;
             // Registration tick
             Runtime.getRuntime().addShutdownHook(new Thread(GrpcServer.this::stop));
-            LOG.info("Start 【" + name + "】 grpc server success, binding port number is: " + port);
+            LOG.info("Start 【" + name + "】 grpc server success, binding port is: " + port);
             // Start daemon
             //blockUntilShutdown();
             return true;

@@ -60,6 +60,11 @@ public class MemberEntity implements Serializable {
      */
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
+    /**
+     * External grpc server is tls enable
+     */
+    private Boolean gatewayTlsEnable = false;
+
 
     public String getId() {
         return id;
@@ -123,5 +128,13 @@ public class MemberEntity implements Serializable {
 
     public void setSecretKeyType(SecretKeyType secretKeyType) {
         this.secretKeyType = secretKeyType;
+    }
+
+    public Boolean getGatewayTlsEnable() {
+        return gatewayTlsEnable;
+    }
+
+    public void setGatewayTlsEnable(Boolean gatewayTlsEnable) {
+        this.gatewayTlsEnable = gatewayTlsEnable;
     }
 }

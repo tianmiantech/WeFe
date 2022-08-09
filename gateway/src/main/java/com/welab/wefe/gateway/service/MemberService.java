@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.dto.MemberInfoModel;
 import com.welab.wefe.gateway.entity.MemberEntity;
 import com.welab.wefe.gateway.sdk.UnionHelper;
@@ -66,6 +67,7 @@ public class MemberService extends AbstractMemberService {
             if (null != extJsonObj && !extJsonObj.isEmpty()) {
                 String secretKeyType = extJsonObj.getString("secret_key_type");
                 member.setSecretKeyType(SecretKeyType.get(secretKeyType));
+                member.setGatewayTlsEnable(extJsonObj.getBooleanValue("member_gateway_tls_enable"));
             }
 
             resultList.add(member);
@@ -96,6 +98,13 @@ public class MemberService extends AbstractMemberService {
             }
         }
         memberEntity.setSecretKeyType(null == memberInfo.getSecretKeyType() ? SecretKeyType.rsa : memberInfo.getSecretKeyType());
+        memberEntity.setGatewayTlsEnable(memberInfo.getMemberGatewayTlsEnable());
         return memberEntity;
+    }
+
+    public boolean getMemberGatewayTlsEnable() {
+        GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
+        MemberInfoModel memberInfoModel = globalConfigService.getMemberInfo();
+        return memberInfoModel.getMemberGatewayTlsEnable();
     }
 }

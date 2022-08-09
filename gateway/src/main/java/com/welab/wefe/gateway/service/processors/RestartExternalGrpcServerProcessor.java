@@ -21,16 +21,27 @@ import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
+import com.welab.wefe.gateway.common.RpcServerStatusEnum;
+import com.welab.wefe.gateway.init.grpc.GrpcServer;
 import com.welab.wefe.gateway.init.grpc.GrpcServerContext;
+import com.welab.wefe.gateway.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Restart external grpc server processor
  */
 @Processor(type = GatewayProcessorType.restartExternalGrpcServer, desc = "Restart external grpc server processor")
 public class RestartExternalGrpcServerProcessor extends AbstractProcessor {
+    @Autowired
+    private MemberService memberService;
 
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
+        GrpcServer grpcServer = GrpcServerContext.getInstance().getExternalGrpcServer();
+        boolean gatewayTlsEnable = memberService.getMemberGatewayTlsEnable();
+        if (RpcServerStatusEnum.RUNNING.equals(grpcServer.getStatus()) && grpcServer.isTlsEnable() == gatewayTlsEnable) {
+            return ReturnStatusBuilder.ok(transferMeta.getSessionId());
+        }
         if (GrpcServerContext.getInstance().restartExternalGrpcServer()) {
             return ReturnStatusBuilder.ok(transferMeta.getSessionId());
         }

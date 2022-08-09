@@ -18,10 +18,16 @@ package com.welab.wefe.gateway.init.grpc;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import com.welab.wefe.gateway.config.ConfigProperties;
-import com.welab.wefe.gateway.dto.MemberInfoModel;
-import com.welab.wefe.gateway.service.GlobalConfigService;
+import com.welab.wefe.gateway.service.MemberService;
+import io.grpc.netty.GrpcSslContexts;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.SSLException;
+import java.io.File;
 
 /**
  * Grpc server context
@@ -54,15 +60,13 @@ public class GrpcServerContext {
             ConfigProperties config = GatewayServer.CONTEXT.getBean(ConfigProperties.class);
             int internalPort = config.getGrpcServerInternalPort();
             int externalPort = config.getGrpcServerExternalPort();
-            GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-            MemberInfoModel memberInfoModel = globalConfigService.getMemberInfo();
             if ((internalPort == externalPort)) {
                 LOG.error("Grpc server start fail, the internal network port is the same as the external network port[" + internalPort + "]");
                 return false;
             }
 
             internalGrpcServer = buildInternalGrpcServer(internalPort);
-            externalGrpcServer = buildExternalGrpcServer(externalPort, memberInfoModel.getMemberGatewayTlsEnable());
+            externalGrpcServer = buildExternalGrpcServer(externalPort);
             if (!internalGrpcServer.start()) {
                 return false;
             }
@@ -84,10 +88,24 @@ public class GrpcServerContext {
      * Restart external grpc server
      */
     public boolean restartExternalGrpcServer() {
-        return externalGrpcServer.restart();
+        try {
+            MemberService memberService = GatewayServer.CONTEXT.getBean(MemberService.class);
+            boolean tlsEnable = memberService.getMemberGatewayTlsEnable();
+            if (tlsEnable) {
+                externalGrpcServer.setSslContext(buildSslContext());
+            }
+            externalGrpcServer.setTlsEnable(tlsEnable);
+            return externalGrpcServer.restart();
+        } catch (Exception e) {
+            LOG.error("Restart external grpc server exception: ", e);
+        }
+        return false;
     }
 
 
+    /**
+     * Build internal grpc server
+     */
     private GrpcServer buildInternalGrpcServer(int port) {
         GrpcServer grpcServer = new GrpcServer(port);
         grpcServer.setName("INTERNAL");
@@ -96,13 +114,33 @@ public class GrpcServerContext {
         return grpcServer;
     }
 
-    private GrpcServer buildExternalGrpcServer(int port, boolean tlsEnable) {
+    /**
+     * Build external grpc server
+     */
+    private GrpcServer buildExternalGrpcServer(int port) throws SSLException {
         GrpcServer grpcServer = new GrpcServer(port);
         grpcServer.setName("EXTERNAL");
-        grpcServer.setTlsEnable(tlsEnable);
         grpcServer.setUseScope(GrpcServerScopeEnum.EXTERNAL);
-
-
+        MemberService memberService = GatewayServer.CONTEXT.getBean(MemberService.class);
+        boolean tlsEnable = memberService.getMemberGatewayTlsEnable();
+        grpcServer.setTlsEnable(tlsEnable);
+        if (grpcServer.isTlsEnable()) {
+            grpcServer.setSslContext(buildSslContext());
+        }
         return grpcServer;
+    }
+
+    /**
+     * Build ssl context
+     */
+    private SslContext buildSslContext() throws SSLException {
+        // TODO 待完善中
+        SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(new File("a"), new File("b"));
+        sslContextBuilder = GrpcSslContexts.configure(sslContextBuilder, SslProvider.OPENSSL);
+        return sslContextBuilder.build();
+    }
+
+    public GrpcServer getExternalGrpcServer() {
+        return externalGrpcServer;
     }
 }
