@@ -8,7 +8,28 @@
             stripe
         >
             <template #empty>
-                <EmptyData />
+                <el-form
+                    class="mb30"
+                    inline
+                    :model="init_form"
+                >
+                    <el-form-item label="所属组织名称:">
+                        <el-input v-model="init_form.organization_name" placeholder="Welab Inc." clearable />
+                    </el-form-item><br/>
+                    <el-form-item label="常用名:">
+                        <el-input v-model="init_form.common_name" placeholder="Welab" clearable />
+                    </el-form-item><br/>
+                    <el-form-item label="所属单位名称:">
+                        <el-input v-model="init_form.organization_unit_name" placeholder="IT" clearable />
+                    </el-form-item>
+                </el-form>
+                <el-button
+                    type="primary"
+                    native-type="submit"
+                    @click="initRoot($event)"
+                >
+                    初始化根证书
+                </el-button>
             </template>
             <el-table-column label="序号" type="index"></el-table-column>
             <el-table-column
@@ -64,10 +85,10 @@
                 min-width="240"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.status">
+                    <template v-if="scope.row.status === 0">
                         <el-button
-                            type="danger"
-                            @click="changeStatus($event, scope.row)"
+                            type="primary"
+                            @click="changeStatus($event, scope.row.pk_id, 1)"
                         >
                             置为有效
                         </el-button>
@@ -75,7 +96,7 @@
                     <template v-else>
                         <el-button
                             type="danger"
-                            @click="changeStatus($event, scope.row)"
+                            @click="changeStatus($event, scope.row.pk_id, 0)"
                         >
                             置为无效
                         </el-button>
@@ -102,76 +123,115 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import {mapGetters} from 'vuex';
 import table from '@src/mixins/table';
+import EmptyData from "@comp/Common/EmptyData";
 
 export default {
+    components: {EmptyData},
     inject: ['refresh'],
     mixins: [table],
     data() {
         return {
-            authorizeId:   '',
+            authorizeId: '',
             authorizeName: '',
-            search:        {
-                name: '',
+            init_form: {
+                common_name: '',
+                organization_name: '',
+                organization_unit_name: '',
             },
-            watchRoute:    true,
+            watchRoute: true,
             defaultSearch: true,
             requestMethod: 'post',
-            getListApi:    'cert/query',
-            authorize:     false,
+            getListApi: 'cert/query',
+            authorize: false,
         };
     },
     computed: {
         ...mapGetters(['userInfo']),
     },
     methods: {
-        changeStatus($event, row) {
-            this.$confirm(`你确定要${ row.status ? '禁用' : '启用' }该证书吗?`, '警告', {
-                type:              'warning',
-                cancelButtonText:  '取消',
+        changeStatus($event, pk_id, status) {
+            this.$confirm(`你确定要${status === 0 ? '禁用' : '启用'}该证书吗?`, '警告', {
+                type: 'warning',
+                cancelButtonText: '取消',
                 confirmButtonText: '确定',
             }).then(async _ => {
-                await this.$http.post({
-                    url:  '/cert/update_status',
+                const { code } = await this.$http.post({
+                    url: '/cert/update_status',
                     data: {
-                        pk_id: row.pk_id,
-                        status:row.status !== '1',
+                        cert_id: pk_id,
+                        status: status,
                     },
                     btnState: {
                         target: $event,
                     },
                 });
+                if(code === 0) {
+                    this.$message.success('操作成功!');
+                    this.refresh();
+                }
             });
+        },
+        initRoot($event) {
+            const { code } = this.$http.post({
+                url: '/cert/init_root',
+                data: {
+                    common_name: this.init_form.common_name,
+                    organization_name: this.init_form.organization_name,
+                    organization_unit_name: this.init_form.organization_unit_name,
+                },
+                btnState: {
+                    target: $event,
+                },
+            });
+            if(code === 0) {
+                this.refresh();
+                this.$message.success('初始化成功!');
+            }
         },
     },
 };
 </script>
 
 <style lang="scss" scoped>
-.card-list{min-height: calc(100vh - 250px);}
-.member-cards{
+.card-list {
+    min-height: calc(100vh - 250px);
+}
+
+.member-cards {
     margin-left: 40px;
     margin-bottom: 40px;
     position: relative;
     display: inline-block;
     vertical-align: top;
-    :deep(.realname){font-size:40px;}
+
+    :deep(.realname) {
+        font-size: 40px;
+    }
 }
-.more-info{
+
+.more-info {
     width: 100%;
-    font-size:14px;
+    font-size: 14px;
     padding-left: 40px;
-    padding-right:20px;
+    padding-right: 20px;
     color: $color-light;
     text-align: right;
     position: absolute;
     bottom: 15px;
-    right:0;
+    right: 0;
 }
-.link{color: #eee;}
-.el-icon-s-promotion{
+
+.link {
+    color: #eee;
+}
+
+.el-icon-s-promotion {
     cursor: pointer;
-    &:hover{color: $color-link-base;}
+
+    &:hover {
+        color: $color-link-base;
+    }
 }
 </style>
