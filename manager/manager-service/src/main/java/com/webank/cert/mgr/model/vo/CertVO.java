@@ -18,7 +18,6 @@ package com.webank.cert.mgr.model.vo;
 import java.io.Serializable;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.webank.cert.mgr.enums.CertStatusEnums;
 
 /**
  * @author wesleywang
@@ -27,43 +26,43 @@ public class CertVO implements Serializable {
 
     private static final long serialVersionUID = 5882479979815938267L;
 
-    private String pkId;
+    private String pkId; // 主键ID
 
-    private String userId;
+    private String userId; // 用户ID
 
-    private String subjectPubKey;
+    private String subjectPubKey; // 公钥
 
-    private String serialNumber;
+    private String serialNumber; // 证书序列号
 
-    private String certContent;
+    private String certContent; // 证书内容
 
-    private String pCertId;
+    private String pCertId; // 父证书ID
 
-    private String issuerOrg;
+    private String issuerOrg; // 签发机构组织名称
 
     @JSONField(name = "issuer_cn")
-    private String issuerCN;
+    private String issuerCN; // 签发机构常用名称
 
-    private String subjectOrg;
+    private String subjectOrg; // 申请人组织名称
 
     @JSONField(name = "subject_cn")
-    private String subjectCN;
+    private String subjectCN; // 申请人常用名
 
     @JSONField(name = "is_ca_cert")
-    private Boolean isCACert;
+    private Boolean isCACert; // 是否是机构证书
 
-    private String issuerKeyId;
+    private String issuerKeyId; // 签发机构私钥ID
 
-    private String subjectKeyId;
+    private String subjectKeyId;// 申请人私钥ID
 
     @JSONField(name = "is_root_cert")
-    private Boolean isRootCert;
+    private Boolean isRootCert; // 是否是根证书
 
-    // 证书请求ID
-    private String csrId;
+    private String csrId; // 证书请求ID
 
-    // 证书状态
-    private int status;
+    private int status; // 证书状态
+
+    private long createTime; // 创建时间
 
     public String getPkId() {
         return pkId;
@@ -191,6 +190,14 @@ public class CertVO implements Serializable {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
     }
 
 }

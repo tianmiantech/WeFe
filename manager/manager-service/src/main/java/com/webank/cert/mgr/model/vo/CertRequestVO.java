@@ -44,6 +44,8 @@ public class CertRequestVO implements Serializable {
     private Boolean issue;
 
     private String pCertUserId;
+    
+    private long createTime;
 
     public String getPkId() {
         return pkId;
@@ -117,5 +119,12 @@ public class CertRequestVO implements Serializable {
         this.pCertUserId = pCertUserId;
     }
 
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
+    }
 
 }

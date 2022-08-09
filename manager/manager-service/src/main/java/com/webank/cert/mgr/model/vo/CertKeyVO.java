@@ -30,7 +30,7 @@ public class CertKeyVO implements Serializable {
 
     private String keyAlg;
 
-//    private String keyPem;
+    private long createTime;
 
     public String getPkId() {
         return pkId;
@@ -55,18 +55,13 @@ public class CertKeyVO implements Serializable {
     public void setKeyAlg(String keyAlg) {
         this.keyAlg = keyAlg;
     }
-//
-//    public String getKeyPem() {
-//        return keyPem;
-//    }
-//
-//    public void setKeyPem(String keyPem) {
-//        this.keyPem = keyPem;
-//    }
 
-    @Override
-    public String toString() {
-        return "CertKeyVO [pkId=" + pkId + ", userId=" + userId + ", keyAlg=" + keyAlg + "]";
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
     }
 
 }
