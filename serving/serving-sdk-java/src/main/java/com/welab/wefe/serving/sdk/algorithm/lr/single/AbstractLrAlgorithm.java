@@ -16,6 +16,7 @@
 
 package com.welab.wefe.serving.sdk.algorithm.lr.single;
 
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.AbstractAlgorithm;
 import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
@@ -41,11 +42,17 @@ public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends Abst
     }
 
     public LrPredictResultModel normalize(LrPredictResultModel predictResult) {
+        if (isScoreCard()) {
+            predictResult.setScore(baseScore() + predictResult.getScore());
+            return predictResult;
+        }
+
         intercept(predictResult);
         sigmod(predictResult);
 
         return predictResult;
     }
+
 
     /**
      * single sigmod function
@@ -59,7 +66,12 @@ public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends Abst
         predictResult.setScore(score);
     }
 
-    protected boolean isScoreCard() {
+    private boolean isScoreCard() {
         return modelParam.getScoreCardInfo() != null;
+    }
+
+    private double baseScore() {
+        JObject scoreCard = JObject.create(modelParam.getScoreCardInfo().getScoreCard());
+        return scoreCard.getDouble("A_score") + scoreCard.getDouble("b_score") * modelParam.getModelParam().getIntercept();
     }
 }

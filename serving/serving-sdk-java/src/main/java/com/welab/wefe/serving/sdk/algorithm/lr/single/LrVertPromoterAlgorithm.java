@@ -45,7 +45,7 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
             return result;
         }
 
-        return isScoreCard() ? mergerRemote(federatedResult, result) : normalize(mergerRemote(federatedResult, result));
+        return normalize(mergerRemote(federatedResult, result));
     }
 
     private LrPredictResultModel mergerRemote(List<JObject> federatedResult, LrPredictResultModel result) throws StatusCodeWithException {

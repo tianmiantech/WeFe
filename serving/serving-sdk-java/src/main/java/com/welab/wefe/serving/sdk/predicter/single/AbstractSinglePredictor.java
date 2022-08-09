@@ -66,8 +66,7 @@ public abstract class AbstractSinglePredictor extends AbstractBasePredictor {
 
         AbstractAlgorithm algorithm = AlgorithmManager.get(model);
 
-        Object result = algorithm.execute(model.getParams(), predictParams, null);
-//        Object result = algorithm.execute(model.getParams(), predictParams, federatedResultByProviders());
+        Object result = algorithm.execute(model.getParams(), predictParams, federatedResultByProviders());
 
         processor.postprocess(result, model, predictParams);
 

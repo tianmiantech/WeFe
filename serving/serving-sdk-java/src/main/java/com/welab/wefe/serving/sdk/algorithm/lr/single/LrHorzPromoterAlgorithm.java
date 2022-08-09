@@ -40,6 +40,6 @@ public class LrHorzPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Pr
             return predictModel;
         }
 
-        return isScoreCard() ? predictModel : normalize(predictModel);
+        return normalize(predictModel);
     }
 }

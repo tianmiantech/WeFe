@@ -60,11 +60,11 @@ public class LrAlgorithmHelper {
             return LrPredictResultModel.of(userId, 0.0);
         }
 
-        return scoreCardInfo != null ? scoreCardCompute(model, userId, featureData, scoreCardInfo) : getLrPredictResultModel(model, userId, featureData);
+        return scoreCardInfo != null ? computeScoreCard(model, userId, featureData, scoreCardInfo) : computeProbability(model, userId, featureData);
 
     }
 
-    private static LrPredictResultModel getLrPredictResultModel(LrModel model, String userId, Map<String, Object> featureData) {
+    private static LrPredictResultModel computeProbability(LrModel model, String userId, Map<String, Object> featureData) {
         double score = 0;
         int featureNum = 0;
 
@@ -89,12 +89,11 @@ public class LrAlgorithmHelper {
     /**
      * Calculate points based on features
      */
-    public static LrPredictResultModel scoreCardCompute(LrModel model, String userId, Map<String, Object> featureData, ScoreCardInfoModel scoreCardInfo) {
+    public static LrPredictResultModel computeScoreCard(LrModel model, String userId, Map<String, Object> featureData, ScoreCardInfoModel scoreCardInfo) {
 
         JObject bin = JObject.create(scoreCardInfo.getBin());
-        double aScore = JObject.create(scoreCardInfo.getScoreCard()).getDouble("A_score");
         double bScore = JObject.create(scoreCardInfo.getScoreCard()).getDouble("b_score");
-        double score = baseScore(model, aScore, bScore);
+        double score = 0;
         int featureNum = 0;
 
         List<LrScoreCardModel> scoreCard = Lists.newArrayList();
@@ -127,10 +126,6 @@ public class LrAlgorithmHelper {
         }
 
         return LrPredictResultModel.of(userId, score, scoreCard);
-    }
-
-    private static double baseScore(LrModel model, double aScore, double bScore) {
-        return aScore + bScore + model.getIntercept();
     }
 
     public static List<LrPredictResultModel> batchCompute(LrModel lrModel, BatchPredictParams batchPredictParams, ScoreCardInfoModel scoreCardInfo) {
