@@ -32,6 +32,6 @@ public class LrVertProviderAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
 
     @Override
     protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) {
-        return execute(predictParams);
+        return localCompute(predictParams);
     }
 }

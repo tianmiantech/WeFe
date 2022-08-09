@@ -34,7 +34,7 @@ public class LrHorzPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Pr
 
     @Override
     protected PredictModel handle(PredictParams predictParams, List<JObject> federatedResult) {
-        LrPredictResultModel predictModel = execute(predictParams);
+        LrPredictResultModel predictModel = localCompute(predictParams);
 
         if (StringUtil.isNotEmpty(predictModel.getError())) {
             return predictModel;

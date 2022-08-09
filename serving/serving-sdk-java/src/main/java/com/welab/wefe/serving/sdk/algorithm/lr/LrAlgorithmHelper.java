@@ -55,11 +55,16 @@ public class LrAlgorithmHelper {
     /**
      * Calculate points based on features
      */
-    public static LrPredictResultModel compute(LrModel model, String userId, Map<String, Object> featureData) {
+    public static LrPredictResultModel compute(LrModel model, String userId, Map<String, Object> featureData, ScoreCardInfoModel scoreCardInfo) {
         if (featureData == null) {
             return LrPredictResultModel.of(userId, 0.0);
         }
 
+        return scoreCardInfo != null ? scoreCardCompute(model, userId, featureData, scoreCardInfo) : getLrPredictResultModel(model, userId, featureData);
+
+    }
+
+    private static LrPredictResultModel getLrPredictResultModel(LrModel model, String userId, Map<String, Object> featureData) {
         double score = 0;
         int featureNum = 0;
 
@@ -84,33 +89,34 @@ public class LrAlgorithmHelper {
     /**
      * Calculate points based on features
      */
-    public static LrPredictResultModel scoreCardCompute(LrModel model, ScoreCardInfoModel scoreCardInfo, String userId, Map<String, Object> featureData) {
-//        if (featureData == null) {
-//            return LrPredictResultModel.of(userId, 0.0);
-//        }
+    public static LrPredictResultModel scoreCardCompute(LrModel model, String userId, Map<String, Object> featureData, ScoreCardInfoModel scoreCardInfo) {
 
-        double score = 0;
+        JObject bin = JObject.create(scoreCardInfo.getBin());
+        double aScore = JObject.create(scoreCardInfo.getScoreCard()).getDouble("A_score");
+        double bScore = JObject.create(scoreCardInfo.getScoreCard()).getDouble("b_score");
+        double score = baseScore(model, aScore, bScore);
         int featureNum = 0;
 
-        List<LrScoreCardModel> models = Lists.newArrayList();
-
+        List<LrScoreCardModel> scoreCard = Lists.newArrayList();
         for (String key : featureData.keySet()) {
             if (model.getWeight().containsKey(key)) {
+
                 Double x = TypeUtils.castToDouble(featureData.get(key));
                 Double w = TypeUtils.castToDouble(model.getWeight().get(key));
-                score += w * x;
-                featureNum++;
-
-                List<Double> splitPoints = extractSplitPoints(scoreCardInfo.getBin().getJObject(key));
-                List<Double> woeArray = extractWoeArray(scoreCardInfo.getBin().getJObject(key));
+                List<Double> splitPoints = extractSplitPoints(bin.getJObject(key));
+                List<Double> woeArray = extractWoeArray(bin.getJObject(key));
 
                 LrScoreCardModel scoreCardModel = new LrScoreCardModel();
+                scoreCardModel.setFeature(key);
                 scoreCardModel.setValue(x);
                 scoreCardModel.setBin(getBin(splitPoints, x));
                 scoreCardModel.setWoe(getWoe(woeArray, x));
-                scoreCardModel.setProbability(score);
-                scoreCardModel.setScore(w * getWoe(woeArray, x) * 0.0);
-                models.add(scoreCardModel);
+                scoreCardModel.setScore(w * getWoe(woeArray, x) * bScore);
+
+                scoreCard.add(scoreCardModel);
+
+                score += w * getWoe(woeArray, x) * bScore;
+                featureNum++;
             }
         }
 
@@ -120,10 +126,14 @@ public class LrAlgorithmHelper {
             return LrPredictResultModel.fail(userId, StateCode.FEATURE_ERROR.getMessage());
         }
 
-        return LrPredictResultModel.of(userId, models);
+        return LrPredictResultModel.of(userId, score, scoreCard);
     }
 
-    public static List<LrPredictResultModel> batchCompute(LrModel lrModel, BatchPredictParams batchPredictParams) {
+    private static double baseScore(LrModel model, double aScore, double bScore) {
+        return aScore + bScore + model.getIntercept();
+    }
+
+    public static List<LrPredictResultModel> batchCompute(LrModel lrModel, BatchPredictParams batchPredictParams, ScoreCardInfoModel scoreCardInfo) {
         CopyOnWriteArrayList<LrPredictResultModel> outputs = new CopyOnWriteArrayList<>();
 
         CountDownLatch latch = new CountDownLatch(batchPredictParams.getUserIds().size());
@@ -133,7 +143,8 @@ public class LrAlgorithmHelper {
                                 LrAlgorithmHelper.compute(
                                         lrModel,
                                         x.getUserId(),
-                                        x.getFeatureDataModel().getFeatureDataMap())
+                                        x.getFeatureDataModel().getFeatureDataMap(),
+                                        scoreCardInfo)
                         )
                 )
         );
@@ -151,11 +162,6 @@ public class LrAlgorithmHelper {
     public static Double intercept(double score, double intercept) {
         return score + intercept;
     }
-//
-//    private static String getBinningSplit(List<Double> list, int i) {
-//        String beforeKey = i == 0 ? "-∞" : precisionProcessByDouble(list.get(i - 1));
-//        return beforeKey + "," + precisionProcessByDouble(list.get(i));
-//    }
 
     private static List<Double> extractSplitPoints(JObject obj) {
         return obj.getJSONList("splitPoints", Double.class);

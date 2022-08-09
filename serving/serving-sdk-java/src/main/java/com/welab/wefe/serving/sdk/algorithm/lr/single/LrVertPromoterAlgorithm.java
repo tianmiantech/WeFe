@@ -39,19 +39,21 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
     protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) throws StatusCodeWithException {
 
         //Calculation results
-        LrPredictResultModel result = execute(predictParams);
+        LrPredictResultModel result = localCompute(predictParams);
 
         if (StringUtil.isNotEmpty(result.getError())) {
             return result;
         }
 
+        return isScoreCard() ? mergerRemote(federatedResult, result) : normalize(mergerRemote(federatedResult, result));
+    }
+
+    private LrPredictResultModel mergerRemote(List<JObject> federatedResult, LrPredictResultModel result) throws StatusCodeWithException {
+
         if (CollectionUtils.isEmpty(federatedResult)) {
-            return isScoreCard() ? result:normalize(result);
+            return result;
         }
 
-        /**
-         * Consolidated results
-         */
         for (JObject remote : federatedResult) {
             LrPredictResultModel predictModel = remote.getJObject("result").toJavaObject(LrPredictResultModel.class);
             if (!predictModel.getError().isEmpty()) {
@@ -61,8 +63,6 @@ public class LrVertPromoterAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
             Double score = TypeUtils.castToDouble(result.getScore()) + TypeUtils.castToDouble(predictModel.getScore());
             result.setScore(score);
         }
-
-        normalize(result);
         return result;
     }
 }

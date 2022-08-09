@@ -21,23 +21,23 @@ import com.welab.wefe.common.util.JObject;
  * @author hunter.zhao
  */
 public class ScoreCardInfoModel {
-    private JObject scoreCard;
+    private Object scoreCard;
 
-    private JObject bin;
+    private Object bin;
 
-    public JObject getScoreCard() {
+    public Object getScoreCard() {
         return scoreCard;
     }
 
-    public void setScoreCard(JObject scoreCard) {
+    public void setScoreCard(Object scoreCard) {
         this.scoreCard = scoreCard;
     }
 
-    public JObject getBin() {
+    public Object getBin() {
         return bin;
     }
 
-    public void setBin(JObject bin) {
+    public void setBin(Object bin) {
         this.bin = bin;
     }
 }

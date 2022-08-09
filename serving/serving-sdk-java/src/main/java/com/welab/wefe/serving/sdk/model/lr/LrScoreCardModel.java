@@ -19,13 +19,13 @@ package com.welab.wefe.serving.sdk.model.lr;
  * @author hunter.zhao
  */
 public class LrScoreCardModel {
+    String feature;
+
     double value;
 
     String bin;
 
     double woe;
-
-    double probability;
 
     double score;
 
@@ -53,19 +53,19 @@ public class LrScoreCardModel {
         this.woe = woe;
     }
 
-    public double getProbability() {
-        return probability;
-    }
-
-    public void setProbability(double probability) {
-        this.probability = probability;
-    }
-
     public double getScore() {
         return score;
     }
 
     public void setScore(double score) {
         this.score = score;
+    }
+
+    public String getFeature() {
+        return feature;
+    }
+
+    public void setFeature(String feature) {
+        this.feature = feature;
     }
 }

@@ -27,11 +27,12 @@ import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
  * @author hunter.zhao
  */
 public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends AbstractAlgorithm<T, R> {
-    public LrPredictResultModel execute(PredictParams predictParams) {
+    public LrPredictResultModel localCompute(PredictParams predictParams) {
         LrPredictResultModel predictResult = LrAlgorithmHelper.compute(
                 modelParam.getModelParam(),
                 predictParams.getUserId(),
-                predictParams.getFeatureDataModel().getFeatureDataMap());
+                predictParams.getFeatureDataModel().getFeatureDataMap(),
+                modelParam.getScoreCardInfo());
 
         predictResult.setFeatureResult(
                 PredictModel.extractFeatureResult(predictParams.getFeatureDataModel())
