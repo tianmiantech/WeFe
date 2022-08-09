@@ -114,9 +114,9 @@ class ScoreCard(ModelBase):
     def callback_score_data(self):
         metric_name = self.tracker.component_name
         metric_namespace = "train"
-        self.__save_score( metric_name, metric_namespace, self.score_card_result)
+        self.__save_score(self.pdo, self.p0,  metric_name, metric_namespace, self.score_card_result)
 
-    def __save_score(self, metric_name, metric_namespace, kv):
+    def __save_score(self, pdo, p0, metric_name, metric_namespace, kv):
         extra_metas = {}
         key_list = ["pdo", "p0"]
         for key in key_list:
