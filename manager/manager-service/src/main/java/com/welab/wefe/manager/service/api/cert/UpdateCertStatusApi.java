@@ -55,6 +55,9 @@ public class UpdateCertStatusApi extends AbstractApi<CertDetailInput, CertVO> {
         if (vo == null) {
             throw new StatusCodeWithException("数据不存在", StatusCode.DATA_NOT_FOUND);
         }
+        if (vo.getIsCACert() || vo.getIsRootCert()) {
+            throw new StatusCodeWithException("非法操作", StatusCode.ILLEGAL_REQUEST);
+        }
         if (vo.getStatus() == input.getStatus()) {
             throw new StatusCodeWithException("非法操作", StatusCode.ILLEGAL_REQUEST);
         }
