@@ -55,6 +55,7 @@ class ScoreCard(ModelBase):
         self.pdo = self.model_param.pdo
 
     def fit(self, *args):
+
         if self.role == "promoter":
             self._init_param()
             LOGGER.debug("scorecard begainning, arg = {}".format(args))
@@ -66,9 +67,14 @@ class ScoreCard(ModelBase):
             odds = self.get_count_odds(feature_bin_results)
             A_score, B_score = self.cal_score(odds)
             self.score_card_result["odds"] = odds
-            self.score_card_result["A_score"] = A_score
+            self.score_card_result["a_score"] = A_score
             self.score_card_result["b_score"] = B_score
-            return self.callback_score_data()
+
+        elif self.role == "provider":
+            B_score = self.b_score()
+            self.score_card_result["b_score"] = B_score
+
+        return self.callback_score_data()
 
     def _get_binning_result(self):
         model_param, binning_results = self.tracker.get_binning_result()
@@ -97,23 +103,28 @@ class ScoreCard(ModelBase):
         return odds
 
     def cal_score(self, odds):
-        B_score = self.pdo / math.log(2, )
+        B_score = self.b_score()
         A_score = self.p0 + B_score * math.log(odds, )
         return A_score, B_score
 
+    def b_score(self):
+        B_score = self.pdo / math.log(2, )
+        return B_score
 
     def callback_score_data(self):
         metric_name = self.tracker.component_name
         metric_namespace = "train"
-        self.__save_score(self.pdo, self.p0, metric_name, metric_namespace, self.score_card_result)
+        self.__save_score( metric_name, metric_namespace, self.score_card_result)
 
-    def __save_score(self, pdo, p0, metric_name, metric_namespace, kv):
+    def __save_score(self, metric_name, metric_namespace, kv):
         extra_metas = {}
         key_list = ["pdo", "p0"]
         for key in key_list:
             value = locals()[key]
-            if value:
+            if self.role == "promoter" and value:
                 extra_metas[key] = value
+            else:
+                extra_metas[key] = None
         self.tracker.saveScoreData(metric_name, metric_namespace, extra_metas, kv)
 
 
