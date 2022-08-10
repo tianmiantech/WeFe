@@ -64,7 +64,7 @@ public class PromoterPredictHelper {
                     .postJson();
 
             if (!isSuccess(response)) {
-                String message = "协作方 " + CacheObjects.getPartnerName(obj.getMemberId()) + " 响应失败";
+                String message = "系统错误请联系serving管理员处理！";
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
             }
 
