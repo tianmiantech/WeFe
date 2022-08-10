@@ -156,7 +156,7 @@ public class CertOperationService {
     // 创建证书请求
     public CertRequestInfoMysqlModel createCertRequestInfo(String commonName, String organizationName,
             String organizationUnitName) throws Exception {
-        String userId = CurrentAccount.id();
+        String userId = CacheObjects.getMemberId();
         X500NameInfo subject = X500NameInfo.builder().commonName(commonName).organizationName(organizationName)
                 .organizationalUnitName(organizationUnitName).build();
         // 生成公私钥 算法为RSA
@@ -177,9 +177,9 @@ public class CertOperationService {
     }
 
     // 保存私钥
-    private CertKeyInfoMysqlModel savePrivateKey(String userId, String pemPrivateKey, String priAlg) throws Exception {
-        if (StringUtils.isBlank(userId)) {
-            throw new StatusCodeWithException("user account does not exist", StatusCode.DATA_NOT_FOUND);
+    private CertKeyInfoMysqlModel savePrivateKey(String memberId, String pemPrivateKey, String priAlg) throws Exception {
+        if (StringUtils.isBlank(memberId)) {
+            throw new StatusCodeWithException("memberId is empty", StatusCode.DATA_NOT_FOUND);
         }
         try {
             KeyUtils.getRSAKeyPair(pemPrivateKey);
@@ -190,15 +190,15 @@ public class CertOperationService {
         CertKeyInfoMysqlModel certKeyInfo = new CertKeyInfoMysqlModel();
         certKeyInfo.setKeyAlg(priAlg);
         certKeyInfo.setKeyPem(pemPrivateKey);
-        certKeyInfo.setUserId(userId);
+        certKeyInfo.setMemberId(memberId);
         certKeyInfo = certKeyInfoRepository.save(certKeyInfo);
         return certKeyInfo;
     }
 
     private CertRequestInfoMysqlModel buildCertRequestInfo(String csrStr, String subjectKeyId, String commonName,
-            String organizationName, String userId) {
+            String organizationName, String memberId) {
         CertRequestInfoMysqlModel certRequestInfo = new CertRequestInfoMysqlModel();
-        certRequestInfo.setUserId(userId);
+        certRequestInfo.setMemberId(memberId);
         certRequestInfo.setSubjectKeyId(subjectKeyId);
         certRequestInfo.setSubjectCN(commonName);
         certRequestInfo.setSubjectOrg(organizationName);
@@ -223,9 +223,9 @@ public class CertOperationService {
      * @return
      */
     private CertInfoMysqlModel buildCertInfo(String certificatePemStr, String subjectCommonName, String subjectOrgName,
-            PublicKey publicKey, String userId, BigInteger serialNumber, String csrId) {
+            PublicKey publicKey, String memberId, BigInteger serialNumber, String csrId) {
         CertInfoMysqlModel certInfo = new CertInfoMysqlModel();
-        certInfo.setUserId(userId);
+        certInfo.setMemberId(memberId);
         certInfo.setSubjectCN(subjectCommonName);
         certInfo.setSubjectOrg(subjectOrgName);
         if (publicKey != null) {

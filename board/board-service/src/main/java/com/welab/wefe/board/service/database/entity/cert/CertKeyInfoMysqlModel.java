@@ -15,7 +15,7 @@ public class CertKeyInfoMysqlModel extends AbstractBaseMySqlModel {
 
     private String keyPem;
 
-    private String userId;
+    private String memberId;
 
     private String keyAlg;
 
@@ -27,12 +27,12 @@ public class CertKeyInfoMysqlModel extends AbstractBaseMySqlModel {
         this.keyPem = keyPem;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
     public String getKeyAlg() {

@@ -14,10 +14,7 @@ public class CertInfoMysqlModel extends AbstractBaseMySqlModel {
     private static final long serialVersionUID = 3983194628565221216L;
 
     // 用户ID
-    private String userId;
-
-    // 申请人私钥ID
-    private String subjectKeyId;
+    private String memberId;
 
     // 申请人公钥内容
     private String subjectPubKey;
@@ -40,20 +37,12 @@ public class CertInfoMysqlModel extends AbstractBaseMySqlModel {
     // 证书状态
     private String status;
 
-    public String getUserId() {
-        return userId;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getSubjectKeyId() {
-        return subjectKeyId;
-    }
-
-    public void setSubjectKeyId(String subjectKeyId) {
-        this.subjectKeyId = subjectKeyId;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
     public String getSubjectPubKey() {

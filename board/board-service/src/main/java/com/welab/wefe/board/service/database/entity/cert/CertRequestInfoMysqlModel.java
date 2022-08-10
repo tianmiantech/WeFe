@@ -14,7 +14,7 @@ public class CertRequestInfoMysqlModel extends AbstractBaseMySqlModel {
     private static final long serialVersionUID = -6973794829218983299L;
 
     // 用户ID
-    private String userId;
+    private String memberId;
 
     // 申请人私钥ID
     private String subjectKeyId;
@@ -31,12 +31,12 @@ public class CertRequestInfoMysqlModel extends AbstractBaseMySqlModel {
     // 是否签发
     private Boolean issue;
 
-    public String getUserId() {
-        return userId;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
     public String getSubjectKeyId() {
