@@ -617,6 +617,7 @@ public class ProjectFlowService extends AbstractService {
     /**
      * add oot flow
      */
+    @Transactional(rollbackFor = Exception.class)
     public AddOotFlowApi.Output addOotFlow(AddOotFlowApi.Input input) throws StatusCodeWithException {
         List<FlowTemplateMySqlModel> models = flowTemplateService.query();
         List<JobMySqlModel> jobMySqlModelList = jobService.listByJobId(input.getOotJobId());

@@ -17,8 +17,10 @@
 package com.welab.wefe.data.fusion.service.service;
 
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
+import com.welab.wefe.data.fusion.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.data.fusion.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
+import com.welab.wefe.data.fusion.service.database.repository.DataSourceRepository;
 import com.welab.wefe.data.fusion.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.data.fusion.service.service.globalconfig.BaseGlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +40,17 @@ public class PrivacyDatabaseEncryptService {
     @Autowired
     protected GlobalConfigRepository globalConfigRepository;
 
+    @Autowired
+    private DataSourceRepository dataSourceRepository;
+
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
+        encryptAccountMysqlModel();
+        encryptGlobalConfigMysqlModel();
+        encryptDataSourceMysqlModel();
+    }
+
+    private void encryptAccountMysqlModel() {
         List<AccountMysqlModel> accountMysqlModelList = accountRepository.findAll();
         if (!CollectionUtils.isEmpty(accountMysqlModelList)) {
             for (AccountMysqlModel model : accountMysqlModelList) {
@@ -47,12 +58,24 @@ public class PrivacyDatabaseEncryptService {
                 accountRepository.save(model);
             }
         }
+    }
 
+    private void encryptGlobalConfigMysqlModel() {
         List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(BaseGlobalConfigService.Group.MEMBER_INFO);
         if (!CollectionUtils.isEmpty(globalConfigMysqlModelList)) {
             for (GlobalConfigMysqlModel model : globalConfigMysqlModelList) {
                 model.setUpdatedTime(new Date());
                 globalConfigRepository.save(model);
+            }
+        }
+    }
+
+    private void encryptDataSourceMysqlModel() {
+        List<DataSourceMySqlModel> dataSourceMysqlModelList = dataSourceRepository.findAll();
+        if (!CollectionUtils.isEmpty(dataSourceMysqlModelList)) {
+            for (DataSourceMySqlModel model : dataSourceMysqlModelList) {
+                model.setUpdatedTime(new Date());
+                dataSourceRepository.save(model);
             }
         }
     }

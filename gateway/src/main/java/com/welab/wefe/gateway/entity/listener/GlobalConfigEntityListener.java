@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.board.service.database.listener;
+package com.welab.wefe.gateway.entity.listener;
 
-import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
-import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
-import org.apache.commons.collections.CollectionUtils;
+import com.welab.wefe.gateway.entity.GlobalConfigEntity;
+import com.welab.wefe.gateway.service.GlobalConfigService;
+import com.welab.wefe.gateway.util.DatabaseEncryptUtil;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
@@ -31,18 +31,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GlobalConfigMysqlModelListener {
+public class GlobalConfigEntityListener {
     /**
      * Database protected fields
      */
     public final static Map<String, List<String>> DB_PROTECTED_FIELD_MAP = new HashMap<>(16);
 
     static {
-        DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.MEMBER_INFO, Arrays.asList("member_mobile"));
-        DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.MAIL_SERVER, Arrays.asList("mail_password"));
-        DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.ALIYUN_FC_CONFIG, Arrays.asList("access_key_id", "access_key_secret"));
-        DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.ALIYUN_SMS_CHANNEL, Arrays.asList("access_key_id", "access_key_secret"));
-        DB_PROTECTED_FIELD_MAP.put(ConfigGroupConstant.CLICKHOUSE_STORAGE, Arrays.asList("password"));
+        DB_PROTECTED_FIELD_MAP.put(GlobalConfigService.Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, Arrays.asList("access_key_id", "access_key_secret"));
+        DB_PROTECTED_FIELD_MAP.put(GlobalConfigService.Group.CLICKHOUSE_STORAGE_CONFIG, Arrays.asList("password"));
     }
 
 
@@ -52,7 +49,7 @@ public class GlobalConfigMysqlModelListener {
     @PrePersist
     public void prePersist(Object entity) throws StatusCodeWithException {
         if (null != entity) {
-            GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
+            GlobalConfigEntity model = (GlobalConfigEntity) entity;
             if (!check(model)) {
                 return;
             }
@@ -74,7 +71,7 @@ public class GlobalConfigMysqlModelListener {
     @PostLoad
     public void postLoad(Object entity) throws StatusCodeWithException {
         if (null != entity) {
-            GlobalConfigMysqlModel model = (GlobalConfigMysqlModel) entity;
+            GlobalConfigEntity model = (GlobalConfigEntity) entity;
             if (!check(model)) {
                 return;
             }
@@ -82,7 +79,7 @@ public class GlobalConfigMysqlModelListener {
         }
     }
 
-    private boolean check(GlobalConfigMysqlModel model) {
+    private boolean check(GlobalConfigEntity model) {
         String group = model.getGroup();
         String name = model.getName();
         String value = model.getValue();

@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author hunter.zhao
  */
-@Api(path = "task/receive", name = "接收对齐请求", desc = "接收对齐请求", login = false, allowAccessWithSign = true)
+@Api(path = "task/receive", name = "接收对齐请求", desc = "接收对齐请求", allowAccessWithSign = true)
 public class ReceiveApi extends AbstractNoneOutputApi<ReceiveApi.Input> {
     @Autowired
     TaskService taskService;
