@@ -179,7 +179,8 @@ public class MemberContractService extends AbstractContractService {
 
     public JObject buildExtJson(UpdateExcludeLogoApi.Input input) throws IllegalAccessException {
         MemberExtJSON extJSON = new MemberExtJSON();
-        BeanUtil.copyProperties(input,extJSON);
+        extJSON.setSecretKeyType(input.getSecretKeyType());
+        extJSON.setMemberGatewayTlsEnable(input.getMemberGatewayTlsEnable());
         JObject extJson = JObject.create(memberMongoReop.findMemberId(input.curMemberId).getExtJson());
         Field[] fields = extJSON.getClass().getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
