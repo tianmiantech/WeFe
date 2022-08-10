@@ -685,8 +685,8 @@ public class ServiceService {
 
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getServiceId(), service.getName(),
                 service.getServiceType(),
-                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
-                        : CallByMeEnum.NO.getValue(),
+                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
+                        : CallByMeEnum.NO.getCode(),
                 status.getValue(), partner.getId(), partner.getName(), CacheObjects.getMemberId(),
                 CacheObjects.getMemberName());
         return serviceOrderModel.getId();
@@ -710,8 +710,8 @@ public class ServiceService {
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
         callLog.setCallByMe(
-                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
-                        : CallByMeEnum.NO.getValue());
+                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
+                        : CallByMeEnum.NO.getCode());
         callLog.setResponseStatus(responseStatus);
         callLog.setSpendTime(System.currentTimeMillis() - beginTime);
         serviceCallLogService.save(callLog);
