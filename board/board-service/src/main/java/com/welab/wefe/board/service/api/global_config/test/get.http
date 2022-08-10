@@ -1,0 +1,12 @@
+
+###
+POST http://localhost:8080/board-service/global_config/get
+Content-Type: application/json
+token:{{token}}
+
+{
+  "groups": [
+    "aliyun_function_compute_config",
+    "clickhouse_storage_config"
+  ]
+}

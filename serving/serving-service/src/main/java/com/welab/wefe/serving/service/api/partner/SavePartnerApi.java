@@ -16,14 +16,13 @@
 
 package com.welab.wefe.serving.service.api.partner;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.PartnerService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Api(path = "partner/save", name = "save partner")
 public class SavePartnerApi extends AbstractApi<SavePartnerApi.Input, SavePartnerApi.Output> {

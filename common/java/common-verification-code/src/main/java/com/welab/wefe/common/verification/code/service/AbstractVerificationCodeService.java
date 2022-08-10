@@ -22,8 +22,8 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.verification.code.AbstractClient;
 import com.welab.wefe.common.verification.code.AbstractResponse;
 import com.welab.wefe.common.verification.code.ClientFactory;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
 import com.welab.wefe.common.verification.code.common.VerificationCodeBusinessType;
-import com.welab.wefe.common.verification.code.common.VerificationCodeSendChannel;
 import net.jodah.expiringmap.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,8 +85,8 @@ public abstract class AbstractVerificationCodeService {
         }
     }
 
-    public VerificationCodeSendChannel getVerificationCodeSendChannel() {
-        return VerificationCodeSendChannel.email;
+    public CaptchaSendChannel getVerificationCodeSendChannel() {
+        return CaptchaSendChannel.email;
     }
 
 

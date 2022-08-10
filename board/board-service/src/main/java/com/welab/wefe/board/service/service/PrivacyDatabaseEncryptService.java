@@ -19,10 +19,12 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
+import com.welab.wefe.board.service.database.entity.DataSourceMysqlModel;
 import com.welab.wefe.board.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.board.service.database.entity.VerificationCodeMysqlModel;
 import com.welab.wefe.board.service.database.listener.GlobalConfigMysqlModelListener;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
+import com.welab.wefe.board.service.database.repository.DataSourceRepository;
 import com.welab.wefe.board.service.database.repository.GlobalConfigRepository;
 import com.welab.wefe.board.service.database.repository.VerificationCodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,9 @@ public class PrivacyDatabaseEncryptService {
     @Autowired
     protected GlobalConfigRepository globalConfigRepository;
 
+    @Autowired
+    private DataSourceRepository dataSourceRepository;
+
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
         // Account privacy data encrypt
@@ -57,6 +62,8 @@ public class PrivacyDatabaseEncryptService {
         encryptVerificationCodeMysqlModel();
         // GlobalConfig privacy data encrypt
         encryptGlobalConfigMysqlModel();
+        // DataSource privacy data encrypt
+        encryptDataSourceMysqlModel();
     }
 
     private void encryptAccountMysqlModel() {
@@ -89,6 +96,16 @@ public class PrivacyDatabaseEncryptService {
         for (GlobalConfigMysqlModel model : totalGlobalConfigMysqlModelList) {
             model.setUpdatedTime(new Date());
             globalConfigRepository.save(model);
+        }
+    }
+
+    private void encryptDataSourceMysqlModel() {
+        List<DataSourceMysqlModel> dataSourceMysqlModelList = dataSourceRepository.findAll();
+        if (!CollectionUtils.isEmpty(dataSourceMysqlModelList)) {
+            for (DataSourceMysqlModel model : dataSourceMysqlModelList) {
+                model.setUpdatedTime(new Date());
+                dataSourceRepository.save(model);
+            }
         }
     }
 }

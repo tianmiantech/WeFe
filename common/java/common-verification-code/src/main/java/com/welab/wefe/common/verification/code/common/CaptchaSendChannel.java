@@ -1,11 +1,11 @@
-/*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+/**
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.gateway.common;
+
+package com.welab.wefe.common.verification.code.common;
 
 /**
- * @author ivenn.zheng
- * @date 2022/7/5
- */
-public enum EncryptEnableEnum {
-
-    ENABLE("true"),
-    UNABLE("false")
-
-    ;
-
-    private String value;
-
-    EncryptEnableEnum(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
+ * Verification code send type
+ *
+ * @author aaron.li
+ * @date 2022/1/19 11:25
+ **/
+public enum CaptchaSendChannel {
+    /**
+     * Sms send type
+     */
+    sms,
+    /**
+     * Email send type
+     */
+    email
 }

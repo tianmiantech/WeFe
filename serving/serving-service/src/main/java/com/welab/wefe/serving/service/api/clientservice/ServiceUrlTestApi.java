@@ -27,7 +27,7 @@ public class ServiceUrlTestApi extends AbstractApi<ServiceUrlTestApi.Input, Serv
         } catch (ClientProtocolException e) {
             return fail(-1, "url非法");
         } catch (Exception e) {
-            return fail(e);
+            return fail(e.getMessage());
         }
     }
 
