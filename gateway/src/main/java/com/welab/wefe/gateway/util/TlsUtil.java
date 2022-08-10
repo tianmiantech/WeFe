@@ -17,6 +17,7 @@
 
 package com.welab.wefe.gateway.util;
 
+import com.welab.wefe.gateway.cache.CaCertificateCache;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.ByteArrayInputStream;
@@ -50,13 +51,13 @@ public class TlsUtil {
     }
 
 
-    public static X509Certificate[] buildCertificates(List<String> crtList) throws Exception {
-        if (CollectionUtils.isEmpty(crtList)) {
+    public static X509Certificate[] buildCertificates(List<CaCertificateCache.CaCertificate> caCertificateList) throws Exception {
+        if (CollectionUtils.isEmpty(caCertificateList)) {
             return null;
         }
-        X509Certificate[] certificates = new X509Certificate[crtList.size()];
-        for (int i = 0; i < crtList.size(); i++) {
-            try (InputStream inputStream = new ByteArrayInputStream(crtList.get(i).getBytes(StandardCharsets.UTF_8))) {
+        X509Certificate[] certificates = new X509Certificate[caCertificateList.size()];
+        for (int i = 0; i < caCertificateList.size(); i++) {
+            try (InputStream inputStream = new ByteArrayInputStream(caCertificateList.get(i).getContent().getBytes(StandardCharsets.UTF_8))) {
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 X509Certificate cert = (X509Certificate) cf.generateCertificate(inputStream);
                 certificates[i] = cert;
