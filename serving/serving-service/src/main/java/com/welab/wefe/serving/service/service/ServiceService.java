@@ -683,7 +683,7 @@ public class ServiceService {
     private String createOrder(BaseServiceMySqlModel service, RouteApi.Input input, ServiceOrderEnum status) {
         PartnerMysqlModel partner = partnerService.queryByCode(input.getPartnerCode());
 
-        ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
+        ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getServiceId(), service.getName(),
                 service.getServiceType(),
                 input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
                         : CallByMeEnum.NO.getValue(),
