@@ -63,6 +63,8 @@ public class RealnameAuthInfoQueryApi extends AbstractApi<RealnameAuthInfoQueryA
             realNameAuthInfoQueryOutput.setCertRequestContent(member.getExtJson().getCertRequestContent());
             realNameAuthInfoQueryOutput.setCertRequestId(member.getExtJson().getCertRequestId());
             realNameAuthInfoQueryOutput.setCertSerialNumber(member.getExtJson().getCertSerialNumber());
+            realNameAuthInfoQueryOutput.setCertStatus(member.getExtJson().getCertStatus());
+            realNameAuthInfoQueryOutput.setMemberGatewayTlsEnable(member.getExtJson().getMemberGatewayTlsEnable());
             if(member.getExtJson().getRealNameAuthStatus() == 2) {
                 long realNameAuthTime = member.getExtJson().getRealNameAuthTime();
                 String realNameAuthUsefulLife = DateUtil.toStringYYYY_MM_DD(DateUtil.addYears(DateUtil.getDate(realNameAuthTime),1));

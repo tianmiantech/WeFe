@@ -57,6 +57,14 @@ public class RealNameAuthInfoQueryApi extends AbstractApi<RealNameAuthInfoQueryI
             realNameAuthInfoQueryOutput.setDescription(member.getExtJson().getDescription());
             realNameAuthInfoQueryOutput.setPrincipalName(member.getExtJson().getPrincipalName());
             realNameAuthInfoQueryOutput.setRealNameAuthStatus(member.getExtJson().getRealNameAuthStatus());
+            
+            // 证书相关内容
+            realNameAuthInfoQueryOutput.setCertPemContent(member.getExtJson().getCertPemContent());
+            realNameAuthInfoQueryOutput.setCertRequestContent(member.getExtJson().getCertRequestContent());
+            realNameAuthInfoQueryOutput.setCertRequestId(member.getExtJson().getCertRequestId());
+            realNameAuthInfoQueryOutput.setCertSerialNumber(member.getExtJson().getCertSerialNumber());
+            realNameAuthInfoQueryOutput.setCertStatus(member.getExtJson().getCertStatus());
+            realNameAuthInfoQueryOutput.setMemberGatewayTlsEnable(member.getExtJson().getMemberGatewayTlsEnable());
 
             List<RealnameAuthInfoQueryOutput.FileInfo> fileInfoList = new ArrayList<>();
             List<RealnameAuthFileInfo> realnameAuthFileInfoList = member.getExtJson().getRealnameAuthFileInfoList();

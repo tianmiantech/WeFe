@@ -41,6 +41,10 @@ public class RealnameAuthInfoQueryOutput {
     private String certPemContent;
     // 证书序列号
     private String certSerialNumber;
+    // 证书状态
+    private String certStatus;
+    // 是否开启TLS通信
+    private Boolean memberGatewayTlsEnable;
     
     private List<FileInfo> fileInfoList;
 
@@ -150,5 +154,21 @@ public class RealnameAuthInfoQueryOutput {
 
     public void setCertSerialNumber(String certSerialNumber) {
         this.certSerialNumber = certSerialNumber;
+    }
+
+    public String getCertStatus() {
+        return certStatus;
+    }
+
+    public void setCertStatus(String certStatus) {
+        this.certStatus = certStatus;
+    }
+
+    public Boolean getMemberGatewayTlsEnable() {
+        return memberGatewayTlsEnable;
+    }
+
+    public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
+        this.memberGatewayTlsEnable = memberGatewayTlsEnable;
     }
 }
