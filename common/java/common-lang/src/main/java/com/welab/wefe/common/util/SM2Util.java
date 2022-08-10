@@ -2,6 +2,11 @@ package com.welab.wefe.common.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+import org.bouncycastle.crypto.engines.SM2Engine;
+import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.crypto.params.ParametersWithRandom;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
@@ -19,7 +25,7 @@ public class SM2Util {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddressUtil.class);
 
     static {
-        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null){
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
             Security.addProvider(new BouncyCastleProvider());
         }
     }
@@ -74,6 +80,7 @@ public class SM2Util {
     }
 
 
+
     /**
      * The private key signature
      */
@@ -96,5 +103,26 @@ public class SM2Util {
         signature.update(data);
         return signature.verify(Base64.decodeBase64(sign.getBytes()));
     }
+
+   /* public static String encryptByPublicKey(String plaintext, String publicKeyStr) throws Exception {
+        PublicKey publicKey = getPublicKey(publicKeyStr);
+        ECPublicKeyParameters ecPublicKeyParameters = null;
+        if (publicKey instanceof BCECPublicKey) {
+            BCECPublicKey bcecPublicKey = (BCECPublicKey) publicKey;
+            ECParameterSpec ecParameterSpec = bcecPublicKey.getParameters();
+            ECDomainParameters ecDomainParameters = new ECDomainParameters(ecParameterSpec.getCurve(),
+                    ecParameterSpec.getG(), ecParameterSpec.getN());
+            ecPublicKeyParameters = new ECPublicKeyParameters(bcecPublicKey.getQ(), ecDomainParameters);
+        }
+        SM2Engine sm2Engine = new SM2Engine();
+        sm2Engine.init(true, new ParametersWithRandom(ecPublicKeyParameters, new SecureRandom()));
+        byte[] arrayOfBytes = null;
+
+            byte[] in = data.getBytes("utf-8");
+            arrayOfBytes = sm2Engine.processBlock(in,0, in.length);
+
+        return  Base64.encodeBase64String(arrayOfBytes);
+    }*/
+
 
 }
