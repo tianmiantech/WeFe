@@ -233,14 +233,11 @@ public class CertOperationService {
      * @return
      * @throws Exception
      */
-    public CertVO createUserCert(String issuerCertId, String userId, String certRequestContent) throws Exception {
+    public CertVO createUserCert(String issuerCertId, String memberId, String certRequestContent) throws Exception {
         Date beginDate = new Date();
         Date endDate = new Date(beginDate.getTime() + 315360000000L);
         KeyUsage keyUsage = new KeyUsage(KeyUsage.dataEncipherment);
         boolean isCaCert = false;
-        if (StringUtils.isBlank(userId)) {
-            throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
-        }
         // 获取签发机构的证书
         CertInfo issuerCertInfo = certDao.findCertById(issuerCertId);
         if (issuerCertInfo == null) {
@@ -270,11 +267,11 @@ public class CertOperationService {
                 issuerKeyPair.getPrivate());
         // 保存csr
         CertRequestInfo subjectRequestInfo = certDao
-                .save(createUserCertRequest(null, userId, certRequestContent, null));
+                .save(createUserCertRequest(null, memberId, certRequestContent, null));
         // 保存cert
         CertInfo certInfo = certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate),
                 issuerCertInfo.getSubjectCN(), issuerCertInfo.getSubjectOrg(), subjectRequestInfo.getSubjectCN(),
-                subjectRequestInfo.getSubjectOrg(), certificate.getPublicKey(), userId, certificate.getSerialNumber(),
+                subjectRequestInfo.getSubjectOrg(), certificate.getPublicKey(), memberId, certificate.getSerialNumber(),
                 issuerKeyInfo.getPkId(), isCaCert, false, issuerCertInfo.getPkId(), subjectRequestInfo.getPkId()));
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
@@ -308,9 +305,9 @@ public class CertOperationService {
     }
 
     private CertRequestInfo buildCertRequestInfo(String csrStr, String subjectKeyId, String commonName,
-            String organizationName, String userId) {
+            String organizationName, String memberId) {
         CertRequestInfo certRequestInfo = new CertRequestInfo();
-        certRequestInfo.setUserId(userId);
+        certRequestInfo.setMemberId(memberId);
         certRequestInfo.setCreatedBy(CurrentAccount.id());
 //        certRequestInfo.setIssuerCertId(parentCertId);
         certRequestInfo.setSubjectKeyId(subjectKeyId);

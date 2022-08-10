@@ -63,14 +63,14 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
             memberExtJSON.setAuditComment(input.getAuditComment());
             memberExtJSON.setRealNameAuthTime(System.currentTimeMillis());
             // 用户ID
-            String userId = input.getCurMemberId();
+            String memberId = member.getMemberId();
             // 证书请求内容
             String certRequestContent = memberExtJSON.getCertRequestContent();
             // 签发机构的证书ID
             String issuerCertId = input.getIssuerCertId();
             try {
                 // 签发证书
-                CertVO cert = certOperationService.createUserCert(issuerCertId, userId, certRequestContent);
+                CertVO cert = certOperationService.createUserCert(issuerCertId, memberId, certRequestContent);
                 memberExtJSON.setCertStatus(CertStatusEnums.VALID.name());
                 // 将证书内容写入
                 memberExtJSON.setCertPemContent(cert.getCertContent());
