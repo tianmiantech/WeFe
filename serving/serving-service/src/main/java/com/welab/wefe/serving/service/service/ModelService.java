@@ -119,6 +119,9 @@ public class ModelService {
         model.setUpdatedTime(new Date());
         model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
         modelRepository.save(model);
+
+        CacheObjects.refreshServiceMap();
+
         return model.getId();
     }
 

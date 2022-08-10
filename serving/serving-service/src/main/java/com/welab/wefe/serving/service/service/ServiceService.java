@@ -720,7 +720,7 @@ public class ServiceService {
     private String preExecuteCallLog(String serviceOrderId, BaseServiceMySqlModel service, PartnerMysqlModel client,
                                      RouteApi.Input input, String clientIp) {
         ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderId, 0, client.getId(),
-                client.getName(), service.getId(), service.getName(), service.getServiceType(), input.getRequestId(),
+                client.getName(), service.getServiceId(), service.getName(), service.getServiceType(), input.getRequestId(),
                 JSONObject.toJSONString(input), clientIp);
         return serviceCallLogMysqlModel.getId();
     }
