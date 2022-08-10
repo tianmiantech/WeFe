@@ -24,6 +24,7 @@ import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.NetworkDataTransferProxyServiceGrpc;
+import com.welab.wefe.gateway.cache.CaCertificateCache;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.GrpcConstant;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
@@ -43,7 +44,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -184,7 +187,7 @@ public class GrpcUtil {
             for (int i = 1; i <= failTryCount; i++) {
                 try {
                     // Binding generated signature, system time, tamper proof interceptor
-                    originalChannel = GrpcUtil.getManagedChannel(dstMember.getEndpoint());
+                    originalChannel = buildManagedChannel(dstMember);
                     channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor(), new AntiTamperClientInterceptor());
                     clientStub = NetworkDataTransferProxyServiceGrpc.newBlockingStub(channel);
                     return clientStub.push(transferMeta);
@@ -262,6 +265,15 @@ public class GrpcUtil {
             return false;
         }
         return true;
+    }
+
+    private static ManagedChannel buildManagedChannel(GatewayMetaProto.Member member) throws Exception {
+        MemberEntity memberEntity = MemberCache.getInstance().get(member.getMemberId());
+        if (Boolean.TRUE.equals(memberEntity.getGatewayTlsEnable())) {
+            return GrpcUtil.getSslManagedChannel(member.getEndpoint(), TlsUtil.buildCertificates(CaCertificateCache.getInstance().getAll()));
+        }
+
+        return GrpcUtil.getManagedChannel(member.getEndpoint());
     }
 
 }

@@ -23,11 +23,15 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.GatewayServer;
+import com.welab.wefe.gateway.cache.CaCertificateCache;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.entity.MemberEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Union service tool class
@@ -88,6 +92,39 @@ public class UnionHelper {
             return dataStr;
         } catch (Exception e) {
             LOG.error("Failed to query member information：", e);
+            throw e;
+        }
+    }
+
+    /**
+     * Query all ca certificate
+     */
+    public static String getCaCertificate() throws Exception {
+        try {
+            // TODO
+            String verifyMemberId = MemberCache.getInstance().getSelfMember().getId();
+            JObject data = JObject.create().append("memberId", verifyMemberId);
+            HttpResponse httpResponse = HttpRequest.create(BASE_URL + "ca/query_all")
+                    .appendParameters(generateReqParam(verifyMemberId, data.toString()))
+                    .closeLog()
+                    .postJson();
+
+            String responseBodyStr = httpResponse.getBodyAsString();
+            if (StringUtil.isEmpty(responseBodyStr)) {
+                throw new Exception("查询CA信息失败，httpCode：" + httpResponse.getCode() + ", httpMessage：" + httpResponse.getMessage());
+            }
+            JObject responseBody = JObject.create(responseBodyStr);
+            String code = responseBody.getString("code");
+            if (!RESP_CODE_SUCCESS.equals(code)) {
+                throw new Exception("查询CA信息失败，code：" + code);
+            }
+            String dataStr = responseBody.getStringByPath("data.list");
+            if (StringUtil.isEmpty(dataStr)) {
+                throw new Exception("查询CA信息失败，业务数据为空");
+            }
+            return dataStr;
+        } catch (Exception e) {
+            LOG.error("Failed to query ca information：", e);
             throw e;
         }
     }
