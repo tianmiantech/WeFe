@@ -18,9 +18,9 @@ package com.welab.wefe.manager.service.api.member;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.webank.cert.mgr.enums.CertStatusEnums;
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
+import com.webank.cert.toolkit.enums.CertStatusEnums;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;

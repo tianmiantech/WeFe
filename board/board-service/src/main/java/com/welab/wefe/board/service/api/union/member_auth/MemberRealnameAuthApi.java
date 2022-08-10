@@ -45,6 +45,7 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
     @Override
     protected ApiResult<Object> handle(MemberRealnameAuthApi.Input input) throws StatusCodeWithException, IOException {
+        certOperationService.resetCert();// 将本地证书置为无效
         // 生成csr
         generateCertRequestContent(input);
         JSONObject result = unionService.realnameAuth(input);

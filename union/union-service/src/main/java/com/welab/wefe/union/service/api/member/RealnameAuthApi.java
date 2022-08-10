@@ -27,6 +27,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.union.service.constant.CertStatusEnums;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.service.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
         extJSON.setDescription(input.description);
         extJSON.setCertRequestContent(input.certRequestContent);
         extJSON.setCertRequestId(input.certRequestId);
-
+        extJSON.setCertStatus(CertStatusEnums.WAIT_VERIFY.name());
         List<RealnameAuthFileInfo> realnameAuthFileInfoList = new ArrayList<>();
         for (String fileId :
                 input.fileIdList) {

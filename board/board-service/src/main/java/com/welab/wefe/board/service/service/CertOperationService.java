@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.webank.cert.toolkit.enums.CertDigestAlgEnums;
+import com.webank.cert.toolkit.enums.CertStatusEnums;
 import com.webank.cert.toolkit.enums.KeyAlgorithmEnums;
 import com.webank.cert.toolkit.model.X500NameInfo;
 import com.webank.cert.toolkit.service.CertService;
@@ -80,6 +81,10 @@ public class CertOperationService {
         certInfoRepository.save(certInfo);
     }
 
+    public void resetCert() {
+        certInfoRepository.resetCert(CertStatusEnums.INVALID.name());
+    }
+
     public void saveCertInfo(String certRequestId, String certPemContent, String certStatus)
             throws StatusCodeWithException {
         try {
@@ -114,7 +119,7 @@ public class CertOperationService {
                 certRequestInfoMysqlModel.setIssue(true);
                 certRequestInfoMysqlModel.setUpdatedTime(new Date());
                 certRequestInfoRepository.save(certRequestInfoMysqlModel);
-                
+
                 certInfo.setStatus(certStatus);
                 certInfoRepository.save(certInfo);
             }

@@ -1,8 +1,9 @@
-package com.webank.cert.mgr.enums;
+package com.webank.cert.toolkit.enums;
 
 public enum CertStatusEnums {
 
-    INVALID(0, "无效"), VALID(1, "有效");
+    // -1认证失败 /0未认证 /1认证中 /2已认证
+    INVALID(0, "无效"), WAIT_VERIFY(1, "认证中"), VALID(2, "有效");
 
     private CertStatusEnums(int code, String name) {
         this.code = code;
