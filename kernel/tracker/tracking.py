@@ -488,14 +488,16 @@ class Tracking(object):
         return None
 
     def get_binning_result(self):
-        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'model_train')
+        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'model_binning')
         if model:
             result = json.loads(model.result)
             LOGGER.debug("mysql result:{}".format(result))
             binning_result = result.get('model_param').get('binningResult').get('binningResult')
             binning_results = {}
             for feature, value in binning_result.items():
-                binning_results[feature] = {'woe': value.get('woeArray'), 'split_points': value.get('splitPoints')}
+                binning_results[feature] = {'woe': value.get('woeArray'), 'split_points': value.get('splitPoints'),
+                                            'eventCount':value.get('eventCountArray'),'noneventCount':value.get('nonEventCountArray'),
+                                            'countArray':value.get('countArray')}
             model_meta = result.get('model_meta')
             model_param = {'header': model_meta.get('cols')}
             transform_cols = model_meta.get('transformParam').get('transformCols')

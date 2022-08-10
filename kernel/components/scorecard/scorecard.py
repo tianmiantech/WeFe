@@ -63,10 +63,8 @@ class ScoreCard(ModelBase):
         key_list = ["pdo", "p0"]
         for key in key_list:
             value = locals()[key]
-            if self.role == "promoter" and value:
+            if value:
                 extra_metas[key] = value
-            else:
-                extra_metas[key] = None
         self.tracker.saveScoreData(metric_name, metric_namespace, extra_metas, kv)
 
 class ScoreCardPromoter(ScoreCard):
@@ -109,6 +107,7 @@ class ScoreCardPromoter(ScoreCard):
 
     @staticmethod
     def get_count_odds(bin_results):
+        print(bin_results)
         p = sum(list(map(int, bin_results.non_event_count_array))) / \
             sum(list(map(int, bin_results.count_array)))
         odds = p / (1 - p)
@@ -124,7 +123,7 @@ class ScoreCardProvider(ScoreCard):
     def __init__(self):
         super(ScoreCardProvider, self).__init__()
 
-    def fit(self):
+    def fit(self, *args):
         self._init_param()
         B_score = self.pdo / math.log(2, )
         self.score_card_result["b_score"] = B_score
