@@ -32,6 +32,17 @@ public class LrVertProviderBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseL
 
     @Override
     protected List<LrPredictResultModel> handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) {
-        return batchLocalCompute(batchPredictParams);
+        List<LrPredictResultModel> resultModels = batchLocalCompute(batchPredictParams);
+
+        maskSensitiveData(resultModels);
+
+        return resultModels;
+    }
+
+
+    private void maskSensitiveData(List<LrPredictResultModel> resultModels) {
+        resultModels
+                .stream()
+                .forEach(x -> x.setScoreCard(null));
     }
 }

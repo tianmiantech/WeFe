@@ -304,44 +304,6 @@ public class ServingService extends AbstractService {
             return null;
         }
 
-        JObject data = JObject.create(task.getResult());
-        JObject result = data.getJObjectByPath("train_" + task.getName() + ".data");
-
-        TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
-                taskResult.getJobId(),
-                null,
-                taskResult.getRole(),
-                TaskResultType.model_binning.name()
-        );
-
-        JObject binning = JObject.create(binningTaskResult.getResult());
-        result.putAll(binning.getJObjectByPath("model_param.binningResult.binningResult"));
-
-        return result;
-    }
-
-    private JObject getModelParam(TaskResultMySqlModel taskResult) {
-        JObject modelParam = JObject.create(taskResult.getResult());
-        modelParam.put("scoreCardInfo", getScoreCardInfo(taskResult));
-        return modelParam;
-    }
-
-    private Object getScoresDistribution(TaskResultMySqlModel taskResult) {
-        TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(), null, taskResult.getRole(), TaskResultType.distribution_train_validate.name());
-        if (task == null) {
-            return null;
-        }
-
-        String key = "train_validate_" + taskResult.getName() + "_scores_distribution";
-        return JObject.create(task.getResult()).get(key);
-    }
-
-    private Object getScoreCardInfo(TaskResultMySqlModel taskResult) {
-        TaskResultMySqlModel task = taskResultService.findByJobIdAndComponentTypeAndType(taskResult.getJobId(), ComponentType.ScoreCard, TaskResultType.metric_train);
-        if (task == null) {
-            return null;
-        }
-
         JObject result = JObject.create();
         JObject data = JObject.create(task.getResult());
         result.put("score_card", data.getJObjectByPath("train_" + task.getName() + ".data"));
@@ -357,6 +319,13 @@ public class ServingService extends AbstractService {
         result.put("bin", binning.getJObjectByPath("model_param.binningResult.binningResult"));
 
         return result;
+    }
+
+
+    private JObject getModelParam(TaskResultMySqlModel taskResult) {
+        JObject modelParam = JObject.create(taskResult.getResult());
+        modelParam.put("scoreCardInfo", getScoreCardInfo(taskResult));
+        return modelParam;
     }
 
     private String extractName(JobMySqlModel job) {
