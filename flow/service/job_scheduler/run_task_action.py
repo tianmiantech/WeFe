@@ -160,7 +160,7 @@ class RunTaskAction:
             '-s', self.build_federation_session_id()
         ]
 
-    def build_process_cmd_for_spark(self, task_config_json):
+    def build_process_cmd_for_spark(self, job_config_json):
         """
         splicing the startup command for spark
         """
@@ -187,6 +187,17 @@ class RunTaskAction:
         # executor_cores = spark_submit_config.get("executor-cores", default_executor_cores)
         # total_executor_cores = spark_submit_config.get("total_executor_cores",
         #                                                default_total_executor_cores)
+
+        self.task.task_conf['job'] = {
+            'federated_learning_type': job_config_json.get('federated_learning_type'),
+            'federated_learning_mode': job_config_json.get('federated_learning_mode', None),
+            'project': {
+                'project_id': job_config_json['project']['project_id']
+            },
+            'members': job_config_json['members'],
+            'data_sets': job_config_json.get('data_sets'),
+            'env': job_config_json['env']
+        }
 
         deploy_mode = "client"
         queue = "default"
