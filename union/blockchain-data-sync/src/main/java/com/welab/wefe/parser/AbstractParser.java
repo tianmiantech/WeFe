@@ -44,6 +44,7 @@ public abstract class AbstractParser {
         long startParser = System.currentTimeMillis();
         this.eventBO = eventBO;
         extJsonStr = null == eventBO.getEntity().get(EXT_JSON) ? null : eventBO.getEntity().get(EXT_JSON).toString().trim();
+        log.info("extJson->:" + extJsonStr);
         if (eventBO.getEntity().get(PARAMS) != null) {
             params = JSONObject.parseArray(eventBO.getEntity().get(PARAMS).toString());
         }
