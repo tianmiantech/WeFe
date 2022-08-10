@@ -18,13 +18,11 @@ package com.welab.wefe.common.data.mongodb.entity.manager;
 
 import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
 import com.welab.wefe.common.data.mongodb.entity.base.AbstractNormalMongoModel;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 
 /**
  * @author wesleywang
@@ -59,16 +57,10 @@ public class CertKeyInfo extends AbstractNormalMongoModel {
     }
 
     public String getKeyPem() throws StatusCodeWithException {
-        if (StringUtils.isNotBlank(keyPem) && keyPem.startsWith("-----BEGIN")) {
-            keyPem = DatabaseEncryptUtil.decrypt(keyPem);
-        }
         return keyPem;
     }
 
     public void setKeyPem(String keyPem) throws StatusCodeWithException {
-        if (StringUtils.isNotBlank(keyPem) && !keyPem.startsWith("-----BEGIN")) {
-            keyPem = DatabaseEncryptUtil.encrypt(keyPem);
-        }
         this.keyPem = keyPem;
     }
 

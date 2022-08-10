@@ -47,6 +47,7 @@ import com.welab.wefe.board.service.database.repository.CertRequestInfoRepositor
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 
 @Service
 public class CertOperationService {
@@ -189,7 +190,7 @@ public class CertOperationService {
         }
         CertKeyInfoMysqlModel certKeyInfo = new CertKeyInfoMysqlModel();
         certKeyInfo.setKeyAlg(priAlg);
-        certKeyInfo.setKeyPem(pemPrivateKey);
+        certKeyInfo.setKeyPem(DatabaseEncryptUtil.encrypt(pemPrivateKey));
         certKeyInfo.setMemberId(memberId);
         certKeyInfo = certKeyInfoRepository.save(certKeyInfo);
         return certKeyInfo;

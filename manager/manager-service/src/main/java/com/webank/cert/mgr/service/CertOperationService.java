@@ -53,6 +53,7 @@ import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertKeyInfo;
 import com.welab.wefe.common.data.mongodb.entity.manager.CertRequestInfo;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 
 @Service
 public class CertOperationService {
@@ -291,7 +292,7 @@ public class CertOperationService {
         }
         CertKeyInfo certKeyInfo = new CertKeyInfo();
         certKeyInfo.setKeyAlg(priAlg);
-        certKeyInfo.setKeyPem(pemPrivateKey);
+        certKeyInfo.setKeyPem(DatabaseEncryptUtil.encrypt(pemPrivateKey));
         certKeyInfo.setUserId(userId);
         certKeyInfo.setCreatedBy(CurrentAccount.id());
         certKeyInfo = certDao.save(certKeyInfo);

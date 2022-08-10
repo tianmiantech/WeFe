@@ -1,5 +1,6 @@
 package com.welab.wefe.board.service.database.entity.cert;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import org.hibernate.annotations.TypeDef;
@@ -14,21 +15,27 @@ public class CertRequestInfoMysqlModel extends AbstractBaseMySqlModel {
     private static final long serialVersionUID = -6973794829218983299L;
 
     // 用户ID
+    @Column(name = "member_id")
     private String memberId;
 
     // 申请人私钥ID
+    @Column(name = "subject_key_id")
     private String subjectKeyId;
 
     // 申请人组织名称
+    @Column(name = "subject_org")
     private String subjectOrg;
 
     // 申请人常用名
+    @Column(name = "subject_cn")
     private String subjectCN;
 
     // 证书申请内容
+    @Column(name = "cert_request_content")
     private String certRequestContent;
 
     // 是否签发
+    @Column(name = "issue")
     private Boolean issue;
 
     public String getMemberId() {
