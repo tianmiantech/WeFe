@@ -213,8 +213,8 @@ def _fill_cache(parties, local, session_id):
     for party in parties:
         # if party == local:
         #     continue
-        _cache_get_obj_storage_source[party] = _create_source(_get_obj_storage_source_name(party, local, session_id),
-                                                              NAMESPACE.PROCESS)
+        # _cache_get_obj_storage_source[party] = _create_source(_get_obj_storage_source_name(party, local, session_id),
+        #                                                       NAMESPACE.PROCESS)
         _cache_remote_obj_storage_source[party] = _create_source(_get_obj_storage_source_name(local, party, session_id),
                                                                  NAMESPACE.PROCESS)
 
@@ -323,14 +323,6 @@ class FederationRuntime(Federation):
                                rubbish=rubbish,
                                source=obj, index=index)
                 return rubbish
-        # if obj is object, put it in specified dsource, then remote the dsource
-        first, fragments = maybe_split_object(obj)
-        # print(f"first:{first},fragments:{fragments}")
-        num_fragment = len(fragments)
-
-        if REMOTE_FRAGMENT_OBJECT_USE_D_SOURCE and num_fragment > 1:
-            fragment_storage_source = _create_fragment_obj_source(self._session_id)
-            fragment_storage_source.put_all(fragments)
 
         for index, party in enumerate(parties):
             log_msg = f"src={self.local_party}, dst={party}, name={name}, tag={tag}, session_id={self._session_id}"
@@ -341,9 +333,9 @@ class FederationRuntime(Federation):
             LOGGER.debug("[REMOTE] send result:")
             LOGGER.debug(
                 self._send(transfer_type=TransferAction.DOBJECT, name=name, tag=tag, dst_party=party, rubbish=rubbish,
-                           source=obj_source, obj=first, index=index))
-            if not fragments:
-                LOGGER.debug(f"[REMOTE] object done: {log_msg}")
+                           source=obj_source, obj=obj, index=index))
+            # if not fragments:
+            LOGGER.debug(f"[REMOTE] object done: {log_msg}")
 
         return rubbish
 
