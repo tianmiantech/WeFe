@@ -59,6 +59,7 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
             member.setLogo(input.getLogo());
             SecretKeyType secretKeyType = (null == input.secretKeyType ? SecretKeyType.rsa : input.secretKeyType);
             MemberExtJSON extJson = new MemberExtJSON();
+            extJson.setRealNameAuthStatus(0);
             extJson.setSecretKeyType(secretKeyType);
             member.setExtJson(JSON.toJSONString(extJson));
 
