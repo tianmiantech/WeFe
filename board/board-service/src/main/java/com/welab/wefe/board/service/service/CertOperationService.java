@@ -80,7 +80,8 @@ public class CertOperationService {
         certInfoRepository.save(certInfo);
     }
 
-    public void saveCertInfo(String certRequestId, String certPemContent, String certStatus) throws StatusCodeWithException {
+    public void saveCertInfo(String certRequestId, String certPemContent, String certStatus)
+            throws StatusCodeWithException {
         try {
             if (StringUtils.isBlank(certPemContent)) {
                 return;
@@ -93,10 +94,12 @@ public class CertOperationService {
                 CertRequestInfoMysqlModel certRequestInfoMysqlModel = findCertRequestById(certRequestId);
                 certRequestInfoMysqlModel.setIssue(true);
                 certRequestInfoRepository.save(certRequestInfoMysqlModel);
-                
-                CertKeyInfoMysqlModel certKeyInfoMysqlModel = queryCertKeyInfoById(certRequestInfoMysqlModel.getSubjectKeyId());
+
+                CertKeyInfoMysqlModel certKeyInfoMysqlModel = queryCertKeyInfoById(
+                        certRequestInfoMysqlModel.getSubjectKeyId());
                 try {
-                    KeyPair keyPair = getKeyPair(KeyAlgorithmEnums.getByKeyAlg(certKeyInfoMysqlModel.getKeyAlg()), certKeyInfoMysqlModel.getKeyPem());
+                    KeyPair keyPair = getKeyPair(KeyAlgorithmEnums.getByKeyAlg(certKeyInfoMysqlModel.getKeyAlg()),
+                            DatabaseEncryptUtil.decrypt(certKeyInfoMysqlModel.getKeyPem()));
                     publicKey = keyPair.getPublic();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -105,10 +108,11 @@ public class CertOperationService {
                         certRequestInfoMysqlModel.getSubjectOrg(), publicKey, CacheObjects.getMemberId(),
                         certificate.getSerialNumber(), certRequestId, certStatus);
                 certInfoRepository.save(certInfo);
-            }
-            else {
+            } else {
+
                 CertRequestInfoMysqlModel certRequestInfoMysqlModel = findCertRequestById(certRequestId);
                 certRequestInfoMysqlModel.setIssue(true);
+                certRequestInfoMysqlModel.setUpdatedTime(new Date());
                 certRequestInfoRepository.save(certRequestInfoMysqlModel);
                 
                 certInfo.setStatus(certStatus);
@@ -189,7 +193,8 @@ public class CertOperationService {
     }
 
     // 保存私钥
-    private CertKeyInfoMysqlModel savePrivateKey(String memberId, String pemPrivateKey, String priAlg) throws Exception {
+    private CertKeyInfoMysqlModel savePrivateKey(String memberId, String pemPrivateKey, String priAlg)
+            throws Exception {
         if (StringUtils.isBlank(memberId)) {
             throw new StatusCodeWithException("memberId is empty", StatusCode.DATA_NOT_FOUND);
         }
@@ -216,6 +221,7 @@ public class CertOperationService {
         certRequestInfo.setSubjectOrg(organizationName);
         certRequestInfo.setCertRequestContent(csrStr);
         certRequestInfo.setIssue(true);
+        certRequestInfo.setCreatedTime(new Date());
         return certRequestInfo;
     }
 
@@ -240,6 +246,7 @@ public class CertOperationService {
         certInfo.setMemberId(memberId);
         certInfo.setSubjectCN(subjectCommonName);
         certInfo.setSubjectOrg(subjectOrgName);
+        certInfo.setCreatedTime(new Date());
         if (publicKey != null) {
             certInfo.setSubjectPubKey(CertUtils.readPEMAsString(publicKey));
         }
