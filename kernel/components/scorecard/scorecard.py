@@ -40,7 +40,6 @@ from kernel.model_base import ModelBase
 
 LOGGER = log_utils.get_logger()
 
-
 class ScoreCard(ModelBase):
     def __init__(self):
         super(ScoreCard, self).__init__()
@@ -54,26 +53,37 @@ class ScoreCard(ModelBase):
         self.p0 = self.model_param.p0
         self.pdo = self.model_param.pdo
 
+    def callback_score_data(self):
+        metric_name = self.tracker.component_name
+        metric_namespace = "train"
+        self.__save_score(self.pdo, self.p0,  metric_name, metric_namespace, self.score_card_result)
+
+    def __save_score(self, pdo, p0, metric_name, metric_namespace, kv):
+        extra_metas = {}
+        key_list = ["pdo", "p0"]
+        for key in key_list:
+            value = locals()[key]
+            if value:
+                extra_metas[key] = value
+        self.tracker.saveScoreData(metric_name, metric_namespace, extra_metas, kv)
+
+class ScoreCardPromoter(ScoreCard):
+    def __init__(self):
+        super(ScoreCardPromoter, self).__init__()
+
     def fit(self, *args):
+        self._init_param()
+        LOGGER.debug("scorecard begainning, arg = {}".format(args))
+        # get binning result
+        bin_inner_param, bin_results = self._get_binning_result()
+        feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
 
-        if self.role == "promoter":
-            self._init_param()
-            LOGGER.debug("scorecard begainning, arg = {}".format(args))
-            # get binning result
-            bin_inner_param, bin_results = self._get_binning_result()
-            feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
-
-            # caculate static scores
-            odds = self.get_count_odds(feature_bin_results)
-            A_score, B_score = self.cal_score(odds)
-            self.score_card_result["odds"] = odds
-            self.score_card_result["a_score"] = A_score
-            self.score_card_result["b_score"] = B_score
-
-        elif self.role == "provider":
-            B_score = self.b_score()
-            self.score_card_result["b_score"] = B_score
-
+        # caculate static scores
+        odds = self.get_count_odds(feature_bin_results)
+        A_score, B_score = self.cal_score(odds)
+        self.score_card_result["odds"] = odds
+        self.score_card_result["a_score"] = A_score
+        self.score_card_result["b_score"] = B_score
         return self.callback_score_data()
 
     def _get_binning_result(self):
@@ -97,35 +107,25 @@ class ScoreCard(ModelBase):
 
     @staticmethod
     def get_count_odds(bin_results):
+        print(bin_results)
         p = sum(list(map(int, bin_results.non_event_count_array))) / \
             sum(list(map(int, bin_results.count_array)))
         odds = p / (1 - p)
         return odds
 
     def cal_score(self, odds):
-        B_score = self.b_score()
+        B_score = self.pdo / math.log(2, )
         A_score = self.p0 + B_score * math.log(odds, )
         return A_score, B_score
 
-    def b_score(self):
+
+class ScoreCardProvider(ScoreCard):
+    def __init__(self):
+        super(ScoreCardProvider, self).__init__()
+
+    def fit(self, *args):
+        self._init_param()
         B_score = self.pdo / math.log(2, )
-        return B_score
-
-    def callback_score_data(self):
-        metric_name = self.tracker.component_name
-        metric_namespace = "train"
-        self.__save_score(self.pdo, self.p0,  metric_name, metric_namespace, self.score_card_result)
-
-    def __save_score(self, pdo, p0, metric_name, metric_namespace, kv):
-        extra_metas = {}
-        key_list = ["pdo", "p0"]
-        for key in key_list:
-            value = locals()[key]
-            if self.role == "promoter" and value:
-                extra_metas[key] = value
-            else:
-                extra_metas[key] = None
-        self.tracker.saveScoreData(metric_name, metric_namespace, extra_metas, kv)
-
-
+        self.score_card_result["b_score"] = B_score
+        return self.callback_score_data()
 
