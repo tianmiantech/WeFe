@@ -206,7 +206,7 @@
                     }
                     this.search.closed = val.closed || 'false';
                     this.search.searchRequest = val.closed || 'false';
-                    // this.getProjectList();
+                    this.getProjectList();
                 },
                 deep: true,
             },

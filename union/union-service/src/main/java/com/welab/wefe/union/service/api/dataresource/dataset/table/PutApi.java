@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "table_data_set/put", name = "table_data_set", allowAccessWithSign = true, login = false)
+@Api(path = "table_data_set/put", name = "table_data_set", allowAccessWithSign = true)
 public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected TableDataSetContractService tableDataSetContractService;

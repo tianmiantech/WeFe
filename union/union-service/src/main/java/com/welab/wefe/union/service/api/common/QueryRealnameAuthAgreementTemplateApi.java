@@ -31,7 +31,7 @@ import java.io.IOException;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "realname/auth/agreement/template/query", name = "available", allowAccessWithSign = true, login = false)
+@Api(path = "realname/auth/agreement/template/query", name = "available", allowAccessWithSign = true)
 public class QueryRealnameAuthAgreementTemplateApi extends AbstractApi<BaseInput, RealnameAuthAgreementTemplateOutput> {
     @Autowired
     private RealnameAuthAgreementTemplateMongoRepo realnameAuthAgreementTemplateMongoRepo;

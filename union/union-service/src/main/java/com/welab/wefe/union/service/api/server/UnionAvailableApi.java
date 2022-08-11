@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@Api(path = "service/available", name = "available", allowAccessWithSign = true, login = false)
+@Api(path = "service/available", name = "available", allowAccessWithSign = true)
 public class UnionAvailableApi extends AbstractApi<UnionAvailableApi.Input, ServiceAvailableCheckOutput> {
 
     @Autowired
