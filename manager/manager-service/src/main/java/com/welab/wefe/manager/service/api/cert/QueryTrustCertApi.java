@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  * @date 2022/08/11
  */
-@Api(path = "trust/cert/query", name = "trust_cert_query")
+@Api(path = "trust/certs/query", name = "trust_cert_query")
 public class QueryTrustCertApi extends AbstractApi<BaseQueryInput, JObject> {
     @Autowired
     protected TrustCertsMongoRepo trustCertsMongoRepo;
