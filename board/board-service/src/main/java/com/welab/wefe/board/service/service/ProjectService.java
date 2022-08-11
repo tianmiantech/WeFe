@@ -33,6 +33,7 @@ import com.welab.wefe.board.service.dto.entity.project.ProjectOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectQueryOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.data_set.ProjectDataResourceOutputModel;
 import com.welab.wefe.board.service.dto.vo.AuditStatusCounts;
+import com.welab.wefe.board.service.dto.vo.ProjectFlowStatisticsResult;
 import com.welab.wefe.board.service.dto.vo.RoleCounts;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.board.service.service.account.AccountService;
@@ -41,7 +42,6 @@ import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -157,10 +157,7 @@ public class ProjectService extends AbstractService {
         project.setProgressUpdatedTime(new Date());
         project.setUpdatedBy(input);
         project.setAuditStatusFromMyself(input.fromGateway() ? AuditStatus.auditing : AuditStatus.agree);
-        project.setFlowStatusStatistics(JObject.create()
-                .append(ProjectFlowStatus.editing.name(), 0)
-                .append(ProjectFlowStatus.running.name(), 0)
-                .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+        project.setFlowStatusStatistics(new ProjectFlowStatisticsResult().toJsonString());
         project.setProjectType(input.getProjectType());
         projectRepo.save(project);
 
@@ -1065,10 +1062,7 @@ public class ProjectService extends AbstractService {
             project.setUpdatedBy(CurrentAccount.id());
             project.setAuditStatus(AuditStatus.auditing);
             project.setAuditStatusFromMyself(AuditStatus.auditing);
-            project.setFlowStatusStatistics(JObject.create()
-                    .append(ProjectFlowStatus.editing.name(), 0)
-                    .append(ProjectFlowStatus.running.name(), 0)
-                    .append(ProjectFlowStatus.finished.name(), 0).toJSONString());
+            project.setFlowStatusStatistics(new ProjectFlowStatisticsResult().toJsonString());
             project.setProjectType(projectMySqlModel.getProjectType());
             projectRepo.save(project);
 
@@ -1321,40 +1315,16 @@ public class ProjectService extends AbstractService {
 
         List<Object[]> projectFlowStatusCount = projectFlowRepository.countProjectFlowStatus(projectId);
 
-        int runningCount = 0;
-        int editingCount = 0;
-        int finishedCount = 0;
+        ProjectFlowStatisticsResult result = new ProjectFlowStatisticsResult();
         for (Object[] row : projectFlowStatusCount) {
             String flowStatus = String.valueOf(row[0]);
             int count = Convert.toInt(row[1]);
-
-            switch (ProjectFlowStatus.valueOf(flowStatus)) {
-                case editing:
-                    editingCount += count;
-                    break;
-
-                case running:
-                case wait_run:
-                case wait_stop:
-                case wait_success:
-                    runningCount += count;
-                    break;
-
-                case success:
-                case stop_on_running:
-                case error_on_running:
-                    finishedCount += count;
-                    break;
-                default:
-            }
+            result.put(ProjectFlowStatus.valueOf(flowStatus), count);
         }
-        JObject result = JObject.create()
-                .append(ProjectFlowStatus.editing.name(), editingCount)
-                .append(ProjectFlowStatus.running.name(), runningCount)
-                .append(ProjectFlowStatus.finished.name(), finishedCount);
+
 
         ProjectMySqlModel project = findByProjectId(projectId);
-        projectRepo.updateById(project.getId(), "flowStatusStatistics", result.toJSONString(), ProjectMySqlModel.class);
+        projectRepo.updateById(project.getId(), "flowStatusStatistics", result.toJsonString(), ProjectMySqlModel.class);
     }
 
     /**

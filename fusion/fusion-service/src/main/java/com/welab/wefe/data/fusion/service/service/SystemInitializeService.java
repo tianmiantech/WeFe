@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 /**
@@ -81,13 +80,9 @@ public class SystemInitializeService {
         model.setMemberEmail(input.getMemberEmail());
         model.setMemberMobile(input.getMemberMobile());
 
-        try {
-            RSAUtil.RsaKeyPair pair = RSAUtil.generateKeyPair();
-            model.setRsaPrivateKey(pair.privateKey);
-            model.setRsaPublicKey(pair.publicKey);
-        } catch (NoSuchAlgorithmException e) {
-            throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-        }
+        RSAUtil.RsaKeyPair pair = RSAUtil.generateKeyPair();
+        model.setRsaPrivateKey(pair.privateKey);
+        model.setRsaPublicKey(pair.publicKey);
 
 //        GlobalSettingMySqlModel model = new GlobalSettingMySqlModel();
 //        model.setCreatedBy(CurrentAccount.id());
