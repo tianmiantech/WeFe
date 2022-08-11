@@ -160,7 +160,7 @@ public class ModelService {
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
-                    x.getUrl() + setModelServiceUrl(serviceId),
+                    setModelServiceUrl(serviceId),
                     ServiceTypeEnum.MachineLearning
             );
         } catch (StatusCodeWithException e) {
@@ -189,7 +189,7 @@ public class ModelService {
             clientServiceService.openService(
                     modelId,
                     name,
-                    x.getUrl() + setModelServiceUrl(modelId),
+                    setModelServiceUrl(modelId),
                     x.getMemberId(),
                     x.getPublicKey(),
                     ServiceTypeEnum.MachineLearning

@@ -407,7 +407,9 @@ public class ClientServiceService {
 
     public List<ProviderParams> findProviderList(String serviceId) {
         return queryActivateListByServiceId(serviceId).stream()
-                .map(x -> ProviderParams.of(x.getClientId(), x.getUrl()))
+                // TODO 地址获取修改
+                .map(x -> ProviderParams.of(x.getClientId(),
+                        partnerService.findModelServiceUrl(x.getClientId()) + x.getUrl()))
                 .collect(Collectors.toList());
     }
 }
