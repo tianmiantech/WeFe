@@ -43,7 +43,7 @@ import java.io.IOException;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/file/upload/sync", name = "member file upload sync", sm2Verify = true, login = false)
+@Api(path = "member/file/upload/sync", name = "member file upload sync", sm2Verify = true)
 public class MemberFileUploadSyncApi extends AbstractApi<MemberFileUploadSyncApi.Input, UploadFileApiOutput> {
     @Autowired
     private GridFsTemplate gridFsTemplate;
