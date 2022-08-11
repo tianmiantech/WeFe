@@ -260,14 +260,16 @@ public class CertOperationService {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_VALIDITY_FAILURE);
         }
 
+        PKCS10CertificationRequest csrObject = CertUtils.convertStrToCsr(certRequestContent);
+
         // 证书签发
         X509Certificate certificate = certService.createChildCertificate(isCaCert,
-                issuerCertDigestAlgEnums.getAlgorithmName(), parentCertificate,
-                CertUtils.convertStrToCsr(certRequestContent), keyUsage, beginDate, endDate,
+                issuerCertDigestAlgEnums.getAlgorithmName(), parentCertificate, csrObject, keyUsage, beginDate, endDate,
                 issuerKeyPair.getPrivate());
+
         // 保存csr
         CertRequestInfo subjectRequestInfo = certDao
-                .save(createUserCertRequest(null, memberId, certRequestContent, null));
+                .save(createUserCertRequest(csrObject.getSubject().toString(), memberId, certRequestContent, null));
         // 保存cert
         CertInfo certInfo = certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate),
                 issuerCertInfo.getSubjectCN(), issuerCertInfo.getSubjectOrg(), subjectRequestInfo.getSubjectCN(),
@@ -301,7 +303,7 @@ public class CertOperationService {
         if (StringUtils.isBlank(userId)) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
         }
-        return certDao.save(buildCertRequestInfo(certRequestContent, null, null, null, userId));
+        return certDao.save(buildCertRequestInfo(certRequestContent, null, commonName, commonName, userId));
     }
 
     private CertRequestInfo buildCertRequestInfo(String csrStr, String subjectKeyId, String commonName,
