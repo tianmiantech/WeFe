@@ -335,7 +335,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void openService(String serviceId, String serviceName, String url, String clientId, String publicKey,
-            ServiceTypeEnum serviceType) throws StatusCodeWithException {
+                            ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setServiceType(serviceType.getCode());
         clientService.setClientId(clientId);
@@ -360,7 +360,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void activateService(String serviceId, String serviceName, String clientId, String privateKey,
-            String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
+                                String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
         ClientServiceMysqlModel clientService = clientServiceRepository.findOne("serviceId", serviceId,
                 ClientServiceMysqlModel.class);
         if (clientService == null) {
@@ -407,9 +407,7 @@ public class ClientServiceService {
 
     public List<ProviderParams> findProviderList(String serviceId) {
         return queryActivateListByServiceId(serviceId).stream()
-                // TODO 地址获取修改
-                .map(x -> ProviderParams.of(x.getClientId(),
-                        partnerService.findModelServiceUrl(x.getClientId()) + "/api/" + x.getUrl()))
+                .map(x -> ProviderParams.of(x.getClientId(), x.getUrl()))
                 .collect(Collectors.toList());
     }
 }

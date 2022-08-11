@@ -58,7 +58,7 @@ public class ModelService {
 
     Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private final String API_PREFIX = "predict/";
+    private final String API_PREFIX = "/api/predict/";
     @Autowired
     private TableModelRepository modelRepository;
 
@@ -160,7 +160,7 @@ public class ModelService {
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
-                    setModelServiceUrl(serviceId),
+                    x.getUrl() + setModelServiceUrl(serviceId),
                     ServiceTypeEnum.MachineLearning
             );
         } catch (StatusCodeWithException e) {
@@ -189,7 +189,7 @@ public class ModelService {
             clientServiceService.openService(
                     modelId,
                     name,
-                    setModelServiceUrl(modelId),
+                    x.getUrl() + setModelServiceUrl(modelId),
                     x.getMemberId(),
                     x.getPublicKey(),
                     ServiceTypeEnum.MachineLearning
