@@ -18,6 +18,7 @@ package com.welab.wefe.gateway.service.processors;
 
 import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.http.HttpResponse;
+import com.welab.wefe.common.util.AsymmetricCryptoUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
@@ -48,8 +49,12 @@ public class BoardHttpProcessor extends AbstractProcessor {
 
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
-        MemberEntity dstMember = MemberCache.getInstance().get(transferMeta.getDst().getMemberId());
-        SecretKeyType secretKeyType = dstMember.getSecretKeyType();
+        try {
+            transferMeta = encryptTransferMeta(transferMeta);
+        } catch (Exception e) {
+            LOG.error("BoardHttpProcessor encrypt transferMeta exception: ", e);
+            return ReturnStatusBuilder.sysExc("加密数据异常：" + e.getMessage(), transferMeta.getSessionId());
+        }
 
         return super.beforeSendToRemote(transferMeta);
     }
@@ -57,7 +62,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus remoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
         try {
-            JObject contentJson = JObject.create(transferMeta.getContent().getObjectData());
+            JObject contentJson = JObject.create(decryptContent(transferMeta.getContent().getObjectData()));
             String url = contentJson.getString("url");
             String method = contentJson.getString("method");
             String body = contentJson.getString("body");
@@ -84,5 +89,33 @@ public class BoardHttpProcessor extends AbstractProcessor {
             LOG.error("BoardHttpProcessor fail, exception:", e);
             return ReturnStatusBuilder.sysExc(e.getMessage(), transferMeta.getSessionId());
         }
+    }
+
+    /**
+     * Encrypt content
+     */
+    private GatewayMetaProto.TransferMeta encryptTransferMeta(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
+        String body = transferMeta.getContent().getObjectData();
+        if (StringUtil.isEmpty(body)) {
+            return transferMeta;
+        }
+        MemberEntity dstMember = MemberCache.getInstance().get(transferMeta.getDst().getMemberId());
+        String publicKey = dstMember.getPublicKey();
+        SecretKeyType secretKeyType = dstMember.getSecretKeyType();
+        GatewayMetaProto.Content content = transferMeta.getContent().toBuilder()
+                .setObjectData(AsymmetricCryptoUtil.encryptByPublicKey(body, publicKey, secretKeyType)).build();
+
+        return transferMeta.toBuilder().setContent(content).build();
+    }
+
+    /**
+     * Decrypt content
+     */
+    private String decryptContent(String cipherContent) throws Exception {
+        if (StringUtil.isEmpty(cipherContent)) {
+            return cipherContent;
+        }
+        MemberEntity selfMember = MemberCache.getInstance().getSelfMember();
+        return AsymmetricCryptoUtil.decryptByPrivateKey(cipherContent, selfMember.getPrivateKey(), selfMember.getSecretKeyType());
     }
 }

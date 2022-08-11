@@ -18,6 +18,10 @@ package com.welab.wefe.common.util;
 
 import com.welab.wefe.common.constant.SecretKeyType;
 
+/**
+ * Asymmetric crypto tool
+ * Currently, only RSA and SM2 are supported
+ */
 public class AsymmetricCryptoUtil {
 
     /**

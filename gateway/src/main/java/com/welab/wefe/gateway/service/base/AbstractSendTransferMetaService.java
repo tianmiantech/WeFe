@@ -68,11 +68,6 @@ public abstract class AbstractSendTransferMetaService {
             mMessageService.saveError("消息参数非法", returnStatus, transferMeta);
             return returnStatus;
         }
-        /*if (!GatewayProcessorType.refreshPersistentStorageProcessor.name().equals(transferMeta.getProcessor()) && !InitStorageManager.PERSISTENT_INIT.get()) {
-            mMessageService.saveError("资源未初始化完成", "Clickhouse未初始化完成，请在Board系统里正确配置Clickhouse相关信息", transferMeta);
-            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "Persistent service uninitialized.", transferMeta.getSessionId());
-        }*/
-
         // Set the receiver and sender of the message
         transferMeta = setMemberInfo(transferMeta);
 
