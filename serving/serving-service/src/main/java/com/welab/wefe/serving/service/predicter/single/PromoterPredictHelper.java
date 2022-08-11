@@ -194,7 +194,7 @@ public class PromoterPredictHelper {
         callLog.setRequestPartnerId(CacheObjects.getMemberId());
         callLog.setRequestPartnerName(CacheObjects.getMemberName());
         callLog.setRequestId(requestId);
-        callLog.setRequestIp("");
+        callLog.setRequestIp("127.0.0.1");
         callLog.setResponseCode(responseCode);
         callLog.setResponseId(responseId);
         callLog.setResponsePartnerId(memberId);
@@ -219,8 +219,8 @@ public class PromoterPredictHelper {
         }
 
         JSONObject json = response.getBodyAsJson();
-        return json.getJSONObject("data").containsKey("response_id") ?
-                json.getJSONObject("data").getString("response_id")
+        return json.getJSONObject("data").containsKey("responseId") ?
+                json.getJSONObject("data").getString("responseId")
                 : "";
     }
 
