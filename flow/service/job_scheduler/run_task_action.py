@@ -167,6 +167,8 @@ class RunTaskAction:
         if "SPARK_HOME" not in os.environ:
             raise EnvironmentError("SPARK_HOME not found")
 
+        print(f'job_config_json type: {type(job_config_json)}')
+        print(f'job_config_json: {job_config_json}')
         # default_submit_params
         default_driver_memory = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MEMORY)
         default_driver_max_result_size = conf_utils.get_comm_config(
