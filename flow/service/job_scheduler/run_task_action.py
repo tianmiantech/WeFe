@@ -194,9 +194,9 @@ class RunTaskAction:
             'project': {
                 'project_id': job_config_json['project']['project_id']
             },
-            'members': job_config_json['members'],
+            'members': job_config_json.get('members'),
             'data_sets': job_config_json.get('data_sets'),
-            'env': job_config_json['env']
+            'env': job_config_json.get('env')
         }
 
         deploy_mode = "client"
