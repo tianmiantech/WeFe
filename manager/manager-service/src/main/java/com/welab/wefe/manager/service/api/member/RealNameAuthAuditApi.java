@@ -18,9 +18,9 @@ package com.welab.wefe.manager.service.api.member;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.webank.cert.mgr.enums.CertStatusEnums;
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
+import com.webank.cert.toolkit.enums.CertStatusEnums;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
@@ -79,7 +79,7 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
                 throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
         }
-        else if (input.getRealNameAuthStatus() == 3) { //-1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
+        else if (input.getRealNameAuthStatus() == -1) { //-1认证失败 /0未认证 /1认证中 /2已认证
             memberExtJSON.setUpdatedTime(System.currentTimeMillis());
             memberExtJSON.setCertStatus(CertStatusEnums.INVALID.name());
             // 更新证书状态

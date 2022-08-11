@@ -1145,7 +1145,7 @@ CREATE TABLE `job_apply_result`
   `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
   `updated_time` datetime(6) DEFAULT NULL COMMENT '更新时间',
   `member_id` varchar(32) DEFAULT NULL COMMENT '成员ID',
-  `subject_pub_key` varchar(32) DEFAULT NULL COMMENT '申请人公钥内容',
+  `subject_pub_key` text COMMENT '申请人公钥内容',
   `subject_org` varchar(256) DEFAULT NULL COMMENT '申请人组织名称',
   `subject_cn` varchar(256) DEFAULT NULL COMMENT '申请人常用名称',
   `serial_number` varchar(256) DEFAULT NULL COMMENT '证书序列号',

@@ -16,8 +16,10 @@
 
 package com.welab.wefe.board.service.database.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.welab.wefe.board.service.database.entity.cert.CertInfoMysqlModel;
 import com.welab.wefe.board.service.database.repository.base.BaseRepository;
@@ -25,7 +27,14 @@ import com.welab.wefe.board.service.database.repository.base.BaseRepository;
 @Repository
 public interface CertInfoRepository extends BaseRepository<CertInfoMysqlModel, String> {
 
-    @Query(value = "update cert_info a set a.status = ?1 where a.id =?2 ")
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} a set a.status = ?1 where a.id =?2 ", nativeQuery = true)
     public void updateStatus(String id, String status);
+    
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update #{#entityName} a set a.status = ?1", nativeQuery = true)
+    public void resetCert(String status);
 
 }

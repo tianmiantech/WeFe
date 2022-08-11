@@ -45,10 +45,15 @@ public class MemberRealnameAuthInfoQueryApi extends AbstractApi<AbstractApiInput
         JSONObject result = unionService.realnameAuthInfoQuery();
         int code = result.getInteger("code");
         if (code == 0) {
-            JSONObject data = result.getJSONObject("data");
-            String certPemContent = data.getString("cert_pem_content");
-            String certRequestId = data.getString("cert_request_id");
-            certOperationService.saveCertInfo(certRequestId, certPemContent);
+            try {
+                JSONObject data = result.getJSONObject("data");
+                String certPemContent = data.getString("cert_pem_content");
+                String certRequestId = data.getString("cert_request_id");
+                String certStatus = data.getString("cert_status");
+                certOperationService.saveCertInfo(certRequestId, certPemContent, certStatus);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return unionApiResultToBoardApiResult(result);
     }

@@ -26,13 +26,13 @@ import java.util.List;
  */
 public class MemberExtJSON {
     //-1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
-    private int realNameAuthStatus;
+    private Integer realNameAuthStatus;
     private String reporter;
     private String principalName;
     private String authType;
     private String auditComment;
-    private long realNameAuthTime;
-    private long updatedTime;
+    private Long realNameAuthTime;
+    private Long updatedTime;
     private String description;
     private List<RealnameAuthFileInfo> realnameAuthFileInfoList;
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
@@ -50,12 +50,12 @@ public class MemberExtJSON {
     private String certStatus;
     // 是否开启TLS通信
     private Boolean memberGatewayTlsEnable;
-    
-    public int getRealNameAuthStatus() {
+
+    public Integer getRealNameAuthStatus() {
         return realNameAuthStatus;
     }
 
-    public void setRealNameAuthStatus(int realNameAuthStatus) {
+    public void setRealNameAuthStatus(Integer realNameAuthStatus) {
         this.realNameAuthStatus = realNameAuthStatus;
     }
 
@@ -107,12 +107,20 @@ public class MemberExtJSON {
         this.reporter = reporter;
     }
 
-    public long getRealNameAuthTime() {
+    public Long getRealNameAuthTime() {
         return realNameAuthTime;
     }
 
-    public void setRealNameAuthTime(long realNameAuthTime) {
+    public void setRealNameAuthTime(Long realNameAuthTime) {
         this.realNameAuthTime = realNameAuthTime;
+    }
+
+    public Long getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(Long updatedTime) {
+        this.updatedTime = updatedTime;
     }
 
     public SecretKeyType getSecretKeyType() {
@@ -147,13 +155,6 @@ public class MemberExtJSON {
         this.certSerialNumber = certSerialNumber;
     }
 
-    public long getUpdatedTime() {
-        return updatedTime;
-    }
-
-    public void setUpdatedTime(long updatedTime) {
-        this.updatedTime = updatedTime;
-    }
 
     public String getCertRequestId() {
         return certRequestId;
