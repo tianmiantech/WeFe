@@ -16,23 +16,22 @@
 
 package com.welab.wefe.gateway.service.processors;
 
-import cn.hutool.crypto.SmUtil;
-import cn.hutool.crypto.asymmetric.KeyType;
-import cn.hutool.crypto.asymmetric.SM2;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.http.HttpResponse;
-import com.welab.wefe.common.util.*;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
+import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
-import com.welab.wefe.gateway.common.ReturnStatusEnum;
 import com.welab.wefe.gateway.dto.BoardConfigModel;
+import com.welab.wefe.gateway.entity.MemberEntity;
 import com.welab.wefe.gateway.sdk.BoardHelper;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +48,8 @@ public class BoardHttpProcessor extends AbstractProcessor {
 
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
-
+        MemberEntity dstMember = MemberCache.getInstance().get(transferMeta.getDst().getMemberId());
+        SecretKeyType secretKeyType = dstMember.getSecretKeyType();
 
         return super.beforeSendToRemote(transferMeta);
     }
@@ -84,21 +84,5 @@ public class BoardHttpProcessor extends AbstractProcessor {
             LOG.error("BoardHttpProcessor fail, exception:", e);
             return ReturnStatusBuilder.sysExc(e.getMessage(), transferMeta.getSessionId());
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        RSAUtil.RsaKeyPair rsaKeyPair = RSAUtil.generateKeyPair();
-        String data = "aaaa{}fasdfasdfasfasfasdfasdfasdfasdfasdf";
-        String encryptData = RSAUtil.encryptByPublicKey(data, rsaKeyPair.publicKey);
-        System.out.println("encryptData=" + encryptData);
-        String decryptData = RSAUtil.decryptByPrivateKey(encryptData, rsaKeyPair.privateKey);
-        System.out.println("decryptData=" + decryptData);
-
-        SM2Util.Sm2KeyPair sm2KeyPair = SM2Util.generateKeyPair();
-
-        SM2 sm2 = SmUtil.sm2(Base64Util.decode(sm2KeyPair.privateKey).getBytes(StandardCharsets.UTF_8), Base64Util.decode(sm2KeyPair.publicKey).getBytes(StandardCharsets.UTF_8));
-        // 公钥加密，私钥解密
-        String encryptStr = sm2.encryptBcd("aa", KeyType.PublicKey);
-        System.out.println("sm2=" + encryptStr);
     }
 }
