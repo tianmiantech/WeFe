@@ -72,6 +72,6 @@ public abstract class AbstractLrAlgorithm<T extends BaseLrModel, R> extends Abst
 
     private double baseScore() {
         JObject scoreCard = JObject.create(modelParam.getScoreCardInfo().getScoreCard());
-        return scoreCard.getDouble("A_score") + scoreCard.getDouble("b_score") * modelParam.getModelParam().getIntercept();
+        return scoreCard.getDouble("a_score") + scoreCard.getDouble("b_score") * modelParam.getModelParam().getIntercept();
     }
 }
