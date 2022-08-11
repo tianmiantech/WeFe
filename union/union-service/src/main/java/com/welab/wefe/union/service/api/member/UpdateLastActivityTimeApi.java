@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author aaron.li
  **/
-@Api(path = "member/update_last_activity_time", name = "member_update_last_activity_time", allowAccessWithSign = true, login = false)
+@Api(path = "member/update_last_activity_time", name = "member_update_last_activity_time", allowAccessWithSign = true)
 public class UpdateLastActivityTimeApi extends AbstractApi<UpdateLastActivityTimeApi.Input, MemberOutput> {
     @Autowired
     private MemberContractService memberContractService;

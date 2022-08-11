@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/service/put", name = "member_service_put", allowAccessWithSign = true, login = false)
+@Api(path = "member/service/put", name = "member_service_put", allowAccessWithSign = true)
 public class PutApi extends AbstractApi<PutApi.Input, AbstractApiOutput> {
 
     @Autowired
