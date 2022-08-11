@@ -40,7 +40,7 @@
                 <el-divider />
 
                 <div class="sign-form">
-                    <h2 class="sign-title mt20 mb20">登录账号!!</h2>
+                    <h2 class="sign-title mt20 mb20">登录账号</h2>
                     <el-form
                         ref="sign-form"
                         :model="form"
