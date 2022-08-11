@@ -120,6 +120,9 @@ public class ClientServiceService {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
                 }
+                if (StringUtils.isNotBlank(input.getUrl()) && input.getUrl().endsWith("/")) {
+                    input.setUrl(input.getUrl().substring(0, input.getUrl().length() - 1));
+                }
                 model.setUrl(input.getUrl());
             }
 //            model.setType(input.getType());
@@ -332,7 +335,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void openService(String serviceId, String serviceName, String url, String clientId, String publicKey,
-                            ServiceTypeEnum serviceType) throws StatusCodeWithException {
+            ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setServiceType(serviceType.getCode());
         clientService.setClientId(clientId);
@@ -357,8 +360,9 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void activateService(String serviceId, String serviceName, String clientId, String privateKey,
-                                String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
-        ClientServiceMysqlModel clientService = clientServiceRepository.findOne("serviceId", serviceId, ClientServiceMysqlModel.class);
+            String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
+        ClientServiceMysqlModel clientService = clientServiceRepository.findOne("serviceId", serviceId,
+                ClientServiceMysqlModel.class);
         if (clientService == null) {
             clientService = new ClientServiceMysqlModel();
         }
