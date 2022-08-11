@@ -687,7 +687,7 @@ public class ServiceService {
                 service.getServiceType(),
                 input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
                         : CallByMeEnum.NO.getCode(),
-                status.getValue(), partner.getId(), partner.getName(), CacheObjects.getMemberId(),
+                status.getValue(), partner.getCode(), partner.getName(), CacheObjects.getMemberId(),
                 CacheObjects.getMemberName());
         return serviceOrderModel.getId();
     }
