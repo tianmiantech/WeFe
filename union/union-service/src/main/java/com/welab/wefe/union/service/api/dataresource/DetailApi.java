@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/detail", name = "data_resource_detail", allowAccessWithSign = true, login = false)
+@Api(path = "data_resource/detail", name = "data_resource_detail", allowAccessWithSign = true)
 public class DetailApi extends AbstractApi<ApiDataResourceDetailInput, ApiDataResourceQueryOutput> {
 
     @Autowired
