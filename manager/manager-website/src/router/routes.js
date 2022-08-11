@@ -101,43 +101,43 @@ const baseRoutes = [
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
-            {
-                path: `${prefixPath}cert-list`,
-                name: 'cert-list',
-                meta: {
-                    loginAndRefresh: true,
-                    title:           '证书列表',
-                },
-                component: () => import('../views/cert/cert-list'),
-            },
-            {
-                path: `${prefixPath}cert-view`,
-                name: 'cert-view',
-                meta: {
-                    loginAndRefresh: true,
-                    hidden:          true,
-                    title:           '证书详情',
-                },
-                component: () => import('../views/cert/cert-view'),
-            },
-            {
-                path: `${prefixPath}csr-list`,
-                name: 'csr-list',
-                meta: {
-                    loginAndRefresh: true,
-                    title:           '证书请求列表',
-                },
-                component: () => import('../views/cert/csr-list'),
-            },
-            {
-                path: `${prefixPath}cert-key-list`,
-                name: 'cert-key-list',
-                meta: {
-                    loginAndRefresh: true,
-                    title:           '私钥列表',
-                },
-                component: () => import('../views/cert/cert-key-list'),
-            },
+            // {
+            //     path: `${prefixPath}cert-list`,
+            //     name: 'cert-list',
+            //     meta: {
+            //         loginAndRefresh: true,
+            //         title:           '证书列表',
+            //     },
+            //     component: () => import('../views/cert/cert-list'),
+            // },
+            // {
+            //     path: `${prefixPath}cert-view`,
+            //     name: 'cert-view',
+            //     meta: {
+            //         loginAndRefresh: true,
+            //         hidden:          true,
+            //         title:           '证书详情',
+            //     },
+            //     component: () => import('../views/cert/cert-view'),
+            // },
+            // {
+            //     path: `${prefixPath}csr-list`,
+            //     name: 'csr-list',
+            //     meta: {
+            //         loginAndRefresh: true,
+            //         title:           '证书请求列表',
+            //     },
+            //     component: () => import('../views/cert/csr-list'),
+            // },
+            // {
+            //     path: `${prefixPath}cert-key-list`,
+            //     name: 'cert-key-list',
+            //     meta: {
+            //         loginAndRefresh: true,
+            //         title:           '私钥列表',
+            //     },
+            //     component: () => import('../views/cert/cert-key-list'),
+            // },
         ],
     },
     {
