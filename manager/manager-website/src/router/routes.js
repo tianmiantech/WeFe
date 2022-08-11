@@ -101,15 +101,15 @@ const baseRoutes = [
         },
         component: () => import('@comp/LayoutBase.vue'),
         children:  [
-            {
-                path: `${prefixPath}cert-list`,
-                name: 'cert-list',
-                meta: {
-                    loginAndRefresh: true,
-                    title:           '证书列表',
-                },
-                component: () => import('../views/cert/cert-list'),
-            },
+            // {
+            //     path: `${prefixPath}cert-list`,
+            //     name: 'cert-list',
+            //     meta: {
+            //         loginAndRefresh: true,
+            //         title:           '证书列表',
+            //     },
+            //     component: () => import('../views/cert/cert-list'),
+            // },
             // {
             //     path: `${prefixPath}cert-view`,
             //     name: 'cert-view',
