@@ -17,17 +17,16 @@
 package com.welab.wefe.serving.service.database.entity;
 
 import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.serving.service.database.listener.DataSourceMysqlModelListener;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
 /**
  * @author Johnny.lin
  * @date 2020/9/16
  */
 @Entity(name = "data_source")
+@EntityListeners(DataSourceMysqlModelListener.class)
 public class DataSourceMySqlModel extends AbstractBaseMySqlModel {
 
     public static final String PASSWORD_MASK = "*************";

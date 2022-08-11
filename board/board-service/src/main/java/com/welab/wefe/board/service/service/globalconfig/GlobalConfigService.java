@@ -23,7 +23,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.board.service.api.global_config.GlobalConfigUpdateApi;
 import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.GlobalConfigFlag;
+import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
@@ -33,7 +33,6 @@ import com.welab.wefe.board.service.service.JobService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.IpAddressUtil;
-import com.welab.wefe.common.util.ReflectionsUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
@@ -42,6 +41,7 @@ import com.welab.wefe.common.wefe.enums.JobBackendType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +57,10 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     @Autowired
     private DataSetStorageService dataSetStorageService;
 
-    public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
+    @Autowired
+    private EntityManager entityManager;
+
+    public void update(GlobalConfigUpdateApi.Input input) throws Exception {
         if (!CurrentAccount.isAdmin()) {
             StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
         }
@@ -69,24 +72,23 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
 
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
-            String groupName = group.getKey();
-            Map<String, String> groupItems = group.getValue();
-            for (Map.Entry<String, String> item : groupItems.entrySet()) {
-                String key = item.getKey();
-                String value = item.getValue();
-                put(groupName, key, value, null);
-            }
+            AbstractConfigModel model = toModel(group.getKey(), group.getValue());
+            put(model);
         }
 
         // Notify the gateway to update the system configuration cache
         gatewayService.refreshSystemConfigCache();
 
-        // 刷新持久化存储对象
+        // Refresh persistent storage objects
         if (input.groups.containsKey(ConfigGroupConstant.STORAGE)) {
+            // Because there is a findone operation under the put method above, and this operation is in the same session as the getmodel library lookup method in initstorage below (cache lookup),
+            // The @postload callback method of globalconfigmysqlmodel is not triggered, so the data is not decrypted (the cache value has been encrypted and assigned in the put method above),
+            // Therefore, the JPA cache should be cleaned up before querying
+            entityManager.clear();
             dataSetStorageService.initStorage();
         }
         
-        // 刷新函数计算存储
+        // Refresh function calculation storage
         if (input.groups.containsKey(ConfigGroupConstant.FC_CONFIG)) {
             if (Env.get().getCalculationEngineConfig().backend == JobBackendType.FC) {
                 gatewayService.sendToMyselfGateway(
@@ -139,14 +141,10 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     public synchronized void init() throws StatusCodeWithException, InstantiationException, IllegalAccessException {
         LOG.info("start init global config");
 
-        // 反射获取所有 ConfigModel
-        List<Class<?>> classes = ReflectionsUtil.getClassesWithAnnotation(
-                GlobalConfigFlag.class.getPackage().getName(),
-                ConfigModel.class
-        );
+
 
         // 遍历所有 ConfigModel，将配置项添加到数据库。
-        for (Class<?> aClass : classes) {
+        for (Class<?> aClass : AbstractConfigModel.getModelClasses()) {
             SerializeConfig config = new SerializeConfig();
             config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
             String jsonString = JSON.toJSONString(aClass.newInstance(), config, SerializerFeature.WriteMapNullValue);

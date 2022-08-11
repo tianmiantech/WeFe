@@ -30,11 +30,17 @@ import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
+import com.welab.wefe.common.fieldvalidate.secret.SecretUtil;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.TempRsaCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -58,7 +64,7 @@ public class BaseGlobalConfigService extends AbstractService {
     /**
      * Add or update an object (multiple records)
      */
-    public void put(Object obj) throws StatusCodeWithException {
+    public void put(AbstractConfigModel model) throws StatusCodeWithException {
         /**
          * 1. The names stored in the database are unified as underscores
          * 2. Since fastjson discards fields with a value of null by default,
@@ -66,13 +72,18 @@ public class BaseGlobalConfigService extends AbstractService {
          */
         SerializeConfig config = new SerializeConfig();
         config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
-        String json_string = JSON.toJSONString(obj, config, SerializerFeature.WriteMapNullValue);
+        String json_string = JSON.toJSONString(model, config, SerializerFeature.WriteMapNullValue);
 
-        ConfigModel annotation = obj.getClass().getAnnotation(ConfigModel.class);
+        ConfigModel annotation = model.getClass().getAnnotation(ConfigModel.class);
 
         JSONObject json = JSON.parseObject(json_string);
         for (String name : json.keySet()) {
-            put(annotation.group(), name, json.getString(name), null);
+            String value = json.getString(name);
+            // value 为 null 时说明前端未指定，需要跳过。
+            if (value == null) {
+                continue;
+            }
+            put(annotation.group(), name, value, null);
         }
     }
 
@@ -88,7 +99,7 @@ public class BaseGlobalConfigService extends AbstractService {
             one.setCreatedBy(CurrentAccount.id());
         } else {
             if (one.getValue() != null && value == null) {
-                StatusCode.SQL_ERROR.throwException("不能试用 null 覆盖非控值");
+                StatusCode.SQL_ERROR.throwException("不能使用 null 覆盖非空值");
             }
 
             // If there is no need to update, jump out
@@ -126,6 +137,11 @@ public class BaseGlobalConfigService extends AbstractService {
         return globalConfigRepository.findByGroup(group);
     }
 
+    public <T extends AbstractConfigModel> T getModel(String group) {
+        Class<T> clazz = (Class<T>) AbstractConfigModel.getModelClass(group);
+        return getModel(clazz);
+    }
+
     /**
      * Get the entity corresponding to the specified group
      */
@@ -148,5 +164,24 @@ public class BaseGlobalConfigService extends AbstractService {
             json.put(item.getName(), item.getValue());
         }
         return json.toJavaObject(clazz);
+    }
+
+    /**
+     * 将 map 还原为 AbstractConfigModel
+     * <p>
+     * 这一步会对 @Secret 字段进行解密
+     */
+    public AbstractConfigModel toModel(String group, Map<String, String> map) throws Exception {
+        Class<? extends AbstractConfigModel> clazz = AbstractConfigModel.getModelClass(group);
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            Secret secret = SecretUtil.getAnnotation(clazz, entry.getKey());
+            if (secret != null && StringUtil.isNotEmpty(entry.getValue())) {
+                String decrypt = TempRsaCache.decrypt(entry.getValue());
+                entry.setValue(decrypt);
+            }
+        }
+
+        return JObject.create(map).toJavaObject(clazz);
     }
 }

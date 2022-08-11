@@ -96,7 +96,7 @@ public class ModelService {
     }
 
     private void addPartners(SaveModelApi.Input input) {
-        partnerService.save(input.getMemberParams());
+        partnerService.upsert(input.getMemberParams());
     }
 
     private void saveModelMembers(SaveModelApi.Input input) {
@@ -119,6 +119,9 @@ public class ModelService {
         model.setUpdatedTime(new Date());
         model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
         modelRepository.save(model);
+
+        CacheObjects.refreshServiceMap();
+
         return model.getId();
     }
 

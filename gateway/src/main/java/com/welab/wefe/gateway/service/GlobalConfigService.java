@@ -17,9 +17,6 @@
 package com.welab.wefe.gateway.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.util.SM4Util;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.gateway.common.EncryptEnableEnum;
 import com.welab.wefe.gateway.config.CommonConfig;
 import com.welab.wefe.gateway.dto.*;
 import com.welab.wefe.gateway.entity.GlobalConfigEntity;
@@ -84,33 +81,7 @@ public class GlobalConfigService extends AbstractService {
      * Get aliyun function compute config
      */
     public AliyunFunctionComputeConfigModel getAliyunFunctionComputeConfig() {
-        AliyunFunctionComputeConfigModel model = getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
-        LOG.info("getIsDatabaseEncryptEnable: " + commonConfig.getIsDatabaseEncryptEnable());
-        if (EncryptEnableEnum.ENABLE.getValue().equals(commonConfig.getIsDatabaseEncryptEnable())) {
-
-            String secretKey = commonConfig.getPrivacyDatabaseEncryptSecretKey();
-            LOG.info("secretKey: " + secretKey);
-            if (StringUtil.isEmpty(secretKey)) {
-                throw new NullPointerException("databaseEncryptEnable is true, but secretKey is Null");
-            }
-            try {
-                if (StringUtil.isNotEmpty(model.getAccessKeyId())) {
-                    LOG.info("old AccessKeyId:" + model.getAccessKeyId());
-                    LOG.info("decrypt AccessKeyId:" + SM4Util.decrypt(secretKey, model.getAccessKeyId()));
-                    model.setAccessKeyId(SM4Util.decrypt(secretKey, model.getAccessKeyId()));
-                }
-
-                if (StringUtil.isNotEmpty(model.getAccessKeySecret())) {
-                    LOG.info("old getAccessKeySecret:" + model.getAccessKeySecret());
-                    LOG.info("decrypt getAccessKeySecret:" + SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
-                    model.setAccessKeySecret(SM4Util.decrypt(secretKey, model.getAccessKeySecret()));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-        return model;
+        return getModel(Group.ALIYUN_FUNCTION_COMPUTE_CONFIG, AliyunFunctionComputeConfigModel.class);
     }
 
     /**

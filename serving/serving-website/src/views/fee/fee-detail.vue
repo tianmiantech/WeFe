@@ -15,11 +15,11 @@
                 />
             </el-form-item>
 
-            <el-form-item label="客户名称：">
+            <el-form-item label="合作者名称：">
                 <el-input
                     v-model="search.clientName"
                     clearable
-                    placeholder="客户名称"
+                    placeholder="合作者名称"
                 />
             </el-form-item>
 
@@ -102,7 +102,7 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="客户名称"
+                label="合作者名称"
                 min-width="80"
             >
                 <template slot-scope="scope">
@@ -153,7 +153,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.pay_type }}</p>
+                    <p>{{ payTypes[scope.row.pay_type] }}</p>
                 </template>
             </el-table-column>
 

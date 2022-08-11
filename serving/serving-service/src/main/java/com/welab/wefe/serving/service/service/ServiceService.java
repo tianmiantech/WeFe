@@ -16,25 +16,43 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.CommonThreadPool;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.data.mysql.Where;
+import com.welab.wefe.common.data.mysql.enums.OrderBy;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.http.HttpRequest;
+import com.welab.wefe.common.http.HttpResponse;
+import com.welab.wefe.common.util.FileUtil;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.Algorithm;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
+import com.welab.wefe.serving.service.api.service.*;
+import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
+import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
+import com.welab.wefe.serving.service.config.Config;
+import com.welab.wefe.serving.service.database.entity.*;
+import com.welab.wefe.serving.service.database.repository.*;
+import com.welab.wefe.serving.service.dto.*;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.enums.ServiceResultEnum;
+import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import com.welab.wefe.serving.service.manager.FeatureManager;
+import com.welab.wefe.serving.service.manager.ModelManager;
+import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
+import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
+import com.welab.wefe.serving.service.utils.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
@@ -47,68 +65,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.CommonThreadPool;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.data.mysql.enums.OrderBy;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.http.HttpRequest;
-import com.welab.wefe.common.http.HttpResponse;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.Algorithm;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
-import com.welab.wefe.common.wefe.enums.FederatedLearningType;
-import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
-import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
-import com.welab.wefe.serving.service.api.service.AddApi;
-import com.welab.wefe.serving.service.api.service.DetailApi;
-import com.welab.wefe.serving.service.api.service.QueryApi;
-import com.welab.wefe.serving.service.api.service.QueryOneApi;
-import com.welab.wefe.serving.service.api.service.RouteApi;
-import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
-import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
-import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
-import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
-import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
-import com.welab.wefe.serving.service.database.repository.AccountRepository;
-import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
-import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
-import com.welab.wefe.serving.service.database.repository.TableModelRepository;
-import com.welab.wefe.serving.service.database.repository.TableServiceRepository;
-import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
-import com.welab.wefe.serving.service.dto.ModelStatusOutput;
-import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
-import com.welab.wefe.serving.service.dto.TreeNode;
-import com.welab.wefe.serving.service.dto.TreeNodeData;
-import com.welab.wefe.serving.service.enums.CallByMeEnum;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.enums.ServiceResultEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
-import com.welab.wefe.serving.service.manager.FeatureManager;
-import com.welab.wefe.serving.service.manager.ModelManager;
-import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
-import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
-import com.welab.wefe.serving.service.utils.MD5Util;
-import com.welab.wefe.serving.service.utils.SHA256Utils;
-import com.welab.wefe.serving.service.utils.ServiceUtil;
-import com.welab.wefe.serving.service.utils.SignUtils;
-import com.welab.wefe.serving.service.utils.ZipUtils;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 服务 Service
@@ -145,8 +109,6 @@ public class ServiceService {
     private ModelMemberRepository modelMemberRepository;
     @Autowired
     private ModelMemberService modelMemberService;
-    @Autowired
-    private ModelService modelService;
 
     public com.welab.wefe.serving.service.api.service.DetailApi.Output detail(
             com.welab.wefe.serving.service.api.service.DetailApi.Input input) throws Exception {
@@ -178,13 +140,20 @@ public class ServiceService {
                         : null);
         output.setModelStatus(getModelStatus(model, output));
 
+        JSONObject preview = new JSONObject();
+        preview.put("id", model.getServiceId());
+//        preview.put("params", displayServiceQueryParams(entity.getQueryParams(), entity.getQueryParamsConfig()));
+        preview.put("url", SERVICE_PRE_URL + model.getUrl());
+        preview.put("method", "POST");
+        output.setPreview(preview);
+
         return output;
     }
 
     private List<ModelStatusOutput> getModelStatus(TableModelMySqlModel model, DetailApi.Output output) {
         return output.getMyRole().contains(JobMemberRole.promoter)
                 && FederatedLearningType.vertical.equals(output.getFlType()) ? checkModelStatus(model.getServiceId())
-                        : null;
+                : null;
     }
 
     private com.welab.wefe.serving.service.api.service.DetailApi.Output detailService(
@@ -288,7 +257,7 @@ public class ServiceService {
                 data.setRightNode(xgboostNodeModel.getRightNodeId());
                 data.setSitename(xgboostNodeModel.getSitename().split(":", -1)[0]);
                 data.setWeight(xgboostNodeModel.getWeight());
-                data.setThreshold(flType == FederatedLearningType.vertical ? splitMaskdict.get(xgboostNodeModel.getId())
+                data.setThreshold(splitMaskdict.get(xgboostNodeModel.getId()) != null ? splitMaskdict.get(xgboostNodeModel.getId())
                         : xgboostNodeModel.getBid());
 
                 map.put(xgboostNodeModel.getId(), node);
@@ -659,8 +628,7 @@ public class ServiceService {
     private boolean isIpWhiteList(RouteApi.Input input, ClientServiceMysqlModel clientServiceMysqlModel) {
         String clientIp = ServiceUtil.getIpAddr(input.request);
 
-        return input.isModelService()
-                || Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp);
+        return clientServiceMysqlModel.getIpAdd() != null && Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp);
     }
 
     public TableServiceMySqlModel findById(String serviceId) {
@@ -704,7 +672,7 @@ public class ServiceService {
     }
 
     private void log(RouteApi.Input input, long beginTime, BaseServiceMySqlModel service, JObject result,
-            ServiceResultEnum status, String responseId) {
+                     ServiceResultEnum status, String responseId) {
         ServiceOrderEnum orderStatus = ServiceResultEnum.SUCCESS.equals(status) ? ServiceOrderEnum.SUCCESS
                 : ServiceOrderEnum.FAILED;
 
@@ -715,17 +683,17 @@ public class ServiceService {
     private String createOrder(BaseServiceMySqlModel service, RouteApi.Input input, ServiceOrderEnum status) {
         PartnerMysqlModel partner = partnerService.queryByCode(input.getPartnerCode());
 
-        ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
+        ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getServiceId(), service.getName(),
                 service.getServiceType(),
-                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
-                        : CallByMeEnum.NO.getValue(),
+                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
+                        : CallByMeEnum.NO.getCode(),
                 status.getValue(), partner.getId(), partner.getName(), CacheObjects.getMemberId(),
                 CacheObjects.getMemberName());
         return serviceOrderModel.getId();
     }
 
     private void callLog(RouteApi.Input input, String orderId, String responseId, JObject result, Integer responseCode,
-            String responseStatus, long beginTime) {
+                         String responseStatus, long beginTime) {
         ServiceCallLogMysqlModel callLog = new ServiceCallLogMysqlModel();
         callLog.setServiceType(ServiceTypeEnum.MachineLearning.getCode());
         callLog.setOrderId(orderId);
@@ -742,17 +710,17 @@ public class ServiceService {
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
         callLog.setCallByMe(
-                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
-                        : CallByMeEnum.NO.getValue());
+                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
+                        : CallByMeEnum.NO.getCode());
         callLog.setResponseStatus(responseStatus);
         callLog.setSpendTime(System.currentTimeMillis() - beginTime);
         serviceCallLogService.save(callLog);
     }
 
     private String preExecuteCallLog(String serviceOrderId, BaseServiceMySqlModel service, PartnerMysqlModel client,
-            RouteApi.Input input, String clientIp) {
+                                     RouteApi.Input input, String clientIp) {
         ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderId, 0, client.getId(),
-                client.getName(), service.getId(), service.getName(), service.getServiceType(), input.getRequestId(),
+                client.getName(), service.getServiceId(), service.getName(), service.getServiceType(), input.getRequestId(),
                 JSONObject.toJSONString(input), clientIp);
         return serviceCallLogMysqlModel.getId();
     }
@@ -768,13 +736,63 @@ public class ServiceService {
     }
 
     public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {
+        BaseServiceMySqlModel model = baseServiceRepository.findOne("serviceId", serviceId, BaseServiceMySqlModel.class);
+
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+
+        if (model.getServiceType() == 7) {
+            return modelServiceSdk(serviceId);
+        }
+
+        return mpcServiceSdk(serviceId);
+    }
+
+    private File modelServiceSdk(String serviceId) throws StatusCodeWithException, IOException {
+        Path outputPath = Paths.get(config.getFileBasePath()).resolve(serviceId + ".zip");
+        if (outputPath.toFile().exists()) {
+            return outputPath.toFile();
+        }
+
+        TableModelMySqlModel model = modelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
+        if (model == null) {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+
+
+        List<File> fileList = new ArrayList<>();
+
+        Path path = Paths.get(config.getFileBasePath()).resolve(serviceId + ".java");
+        File file = new File(path.toString());
+
+        // 将需要提供的文件加到这个列表
+        List<String> stringList = FileUtil.readAllForLine(Paths.get(config.getFileBasePath()).resolve("ApiExample.java").toString(), "UTF-8");
+        stringList.stream().forEach(x -> {
+            try {
+                FileUtil.writeTextToFile(String.format(x, serviceId) + System.lineSeparator(), path, true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        fileList.add(file);
+
+        File outputFile = new File(outputPath.toString());
+        FileOutputStream fos2 = new FileOutputStream(outputFile);
+        ZipUtils.toZip(fileList, fos2);
+
+        file.delete();
+        return outputFile;
+    }
+
+    private File mpcServiceSdk(String serviceId) throws StatusCodeWithException, IOException {
         TableServiceMySqlModel model = serviceRepository.findOne("id", serviceId, TableServiceMySqlModel.class);
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
         }
         int serviceType = model.getServiceType();// 服务类型 1匿踪查询，2交集查询，3安全聚合
         Path basePath = Paths.get(config.getFileBasePath());
-//		String basePath = config.getFileBasePath();
         List<File> fileList = new ArrayList<>();
         File readme = new File(basePath.resolve("readme.md").toString());
         if (serviceType == ServiceTypeEnum.PIR.getCode() || serviceType == ServiceTypeEnum.MULTI_PIR.getCode()) {
@@ -832,7 +850,8 @@ public class ServiceService {
     }
 
     public ServiceDetailOutput queryById(QueryOneApi.Input input) throws Exception {
-        BaseServiceMySqlModel baseService = baseServiceRepository.getOne(input.getId());
+        BaseServiceMySqlModel baseService = baseServiceRepository.findOne("serviceId", input.getId(),
+                BaseServiceMySqlModel.class);
         if (baseService == null) {
             throw new Exception("data not found");
         }
@@ -841,7 +860,7 @@ public class ServiceService {
                     TableServiceMySqlModel.class);
             return ServiceDetailOutput.convertByService(service);
         } else {
-            Optional<TableModelMySqlModel> model = modelRepository.findById(input.getId());
+            Optional<TableModelMySqlModel> model = modelRepository.findById(baseService.getId());
             return ServiceDetailOutput.convertByModel(model.get());
         }
     }

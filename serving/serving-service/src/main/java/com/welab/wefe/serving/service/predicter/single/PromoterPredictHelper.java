@@ -64,7 +64,7 @@ public class PromoterPredictHelper {
                     .postJson();
 
             if (!isSuccess(response)) {
-                String message = "协作方 " + CacheObjects.getPartnerName(obj.getMemberId()) + " 响应失败";
+                String message = "系统错误请联系serving管理员处理！";
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
             }
 
@@ -75,7 +75,7 @@ public class PromoterPredictHelper {
             throw e;
         } finally {
             SaveApi.Input order = createOrder(serviceId, obj.getMemberId(), orderStatus);
-            callLog(serviceId, requestId, obj.getMemberId(), order.getId(), requestParam, extractData(response), extractCode(response), extractResponseId(response));
+            callLog(serviceId, requestId, obj.getMemberId(), order.getId(), requestParam, JObject.create(response.getBodyAsString()), extractCode(response), extractResponseId(response));
         }
     }
 
@@ -175,7 +175,7 @@ public class PromoterPredictHelper {
         order.setRequestPartnerName(CacheObjects.getMemberName());
         order.setResponsePartnerId(partnerId);
         order.setResponsePartnerName(CacheObjects.getPartnerName(partnerId));
-        order.setOrderType(CallByMeEnum.YES.getValue());
+        order.setOrderType(CallByMeEnum.YES.getCode());
         order.setStatus(status.getValue());
 
         ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
@@ -201,7 +201,7 @@ public class PromoterPredictHelper {
         callLog.setResponsePartnerName(CacheObjects.getPartnerName(memberId));
         callLog.setResponseData(result.toJSONString());
         callLog.setResponseStatus(getResponseStatus(result));
-        callLog.setCallByMe(CallByMeEnum.YES.getValue());
+        callLog.setCallByMe(CallByMeEnum.YES.getCode());
 
         ServiceCallLogService serviceCallLogService = Launcher.CONTEXT.getBean(ServiceCallLogService.class);
         serviceCallLogService.save(callLog);

@@ -16,8 +16,11 @@
 
 package com.welab.wefe.serving.service.service;
 
+
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.DataSourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,18 +30,36 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class EncryptPhoneNumberService {
+public class PrivacyDatabaseEncryptService {
 
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private DataSourceRepository dataSourceRepository;
+
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
+        encryptAccountMySqlModel();
+        encryptDataSourceMysqlModel();
+    }
+
+    private void encryptAccountMySqlModel() {
         List<AccountMySqlModel> accountMysqlModelList = accountRepository.findAll();
         if (!CollectionUtils.isEmpty(accountMysqlModelList)) {
             for (AccountMySqlModel model : accountMysqlModelList) {
                 model.setUpdatedTime(new Date());
                 accountRepository.save(model);
+            }
+        }
+    }
+
+    private void encryptDataSourceMysqlModel() {
+        List<DataSourceMySqlModel> dataSourceMysqlModelList = dataSourceRepository.findAll();
+        if (!CollectionUtils.isEmpty(dataSourceMysqlModelList)) {
+            for (DataSourceMySqlModel model : dataSourceMysqlModelList) {
+                model.setUpdatedTime(new Date());
+                dataSourceRepository.save(model);
             }
         }
     }
