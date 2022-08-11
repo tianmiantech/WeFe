@@ -83,7 +83,7 @@ CREATE TABLE `cert_info` (
   `serial_number` varchar(256) DEFAULT NULL COMMENT '证书序列号',
   `cert_content` text COMMENT '证书pem内容',
   `csr_id` varchar(32) DEFAULT NULL COMMENT '证书请求ID',
-  `status` varchar(10) DEFAULT NULL COMMENT '证书状态',
+  `status` varchar(32) DEFAULT NULL COMMENT '证书状态',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='证书';
 

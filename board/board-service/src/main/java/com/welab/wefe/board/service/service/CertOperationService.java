@@ -91,31 +91,39 @@ public class CertOperationService {
             if (StringUtils.isBlank(certPemContent)) {
                 return;
             }
+            CertRequestInfoMysqlModel certRequestInfoMysqlModel = findCertRequestById(certRequestId);
+            // 如果证书请求 已经 签发过了 或者 处于 审核中
+            if (certRequestInfoMysqlModel.getIssue()
+                    || CertStatusEnums.WAIT_VERIFY.name().equalsIgnoreCase(certStatus)) {
+                return;
+            }
             // 根据证书内容读取证书
             X509Certificate certificate = CertUtils.convertStrToCert(certPemContent);
             CertInfoMysqlModel certInfo = findBySerialNumber(String.valueOf(certificate.getSerialNumber()));
             PublicKey publicKey = null;
             if (certInfo == null) {
-                CertRequestInfoMysqlModel certRequestInfoMysqlModel = findCertRequestById(certRequestId);
                 certRequestInfoMysqlModel.setIssue(true);
+                certRequestInfoMysqlModel.setUpdatedTime(new Date());
                 certRequestInfoRepository.save(certRequestInfoMysqlModel);
-
-                CertKeyInfoMysqlModel certKeyInfoMysqlModel = queryCertKeyInfoById(
-                        certRequestInfoMysqlModel.getSubjectKeyId());
-                try {
-                    KeyPair keyPair = getKeyPair(KeyAlgorithmEnums.getByKeyAlg(certKeyInfoMysqlModel.getKeyAlg()),
-                            DatabaseEncryptUtil.decrypt(certKeyInfoMysqlModel.getKeyPem()));
-                    publicKey = keyPair.getPublic();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                
+                // 如果被拒绝了，则不需要保存证书信息
+                if (CertStatusEnums.VALID.name().equalsIgnoreCase(certStatus)) {
+                    CertKeyInfoMysqlModel certKeyInfoMysqlModel = queryCertKeyInfoById(
+                            certRequestInfoMysqlModel.getSubjectKeyId());
+                    try {
+                        KeyPair keyPair = getKeyPair(KeyAlgorithmEnums.getByKeyAlg(certKeyInfoMysqlModel.getKeyAlg()),
+                                DatabaseEncryptUtil.decrypt(certKeyInfoMysqlModel.getKeyPem()));
+                        publicKey = keyPair.getPublic();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    certInfo = buildCertInfo(certPemContent, certRequestInfoMysqlModel.getSubjectCN(),
+                            certRequestInfoMysqlModel.getSubjectOrg(), publicKey, CacheObjects.getMemberId(),
+                            certificate.getSerialNumber(), certRequestId, certStatus);
+                    certInfoRepository.save(certInfo);
                 }
-                certInfo = buildCertInfo(certPemContent, certRequestInfoMysqlModel.getSubjectCN(),
-                        certRequestInfoMysqlModel.getSubjectOrg(), publicKey, CacheObjects.getMemberId(),
-                        certificate.getSerialNumber(), certRequestId, certStatus);
-                certInfoRepository.save(certInfo);
-            } else {
 
-                CertRequestInfoMysqlModel certRequestInfoMysqlModel = findCertRequestById(certRequestId);
+            } else {
                 certRequestInfoMysqlModel.setIssue(true);
                 certRequestInfoMysqlModel.setUpdatedTime(new Date());
                 certRequestInfoRepository.save(certRequestInfoMysqlModel);
@@ -193,7 +201,7 @@ public class CertOperationService {
                 subjectkeyPair.getPrivate(), certDigestAlgEnums.getAlgorithmName());
         CertRequestInfoMysqlModel csrInfo = certRequestInfoRepository
                 .save(buildCertRequestInfo(CertUtils.readPEMAsString(request), subjectCertKeyInfo.getId(),
-                        subject.getCommonName(), subject.getOrganizationName(), userId));
+                        subject.getCommonName(), subject.getOrganizationName(), userId, false));
         return csrInfo;
     }
 
@@ -218,14 +226,14 @@ public class CertOperationService {
     }
 
     private CertRequestInfoMysqlModel buildCertRequestInfo(String csrStr, String subjectKeyId, String commonName,
-            String organizationName, String memberId) {
+            String organizationName, String memberId, boolean issue) {
         CertRequestInfoMysqlModel certRequestInfo = new CertRequestInfoMysqlModel();
         certRequestInfo.setMemberId(memberId);
         certRequestInfo.setSubjectKeyId(subjectKeyId);
         certRequestInfo.setSubjectCN(commonName);
         certRequestInfo.setSubjectOrg(organizationName);
         certRequestInfo.setCertRequestContent(csrStr);
-        certRequestInfo.setIssue(true);
+        certRequestInfo.setIssue(issue);
         certRequestInfo.setCreatedTime(new Date());
         return certRequestInfo;
     }

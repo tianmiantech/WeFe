@@ -1138,7 +1138,7 @@ CREATE TABLE `job_apply_result`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='深度学习任务申请结果';
   
-  CREATE TABLE `cert_info` (
+CREATE TABLE `cert_info` (
   `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
   `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
   `created_time` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '创建时间',
@@ -1151,7 +1151,7 @@ CREATE TABLE `job_apply_result`
   `serial_number` varchar(256) DEFAULT NULL COMMENT '证书序列号',
   `cert_content` text COMMENT '证书pem内容',
   `csr_id` varchar(32) DEFAULT NULL COMMENT '证书请求ID',
-  `status` varchar(10) DEFAULT NULL COMMENT '证书状态',
+  `status` varchar(32) DEFAULT NULL COMMENT '证书状态',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='证书';
 
