@@ -40,7 +40,7 @@ class FcBudgetScheduler(threading.Thread):
         with DB.connection_context():
             # backend = FC 标志已放置于 job
             where_condition = [Job.status == JobStatus.RUNNING,
-                               json.load(Job.job_config)['env']['calculation_engine_config']['backend'] == 'FC']
+                               json.loads(Job.job_config)['env']['calculation_engine_config']['backend'] == 'FC']
             job_list = Job.select().where(*tuple(where_condition)).execute()
 
             task_list = []
