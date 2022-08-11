@@ -271,9 +271,6 @@ public class CertOperationService {
 
         RDN org = csrObject.getSubject().getRDNs(BCStyle.O)[0]; 
         RDN cn = csrObject.getSubject().getRDNs(BCStyle.CN)[0]; 
-        System.out.println(); 
-        System.out.println(); 
-        
         // 保存csr
         CertRequestInfo subjectRequestInfo = certDao.save(createUserCertRequest(cn.getFirst().getValue().toString(),
                 memberId, certRequestContent, org.getFirst().getValue().toString(), null));
