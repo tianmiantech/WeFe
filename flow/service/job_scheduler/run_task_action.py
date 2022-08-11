@@ -190,16 +190,19 @@ class RunTaskAction:
         # total_executor_cores = spark_submit_config.get("total_executor_cores",
         #                                                default_total_executor_cores)
 
-        self.task.task_conf['job'] = {
-            'federated_learning_type': job_config_json.get('federated_learning_type'),
-            'federated_learning_mode': job_config_json.get('federated_learning_mode', None),
-            'project': {
-                'project_id': job_config_json['project']['project_id']
-            },
-            'members': job_config_json.get('members'),
-            'data_sets': job_config_json.get('data_sets'),
-            'env': job_config_json.get('env')
-        }
+        # self.task.task_conf['job'] = {
+        #     'federated_learning_type': job_config_json.get('federated_learning_type'),
+        #     'federated_learning_mode': job_config_json.get('federated_learning_mode', None),
+        #     'project': {
+        #         'project_id': job_config_json['project']['project_id']
+        #     },
+        #     'members': job_config_json.get('members'),
+        #     'data_sets': job_config_json.get('data_sets'),
+        #     # 'env': job_config_json.get('env')
+        # }
+        schedule_logger(self.running_job).debug(f'task_config type:{type(self.task.task_conf)}')
+        schedule_logger(self.running_job).debug(f'job_config_json type:{type(job_config_json)}')
+
 
         deploy_mode = "client"
         queue = "default"
