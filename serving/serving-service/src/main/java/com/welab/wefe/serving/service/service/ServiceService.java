@@ -16,6 +16,38 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -37,13 +69,35 @@ import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
-import com.welab.wefe.serving.service.api.service.*;
+import com.welab.wefe.serving.service.api.service.AddApi;
+import com.welab.wefe.serving.service.api.service.DetailApi;
+import com.welab.wefe.serving.service.api.service.QueryApi;
+import com.welab.wefe.serving.service.api.service.QueryOneApi;
+import com.welab.wefe.serving.service.api.service.RouteApi;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.entity.*;
-import com.welab.wefe.serving.service.database.repository.*;
-import com.welab.wefe.serving.service.dto.*;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
+import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
+import com.welab.wefe.serving.service.database.repository.TableModelRepository;
+import com.welab.wefe.serving.service.database.repository.TableServiceRepository;
+import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
+import com.welab.wefe.serving.service.dto.ModelStatusOutput;
+import com.welab.wefe.serving.service.dto.PagingOutput;
+import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
+import com.welab.wefe.serving.service.dto.TreeNode;
+import com.welab.wefe.serving.service.dto.TreeNodeData;
 import com.welab.wefe.serving.service.enums.CallByMeEnum;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
@@ -52,27 +106,11 @@ import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
 import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
-import com.welab.wefe.serving.service.utils.*;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.welab.wefe.serving.service.utils.MD5Util;
+import com.welab.wefe.serving.service.utils.SHA256Utils;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
+import com.welab.wefe.serving.service.utils.SignUtils;
+import com.welab.wefe.serving.service.utils.ZipUtils;
 
 /**
  * 服务 Service
@@ -338,11 +376,12 @@ public class ServiceService {
             return keysTableName;
         }
         JSONObject dataSource = JObject.parseObject(model.getDataSource());
-        DataSourceMySqlModel dataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
-        if (dataSourceModel == null) {
+        DataSourceMySqlModel oldDataSourceModel = dataSourceService.getDataSourceById(dataSource.getString("id"));
+        if (oldDataSourceModel == null) {
             return keysTableName;
         }
-        keysTableName = dataSourceModel.getDatabaseName() + "_" + dataSource.getString("table");
+        DataSourceMySqlModel newDataSourceMySqlModel = (DataSourceMySqlModel) SerializationUtils.clone(oldDataSourceModel);
+        keysTableName = newDataSourceMySqlModel.getDatabaseName() + "_" + dataSource.getString("table");
         JSONArray keyCalcRules = dataSource.getJSONArray("key_calc_rules");
         List<String> needFields = new ArrayList<>();
         for (int i = 0; i < keyCalcRules.size(); i++) {
@@ -351,12 +390,12 @@ public class ServiceService {
             needFields.addAll(Arrays.asList(fields));
         }
         keysTableName += ("_" + format.format(new Date()));
-        String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + dataSourceModel.getDatabaseName() + "."
+        String sql = "SELECT " + StringUtils.join(needFields, ",") + " FROM " + newDataSourceMySqlModel.getDatabaseName() + "."
                 + dataSource.getString("table");
         Set<String> ids = new HashSet<>();
         try {
-            String tmpSql = "SELECT * FROM " + dataSourceModel.getDatabaseName() + "." + dataSource.getString("table");
-            long count = dataSourceService.count(dataSourceModel, tmpSql);
+            String tmpSql = "SELECT * FROM " + newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table");
+            long count = dataSourceService.count(newDataSourceMySqlModel, tmpSql);
             if (count <= 0) {
                 throw new StatusCodeWithException("数据源数据为空", StatusCode.DATA_NOT_FOUND);
             }
@@ -364,11 +403,11 @@ public class ServiceService {
             final String keysTableNameTmp = keysTableName;
             CommonThreadPool.run(() -> {
                 try {
-                    List<Map<String, String>> result = dataSourceService.queryList(dataSourceModel, sql, needFields);
+                    List<Map<String, String>> result = dataSourceService.queryList(newDataSourceMySqlModel, sql, needFields);
                     if (result == null || result.isEmpty()) {
                         return;
                     }
-                    LOG.info(dataSourceModel.getDatabaseName() + "." + dataSource.getString("table") + " count = "
+                    LOG.info(newDataSourceMySqlModel.getDatabaseName() + "." + dataSource.getString("table") + " count = "
                             + result.size());
                     for (Map<String, String> item : result) {
                         String id = calcKey(keyCalcRules, item);
@@ -377,13 +416,13 @@ public class ServiceService {
                     String createTableSql = String.format(
                             "CREATE TABLE `%s` (`id` varchar(100) NOT NULL ,PRIMARY KEY (`id`) USING BTREE ) ENGINE=InnoDB;",
                             keysTableNameTmp);
-                    dataSourceService.createTable(createTableSql, DatabaseType.MySql, dataSourceModel.getHost(),
-                            dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-                            dataSourceModel.getDatabaseName());
+                    dataSourceService.createTable(createTableSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
+                            newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
+                            newDataSourceMySqlModel.getDatabaseName());
                     String insertSql = String.format("insert into %s values (?)", keysTableNameTmp);
-                    dataSourceService.batchInsert(insertSql, DatabaseType.MySql, dataSourceModel.getHost(),
-                            dataSourceModel.getPort(), dataSourceModel.getUserName(), dataSourceModel.getPassword(),
-                            dataSourceModel.getDatabaseName(), ids);
+                    dataSourceService.batchInsert(insertSql, DatabaseType.MySql, newDataSourceMySqlModel.getHost(),
+                            newDataSourceMySqlModel.getPort(), newDataSourceMySqlModel.getUserName(), newDataSourceMySqlModel.getPassword(),
+                            newDataSourceMySqlModel.getDatabaseName(), ids);
                 } catch (StatusCodeWithException e1) {
                     e1.printStackTrace();
                 }
