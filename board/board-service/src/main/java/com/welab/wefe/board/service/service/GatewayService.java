@@ -273,6 +273,17 @@ public class GatewayService extends BaseGatewayService {
         );
     }
 
+    /**
+     * Notify the gateway to update the system configuration cache
+     */
+    public void restartExternalGrpcServer() throws StatusCodeWithException {
+        sendToMyselfGateway(
+                GatewayActionType.none,
+                "",
+                GatewayProcessorType.restartExternalGrpcServer
+        );
+    }
+
     public ServiceAvailableCheckOutput getLocalGatewayAvailable() throws StatusCodeWithException {
         return sendToMyselfGateway(
                 GatewayActionType.none,

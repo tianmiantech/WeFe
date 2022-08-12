@@ -18,7 +18,9 @@ package com.welab.wefe.gateway.init.grpc;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import com.welab.wefe.gateway.config.ConfigProperties;
+import com.welab.wefe.gateway.dto.ServerCertInfoModel;
 import com.welab.wefe.gateway.service.MemberService;
+import com.welab.wefe.gateway.service.ServerCertService;
 import io.grpc.netty.GrpcSslContexts;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -26,8 +28,8 @@ import io.netty.handler.ssl.SslProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLException;
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Grpc server context
@@ -117,7 +119,7 @@ public class GrpcServerContext {
     /**
      * Build external grpc server
      */
-    private GrpcServer buildExternalGrpcServer(int port) throws SSLException {
+    private GrpcServer buildExternalGrpcServer(int port) throws Exception {
         GrpcServer grpcServer = new GrpcServer(port);
         grpcServer.setName("EXTERNAL");
         grpcServer.setUseScope(GrpcServerScopeEnum.EXTERNAL);
@@ -133,9 +135,14 @@ public class GrpcServerContext {
     /**
      * Build ssl context
      */
-    private SslContext buildSslContext() throws SSLException {
-        // TODO 待完善中
-        SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(new File("a"), new File("b"));
+    private SslContext buildSslContext() throws Exception {
+        ServerCertService serverCertService = GatewayServer.CONTEXT.getBean(ServerCertService.class);
+
+        ServerCertInfoModel serverCertInfoModel = serverCertService.getCertInfo();
+        String key = serverCertInfoModel.getKey();
+        String content = serverCertInfoModel.getContent();
+        SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)),
+                new ByteArrayInputStream(key.getBytes(StandardCharsets.UTF_8)));
         sslContextBuilder = GrpcSslContexts.configure(sslContextBuilder, SslProvider.OPENSSL);
         return sslContextBuilder.build();
     }

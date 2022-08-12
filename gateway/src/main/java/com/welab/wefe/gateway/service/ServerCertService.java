@@ -18,11 +18,16 @@ package com.welab.wefe.gateway.service;
 
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.gateway.dto.ServerCertInfoModel;
 import com.welab.wefe.gateway.entity.CertInfoEntity;
+import com.welab.wefe.gateway.entity.CertKeyInfoEntity;
+import com.welab.wefe.gateway.entity.CertRequestInfoEntity;
 import com.welab.wefe.gateway.repository.CertInfoRepository;
 import com.welab.wefe.gateway.repository.CertKeyInfoRepository;
 import com.welab.wefe.gateway.repository.CertRequestInfoRepository;
+import com.welab.wefe.gateway.util.DatabaseEncryptUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -39,13 +44,29 @@ public class ServerCertService {
     @Autowired
     private CertRequestInfoRepository certRequestInfoRepository;
 
-    public ServerCertInfoModel getCertInfo() {
+    public ServerCertInfoModel getCertInfo() throws StatusCodeWithException {
         Specification<CertInfoEntity> where = Where
                 .create()
                 .equal("status", "VALID")
                 .orderBy("createTime", OrderBy.desc)
                 .build(CertInfoEntity.class);
         List<CertInfoEntity> certInfoEntityList = certInfoRepository.findAll(where);
-        return null;
+        if (CollectionUtils.isEmpty(certInfoEntityList)) {
+            return null;
+        }
+
+        CertRequestInfoEntity certRequestInfoEntity = certRequestInfoRepository.findById(certInfoEntityList.get(0).getCsrId()).orElse(null);
+        if (null == certRequestInfoEntity) {
+            return null;
+        }
+        CertKeyInfoEntity certKeyInfoEntity = certKeyInfoRepository.findById(certRequestInfoEntity.getSubjectKeyId()).orElse(null);
+        if (null == certKeyInfoEntity) {
+            return null;
+        }
+
+        ServerCertInfoModel model = new ServerCertInfoModel();
+        model.setKey(DatabaseEncryptUtil.decrypt(certKeyInfoEntity.getKeyPem()));
+        model.setContent(certInfoEntityList.get(0).getContent());
+        return model;
     }
 }

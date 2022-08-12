@@ -21,5 +21,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CertKeyInfoRepository extends JpaRepository<CertKeyInfoEntity, String> {
+public interface CertKeyInfoRepository extends BaseRepository<CertKeyInfoEntity, String> {
 }

@@ -104,7 +104,7 @@ public class UnionHelper {
             // TODO
             String verifyMemberId = MemberCache.getInstance().getSelfMember().getId();
             JObject data = JObject.create().append("memberId", verifyMemberId);
-            HttpResponse httpResponse = HttpRequest.create(BASE_URL + "ca/query_all")
+            HttpResponse httpResponse = HttpRequest.create("https://wefe-fat.tianmiantech.com/manager-service/trust/certs/query")
                     .appendParameters(generateReqParam(verifyMemberId, data.toString()))
                     .closeLog()
                     .postJson();

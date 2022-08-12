@@ -43,9 +43,9 @@ public class CaCertificateService {
         for (int i = 0; i < caCertificateDataArray.size(); i++) {
             caCertificate = new CaCertificateCache.CaCertificate();
             JSONObject caCertificateDataObj = caCertificateDataArray.getJSONObject(i);
-            caCertificate.setId(caCertificateDataObj.getString("id"));
-            caCertificate.setName(caCertificateDataObj.getString("name"));
-            caCertificate.setContent(caCertificateDataObj.getString("content"));
+            caCertificate.setId(caCertificateDataObj.getString("cert_id"));
+            caCertificate.setName(caCertificateDataObj.getString("subject_cn"));
+            caCertificate.setContent(caCertificateDataObj.getString("cert_content"));
 
             resultList.add(caCertificate);
         }
