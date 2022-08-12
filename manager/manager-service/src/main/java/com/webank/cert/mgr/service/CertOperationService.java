@@ -252,7 +252,7 @@ public class CertOperationService {
         }
         KeyAlgorithmEnums issuerKeyAlgorithm = KeyAlgorithmEnums.getByKeyAlg(issuerKeyInfo.getKeyAlg());
         CertDigestAlgEnums issuerCertDigestAlgEnums = getCertDigestAlg(issuerKeyAlgorithm);
-        KeyPair issuerKeyPair = getKeyPair(issuerKeyAlgorithm, issuerKeyInfo.getKeyPem());
+        KeyPair issuerKeyPair = getKeyPair(issuerKeyAlgorithm, DatabaseEncryptUtil.decrypt(issuerKeyInfo.getKeyPem()));
 
         // 签发机构的证书校验
         X509Certificate parentCertificate = CertUtils.convertStrToCert(issuerCertInfo.getCertContent());
