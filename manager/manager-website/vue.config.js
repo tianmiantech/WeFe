@@ -20,6 +20,8 @@ module.exports = {
     assetsDir:           isProd ? `${CONTEXT_ENV}` : '',
     indexPath:           isProd ? `${CONTEXT_ENV || '.'}/index.html` : 'index.html',
     productionSourceMap: false,
+    outputDir:           'dist/manager-website',
+    publicPath:          '/manager-website',
     pages:               {
         index: {
             entry:    'src/app/app.js',
