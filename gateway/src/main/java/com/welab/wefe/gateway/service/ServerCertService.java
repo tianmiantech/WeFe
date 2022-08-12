@@ -48,7 +48,7 @@ public class ServerCertService {
         Specification<CertInfoEntity> where = Where
                 .create()
                 .equal("status", "VALID")
-                .orderBy("createTime", OrderBy.desc)
+                .orderBy("createdTime", OrderBy.desc)
                 .build(CertInfoEntity.class);
         List<CertInfoEntity> certInfoEntityList = certInfoRepository.findAll(where);
         if (CollectionUtils.isEmpty(certInfoEntityList)) {
