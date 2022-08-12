@@ -78,6 +78,11 @@ public class CertOperationService {
         certDao.updateStatus(serialNumber, status);
     }
 
+    // 更新证书信任状态
+    public void updateCanTrust(String serialNumber, boolean status) {
+        certDao.updateCanTrust(serialNumber, status);
+    }
+
     // 导出证书到文件
     public void exportCertToDerFile(String certId, String filePath) throws Exception {
         CertVO certVO = queryCertInfoByCertId(certId);
@@ -269,8 +274,8 @@ public class CertOperationService {
                 issuerCertDigestAlgEnums.getAlgorithmName(), parentCertificate, csrObject, keyUsage, beginDate, endDate,
                 issuerKeyPair.getPrivate());
 
-        RDN org = csrObject.getSubject().getRDNs(BCStyle.O)[0]; 
-        RDN cn = csrObject.getSubject().getRDNs(BCStyle.CN)[0]; 
+        RDN org = csrObject.getSubject().getRDNs(BCStyle.O)[0];
+        RDN cn = csrObject.getSubject().getRDNs(BCStyle.CN)[0];
         // 保存csr
         CertRequestInfo subjectRequestInfo = certDao.save(createUserCertRequest(cn.getFirst().getValue().toString(),
                 memberId, certRequestContent, org.getFirst().getValue().toString(), null));
@@ -302,8 +307,8 @@ public class CertOperationService {
         return certKeyInfo;
     }
 
-    private CertRequestInfo createUserCertRequest(String commonName, String userId, String certRequestContent,String organizationName,
-            X500NameInfo subject) throws Exception {
+    private CertRequestInfo createUserCertRequest(String commonName, String userId, String certRequestContent,
+            String organizationName, X500NameInfo subject) throws Exception {
         if (StringUtils.isBlank(userId)) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
         }

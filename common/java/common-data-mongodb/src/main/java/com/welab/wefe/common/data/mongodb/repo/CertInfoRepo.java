@@ -107,4 +107,11 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
                 .build();
         mongoManagerTemplate.updateFirst(query, update, CertInfo.class);
     }
+    
+    public void updateCanTrust(String serialNumber, boolean canTrust) {
+        Query query = new QueryBuilder().append("serialNumber", serialNumber).build();
+        Update update = new UpdateBuilder().append("canTrust", canTrust)
+                .append("updateTime", System.currentTimeMillis()).build();
+        mongoManagerTemplate.updateFirst(query, update, CertInfo.class);
+    }
 }
