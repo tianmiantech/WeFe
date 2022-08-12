@@ -316,9 +316,9 @@ public class CertOperationService {
     }
 
     private CertRequestInfo buildCertRequestInfo(String csrStr, String subjectKeyId, String commonName,
-            String organizationName, String memberId) {
+            String organizationName, String userId) {
         CertRequestInfo certRequestInfo = new CertRequestInfo();
-        certRequestInfo.setMemberId(memberId);
+        certRequestInfo.setUserId(userId);
         certRequestInfo.setCreatedBy(CurrentAccount.id());
         certRequestInfo.setSubjectKeyId(subjectKeyId);
         certRequestInfo.setSubjectCN(commonName);

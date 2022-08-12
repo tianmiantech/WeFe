@@ -35,7 +35,7 @@ public class CertRequestInfo extends AbstractNormalMongoModel {
     private String pkId = UUID.randomUUID().toString().replaceAll("-", "");
 
     // 用户ID
-    private String memberId;
+    private String userId;
 
     // 申请人私钥ID
     private String subjectKeyId;
@@ -57,7 +57,7 @@ public class CertRequestInfo extends AbstractNormalMongoModel {
 
     // 是否签发
     private Boolean issue;
-    
+
     // 创建人
     private String createdBy;
 
@@ -69,12 +69,12 @@ public class CertRequestInfo extends AbstractNormalMongoModel {
         this.pkId = pkId;
     }
 
-    public String getMemberId() {
-        return memberId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setMemberId(String memberId) {
-        this.memberId = memberId;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getSubjectKeyId() {
