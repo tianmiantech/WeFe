@@ -23,6 +23,7 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
+import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.clientservice.*;
@@ -219,6 +220,25 @@ public class ClientServiceService {
         return null;
     }
 
+    public void deleteActivate(UpdateApi.Input input) throws StatusCodeWithException {
+        Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
+                .equal("clientId", input.getClientId()).build(ClientServiceMysqlModel.class);
+        Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
+        if (!CurrentAccount.isAdmin() || !CurrentAccount.isSuperAdmin()) {
+            throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+        }
+        if (optional.isPresent()) {
+            ClientServiceMysqlModel model = optional.get();
+            if (model.getType().equals(ServiceClientTypeEnum.ACTIVATE.getValue())) {
+                clientServiceRepository.delete(model);
+            } else {
+                throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
+            }
+        } else {
+            throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+    }
+
     public void update(UpdateApi.Input input) throws StatusCodeWithException {
         Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId()).build(ClientServiceMysqlModel.class);
@@ -335,7 +355,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void openService(String serviceId, String serviceName, String url, String clientId, String publicKey,
-                            ServiceTypeEnum serviceType) throws StatusCodeWithException {
+            ServiceTypeEnum serviceType) throws StatusCodeWithException {
         SaveApi.Input clientService = new SaveApi.Input();
         clientService.setServiceType(serviceType.getCode());
         clientService.setClientId(clientId);
@@ -360,7 +380,7 @@ public class ClientServiceService {
      * @throws StatusCodeWithException
      */
     public void activateService(String serviceId, String serviceName, String clientId, String privateKey,
-                                String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
+            String publicKey, String url, ServiceTypeEnum serviceType) throws StatusCodeWithException {
         ClientServiceMysqlModel clientService = clientServiceRepository.findOne("serviceId", serviceId,
                 ClientServiceMysqlModel.class);
         if (clientService == null) {
