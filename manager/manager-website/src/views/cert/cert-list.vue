@@ -52,7 +52,7 @@
                 </template>
 
             </el-table-column>
-            <el-table-column label="成员ID" width="200">
+            <el-table-column label="所属用户ID" width="200">
                 <template v-slot="scope">
                     {{ scope.row.user_id }}
                 </template>
@@ -103,6 +103,24 @@
                             @click="changeStatus($event, scope.row.pk_id, 0)"
                         >
                             置为无效
+                        </el-button>
+                    </template>
+
+                    <template v-if="scope.row.status === 2 && scope.row.is_ca_cert && !scope.row.can_trust">
+                        <el-button
+                            type="primary"
+                            @click="trustCert($event, scope.row.pk_id, 'add')"
+                        >
+                            添加到信任库
+                        </el-button>
+                    </template>
+
+                    <template v-if="scope.row.status === 2 && scope.row.is_ca_cert && scope.row.can_trust">
+                        <el-button
+                            type="danger"
+                            @click="trustCert($event, scope.row.pk_id, 'delete')"
+                        >
+                            从信任库移除
                         </el-button>
                     </template>
                 </template>
@@ -166,6 +184,28 @@ export default {
                     data: {
                         cert_id: pk_id,
                         status: status,
+                    },
+                    btnState: {
+                        target: $event,
+                    },
+                });
+                if(code === 0) {
+                    this.$message.success('操作成功!');
+                    this.refresh();
+                }
+            });
+        },
+        trustCert($event, pk_id, op){
+            this.$confirm(`你确定要${op === "add" ? '添加' : '删除'}该证书到信任库吗?`, '警告', {
+                type: 'warning',
+                cancelButtonText: '取消',
+                confirmButtonText: '确定',
+            }).then(async _ => {
+                const { code } = await this.$http.post({
+                    url: '/trust/certs/update',
+                    data: {
+                        cert_id: pk_id,
+                        op : op,
                     },
                     btnState: {
                         target: $event,

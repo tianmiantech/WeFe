@@ -19,7 +19,7 @@
                     {{ scope.row.pk_id }}
                 </template>
             </el-table-column>
-            <el-table-column label="成员ID" width="300">
+            <el-table-column label="所属用户ID" width="300">
                 <template v-slot="scope">
                     {{ scope.row.user_id }}
                 </template>
