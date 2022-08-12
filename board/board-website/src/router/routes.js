@@ -425,8 +425,8 @@ const baseRoutes = [
                 path: `${prefixPath}system-config-view`,
                 name: 'system-config-view',
                 meta: {
-                    loginAndRefresh: true,
-                    title:           '系统设置',
+                    loginAndRefresh:  true,
+                    title:            '系统设置',
                     normalUserCanSee: false,
                 },
                 component: () => import('../views/system-config/system-config-view'),
@@ -435,8 +435,8 @@ const baseRoutes = [
                 path: `${prefixPath}calculation-engine-config`,
                 name: 'calculation-engine-config',
                 meta: {
-                    loginAndRefresh: true,
-                    title:           '计算引擎设置',
+                    loginAndRefresh:  true,
+                    title:            '计算引擎设置',
                     normalUserCanSee: false,
                 },
                 component: () => import('../views/system-config/calculation-engine-config'),

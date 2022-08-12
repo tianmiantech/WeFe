@@ -12,13 +12,17 @@
             <!-- 头部结束 -->
 
             <!-- 主体开始 -->
-            <el-main class="layout-main">
+            <el-main
+                id="layout-main"
+                class="layout-main"
+            >
                 <div class="base-wrapper">
                     <transition name="fade">
                         <!-- <keep-alive /> -->
                         <router-view v-if="isRouterAlive" />
                     </transition>
                 </div>
+                <TitleNavigator />
             </el-main>
             <!-- 主体结束 -->
         </el-container>
@@ -30,6 +34,7 @@
 import LayoutSide from '../components/LayoutSide/LayoutSide.vue';
 import LayoutHeader from '../components/LayoutHeader.vue';
 import LoginDialog from '../components/LoginDialog.vue';
+import TitleNavigator from '../components/Common/TitleNavigator.vue';
 
 export default {
     name:       'App',
@@ -37,6 +42,7 @@ export default {
         LayoutSide,
         LayoutHeader,
         LoginDialog,
+        TitleNavigator,
     },
     provide() {
         return {
@@ -98,9 +104,15 @@ export default {
     background: $header-background;
     border-bottom: 1px solid $border-color-base;
 }
+// .layout-main {
+//     position: relative;
+//     padding: 84px 20px 20px;
+// }
 .layout-main {
-    position: relative;
     padding: 84px 20px 20px;
+    position: relative;
+    min-height: 100vh;
+    height: 0;
 }
 .id {
     color: #999;

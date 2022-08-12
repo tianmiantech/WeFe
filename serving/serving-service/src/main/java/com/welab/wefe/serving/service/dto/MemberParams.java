@@ -30,6 +30,8 @@ public class MemberParams {
 
     private String publicKey;
 
+    private String url;
+
     public String getMemberId() {
         return memberId;
     }
@@ -62,5 +64,11 @@ public class MemberParams {
         this.name = name;
     }
 
+    public String getUrl() {
+        return url;
+    }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

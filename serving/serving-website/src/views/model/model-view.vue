@@ -37,7 +37,7 @@
                         stripe
                         border
                         lass="infinite-list-wrapper"
-                        style="overflow:auto;min-height:200px;max-height:300px;margin-top:20px"
+                        height="300"
                     >
                         <el-table-column
                             label="序号"
@@ -62,11 +62,11 @@
                 <el-col
                     :span="10"
                     style="margin-left: 20px"
+                    class="feature_config"
                 >
                     <el-form
                         ref="form"
                         :model="form"
-                        label-width="120px"
                     >
                         <el-form-item
                             label="角色标签："
@@ -80,16 +80,15 @@
                         >
                             {{ form.model_id }}
                         </el-form-item>
-
+                        <el-form-item label="算法类型：">
+                            <div v-if="form.algorithm === 'LogisticRegression'">
+                                逻辑回归
+                            </div>
+                            <div v-else>
+                                安全决策树
+                            </div>
+                        </el-form-item>
                         <div>
-                            <el-form-item label="算法类型：">
-                                <div v-if="form.algorithm === 'LogisticRegression'">
-                                    逻辑回归
-                                </div>
-                                <div v-else>
-                                    安全决策树
-                                </div>
-                            </el-form-item>
                             <el-form-item label="联邦类型：">
                                 <div v-if="form.fl_type === 'horizontal'">
                                     横向
@@ -98,33 +97,34 @@
                                     纵向
                                 </div>
                             </el-form-item>
-
-                            <el-form-item label="特征来源：">
-                                <el-radio
-                                    v-model="form.feature_source"
-                                    label="api"
-                                >
-                                    API入参
-                                </el-radio>
-                                <el-radio
-                                    v-model="form.feature_source"
-                                    label="code"
-                                >
-                                    代码配置
-                                </el-radio>
-                                <el-radio
-                                    v-model="form.feature_source"
-                                    label="sql"
-                                >
-                                    SQL配置
-                                </el-radio>
-                            </el-form-item>
                         </div>
+
+                        <el-form-item label="特征来源：">
+                            <el-radio
+                                v-model="form.feature_source"
+                                label="api"
+                            >
+                                API入参
+                            </el-radio>
+                            <el-radio
+                                v-model="form.feature_source"
+                                label="code"
+                            >
+                                代码配置
+                            </el-radio>
+                            <el-radio
+
+                                v-model="form.feature_source"
+                                label="sql"
+                            >
+                                SQL配置
+                            </el-radio>
+                        </el-form-item>
                     </el-form>
                 </el-col>
 
                 <el-col :span="12">
-                    <form v-if="form.feature_source=='api'">
+                    <form v-if="form.feature_source==='api'">
                         <fieldset>
                             <legend>调试</legend>
                             <el-form-item label="特征值：">
@@ -187,7 +187,7 @@
                 </el-col>
 
                 <el-col :span="12">
-                    <form v-if="form.feature_source=='code'">
+                    <form v-if="form.feature_source==='code'">
                         <fieldset>
                             <legend>调试</legend>
                             <el-row>
@@ -246,16 +246,16 @@
                 </el-col>
 
                 <el-col :span="12">
-                    <form v-if="form.feature_source=='sql'">
+                    <form v-if="form.feature_source==='sql'">
                         <fieldset>
                             <legend>sql配置</legend>
                             <el-form-item
-                                label="DB类型："
-                                :rules="[{required: true, message: 'DB类型必填!'}]"
+                                label="数据源："
+                                :rules="[{required: true, message: '数据源必填!'}]"
                             >
                                 <el-select
-                                    v-model="model_sql_config.type"
-                                    placeholder="请选择DB类型"
+                                    v-model="model_sql_config.data_source_id"
+                                    placeholder="请选择数据源"
                                     clearable
                                 >
                                     <el-option
@@ -266,24 +266,7 @@
                                     />
                                 </el-select>
                             </el-form-item>
-                            <el-form-item
-                                label="链接地址："
-                                :rules="[{required: true, message: '链接地址必填!'}]"
-                            >
-                                <el-input v-model="model_sql_config.url" />
-                            </el-form-item>
-                            <el-form-item label="用户名：">
-                                <el-input v-model="model_sql_config.username" />
-                            </el-form-item>
-                            <el-form-item label="密码：">
-                                <el-input
-                                    v-model="model_sql_config.password"
-                                    show-password
-                                    @paste.native.prevent
-                                    @copy.native.prevent
-                                    @contextmenu.native.prevent
-                                />
-                            </el-form-item>
+
                             <el-form-item
                                 label="SQL："
                                 :rules="[{required: true, message: 'SQL必填!'}]"
@@ -352,7 +335,7 @@
             class="save-btn"
             type="primary"
             size="medium"
-            :disabled="form.feature_source==='sql' && (!model_sql_config.type || !model_sql_config.url || !model_sql_config.sql_context)"
+            :disabled="form.feature_source==='sql' && (!model_sql_config.sql_context)"
             @click="saveConfig"
         >
             保存
@@ -368,24 +351,25 @@
         inject: ['refresh'],
         data () {
             return {
+                databaseOptions: [],
                 modelingResult: [],
 
                 my_role: '',
 
                 // model
                 form: {
-                    model_id: '',
-                    algorithm: '',
-                    fl_type: '',
-                    model_param: '',
+                    model_id:       '',
+                    algorithm:      '',
+                    fl_type:        '',
+                    model_param:    '',
                     feature_source: 'api',
-                    processor: '',
-                    my_role: [],
+                    processor:      '',
+                    my_role:        [],
                 },
 
                 api: {
                     feature_data: '',
-                    user_id: '',
+                    user_id:      '',
                 },
 
                 code: {
@@ -393,59 +377,81 @@
                 },
 
                 model_sql_config: {
-                    type: '',
-                    url: '',
-                    username: '',
-                    password: '',
+                    feature_source: '',
+                    data_source_id: '',
                     sql_context: '',
+                    model_id:     '',
                     user_id: '',
                 },
 
                 featureNameFidMapping: {},
 
-                databaseOptions: [
-                    { value: 'MySql', label: 'MySql' },
-                    { value: 'PgSql', label: 'PgSql' },
-                    { value: 'Impala', label: 'Impala' },
-                    { value: 'Hive', label: 'Hive' },
-                    { value: 'Cassandra', label: 'Cassandra' },
-                ],
+                // databaseOptions: [
+                //     { value: 'MySql', label: 'MySql' },
+                //     { value: 'PgSql', label: 'PgSql' },
+                //     { value: 'Impala', label: 'Impala' },
+                //     { value: 'Hive', label: 'Hive' },
+                //     { value: 'Cassandra', label: 'Cassandra' },
+                // ],
+                dataSource: [],
 
                 apiPredictResult: {
-                    data: '',
+                    data:      '',
                     algorithm: '',
-                    my_role: '',
-                    type: '',
+                    my_role:   '',
+                    type:      '',
                 },
 
                 codePredictResult: {
-                    data: '',
+                    data:      '',
                     algorithm: '',
-                    my_role: '',
-                    type: '',
+                    my_role:   '',
+                    type:      '',
                 },
 
                 sqlPredictResult: {
-                    data: '',
+                    data:      '',
                     algorithm: '',
-                    my_role: '',
-                    type: '',
+                    my_role:   '',
+                    type:      '',
                 },
                 loading: false,
             };
         },
         created () {
             this.getData();
-
+            this.getDataSource();
             const my_role = localStorage.getItem('my_role');
 
             this.my_role = my_role;
         },
         methods: {
-            async getData () {
+            async getDataSource(){
+                const { code, data } = await this.$http.get({
+                    url:    '/data_source/query',
+                    params: {
+                        id: '',
+                        name: '',
+                        page_index: '',
+                        page_size: ''
+                    },
+                });
+
+                if (code === 0) {
+                    const data_list = data.list
+                    for (let i = 0; i < data_list.length; i++) {
+                        this.databaseOptions.push({
+                            label: data_list[i].name,
+                            value: data_list[i].id
+                        })
+                    }
+                }
+            },
+
+            async getData (){
                 this.loading = true;
                 const { code, data } = await this.$http.get({
-                    url: '/model/detail',
+                    url:    '/model/detail',
                     params: {
                         id: this.$route.query.id,
                     },
@@ -469,7 +475,7 @@
                             });
                         }
                         this.modelingResult.push({
-                            name: 'intercept',
+                            name:   'intercept',
                             weight: data.model_param.intercept,
                         });
                     } else if (data.model_param && data.model_param.featureNameFidMapping) {
@@ -484,8 +490,8 @@
                             this.$nextTick(() => {
 
                                 this.createGraph({
-                                    id: 'root',
-                                    label: 'XGBoost',
+                                    id:       'root',
+                                    label:    'XGBoost',
                                     children: data.xgboost_tree,
                                 });
                             });
@@ -518,9 +524,9 @@
                 });
                 const treeGraph = new TreeGraph({
                     container: 'canvas',
-                    width: canvas.offsetWidth,
-                    height: 500,
-                    modes: {
+                    width:     canvas.offsetWidth,
+                    height:    500,
+                    modes:     {
                         default: [{
                             type: 'collapse-expand',
                             onChange (item, collapsed) {
@@ -537,10 +543,10 @@
                         type: 'cubic-vertical',
                     },
                     layout: {
-                        type: 'dendrogram',
+                        type:      'dendrogram',
                         direction: 'TB', // H / V / LR / RL / TB / BT
-                        nodeSep: 40,
-                        rankSep: 100,
+                        nodeSep:   40,
+                        rankSep:   100,
                     },
                     plugins: [grid, tooltip, minimap],
                 });
@@ -556,11 +562,11 @@
                     }
 
                     return {
-                        label: node.id,
+                        label:    node.id,
                         labelCfg: {
                             position,
                             offset: 5,
-                            style: {
+                            style:  {
                                 rotate,
                                 textAlign: 'start',
                             },
@@ -573,15 +579,12 @@
             },
             async saveConfig () {
                 const { code } = await this.$http.post({
-                    url: '/model/update_sql_config',
+                    url:  '/model/update_sql_config',
                     data: {
-                        model_id: this.form.model_id,
+                        model_id:       this.form.model_id,
                         feature_source: this.form.feature_source,
-                        type: this.model_sql_config.type,
-                        url: this.model_sql_config.url,
-                        username: this.model_sql_config.username,
-                        password: this.model_sql_config.password,
-                        sql_context: this.model_sql_config.sql_context,
+                        sql_context:    this.model_sql_config.sql_context,
+                        data_source_id: this.model_sql_config.data_source_id,
                     },
                 });
 
@@ -592,13 +595,13 @@
             },
             async testSql () {
                 const { code, data } = await this.$http.post({
-                    url: 'predict/debug',
+                    url:  'predict/debug',
                     data: {
-                        model_id: this.form.model_id,
-                        user_id: this.model_sql_config.user_id,
+                        model_id:       this.form.model_id,
+                        user_id:        this.model_sql_config.user_id,
                         feature_source: 'sql',
-                        params: this.model_sql_config,
-                        my_role: this.my_role,
+                        params:         this.model_sql_config,
+                        my_role:        this.my_role,
                     },
                 });
 
@@ -611,13 +614,13 @@
                 const lines = JSON.parse(this.api.feature_data);
 
                 const { code, data } = await this.$http.post({
-                    url: 'predict/debug',
+                    url:  'predict/debug',
                     data: {
-                        model_id: this.form.model_id,
-                        user_id: this.api.user_id,
+                        model_id:       this.form.model_id,
+                        user_id:        this.api.user_id,
                         feature_source: 'api',
-                        feature_data: lines,
-                        my_role: this.my_role,
+                        feature_data:   lines,
+                        my_role:        this.my_role,
                     },
                 });
 
@@ -627,12 +630,12 @@
             },
             async testCode () {
                 const { code, data } = await this.$http.post({
-                    url: 'predict/debug',
+                    url:  'predict/debug',
                     data: {
-                        model_id: this.form.model_id,
-                        user_id: this.code.user_id,
+                        model_id:       this.form.model_id,
+                        user_id:        this.code.user_id,
                         feature_source: 'code',
-                        my_role: this.my_role,
+                        my_role:        this.my_role,
                     },
                 });
 
@@ -658,4 +661,11 @@
     .save-btn {
         width: 100px;
     }
+</style>
+<style lang="scss">
+.feature_config {
+    .el-form-item--small.el-form-item {
+        margin-bottom: 8px;
+    }
+}
 </style>

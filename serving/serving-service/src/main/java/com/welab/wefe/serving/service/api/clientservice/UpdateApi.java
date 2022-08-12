@@ -15,7 +15,8 @@
  */
 package com.welab.wefe.serving.service.api.clientservice;
 
-import com.welab.wefe.common.StatusCode;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
@@ -23,8 +24,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.ClientServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
-
 
 /**
  * @author ivenn.zheng
@@ -36,7 +35,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
     @Autowired
     private ClientServiceService clientServiceService;
 
-
     @Override
     protected ApiResult<?> handler(UpdateApi.Input input) throws StatusCodeWithException {
         clientServiceService.update(input);
@@ -44,16 +42,17 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
     }
 
     public static class Input extends AbstractApiInput {
-
-
         @Check(name = "服务 id", require = true, messageOnEmpty = "请选择服务")
         private String serviceId;
+
+        @Check(name = "服务名称")
+        private String serviceName; // 激活服务使用
 
         @Check(name = "客户 id", require = true, messageOnEmpty = "请选择客户")
         private String clientId;
 
-        @Check(name = "use status")
-        private int status;
+        @Check(name = "合作者名称")
+        private String clientName; // 激活服务使用
 
         @Check(name = "pay type")
         private int payType;
@@ -63,13 +62,25 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
 
         @Check(name = "updated by")
         private String updatedBy;
+
+        @Check(name = "公钥")
+        private String publicKey;
         
+        @Check(name = "私钥")
+        private String privateKey;
+        
+        @Check(name = "调用者code")
+        private String code;
+
+        @Check(name = "IP白名单")
+        private String ipAdd;
+
+        @Check(name = "服务地址")
+        private String url;
+
         @Override
         public void checkAndStandardize() throws StatusCodeWithException {
             super.checkAndStandardize();
-            if (unitPrice < 0) {
-                StatusCode.PARAMETER_VALUE_INVALID.throwException("单价不能为负数：" + unitPrice);
-            }
         }
         
         public String getUpdatedBy() {
@@ -96,15 +107,6 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
             this.clientId = clientId;
         }
 
-
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
         public int getPayType() {
             return payType;
         }
@@ -120,6 +122,61 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         public void setUnitPrice(Double unitPrice) {
             this.unitPrice = unitPrice;
         }
+
+        public String getPublicKey() {
+            return publicKey;
+        }
+
+        public void setPublicKey(String publicKey) {
+            this.publicKey = publicKey;
+        }
+
+        public String getIpAdd() {
+            return ipAdd;
+        }
+
+        public void setIpAdd(String ipAdd) {
+            this.ipAdd = ipAdd;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getPrivateKey() {
+            return privateKey;
+        }
+
+        public void setPrivateKey(String privateKey) {
+            this.privateKey = privateKey;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public String getClientName() {
+            return clientName;
+        }
+
+        public void setClientName(String clientName) {
+            this.clientName = clientName;
+        }
     }
 }
-

@@ -20,13 +20,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
-import com.welab.wefe.serving.service.feature.ApiFeatureDataHandle;
-import com.welab.wefe.serving.service.feature.CodeFeatureDataHandle;
-import com.welab.wefe.serving.service.feature.SqlFeatureDataHandle;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
+import com.welab.wefe.serving.service.feature.CodeFeatureDataHandler;
+import com.welab.wefe.serving.service.feature.SqlFeatureDataHandler;
 import com.welab.wefe.serving.service.service.ModelService;
 
 import java.util.HashMap;
@@ -62,7 +60,7 @@ public class FeatureManager {
         }
 
         synchronized (modelService) {
-            ModelMySqlModel mysqlModel = modelService.findOne(modelId);
+            TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
                 throw new StatusCodeWithException("modelId error: " + modelId, StatusCode.PARAMETER_VALUE_INVALID);
             }
@@ -73,7 +71,7 @@ public class FeatureManager {
         return FEATURE_SOURCE.get(modelId);
     }
 
-    public static Map<String, Object> getFeatureData(String modelId, PredictParams predictParams) throws StatusCodeWithException {
+    public static FeatureDataModel getFeatureData(String modelId, String userId) throws StatusCodeWithException {
 
         PredictFeatureDataSource featureSource = getFeatureSource(modelId);
         /**
@@ -83,33 +81,10 @@ public class FeatureManager {
          * -Through SQL query
          */
         switch (featureSource) {
-            case api:
-                return new ApiFeatureDataHandle().handle(modelId, predictParams);
             case code:
-                return new CodeFeatureDataHandle().handle(modelId, predictParams);
+                return new CodeFeatureDataHandler().handle(modelId, userId);
             case sql:
-                return new SqlFeatureDataHandle().handle(modelId, predictParams);
-            default:
-                throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
-        }
-    }
-
-    public static Map<String, Map<String, Object>> getFeatureDataByBatch(String modelId, PredictParams predictParams) throws StatusCodeWithException {
-
-        PredictFeatureDataSource featureSource = getFeatureSource(modelId);
-        /**
-         * Judge the source of feature acquisition
-         * -Interface input parameter
-         * -Class configuration
-         * -Through SQL query
-         */
-        switch (featureSource) {
-            case api:
-                return new ApiFeatureDataHandle().batch(modelId, predictParams);
-            case code:
-                return new CodeFeatureDataHandle().batch(modelId, predictParams);
-            case sql:
-                return new SqlFeatureDataHandle().batch(modelId, predictParams);
+                return new SqlFeatureDataHandler().handle(modelId, userId);
             default:
                 throw new StatusCodeWithException(UNEXPECTED_ENUM_CASE);
         }
@@ -118,22 +93,19 @@ public class FeatureManager {
     /**
      * Get configuration via SQL
      */
-    public static Map<String, Object> getFeatureData(JSONObject sqlConfig) throws StatusCodeWithException {
-        DatabaseType type = DatabaseType.valueOf(sqlConfig.get("type").toString());
-        String url = sqlConfig.get("url").toString();
-        String username = sqlConfig.get("username").toString();
-        String password = sqlConfig.get("password").toString();
-        String sqlContext = sqlConfig.get("sql_context").toString();
-        String userId = sqlConfig.get("user_id").toString();
+    public static FeatureDataModel getFeatureData(String userId, JSONObject sqlConfig) throws StatusCodeWithException {
+        String dataSourceId = sqlConfig.get("data_source_id").toString();
+        String sqlScript = sqlConfig.get("sql_script").toString();
+        String sqlConditionField = sqlConfig.get("sql_condition_field").toString();
 
         //Fill in corresponding feature information
-        return SqlFeatureDataHandle.get(type, url, username, password, sqlContext, userId);
+        return SqlFeatureDataHandler.debug(dataSourceId, sqlScript, sqlConditionField, userId);
     }
 
     /**
      * Process name
      */
     public static String getProcessor(String modelId) {
-        return CodeFeatureDataHandle.getSimpleName(modelId);
+        return CodeFeatureDataHandler.getSimpleName(modelId);
     }
 }

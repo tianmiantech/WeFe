@@ -17,8 +17,9 @@
 package com.welab.wefe.board.service.service;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.data_output_info.SyncModelToServingApi;
+import com.welab.wefe.board.service.api.data_output_info.PushModelToServingByProviderApi;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -26,8 +27,8 @@ import com.welab.wefe.board.service.database.repository.JobRepository;
 import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
 import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.dto.globalconfig.ServingConfigModel;
+import com.welab.wefe.board.service.dto.serving.ProviderModelPushResult;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
@@ -39,7 +40,6 @@ import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 
 /**
@@ -54,8 +55,6 @@ import java.util.TreeMap;
  */
 @Service
 public class ServingService extends AbstractService {
-
-    private static final String SEPARATOR = "_";
 
     @Autowired
     JobRepository jobRepository;
@@ -72,33 +71,39 @@ public class ServingService extends AbstractService {
     @Autowired
     private GlobalConfigService globalConfigService;
 
-    /**
-     * Update serving global configuration
-     */
-    public void asynRefreshMemberInfo(MemberInfoModel model) throws StatusCodeWithException {
-
-        CommonThreadPool.run(() -> {
-            try {
-                refreshMemberInfo(model);
-            } catch (StatusCodeWithException e) {
-                LOG.error("serving 响应失败：" + e.getMessage(), StatusCode.REMOTE_SERVICE_ERROR);
-            }
-        });
-    }
+    @Autowired
+    private GatewayService gatewayService;
 
     /**
      * Update serving global configuration
      */
-    public void refreshMemberInfo(MemberInfoModel model) throws StatusCodeWithException {
+    public void refreshMemberInfo(MemberInfoModel model, String unionBaseUrl, String phoneNumber, String password) throws StatusCodeWithException {
 
         TreeMap<String, Object> params = new TreeMap<>();
         params.put("member_id", model.getMemberId());
         params.put("member_name", model.getMemberName());
         params.put("rsa_private_key", model.getRsaPrivateKey());
         params.put("rsa_public_key", model.getRsaPublicKey());
+        params.put("union_base_url", unionBaseUrl);
+        params.put("phoneNumber", phoneNumber);
+        params.put("password", password);
 
-        request("global_setting/refresh", params);
+        request("global_config/initialize/union", params, false);
     }
+
+
+    /**
+     * Update serving global configuration
+     */
+    public void pushRsaKeyToServing() throws StatusCodeWithException {
+
+        TreeMap<String, Object> params = new TreeMap<>();
+        params.put("rsaPrivateKey", CacheObjects.getRsaPrivateKey());
+        params.put("rsaPublicKey", CacheObjects.getRsaPublicKey());
+
+        request("system/update_rsa_key_by_board", params);
+    }
+
 
     private JSONObject request(String api, TreeMap<String, Object> params) throws StatusCodeWithException {
         return request(api, params, true);
@@ -155,47 +160,141 @@ public class ServingService extends AbstractService {
         JSONObject json = response.getBodyAsJson();
         Integer code = json.getInteger("code");
         if (code == null || !code.equals(0)) {
-            throw new StatusCodeWithException("serving 响应失败(" + code + ")：" + response.getMessage(), StatusCode.RPC_ERROR);
+            throw new StatusCodeWithException("serving 响应失败(" + code + ")：" +
+                    (response.getMessage().isEmpty() ? json.getString("message") : response.getMessage())
+                    , StatusCode.RPC_ERROR);
         }
         return json;
     }
 
-
     /**
      * Modeling synchronization to serving
      */
-    public void syncModelToServing(SyncModelToServingApi.Input input) throws StatusCodeWithException {
-        TreeMap<String, Object> jobj = setBody(input.getTaskId(), input.getRole());
+    public Object syncModelToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
+        //push to serving
+        pushToServing(taskId, role);
 
-        request("model_save", jobj, true);
+        if (role.equals(JobMemberRole.promoter)) {
+            //call member
+            return callMembersPushToServing(taskId, role);
+        }
+
+        return "同步成功";
+    }
+
+    private void pushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
+        TreeMap<String, Object> params = buildModelParams(taskId, role);
+        request("model_save", params, true);
+    }
+
+    /**
+     * notify other members to push
+     *
+     * @param taskId
+     * @param role
+     * @return
+     * @throws StatusCodeWithException
+     */
+    private List<ProviderModelPushResult> callMembersPushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
+
+        List<JobMemberOutputModel> memberList = getMemberListByTaskIdAndRole(taskId, role);
+
+        return memberList
+                .stream()
+                .filter(x -> !x.getMemberId().equals(CacheObjects.getMemberId()))
+                .filter(x -> x.getJobRole().equals(JobMemberRole.provider))
+                .map(member -> callSingleMemberPushToServing(extractProviderTaskId(taskId), member))
+                .collect(Collectors.toList());
+    }
+
+    private ProviderModelPushResult callSingleMemberPushToServing(String taskId, JobMemberOutputModel member) {
+        try {
+            callOtherMemberPushServing(member.getMemberId(), taskId, member.getJobRole());
+
+            return ProviderModelPushResult.create(
+                    member.getMemberId(),
+                    member.getMemberName(),
+                    true);
+
+        } catch (Exception e) {
+            LOG.info("call member {} fail: {}", member.getMemberName(), e);
+            return ProviderModelPushResult.create(
+                    member.getMemberId(),
+                    member.getMemberName(),
+                    false);
+        }
+    }
+
+    private String extractProviderTaskId(String taskId) {
+        return taskId.replace("promoter", "provider");
+    }
+
+    public static void main(String[] args) {
+        ProviderModelPushResult result = ProviderModelPushResult.create(
+                "mem",
+                "name",
+                false);
+
+        System.out.println(JSON.toJSONString(result));
+    }
+
+    private List<JobMemberOutputModel> getMemberListByTaskIdAndRole(String taskId, JobMemberRole role) {
+        TaskResultMySqlModel taskResult = getTaskResult(taskId, role);
+        return jobMemberService.list(taskResult.getJobId(), false);
+    }
+
+    private List<JobMemberOutputModel> getMemberListByJobId(String jobId) {
+        return jobMemberService.list(jobId, false);
+    }
+
+    private List<JSONObject> getMembersByJobId(String jobId) {
+        return fillPublicKey(getMemberListByJobId(jobId));
     }
 
 
-    public TreeMap<String, Object> setBody(String taskId, JobMemberRole role) throws StatusCodeWithException {
+    private void callOtherMemberPushServing(String memberId, String taskId, JobMemberRole role) throws StatusCodeWithException {
+        gatewayService.callOtherMemberBoard(
+                memberId,
+                PushModelToServingByProviderApi.class,
+                PushModelToServingByProviderApi.Input.of(taskId, role),
+                JSONObject.class
+        );
+    }
 
-        TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndTypeAndRole(taskId, TaskResultType.model_train.name(), role);
+    public TreeMap<String, Object> buildModelParams(String taskId, JobMemberRole role) throws StatusCodeWithException {
 
-        if (taskResult == null) {
-            LOG.error("查询task任务异常");
-            throw new StatusCodeWithException("task 不存在！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+        TaskResultMySqlModel taskResult = getTaskResult(taskId, role);
+
+        List<JSONObject> members = getMembersByJobId(taskResult.getJobId());
+
+        JobMySqlModel job = getByJobId(taskResult.getJobId(), role);
+
+        Map<Integer, Object> featureEngineerMap = getFeatureEngineerMap(taskId, role);
 
 
-        List<JobMemberOutputModel> memberList = jobMemberService.list(taskResult.getJobId(), false);
+        //TODO 评估数据集合
 
-        if (CollectionUtils.isEmpty(memberList)) {
-            LOG.error("查询job_member异常");
-            throw new StatusCodeWithException("查询job_member异常！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+        // body
+        TreeMap<String, Object> params = new TreeMap<>();
+        params.put("myRole", role);
+        params.put("modelId", taskResult.getModelId());
+        params.put("serviceId", taskResult.getModelId());
+        params.put("name", extractName(job));
+        // The v2 version job does not have Algorithm and flType parameters
+        params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
+        params.put("modelParam", taskResult.getResult());
+        params.put("flType", job.getFederatedLearningType().name());
+        params.put("memberParams", members);
+        params.put("featureEngineerMap", featureEngineerMap);
 
-        JobMySqlModel job = jobRepository.findByJobId(taskResult.getJobId(), role.name());
+        return params;
+    }
 
-        if (job == null) {
-            LOG.error("查询job异常");
-            throw new StatusCodeWithException("查询job异常！", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+    private String extractName(JobMySqlModel job) {
+        return job.getName() + "_" + job.getJobId();
+    }
 
-        // Feature engineering
+    private Map<Integer, Object> getFeatureEngineerMap(String taskId, JobMemberRole role) throws StatusCodeWithException {
         List<TaskResultMySqlModel> featureEngineerResults = taskResultService.findByTaskIdAndRoleNotEqualType(taskId, TaskResultType.model_train.name(), role);
         Map<Integer, Object> featureEngineerMap = new TreeMap<>();
         for (TaskResultMySqlModel fe : featureEngineerResults) {
@@ -206,9 +305,15 @@ public class ServingService extends AbstractService {
             }
             featureEngineerMap.put(taskMySqlModel.getPosition(), getModelParam(fe.getResult()));
         }
+        return featureEngineerMap;
+    }
 
+    private JobMySqlModel getByJobId(String jobId, JobMemberRole role) {
+        return jobRepository.findByJobId(jobId, role.name());
+    }
+
+    private List<JSONObject> fillPublicKey(List<JobMemberOutputModel> memberList) {
         List<JSONObject> members = new ArrayList<>();
-
         memberList.forEach(mem -> {
             JSONObject member = new JSONObject();
             member.put("memberId", mem.getMemberId());
@@ -225,27 +330,28 @@ public class ServingService extends AbstractService {
                         getJSONArray("list").
                         getJSONObject(0).
                         getString("public_key"));
+                member.put("url", json.getJSONObject("data").
+                        getJSONArray("list").
+                        getJSONObject(0).
+                        getJSONObject("ext_json").
+                        getString("serving_base_url"));
             } catch (StatusCodeWithException e) {
                 super.log(e);
             }
 
             members.add(member);
         });
-
-
-        // body
-        TreeMap<String, Object> params = new TreeMap<>();
-        params.put("modelId", taskResult.getModelId());
-        params.put("name", job.getName());
-        // The v2 version job does not have Algorithm and flType parameters
-        params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
-        params.put("flType", job.getFederatedLearningType().name());
-        params.put("modelParam", taskResult.getResult());
-        params.put("memberParams", members);
-        params.put("featureEngineerMap", featureEngineerMap);
-
-        return params;
+        return members;
     }
+
+    private String getModelIdByTaskIdAndRole(String taskId, JobMemberRole role) {
+        return getTaskResult(taskId, role).getModelId();
+    }
+
+    private TaskResultMySqlModel getTaskResult(String taskId, JobMemberRole role) {
+        return taskResultService.findByTaskIdAndTypeAndRole(taskId, TaskResultType.model_train.name(), role);
+    }
+
 
     private Algorithm getAlgorithm(ComponentType componentType) {
         switch (componentType) {

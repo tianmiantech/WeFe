@@ -29,6 +29,8 @@ public class QueryPrivateSetIntersectionRequest {
     
     @JSONField(name = "client_ids")
     private List<String> clientIds;
+    
+    private String requestId;
 
     public String getP() {
         return p;
@@ -45,4 +47,13 @@ public class QueryPrivateSetIntersectionRequest {
     public void setClientIds(List<String> clientIds) {
         this.clientIds = clientIds;
     }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+    
 }

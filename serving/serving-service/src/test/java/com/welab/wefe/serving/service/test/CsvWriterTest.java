@@ -16,7 +16,7 @@
 package com.welab.wefe.serving.service.test;
 
 import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.serving.service.database.serving.entity.ApiRequestRecordMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ApiRequestRecordMysqlModel;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import de.siegmar.fastcsv.writer.CsvWriter;

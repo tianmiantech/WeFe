@@ -151,4 +151,5 @@ public class MemberQueryOutput extends AbstractTimedApiOutput {
     public void setExtJson(MemberExtJSON extJson) {
         this.extJson = extJson;
     }
+
 }

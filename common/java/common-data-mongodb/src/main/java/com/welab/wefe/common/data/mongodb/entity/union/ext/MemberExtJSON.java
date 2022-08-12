@@ -25,8 +25,9 @@ import java.util.List;
  * @date: 2021/10/19
  */
 public class MemberExtJSON {
-    //-1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
+    // -1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
     private Integer realNameAuthStatus;
+    private String servingBaseUrl;
     private String reporter;
     private String principalName;
     private String authType;
@@ -53,6 +54,14 @@ public class MemberExtJSON {
 
     public Integer getRealNameAuthStatus() {
         return realNameAuthStatus;
+    }
+
+    public String getServingBaseUrl() {
+        return servingBaseUrl;
+    }
+
+    public void setServingBaseUrl(String servingBaseUrl) {
+        this.servingBaseUrl = servingBaseUrl;
     }
 
     public void setRealNameAuthStatus(Integer realNameAuthStatus) {
@@ -154,7 +163,6 @@ public class MemberExtJSON {
     public void setCertSerialNumber(String certSerialNumber) {
         this.certSerialNumber = certSerialNumber;
     }
-
 
     public String getCertRequestId() {
         return certRequestId;
