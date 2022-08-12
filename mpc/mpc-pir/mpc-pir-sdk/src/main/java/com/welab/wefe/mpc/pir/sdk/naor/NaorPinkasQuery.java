@@ -28,6 +28,8 @@ import com.welab.wefe.mpc.pir.sdk.crypt.CryptUtil;
 import com.welab.wefe.mpc.pir.sdk.trasfer.NaorPinkasTransferVariable;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
 
+import cn.hutool.core.lang.UUID;
+
 import java.math.BigInteger;
 
 public class NaorPinkasQuery {
@@ -42,6 +44,7 @@ public class NaorPinkasQuery {
         QueryKeysRequest randomRequest = new QueryKeysRequest();
         randomRequest.setIds(config.getPrimaryKeys());
         randomRequest.setOtMethod(Constants.PIR.NAORPINKAS_OT);
+        randomRequest.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         QueryNaorPinkasRandomResponse randomResponse = transferVariable.queryNaorPinkasRandom(randomRequest);
         if(randomResponse.getCode() != 0) {
             throw new Exception(randomResponse.getMessage());
@@ -60,7 +63,9 @@ public class NaorPinkasQuery {
         request.setUuid(uuid);
         request.setPk(DiffieHellmanUtil.bigIntegerToHexString(pk));
         QueryNaorPinkasResultResponse response = transferVariable.queryNaorPinkasResult(request);
-
+        if(response.getCode() != 0) {
+            throw new Exception(response.getMessage());
+        }
         HashFunction hash = new Sha256();
         byte[] key = hash.digest(DiffieHellmanUtil.encrypt(secret, k, p).toByteArray());
         return CryptUtil.decrypt(response.getEncryptResults().get(targetIndex), key);

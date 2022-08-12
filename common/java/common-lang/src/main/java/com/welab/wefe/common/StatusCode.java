@@ -56,7 +56,7 @@ public enum StatusCode {
     PRIMARY_KEY_CONFLICT(10026, "数据 (%s) 已经存在 (%s)"),
     UNEXPECTED_ENUM_CASE(10027, "枚举值错误：(%s)"),
     DIRECTORY_NOT_FOUND(10028, "字典不存在"),
-    PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s 参数不能唯恐!"),
+    PARAMETER_CAN_NOT_BE_EMPTY(10029, "%s 参数不能为空!"),
     SQL_ERROR(10030, "SQL执行失败"),
     INVALID_MEMBER(10031, "非法成员 (%s)"),
     FILE_IO_ERROR(10035, "文件读写失败"),
@@ -94,9 +94,9 @@ public enum StatusCode {
     /**
      * serving
      */
-    CLIENT_SERVICE_EXIST(40001, "该客户已存在此服务！"),
+    CLIENT_SERVICE_EXIST(40001, "该合作者已存在此服务！"),
     ERROR_PUBKEY_LENGTH(40002, "公钥长度不符合规范！"),
-    CLIENT_NAME_EXIST(40003, "客户名称已存在！");
+    CLIENT_NAME_EXIST(40003, "合作者名称已存在！");
 
     private int code;
     private String description;

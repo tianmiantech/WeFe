@@ -16,24 +16,23 @@
 
 package com.welab.wefe.serving.sdk.processor;
 
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
+import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
 import com.welab.wefe.serving.sdk.model.BaseModel;
 
 /**
- * @author Zane
+ * @author hunter
  */
 public class EmptyBatchModelProcessor extends AbstractBatchModelProcessor {
 
+
     @Override
-    public void preprocess(BaseModel model, FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
+    public void preprocess(BaseModel model, BatchPredictParams batchPredictParams) {
 
     }
 
     @Override
-    public void postprocess(PredictResult result, BaseModel model, FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
+    public void postprocess(Object result, BaseModel model, BatchPredictParams batchPredictParams) {
 
     }
 }

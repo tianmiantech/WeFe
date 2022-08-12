@@ -16,20 +16,28 @@
 
 package com.welab.wefe.serving.service.api.account;
 
-import com.welab.wefe.common.StatusCode;
+import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
-import com.welab.wefe.serving.service.database.serving.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.AccountRepository;
-import com.welab.wefe.serving.service.database.serving.repository.GlobalSettingRepository;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.database.repository.GlobalSettingRepository;
+import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 
 /**
  * @author hunter.zhao
@@ -45,6 +53,11 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     @Autowired
     private GlobalSettingRepository globalSettingRepository;
 
+
+    @Autowired
+    private GlobalConfigService globalConfigService;
+
+
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
@@ -58,9 +71,19 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
          *
          * An exception is thrown when it is not initialized. When the front end obtains the exception, it will jump to the initialization interface.
          */
-        if (globalSettingRepository.count() < 1) {
-            StatusCode status = StatusCode.SYSTEM_NOT_BEEN_INITIALIZED;
-            return fail(status.getCode(), status.getMessage(), output);
+        if (!globalConfigService.isInitialized()) {
+            IdentityInfoModel identityInfoModel = new IdentityInfoModel();
+            identityInfoModel.setMemberId(UUID.randomUUID().toString().replaceAll("-", ""));
+            identityInfoModel.setMemberName("serving系统");
+            identityInfoModel.setMode(ServingModeEnum.standalone.name());
+            try {
+                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
+                identityInfoModel.setRsaPrivateKey(keyPair.privateKey);
+                identityInfoModel.setRsaPublicKey(keyPair.publicKey);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+            globalConfigService.initializeToStandalone(identityInfoModel);
         }
 
         return success(output);

@@ -33,5 +33,10 @@ public enum DateTypeEnum {
     /**
      * Granularity: minute
      */
-    minute
+    minute,
+
+    /**
+     * Granularity: hour
+     */
+    hour
 }

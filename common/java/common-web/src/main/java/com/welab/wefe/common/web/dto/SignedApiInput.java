@@ -24,8 +24,11 @@ package com.welab.wefe.common.web.dto;
  **/
 public class SignedApiInput extends AbstractApiInput {
 
+    //TODO 后续该字段会删掉
     private String memberId;
+    //TODO 后续该字段会删掉
     private String customerId;
+    private String partnerCode;
     private String sign;
     private String data;
 
@@ -60,5 +63,12 @@ public class SignedApiInput extends AbstractApiInput {
 	public void setCustomerId(String customerId) {
 		this.customerId = customerId;
 	}
-    
+
+    public String getPartnerCode() {
+        return partnerCode;
+    }
+
+    public void setPartnerCode(String partnerCode) {
+        this.partnerCode = partnerCode;
+    }
 }

@@ -15,36 +15,33 @@
  */
 package com.welab.wefe.serving.service.api.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.ServiceMySqlModel;
+import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
 import com.welab.wefe.serving.service.service.ServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author ivenn.zheng
  * @date 2022/1/19
  */
 @Api(path = "service/query-one", name = "query service by id")
-public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceMySqlModel> {
-
+public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceDetailOutput> {
 
     @Autowired
     private ServiceService serviceService;
 
-
     @Override
-    protected ApiResult<ServiceMySqlModel> handle(Input input) throws Exception {
+    protected ApiResult<ServiceDetailOutput> handle(Input input) throws Exception {
         return success(serviceService.queryById(input));
     }
 
     public static class Input extends AbstractApiInput {
 
         private String id;
-
-        private Integer status;
 
         public String getId() {
             return id;
@@ -53,16 +50,5 @@ public class QueryOneApi extends AbstractApi<QueryOneApi.Input, ServiceMySqlMode
         public void setId(String id) {
             this.id = id;
         }
-
-        public Integer getStatus() {
-            return status;
-        }
-
-        public void setStatus(Integer status) {
-            this.status = status;
-        }
     }
 }
-
-
-

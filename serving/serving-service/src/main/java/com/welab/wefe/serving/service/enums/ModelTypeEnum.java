@@ -21,12 +21,12 @@ package com.welab.wefe.serving.service.enums;
  */
 public enum ModelTypeEnum {
     /**
-     * 机器学习模型文件
+     * 机器学习模型
      */
     MachineLearning,
 
     /**
-     * 深度学习模型文件
+     * 深度学习模型
      */
     DeepLearning
 }

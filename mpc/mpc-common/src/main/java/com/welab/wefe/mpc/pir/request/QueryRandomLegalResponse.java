@@ -16,14 +16,14 @@
 
 package com.welab.wefe.mpc.pir.request;
 
-
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author eval
  */
-public class QueryRandomLegalResponse implements Serializable {
+public class QueryRandomLegalResponse extends BaseResponse implements Serializable {
+    private static final long serialVersionUID = 4740124232070593594L;
     private String uuid;
     /**
      * result 可以为空

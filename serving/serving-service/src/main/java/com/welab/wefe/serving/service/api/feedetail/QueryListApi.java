@@ -58,7 +58,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         /**
          * 服务类型
          */
-        private Integer serviceType;
+        private String serviceType;
 
         /**
          * 统计类型：1 每年、 2 每月、 3 每日, 4 每小时
@@ -91,11 +91,11 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.clientName = clientName;
         }
 
-        public Integer getServiceType() {
+        public String getServiceType() {
             return serviceType;
         }
 
-        public void setServiceType(Integer serviceType) {
+        public void setServiceType(String serviceType) {
             this.serviceType = serviceType;
         }
 
@@ -154,7 +154,7 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
         /**
          * 付费类型
          */
-        private String payType;
+        private Integer payType;
 
         /**
          * 总调用次数
@@ -227,11 +227,12 @@ public class QueryListApi extends AbstractApi<QueryListApi.Input, PagingOutput<Q
             this.unitPrice = unitPrice;
         }
 
-        public String getPayType() {
+
+        public Integer getPayType() {
             return payType;
         }
 
-        public void setPayType(String payType) {
+        public void setPayType(Integer payType) {
             this.payType = payType;
         }
 

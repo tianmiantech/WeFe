@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.util.List;
 
 public class QueryKeysRequest implements Serializable {
+    
+    private static final long serialVersionUID = 1335229126255217344L;
+    
     private List<Object> ids;
     /**
      * id加密方式
@@ -34,6 +37,8 @@ public class QueryKeysRequest implements Serializable {
      * naorpinkas_ot or huack_ot
      */
     private String otMethod;
+    
+    private String requestId;
 
     public List<Object> getIds() {
         return ids;
@@ -57,5 +62,13 @@ public class QueryKeysRequest implements Serializable {
 
     public void setOtMethod(String otMethod) {
         this.otMethod = otMethod;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 }

@@ -16,27 +16,28 @@
 
 package com.welab.wefe.serving.sdk.algorithm.xgboost.single;
 
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.serving.sdk.algorithm.xgboost.XgboostAlgorithmHelper;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
 import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.model.PredictModel;
+import com.welab.wefe.serving.sdk.enums.StateCode;
 import com.welab.wefe.serving.sdk.model.xgboost.BaseXgboostModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgbProviderPredictResultModel;
+
+import java.util.List;
 
 /**
  * Vertically federated Provider(xgboost)
  *
  * @author hunter.zhao
  */
-public class XgboostVertProviderAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, PredictModel> {
+public class XgboostVertProviderAlgorithm extends AbstractXgboostAlgorithm<BaseXgboostModel, XgbProviderPredictResultModel> {
 
     @Override
-    protected PredictModel handlePredict(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-        return XgboostAlgorithmHelper.providerPredict(
-                modelParam.getModelMeta().getWorkMode(),
-                modelParam.getModelParam(),
-                predictParams.getUserId(),
-                fidValueMapping
-        );
+    protected XgbProviderPredictResultModel handlePredict(PredictParams predictParams, List<JObject> federatedResult) {
+        if (fidValueMapping.isEmpty()) {
+            return XgbProviderPredictResultModel.fail(predictParams.getUserId(), StateCode.FEATURE_ERROR.getMessage());
+        }
+
+        return XgboostAlgorithmHelper.providerPredict(modelParam.getModelMeta().getWorkMode(), modelParam.getModelParam(), predictParams.getUserId(), fidValueMapping);
     }
 }

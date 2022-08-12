@@ -50,6 +50,13 @@ public class Where {
         }
         return this;
     }
+    
+    public Where like(String name, String value) {
+        if (StringUtil.isNotEmpty(value)) {
+            where.add(new Item("like", name, value));
+        }
+        return this;
+    }
 
     /**
      * group by

@@ -17,8 +17,8 @@
 package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.serving.service.api.requeststatistics.QueryListApi;
-import com.welab.wefe.serving.service.database.serving.entity.RequestStatisticsMysqlModel;
-import com.welab.wefe.serving.service.database.serving.repository.RequestStatisticsRepository;
+import com.welab.wefe.serving.service.database.entity.RequestStatisticsMysqlModel;
+import com.welab.wefe.serving.service.database.repository.RequestStatisticsRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

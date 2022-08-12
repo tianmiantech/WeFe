@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,9 +37,6 @@ import java.util.Map;
  */
 public abstract class AbstractDruidTemplate extends AbstractTemplate {
 
-
-    private static final Map<String, DruidPooledConnection> DRUID_POOL_CONNECTION = new HashMap<>();
-
     private static final Map<String, Object> PROPERTIES = new HashMap<>();
 
     static {
@@ -51,8 +48,14 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
         PROPERTIES.put("maxWait", "1000");
     }
 
-    public AbstractDruidTemplate(String url, String username, String password, String sql, String userId) {
-        super(url, username, password, sql, userId);
+    public AbstractDruidTemplate(
+            DatabaseType databaseType,
+            String host,
+            int port,
+            String database,
+            String username,
+            String password) {
+        super(databaseType, host, port, database, username, password);
     }
 
     /**
@@ -62,14 +65,15 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
      */
     protected abstract String driver();
 
+
+    protected abstract String url();
+
     @Override
-    protected Map<String, Object> execute() throws StatusCodeWithException {
+    protected Map<String, Object> execute(String sql) throws StatusCodeWithException {
         //Get connection pool
-        DruidPooledConnection connection = getConnection(url, username, password, driver());
+        DruidPooledConnection connection = getConnection(url(), username, password, driver());
 
         try {
-
-            sql = StringUtil.replace(sql, placeholder, "'" + userId + "'");
 
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery();
@@ -91,6 +95,14 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
         } catch (SQLException e) {
             e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         return null;
@@ -98,12 +110,6 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
 
 
     private static DruidPooledConnection getConnection(String url, String username, String password, String driver) throws StatusCodeWithException {
-
-        DruidPooledConnection pool = DRUID_POOL_CONNECTION.get(url);
-
-        if (pool != null) {
-            return pool;
-        }
 
         synchronized (PROPERTIES) {
             PROPERTIES.put("url", url);
@@ -116,7 +122,7 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
                 DruidDataSource druidDataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(PROPERTIES);
                 druidDataSource.setBreakAfterAcquireFailure(true);
                 druidDataSource.setConnectionErrorRetryAttempts(0);
-                DRUID_POOL_CONNECTION.put(url, druidDataSource.getConnection());
+                return druidDataSource.getConnection();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -124,6 +130,5 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
             }
         }
 
-        return DRUID_POOL_CONNECTION.get(url);
     }
 }

@@ -16,10 +16,6 @@
 
 package com.welab.wefe.serving.service.api.datasource;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -27,8 +23,11 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.enums.DatabaseType;
+import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.serving.service.service.DataSourceService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * @author Jacky.jiang
