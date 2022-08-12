@@ -91,6 +91,12 @@ public class ConfigProperties {
     @Value("${send.action.config.block.size:1}")
     private double sendActionConfigBlockSize;
 
+    /**
+     * Http processor encrypt data switch
+     */
+    @Value("${http.processor.encrypt.enable:true}")
+    private boolean httpProcessorEncryptEnable;
+
     public Integer getRpcServerPort() {
         return rpcServerPort;
     }
@@ -172,5 +178,13 @@ public class ConfigProperties {
 
     public void setGrpcServerExternalPort(Integer grpcServerExternalPort) {
         this.grpcServerExternalPort = grpcServerExternalPort;
+    }
+
+    public boolean isHttpProcessorEncryptEnable() {
+        return httpProcessorEncryptEnable;
+    }
+
+    public void setHttpProcessorEncryptEnable(boolean httpProcessorEncryptEnable) {
+        this.httpProcessorEncryptEnable = httpProcessorEncryptEnable;
     }
 }

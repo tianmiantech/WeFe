@@ -184,6 +184,7 @@ public abstract class AbstractSendTransferMetaService {
         MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
         String dstIp = dstMemberEntity.getIp();
         int dstPort = dstMemberEntity.getPort();
+
         if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
             String intranetBaseUri = globalConfigService.getGatewayConfig().intranetBaseUri;
             dstIp = intranetBaseUri.split(":")[0];

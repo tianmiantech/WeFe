@@ -35,7 +35,7 @@ public class Client {
     public static String callLocalGateway(GatewayProcessorType processorType, String data) throws Exception {
         return callGateway(
                 // dev03
-                "290007c2a71d470ba00f486b18875d31",
+                "087973c99d26410683944bf3f46c8635",
                 "local_test",
                 GatewayActionType.none,
                 processorType,

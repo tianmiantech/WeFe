@@ -27,7 +27,7 @@ public class RefreshCaCertificateCacheScheduler {
     private final Logger LOG = LoggerFactory.getLogger(RefreshMemberCacheScheduler.class);
 
 
-    @Scheduled(cron = "0/20 * * * * ?")
+    @Scheduled(cron = "0/30 * * * * ?")
     public void execute() {
         LOG.info("Start refresh ca certificate cache......");
         if (!CaCertificateCache.getInstance().refreshCache()) {

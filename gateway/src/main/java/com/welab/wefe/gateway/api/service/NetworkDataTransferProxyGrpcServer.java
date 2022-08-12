@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@GrpcServer(useScope= GrpcServerScopeEnum.EXTERNAL, interceptors = {AntiTamperServerInterceptor.class, SignVerifyServerInterceptor.class, SystemTimestampVerifyServerInterceptor.class})
+@GrpcServer(interceptors = {AntiTamperServerInterceptor.class, SignVerifyServerInterceptor.class, SystemTimestampVerifyServerInterceptor.class})
 public class NetworkDataTransferProxyGrpcServer extends NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceImplBase {
     private final Logger LOG = LoggerFactory.getLogger(NetworkDataTransferProxyGrpcServer.class);
 
