@@ -66,7 +66,6 @@
                 >
                     <el-input
                         v-model="form.name"
-                        :maxlength="30"
                         :minlength="4"
                         size="medium"
                     />
