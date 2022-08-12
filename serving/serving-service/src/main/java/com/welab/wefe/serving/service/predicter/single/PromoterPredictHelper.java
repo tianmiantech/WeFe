@@ -214,7 +214,7 @@ public class PromoterPredictHelper {
 
 
     private static String extractResponseId(HttpResponse response) throws StatusCodeWithException {
-        if (!isSuccess(response)) {
+        if (response == null || !response.success() || response.getCode() != 200) {
             return "";
         }
 
