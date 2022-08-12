@@ -92,20 +92,25 @@ public class CertOperationService {
                 return;
             }
             CertRequestInfoMysqlModel certRequestInfoMysqlModel = findCertRequestById(certRequestId);
-            // 如果证书请求 已经 签发过了 或者 处于 审核中
-            if (certRequestInfoMysqlModel.getIssue()
-                    || CertStatusEnums.WAIT_VERIFY.name().equalsIgnoreCase(certStatus)) {
+            if (CertStatusEnums.WAIT_VERIFY.name().equalsIgnoreCase(certStatus)) {
                 return;
             }
+
             // 根据证书内容读取证书
             X509Certificate certificate = CertUtils.convertStrToCert(certPemContent);
             CertInfoMysqlModel certInfo = findBySerialNumber(String.valueOf(certificate.getSerialNumber()));
+
+            // 如果证书请求 已经 签发过了并且状态没有改变
+            if (certRequestInfoMysqlModel.getIssue() && certInfo.getStatus().equalsIgnoreCase(certStatus)) {
+                return;
+            }
+
             PublicKey publicKey = null;
             if (certInfo == null) {
                 certRequestInfoMysqlModel.setIssue(true);
                 certRequestInfoMysqlModel.setUpdatedTime(new Date());
                 certRequestInfoRepository.save(certRequestInfoMysqlModel);
-                
+
                 // 如果被拒绝了，则不需要保存证书信息
                 if (CertStatusEnums.VALID.name().equalsIgnoreCase(certStatus)) {
                     CertKeyInfoMysqlModel certKeyInfoMysqlModel = queryCertKeyInfoById(
@@ -124,12 +129,15 @@ public class CertOperationService {
                 }
 
             } else {
-                certRequestInfoMysqlModel.setIssue(true);
-                certRequestInfoMysqlModel.setUpdatedTime(new Date());
-                certRequestInfoRepository.save(certRequestInfoMysqlModel);
-
-                certInfo.setStatus(certStatus);
-                certInfoRepository.save(certInfo);
+                if (!certRequestInfoMysqlModel.getIssue()) {
+                    certRequestInfoMysqlModel.setIssue(true);
+                    certRequestInfoMysqlModel.setUpdatedTime(new Date());
+                    certRequestInfoRepository.save(certRequestInfoMysqlModel);
+                }
+                if (!certInfo.getStatus().equalsIgnoreCase(certStatus)) {
+                    certInfo.setStatus(certStatus);
+                    certInfoRepository.save(certInfo);
+                }
             }
         } catch (CertificateException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.ILLEGAL_REQUEST);
