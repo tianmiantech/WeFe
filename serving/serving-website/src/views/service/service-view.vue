@@ -1331,9 +1331,7 @@ export default {
     },
     watch: {
         'form.service_type'() {
-            if(this.form.service_type === ''){
-                this.file_upload_options.files = [];
-            }
+            this.file_upload_options.files = [];
             this.setServiceDesc();
         },
     },
