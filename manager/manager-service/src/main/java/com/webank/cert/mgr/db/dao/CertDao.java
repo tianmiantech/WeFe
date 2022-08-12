@@ -75,6 +75,10 @@ public class CertDao {
     public void updateStatus(String serialNumber, int status) {
         certInfoRepo.updateStatus(serialNumber, status);
     }
+    
+    public void updateCanTrust(String serialNumber, boolean status) {
+        certInfoRepo.updateCanTrust(serialNumber, status);
+    }
 
     public CertInfo findBySerialNumber(String serialNumber) {
         return certInfoRepo.findBySerialNumber(serialNumber);

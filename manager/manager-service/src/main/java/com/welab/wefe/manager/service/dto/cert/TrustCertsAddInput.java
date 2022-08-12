@@ -17,7 +17,6 @@
 package com.welab.wefe.manager.service.dto.cert;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.manager.service.dto.base.BaseInput;
 
 /**
@@ -107,19 +106,20 @@ public class TrustCertsAddInput extends BaseInput {
         this.subjectCn = subjectCn;
     }
 
-    public Boolean getCaCert() {
+    public Boolean getIsCaCert() {
         return isCaCert;
     }
 
-    public void setCaCert(Boolean caCert) {
-        isCaCert = caCert;
+    public void setIsCaCert(Boolean isCaCert) {
+        this.isCaCert = isCaCert;
     }
 
-    public Boolean getRootCert() {
+    public Boolean getIsRootCert() {
         return isRootCert;
     }
 
-    public void setRootCert(Boolean rootCert) {
-        isRootCert = rootCert;
+    public void setIsRootCert(Boolean isRootCert) {
+        this.isRootCert = isRootCert;
     }
+
 }

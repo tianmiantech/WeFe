@@ -81,6 +81,9 @@ public class CertInfo extends AbstractNormalMongoModel {
 
     // 创建人
     private String createdBy;
+    
+    // 是否在信任库中
+    private Boolean canTrust;
 
     public String getPkId() {
         return pkId;
@@ -216,6 +219,14 @@ public class CertInfo extends AbstractNormalMongoModel {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public Boolean getCanTrust() {
+        return canTrust;
+    }
+
+    public void setCanTrust(Boolean canTrust) {
+        this.canTrust = canTrust;
     }
 
 }

@@ -63,6 +63,9 @@ public class CertVO implements Serializable {
     private int status; // 证书状态
 
     private long createTime; // 创建时间
+    
+    // 是否在信任库中
+    private Boolean canTrust;
 
     public String getPkId() {
         return pkId;
@@ -198,6 +201,14 @@ public class CertVO implements Serializable {
 
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
+    }
+
+    public Boolean getCanTrust() {
+        return canTrust;
+    }
+
+    public void setCanTrust(Boolean canTrust) {
+        this.canTrust = canTrust;
     }
 
 }
