@@ -56,7 +56,7 @@ import java.util.Map;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "member/file/upload", name = "member_file_upload", allowAccessWithSign = true, login = false)
+@Api(path = "member/file/upload", name = "member_file_upload", allowAccessWithSign = true)
 public class FileUploadApi extends AbstractApi<FileUploadApi.Input, UploadFileApiOutput> {
     @Autowired
     private UnionNodeMongoRepo unionNodeMongoRepo;

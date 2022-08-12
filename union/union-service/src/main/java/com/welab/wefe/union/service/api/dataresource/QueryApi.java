@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/query", name = "data_resource_query", allowAccessWithSign = true, login = false)
+@Api(path = "data_resource/query", name = "data_resource_query", allowAccessWithSign = true)
 public class QueryApi extends AbstractApi<ApiDataResourceQueryInput, PageOutput<ApiDataResourceQueryOutput>> {
     @Autowired
     protected DataResourceMongoReop dataResourceMongoReop;
