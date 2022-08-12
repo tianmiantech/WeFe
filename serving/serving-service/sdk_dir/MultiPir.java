@@ -58,40 +58,7 @@ public class MultiPir {
 				"      \"model_id\": \"2\"\n" +
 				"    }\n" +
 				"  ],\n" +
-				"  \"index\":0,\n" +
-				"  \"otMethod\":\"huack_ot\"\n" +
-				"}";
-		System.out.println("多方匿踪查询参数 huack_ot 方式:\t" + request(dataStr));
-
-		dataStr = "{\n" +
-				"  \"ids\": [\n" +
-				"    {\n" +
-				"      \"member_id\": \"d0f47307804844898ecfc65b875abe87\",\n" +
-				"      \"model_id\": \"cee66626a97e42198bccb226dcd9743a_VertSecureBoost_16294251366419513\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"member_id\": \"1\",\n" +
-				"      \"model_id\": \"2\"\n" +
-				"    }\n" +
-				"  ],\n" +
-				"  \"index\":0,\n" +
-				"  \"otMethod\":\"naorpinkas_ot\"\n" +
+				"  \"index\":0\n" +
 				"}";
 		System.out.println("多方匿踪查询参数 naorpinkas_ot方式:\t" + request(dataStr));
         // 服务地址

@@ -16,15 +16,16 @@
 
 package com.welab.wefe.serving.sdk.test;
 
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
-import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractPromoterPredicter;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
+import com.welab.wefe.serving.sdk.predicter.single.AbstractSinglePredictor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,10 +34,10 @@ import java.util.Map;
  *
  * @author hunter.zhao
  */
-public class ExamplePromoterPredicter extends AbstractPromoterPredicter {
+public class ExamplePromoterPredicter extends AbstractSinglePredictor {
 
-    public ExamplePromoterPredicter(String modelId, PredictParams predictParams, JSONObject params, List<ProviderParams> providers, String memberId) {
-        super(modelId, predictParams, params, providers, memberId);
+    public ExamplePromoterPredicter(String modelId, String userId, Map<String, Object> featureData) {
+        super(modelId, userId, featureData);
     }
 
     @Override
@@ -74,19 +75,26 @@ public class ExamplePromoterPredicter extends AbstractPromoterPredicter {
         return model;
     }
 
-
     @Override
-    public Map<String, Object> fillFeatureData() {
-        /**
-         * custom
-         */
-        return predictParams.getFeatureData();
+    public List<JObject> federatedResultByProviders() throws StatusCodeWithException {
+
+        List<JObject> federatedResult = new ArrayList<>();
+
+//        for (ProviderParams obj : ) {
+//            AbstractBasePredictor provider = new ExampleProviderPredicter()
+//                    .setPredictParams(predictParams)
+//                    .setFederatedParams(FederatedParams.of("modelId-02", obj.getMemberId()));
+//            PredictResult providerResult = provider.predict();
+//            federatedResult.add(JObject.create(JSON.toJSONString(providerResult)));
+//        }
+
+        return federatedResult;
     }
 
     @Override
-    public void featureEngineering() {
-        /**
-         * custom
-         */
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
+        return predictParams.getFeatureDataModel();
     }
+
+
 }

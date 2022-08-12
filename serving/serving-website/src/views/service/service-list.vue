@@ -7,6 +7,9 @@
             class="mb20"
             inline
         >
+            <el-form-item label="服务ID:">
+                <el-input v-model="search.service_id" />
+            </el-form-item>
             <el-form-item label="服务名称:">
                 <el-input v-model="search.name" />
             </el-form-item>
@@ -68,7 +71,7 @@
                 :to="{name: 'service-view'}"
             >
                 <el-button>
-                    新增
+                    新增服务
                 </el-button>
             </router-link>
         </el-form>
@@ -89,17 +92,33 @@
                 min-width="240px"
             >
                 <template slot-scope="scope">
-                    <router-link :to="{ name: 'service-view', query: { id: scope.row.id } }">
+                    <router-link :to="{ name: 'service-view', query: { id: scope.row.id, service_type: scope.row.service_type } }">
                         {{ scope.row.name }}
                     </router-link>
-                    <p class="id">{{ scope.row.id }}</p>
+                    <p class="id">{{ scope.row.service_id }}</p>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                label="URL"
+                min-width="140px"
+            >
+                <template slot-scope="scope">
+                    <el-tooltip
+                        class="item"
+                        effect="dark"
+                        :content="scope.row.url"
+                        placement="left-start"
+                    >
+                        <p v-if="scope.row.url.length >= 30">{{ scope.row.url.substring(0, 30) }} ...</p>
+                        <p v-if="scope.row.url.length < 30">{{ scope.row.url }} </p>
+                    </el-tooltip>
                 </template>
             </el-table-column>
 
             <el-table-column
                 label="服务类型"
-                prop="service_type"
-                min-width="100px"
+                min-width="120px"
             >
                 <template slot-scope="scope">
                     {{ serviceTypeMap[scope.row.service_type] }}
@@ -108,10 +127,10 @@
             <el-table-column
                 label="状态"
                 prop="status"
-                width="100px"
+                width="60px"
             >
                 <template slot-scope="scope">
-                    <div v-if="scope.row.status == 0">
+                    <div v-if="scope.row.status === 0">
                         离线
                     </div>
                     <div v-else>
@@ -122,7 +141,7 @@
 
             <el-table-column
                 label="创建时间"
-                min-width="160px"
+                min-width="110px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.created_time | dateFormat }}
@@ -131,7 +150,7 @@
 
             <el-table-column
                 label="更新时间"
-                min-width="160px"
+                min-width="110px"
             >
                 <template slot-scope="scope">
                     {{ scope.row.updated_time | dateFormat }}
@@ -140,16 +159,25 @@
 
             <el-table-column
                 label="创建人"
-                prop="created_by"
-            />
+                width="80px"
+            >
+                <template slot-scope="scope">
+                    <p>{{ scope.row.created_by }}</p>
+                </template>
+            </el-table-column>
+
             <el-table-column
                 label="修改人"
-                prop="updated_by"
-            />
+                width="80px"
+            >
+                <template slot-scope="scope">
+                    <p>{{ scope.row.updated_by }}</p>
+                </template>
+            </el-table-column>
 
             <el-table-column
                 label="操作"
-                width="150px"
+                width="180px"
                 fixed="right"
             >
                 <template slot-scope="scope">
@@ -157,7 +185,7 @@
                         type="primary"
                         @click="editService(scope.row)"
                     >
-                        编辑
+                        配置
                     </el-button>
                     <el-button
                         v-if="scope.row.status == 0"
@@ -173,6 +201,53 @@
                     >
                         下线
                     </el-button>
+                    &nbsp;
+                    <el-dropdown size="small">
+                        <el-button
+                            type="text"
+                            size="small"
+                        >
+                            更多
+                        </el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item v-if="scope.row.service_type < 7">
+                                    <el-button
+                                        type="text"
+                                        size="small"
+                                        @click="export_sdk(scope.row.id)"
+                                    >
+                                        下载工具包
+                                    </el-button>
+                                </el-dropdown-item>
+                                <el-dropdown-item
+                                    v-if="scope.row.service_type > 6"
+                                    divided
+                                >
+                                    <el-button
+                                        type="text"
+                                        size="small"
+                                        @click="alert('pass')"
+                                    >
+                                        监控
+                                    </el-button>
+                                </el-dropdown-item>
+                                <el-dropdown-item
+                                    v-if="scope.row.service_type > 6"
+                                    divided
+                                >
+                                    <el-button
+                                        v-if="scope.row.service_type > 6"
+                                        type="text"
+                                        size="small"
+                                        @click="alert('pass')"
+                                    >
+                                        效果
+                                    </el-button>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
                 </template>
             </el-table-column>
         </el-table>
@@ -196,6 +271,7 @@
 
 <script>
     import table from '@src/mixins/table.js';
+    import { mapGetters } from 'vuex';
 
     export default {
         mixins: [table],
@@ -203,6 +279,7 @@
             return {
                 accounts: [],
                 search:   {
+                    service_id: '',
                     name:         '',
                     created_by:   '',
                     service_type: '',
@@ -220,30 +297,40 @@
                 },
                 dataDialog:      false,
                 jsonData:        '',
-                serviceTypeList: [{
-                    name:  '两方匿踪查询',
-                    value: '1',
-                },
-                {
-                    name:  '两方交集查询',
-                    value: '2',
-                },
-                {
-                    name:  '多方安全统计(被查询方)',
-                    value: '3',
-                },
-                {
-                    name:  '多方安全统计(查询方)',
-                    value: '4',
-                },
-                {
-                    name:  '多方交集查询',
-                    value: '5',
-                },
-                {
-                    name:  '多方匿踪查询',
-                    value: '6',
-                }],
+                serviceTypeList: [
+                    {
+                        name:  '两方匿踪查询',
+                        value: '1',
+                    },
+                    {
+                        name:  '两方交集查询',
+                        value: '2',
+                    },
+                    {
+                        name:  '多方安全统计(被查询方)',
+                        value: '3',
+                    },
+                    {
+                        name:  '多方安全统计(查询方)',
+                        value: '4',
+                    },
+                    {
+                        name:  '多方交集查询',
+                        value: '5',
+                    },
+                    {
+                        name:  '多方匿踪查询',
+                        value: '6',
+                    },
+                    {
+                        name:  '机器学习模型服务',
+                        value: '7',
+                    },
+                    {
+                        name:  '深度学习模型服务',
+                        value: '8',
+                    },
+                ],
                 serviceTypeMap: {
                     1: '两方匿踪查询',
                     2: '两方交集查询',
@@ -251,8 +338,13 @@
                     4: '多方安全统计(查询方)',
                     5: '多方交集查询',
                     6: '多方匿踪查询',
+                    7: '机器学习模型服务',
+                    8: '深度学习模型服务',
                 },
             };
+        },
+        computed: {
+            ...mapGetters(['userInfo']),
         },
         created() {
             this.getAccounts();
@@ -271,11 +363,10 @@
                     this.jsonData = string;
                 });
             },
-
             editService(row) {
                 this.$router.push({
                     name:  'service-view',
-                    query: { id: row.id },
+                    query: { id: row.id,service_type: row.service_type },
                 });
             },
 
@@ -312,6 +403,16 @@
                         this.getList();
                     }
                 });
+            },
+            async export_sdk(id) {
+                const api = `${window.api.baseUrl}/service/export_sdk?serviceId=${id}&token=${this.userInfo.token}`;
+                const link = document.createElement('a');
+
+                link.href = api;
+                link.target = '_blank';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
             },
         },
     };

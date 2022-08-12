@@ -20,7 +20,7 @@ workdir=$(pwd)/$(dirname $0)/../../ ; cd $workdir
 rm -rf node_modules
 nvm use 16.13.0 || :
 nrm use npm
-npm install
+yarn install
 npm run build -- $CI_DEPLOY_ENV=manager-website
 
 ## 生成 JSON 配置文件，此文件作用告知运维怎么拿到实际要部署的代码、配置文件（以目录形式存放）

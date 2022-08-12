@@ -31,6 +31,8 @@ public class QueryDiffieHellmanKeyRequest {
 
     @JSONField(name="query_params")
     private JSONObject queryParams;
+    
+    private String requestId;
 
     public String getP() {
         return p;
@@ -62,5 +64,13 @@ public class QueryDiffieHellmanKeyRequest {
 
     public void setQueryParams(JSONObject queryParams) {
         this.queryParams = queryParams;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 }

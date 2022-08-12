@@ -16,14 +16,13 @@
 
 package com.welab.wefe.serving.sdk.test;
 
-import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.wefe.enums.Algorithm;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
-import com.welab.wefe.serving.sdk.dto.FederatedParams;
-import com.welab.wefe.serving.sdk.dto.PredictParams;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.sdk.predicter.single.AbstractProviderPredicter;
+import com.welab.wefe.serving.sdk.model.FeatureDataModel;
+import com.welab.wefe.serving.sdk.predicter.single.AbstractSingleProviderPredictor;
 
 import java.util.Map;
 
@@ -32,11 +31,10 @@ import java.util.Map;
  *
  * @author hunter.zhao
  */
-public class ExampleProviderPredicter extends AbstractProviderPredicter {
+public class ExampleProviderPredicter extends AbstractSingleProviderPredictor {
 
-
-    public ExampleProviderPredicter(FederatedParams federatedParams, PredictParams predictParams, JSONObject params) {
-        super(federatedParams, predictParams, params);
+    public ExampleProviderPredicter(String modelId, String userId, Map<String, Object> featureData) {
+        super(modelId, userId, featureData);
     }
 
     @Override
@@ -74,19 +72,12 @@ public class ExampleProviderPredicter extends AbstractProviderPredicter {
         return model;
     }
 
-
     @Override
-    public Map<String, Object> fillFeatureData() {
+    public FeatureDataModel findFeatureData(String userId) throws StatusCodeWithException {
         /**
          * Custom example
          */
-        return predictParams.getFeatureData();
+        return predictParams.getFeatureDataModel();
     }
 
-    @Override
-    public void featureEngineering() {
-        /**
-         * Custom example
-         */
-    }
 }

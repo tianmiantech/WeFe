@@ -61,6 +61,7 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
             MemberExtJSON extJson = new MemberExtJSON();
             extJson.setRealNameAuthStatus(0);
             extJson.setSecretKeyType(secretKeyType);
+            extJson.setServingBaseUrl(input.servingBaseUrl);
             member.setExtJson(JSON.toJSONString(extJson));
 
             memberContractService.add(member);
@@ -86,6 +87,7 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
         private String gatewayUri;
         private String logo;
         private SecretKeyType secretKeyType = SecretKeyType.rsa;
+        private String servingBaseUrl;
 
         public String getId() {
             return id;
@@ -181,6 +183,14 @@ public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
 
         public void setSecretKeyType(SecretKeyType secretKeyType) {
             this.secretKeyType = secretKeyType;
+        }
+
+        public String getServingBaseUrl() {
+            return servingBaseUrl;
+        }
+
+        public void setServingBaseUrl(String servingBaseUrl) {
+            this.servingBaseUrl = servingBaseUrl;
         }
     }
 }

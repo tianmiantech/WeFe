@@ -75,6 +75,12 @@ public abstract class AbstractHttpTransferVariable {
 
         String responseString = response.body();
         JSONObject res = JSONObject.parseObject(responseString);
+        if(res.getIntValue("code") != 0) {
+            String errorMessage = res.getString("message") + ",customer_id=" + mConfig.getCommercialId() + ",url="
+                    + url;
+            res.put("message", errorMessage);
+            return res.toJSONString();
+        }
         String result = res.getString("data");
         logger.debug(url);
         logger.debug(JSONObject.toJSONString(res, true));

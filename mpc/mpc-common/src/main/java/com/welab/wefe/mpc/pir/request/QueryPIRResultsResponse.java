@@ -19,7 +19,8 @@ package com.welab.wefe.mpc.pir.request;
 import java.io.Serializable;
 import java.util.List;
 
-public class QueryPIRResultsResponse implements Serializable {
+public class QueryPIRResultsResponse extends BaseResponse implements Serializable {
+    private static final long serialVersionUID = 5449665751690852129L;
     private String uuid;
     private List<String> results;
 

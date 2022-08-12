@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.service;
 import com.welab.wefe.board.service.api.member.InitializeApi;
 import com.welab.wefe.board.service.api.member.UpdateMemberInfoApi;
 import com.welab.wefe.board.service.api.member.UpdateMemberLogoApi;
+import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.BloomFilterMysqlModel;
 import com.welab.wefe.board.service.database.entity.data_resource.ImageDataSetMysqlModel;
@@ -63,6 +64,9 @@ public class SystemInitializeService extends AbstractService {
     @Autowired
     private BloomFilterRepository bloomFilterRepository;
 
+    @Autowired
+    private Config config;
+
     /**
      * Synchronize member information to union for the recovery of membership after union data is lost.
      */
@@ -86,6 +90,13 @@ public class SystemInitializeService extends AbstractService {
         }
     }
 
+
+    /**
+     * Synchronize member information to union for the recovery of membership after union data is lost.
+     */
+    public synchronized void syncMemberToServing(String phoneNumber, String password) throws StatusCodeWithException {
+        servingService.refreshMemberInfo(globalConfigService.getModel(MemberInfoModel.class), config.getUnionBaseUrl(), phoneNumber, password);
+    }
 
     /**
      * Is the system initialized
@@ -183,7 +194,7 @@ public class SystemInitializeService extends AbstractService {
         globalConfigService.put(model);
 
         // Update serving global settings
-        servingService.asynRefreshMemberInfo(model);
+//        servingService.asynRefreshMemberInfo(model);
 
         CacheObjects.refreshMemberInfo();
 
