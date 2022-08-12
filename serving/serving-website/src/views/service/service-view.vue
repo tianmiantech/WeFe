@@ -20,7 +20,7 @@
                     <el-form-item
                         prop="service_type"
                         label="服务类型:"
-                        style="min-width: 280px;"
+                        style="min-width: 280px;min-height:50px"
                         label-width="100px"
                     >
                         <el-select
