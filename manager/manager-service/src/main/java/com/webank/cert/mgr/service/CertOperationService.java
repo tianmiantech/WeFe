@@ -25,6 +25,8 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -185,7 +187,7 @@ public class CertOperationService {
         }
         KeyAlgorithmEnums issuerKeyAlgorithm = KeyAlgorithmEnums.getByKeyAlg(issuerKeyInfo.getKeyAlg());
         CertDigestAlgEnums issuerCertDigestAlgEnums = getCertDigestAlg(issuerKeyAlgorithm);
-        KeyPair issuerKeyPair = getKeyPair(issuerKeyAlgorithm, issuerKeyInfo.getKeyPem());
+        KeyPair issuerKeyPair = getKeyPair(issuerKeyAlgorithm, DatabaseEncryptUtil.decrypt(issuerKeyInfo.getKeyPem()));
 
         // 签发机构的证书校验
         X509Certificate issuerCertificate = CertUtils.convertStrToCert(issuerCertInfo.getCertContent());
@@ -260,14 +262,18 @@ public class CertOperationService {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_CERT_VALIDITY_FAILURE);
         }
 
+        PKCS10CertificationRequest csrObject = CertUtils.convertStrToCsr(certRequestContent);
+
         // 证书签发
         X509Certificate certificate = certService.createChildCertificate(isCaCert,
-                issuerCertDigestAlgEnums.getAlgorithmName(), parentCertificate,
-                CertUtils.convertStrToCsr(certRequestContent), keyUsage, beginDate, endDate,
+                issuerCertDigestAlgEnums.getAlgorithmName(), parentCertificate, csrObject, keyUsage, beginDate, endDate,
                 issuerKeyPair.getPrivate());
+
+        RDN org = csrObject.getSubject().getRDNs(BCStyle.O)[0]; 
+        RDN cn = csrObject.getSubject().getRDNs(BCStyle.CN)[0]; 
         // 保存csr
-        CertRequestInfo subjectRequestInfo = certDao
-                .save(createUserCertRequest(null, memberId, certRequestContent, null));
+        CertRequestInfo subjectRequestInfo = certDao.save(createUserCertRequest(cn.getFirst().getValue().toString(),
+                memberId, certRequestContent, org.getFirst().getValue().toString(), null));
         // 保存cert
         CertInfo certInfo = certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate),
                 issuerCertInfo.getSubjectCN(), issuerCertInfo.getSubjectOrg(), subjectRequestInfo.getSubjectCN(),
@@ -296,12 +302,12 @@ public class CertOperationService {
         return certKeyInfo;
     }
 
-    private CertRequestInfo createUserCertRequest(String commonName, String userId, String certRequestContent,
+    private CertRequestInfo createUserCertRequest(String commonName, String userId, String certRequestContent,String organizationName,
             X500NameInfo subject) throws Exception {
         if (StringUtils.isBlank(userId)) {
             throw new CertMgrException(MgrExceptionCodeEnums.PKEY_MGR_ACCOUNT_NOT_EXIST);
         }
-        return certDao.save(buildCertRequestInfo(certRequestContent, null, null, null, userId));
+        return certDao.save(buildCertRequestInfo(certRequestContent, null, commonName, organizationName, userId));
     }
 
     private CertRequestInfo buildCertRequestInfo(String csrStr, String subjectKeyId, String commonName,
@@ -309,12 +315,10 @@ public class CertOperationService {
         CertRequestInfo certRequestInfo = new CertRequestInfo();
         certRequestInfo.setMemberId(memberId);
         certRequestInfo.setCreatedBy(CurrentAccount.id());
-//        certRequestInfo.setIssuerCertId(parentCertId);
         certRequestInfo.setSubjectKeyId(subjectKeyId);
         certRequestInfo.setSubjectCN(commonName);
         certRequestInfo.setSubjectOrg(organizationName);
         certRequestInfo.setCertRequestContent(csrStr);
-//        certRequestInfo.setIssuerCertUserId(pCertUserId);
         certRequestInfo.setIssue(true);
         return certRequestInfo;
     }
@@ -341,18 +345,15 @@ public class CertOperationService {
         CertInfo certInfo = new CertInfo();
         certInfo.setUserId(userId);
         certInfo.setCreatedBy(CurrentAccount.id());
-//        certInfo.setIssuerKeyId(issuerCertKeyId);// 貌似不需要？？？？
         certInfo.setIssuerCN(issuerCommonName);
         certInfo.setIssuerOrg(issuerOrgName);
-        certInfo.setpCertId(issuerCertId); // optional 根证书为空
-
-//        certInfo.setSubjectKeyId(subjectKeyId); // optional 非根证书为空
+        certInfo.setpCertId(issuerCertId);
         certInfo.setSubjectCN(subjectCommonName);
         certInfo.setSubjectOrg(subjectOrgName);
         certInfo.setSubjectPubKey(CertUtils.readPEMAsString(publicKey));
 
         certInfo.setCertContent(certificatePemStr);
-        certInfo.setSerialNumber(String.valueOf(serialNumber)); // optional
+        certInfo.setSerialNumber(String.valueOf(serialNumber));
         certInfo.setIsCACert(isCACert);
         certInfo.setIsRootCert(isRootCert);
         certInfo.setCsrId(csrId);

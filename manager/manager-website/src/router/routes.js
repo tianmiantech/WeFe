@@ -94,7 +94,7 @@ const baseRoutes = [
         ],
     },
     {
-        path: `${prefixPath}cert`,
+        path: `${prefixPath}cert-list`,
         meta: {
             title:          '证书管理',
             requiresLogout: false,

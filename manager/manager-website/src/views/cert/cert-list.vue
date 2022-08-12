@@ -34,7 +34,7 @@
             <el-table-column label="序号" type="index"></el-table-column>
             <el-table-column
                 label="ID"
-                width="240"
+                width="200"
             >
                 <template v-slot="scope">
                     <router-link class="mb10" :to="{ name: 'cert-view', query: { pk_id: scope.row.pk_id}}">
@@ -45,31 +45,31 @@
             </el-table-column>
             <el-table-column
                 label="证书序列号"
-                width="200"
+                width="170"
             >
                 <template v-slot="scope">
                     {{ scope.row.serial_number }}
                 </template>
 
             </el-table-column>
-            <el-table-column label="成员ID" width="230">
+            <el-table-column label="成员ID" width="200">
                 <template v-slot="scope">
                     {{ scope.row.user_id }}
                 </template>
             </el-table-column>
-            <el-table-column label="subject_cn" width="120">
+            <el-table-column label="申请人(org/cn)" width="150">
                 <template v-slot="scope">
-                    {{ scope.row.subject_cn }}
+                    {{ scope.row.subject_org }} / {{ scope.row.subject_cn }}
                 </template>
             </el-table-column>
-            <el-table-column label="subject_org" width="120">
+            <el-table-column label="签发人(org/cn)" width="150">
                 <template v-slot="scope">
-                    {{ scope.row.subject_org }}
+                    {{ scope.row.issuer_org }} / {{ scope.row.issuer_cn }}
                 </template>
             </el-table-column>
-            <el-table-column label="是否是根证书" width="120">
+            <el-table-column label="根证书" width="80">
                 <template v-slot="scope">
-                    {{ scope.row.is_root_cert }}
+                    {{ scope.row.is_root_cert ? '是' : '否' }}
                 </template>
             </el-table-column>
             <el-table-column label="创建时间" width="200">
@@ -87,7 +87,6 @@
             <el-table-column
                 label="操作"
                 fixed="right"
-                min-width="240"
             >
                 <template v-slot="scope">
                     <template v-if="scope.row.status === 0 && !scope.row.is_ca_cert">
@@ -191,8 +190,10 @@ export default {
                 },
             });
             if(code === 0) {
-                this.refresh();
                 this.$message.success('初始化成功!');
+                setTimeout(() => {
+                    this.refresh();
+                }, 500);
             }
         },
     },
