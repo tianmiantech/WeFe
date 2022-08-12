@@ -137,10 +137,10 @@ public class GrpcServerContext {
      */
     private SslContext buildSslContext() throws Exception {
         ServerCertService serverCertService = GatewayServer.CONTEXT.getBean(ServerCertService.class);
-
         ServerCertInfoModel serverCertInfoModel = serverCertService.getCertInfo();
         String key = serverCertInfoModel.getKey();
         String content = serverCertInfoModel.getContent();
+
         SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)),
                 new ByteArrayInputStream(key.getBytes(StandardCharsets.UTF_8)));
         sslContextBuilder = GrpcSslContexts.configure(sslContextBuilder, SslProvider.OPENSSL);
