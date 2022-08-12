@@ -83,6 +83,7 @@ public class TrustCertsUpdateApi extends AbstractApi<TrustCertsUpdateApi.Input, 
             certService.updateCanTrust(newInput.getSerialNumber(), true);
         } else {
             // TODO
+            // 从区块链中移除
             certService.updateCanTrust(certVO.getSerialNumber(), false);
         }
         return success();
