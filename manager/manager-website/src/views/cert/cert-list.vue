@@ -92,12 +92,12 @@
                     <template v-if="scope.row.status === 0 && !scope.row.is_ca_cert">
                         <el-button
                             type="primary"
-                            @click="changeStatus($event, scope.row.pk_id, 1)"
+                            @click="changeStatus($event, scope.row.pk_id, 2)"
                         >
                             置为有效
                         </el-button>
                     </template>
-                    <template v-if="scope.row.status === 1 && !scope.row.is_ca_cert">
+                    <template v-if="scope.row.status === 2 && !scope.row.is_ca_cert">
                         <el-button
                             type="danger"
                             @click="changeStatus($event, scope.row.pk_id, 0)"

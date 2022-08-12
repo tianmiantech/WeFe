@@ -163,6 +163,7 @@
                                 style="margin-top:-10px;"
                             ><strong>认证有效期：{{ real_name_auth_useful_life }}</strong></p>
                             <p>&nbsp;</p>
+                            <p class="tips-alert" v-if="form.cert_status !== 'VALID'"> ※ 证书已失效</p>
                             <el-form-item :span="10" label="开启TLS通信："
                                           v-if="enterpriseAuth === 2 && real_name_auth_useful_life">
                                 <el-radio
@@ -253,6 +254,7 @@
                     member_gateway_uri:           '',
                     last_activity_time:           0,
                     member_gateway_tls_enable:  true,
+                    cert_status:'',
                 },
                 enterpriseAuth: '',
                 audit_comment:  '',
@@ -295,6 +297,7 @@
 
                     if (res.code === 0) {
                         this.form.last_activity_time = res.data.list[0].last_activity_time;
+                        this.form.cert_status = res.data.list[0].ext_json.cert_status;
                     }
                 }
 
