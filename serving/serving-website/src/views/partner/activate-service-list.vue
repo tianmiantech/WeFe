@@ -122,22 +122,14 @@
             >
                 <template slot-scope="scope">
                     <el-button
-                        v-if="scope.row.status === '未启用' && scope.row.type === 0"
-                        type="success"
-                        @click="open(scope.row,1)"
-                    >
-                        启用
-                    </el-button>
-                    <el-button
-                        v-if="scope.row.status === '已启用' && scope.row.type === 0"
                         type="danger"
-                        @click="open(scope.row,0)"
+                        @click="delete_activate(scope.row)"
                     >
-                        禁用
+                        删除
                     </el-button>
                     <router-link style="padding-left: 3px"
                                  :to="{
-                            name: scope.row.type === 0 ?'partner-service-edit':'activate-service-edit',
+                            name: 'activate-service-edit',
                             query: {
                                 serviceId: scope.row.service_id,
                                 clientId: scope.row.client_id,
@@ -234,25 +226,24 @@ export default {
                 },
             });
         },
-
-        async changeStatus(row, status) {
-
-            const {code} = await this.$http.post({
-                url: '/clientservice/update_status',
-                data: {
-                    serviceId: row.service_id,
-                    clientId: row.client_id,
-                    status: status,
-                    updatedBy: this.userInfo.nickname,
-                },
-            });
-
-            if (code === 0) {
-                this.$message({
-                    type: 'success',
-                    message: status === 1 ? '启用成功' : '禁用成功',
+        delete_activate(row) {
+            this.$confirm('确定删除？', '警告', {
+                type: 'warning',
+            }).then(async () => {
+                const {code} = await this.$http.post({
+                    url: '/clientservice/delete_activate',
+                    data: {
+                        serviceId: row.service_id,
+                        clientId: row.client_id,
+                    },
                 });
-            }
+                if (code === 0) {
+                    this.$message('删除成功!');
+                    setTimeout(() => {
+                        this.refresh();
+                    }, 1000);
+                }
+            });
         },
     },
 };

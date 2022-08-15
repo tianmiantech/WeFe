@@ -89,7 +89,7 @@ public class ModelImportService {
     }
 
     private JobMemberRole extractMyRole(JObject jObject) {
-        return JobMemberRole.promoter;
+        return JobMemberRole.valueOf(jObject.getString("myRole"));
     }
 
     private JObject decryptModel(String modelCiphertext, String aesKey) {

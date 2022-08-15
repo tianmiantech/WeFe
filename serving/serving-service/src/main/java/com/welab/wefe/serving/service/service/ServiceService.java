@@ -629,7 +629,7 @@ public class ServiceService {
     private boolean isIpWhiteList(RouteApi.Input input, ClientServiceMysqlModel clientServiceMysqlModel) {
         String clientIp = ServiceUtil.getIpAddr(input.request);
 
-        return Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp);
+        return clientServiceMysqlModel.getIpAdd() != null && Arrays.asList(clientServiceMysqlModel.getIpAdd().split(",|，")).contains(clientIp);
     }
 
     public TableServiceMySqlModel findById(String serviceId) {
@@ -684,11 +684,11 @@ public class ServiceService {
     private String createOrder(BaseServiceMySqlModel service, RouteApi.Input input, ServiceOrderEnum status) {
         PartnerMysqlModel partner = partnerService.queryByCode(input.getPartnerCode());
 
-        ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getId(), service.getName(),
+        ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getServiceId(), service.getName(),
                 service.getServiceType(),
-                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
-                        : CallByMeEnum.NO.getValue(),
-                status.getValue(), partner.getId(), partner.getName(), CacheObjects.getMemberId(),
+                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
+                        : CallByMeEnum.NO.getCode(),
+                status.getValue(), partner.getCode(), partner.getName(), CacheObjects.getMemberId(),
                 CacheObjects.getMemberName());
         return serviceOrderModel.getId();
     }
@@ -711,8 +711,8 @@ public class ServiceService {
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
         callLog.setResponseData(JSON.toJSONString(result));
         callLog.setCallByMe(
-                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getValue()
-                        : CallByMeEnum.NO.getValue());
+                input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
+                        : CallByMeEnum.NO.getCode());
         callLog.setResponseStatus(responseStatus);
         callLog.setSpendTime(System.currentTimeMillis() - beginTime);
         serviceCallLogService.save(callLog);
@@ -721,7 +721,7 @@ public class ServiceService {
     private String preExecuteCallLog(String serviceOrderId, BaseServiceMySqlModel service, PartnerMysqlModel client,
                                      RouteApi.Input input, String clientIp) {
         ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderId, 0, client.getId(),
-                client.getName(), service.getId(), service.getName(), service.getServiceType(), input.getRequestId(),
+                client.getName(), service.getServiceId(), service.getName(), service.getServiceType(), input.getRequestId(),
                 JSONObject.toJSONString(input), clientIp);
         return serviceCallLogMysqlModel.getId();
     }

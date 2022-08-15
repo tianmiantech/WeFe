@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Jervis
  **/
-@Api(path = "member/add", name = "member_add", allowAccessWithSign = false, login = false)
+@Api(path = "member/add", name = "member_add", allowAccessWithSign = false)
 public class AddApi extends AbstractApi<AddApi.Input, MemberOutput> {
 
     @Autowired

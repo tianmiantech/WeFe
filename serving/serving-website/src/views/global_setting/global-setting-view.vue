@@ -2,8 +2,8 @@
     <div class="page">
         <el-card>
             <el-form :model="form" @submit.prevent>
-                <el-row :gutter="24">
-                    <el-col :span="10">
+                <el-row :gutter="30">
+                    <el-col :span="12">
 
                         <fieldset>
                             <legend>基本配置</legend>
@@ -12,10 +12,10 @@
                                 {{ form.identity_info.member_id }}
 
                                 <el-popover v-if="mode === 1"
-                                    placement="top-start"
-                                    width="100"
-                                    trigger="hover"
-                                    content="已加入联邦"
+                                            placement="top-start"
+                                            width="100"
+                                            trigger="hover"
+                                            content="已加入联邦"
                                 >
                                     <el-button
                                         slot="reference"
@@ -68,11 +68,6 @@
                                     :disabled="is_update"
                                 />
                             </el-form-item>
-
-<!--                            <el-form-item label="运行模式：">-->
-<!--                                <el-radio v-model="mode" :label="0" @change="modeChange">独立模式</el-radio>-->
-<!--                                <el-radio v-model="mode" :label="1" @change="modeChange">联邦模式</el-radio>-->
-<!--                            </el-form-item>-->
                         </fieldset>
                         <fieldset>
                             <legend>邮箱配置</legend>
@@ -118,7 +113,68 @@
 
                         </fieldset>
                     </el-col>
+
+                    <el-col :span="12">
+                        <fieldset>
+                            <legend>提醒</legend>
+                            <el-form-item label="找回密码验证码通道：">
+                                <el-radio
+                                    v-model="form.verification_code_channel.channel"
+                                    label="sms"
+                                    :disabled="is_update"
+                                >
+                                    短信
+                                </el-radio>
+                                <el-radio
+                                    v-model="form.verification_code_channel.channel"
+                                    label="mail"
+                                    :disabled="is_update"
+                                >
+                                    邮箱
+                                </el-radio>
+                            </el-form-item>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>短信配置</legend>
+                            <el-form-item label="AccessKeyId：">
+                                <el-input
+                                    v-model="form.sms_config.key_id"
+                                    :disabled="is_update"
+                                ></el-input>
+
+
+                            </el-form-item>
+                            <el-form-item label="AccessKeySecret：">
+                                <el-input
+                                    v-model="form.sms_config.key_secret"
+                                    :disabled="is_update"
+                                ></el-input>
+
+
+                            </el-form-item>
+                            <el-form-item label="找回密码短信模板码：">
+                                <el-input
+                                    v-model="form.sms_config.forget_password_template_code"
+                                    :disabled="is_update"
+                                ></el-input>
+
+
+                            </el-form-item>
+                            <el-form-item label="注册模板码：">
+                                <el-input
+                                    v-model="form.sms_config.register_template_code"
+                                    :disabled="is_update"
+                                ></el-input>
+
+
+                            </el-form-item>
+
+                        </fieldset>
+                    </el-col>
+
                 </el-row>
+
 
                 <el-divider/>
                 <el-button
@@ -143,7 +199,7 @@
                 close-text=" "
                 show-icon
             />
-            <br />
+            <br/>
             <el-button type="danger" v-loading="is_reset" @click="resetKey">
                 重置密钥
             </el-button>
@@ -180,7 +236,18 @@ export default {
                     username: '',
                     port: '',
                     password: '',
+                },
+                verification_code_channel: {
+                    channel: ''
+                },
+                sms_config: {
+                    key_id: '',
+                    key_secret: '',
+                    name: '',
+                    forget_password_template_code: '',
+                    register_template_code: ''
                 }
+
             },
 
         };
@@ -204,7 +271,13 @@ export default {
             const {code, data} = await this.$http.post({
                 url: '/global_config/detail',
                 data: {
-                    "groups": ['identity_info', 'wefe_union', 'mail_server']
+                    "groups": [
+                        'identity_info',
+                        'wefe_union',
+                        'mail_server',
+                        'verification_code_channel',
+                        'sms_config'
+                    ]
                 }
             });
 

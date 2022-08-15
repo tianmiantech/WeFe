@@ -33,12 +33,14 @@ import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import com.welab.wefe.serving.service.api.account.*;
 import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.dto.AccountListAllOutputModel;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.service.verificationcode.VerificationCodeService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -64,39 +66,16 @@ public class AccountService extends AbstractAccountService {
     @Autowired
     private VerificationCodeService verificationCodeService;
 
-    /**
-     * Paging query
-     */
-//    public PagingOutput<AccountOutputModel> query(QueryApi.Input input) {
-//
-//        Specification<AccountMySqlModel> queryCondition = (Specification<AccountMySqlModel>) (root, query, cb) -> {
-//            List<Predicate> list = new ArrayList<>();
-//
-//            if (StringUtil.isNotEmpty(input.getPhoneNumber())) {
-//                list.add(cb.equal(root.getProcessor("phoneNumber"), input.getPhoneNumber()));
-//            }
-//
-//            if (StringUtil.isNotEmpty(input.getNickname())) {
-//                list.add(cb.like(root.getProcessor("nickname"), "%" + input.getNickname() + "%"));
-//            }
-//
-//            return cb.and(list.toArray(new Predicate[list.size()]));
-//        };
-//        Pageable pageable = PageRequest
-//                .of(
-//                        input.getPageIndex(),
-//                        input.getPageSize(),
-//                        Sort.by(Sort.Direction.DESC, "createdTime")
-//                );
-//
-//        Page<AccountMySqlModel> page = accountRepository.findAll(queryCondition, pageable);
-//
-//        return PagingOutput.of(
-//                page.getTotalElements(),
-//                page.getContent(),
-//                AccountOutputModel.class
-//        );
-//    }
+    public List<AccountListAllOutputModel> listAll(ListAllApi.Input input) {
+
+        Specification<AccountMySqlModel> where = Where
+                .create()
+                .contains("nickname", input.getNickname())
+                .build(AccountMySqlModel.class);
+
+        List<AccountMySqlModel> list = accountRepository.findAll(where);
+        return ModelMapper.maps(list, AccountListAllOutputModel.class);
+    }
 
     /**
      * register

@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/lazy_update", name = "image_data_set_update_labeled_count", allowAccessWithSign = true, login = false)
+@Api(path = "data_resource/lazy_update", name = "image_data_set_update_labeled_count", allowAccessWithSign = true)
 public class LazyUpdateApi extends AbstractApi<LazyUpdateApi.Input, AbstractApiOutput> {
     @Autowired
     private ImageDataSetMongoReop imageDataSetMongoReop;

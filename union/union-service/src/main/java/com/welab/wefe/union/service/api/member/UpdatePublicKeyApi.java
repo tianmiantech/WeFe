@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Jervis
  **/
-@Api(path = "member/update_public_key", name = "member_update_public_key", allowAccessWithSign = true, login = false)
+@Api(path = "member/update_public_key", name = "member_update_public_key", allowAccessWithSign = true)
 public class UpdatePublicKeyApi extends AbstractApi<UpdatePublicKeyApi.Input, MemberOutput> {
 
     @Autowired

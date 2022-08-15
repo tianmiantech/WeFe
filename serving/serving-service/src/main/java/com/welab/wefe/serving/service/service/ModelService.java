@@ -58,7 +58,9 @@ public class ModelService {
 
     Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private final String API_PREFIX = "predict/";
+    private final String API_PREFIX_2 = "predict/";
+
+    private final String API_PREFIX_1 = "/api/";
     @Autowired
     private TableModelRepository modelRepository;
 
@@ -119,6 +121,9 @@ public class ModelService {
         model.setUpdatedTime(new Date());
         model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
         modelRepository.save(model);
+
+        CacheObjects.refreshServiceMap();
+
         return model.getId();
     }
 
@@ -157,7 +162,7 @@ public class ModelService {
                     x.getMemberId(),
                     CacheObjects.getRsaPrivateKey(),
                     CacheObjects.getRsaPublicKey(),
-                    setModelServiceUrl(serviceId),
+                    API_PREFIX_1 + setModelServiceUrl(serviceId),
                     ServiceTypeEnum.MachineLearning
             );
         } catch (StatusCodeWithException e) {
@@ -166,7 +171,7 @@ public class ModelService {
     }
 
     private String setModelServiceUrl(String serviceId) {
-        return API_PREFIX + serviceId;
+        return API_PREFIX_2 + serviceId;
     }
 
     /**
@@ -186,7 +191,7 @@ public class ModelService {
             clientServiceService.openService(
                     modelId,
                     name,
-                    setModelServiceUrl(modelId),
+                    API_PREFIX_1 + setModelServiceUrl(modelId),
                     x.getMemberId(),
                     x.getPublicKey(),
                     ServiceTypeEnum.MachineLearning
