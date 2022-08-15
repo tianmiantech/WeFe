@@ -101,17 +101,14 @@ public class UnionHelper {
      */
     public static String getCaCertificate() throws Exception {
         try {
-            // TODO
-            String verifyMemberId = MemberCache.getInstance().getSelfMember().getId();
-            JObject data = JObject.create().append("memberId", verifyMemberId);
-            HttpResponse httpResponse = HttpRequest.create("https://wefe-fat.tianmiantech.com/manager-service/trust/certs/query")
-                    .appendParameters(generateReqParam(verifyMemberId, data.toString()))
-                    .closeLog()
+            HttpResponse httpResponse = HttpRequest
+                    .create("https://wefe-fat.tianmiantech.com/manager-service/trust/certs/query").closeLog()
                     .postJson();
 
             String responseBodyStr = httpResponse.getBodyAsString();
             if (StringUtil.isEmpty(responseBodyStr)) {
-                throw new Exception("查询CA信息失败，httpCode：" + httpResponse.getCode() + ", httpMessage：" + httpResponse.getMessage());
+                throw new Exception(
+                        "查询CA信息失败，httpCode：" + httpResponse.getCode() + ", httpMessage：" + httpResponse.getMessage());
             }
             JObject responseBody = JObject.create(responseBodyStr);
             String code = responseBody.getString("code");
