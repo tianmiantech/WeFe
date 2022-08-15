@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The WeFe Authors. All Rights Reserved.
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.welab.wefe.gateway.common;
+package com.welab.wefe.serving.sdk.model;
+
+import com.welab.wefe.common.util.JObject;
 
 /**
- * @author ivenn.zheng
- * @date 2022/7/5
+ * @author hunter.zhao
  */
-public enum EncryptEnableEnum {
+public class ScoreCardInfoModel {
+    private Object scoreCard;
 
-    ENABLE("true"),
-    UNABLE("false")
+    private Object bin;
 
-    ;
-
-    private String value;
-
-    EncryptEnableEnum(String value) {
-        this.value = value;
+    public Object getScoreCard() {
+        return scoreCard;
     }
 
-    public String getValue() {
-        return value;
+    public void setScoreCard(Object scoreCard) {
+        this.scoreCard = scoreCard;
+    }
+
+    public Object getBin() {
+        return bin;
+    }
+
+    public void setBin(Object bin) {
+        this.bin = bin;
     }
 }

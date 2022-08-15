@@ -55,7 +55,7 @@ import java.net.URLEncoder;
 /**
  * @author yuxin.zhang
  */
-@Api(path = "download/file", name = "download_file", allowAccessWithSign = true, login = false)
+@Api(path = "download/file", name = "download_file", allowAccessWithSign = true)
 public class DownloadFileApi extends AbstractApi<DownloadFileApi.Input, ResponseEntity<byte[]>> {
 
     @Autowired

@@ -87,6 +87,8 @@ public class Predictor {
 
         recordPredictScoreIncrement(modelId, result);
 
+        makeSensitiveData(result);
+
         return result;
     }
 
@@ -103,6 +105,14 @@ public class Predictor {
         if (result.getResult() instanceof LrPredictResultModel) {
             LrPredictResultModel scoreModel = (LrPredictResultModel) result.getResult();
             modelPredictScoreStatisticsService.asyncIncrement(modelId, scoreModel.getScore());
+        }
+    }
+
+    private static void makeSensitiveData(PredictResult result) {
+        if (result.getResult() instanceof LrPredictResultModel) {
+            LrPredictResultModel scoreModel = (LrPredictResultModel) result.getResult();
+            scoreModel.setScoreCard(null);
+            result.setResult(scoreModel);
         }
     }
 
@@ -170,8 +180,6 @@ public class Predictor {
 
         AbstractBasePredictor predictor = constructDebugPredictor(modelId, userId, featureData, featureSource, extendParams);
         PredictResult result = predictor.predict();
-
-        recordPredictScoreIncrement(modelId, result);
 
         return result;
     }

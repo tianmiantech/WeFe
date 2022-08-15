@@ -17,7 +17,6 @@
 package com.welab.wefe.serving.sdk.algorithm.lr.batch;
 
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.serving.sdk.algorithm.lr.LrAlgorithmHelper;
 import com.welab.wefe.serving.sdk.dto.BatchPredictParams;
 import com.welab.wefe.serving.sdk.model.lr.BaseLrModel;
 import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
@@ -33,6 +32,17 @@ public class LrVertProviderBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseL
 
     @Override
     protected List<LrPredictResultModel> handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) {
-        return batchExecute(batchPredictParams);
+        List<LrPredictResultModel> resultModels = batchLocalCompute(batchPredictParams);
+
+        maskSensitiveData(resultModels);
+
+        return resultModels;
+    }
+
+
+    private void maskSensitiveData(List<LrPredictResultModel> resultModels) {
+        resultModels
+                .stream()
+                .forEach(x -> x.setScoreCard(null));
     }
 }

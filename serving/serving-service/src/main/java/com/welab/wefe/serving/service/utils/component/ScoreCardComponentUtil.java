@@ -31,13 +31,14 @@ public class ScoreCardComponentUtil {
 
         JObject scoreCardInfo = JObject.create(model.getScoreCardInfo());
         double bScore = extractBScore(scoreCardInfo);
+        JObject binning = scoreCardInfo.getJObject("bin");
         JObject modelResult = getModelResult(model);
 
         JObject result = JObject.create();
         modelResult.entrySet().stream().forEach(x -> {
             double weight = modelResult.getDouble(x.getKey());
-            List<Double> splitPoints = extractSplitPoints(scoreCardInfo.getJObject(x.getKey()));
-            List<Double> woeArray = extractWoeArray(scoreCardInfo.getJObject(x.getKey()));
+            List<Double> splitPoints = extractSplitPoints(binning.getJObject(x.getKey()));
+            List<Double> woeArray = extractWoeArray(binning.getJObject(x.getKey()));
 
             List<Output> outputs = Lists.newArrayList();
             for (int i = 0; i < splitPoints.size(); i++) {
@@ -55,7 +56,7 @@ public class ScoreCardComponentUtil {
     }
 
     private static double extractBScore(JObject scoreCardInfo) {
-        return scoreCardInfo.getDouble("b_score");
+        return scoreCardInfo.getJObject("score_card").getDouble("b_score");
     }
 
 

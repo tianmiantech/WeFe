@@ -46,6 +46,6 @@ class HorzBinning(Component, HorzFeatureBinningParam):
 
         HorzFeatureBinningParam.__init__(self, **new_kwargs)
         self.input = Input(self.name, data_type="single")
-        self.output = Output(self.name)
+        self.output = Output(self.name, is_binning = True)
         self._module_name = "HorzFeatureBinning"
         self._param_name = "HorzFeatureBinningParam"

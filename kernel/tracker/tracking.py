@@ -488,14 +488,16 @@ class Tracking(object):
         return None
 
     def get_binning_result(self):
-        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'model_train')
+        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'model_binning')
         if model:
             result = json.loads(model.result)
             LOGGER.debug("mysql result:{}".format(result))
             binning_result = result.get('model_param').get('binningResult').get('binningResult')
             binning_results = {}
             for feature, value in binning_result.items():
-                binning_results[feature] = {'woe': value.get('woeArray'), 'split_points': value.get('splitPoints')}
+                binning_results[feature] = {'woe': value.get('woeArray'), 'split_points': value.get('splitPoints'),
+                                            'eventCount':value.get('eventCountArray'),'noneventCount':value.get('nonEventCountArray'),
+                                            'countArray':value.get('countArray')}
             model_meta = result.get('model_meta')
             model_param = {'header': model_meta.get('cols')}
             transform_cols = model_meta.get('transformParam').get('transformCols')
@@ -503,11 +505,19 @@ class Tracking(object):
             return model_param, binning_results
         return None, None
 
+    def saveProbBinsResult(self,metric_name: str, metric_namespace: str, metric_meta, kv , job_level=False,
+                           need_value = False):
+        self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level, need_value)
+
     def saveSingleMetricData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
         self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level)
 
     def saveMetricData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
         self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level)
+
+    def saveScoreData(self, metric_name: str, metric_namespace: str, metric_meta, kv, job_level=False):
+        self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level,
+                                             need_value=False)
 
     def _get_item_metric(self, metric_name: str, metric_namespace: str, metric_meta: {}, data: {}):
         """
@@ -555,7 +565,10 @@ class Tracking(object):
         -------
 
         """
-        result_type = self._get_task_result_type(TaskResultDataType.METRIC, metric_namespace)
+        if metric_namespace == "train_validate":
+            result_type = self._get_task_result_type(TaskResultDataType.DISTRIBUTION, metric_namespace)
+        else:
+            result_type = self._get_task_result_type(TaskResultDataType.METRIC, metric_namespace)
         metric_task_result = self.get_task_result(result_type, self.task_id)
 
         result = {}

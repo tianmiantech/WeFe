@@ -64,7 +64,7 @@ public class PromoterPredictHelper {
                     .postJson();
 
             if (!isSuccess(response)) {
-                String message = "协作方 " + CacheObjects.getPartnerName(obj.getMemberId()) + " 响应失败";
+                String message = "系统错误请联系serving管理员处理！";
                 StatusCode.REMOTE_SERVICE_ERROR.throwException(message);
             }
 
@@ -175,7 +175,7 @@ public class PromoterPredictHelper {
         order.setRequestPartnerName(CacheObjects.getMemberName());
         order.setResponsePartnerId(partnerId);
         order.setResponsePartnerName(CacheObjects.getPartnerName(partnerId));
-        order.setOrderType(CallByMeEnum.YES.getValue());
+        order.setOrderType(CallByMeEnum.YES.getCode());
         order.setStatus(status.getValue());
 
         ServiceOrderService serviceOrderService = Launcher.CONTEXT.getBean(ServiceOrderService.class);
@@ -194,14 +194,14 @@ public class PromoterPredictHelper {
         callLog.setRequestPartnerId(CacheObjects.getMemberId());
         callLog.setRequestPartnerName(CacheObjects.getMemberName());
         callLog.setRequestId(requestId);
-        callLog.setRequestIp("");
+        callLog.setRequestIp("127.0.0.1");
         callLog.setResponseCode(responseCode);
         callLog.setResponseId(responseId);
         callLog.setResponsePartnerId(memberId);
         callLog.setResponsePartnerName(CacheObjects.getPartnerName(memberId));
         callLog.setResponseData(result.toJSONString());
         callLog.setResponseStatus(getResponseStatus(result));
-        callLog.setCallByMe(CallByMeEnum.YES.getValue());
+        callLog.setCallByMe(CallByMeEnum.YES.getCode());
 
         ServiceCallLogService serviceCallLogService = Launcher.CONTEXT.getBean(ServiceCallLogService.class);
         serviceCallLogService.save(callLog);
@@ -214,13 +214,13 @@ public class PromoterPredictHelper {
 
 
     private static String extractResponseId(HttpResponse response) throws StatusCodeWithException {
-        if (!isSuccess(response)) {
+        if (response == null || !response.success() || response.getCode() != 200) {
             return "";
         }
 
         JSONObject json = response.getBodyAsJson();
-        return json.getJSONObject("data").containsKey("response_id") ?
-                json.getJSONObject("data").getString("response_id")
+        return json.getJSONObject("data").containsKey("responseId") ?
+                json.getJSONObject("data").getString("responseId")
                 : "";
     }
 

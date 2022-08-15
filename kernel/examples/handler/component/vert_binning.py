@@ -47,6 +47,6 @@ class VertBinning(Component, FeatureBinningParam):
 
         FeatureBinningParam.__init__(self, **new_kwargs)
         self.input = Input(self.name, data_type="single")
-        self.output = Output(self.name)
+        self.output = Output(self.name,is_binning = True)
         self._module_name = "VertFeatureBinning"
         self._param_name = "VertFeatureBinningParam"

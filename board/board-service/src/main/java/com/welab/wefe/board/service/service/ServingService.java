@@ -278,7 +278,7 @@ public class ServingService extends AbstractService {
         params.put("name", extractName(job));
         // The v2 version job does not have Algorithm and flType parameters
         params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
-        params.put("modelParam", taskResult.getResult());
+        params.put("modelParam", getModelParam(taskResult));
         params.put("flType", job.getFederatedLearningType().name());
         params.put("memberParams", members);
         params.put("featureEngineerMap", featureEngineerMap);
@@ -304,8 +304,9 @@ public class ServingService extends AbstractService {
             return null;
         }
 
+        JObject result = JObject.create();
         JObject data = JObject.create(task.getResult());
-        JObject result = data.getJObjectByPath("train_" + task.getName() + ".data");
+        result.put("score_card", data.getJObjectByPath("train_" + task.getName() + ".data"));
 
         TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
                 taskResult.getJobId(),
@@ -315,9 +316,16 @@ public class ServingService extends AbstractService {
         );
 
         JObject binning = JObject.create(binningTaskResult.getResult());
-        result.putAll(binning.getJObjectByPath("model_param.binningResult.binningResult"));
+        result.put("bin", binning.getJObjectByPath("model_param.binningResult.binningResult"));
 
         return result;
+    }
+
+
+    private JObject getModelParam(TaskResultMySqlModel taskResult) {
+        JObject modelParam = JObject.create(taskResult.getResult());
+        modelParam.put("scoreCardInfo", getScoreCardInfo(taskResult));
+        return modelParam;
     }
 
     private String extractName(JobMySqlModel job) {

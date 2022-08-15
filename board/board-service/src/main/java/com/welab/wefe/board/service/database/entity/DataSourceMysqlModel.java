@@ -17,52 +17,55 @@
 package com.welab.wefe.board.service.database.entity;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
+import com.welab.wefe.board.service.database.listener.DataSourceMysqlModelListener;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
 /**
- * 数据来源，目的：从指定的数据库中读取数据，并上传到ck作为原始的数据集
+ * Data source, purpose: read data from the specified database and upload it to CK as the original data set
  *
  * @author Johnny.lin
  */
 @Entity(name = "data_source")
+@EntityListeners(DataSourceMysqlModelListener.class)
 public class DataSourceMysqlModel extends AbstractBaseMySqlModel {
     /**
-     * 数据源名称
+     * Data source name
      */
     private String name;
 
     /**
-     * 数据库类型，枚举(hive、impala、mysql)
+     * Database types, enumerations(hive、impala、mysql)
      */
     @Enumerated(EnumType.STRING)
     private DatabaseType databaseType;
 
     /**
-     * 数据库IP地址
+     * Database IP address
      */
     private String host;
 
     /**
-     * 端口
+     * port
      */
     private Integer port;
 
     /**
-     * 要连接的数据库名称
+     * Name of the database to connect to
      */
     private String databaseName;
 
     /**
-     * 用户名
+     * User name
      */
     private String userName;
 
     /**
-     * 密码
+     * Password
      */
     private String password;
 

@@ -32,6 +32,12 @@ public class LrVertProviderAlgorithm extends AbstractLrAlgorithm<BaseLrModel, Lr
 
     @Override
     protected LrPredictResultModel handle(PredictParams predictParams, List<JObject> federatedResult) {
-        return execute(predictParams);
+        LrPredictResultModel resultModel = localCompute(predictParams);
+        maskSensitiveData(resultModel);
+        return resultModel;
+    }
+
+    private void maskSensitiveData(LrPredictResultModel resultModel) {
+        resultModel.setScoreCard(null);
     }
 }

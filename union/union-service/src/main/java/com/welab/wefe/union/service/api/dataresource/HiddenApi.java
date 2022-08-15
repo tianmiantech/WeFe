@@ -37,7 +37,7 @@ import java.io.IOException;
  *
  * @author yuxin.zhang
  **/
-@Api(path = "data_resource/hidden", name = "data_resource_hidden", allowAccessWithSign = true, login = false)
+@Api(path = "data_resource/hidden", name = "data_resource_hidden", allowAccessWithSign = true)
 public class HiddenApi extends AbstractApi<HiddenApi.Input, AbstractApiOutput> {
     @Autowired
     private DataResourceContractService dataResourceContractService;

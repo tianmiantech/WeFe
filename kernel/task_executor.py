@@ -95,6 +95,7 @@ class TaskExecutor(object):
             # 从 job_config 中获取信息
             task_config['job'] = {
                 'federated_learning_type': job_config['federated_learning_type'],
+                'federated_learning_mode': job_config.get('federated_learning_mode', None),
                 'project': {
                     'project_id': job_config['project']['project_id']
                 },
