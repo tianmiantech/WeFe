@@ -764,16 +764,48 @@
                                     </el-button>
                                 </div>
 
-                                <div
-                                    v-if="predictResult !== ''"
-                                    class="test_result"
-                                    style="margin-top: 30px; margin-left: 35px;"
-                                >
-                                    结果：
-                                    <JsonViewer
-                                        :value="predictResult"
-                                        copyable
-                                    />
+                                <div>
+                                    <div
+                                        v-if="predictResult && predictResult.result.score_card && predictResult.result.score_card.length"
+                                        class="mt10"
+                                    >
+                                        <el-table
+                                            :data="predictResult.result.score_card"
+                                            stripe
+                                            border
+                                            height="300"
+                                        >
+                                            <el-table-column
+                                                label="特征"
+                                                prop="feature"
+                                                width="50"
+                                            />
+                                            <el-table-column
+                                                label="分箱"
+                                                prop="bin"
+                                                width="100"
+                                            />
+                                            <el-table-column
+                                                label="评分"
+                                                prop="score"
+                                            />
+                                            <el-table-column
+                                                label="woe"
+                                                prop="woe"
+                                            />
+                                        </el-table>
+                                    </div>
+                                    <div
+                                        v-if="predictResult && !predictResult.result.score_card"
+                                        class="test_result"
+                                        style="margin-top: 30px; margin-left: 35px;"
+                                    >
+                                        结果：
+                                        <JsonViewer
+                                            :value="predictResult"
+                                            copyable
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
@@ -962,6 +994,28 @@
                     height="500"
                     border
                 >
+                    <el-table-column type="expand">
+                        <template #default="props">
+                            <el-table
+                                :data="gridData[props.$index].inlineTable"
+                                stripe
+                                border
+                            >
+                                <el-table-column
+                                    label="分箱"
+                                    prop="binning"
+                                />
+                                <el-table-column
+                                    label="评分"
+                                    prop="score"
+                                />
+                                <el-table-column
+                                    label="woe"
+                                    prop="woe"
+                                />
+                            </el-table>
+                        </template>
+                    </el-table-column>
                     <el-table-column
                         property="feature"
                         label="特征"
@@ -1700,6 +1754,7 @@ export default {
                                 this.gridData.push({
                                     feature,
                                     weight,
+                                    inlineTable: data.score_card_info && Object.keys(data.score_card_info).length ? data.score_card_info[name] : [],
                                 });
                             }
                         }
@@ -1710,8 +1765,9 @@ export default {
                             const name = data.model_param.header[i];
 
                             this.gridData.push({
-                                feature: name,
-                                weight:  data.model_param.weight[name],
+                                feature:     name,
+                                weight:      data.model_param.weight[name],
+                                inlineTable: data.score_card_info && Object.keys(data.score_card_info).length ? data.score_card_info[name] : [],
                             });
                         }
                     }
