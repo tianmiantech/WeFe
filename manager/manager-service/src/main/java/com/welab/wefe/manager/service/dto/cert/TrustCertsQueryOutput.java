@@ -33,8 +33,6 @@ public class TrustCertsQueryOutput extends AbstractTimedApiOutput {
     private String subjectCn;
     private boolean isCaCert;
     private boolean isRootCert;
-    private int status;
-
 
 
     public String getCertId() {
@@ -115,13 +113,5 @@ public class TrustCertsQueryOutput extends AbstractTimedApiOutput {
 
     public void setRootCert(boolean rootCert) {
         isRootCert = rootCert;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 }
