@@ -18,6 +18,7 @@ package com.welab.wefe.manager.service.api.cert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONObject;
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
 import com.welab.wefe.common.StatusCode;
@@ -30,8 +31,6 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.manager.service.dto.cert.TrustCertsAddInput;
 import com.welab.wefe.manager.service.service.TrustCertsContractService;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -63,27 +62,28 @@ public class TrustCertsUpdateApi extends AbstractApi<TrustCertsUpdateApi.Input, 
             if (certVO.getCanTrust() != null && certVO.getCanTrust().booleanValue()) {
                 throw new StatusCodeWithException("证书已存在信任库中", StatusCode.DATA_EXISTED);
             }
-            TrustCertsAddInput newInput = ModelMapper.map(certVO, TrustCertsAddInput.class);
-            newInput.setMemberId(certVO.getUserId());
             try {
-                boolean isExist = trustCertsMongoRepo.existsBySerialNumber(newInput.getSerialNumber());
+                boolean isExist = trustCertsMongoRepo.existsBySerialNumber(certVO.getSerialNumber());
                 if (isExist) {
                     throw new StatusCodeWithException("证书已存在信任库中", StatusCode.DATA_EXISTED);
                 }
                 TrustCerts trustCerts = new TrustCerts();
-                BeanUtil.copyProperties(input, trustCerts);
-                trustCerts.setIsCaCert(String
-                        .valueOf(newInput.getIsCaCert() != null && newInput.getIsCaCert().booleanValue() ? 1 : 0));
+                BeanUtil.copyProperties(certVO, trustCerts);
+                trustCerts.setCertId(certVO.getPkId());
+                trustCerts.setIsCaCert(
+                        String.valueOf(certVO.getIsCACert() != null && certVO.getIsCACert().booleanValue() ? 1 : 0));
                 trustCerts.setIsRootCert(String
-                        .valueOf(newInput.getIsRootCert() != null && newInput.getIsRootCert().booleanValue() ? 1 : 0));
+                        .valueOf(certVO.getIsRootCert() != null && certVO.getIsRootCert().booleanValue() ? 1 : 0));
+                trustCerts.setIssuerCn(certVO.getIssuerCN());
+                trustCerts.setSubjectCn(certVO.getSubjectCN());
+                trustCerts.setpCertId(certVO.getpCertId());
                 trustCertsContractService.add(trustCerts);
             } catch (StatusCodeWithException e) {
                 throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
-            certService.updateCanTrust(newInput.getSerialNumber(), true);
+            certService.updateCanTrust(certVO.getSerialNumber(), true);
         } else {
-            // TODO
-            // 从区块链中移除
+            trustCertsContractService.deleteByCertId(certVO.getPkId());
             certService.updateCanTrust(certVO.getSerialNumber(), false);
         }
         return success();
