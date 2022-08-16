@@ -770,28 +770,39 @@
                                         class="mt10"
                                     >
                                         <el-table
+                                            id="table_debug"
+                                            ref="tableDebug"
                                             :data="predictResult.result.score_card"
                                             stripe
                                             border
                                             height="300"
+                                            show-summary
+                                            sum-text="总分"
+                                            :summary-method="getSummaries"
                                         >
                                             <el-table-column
                                                 label="特征"
                                                 prop="feature"
-                                                width="50"
+                                                width="60"
+                                                align="center"
+                                            />
+                                            <el-table-column
+                                                label="原始值"
+                                                prop="value"
+                                                width="100"
                                             />
                                             <el-table-column
                                                 label="分箱"
                                                 prop="bin"
-                                                width="100"
-                                            />
-                                            <el-table-column
-                                                label="评分"
-                                                prop="score"
+                                                width="90"
                                             />
                                             <el-table-column
                                                 label="woe"
                                                 prop="woe"
+                                            />
+                                            <el-table-column
+                                                label="评分"
+                                                prop="score"
                                             />
                                         </el-table>
                                     </div>
@@ -1145,8 +1156,12 @@ export default {
     },
     data() {
         return {
-            dataBaseOptions:   [],
-            predictResult:     '',
+            dataBaseOptions: [],
+            predictResult:   {
+                result: {
+                    score_card: [],
+                },
+            },
             requestDataDialog: false,
             jsonData:          '',
             title:             '',
@@ -1390,6 +1405,27 @@ export default {
                 this.file_upload_options.files = [];
             }
             this.setServiceDesc();
+        },
+        'predictResult.result.score_card': {
+            immediate: true,
+            handler(val) {
+                if (val.length) {
+                    this.$nextTick(() => {
+                        const tds = document.querySelectorAll(
+                            '#table_debug .el-table__footer-wrapper tr>td',
+                        );
+
+                        tds[tds.length-1].colSpan = 4;
+                        tds[tds.length-1].style.textAlign = 'right';
+                        tds[1].style.display = 'none';
+                        tds[2].style.display = 'none';
+                        tds[3].style.display = 'none';
+
+                        // tds[1].colSpan = 2;
+                        // tds[3].style.display = 'none';
+                    });
+                }
+            },
         },
     },
     created() {
@@ -1720,7 +1756,6 @@ export default {
                         this.myRole = data.my_role[0];
                     }
                     this.activeName = data.feature_source;
-                    console.log(data);
                     if (data.id && data.service_type > 6) {
                         this.form.model_data.model_sql_config.model_id = data.model_id;
                         this.form.model_data.model_id = data.service_id;
@@ -1845,6 +1880,32 @@ export default {
                 }
             }
             this.loading = false;
+        },
+        getSummaries(param) {
+            const { columns, data } = param;
+            const sums = [];
+
+            columns.forEach((column, index) => {
+                if (index === 0) {
+                    sums[index] = '总评分';
+                    return;
+                }
+                const values = data.map(item => Number(item[column.property]));
+
+                if (!values.every(value => isNaN(value))) {
+                    sums[index] = values.reduce((prev, curr) => {
+                        const value = Number(curr);
+
+                        if (!isNaN(value) && column.property === 'score') {
+                            return this.predictResult.result.score ? this.predictResult.result.score : prev + curr;
+                        }
+                    }, 0);
+                } else {
+                    sums[index] = '';
+                }
+            });
+
+            return sums;
         },
         serviceTypeChange() {
             this.form.data_source.table = '';
