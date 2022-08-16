@@ -75,10 +75,10 @@ public class TrustCertsUpdateApi extends AbstractApi<TrustCertsUpdateApi.Input, 
                 trustCerts.setSubjectCn(certVO.getSubjectCN());
                 trustCerts.setpCertId(certVO.getpCertId());
                 trustCertsContractService.add(trustCerts);
+                certService.updateCanTrust(certVO.getSerialNumber(), true);
             } catch (StatusCodeWithException e) {
                 throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
             }
-            certService.updateCanTrust(certVO.getSerialNumber(), true);
         } else {
             trustCertsContractService.deleteBySerialNumber(certVO.getSerialNumber());
             certService.updateCanTrust(certVO.getSerialNumber(), false);
