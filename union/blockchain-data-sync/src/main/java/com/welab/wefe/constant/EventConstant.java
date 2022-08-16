@@ -106,6 +106,6 @@ public class EventConstant {
 
     public static final class TrustCerts {
         public static final String INSERT_EVENT = "INSERTEVENT";
-        public static final String DELETE_BY_SERIAL_NUMBER = "DELETEBYCERTIDEVENT";
+        public static final String DELETE_BY_SERIAL_NUMBER = "DELETEBYSERIALNUMBEREVENT";
     }
 }
