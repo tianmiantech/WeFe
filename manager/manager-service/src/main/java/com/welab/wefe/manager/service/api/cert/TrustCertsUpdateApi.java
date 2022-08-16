@@ -16,9 +16,7 @@
 
 package com.welab.wefe.manager.service.api.cert;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.core.bean.BeanUtil;
 import com.webank.cert.mgr.model.vo.CertVO;
 import com.webank.cert.mgr.service.CertOperationService;
 import com.welab.wefe.common.StatusCode;
@@ -32,8 +30,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.service.TrustCertsContractService;
-
-import cn.hutool.core.bean.BeanUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author yuxin.zhang
@@ -63,7 +60,7 @@ public class TrustCertsUpdateApi extends AbstractApi<TrustCertsUpdateApi.Input, 
                 throw new StatusCodeWithException("证书已存在信任库中", StatusCode.DATA_EXISTED);
             }
             try {
-                boolean isExist = trustCertsMongoRepo.existsBySerialNumber(certVO.getSerialNumber());
+                boolean isExist = trustCertsContractService.isExistBySerialNumber(certVO.getSerialNumber());
                 if (isExist) {
                     throw new StatusCodeWithException("证书已存在信任库中", StatusCode.DATA_EXISTED);
                 }
@@ -83,7 +80,7 @@ public class TrustCertsUpdateApi extends AbstractApi<TrustCertsUpdateApi.Input, 
             }
             certService.updateCanTrust(certVO.getSerialNumber(), true);
         } else {
-            trustCertsContractService.deleteByCertId(certVO.getPkId());
+            trustCertsContractService.deleteBySerialNumber(certVO.getSerialNumber());
             certService.updateCanTrust(certVO.getSerialNumber(), false);
         }
         return success();

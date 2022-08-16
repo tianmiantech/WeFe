@@ -76,19 +76,26 @@ public class TrustCertsContractService extends AbstractContractService {
     }
 
 
-    public void deleteByCertId(String certId) throws StatusCodeWithException {
+    public void deleteBySerialNumber(String serialNumber) throws StatusCodeWithException {
         try {
-            TransactionReceipt transactionReceipt = trustCertsContract.deleteByCertId(certId);
-
+            TransactionReceipt transactionReceipt = trustCertsContract.deleteBySerialNumber(serialNumber);
 
             // get receipt result
             TransactionResponse transactionResponse = new TransactionDecoderService(cryptoSuite)
-                    .decodeReceiptWithValues(TrustCertsContract.ABI, TrustCertsContract.FUNC_DELETEBYCERTID, transactionReceipt);
+                    .decodeReceiptWithValues(TrustCertsContract.ABI, TrustCertsContract.FUNC_DELETEBYSERIALNUMBER, transactionReceipt);
 
 
             transactionIsSuccess(transactionResponse);
         } catch (Exception e) {
-            throw new StatusCodeWithException("deleteByUnionCertId failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+            throw new StatusCodeWithException("deleteBySerialNumber failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
+        }
+    }
+
+    public boolean isExistBySerialNumber(String serialNumber) throws StatusCodeWithException {
+        try {
+            return trustCertsContract.isExistBySerialNumber(serialNumber);
+        } catch (Exception e) {
+            throw new StatusCodeWithException("isExistBySerialNumber failed: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
         }
     }
 
@@ -96,7 +103,6 @@ public class TrustCertsContractService extends AbstractContractService {
     private List<String> generateAddParams(TrustCerts trustCerts) {
         List<String> list = new ArrayList<>();
         list.add(trustCerts.getCertId());
-        list.add(StringUtil.isEmptyToBlank(trustCerts.getMemberId()));
         list.add(StringUtil.isEmptyToBlank(trustCerts.getSerialNumber()));
         list.add(StringUtil.isEmptyToBlank(trustCerts.getCertContent()));
         list.add(StringUtil.isEmptyToBlank(trustCerts.getpCertId()));

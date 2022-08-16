@@ -28,7 +28,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = MongodbTable.Union.TRUST_CERTS)
 public class TrustCerts extends AbstractBlockChainBusinessModel {
     private String certId;
-    private String memberId;
     private String serialNumber;
     private String certContent;
     private String pCertId;
@@ -47,14 +46,6 @@ public class TrustCerts extends AbstractBlockChainBusinessModel {
 
     public void setCertId(String certId) {
         this.certId = certId;
-    }
-
-    public String getMemberId() {
-        return memberId;
-    }
-
-    public void setMemberId(String memberId) {
-        this.memberId = memberId;
     }
 
     public String getSerialNumber() {

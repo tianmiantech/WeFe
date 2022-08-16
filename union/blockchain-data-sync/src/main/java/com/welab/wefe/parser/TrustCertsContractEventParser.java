@@ -40,8 +40,8 @@ public class TrustCertsContractEventParser extends AbstractParser {
             case EventConstant.TrustCerts.INSERT_EVENT:
                 parseInsertEvent();
                 break;
-            case EventConstant.TrustCerts.DELETE_BY_CERT_ID_EVENT:
-                parseDeleteByTrustCertsIdEvent();
+            case EventConstant.TrustCerts.DELETE_BY_SERIAL_NUMBER:
+                parseDeleteBySerialNumberEvent();
                 break;
             default:
                 throw new BusinessException("event name valid:" + eventBO.getEventName());
@@ -51,27 +51,26 @@ public class TrustCertsContractEventParser extends AbstractParser {
     private void parseInsertEvent() {
         TrustCerts trustCerts = new TrustCerts();
         trustCerts.setCertId(StringUtil.strTrim2(params.getString(0)));
-        trustCerts.setMemberId(StringUtil.strTrim2(params.getString(1)));
-        trustCerts.setSerialNumber(StringUtil.strTrim2(params.getString(2)));
-        trustCerts.setCertContent(StringUtil.strTrim2(params.getString(3)));
-        trustCerts.setpCertId(StringUtil.strTrim2(params.getString(4)));
-        trustCerts.setIssuerOrg(StringUtil.strTrim2(params.getString(5)));
-        trustCerts.setIssuerCn(StringUtil.strTrim2(params.getString(6)));
-        trustCerts.setSubjectOrg(StringUtil.strTrim2(params.getString(7)));
-        trustCerts.setSubjectCn(StringUtil.strTrim2(params.getString(8)));
-        trustCerts.setIsCaCert(StringUtil.strTrim2(params.getString(9)));
-        trustCerts.setIsRootCert(StringUtil.strTrim2(params.getString(10)));
-        trustCerts.setCreatedTime(StringUtil.strTrim2(params.getString(11)));
-        trustCerts.setUpdatedTime(StringUtil.strTrim2(params.getString(12)));
+        trustCerts.setSerialNumber(StringUtil.strTrim2(params.getString(1)));
+        trustCerts.setCertContent(StringUtil.strTrim2(params.getString(2)));
+        trustCerts.setpCertId(StringUtil.strTrim2(params.getString(3)));
+        trustCerts.setIssuerOrg(StringUtil.strTrim2(params.getString(4)));
+        trustCerts.setIssuerCn(StringUtil.strTrim2(params.getString(5)));
+        trustCerts.setSubjectOrg(StringUtil.strTrim2(params.getString(6)));
+        trustCerts.setSubjectCn(StringUtil.strTrim2(params.getString(7)));
+        trustCerts.setIsCaCert(StringUtil.strTrim2(params.getString(8)));
+        trustCerts.setIsRootCert(StringUtil.strTrim2(params.getString(9)));
+        trustCerts.setCreatedTime(StringUtil.strTrim2(params.getString(10)));
+        trustCerts.setUpdatedTime(StringUtil.strTrim2(params.getString(11)));
         trustCerts.setExtJson(extJSON);
 
         trustCertsMongoRepo.save(trustCerts);
 
     }
 
-    private void parseDeleteByTrustCertsIdEvent() {
-        String certId = eventBO.getEntity().get("cert_id").toString();
-        trustCertsMongoRepo.deleteByTrustCertsId(certId);
+    private void parseDeleteBySerialNumberEvent() {
+        String serialNumber = eventBO.getEntity().get("serial_number").toString();
+        trustCertsMongoRepo.deleteBySerialNumber(serialNumber);
     }
 
 

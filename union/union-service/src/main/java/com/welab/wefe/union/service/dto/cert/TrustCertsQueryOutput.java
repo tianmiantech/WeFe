@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.manager.service.dto.cert;
+package com.welab.wefe.union.service.dto.cert;
 
 import com.welab.wefe.common.web.dto.AbstractTimedApiOutput;
 
@@ -33,7 +33,6 @@ public class TrustCertsQueryOutput extends AbstractTimedApiOutput {
     private String subjectCn;
     private boolean isCaCert;
     private boolean isRootCert;
-    private int status;
 
 
 
@@ -117,11 +116,4 @@ public class TrustCertsQueryOutput extends AbstractTimedApiOutput {
         isRootCert = rootCert;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
 }

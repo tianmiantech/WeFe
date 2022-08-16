@@ -59,13 +59,13 @@ public class TrustCertsMongoRepo extends AbstractMongoRepo {
         return mongoUnionTemplate.exists(query, TrustCerts.class);
     }
 
-    public boolean deleteByTrustCertsId(String certId) {
-        if (StringUtils.isEmpty(certId)) {
+    public boolean deleteBySerialNumber(String serialNumber) {
+        if (StringUtils.isEmpty(serialNumber)) {
             return false;
         }
-        Query query = new QueryBuilder().append("certId", certId).notRemoved().build();
-        Update udpate = new UpdateBuilder().append("status", 1).build();
-        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, udpate, TrustCerts.class);
+        Query query = new QueryBuilder().append("serialNumber", serialNumber).notRemoved().build();
+        Update update = new UpdateBuilder().append("status", 1).build();
+        UpdateResult updateResult = mongoUnionTemplate.updateFirst(query, update, TrustCerts.class);
         return updateResult.wasAcknowledged();
     }
 
