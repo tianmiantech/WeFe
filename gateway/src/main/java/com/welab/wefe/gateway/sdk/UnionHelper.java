@@ -102,7 +102,7 @@ public class UnionHelper {
     public static String getCaCertificate() throws Exception {
         try {
             HttpResponse httpResponse = HttpRequest
-                    .create("https://wefe-fat.tianmiantech.com/manager-service/trust/certs/query").closeLog()
+                    .create(BASE_URL + "trust/certs/query").closeLog()
                     .postJson();
 
             String responseBodyStr = httpResponse.getBodyAsString();
