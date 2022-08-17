@@ -169,6 +169,8 @@
             </el-table-column>
             <el-table-column
                 label="注册时间"
+                min-width="160"
+                align="center"
             >
                 <template v-slot="scope">
                     {{ dateFormat(scope.row.created_time) }}
@@ -191,7 +193,7 @@
                         <template v-else>
                             <template v-if="userInfo.super_admin_role">
                                 <el-button
-                                    v-if="!scope.row.admin_role"
+                                    v-if="!scope.row.admin_role && !scope.row.super_admin_role"
                                     type="primary"
                                     @click="changeUserRole(scope.row)"
                                 >
@@ -205,23 +207,25 @@
                                     设为普通用户
                                 </el-button>
                             </template>
-                            <el-button @click="resetPassword(scope.row)">
-                                重置密码
-                            </el-button>
-                            <el-button
-                                v-if="scope.row.enable"
-                                type="danger"
-                                @click="disableUser(scope.row)"
-                            >
-                                禁用
-                            </el-button>
-                            <el-button
-                                v-else
-                                type="danger"
-                                @click="disableUser(scope.row)"
-                            >
-                                取消禁用
-                            </el-button>
+                            <template v-if="!scope.row.super_admin_role">
+                                <el-button @click="resetPassword(scope.row)">
+                                    重置密码
+                                </el-button>
+                                <el-button
+                                    v-if="scope.row.enable"
+                                    type="danger"
+                                    @click="disableUser(scope.row)"
+                                >
+                                    禁用
+                                </el-button>
+                                <el-button
+                                    v-else
+                                    type="danger"
+                                    @click="disableUser(scope.row)"
+                                >
+                                    取消禁用
+                                </el-button>
+                            </template>
                         </template>
                     </template>
                 </template>
