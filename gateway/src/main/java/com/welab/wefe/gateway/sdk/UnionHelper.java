@@ -101,10 +101,12 @@ public class UnionHelper {
      */
     public static String getCaCertificate() throws Exception {
         try {
+            String verifyMemberId = MemberCache.getInstance().getSelfMember().getId();
+            JObject data = JObject.create();
             HttpResponse httpResponse = HttpRequest
                     .create(BASE_URL + "trust/certs/query").closeLog()
+                    .appendParameters(generateReqParam(verifyMemberId, data.toString()))
                     .postJson();
-
             String responseBodyStr = httpResponse.getBodyAsString();
             if (StringUtil.isEmpty(responseBodyStr)) {
                 throw new Exception(
