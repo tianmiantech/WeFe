@@ -17,16 +17,16 @@
 
 package com.welab.wefe.gateway.util;
 
-import com.welab.wefe.gateway.cache.CaCertificateCache;
-import org.apache.commons.collections4.CollectionUtils;
-
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+
+import com.webank.cert.toolkit.utils.CertUtils;
+import com.welab.wefe.gateway.cache.CaCertificateCache;
 
 /**
  * TLS tool class
@@ -57,11 +57,9 @@ public class TlsUtil {
         }
         X509Certificate[] certificates = new X509Certificate[caCertificateList.size()];
         for (int i = 0; i < caCertificateList.size(); i++) {
-            try (InputStream inputStream = new ByteArrayInputStream(caCertificateList.get(i).getContent().getBytes(StandardCharsets.UTF_8))) {
-                CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                X509Certificate cert = (X509Certificate) cf.generateCertificate(inputStream);
-                certificates[i] = cert;
-            }
+            CaCertificateCache.CaCertificate c = caCertificateList.get(i);
+            X509Certificate cert = CertUtils.convertStrToCert(c.getContent());
+            certificates[i] = cert;
         }
         return certificates;
     }
