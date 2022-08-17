@@ -45,7 +45,7 @@ public class QueryCertApi extends AbstractApi<QueryCertInput, PageOutput<CertVO>
     @Override
     protected ApiResult<PageOutput<CertVO>> handle(QueryCertInput input) throws Exception {
         PageOutput<CertInfo> pageOutput = certOperationService.findCertList(input.getUserId(), input.getpCertId(), null,
-                null, input.getPageIndex(), input.getPageSize());
+                null, -2, input.getPageIndex(), input.getPageSize());
 
         List<CertVO> list = TransformUtils.simpleTransform(pageOutput.getList(), CertVO.class);
 

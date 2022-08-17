@@ -129,9 +129,9 @@ public class CertOperationService {
     }
 
     // 证书列表查询
-    public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert,
+    public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert, int status,
             int pageIndex, int pageSize) {
-        PageOutput<CertInfo> certInfos = certDao.findCertList(userId, pCertId, isCACert, isCACert, pageIndex, pageSize);
+        PageOutput<CertInfo> certInfos = certDao.findCertList(userId, pCertId, isCACert, isRootCert, status, pageIndex, pageSize);
         return certInfos;
     }
 

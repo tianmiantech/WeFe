@@ -18,6 +18,8 @@ package com.welab.wefe.common.data.mongodb.entity.manager;
 
 import java.util.UUID;
 
+import javax.persistence.Column;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.welab.wefe.common.data.mongodb.constant.MongodbTable;
@@ -68,6 +70,7 @@ public class CertInfo extends AbstractNormalMongoModel {
     private String pCertId;
 
     // 是否是CA证书
+    @Column(name = "is_ca_cert")
     private Boolean isCACert;
 
     // 是否是根证书

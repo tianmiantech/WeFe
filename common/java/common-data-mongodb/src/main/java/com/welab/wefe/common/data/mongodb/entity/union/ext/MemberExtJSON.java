@@ -25,7 +25,7 @@ import java.util.List;
  * @date: 2021/10/19
  */
 public class MemberExtJSON {
-    // -1认证失败 /0未认证 /1认证中 /2已认证 /3撤销认证
+    // -1认证失败 /0未认证 /1认证中 /2已认证
     private Integer realNameAuthStatus;
     private String servingBaseUrl;
     private String reporter;

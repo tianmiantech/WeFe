@@ -75,7 +75,7 @@ public class CertDao {
     public void updateStatus(String serialNumber, int status) {
         certInfoRepo.updateStatus(serialNumber, status);
     }
-    
+
     public void updateCanTrust(String serialNumber, boolean status) {
         certInfoRepo.updateCanTrust(serialNumber, status);
     }
@@ -89,8 +89,8 @@ public class CertDao {
     }
 
     public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert,
-            int pageIndex, int pageSize) {
-        return certInfoRepo.findCertList(userId, pCertId, isCACert, isCACert, pageIndex, pageSize);
+            int status, int pageIndex, int pageSize) {
+        return certInfoRepo.findCertList(userId, pCertId, isCACert, isRootCert, status, pageIndex, pageSize);
     }
 
     public PageOutput<CertRequestInfo> findCertRequestList(String userId, String pCertId, int pageIndex, int pageSize) {

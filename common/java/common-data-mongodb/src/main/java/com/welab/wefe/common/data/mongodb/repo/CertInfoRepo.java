@@ -52,7 +52,7 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
     }
 
     public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert,
-            int pageIndex, int pageSize) {
+            int status, int pageIndex, int pageSize) {
         QueryBuilder queryBuilder = new QueryBuilder();
         if (StringUtils.isNotBlank(userId)) {
             queryBuilder.append("userId", userId);
@@ -61,12 +61,14 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
             queryBuilder.append("pCertId", pCertId);
         }
         if (isCACert != null) {
-            queryBuilder.append("isCACert", isCACert);
+            queryBuilder.append("isCACert", isCACert.booleanValue());
         }
         if (isRootCert != null) {
-            queryBuilder.append("isRootCert", isRootCert);
+            queryBuilder.append("isRootCert", isRootCert.booleanValue());
         }
-
+        if (status > -2) {
+            queryBuilder.append("status", status);
+        }
         Query query = queryBuilder.page(pageIndex, pageSize).build();
         List<CertInfo> list = mongoManagerTemplate.find(query, CertInfo.class);
         long count = mongoManagerTemplate.count(query, CertInfo.class);
@@ -107,7 +109,7 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
                 .build();
         mongoManagerTemplate.updateFirst(query, update, CertInfo.class);
     }
-    
+
     public void updateCanTrust(String serialNumber, boolean canTrust) {
         Query query = new QueryBuilder().append("serialNumber", serialNumber).build();
         Update update = new UpdateBuilder().append("canTrust", canTrust)
