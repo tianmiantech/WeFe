@@ -105,6 +105,7 @@ public class MemberService extends AbstractMemberService {
     public boolean getMemberGatewayTlsEnable() {
         GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
         MemberInfoModel memberInfoModel = globalConfigService.getMemberInfo();
-        return memberInfoModel.getMemberGatewayTlsEnable();
+        return memberInfoModel.getMemberGatewayTlsEnable() == null ? Boolean.FALSE
+                : memberInfoModel.getMemberGatewayTlsEnable();
     }
 }
