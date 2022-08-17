@@ -15,32 +15,83 @@
  */
 package com.welab.wefe.gateway.test;
 
+import java.security.cert.X509Certificate;
+import java.util.UUID;
+
+import javax.net.ssl.SSLException;
+
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.TransferServiceGrpc;
+import com.welab.wefe.gateway.util.TlsUtil;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
-import java.util.UUID;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 /**
  * @author zane
  * @date 2021/12/20
  */
 public class Client {
-
+    
+    public static void main(String[] args) throws Exception {
+        Client.callLocalGateway(
+                GatewayProcessorType.gatewayAliveProcessor,
+                ""
+        );
+    }
+    
     public static String callLocalGateway(GatewayProcessorType processorType, String data) throws Exception {
-        return callGateway(
-                // dev03
+        return callGateway1(
+                // fat01
                 "087973c99d26410683944bf3f46c8635",
                 "local_test",
                 GatewayActionType.none,
                 processorType,
                 data
         );
+    }
+    public static String callGateway1(String dstMemberId, String dstMemberName, GatewayActionType action, GatewayProcessorType processorType, String data) throws Exception {
+        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data, processorType);
+        ManagedChannel grpcChannel = getSslManagedChannel("localhost", 50051, TlsUtil.buildCertificates(new String[] {"/Users/winter.zou/Documents/eclipse/workspace/Wefe/manager/manager-service/out/root.crt"}));
+        TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
+        
+        BasicMetaProto.ReturnStatus result = clientStub.send(transferMeta);
+
+        System.out.println("sessionId: " + result.getSessionId());
+        System.out.println("code: " + result.getCode());
+        System.out.println("message: " + result.getMessage());
+        System.out.println("data: " + result.getData());
+
+        if (result.getCode() != 0) {
+            throw new Exception(result.getMessage());
+        }
+
+        return result.getData();
+
+    }
+    
+    public static ManagedChannel getSslManagedChannel(String ip, int port, X509Certificate[] x509Certificates) throws SSLException {
+        SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
+        if (null == x509Certificates || x509Certificates.length == 0) {
+            sslContextBuilder.trustManager(InsecureTrustManagerFactory.INSTANCE);
+        } else {
+            sslContextBuilder.trustManager(x509Certificates);
+        }
+        return NettyChannelBuilder.forTarget(ip + ":" + port)
+                .negotiationType(NegotiationType.TLS)
+                .sslContext(sslContextBuilder.build())
+                .overrideAuthority(DEFAULT_DOMAIN)
+                .maxInboundMetadataSize(2000 * 1024 * 1024)
+                .build();
     }
 
     public static String callGateway(String dstMemberId, String dstMemberName, GatewayActionType action, GatewayProcessorType processorType, String data) throws Exception {
@@ -90,4 +141,6 @@ public class Client {
                 .build();
 
     }
+    
+    public static final String DEFAULT_DOMAIN = "wefe.tianmiantech.com.test";
 }
