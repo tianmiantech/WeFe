@@ -146,7 +146,7 @@ public class GrpcServerContext {
         String content = serverCertInfoModel.getContent();
         LOG.info("buildSslContext key = " + key);
         LOG.info("buildSslContext cert content = " + content);
-        PrivateKey privateKey = KeyUtils.getECKeyPair(key).getPrivate();
+        PrivateKey privateKey = KeyUtils.getRSAKeyPair(key).getPrivate();
         X509Certificate  keyCertChain = CertUtils.convertStrToCert(content);
         SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(privateKey, keyCertChain);
         sslContextBuilder = GrpcSslContexts.configure(sslContextBuilder, SslProvider.OPENSSL);
