@@ -243,7 +243,7 @@ public class CertOperationService {
     public CertVO createUserCert(String issuerCertId, String memberId, String certRequestContent) throws Exception {
         Date beginDate = new Date();
         Date endDate = new Date(beginDate.getTime() + 315360000000L);
-        KeyUsage keyUsage = new KeyUsage(KeyUsage.dataEncipherment);
+        KeyUsage keyUsage = new KeyUsage(KeyUsage.digitalSignature);
         boolean isCaCert = false;
         // 获取签发机构的证书
         CertInfo issuerCertInfo = certDao.findCertById(issuerCertId);

@@ -84,8 +84,8 @@ public class CertServiceTest {
         KeyPair keyPair = KeyUtils.generateKeyPair();
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
-        CertUtils.writeKey(privateKey, "out1/welab1_pri.key");
-        CertUtils.writeKey(publicKey, "out1/welab1_pub.key");
+        CertUtils.writeToPKCS8File(privateKey, "out1/welab1_pri.key");
+        CertUtils.writePublicKey(publicKey, "out1/welab1_pub.key");
         // CertUtils工具提供了证书读写解析的相关能力
         String priStr = CertUtils.readPEMAsString(privateKey);
         String csrStr = certService.generateCertRequestByDefaultConf(subject, priStr, "out1/", "welab1");
@@ -141,6 +141,12 @@ public class CertServiceTest {
         // yinlian1
     }
 
+    @Test
+    public void test() throws CertificateException {
+        String str = "-----BEGIN CERTIFICATE-----\nMIIDLjCCAhagAwIBAgIJAIpEr7/Bjx+LMA0GCSqGSIb3DQEBCwUAMDoxFjAUBgNV\nBAMMDVdlbGFiIFJvb3QgQ0ExEzARBgNVBAoMCldlbGFiIEluYy4xCzAJBgNVBAsM\nAklUMB4XDTIyMDgxNzAyMzYwOFoXDTMyMDgxNDAyMzYwOFowOjEWMBQGA1UEAwwN\nV2VsYWIgUm9vdCBDQTETMBEGA1UECgwKV2VsYWIgSW5jLjELMAkGA1UECwwCSVQw\nggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCH6vi+VosXUlixlRphvN5q\nOcXhvb5T1ZNzbYZFhJtkJ53/mo4Smh5iXuOTfyA+4y0MaZ1yZhzoFpxWGHcRcK7D\n4yJ9965vdRBq0Ei8pIHjWCSCN+MHOQl9kST9+b8SJ+ceiMbvaFv0EgPbgAl7irdW\nl2D0yb3EUvOpknIEJpIcFee0c3wzRGzzsGZd2V9li/YHldwyIA9Gek26u28XT/4P\nBKJc6i3vcD5XLBULPil+KcLJz31NTYsP50UKi+dmezUi+XuEJk1KO8YFRThqRg+u\nmDaNcwDW94fLyQ3A5DbhvIY+Ix0kSOGZjPEdCtM1S/HdIoUBGGBDZMunJGcuYPUB\nAgMBAAGjNzA1MAwGA1UdEwQFMAMBAf8wJQYDVR0RBB4wHIIad2VmZS50aWFubWlh\nbnRlY2guY29tLnRlc3QwDQYJKoZIhvcNAQELBQADggEBAEWc0vYnm1SVJU+X2C/E\nEXZmllJ1UdnCTxivW0DoXLfKY09T1YH2lf+nMq0Imuz7FNRCI9ueXrUZUlxluBkL\nB1lKikBcGLkSwGDsPPWjtV7k5oK8vNdTK44OMwBtcx/KtNnyN+pHjBmvmOI+WzVV\n4yh7Jkq1JMerBueIt6DnsnvbY8+NJbOo9ER0BFI/B3MVujsEYw8yE7WyNDvU1vmR\nAPhlX31BFF7woX30bJJ5p7BMD4dP2GmVjj88NYy9r90iVnVmHE3z5H0qdNvuQ7Dw\nv4mdKQJOhdhrC4K1MrTGEpTZ7psOz7MHoH7L9C+CDsNrZMtc7wRmn57NN08seR32\nA8s=\n-----END CERTIFICATE-----";
+        X509Certificate cert = CertUtils.convertStrToCert(str);
+        System.out.println(cert);
+    }
     @Test
     public void testImportCertToTrust()
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
