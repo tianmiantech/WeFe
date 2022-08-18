@@ -39,7 +39,8 @@ public class MyTest {
         String userKeyId = "4554f03640bd4a4ab2966b93b9fde205";
         CertKeyInfoMysqlModel keyVo = certOperationService.queryCertKeyInfoById(userKeyId);
         System.out.println(keyVo.getId());
-        PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
+//        PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
+        PrivateKey privateKey = KeyUtils.getRSAKeyPair(keyVo.getKeyPem()).getPrivate();
         CertUtils.writeToPKCS8File(privateKey, "tianmian.key");
     }
 }

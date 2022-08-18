@@ -55,7 +55,8 @@ public class MyTest {
         // 私钥ID
         String userKeyId = "120c5633b404497690b33a8aa5143b5b";
         CertKeyInfo keyVo = certDao.findCertKeyById(userKeyId);
-        PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
+//        PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
+        PrivateKey privateKey = KeyUtils.getRSAKeyPair(keyVo.getKeyPem()).getPrivate();
         CertUtils.writeToPKCS8File(privateKey, "welab1_pri.key");
     }
 
