@@ -33,7 +33,7 @@ public class MyTest {
         System.out.println(JSONObject.toJSONString(result));
     }
 
-    @Test
+//    @Test
     public void test1() {
         CertInfo issuerCertInfo = certDao.findCertById("68a3248030a148468470e020e90bb33d");
         System.out.println(issuerCertInfo.getPkId());
@@ -42,14 +42,15 @@ public class MyTest {
     // 导出证书
     @Test
     public void testExportCertToFile() throws Exception {
-        String certId = "9c29d8f181b34d3f8eb5cb07ca6e43c6";
+        String certId = "8400440d668d4c228dce2e0d3fd13674";
         CertInfo certVO = certDao.findCertById(certId);
-        CertUtils.writeDer(CertUtils.convertStrToCert(certVO.getCertContent()), "yinlian2.cer");
-        CertUtils.writeCrt(CertUtils.convertStrToCert(certVO.getCertContent()), "xxx.crt");
+        System.out.println(certVO.getPkId());
+//        CertUtils.writeDer(CertUtils.convertStrToCert(certVO.getCertContent()), "root.cer");
+        CertUtils.writeCrt(CertUtils.convertStrToCert(certVO.getCertContent()), "ca.crt");
     }
 
     // 导出私钥
-    @Test
+//    @Test
     public void exportKey() throws Exception {
         // 私钥ID
         String userKeyId = "120c5633b404497690b33a8aa5143b5b";

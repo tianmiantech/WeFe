@@ -16,7 +16,7 @@ import com.welab.wefe.board.service.database.entity.cert.CertKeyInfoMysqlModel;
 import com.welab.wefe.board.service.service.CertOperationService;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { BoardService.class })
+@SpringBootTest(classes = { BoardService.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MyTest {
 
     @Autowired
@@ -25,19 +25,21 @@ public class MyTest {
     // 导出证书
     @Test
     public void testExportCertToFile() throws Exception {
-        String certId = "9c29d8f181b34d3f8eb5cb07ca6e43c6";
+        String certId = "4aee053477fe4afcb363c613729d7aad";
         CertInfoMysqlModel certVO = certOperationService.queryCertInfoById(certId);
-        CertUtils.writeDer(CertUtils.convertStrToCert(certVO.getCertContent()), "yinlian2.cer");
-        CertUtils.writeCrt(CertUtils.convertStrToCert(certVO.getCertContent()), "xxx.crt");
+        System.out.println(certVO.getId());
+//        CertUtils.writeDer(CertUtils.convertStrToCert(certVO.getCertContent()), "wefe.cer");
+        CertUtils.writeCrt(CertUtils.convertStrToCert(certVO.getCertContent()), "tianmian.crt");
     }
 
     // 导出私钥
     @Test
     public void exportKey() throws Exception {
         // 私钥ID
-        String userKeyId = "120c5633b404497690b33a8aa5143b5b";
+        String userKeyId = "4554f03640bd4a4ab2966b93b9fde205";
         CertKeyInfoMysqlModel keyVo = certOperationService.queryCertKeyInfoById(userKeyId);
+        System.out.println(keyVo.getId());
         PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
-        CertUtils.writeToPKCS8File(privateKey, "welab1_pri.key");
+        CertUtils.writeToPKCS8File(privateKey, "tianmian.key");
     }
 }
