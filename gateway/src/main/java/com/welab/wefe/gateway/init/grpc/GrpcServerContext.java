@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.gateway.init.grpc;
 
+import java.io.File;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
@@ -147,8 +148,9 @@ public class GrpcServerContext {
         LOG.info("buildSslContext key = " + key);
         LOG.info("buildSslContext cert content = " + content);
         PrivateKey privateKey = KeyUtils.getRSAKeyPair(key).getPrivate();
-        X509Certificate  keyCertChain = CertUtils.convertStrToCert(content);
+        X509Certificate keyCertChain = CertUtils.convertStrToCert(content);
         SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(privateKey, keyCertChain);
+//        SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(new File("certFile"), new File("keyfile"));
         sslContextBuilder = GrpcSslContexts.configure(sslContextBuilder, SslProvider.OPENSSL);
         return sslContextBuilder.build();
     }
