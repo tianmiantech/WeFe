@@ -45,6 +45,9 @@ import com.welab.wefe.board.service.database.entity.cert.CertRequestInfoMysqlMod
 import com.welab.wefe.board.service.database.repository.CertInfoRepository;
 import com.welab.wefe.board.service.database.repository.CertKeyInfoRepository;
 import com.welab.wefe.board.service.database.repository.CertRequestInfoRepository;
+import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
+import com.welab.wefe.board.service.sdk.union.UnionService;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -62,6 +65,12 @@ public class CertOperationService {
     private CertKeyInfoRepository certKeyInfoRepository;
     @Autowired
     private CertService certService;
+    @Autowired
+    private GlobalConfigService globalConfigService;
+    @Autowired
+    protected GatewayService gatewayService;
+    @Autowired
+    protected UnionService unionService;
 
     static {
         if (Security.getProvider("BC") == null) {
@@ -139,6 +148,19 @@ public class CertOperationService {
                     certInfoRepository.save(certInfo);
                 }
             }
+            MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
+            if (CertStatusEnums.INVALID.name().equalsIgnoreCase(certStatus) && model.getMemberGatewayTlsEnable()) {
+                model.setMemberGatewayTlsEnable(false);
+                globalConfigService.put(model);
+                unionService.uploadMemberInfoExcludeLogo(model);
+                CacheObjects.refreshMemberInfo();
+                try {
+                    gatewayService.restartExternalGrpcServer();
+                } catch (Exception e) {
+                    LOG.error("restartExternalGrpcServer error", e);
+                }
+            }
+
         } catch (CertificateException e) {
             throw new StatusCodeWithException(e.getMessage(), StatusCode.ILLEGAL_REQUEST);
         }
