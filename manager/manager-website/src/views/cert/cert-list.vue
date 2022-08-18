@@ -217,8 +217,8 @@ export default {
                 }
             });
         },
-        initRoot($event) {
-            const { code } = this.$http.post({
+        async initRoot($event) {
+            const { code } =await this.$http.post({
                 url: '/cert/init_root',
                 data: {
                     common_name: this.init_form.common_name,
@@ -233,7 +233,7 @@ export default {
                 this.$message.success('初始化成功!');
                 setTimeout(() => {
                     this.refresh();
-                }, 500);
+                }, 1000);
             }
         },
     },
