@@ -84,8 +84,8 @@ public class CertServiceTest {
         KeyPair keyPair = KeyUtils.generateKeyPair();
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
-        CertUtils.writeToPKCS8File(privateKey, "out1/welab1_pri.key");
-        CertUtils.writePublicKey(publicKey, "out1/welab1_pub.key");
+        CertUtils.writeKey(privateKey, "out1/welab1_pri.key");
+        CertUtils.writeKey(publicKey, "out1/welab1_pub.key");
         // CertUtils工具提供了证书读写解析的相关能力
         String priStr = CertUtils.readPEMAsString(privateKey);
         String csrStr = certService.generateCertRequestByDefaultConf(subject, priStr, "out1/", "welab1");
