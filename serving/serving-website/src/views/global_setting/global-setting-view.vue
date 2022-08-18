@@ -205,6 +205,7 @@
             </el-button>
         </el-card>
 
+
     </div>
 
 </template>
@@ -310,13 +311,26 @@ export default {
         },
         async resetKey() {
             this.is_reset = true;
-            const {code} = await this.$http.get({
-                url: '/system/reset_rsa_key',
+            this.$confirm('请注意，重置密钥后系统将退出联邦，无法再使用联邦服务, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then( async () => {
+                const {code} = await this.$http.get({
+                    url: '/system/reset_rsa_key',
+                });
+
+                if (code === 0) {
+                    this.$message.success('重置成功！')
+                }
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消'
+                });
             });
 
-            if (code === 0) {
-                this.$message.success('操作成功!');
-            }
             this.is_reset = false;
         },
     },
