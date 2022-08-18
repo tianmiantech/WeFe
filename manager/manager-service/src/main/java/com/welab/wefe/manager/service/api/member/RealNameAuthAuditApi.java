@@ -70,14 +70,14 @@ public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, Abstrac
             // 证书请求内容
             String certRequestContent = memberExtJSON.getCertRequestContent();
             // 签发机构的证书ID
-            PageOutput<CertInfo> results = certOperationService.findCertList(null, null, true, false, 2, 1, 10);
+            PageOutput<CertInfo> results = certOperationService.findCertList(null, null, true, false, 2, 0, 10);
             if (CollectionUtils.isEmpty(results.getList())) {
                 throw new StatusCodeWithException("没有签发证书", StatusCode.DATA_NOT_FOUND);
             }
-            String issuerCertId = results.getList().get(0).getPkId();
+            CertInfo issuerCert = results.getList().get(0);
             try {
                 // 签发证书
-                CertVO cert = certOperationService.createUserCert(issuerCertId, memberId, certRequestContent);
+                CertVO cert = certOperationService.createUserCert(issuerCert.getPkId(), memberId, certRequestContent);
                 memberExtJSON.setCertStatus(CertStatusEnums.VALID.name());
                 // 将证书内容写入
                 memberExtJSON.setCertPemContent(cert.getCertContent());
