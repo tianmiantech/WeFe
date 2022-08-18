@@ -39,7 +39,7 @@ public class InitApi extends AbstractApi<InitCertInput, AbstractApiOutput> {
         CertVO rootCert = certOperationService.initRootCert(input.getCommonName(), input.getOrganizationName(),
                 input.getOrganizationUnitName());
         // 初始化issuer签发证书
-        certOperationService.createIssuerCert(rootCert.getPkId(), input.getCommonName(), input.getOrganizationName(),
+        certOperationService.createIssuerCert(rootCert.getPkId(), "Welab", input.getOrganizationName(),
                 input.getOrganizationUnitName());
         return success();
     }
