@@ -129,9 +129,10 @@ public class CertOperationService {
     }
 
     // 证书列表查询
-    public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert, int status,
-            int pageIndex, int pageSize) {
-        PageOutput<CertInfo> certInfos = certDao.findCertList(userId, pCertId, isCACert, isRootCert, status, pageIndex, pageSize);
+    public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert,
+            int status, int pageIndex, int pageSize) {
+        PageOutput<CertInfo> certInfos = certDao.findCertList(userId, pCertId, isCACert, isRootCert, status, pageIndex,
+                pageSize);
         return certInfos;
     }
 
@@ -160,7 +161,8 @@ public class CertOperationService {
 
         CertInfo certInfo = certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate), issuer.getCommonName(),
                 issuer.getOrganizationName(), issuer.getCommonName(), issuer.getOrganizationName(), keyPair.getPublic(),
-                userId, certificate.getSerialNumber(), certKeyInfo.getPkId(), true, true, null, null));
+                userId, certificate.getSerialNumber(), certKeyInfo.getPkId(), certKeyInfo.getPkId(), true, true, null,
+                null));
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
@@ -219,10 +221,11 @@ public class CertOperationService {
                 issuerKeyPair.getPrivate());
 
         // 保存cert
-        CertInfo certInfo = certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate),
-                issuerCertInfo.getSubjectCN(), issuerCertInfo.getSubjectOrg(), csrInfo.getSubjectCN(),
-                csrInfo.getSubjectOrg(), certificate.getPublicKey(), userId, certificate.getSerialNumber(),
-                issuerKeyInfo.getPkId(), isCaCert, false, issuerCertInfo.getPkId(), csrInfo.getPkId()));
+        CertInfo certInfo = certDao
+                .save(buildCertInfo(CertUtils.readPEMAsString(certificate), issuerCertInfo.getSubjectCN(),
+                        issuerCertInfo.getSubjectOrg(), csrInfo.getSubjectCN(), csrInfo.getSubjectOrg(),
+                        certificate.getPublicKey(), userId, certificate.getSerialNumber(), issuerKeyInfo.getPkId(),
+                        subjectCertKeyInfo.getPkId(), isCaCert, false, issuerCertInfo.getPkId(), csrInfo.getPkId()));
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
 
     }
@@ -283,7 +286,8 @@ public class CertOperationService {
         CertInfo certInfo = certDao.save(buildCertInfo(CertUtils.readPEMAsString(certificate),
                 issuerCertInfo.getSubjectCN(), issuerCertInfo.getSubjectOrg(), subjectRequestInfo.getSubjectCN(),
                 subjectRequestInfo.getSubjectOrg(), certificate.getPublicKey(), memberId, certificate.getSerialNumber(),
-                issuerKeyInfo.getPkId(), isCaCert, false, issuerCertInfo.getPkId(), subjectRequestInfo.getPkId()));
+                issuerKeyInfo.getPkId(), null, isCaCert, false, issuerCertInfo.getPkId(),
+                subjectRequestInfo.getPkId()));
         return (CertVO) TransformUtils.simpleTransform(certInfo, CertVO.class);
     }
 
@@ -338,6 +342,7 @@ public class CertOperationService {
      * @param userId            证书申请人用户ID
      * @param serialNumber      证书序列号
      * @param issuerCertKeyId   签发机构的证书的私钥ID
+     * @param subjectKeyId      证书申请人私钥ID
      * @param isCACert          是否是根证书
      * @param issuerCertId      签发机构证书ID
      * @param csrId             证书请求ID
@@ -345,8 +350,8 @@ public class CertOperationService {
      */
     private CertInfo buildCertInfo(String certificatePemStr, String issuerCommonName, String issuerOrgName,
             String subjectCommonName, String subjectOrgName, PublicKey publicKey, String userId,
-            BigInteger serialNumber, String issuerCertKeyId, boolean isCACert, boolean isRootCert, String issuerCertId,
-            String csrId) {
+            BigInteger serialNumber, String issuerCertKeyId, String subjectKeyId, boolean isCACert, boolean isRootCert,
+            String issuerCertId, String csrId) {
         CertInfo certInfo = new CertInfo();
         certInfo.setUserId(userId);
         certInfo.setCreatedBy(CurrentAccount.id());
@@ -356,7 +361,8 @@ public class CertOperationService {
         certInfo.setSubjectCN(subjectCommonName);
         certInfo.setSubjectOrg(subjectOrgName);
         certInfo.setSubjectPubKey(CertUtils.readPEMAsString(publicKey));
-
+        certInfo.setIssuerKeyId(issuerCertKeyId); // 签发机构的证书的私钥ID 只有根证书和ca证书需要
+        certInfo.setSubjectKeyId(subjectKeyId); // 自己的私钥ID
         certInfo.setCertContent(certificatePemStr);
         certInfo.setSerialNumber(String.valueOf(serialNumber));
         certInfo.setIsCACert(isCACert);

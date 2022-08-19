@@ -40,7 +40,7 @@ public class MyTest {
     }
 
     // 导出证书
-    @Test
+//    @Test
     public void testExportCertToFile() throws Exception {
         String certId = "8400440d668d4c228dce2e0d3fd13674";
         CertInfo certVO = certDao.findCertById(certId);

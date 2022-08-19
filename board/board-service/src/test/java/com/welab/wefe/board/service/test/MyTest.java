@@ -1,6 +1,5 @@
 package com.welab.wefe.board.service.test;
 
-import java.io.FileNotFoundException;
 import java.security.PrivateKey;
 
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -15,6 +14,7 @@ import com.webank.cert.toolkit.utils.KeyUtils;
 import com.welab.wefe.board.service.BoardService;
 import com.welab.wefe.board.service.database.entity.cert.CertInfoMysqlModel;
 import com.welab.wefe.board.service.database.entity.cert.CertKeyInfoMysqlModel;
+import com.welab.wefe.board.service.database.entity.cert.CertRequestInfoMysqlModel;
 import com.welab.wefe.board.service.service.CertOperationService;
 
 @RunWith(SpringRunner.class)
@@ -53,5 +53,15 @@ public class MyTest {
         System.out.println(pemKeyPair); // writeKey
         PrivateKey privateKey = (PrivateKey) CertUtils.readRSAPrivateKey("tianmian.key"); // writeToPKCS8File
         System.out.println(privateKey);
+    }
+
+    @Test
+    public void createCsr() throws Exception {
+        String commonName = "yinlian";
+        String organizationName = "yinlian_org";
+        String organizationUnitName = "yinlian_unit_org";
+        CertRequestInfoMysqlModel model = certOperationService.createCertRequestInfo(commonName, organizationName,
+                organizationUnitName);
+        System.out.println(model.getCertRequestContent());
     }
 }
