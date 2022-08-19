@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class DataSetMemberPermissionContractService extends AbstractContractService {
     private static final Logger LOG = LoggerFactory.getLogger(DataSetMemberPermissionContractService.class);
 

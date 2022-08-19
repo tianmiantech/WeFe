@@ -10,7 +10,7 @@
         "bin_names": [],
         "category_indexes": [],
         "category_names": [],
-        "local_only": true,
+        "local_only": false,
         "transform_param": {
                 "is_serving_model": false,
                 "transform_cols": -1,
