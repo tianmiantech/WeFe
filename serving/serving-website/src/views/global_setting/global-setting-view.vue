@@ -69,6 +69,82 @@
                                 />
                             </el-form-item>
                         </fieldset>
+
+                    <fieldset>
+                            <legend>服务缓存配置</legend>
+
+                           <el-form-item label="缓存类型：">
+                                <el-radio
+                                    v-model="form.service_cache_config.type"
+                                    label="mem"
+                                    :disabled="is_update"
+                                >
+                                    内存
+                                </el-radio>
+                                <el-radio
+                                    v-model="form.service_cache_config.type"
+                                    label="redis"
+                                    :disabled="is_update"
+                                >
+                                    redis
+                                </el-radio>
+                            </el-form-item>
+
+                            <el-form-item
+                                label="redis地址："
+                            >
+                                <el-input
+                                    v-model="form.service_cache_config.host"
+                                    placeholder=""
+                                    :disabled="is_update"
+                                />
+                            </el-form-item>
+
+                            <el-form-item
+                                label="redis端口："
+                            >
+                                <el-input
+                                    v-model="form.service_cache_config.port"
+                                    placeholder=""
+                                    :disabled="is_update"
+                                />
+                            </el-form-item>
+
+                              <el-form-item
+                                label="密码："
+                            >
+                                <el-input
+                                    v-model="form.service_cache_config.password"
+                                    type="password"
+                                    placeholder=""
+                                    :disabled="is_update"
+                                />
+                            </el-form-item>
+                        </fieldset>
+
+                    </el-col>
+
+                    <el-col :span="12">
+                        <fieldset>
+                            <legend>提醒</legend>
+                            <el-form-item label="找回密码验证码通道：">
+                                <el-radio
+                                    v-model="form.captcha_send_channel.channel"
+                                    label="sms"
+                                    :disabled="is_update"
+                                >
+                                    短信
+                                </el-radio>
+                                <el-radio
+                                    v-model="form.captcha_send_channel.channel"
+                                    label="mail"
+                                    :disabled="is_update"
+                                >
+                                    邮箱
+                                </el-radio>
+                            </el-form-item>
+                        </fieldset>
+
                         <fieldset>
                             <legend>邮箱配置</legend>
 
@@ -112,43 +188,19 @@
 
 
                         </fieldset>
-                    </el-col>
 
-                    <el-col :span="12">
-                        <fieldset>
-                            <legend>提醒</legend>
-                            <el-form-item label="找回密码验证码通道：">
-                                <el-radio
-                                    v-model="form.verification_code_channel.channel"
-                                    label="sms"
-                                    :disabled="is_update"
-                                >
-                                    短信
-                                </el-radio>
-                                <el-radio
-                                    v-model="form.verification_code_channel.channel"
-                                    label="mail"
-                                    :disabled="is_update"
-                                >
-                                    邮箱
-                                </el-radio>
-                            </el-form-item>
-                        </fieldset>
-
-                        <fieldset>
+                        <fieldset v-if="form.sms_config">
                             <legend>短信配置</legend>
                             <el-form-item label="AccessKeyId：">
                                 <el-input
-                                    v-model="form.sms_config.key_id"
-                                    :disabled="is_update"
+                                    v-model="form.sms_config.access_key_id"
                                 ></el-input>
 
 
                             </el-form-item>
                             <el-form-item label="AccessKeySecret：">
                                 <el-input
-                                    v-model="form.sms_config.key_secret"
-                                    :disabled="is_update"
+                                    v-model="form.sms_config.access_key_secret"
                                 ></el-input>
 
 
@@ -156,15 +208,13 @@
                             <el-form-item label="找回密码短信模板码：">
                                 <el-input
                                     v-model="form.sms_config.forget_password_template_code"
-                                    :disabled="is_update"
                                 ></el-input>
 
 
                             </el-form-item>
-                            <el-form-item label="注册模板码：">
+                            <el-form-item label="短信签名">
                                 <el-input
-                                    v-model="form.sms_config.register_template_code"
-                                    :disabled="is_update"
+                                    v-model="form.sms_config.sign_name"
                                 ></el-input>
 
 
@@ -205,6 +255,7 @@
             </el-button>
         </el-card>
 
+
     </div>
 
 </template>
@@ -237,17 +288,21 @@ export default {
                     port: '',
                     password: '',
                 },
-                verification_code_channel: {
-                    channel: ''
+                captcha_send_channel: {
+                    channel: 'email'
                 },
                 sms_config: {
-                    key_id: '',
-                    key_secret: '',
-                    name: '',
+                    access_key_id: '',
+                    access_key_secret: '',
+                    sign_name: '',
                     forget_password_template_code: '',
-                    register_template_code: ''
-                }
-
+                },
+                service_cache_config: {
+                    type: '',
+                    redis_host: '',
+                    redis_port: '',
+                    reids_password: '',
+                },
             },
 
         };
@@ -267,7 +322,7 @@ export default {
             }
         },
         async getData() {
-            this.loading = true;
+            // this.loading = true;
             const {code, data} = await this.$http.post({
                 url: '/global_config/detail',
                 data: {
@@ -275,12 +330,13 @@ export default {
                         'identity_info',
                         'wefe_union',
                         'mail_server',
-                        'verification_code_channel',
-                        'sms_config'
+                        'captcha_send_channel',
+                        'sms_config',
+                        'service_cache_config'
                     ]
                 }
             });
-
+            this.loading = false;
             this.is_update = !this.userInfo.admin_role;
             this.is_display = this.userInfo.admin_role;
 
@@ -292,7 +348,7 @@ export default {
                     this.mode = 0;
                 }
             }
-            this.loading = false;
+            
         },
         async update() {
             this.loading = true;
@@ -310,13 +366,26 @@ export default {
         },
         async resetKey() {
             this.is_reset = true;
-            const {code} = await this.$http.get({
-                url: '/system/reset_rsa_key',
+            this.$confirm('请注意，重置密钥后系统将退出联邦，无法再使用联邦服务, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then( async () => {
+                const {code} = await this.$http.get({
+                    url: '/system/reset_rsa_key',
+                });
+
+                if (code === 0) {
+                    this.$message.success('重置成功！')
+                }
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消'
+                });
             });
 
-            if (code === 0) {
-                this.$message.success('操作成功!');
-            }
             this.is_reset = false;
         },
     },
