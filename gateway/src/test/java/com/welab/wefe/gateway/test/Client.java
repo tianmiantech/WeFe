@@ -60,7 +60,7 @@ public class Client {
                 processorType);
         List<CaCertificateCache.CaCertificate> caCertificateList = new ArrayList<>();
         CaCertificateCache.CaCertificate ca = new CaCertificateCache.CaCertificate();
-        String content = "-----BEGIN CERTIFICATE-----\nMIIDLjCCAhagAwIBAgIJAKvu16gOT8hXMA0GCSqGSIb3DQEBCwUAMDoxFjAUBgNV\nBAMMDVdlbGFiIENBIFJPT1QxEzARBgNVBAoMCldlbGFiIEluYy4xCzAJBgNVBAsM\nAklUMB4XDTIyMDgxODAzNDM0M1oXDTMyMDgxNTAzNDM0M1owOjEWMBQGA1UEAwwN\nV2VsYWIgQ0EgUk9PVDETMBEGA1UECgwKV2VsYWIgSW5jLjELMAkGA1UECwwCSVQw\nggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCqFEql0n4Lfo4hYFMUDt95\nQBAy8WuogoEGTSK9R5SAST9wTQ4tF+wbYeiPfRA0wa5Z+eyNl8uQa+D8rppxtN0W\newsZBWvrCDIs+HNuL6UmZ2hPKSItZ/Jnrl62ELsk+1aQFnx7JYSJIb9KF+im62k4\n9aEUG7SNSpWpjxGhkFinCmwoziRGibdE+3JmfwMU0uC4tT1wzoeark/VBpQZo8AO\niqUoIupEGfmNXtnY1C3ftTjDDNp+bzlHht7C5c24f0k63i9ImDxmBGj3cuzAGpHK\njq+0kNJY62ubMjFOLInIuV4i5RvjenewefkyCbQSbvB8j6ja2Oqb+JZ64dChsehv\nAgMBAAGjNzA1MAwGA1UdEwQFMAMBAf8wJQYDVR0RBB4wHIIad2VmZS50aWFubWlh\nbnRlY2guY29tLnRlc3QwDQYJKoZIhvcNAQELBQADggEBADDEfBHLnVQ7M6BK8QYM\niCnyTh0Vx37ejT9FXq1lwcbpWhc2KWE5pUT2kGxYa1QW59x0YvVoEMe8VGrWBUut\n8WUg9nl1B5qv147fruT6eqcD40pT7mF7uGztaJygUvUxN8PCuglsedoY5kZDunDw\nHEBeWXSJj0k2hQnOg1i4t61R1PL0fshvqY2VbA4cljRyz9UdA7vML74eKjKsIu3P\nPv2a+4Bj5wVEbA9LuBzp6ExfGcN2CxjByP0yGbAQMCogX5MLCjUOb4ETdsTBCXj3\nWcf8WYL0CMQgGIFZqbS3L10434XAI0TqwV5hGR0Gec0VkcsKm4pyAgnWsEFuPwjX\naVc=\n-----END CERTIFICATE-----\n";
+        String content = "-----BEGIN CERTIFICATE-----\nMIIDNDCCAhygAwIBAgIJAOQYbKajYL2zMA0GCSqGSIb3DQEBCwUAMDYxEjAQBgNV\nBAMMCVdlZmVfUk9PVDETMBEGA1UECgwKV2VsYWIgSW5jLjELMAkGA1UECwwCSVQw\nHhcNMjIwODE5MDU0ODA4WhcNMzIwODE2MDU0ODA4WjA3MRMwEQYDVQQDDApXZWxh\nYl9XZWZlMRMwEQYDVQQKDApXZWxhYiBJbmMuMQswCQYDVQQLDAJJVDCCASIwDQYJ\nKoZIhvcNAQEBBQADggEPADCCAQoCggEBALgxnX7Xp39dg+SyjPYM9BLXjzU1dkoL\nmkULV4MqVlLQFIdlvvG7gAgl3y3b1mkOyPi6ENP8AfoJeTA3m9/rK+0J2JjTWY6b\nv8WL0tS69fyeARDV356qKk36foTvLbDETD2nvVq8s7iVLr9I69Bnc0W8R6TbKhEx\nK12SgqSkYxkKmLPp2fwiSb7hwU0BHOKKejkQ6WET6ncxw6/570mONjBSE3cZJONd\nxQnhNHGIrIPDsGQPYD0lQCdHzvZ/xV6rYJV8/naODqSTDZKfUwJsncuoDmP7woue\na3aKLyrFu2RB18kKy6uIgEQ9iIUexm2Z7prIBOm6HPIcA51ai/3DjU8CAwEAAaNE\nMEIwDAYDVR0TBAUwAwEB/zALBgNVHQ8EBAMCBBAwJQYDVR0RBB4wHIIad2VmZS50\naWFubWlhbnRlY2guY29tLnRlc3QwDQYJKoZIhvcNAQELBQADggEBAIs+ir/VtO7j\n805XPwlQapqU8cloOJLvkk06G3OsETW7xC1pIoc6EgQxASawjAatSGyfYlb0cyFA\nktjRRw98HR1/4XR8g10Dzt9qVbm1rRlVjwc+AXO5zQWAb0DYlIfc/fUVE6cT2udk\njeHdDLUtOoTtEfyHYZh8xUHzLF4PfUkxowyvc9MS1F9+mIm7ZQGQcOXxhK+X/wkj\nNIPZnKWj5X2Pl9uZWrpau6p2S1drZyeGZP78lTGm3Zph/dyWXcIrP1p0WFxrSoiM\nOImNKS+HT7qxZ8br7laTz4zvNx3vWPKOyI00mqxJe0xmWJfUz/4LTIqirkjtHGEO\nuMsE4rLnNyA=\n-----END CERTIFICATE-----\n";
         ca.setContent(content);
         caCertificateList.add(ca);
         X509Certificate[] certs = TlsUtil.buildCertificates(caCertificateList);
@@ -100,7 +100,7 @@ public class Client {
             GatewayProcessorType processorType, String data) throws Exception {
         GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data,
                 processorType);
-        ManagedChannel grpcChannel = ManagedChannelBuilder.forTarget("127.0.0.1:50051").usePlaintext().build();
+        ManagedChannel grpcChannel = ManagedChannelBuilder.forTarget("127.0.0.1:50050").usePlaintext().build();
         TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
         BasicMetaProto.ReturnStatus result = clientStub.send(transferMeta);
 

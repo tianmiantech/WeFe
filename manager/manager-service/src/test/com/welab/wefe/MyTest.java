@@ -40,9 +40,9 @@ public class MyTest {
     }
 
     // 导出证书
-//    @Test
+    @Test
     public void testExportCertToFile() throws Exception {
-        String certId = "8400440d668d4c228dce2e0d3fd13674";
+        String certId = "0750bd132a774ae2aca245e3c8cd5bf3";
         CertInfo certVO = certDao.findCertById(certId);
         System.out.println(certVO.getPkId());
 //        CertUtils.writeDer(CertUtils.convertStrToCert(certVO.getCertContent()), "root.cer");

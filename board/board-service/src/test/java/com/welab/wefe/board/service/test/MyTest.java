@@ -27,7 +27,7 @@ public class MyTest {
     // 导出证书
     @Test
     public void testExportCertToFile() throws Exception {
-        String certId = "4aee053477fe4afcb363c613729d7aad";
+        String certId = "96d9c25eb5e64837b698cb033a915e8f";
         CertInfoMysqlModel certVO = certOperationService.queryCertInfoById(certId);
         System.out.println(certVO.getId());
 //        CertUtils.writeDer(CertUtils.convertStrToCert(certVO.getCertContent()), "wefe.cer");
@@ -38,7 +38,7 @@ public class MyTest {
     @Test
     public void exportKey() throws Exception {
         // 私钥ID
-        String userKeyId = "4554f03640bd4a4ab2966b93b9fde205";
+        String userKeyId = "858b29430cd747f380949191cd455fb1";
         CertKeyInfoMysqlModel keyVo = certOperationService.queryCertKeyInfoById(userKeyId);
         System.out.println(keyVo.getId());
         PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
