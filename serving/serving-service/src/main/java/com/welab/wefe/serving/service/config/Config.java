@@ -14,42 +14,11 @@ public class Config extends CommonConfig {
     @Value("${wefe.serving.file-path}")
     private String fileBasePath;
 
-    @Value("${wefe.redis.host}")
-    private String redisHost;
-
-    @Value("${wefe.redis.port}")
-    private String redisPort;
-
-    @Value("${wefe.redis.password}")
-    private String redisPassword;
-
-    @Value("${wefe.service.cache.type}")
-    private String serviceCacheType;
-
-    @Value("${verification.code.send.channel:email}")
-    private String verificationCodeSendChannel;
-
-    @Value("${sms.aliyun.sign.name:xxx}")
-    private String smsAliyunSignName;
-
-    @Value("${sms.aliyun.account.forget.password.verification.code.template.code:xxx}")
-    private String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
-
-    @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
-    private String smsAliyunMemberregisterVerificationCodeTemplateCode;
-
     @Value("${email.account.forget.password.subject:忘记密码}")
     private String emailAccountForgetPasswordSubject;
 
     @Value("${email.account.forget.password.content:您正在执行忘记密码操作。您的验证码是#code#，2分钟内有效，请勿泄漏于他人!}")
     private String emailAccountForgetPasswordContent;
-
-    @Value("${sms.access_key_id:xxx}")
-    private String smsAccessKeyId;
-
-    @Value("${sms.access_key_secret:xxx}")
-    private String smsAccessKeySecret;
-
 
     public String getFileBasePath() {
         return fileBasePath;
@@ -57,73 +26,6 @@ public class Config extends CommonConfig {
 
     public void setFileBasePath(String fileBasePath) {
         this.fileBasePath = fileBasePath;
-    }
-
-
-    public String getRedisHost() {
-        return redisHost;
-    }
-
-    public void setRedisHost(String redisHost) {
-        this.redisHost = redisHost;
-    }
-
-    public String getRedisPort() {
-        return redisPort;
-    }
-
-    public void setRedisPort(String redisPort) {
-        this.redisPort = redisPort;
-    }
-
-    public String getRedisPassword() {
-        return redisPassword;
-    }
-
-    public void setRedisPassword(String redisPassword) {
-        this.redisPassword = redisPassword;
-    }
-
-    public String getServiceCacheType() {
-        return serviceCacheType;
-    }
-
-    public void setServiceCacheType(String serviceCacheType) {
-        this.serviceCacheType = serviceCacheType;
-    }
-
-    public String getVerificationCodeSendChannel() {
-        return verificationCodeSendChannel;
-    }
-
-    public void setVerificationCodeSendChannel(String verificationCodeSendChannel) {
-        this.verificationCodeSendChannel = verificationCodeSendChannel;
-    }
-
-    public String getSmsAliyunSignName() {
-        return smsAliyunSignName;
-    }
-
-    public void setSmsAliyunSignName(String smsAliyunSignName) {
-        this.smsAliyunSignName = smsAliyunSignName;
-    }
-
-    public String getSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode() {
-        return smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
-    }
-
-    public void setSmsAliyunAccountForgetPasswordVerificationCodeTemplateCode(
-            String smsAliyunAccountForgetPasswordVerificationCodeTemplateCode) {
-        this.smsAliyunAccountForgetPasswordVerificationCodeTemplateCode = smsAliyunAccountForgetPasswordVerificationCodeTemplateCode;
-    }
-
-    public String getSmsAliyunMemberregisterVerificationCodeTemplateCode() {
-        return smsAliyunMemberregisterVerificationCodeTemplateCode;
-    }
-
-    public void setSmsAliyunMemberregisterVerificationCodeTemplateCode(
-            String smsAliyunMemberregisterVerificationCodeTemplateCode) {
-        this.smsAliyunMemberregisterVerificationCodeTemplateCode = smsAliyunMemberregisterVerificationCodeTemplateCode;
     }
 
     public String getEmailAccountForgetPasswordSubject() {
@@ -140,22 +42,6 @@ public class Config extends CommonConfig {
 
     public void setEmailAccountForgetPasswordContent(String emailAccountForgetPasswordContent) {
         this.emailAccountForgetPasswordContent = emailAccountForgetPasswordContent;
-    }
-
-    public String getSmsAccessKeyId() {
-        return smsAccessKeyId;
-    }
-
-    public void setSmsAccessKeyId(String smsAccessKeyId) {
-        this.smsAccessKeyId = smsAccessKeyId;
-    }
-
-    public String getSmsAccessKeySecret() {
-        return smsAccessKeySecret;
-    }
-
-    public void setSmsAccessKeySecret(String smsAccessKeySecret) {
-        this.smsAccessKeySecret = smsAccessKeySecret;
     }
 
 }

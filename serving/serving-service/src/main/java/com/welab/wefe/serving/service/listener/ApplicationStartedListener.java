@@ -18,12 +18,13 @@ package com.welab.wefe.serving.service.listener;
 
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
-import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.entity.*;
 import com.welab.wefe.serving.service.dto.OrderStatisticsInput;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.dto.globalconfig.ServiceCacheConfigModel;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.service.*;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +53,6 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     private ClientServiceService clientServiceService;
 
     @Autowired
-    private ApiRequestRecordService apiRequestRecordService;
-
-    @Autowired
     private FeeConfigService feeConfigService;
 
     @Autowired
@@ -64,17 +62,23 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     private OrderStatisticsService orderStatisticsService;
 
     @Autowired
-    private Config config;
+    private GlobalConfigService globalConfigService;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         checkAndSaveFeeDetail();
         checkAndSaveOrderStatistics();
-        logger.info("config wefe.service.cache.type=" + config.getServiceCacheType());
+        ServiceCacheConfigModel cacheConfigModel = globalConfigService.getModel(ServiceCacheConfigModel.class);
+
+        if (cacheConfigModel == null) {
+            return;
+        }
+
+        logger.info("config wefe.service.cache.type=" + cacheConfigModel.getType());
         // init PrivateInformationRetrievalServer
-        if ("redis".equalsIgnoreCase(config.getServiceCacheType())) {
-            PrivateInformationRetrievalServer.init(100, new RedisIntermediateCache(config.getRedisHost(),
-                    Integer.valueOf(config.getRedisPort()), config.getRedisPassword()));
+        if (ServiceCacheConfigModel.CacheType.redis.equals(cacheConfigModel.getType())) {
+            PrivateInformationRetrievalServer.init(100, new RedisIntermediateCache(cacheConfigModel.getRedisHost(),
+                    Integer.valueOf(cacheConfigModel.getRedisPort()), cacheConfigModel.getRedisPassword()));
             logger.info("init RedisIntermediateCache");
         } else {
             PrivateInformationRetrievalServer.init(100);

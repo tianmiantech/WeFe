@@ -98,7 +98,7 @@
                                 label="redis地址："
                             >
                                 <el-input
-                                    v-model="form.service_cache_config.host"
+                                    v-model="form.service_cache_config.redis_host"
                                     placeholder=""
                                     :disabled="is_update"
                                 />
@@ -108,7 +108,7 @@
                                 label="redis端口："
                             >
                                 <el-input
-                                    v-model="form.service_cache_config.port"
+                                    v-model="form.service_cache_config.redis_port"
                                     placeholder=""
                                     :disabled="is_update"
                                 />
@@ -118,11 +118,14 @@
                                 label="密码："
                             >
                                 <el-input
-                                    v-model="form.service_cache_config.password"
+                                    v-model="form.service_cache_config.redis_password"
                                     type="password"
-                                    placeholder=""
-                                    :disabled="is_update"
+                                    autocomplete="new-password"
+                                    @contextmenu.prevent
+                                    @change="redisPwdChange"
+                                    clearable
                                 />
+                                
                             </el-form-item>
                         </fieldset>
                     </el-col>
@@ -140,7 +143,7 @@
                                 </el-radio>
                                 <el-radio
                                     v-model="form.captcha_send_channel.channel"
-                                    label="mail"
+                                    label="email"
                                     :disabled="is_update"
                                 >
                                     邮箱
@@ -181,11 +184,13 @@
                             <el-form-item
                                 label="邮件密码："
                             >
-                                <el-input
+                                  <el-input
                                     v-model="form.mail_server.password"
                                     type="password"
-                                    placeholder=""
-                                    :disabled="is_update"
+                                    autocomplete="new-password"
+                                    @contextmenu.prevent
+                                    @change="mailPwdChange"
+                                    clearable
                                 />
                             </el-form-item>
                         </fieldset>
@@ -304,9 +309,11 @@ export default {
                     type:           '',
                     redis_host:     '',
                     redis_port:     '',
-                    reids_password: '',
+                    redis_password: '',
                 },
 
+                isChangeRedisPwd: false,
+                isChangeMailPwd: false,
                 isChangeAccessKeySecretPwd: false,
             },
 
@@ -325,6 +332,13 @@ export default {
             } else {
                 this.form.identity_info.mode = 'standalone';
             }
+        },
+    
+        redisPwdChange() {
+            this.isChangeRedisPwd = true;
+        },
+        mailPwdChange() {
+            this.isChangeMailPwd = true;
         },
         accessKeySecretChange() {
             this.isChangeAccessKeySecretPwd = true;
@@ -365,53 +379,54 @@ export default {
 
             // 检查配置的密码部分是否有修改
                 // 1. 如果 数据集存储密码、邮件密码、AccessKeySecret密码 都没有被修改，则三个密码置空
-                if (!this.isChangeDataStoragePwd && !this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
-                    this.form.clickhouse_storage_config.password = null;
-                    this.form.mail_server.mail_password = null;
+                if (!this.isChangeRedisPwd && !this.isChangeMailPwd && !this.isChangeAccessKeySecretPwd) {
+                    this.form.service_cache_config.redis_password = null;
+                    this.form.mail_server.password = null;
                     this.form.sms_config.access_key_secret = null;
                 }
 
                 // 2. 如果 数据集存储密码、邮件密码、AccessKeySecret密码 三个中有其中一个被修改，调用接口获取public_key
-                if (this.isChangeDataStoragePwd || this.isChangeMailpwd || this.isChangeAccessKeySecretPwd) {
+                if (this.isChangeRedisPwd || this.isChangeMailPwd || this.isChangeAccessKeySecretPwd) {
                     await this.getGenerate_rsa_key_pair();
                     // 一个true，两个false
-                    if (this.isChangeDataStoragePwd && !this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
-                        this.form.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.form.clickhouse_storage_config.password);
-                        this.form.mail_server.mail_password = null;
+                    if (this.isChangeMailPwd && !this.isChangeAccessKeySecretPwd && !this.isChangeRedisPwd) {
+                        this.form.mail_server.password = Rsa.encrypt(this.publicKey, this.form.mail_server.password);
+                        this.form.service_cache_config.redis_password = null;
                         this.form.sms_config.access_key_secret = null;
                     }
-                    if (this.isChangeMailpwd && !this.isChangeDataStoragePwd && !this.isChangeAccessKeySecretPwd) {
-                        this.form.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.form.mail_server.mail_password);
-                        this.form.clickhouse_storage_config.password = null;
-                        this.form.sms_config.access_key_secret = null;
-                    }
-                    if (this.isChangeAccessKeySecretPwd && !this.isChangeMailpwd && !this.isChangeDataStoragePwd) {
+                    if (this.isChangeAccessKeySecretPwd && !this.isChangeMailPwd && !this.isChangeRedisPwd) {
                         this.form.sms_config.access_key_secret = Rsa.encrypt(this.publicKey, this.form.sms_config.access_key_secret);
-                        this.form.clickhouse_storage_config.password = null;
-                        this.form.mail_server.mail_password = null;
+                        this.form.service_cache_config.redis_password = null;
+                        this.form.mail_server.password = null;
                     }
+                     if (this.isChangeRedisPwd && !this.isChangeMailPwd && !this.isChangeAccessKeySecretPwd) {
+                        this.form.sms_config.access_key_secret = null;
+                        this.form.service_cache_config.redis_password = Rsa.encrypt(this.publicKey, this.form.service_cache_config.redis_password);
+                        this.form.mail_server.password = null;
+                    }
+
                     // 三个true
-                    if (this.isChangeDataStoragePwd && this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
-                        this.form.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.form.clickhouse_storage_config.password);
-                        this.form.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.form.mail_server.mail_password);
+                    if (this.isChangeRedisPwd && this.isChangeMailPwd && this.isChangeAccessKeySecretPwd) {
+                        this.form.service_cache_config.redis_password = Rsa.encrypt(this.publicKey, this.form.service_cache_config.redis_password);
+                        this.form.mail_server.password = Rsa.encrypt(this.publicKey, this.form.mail_server.password);
                         this.form.sms_config.access_key_secret = Rsa.encrypt(this.publicKey, this.form.sms_config.access_key_secret);
                     }
 
                     // 两个true，一个false
-                    if (this.isChangeDataStoragePwd && this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
-                        this.form.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.form.clickhouse_storage_config.password);
-                        this.form.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.form.mail_server.mail_password);
+                    if (this.isChangeRedisPwd && this.isChangeMailPwd && !this.isChangeAccessKeySecretPwd) {
+                        this.form.service_cache_config.redis_password = Rsa.encrypt(this.publicKey, this.form.service_cache_config.redis_password);
+                        this.form.mail_server.password = Rsa.encrypt(this.publicKey, this.form.mail_server.password);
                         this.form.sms_config.access_key_secret = null;
                     }
-                    if (!this.isChangeDataStoragePwd && this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
-                        this.form.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.form.mail_server.mail_password);
-                        this.form.clickhouse_storage_config.password = null;
+                    if (!this.isChangeRedisPwd && this.isChangeMailPwd && this.isChangeAccessKeySecretPwd) {
+                        this.form.mail_server.password = Rsa.encrypt(this.publicKey, this.form.mail_server.password);
+                        this.form.service_cache_config.redis_password = null;
                         this.form.sms_config.access_key_secret = Rsa.encrypt(this.publicKey, this.form.sms_config.access_key_secret);
 
                     }
-                    if (this.isChangeDataStoragePwd && !this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
-                        this.form.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.form.clickhouse_storage_config.password);
-                        this.form.mail_server.mail_password = null;
+                    if (this.isChangeRedisPwd && !this.isChangeMailPwd && this.isChangeAccessKeySecretPwd) {
+                        this.form.service_cache_config.redis_password = Rsa.encrypt(this.publicKey, this.form.service_cache_config.redis_password);
+                        this.form.mail_server.password = null;
                         this.form.sms_config.access_key_secret = Rsa.encrypt(this.publicKey, this.form.sms_config.access_key_secret);
                     }
                 }

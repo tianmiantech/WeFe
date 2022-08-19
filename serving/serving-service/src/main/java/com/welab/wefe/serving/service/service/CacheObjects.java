@@ -126,8 +126,8 @@ public class CacheObjects {
      */
     public static void refreshGlobalConfig() {
         GlobalConfigService service = Launcher.getBean(GlobalConfigService.class);
-        IdentityInfoModel identityModel = service.getIdentityInfo();
-        UnionInfoModel unionModel = service.getUnionInfoModel();
+        IdentityInfoModel identityModel = service.getModel(IdentityInfoModel.class);
+        UnionInfoModel unionModel = service.getModel(UnionInfoModel.class);
         if (identityModel != null) {
             MEMBER_ID = identityModel.getMemberId();
             RSA_PUBLIC_KEY = identityModel.getRsaPublicKey();

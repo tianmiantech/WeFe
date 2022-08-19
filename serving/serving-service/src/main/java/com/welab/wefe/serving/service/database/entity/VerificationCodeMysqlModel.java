@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,12 @@
 
 package com.welab.wefe.serving.service.database.entity;
 
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
+import com.welab.wefe.common.verification.code.common.VerificationCodeBusinessType;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-
-import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
-import com.welab.wefe.common.wefe.enums.VerificationCodeSendChannel;
 
 /**
  * Verification code model
@@ -53,7 +53,7 @@ public class VerificationCodeMysqlModel extends AbstractMySqlModel {
      * Verification code send channel
      */
     @Enumerated(EnumType.STRING)
-    private VerificationCodeSendChannel sendChannel;
+    private CaptchaSendChannel sendChannel;
     /**
      * Verification code business type
      */
@@ -85,11 +85,11 @@ public class VerificationCodeMysqlModel extends AbstractMySqlModel {
         this.success = success;
     }
 
-    public VerificationCodeSendChannel getSendChannel() {
+    public CaptchaSendChannel getSendChannel() {
         return sendChannel;
     }
 
-    public void setSendChannel(VerificationCodeSendChannel sendChannel) {
+    public void setSendChannel(CaptchaSendChannel sendChannel) {
         this.sendChannel = sendChannel;
     }
 
