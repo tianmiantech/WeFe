@@ -198,8 +198,16 @@
                                 />
                             </el-form-item>
                             <el-form-item label="AccessKeySecret：">
+                                <!-- <el-input
+                                    v-model="form.sms_config.access_key_secret"
+                                /> -->
                                 <el-input
                                     v-model="form.sms_config.access_key_secret"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    @contextmenu.prevent
+                                    @change="accessKeySecretChange"
+                                    clearable
                                 />
                             </el-form-item>
                             <el-form-item label="找回密码短信模板码：">
@@ -256,6 +264,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import Rsa from '@/utils/rsa.js';
 
 export default {
     data() {
@@ -297,6 +306,8 @@ export default {
                     redis_port:     '',
                     reids_password: '',
                 },
+
+                isChangeAccessKeySecretPwd: false,
             },
 
         };
@@ -315,8 +326,11 @@ export default {
                 this.form.identity_info.mode = 'standalone';
             }
         },
+        accessKeySecretChange() {
+            this.isChangeAccessKeySecretPwd = true;
+        },
         async getData() {
-            // this.loading = true;
+            this.loading = true;
             const { code, data } = await this.$http.post({
                 url:  '/global_config/detail',
                 data: {
@@ -345,8 +359,63 @@ export default {
                 }
             }
             
+             this.loading = false;
         },
         async update() {
+
+            // 检查配置的密码部分是否有修改
+                // 1. 如果 数据集存储密码、邮件密码、AccessKeySecret密码 都没有被修改，则三个密码置空
+                if (!this.isChangeDataStoragePwd && !this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                    this.form.clickhouse_storage_config.password = null;
+                    this.form.mail_server.mail_password = null;
+                    this.form.sms_config.access_key_secret = null;
+                }
+
+                // 2. 如果 数据集存储密码、邮件密码、AccessKeySecret密码 三个中有其中一个被修改，调用接口获取public_key
+                if (this.isChangeDataStoragePwd || this.isChangeMailpwd || this.isChangeAccessKeySecretPwd) {
+                    await this.getGenerate_rsa_key_pair();
+                    // 一个true，两个false
+                    if (this.isChangeDataStoragePwd && !this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                        this.form.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.form.clickhouse_storage_config.password);
+                        this.form.mail_server.mail_password = null;
+                        this.form.sms_config.access_key_secret = null;
+                    }
+                    if (this.isChangeMailpwd && !this.isChangeDataStoragePwd && !this.isChangeAccessKeySecretPwd) {
+                        this.form.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.form.mail_server.mail_password);
+                        this.form.clickhouse_storage_config.password = null;
+                        this.form.sms_config.access_key_secret = null;
+                    }
+                    if (this.isChangeAccessKeySecretPwd && !this.isChangeMailpwd && !this.isChangeDataStoragePwd) {
+                        this.form.sms_config.access_key_secret = Rsa.encrypt(this.publicKey, this.form.sms_config.access_key_secret);
+                        this.form.clickhouse_storage_config.password = null;
+                        this.form.mail_server.mail_password = null;
+                    }
+                    // 三个true
+                    if (this.isChangeDataStoragePwd && this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
+                        this.form.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.form.clickhouse_storage_config.password);
+                        this.form.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.form.mail_server.mail_password);
+                        this.form.sms_config.access_key_secret = Rsa.encrypt(this.publicKey, this.form.sms_config.access_key_secret);
+                    }
+
+                    // 两个true，一个false
+                    if (this.isChangeDataStoragePwd && this.isChangeMailpwd && !this.isChangeAccessKeySecretPwd) {
+                        this.form.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.form.clickhouse_storage_config.password);
+                        this.form.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.form.mail_server.mail_password);
+                        this.form.sms_config.access_key_secret = null;
+                    }
+                    if (!this.isChangeDataStoragePwd && this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
+                        this.form.mail_server.mail_password = Rsa.encrypt(this.publicKey, this.form.mail_server.mail_password);
+                        this.form.clickhouse_storage_config.password = null;
+                        this.form.sms_config.access_key_secret = Rsa.encrypt(this.publicKey, this.form.sms_config.access_key_secret);
+
+                    }
+                    if (this.isChangeDataStoragePwd && !this.isChangeMailpwd && this.isChangeAccessKeySecretPwd) {
+                        this.form.clickhouse_storage_config.password = Rsa.encrypt(this.publicKey, this.form.clickhouse_storage_config.password);
+                        this.form.mail_server.mail_password = null;
+                        this.form.sms_config.access_key_secret = Rsa.encrypt(this.publicKey, this.form.sms_config.access_key_secret);
+                    }
+                }
+
             this.loading = true;
             const { code } = await this.$http.post({
                 url:  '/global_config/update',
@@ -360,6 +429,15 @@ export default {
                 this.$router.push({ name: 'global-setting-view' });
             }
             this.loading = false;
+        },
+        async getGenerate_rsa_key_pair() {
+            const { code, data } = await this.$http.get('/crypto/generate_rsa_key_pair');
+
+            if (code === 0 && data && data.public_key) {
+                const { public_key } = data;
+
+                this.publicKey = public_key;
+            }
         },
         async resetKey() {
             this.is_reset = true;
