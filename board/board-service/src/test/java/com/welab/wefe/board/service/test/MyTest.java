@@ -1,7 +1,9 @@
 package com.welab.wefe.board.service.test;
 
+import java.io.FileNotFoundException;
 import java.security.PrivateKey;
 
+import org.bouncycastle.openssl.PEMKeyPair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +41,17 @@ public class MyTest {
         String userKeyId = "4554f03640bd4a4ab2966b93b9fde205";
         CertKeyInfoMysqlModel keyVo = certOperationService.queryCertKeyInfoById(userKeyId);
         System.out.println(keyVo.getId());
-//        PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
-        PrivateKey privateKey = KeyUtils.getRSAKeyPair(keyVo.getKeyPem()).getPrivate();
-        CertUtils.writeToPKCS8File(privateKey, "tianmian.key");
+        PrivateKey privateKey = KeyUtils.getRSAPrivateKey(keyVo.getKeyPem());
+//        PrivateKey privateKey = KeyUtils.getRSAKeyPair(keyVo.getKeyPem()).getPrivate();
+        CertUtils.writeKey(privateKey, "tianmian.key");
+//        CertUtils.writeToPKCS8File(privateKey, "tianmian.key");
+    }
+
+    @Test
+    public void readKey() throws Exception {
+        PEMKeyPair pemKeyPair = CertUtils.readKey("tianmian.key");
+        System.out.println(pemKeyPair); // writeKey
+        PrivateKey privateKey = (PrivateKey) CertUtils.readRSAPrivateKey("tianmian.key"); // writeToPKCS8File
+        System.out.println(privateKey);
     }
 }

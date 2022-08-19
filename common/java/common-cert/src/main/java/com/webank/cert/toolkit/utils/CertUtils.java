@@ -496,6 +496,15 @@ public class CertUtils {
         return null;
     }
 
+    public static Key readRSAPrivateKey(String filePath) throws Exception {
+        Object object = readPEMObjectFromFile(filePath);
+        if (object instanceof PrivateKeyInfo) {
+            return KeyFactory.getInstance("RSA")
+                    .generatePrivate(new PKCS8EncodedKeySpec(((PrivateKeyInfo) object).getEncoded()));
+        }
+        return null;
+    }
+    
     /**
      * 从文件中读取RSA私钥
      * 
