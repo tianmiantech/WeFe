@@ -193,6 +193,6 @@ public class LrAlgorithmHelper {
                 return woeList.get(i);
             }
         }
-        return 0;
+        return woeList.get(woeList.size() - 1);
     }
 }
