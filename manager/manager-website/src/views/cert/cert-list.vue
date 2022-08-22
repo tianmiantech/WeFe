@@ -37,10 +37,10 @@
                 width="200"
             >
                 <template v-slot="scope">
-                    <router-link class="mb10" :to="{ name: 'cert-view', query: { pk_id: scope.row.pk_id}}">
-                        {{ scope.row.pk_id }}
-                    </router-link>
-
+<!--                    <router-link class="mb10" :to="{ name: 'cert-view', query: { pk_id: scope.row.pk_id}}">-->
+<!--                        {{ scope.row.pk_id }}-->
+<!--                    </router-link>-->
+                    {{ scope.row.pk_id }}
                 </template>
             </el-table-column>
             <el-table-column
@@ -52,17 +52,17 @@
                 </template>
 
             </el-table-column>
-            <el-table-column label="所属用户ID" width="200">
+            <el-table-column label="成员ID" width="200">
                 <template v-slot="scope">
                     {{ scope.row.user_id }}
                 </template>
             </el-table-column>
-            <el-table-column label="申请人(org/cn)" width="150">
+            <el-table-column label="申请人(组织名称/常用名)" width="150">
                 <template v-slot="scope">
                     {{ scope.row.subject_org }} / {{ scope.row.subject_cn }}
                 </template>
             </el-table-column>
-            <el-table-column label="签发人(org/cn)" width="150">
+            <el-table-column label="签发人(组织名称/常用名)" width="150">
                 <template v-slot="scope">
                     {{ scope.row.issuer_org }} / {{ scope.row.issuer_cn }}
                 </template>
