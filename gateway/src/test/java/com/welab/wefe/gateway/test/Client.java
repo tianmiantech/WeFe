@@ -64,8 +64,7 @@ public class Client {
         ca.setContent(content);
         caCertificateList.add(ca);
         X509Certificate[] certs = TlsUtil.buildCertificates(caCertificateList);
-        System.out.println(certs[0]);
-        ManagedChannel grpcChannel = getSslManagedChannel("127.0.0.1", 50051, certs);
+        ManagedChannel grpcChannel = getSslManagedChannel("127.0.0.1", 50050, certs);
         TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
 
         BasicMetaProto.ReturnStatus result = clientStub.send(transferMeta);
