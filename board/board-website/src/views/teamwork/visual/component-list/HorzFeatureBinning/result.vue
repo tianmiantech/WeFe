@@ -138,14 +138,19 @@
 
                             for(const column in binningResult) {
                                 const val = binningResult[column];
-                                const series = [], xAxis = [];
+                                const series = [], xAxis = [], goodData = [], badData = [];
 
+                                for (let i=0; i<val.countArray.length; i++) {
+                                    goodData.push(val.eventCountArray[i] / val.countArray[i]);
+                                    badData.push(val.nonEventCountArray[i] / val.countArray[i]);
+                                }
+                                
                                 series.push(
                                     {
                                         name:      'good',
                                         stack:     'Ad',
                                         type:      'bar',
-                                        data:      val.eventCountArray,
+                                        data:      goodData,
                                         itemStyle: {
                                             color: 'rgba(5, 115, 107, .7)',
                                         },
@@ -154,7 +159,7 @@
                                         name:      'bad',
                                         stack:     'Ad',
                                         type:      'bar',
-                                        data:      val.nonEventCountArray,
+                                        data:      badData,
                                         itemStyle: {
                                             color: 'rgba(174, 6, 23, .7)',
                                         },
@@ -165,7 +170,7 @@
                                         itemStyle:  {
                                             color: 'rgba(11, 89, 153, 1)',
                                         },
-                                        data:  val.splitPoints,
+                                        data:  badData,
                                         label: {
                                             show:     true,
                                             position: 'inside',
@@ -175,13 +180,13 @@
                                         },
                                     },
                                 );
-                                for(let i=0; i<val.eventCountArray.length; i++) {
-                                    xAxis.push(i);
+                                for(let i=0; i<val.splitPoints.length; i++) {
+                                    xAxis.push(val.splitPoints[i].toFixed(3));
                                 }
                                 const mapdata = {
                                     xAxis: {
                                         type: 'category',
-                                        data: val.eventCountArray || [],
+                                        data: xAxis || [],
                                     },
                                     yAxis: [
                                         {
