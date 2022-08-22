@@ -56,7 +56,7 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
     private void generateCertRequestContent(Input input) throws StatusCodeWithException {
         try {
             CertRequestInfoMysqlModel model = certOperationService.createCertRequestInfo(input.getPrincipalName(),
-                    input.getOrganizationName(), "IT");
+                    input.getOrganizationName(), "Welab-WeFe");
             input.setCertRequestContent(model.getCertRequestContent());
             input.setCertRequestId(model.getId());
         } catch (Exception e) {
@@ -72,7 +72,6 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
         private List<String> fileIdList;
         private String organizationName;
         private String provinceCityName;
-        private String email;
         private String certRequestContent;
         private String certRequestId;
 
@@ -122,14 +121,6 @@ public class MemberRealnameAuthApi extends AbstractApi<MemberRealnameAuthApi.Inp
 
         public void setProvinceCityName(String provinceCityName) {
             this.provinceCityName = provinceCityName;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
         }
 
         public String getCertRequestContent() {
