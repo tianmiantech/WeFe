@@ -125,6 +125,7 @@ const baseRoutes = [
                 name: 'csr-list',
                 meta: {
                     loginAndRefresh: true,
+                    hidden:          true,
                     title:           '证书请求列表',
                 },
                 component: () => import('../views/cert/csr-list'),
@@ -134,6 +135,7 @@ const baseRoutes = [
                 name: 'cert-key-list',
                 meta: {
                     loginAndRefresh: true,
+                    hidden:          true,
                     title:           '私钥列表',
                 },
                 component: () => import('../views/cert/cert-key-list'),
