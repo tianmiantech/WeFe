@@ -79,7 +79,7 @@
                                     prop="nonEventRateArray"
                                     width="200"
                                 />
-                                <el-table-column label="分布" align="center" width="300">
+                                <el-table-column label="分布" align="center" width="430">
                                     <template v-slot="scope">
                                         <BarChartNew ref="BarChart" v-if="scope.row.isCheckBarChart" :config="scope.row.mapdata"/>
                                         <el-button v-else type="primary" size="small" @click="scope.row.isCheckBarChart = true">查看分布</el-button>
@@ -138,11 +138,20 @@
 
                             for(const column in binningResult) {
                                 const val = binningResult[column];
-                                const series = [], xAxis = [], goodData = [], badData = [];
+                                const series = [], xAxis = [], goodData = [], badData = [], badLineData = [];
 
+                                // 概率
+                                // for (let i=0; i<val.countArray.length; i++) {
+                                //     goodData.push((val.eventCountArray[i] / val.countArray[i])*val.countRateArray[i]);
+                                //     badData.push((val.nonEventCountArray[i] / val.countArray[i])*val.countRateArray[i]);
+                                //     badLineData.push(val.nonEventCountArray[i] / val.countArray[i]);
+                                // }
+
+                                // 样本量
                                 for (let i=0; i<val.countArray.length; i++) {
-                                    goodData.push(val.eventCountArray[i] / val.countArray[i]);
-                                    badData.push(val.nonEventCountArray[i] / val.countArray[i]);
+                                    goodData.push(val.eventCountArray[i]);
+                                    badData.push(val.nonEventCountArray[i]);
+                                    badLineData.push(val.nonEventCountArray[i] / val.countArray[i]);
                                 }
                                 
                                 series.push(
@@ -154,6 +163,9 @@
                                         itemStyle: {
                                             color: 'rgba(5, 115, 107, .7)',
                                         },
+                                        // tooltip: {
+                                        //     valueFormatter: (value) => value.toFixed(3),
+                                        // },
                                     },
                                     {
                                         name:      'bad',
@@ -163,6 +175,9 @@
                                         itemStyle: {
                                             color: 'rgba(174, 6, 23, .7)',
                                         },
+                                        // tooltip: {
+                                        //     valueFormatter: (value) => value.toFixed(3),
+                                        // },
                                     },
                                     {
                                         type:       'line',
@@ -170,13 +185,16 @@
                                         itemStyle:  {
                                             color: 'rgba(11, 89, 153, 1)',
                                         },
-                                        data:  badData,
+                                        data:  badLineData,
                                         label: {
                                             show:     true,
-                                            position: 'inside',
+                                            position: 'top',
                                             formatter (value) {
-                                                return Number(value.data).toFixed(3);
+                                                return Number(value.data).toFixed(2);
                                             },
+                                        },
+                                        tooltip: {
+                                            valueFormatter: (value) => value.toFixed(3),
                                         },
                                     },
                                 );
@@ -190,10 +208,18 @@
                                     },
                                     yAxis: [
                                         {
-                                            type: 'value',
+                                            type:         'value',
+                                            name:         'Bin count distribution',
+                                            nameLocation: 'middle',
+                                            nameGap:      30,
+                                            nameRotate:   90,
                                         },
                                         {
-                                            type: 'value',
+                                            type:         'value',
+                                            name:         'Bad probability',
+                                            nameLocation: 'middle',
+                                            nameGap:      30,
+                                            nameRotate:   90,
                                         },
                                     ],
                                     series,
