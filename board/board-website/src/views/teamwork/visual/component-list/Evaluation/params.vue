@@ -34,7 +34,7 @@
                 v-model="vData.form.bin_method"
                 placeholder="请选择"
                 disabled=true
-                style="width:86px;">
+                style="width:84px;">
                 <el-option
                     v-for="item in vData.bin_method"
                     :key="item.value"
@@ -45,11 +45,10 @@
             <el-input-number
                 v-model="vData.form.bin_num"
                 type="number"
-                :min="10"
-                :max="20"
                 controls-position="right"
-            />箱
+            />箱 <span style="color: #999;">（建议设置10-20箱）</span>
         </el-form-item>
+        <p v-if="vData.form.prob_need_to_bin"></p>
     </el-form>
 </template>
 
