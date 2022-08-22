@@ -15,13 +15,6 @@
  */
 package com.welab.wefe.gateway.init.grpc;
 
-import java.io.File;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.webank.cert.toolkit.utils.CertUtils;
 import com.webank.cert.toolkit.utils.KeyUtils;
 import com.welab.wefe.gateway.GatewayServer;
@@ -30,11 +23,15 @@ import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.dto.ServerCertInfoModel;
 import com.welab.wefe.gateway.service.MemberService;
 import com.welab.wefe.gateway.service.ServerCertService;
-
 import io.grpc.netty.GrpcSslContexts;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 
 /**
  * Grpc server context
@@ -145,12 +142,11 @@ public class GrpcServerContext {
         ServerCertInfoModel serverCertInfoModel = serverCertService.getCertInfo();
         String key = serverCertInfoModel.getKey();
         String content = serverCertInfoModel.getContent();
-        LOG.info("buildSslContext key = " + key);
-        LOG.info("buildSslContext cert content = " + content);
+        //LOG.info("buildSslContext key = " + key);
+        //LOG.info("buildSslContext cert content = " + content);
         PrivateKey privateKey = KeyUtils.getRSAKeyPair(key).getPrivate();
         X509Certificate keyCertChain = CertUtils.convertStrToCert(content);
         SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(privateKey, keyCertChain);
-//        SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(new File("certFile"), new File("keyfile"));
         sslContextBuilder = GrpcSslContexts.configure(sslContextBuilder, SslProvider.OPENSSL);
         return sslContextBuilder.build();
     }

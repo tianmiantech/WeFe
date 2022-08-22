@@ -137,7 +137,7 @@ public class GrpcServer {
         try {
             LOG.info("Restart 【" + name + "】 grpc server..........");
             if (null != server && RpcServerStatusEnum.RUNNING.equals(status)) {
-                server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+                server.shutdown().awaitTermination(3, TimeUnit.SECONDS);
             }
             boolean ret = start();
             if (ret) {
