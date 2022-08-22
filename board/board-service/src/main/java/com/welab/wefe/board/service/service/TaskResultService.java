@@ -857,13 +857,14 @@ public class TaskResultService extends AbstractService {
     }
 
 
-    public TaskResultMySqlModel findByJobIdAndComponentTypeAndType(String jobId, ComponentType componentType, TaskResultType type) {
+    public TaskResultMySqlModel findByJobIdAndComponentTypeAndType(String jobId, ComponentType componentType, TaskResultType type, JobMemberRole role) {
 
         Specification<TaskResultMySqlModel> where = Where
                 .create()
                 .equal("jobId", jobId)
                 .equal("componentType", componentType)
                 .equal("type", type.name())
+                .equal("role", role)
                 .build(TaskResultMySqlModel.class);
 
         return taskResultRepository.findOne(where).orElse(null);
