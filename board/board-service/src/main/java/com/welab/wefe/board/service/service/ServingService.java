@@ -299,7 +299,11 @@ public class ServingService extends AbstractService {
     }
 
     private Object getScoreCardInfo(TaskResultMySqlModel taskResult) {
-        TaskResultMySqlModel task = taskResultService.findByJobIdAndComponentTypeAndType(taskResult.getJobId(), ComponentType.ScoreCard, TaskResultType.metric_train);
+        TaskResultMySqlModel task = taskResultService.findByJobIdAndComponentTypeAndType(
+                taskResult.getJobId(),
+                ComponentType.ScoreCard,
+                TaskResultType.metric_train,
+                taskResult.getRole());
         if (task == null) {
             return null;
         }

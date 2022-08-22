@@ -52,6 +52,12 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
         if (intersectionNode == null && intersectionNode2 == null) {
             throw new FlowNodeException(node, "请在前面添加分箱组件。");
         }
+
+        FlowGraphNode intersectionNode3 = graph.findOneNodeFromParent(node, ComponentType.HorzLR);
+        FlowGraphNode intersectionNode4 = graph.findOneNodeFromParent(node, ComponentType.VertLR);
+        if (intersectionNode3 == null && intersectionNode4 == null) {
+            throw new FlowNodeException(node, "请在前面添加逻辑回归组件。");
+        }
     }
 
 
