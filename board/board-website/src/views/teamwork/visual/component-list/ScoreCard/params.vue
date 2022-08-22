@@ -8,9 +8,9 @@
         label-width="64px"
         :model="vData.form"
     >
-        <el-form-item label="基准分：" prop="pd0">
+        <el-form-item label="基准分：" prop="p0">
             <el-input
-                v-model="vData.form.pd0"
+                v-model="vData.form.p0"
                 type="number"
                 placeholder="10"
             />
@@ -44,7 +44,7 @@
         mixins: [dataStore],
         setup(props) {
             const formData = {
-                pd0: 10,
+                p0:  10,
                 pdo: 50,
             };
 
