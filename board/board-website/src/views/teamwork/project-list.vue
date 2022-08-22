@@ -87,15 +87,19 @@
                         class="flow-list mt10"
                     >
                         <div class="flow-status">
-                            <p class="status-num">{{ item.flow_status_statistics.editing }}</p>
+                            <p class="status-num">{{ item.flow_status_statistics.editing || 0 }}</p>
                             流程配置中
                         </div>
                         <div class="flow-status">
-                            <p class="status-num">{{ item.flow_status_statistics.running }}</p>
+                            <p class="status-num">{{ item.flow_status_statistics.running || 0 }}</p>
                             流程执行中
                         </div>
                         <div class="flow-status">
-                            <p class="status-num">{{ item.flow_status_statistics.finished }}</p>
+                            <p class="status-num">{{ item.flow_status_statistics.interrupted || 0 }}</p>
+                            流程中断
+                        </div>
+                        <div class="flow-status">
+                            <p class="status-num">{{ item.flow_status_statistics.success || 0 }}</p>
                             流程已完成
                         </div>
                     </div>
