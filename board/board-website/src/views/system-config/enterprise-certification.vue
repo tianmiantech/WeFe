@@ -36,17 +36,14 @@
                 </el-form-item>
                 <el-form-item label="企业所在省市：">
                     <el-input
+                        placeholder="广东省深圳市"
                         v-model="form.provinceCityName"
                     />
                 </el-form-item>
                 <el-form-item label="企业所属组织：">
                     <el-input
+                        placeholder="Welab Inc."
                         v-model="form.organizationName"
-                    />
-                </el-form-item>
-                <el-form-item label="企业邮箱：">
-                    <el-input
-                        v-model="form.email"
                     />
                 </el-form-item>
                 <el-form-item label="企业简介：">
@@ -158,7 +155,6 @@
                     description:      '',
                     provinceCityName: '',
                     organizationName: '',
-                    email:            '',
                     authType:         '',
                 },
                 uploading: 0,
@@ -384,7 +380,6 @@
                         authType:         this.form.authType,
                         organizationName: this.form.organizationName,
                         provinceCityName: this.form.provinceCityName,
-                        email:            this.form.email,
                     },
                     btnState: {
                         target: $event,
