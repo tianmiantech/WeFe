@@ -166,6 +166,18 @@
                             <p class="tips-alert" v-if="userInfo.super_admin_role && enterpriseAuth === 2 && real_name_auth_useful_life && form.cert_status !== 'VALID'"> ※ 证书已失效</p>
                             <el-form-item :span="10" label="开启TLS通信："
                                           v-if="userInfo.super_admin_role && enterpriseAuth === 2 && real_name_auth_useful_life">
+                                <el-tooltip>
+                                    <template #content>
+                                        <div>
+                                            <strong>tips：</strong>
+                                            <br />
+                                            开启后Gateway将采用TLS协议与其他成员进行数据加密通信
+                                        </div>
+                                    </template>
+                                    <el-icon class="mr5">
+                                        <elicon-info-filled />
+                                    </el-icon>
+                                </el-tooltip>
                                 <el-radio
                                     v-model="form.member_gateway_tls_enable"
                                     :label="true"
@@ -180,7 +192,6 @@
                                 >
                                     否
                                 </el-radio>
-                                <p class="tips-alert" v-if="form.member_gateway_tls_enable"> ※ 开启后通信更安全</p>
                             </el-form-item>
                         </div>
                     </el-col>
