@@ -502,6 +502,7 @@ class Tracking(object):
             model_param = {'header': model_meta.get('cols')}
             transform_cols = model_meta.get('transformParam').get('transformCols')
             model_param['transform_bin_indexes'] = [int(x) for x in transform_cols]
+            model_param['component_type'] = model.component_type
             return model_param, binning_results
         return None, None
 
