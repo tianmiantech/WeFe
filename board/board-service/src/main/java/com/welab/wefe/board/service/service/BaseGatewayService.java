@@ -20,11 +20,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
+import com.welab.wefe.board.service.cache.CaCertificateCache;
 import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
+import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.proto.TransferServiceGrpc;
 import com.welab.wefe.board.service.proto.meta.basic.BasicMetaProto;
 import com.welab.wefe.board.service.proto.meta.basic.GatewayMetaProto;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.board.service.util.TlsUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
@@ -32,8 +35,14 @@ import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NegotiationType;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -107,7 +116,7 @@ public class BaseGatewayService extends AbstractService {
         ManagedChannel grpcChannel = null;
         String message = "[grpc] end to " + dstMemberName;
         try {
-            grpcChannel = getGrpcChannel(gatewayUri);
+            grpcChannel = buildManagedChannel(gatewayUri);
             TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
             BasicMetaProto.ReturnStatus returnStatus = clientStub.send(transferMeta);
             if (returnStatus.getCode() != 0) {
@@ -197,6 +206,7 @@ public class BaseGatewayService extends AbstractService {
                 .build();
     }
 
+
     protected GatewayMetaProto.TransferMeta buildTransferMeta(String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) {
         GatewayMetaProto.Member.Builder builder = GatewayMetaProto.Member.newBuilder()
                 .setMemberId(dstMemberId);
@@ -235,5 +245,35 @@ public class BaseGatewayService extends AbstractService {
         String splitSymbol = ":";
         return gatewayUri.contains(splitSymbol) && gatewayUri.split(splitSymbol).length <= 2 && StringUtil.isNumeric(gatewayUri.split(splitSymbol)[1]);
     }
+
+
+    private ManagedChannel buildManagedChannel(String gatewayUri) throws Exception {
+        if (!isValidGatewayUri(gatewayUri)) {
+            throw new StatusCodeWithException("网关地址格式不正确，格式应为 IP:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
+        if (gatewayUri.equals(memberInfoModel.getMemberGatewayUri()) && Boolean.TRUE.equals(memberInfoModel.getMemberGatewayTlsEnable())) {
+            return getSslGrpcChannel(gatewayUri);
+        }
+        return getGrpcChannel(gatewayUri);
+
+    }
+
+    private ManagedChannel getSslGrpcChannel(String gatewayUri) throws Exception {
+        X509Certificate[] x509Certificates = TlsUtil.buildCertificates(CaCertificateCache.getInstance().getAll());
+        SslContextBuilder sslContextBuilder = GrpcSslContexts.forClient();
+        if (null == x509Certificates || x509Certificates.length == 0) {
+            sslContextBuilder.trustManager(InsecureTrustManagerFactory.INSTANCE);
+        } else {
+            sslContextBuilder.trustManager(x509Certificates);
+        }
+        return NettyChannelBuilder.forTarget(gatewayUri)
+                .negotiationType(NegotiationType.TLS)
+                .overrideAuthority("wefe.tianmiantech.com.test")
+                .sslContext(sslContextBuilder.build())
+                .maxInboundMetadataSize(2000 * 1024 * 1024)
+                .build();
+    }
+
 
 }

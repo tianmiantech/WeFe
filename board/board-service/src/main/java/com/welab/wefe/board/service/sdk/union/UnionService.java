@@ -17,7 +17,9 @@
 package com.welab.wefe.board.service.sdk.union;
 
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.cache.CaCertificateCache;
 import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMysqlModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
@@ -32,9 +34,12 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 
 /**
@@ -185,5 +190,29 @@ public class UnionService extends AbstractUnionService {
 
         CACHE_MAP.put(key, output);
         return output;
+    }
+
+    /**
+     * Find all ca certificate from union service
+     */
+    public List<CaCertificateCache.CaCertificate> findAllCertificate() throws Exception {
+        List<CaCertificateCache.CaCertificate> resultList = new ArrayList<>();
+        JSONObject result = request("trust/certs/query");
+
+        JSONArray caCertificateDataArray = JObject.parseArray(JObject.create(result).getStringByPath("data.list"));
+        if (CollectionUtils.isEmpty(caCertificateDataArray)) {
+            return resultList;
+        }
+        CaCertificateCache.CaCertificate caCertificate = null;
+        for (int i = 0; i < caCertificateDataArray.size(); i++) {
+            caCertificate = new CaCertificateCache.CaCertificate();
+            JSONObject caCertificateDataObj = caCertificateDataArray.getJSONObject(i);
+            caCertificate.setId(caCertificateDataObj.getString("serial_number"));
+            caCertificate.setName(caCertificateDataObj.getString("subject_cn"));
+            caCertificate.setContent(caCertificateDataObj.getString("cert_content"));
+
+            resultList.add(caCertificate);
+        }
+        return resultList;
     }
 }
