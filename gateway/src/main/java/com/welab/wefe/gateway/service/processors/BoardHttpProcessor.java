@@ -104,7 +104,8 @@ public class BoardHttpProcessor extends AbstractProcessor {
      * Encrypt content
      */
     private GatewayMetaProto.TransferMeta encryptTransferMeta(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
-        String body = transferMeta.getContent().getObjectData();
+        return transferMeta;
+       /* String body = transferMeta.getContent().getObjectData();
         if (StringUtil.isEmpty(body)) {
             return transferMeta;
         }
@@ -117,7 +118,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
         String encryptBody = AsymmetricCryptoUtil.encryptByPublicKey(body, dstMember.getPublicKey(), dstMember.getSecretKeyType());
         GatewayMetaProto.Content content = contentBuilder.setObjectData(ENCRYPT_MARK_PREFIX + encryptBody).build();
 
-        return transferMeta.toBuilder().setContent(content).build();
+        return transferMeta.toBuilder().setContent(content).build();*/
     }
 
     /**
