@@ -129,7 +129,7 @@ class ScoreCardProvider(ScoreCard):
         B_score = self.pdo / math.log(2, )
         bin_inner_param, bin_results, component_type = self._get_binning_result()
         feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
-        if component_type == 'horz':
+        if 'horz' in component_type.lower():
             odds = self.get_count_odds(feature_bin_results)
             A_score, B_score = self.cal_score(odds)
             self.score_card_result["odds"] = odds
