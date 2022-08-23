@@ -19,6 +19,7 @@ package com.welab.wefe.gateway.service.processors;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.AsymmetricCryptoUtil;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.SM4Util;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
@@ -43,7 +44,6 @@ import java.util.Map;
  **/
 @Processor(type = GatewayProcessorType.boardHttpProcessor, desc = "push to the board module message processor in HTTP mode")
 public class BoardHttpProcessor extends AbstractProcessor {
-    private final static String ENCRYPT_MARK_PREFIX = "ENCRYPT:";
     private final static String NON_ENCRYPT_MARK_PREFIX = "NON_ENCRYPT:";
 
     @Autowired
@@ -67,10 +67,8 @@ public class BoardHttpProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus remoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
         try {
-            String data = transferMeta.getContent().getObjectData();
-            if (StringUtil.isNotEmpty(data)) {
-                data = data.startsWith(ENCRYPT_MARK_PREFIX) ? decryptContent(data.substring(ENCRYPT_MARK_PREFIX.length())) : data.substring(NON_ENCRYPT_MARK_PREFIX.length());
-            }
+            String data = decryptContent(transferMeta.getContent().getObjectData());
+
             JObject contentJson = JObject.create(data);
             String url = contentJson.getString("url");
             String method = contentJson.getString("method");
@@ -104,8 +102,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
      * Encrypt content
      */
     private GatewayMetaProto.TransferMeta encryptTransferMeta(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
-        return transferMeta;
-       /* String body = transferMeta.getContent().getObjectData();
+        String body = transferMeta.getContent().getObjectData();
         if (StringUtil.isEmpty(body)) {
             return transferMeta;
         }
@@ -115,10 +112,12 @@ public class BoardHttpProcessor extends AbstractProcessor {
             return transferMeta.toBuilder().setContent(contentBuilder.setObjectData(NON_ENCRYPT_MARK_PREFIX + body).build()).build();
         }
 
-        String encryptBody = AsymmetricCryptoUtil.encryptByPublicKey(body, dstMember.getPublicKey(), dstMember.getSecretKeyType());
-        GatewayMetaProto.Content content = contentBuilder.setObjectData(ENCRYPT_MARK_PREFIX + encryptBody).build();
+        String secretKey = SM4Util.generateKeyString();
+        String encryptSecretKey = AsymmetricCryptoUtil.encryptByPublicKey(secretKey, dstMember.getPublicKey(), dstMember.getSecretKeyType());
+        String encryptBody = SM4Util.encrypt(secretKey, body);
+        GatewayMetaProto.Content content = contentBuilder.setObjectData(encryptSecretKey + ":" + encryptBody).build();
 
-        return transferMeta.toBuilder().setContent(content).build();*/
+        return transferMeta.toBuilder().setContent(content).build();
     }
 
     /**
@@ -128,7 +127,14 @@ public class BoardHttpProcessor extends AbstractProcessor {
         if (StringUtil.isEmpty(cipherContent)) {
             return cipherContent;
         }
+        if (cipherContent.startsWith(NON_ENCRYPT_MARK_PREFIX)) {
+            return cipherContent.substring(NON_ENCRYPT_MARK_PREFIX.length());
+        }
+
         MemberEntity selfMember = MemberCache.getInstance().getSelfMember();
-        return AsymmetricCryptoUtil.decryptByPrivateKey(cipherContent, selfMember.getPrivateKey(), selfMember.getSecretKeyType());
+        String encryptSecretKey = cipherContent.split(":")[0];
+        String encryptContent = cipherContent.split(":")[1];
+        String secretKey = AsymmetricCryptoUtil.decryptByPrivateKey(encryptSecretKey, selfMember.getPrivateKey(), selfMember.getSecretKeyType());
+        return SM4Util.decrypt(secretKey, encryptContent);
     }
 }
