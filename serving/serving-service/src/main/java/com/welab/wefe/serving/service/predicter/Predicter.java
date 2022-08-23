@@ -80,7 +80,7 @@ public class Predicter {
         long start = System.currentTimeMillis();
 
         String seqNo = "", memberId = "";
-        PredictResult result;
+        PredictResult result = null;
 
         boolean requestResult = false;
         PredictParams predictParams = PredictParams.of(featureDataMap);
@@ -98,7 +98,7 @@ public class Predicter {
             requestResult = true;
 
         } finally {
-            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
+            batchLog(seqNo, modelId, memberId, predictParams, result, System.currentTimeMillis() - start, requestResult);
         }
 
         return result;
@@ -115,7 +115,7 @@ public class Predicter {
 
         long start = System.currentTimeMillis();
 
-        PredictResult result;
+        PredictResult result = null;
 
         boolean requestResult = false;
 
@@ -131,7 +131,7 @@ public class Predicter {
             requestResult = true;
 
         } finally {
-            log(seqNo, modelId, memberId, predictParams, null, System.currentTimeMillis() - start, requestResult);
+            batchLog(seqNo, modelId, memberId, predictParams, result, System.currentTimeMillis() - start, requestResult);
         }
 
         return result;
@@ -283,13 +283,13 @@ public class Predicter {
         );
     }
 
-    private static void log(String seqNo,
-                            String modelId,
-                            String memberId,
-                            PredictParams predictParams,
-                            PredictResult result,
-                            long spend,
-                            boolean requestResult) {
+    private static void batchLog(String seqNo,
+                                 String modelId,
+                                 String memberId,
+                                 PredictParams predictParams,
+                                 PredictResult result,
+                                 long spend,
+                                 boolean requestResult) {
 
         JSONObject request = new JSONObject();
         request.put("seqNo", seqNo);
@@ -298,17 +298,35 @@ public class Predicter {
         request.put("predictParams", predictParams);
 
         //Call record warehousing
-        predictLogService.save(
-                seqNo,
-                modelId,
-                memberId,
-                result == null ? null : result.getAlgorithm(),
-                result == null ? null : result.getType(),
-                result == null ? null : result.getMyRole(),
-                JSON.toJSONString(request),
-                JSON.toJSONString(result),
-                spend,
-                requestResult
+        if (result == null) {
+            predictLogService.save(
+                    seqNo,
+                    modelId,
+                    memberId,
+                    result == null ? null : result.getAlgorithm(),
+                    result == null ? null : result.getType(),
+                    result == null ? null : result.getMyRole(),
+                    JSON.toJSONString(request),
+                    JSON.toJSONString(result),
+                    spend,
+                    requestResult
+            );
+        }
+
+        List<Object> list = (List<Object>) result.getData();
+        list.stream().forEach(x ->
+                predictLogService.save(
+                        seqNo,
+                        modelId,
+                        memberId,
+                        result.getAlgorithm(),
+                        result.getType(),
+                        result.getMyRole(),
+                        JSON.toJSONString(request),
+                        JSON.toJSONString(x),
+                        spend,
+                        requestResult
+                )
         );
     }
 
