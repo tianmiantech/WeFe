@@ -20,6 +20,7 @@
                 </el-collapse-item>
                 <template v-if="vData.result">
                     <el-collapse-item
+                        v-if="vData.label_species_count<2"
                         title="特征权重"
                         name="2"
                     >
@@ -48,6 +49,7 @@
                         </el-table>
                     </el-collapse-item>
                     <el-collapse-item
+                        v-if="vData.label_species_count<2"
                         title="任务跟踪指标（LOSS）"
                         name="3"
                     >
