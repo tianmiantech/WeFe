@@ -36,7 +36,6 @@ import java.util.List;
  * @author yuxin.zhang
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class DatasetContractService extends AbstractContractService {
 
     private final BlockChainContext blockChainContext = BlockChainContext.getInstance();
