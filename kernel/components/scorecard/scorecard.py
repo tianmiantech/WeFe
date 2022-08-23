@@ -67,27 +67,9 @@ class ScoreCard(ModelBase):
                 extra_metas[key] = value
         self.tracker.saveScoreData(metric_name, metric_namespace, extra_metas, kv)
 
-class ScoreCardPromoter(ScoreCard):
-    def __init__(self):
-        super(ScoreCardPromoter, self).__init__()
-
-    def fit(self, *args):
-        self._init_param()
-        LOGGER.debug("scorecard begainning, arg = {}".format(args))
-        # get binning result
-        bin_inner_param, bin_results = self._get_binning_result()
-        feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
-
-        # caculate static scores
-        odds = self.get_count_odds(feature_bin_results)
-        A_score, B_score = self.cal_score(odds)
-        self.score_card_result["odds"] = odds
-        self.score_card_result["a_score"] = A_score
-        self.score_card_result["b_score"] = B_score
-        return self.callback_score_data()
-
     def _get_binning_result(self):
         model_param, binning_results = self.tracker.get_binning_result()
+        component_type = model_param.get('component_type')
         if binning_results is None:
             raise ValueError('not find binning result')
         bin_inner_param = BinInnerParam()
@@ -103,7 +85,7 @@ class ScoreCardPromoter(ScoreCard):
             binColResults.set_split_points(result.get('split_points'))
             all_cols_results[feature] = binColResults
         binResults.all_cols_results = all_cols_results
-        return bin_inner_param, binResults
+        return bin_inner_param, binResults, component_type
 
     @staticmethod
     def get_count_odds(bin_results):
@@ -119,6 +101,25 @@ class ScoreCardPromoter(ScoreCard):
         return A_score, B_score
 
 
+class ScoreCardPromoter(ScoreCard):
+    def __init__(self):
+        super(ScoreCardPromoter, self).__init__()
+
+    def fit(self, *args):
+        self._init_param()
+        LOGGER.debug("scorecard begainning, arg = {}".format(args))
+        # get binning result
+        bin_inner_param, bin_results, component_type = self._get_binning_result()
+        feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
+
+        # caculate static scores
+        odds = self.get_count_odds(feature_bin_results)
+        A_score, B_score = self.cal_score(odds)
+        self.score_card_result["odds"] = odds
+        self.score_card_result["a_score"] = A_score
+        self.score_card_result["b_score"] = B_score
+        return self.callback_score_data()
+
 class ScoreCardProvider(ScoreCard):
     def __init__(self):
         super(ScoreCardProvider, self).__init__()
@@ -126,6 +127,13 @@ class ScoreCardProvider(ScoreCard):
     def fit(self, *args):
         self._init_param()
         B_score = self.pdo / math.log(2, )
+        bin_inner_param, bin_results, component_type = self._get_binning_result()
+        feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
+        if component_type == 'horz':
+            odds = self.get_count_odds(feature_bin_results)
+            A_score, B_score = self.cal_score(odds)
+            self.score_card_result["odds"] = odds
+            self.score_card_result["a_score"] = A_score
         self.score_card_result["b_score"] = B_score
         return self.callback_score_data()
 
