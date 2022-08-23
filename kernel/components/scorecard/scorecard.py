@@ -69,6 +69,7 @@ class ScoreCard(ModelBase):
 
     def _get_binning_result(self):
         model_param, binning_results = self.tracker.get_binning_result()
+        component_type = model_param.get('component_type')
         if binning_results is None:
             raise ValueError('not find binning result')
         bin_inner_param = BinInnerParam()
