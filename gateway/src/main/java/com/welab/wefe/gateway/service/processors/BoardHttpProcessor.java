@@ -69,11 +69,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
         try {
             String data = transferMeta.getContent().getObjectData();
             if (StringUtil.isNotEmpty(data)) {
-                if (data.startsWith(ENCRYPT_MARK_PREFIX)) {
-                    data = decryptContent(data.substring(ENCRYPT_MARK_PREFIX.length()));
-                } else {
-                    data = data.substring(NON_ENCRYPT_MARK_PREFIX.length());
-                }
+                data = data.startsWith(ENCRYPT_MARK_PREFIX) ? decryptContent(data.substring(ENCRYPT_MARK_PREFIX.length())) : data.substring(NON_ENCRYPT_MARK_PREFIX.length());
             }
             JObject contentJson = JObject.create(data);
             String url = contentJson.getString("url");
@@ -112,11 +108,12 @@ public class BoardHttpProcessor extends AbstractProcessor {
         if (StringUtil.isEmpty(body)) {
             return transferMeta;
         }
+        MemberEntity dstMember = MemberCache.getInstance().get(transferMeta.getDst().getMemberId());
         GatewayMetaProto.Content.Builder contentBuilder = transferMeta.getContent().toBuilder();
-        if (!config.isHttpProcessorEncryptEnable()) {
+        if (dstMember.getGatewayTlsEnable()) {
             return transferMeta.toBuilder().setContent(contentBuilder.setObjectData(NON_ENCRYPT_MARK_PREFIX + body).build()).build();
         }
-        MemberEntity dstMember = MemberCache.getInstance().get(transferMeta.getDst().getMemberId());
+
         String encryptBody = AsymmetricCryptoUtil.encryptByPublicKey(body, dstMember.getPublicKey(), dstMember.getSecretKeyType());
         GatewayMetaProto.Content content = contentBuilder.setObjectData(ENCRYPT_MARK_PREFIX + encryptBody).build();
 

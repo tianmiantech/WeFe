@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.listener;
 
+import com.welab.wefe.gateway.cache.CaCertificateCache;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.init.*;
 import com.welab.wefe.gateway.init.grpc.GrpcServerContext;
@@ -55,6 +56,8 @@ public class InitListener implements ApplicationListener<ApplicationStartedEvent
         LoadSendTransferMetaToCache.load();
         // Load member blacklist to cache
         LoadMemberBlacklistToCache.load();
+        // Load Ca info to cache
+        CaCertificateCache.getInstance().refreshCache();
         // Start grpc service
         startGrpcServer();
         // Start the forward message task
