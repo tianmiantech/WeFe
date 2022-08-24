@@ -30,7 +30,7 @@ import java.util.List;
  */
 @Repository
 public interface PredictScoreStatisticsRepository extends BaseRepository<StatisticsSumModel, String> {
-    @Query(value = "select split_point,sum(`count`) as count " +
+    @Query(value = "select uuid() as id,split_point,sum(`count`) as count " +
             "from model_predict_score_statistics " +
             "where service_id = :service_id " +
             "and created_time between if(:begin_time is not null, :begin_time,'1900-01-01 00:00:00') " +

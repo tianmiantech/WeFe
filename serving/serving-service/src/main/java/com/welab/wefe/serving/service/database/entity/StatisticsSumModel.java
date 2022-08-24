@@ -24,6 +24,8 @@ import javax.persistence.Id;
 @Entity
 public class StatisticsSumModel {
     @Id
+    private String id;
+
     private Double splitPoint;
 
     private Integer count;
@@ -42,5 +44,13 @@ public class StatisticsSumModel {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

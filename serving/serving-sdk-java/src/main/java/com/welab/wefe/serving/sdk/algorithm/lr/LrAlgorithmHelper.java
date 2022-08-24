@@ -104,17 +104,18 @@ public class LrAlgorithmHelper {
                 Double w = TypeUtils.castToDouble(model.getWeight().get(key));
                 List<Double> splitPoints = extractSplitPoints(bin.getJObject(key));
                 List<Double> woeArray = extractWoeArray(bin.getJObject(key));
+                int splitPointIndex = getSplitPointIndex(splitPoints, x);
 
                 LrScoreCardModel scoreCardModel = new LrScoreCardModel();
                 scoreCardModel.setFeature(key);
                 scoreCardModel.setValue(x);
-                scoreCardModel.setBin(getBin(splitPoints, x));
-                scoreCardModel.setWoe(getWoe(woeArray, x));
-                scoreCardModel.setScore(w * getWoe(woeArray, x) * bScore);
+                scoreCardModel.setBin(getBinningSplit(splitPoints, splitPointIndex));
+                scoreCardModel.setWoe(woeArray.get(splitPointIndex));
+                scoreCardModel.setScore(w * woeArray.get(splitPointIndex) * bScore);
 
                 scoreCard.add(scoreCardModel);
 
-                score += w * getWoe(woeArray, x) * bScore;
+                score += w * woeArray.get(splitPointIndex) * bScore;
                 featureNum++;
             }
         }
@@ -167,15 +168,15 @@ public class LrAlgorithmHelper {
         return obj.getJSONList("woeArray", Double.class);
     }
 
-
-    private static String getBin(List<Double> splits, Double value) {
+    private static int getSplitPointIndex(List<Double> splits, Double value) {
         for (int i = 0; i < splits.size(); i++) {
             if (value <= splits.get(i)) {
-                return getBinningSplit(splits, i);
+                return i;
             }
         }
-        return null;
+        return splits.size() - 1;
     }
+
 
     private static String getBinningSplit(List<Double> list, int i) {
         String beforeKey = i == 0 ? "-∞" : precisionProcessByDouble(list.get(i - 1));
@@ -185,14 +186,5 @@ public class LrAlgorithmHelper {
     private static String precisionProcessByDouble(double value) {
         BigDecimal bd = new BigDecimal(value);
         return bd.setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-    }
-
-    private static double getWoe(List<Double> woeList, Double value) {
-        for (int i = 0; i < woeList.size(); i++) {
-            if (value <= woeList.get(i)) {
-                return woeList.get(i);
-            }
-        }
-        return woeList.get(woeList.size() - 1);
     }
 }
