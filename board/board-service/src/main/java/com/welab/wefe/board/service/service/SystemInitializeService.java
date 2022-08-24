@@ -167,11 +167,7 @@ public class SystemInitializeService extends AbstractService {
 
         CacheObjects.refreshMemberInfo();
         // Notify the gateway to also refresh the corresponding cache
-        try {
-            gatewayService.restartExternalGrpcServer();
-        } catch (Exception e) {
-            LOG.error("restartExternalGrpcServer error ", e);
-        }
+        gatewayService.restartExternalGrpcServer();
     }
 
 
