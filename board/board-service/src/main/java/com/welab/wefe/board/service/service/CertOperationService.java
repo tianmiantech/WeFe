@@ -50,8 +50,8 @@ import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.util.AESUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 
 @Service
 public class CertOperationService {
@@ -126,7 +126,7 @@ public class CertOperationService {
                             certRequestInfoMysqlModel.getSubjectKeyId());
                     try {
                         KeyPair keyPair = getKeyPair(KeyAlgorithmEnums.getByKeyAlg(certKeyInfoMysqlModel.getKeyAlg()),
-                                DatabaseEncryptUtil.decrypt(certKeyInfoMysqlModel.getKeyPem()));
+                                AESUtil.decrypt(certKeyInfoMysqlModel.getKeyPem(), CacheObjects.getMemberId()));
                         publicKey = keyPair.getPublic();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -249,7 +249,7 @@ public class CertOperationService {
         }
         CertKeyInfoMysqlModel certKeyInfo = new CertKeyInfoMysqlModel();
         certKeyInfo.setKeyAlg(priAlg);
-        certKeyInfo.setKeyPem(DatabaseEncryptUtil.encrypt(pemPrivateKey));
+        certKeyInfo.setKeyPem(AESUtil.encrypt(pemPrivateKey, CacheObjects.getMemberId()));
         certKeyInfo.setMemberId(memberId);
         certKeyInfo = certKeyInfoRepository.save(certKeyInfo);
         return certKeyInfo;
