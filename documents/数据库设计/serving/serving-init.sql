@@ -311,6 +311,7 @@ CREATE TABLE fee_detail
     updated_time        datetime             DEFAULT NULL COMMENT '更新时间',
     service_name        varchar(32)          DEFAULT NULL COMMENT '服务名称',
     client_name         varchar(32)          DEFAULT NULL COMMENT '客户名称',
+    save_ip             VARCHAR(32)  COMMENT '统计方ip',
     service_type        INT COMMENT '服务类型',
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '结算详情表';
@@ -447,6 +448,7 @@ CREATE TABLE order_statistics
     request_partner_name  VARCHAR(32)  NOT NULL COMMENT '请求方名称',
     response_partner_id   VARCHAR(32)  NOT NULL COMMENT '响应方id',
     response_partner_name VARCHAR(32)  NOT NULL COMMENT '响应方名称',
+    save_ip               VARCHAR(32)  COMMENT '统计方ip',
     created_by            VARCHAR(32) COMMENT '创建人',
     created_time          DATETIME COMMENT '创建时间',
     updated_by            VARCHAR(32) COMMENT '更新人',

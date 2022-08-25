@@ -17,6 +17,7 @@ package com.welab.wefe.serving.service.scheduler;
 
 
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.HostUtil;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
 import com.welab.wefe.serving.service.database.entity.FeeDetailMysqlModel;
@@ -118,13 +119,16 @@ public class OrderToFeeDetailScheduler {
                     feeDetailMysqlModel.setClientName(model.getClientName());
                     feeDetailMysqlModel.setServiceType(model.getServiceType());
                     feeDetailMysqlModel.setServiceName(model.getServiceName());
+                    feeDetailMysqlModel.setSaveIp(HostUtil.getLocalIp());
 
                     feeDetailService.save(feeDetailMysqlModel);
 
                     logger.info("save fee detail by the scheduler in: " + DateUtil.getCurrentDate() + ", service id: "
                             + model.getServiceId() + ", request partner id: " + model.getClientId()
                             + ", startTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(startTime)
-                            + ", endTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime));
+                            + ", endTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime)
+                            + ", saveIp: " + HostUtil.getLocalIp()
+                    );
                     logger.info("OrderToFeeDetailScheduler end.");
                 } else {
                     logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
