@@ -160,15 +160,13 @@ class RunTaskAction:
             '-s', self.build_federation_session_id()
         ]
 
-    def build_process_cmd_for_spark(self, job_config_json):
+    def build_process_cmd_for_spark(self, task_config_json):
         """
         splicing the startup command for spark
         """
         if "SPARK_HOME" not in os.environ:
             raise EnvironmentError("SPARK_HOME not found")
 
-        print(f'job_config_json type: {type(job_config_json)}')
-        print(f'job_config_json: {job_config_json}')
         # default_submit_params
         default_driver_memory = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SPARK_DEFAULT_DRIVER_MEMORY)
         default_driver_max_result_size = conf_utils.get_comm_config(
@@ -189,20 +187,6 @@ class RunTaskAction:
         # executor_cores = spark_submit_config.get("executor-cores", default_executor_cores)
         # total_executor_cores = spark_submit_config.get("total_executor_cores",
         #                                                default_total_executor_cores)
-
-        # self.task.task_conf['job'] = {
-        #     'federated_learning_type': job_config_json.get('federated_learning_type'),
-        #     'federated_learning_mode': job_config_json.get('federated_learning_mode', None),
-        #     'project': {
-        #         'project_id': job_config_json['project']['project_id']
-        #     },
-        #     'members': job_config_json.get('members'),
-        #     'data_sets': job_config_json.get('data_sets'),
-        #     # 'env': job_config_json.get('env')
-        # }
-        schedule_logger(self.running_job).debug(f'task_config type:{type(self.task.task_conf)}')
-        schedule_logger(self.running_job).debug(f'job_config_json type:{type(job_config_json)}')
-
 
         deploy_mode = "client"
         queue = "default"
