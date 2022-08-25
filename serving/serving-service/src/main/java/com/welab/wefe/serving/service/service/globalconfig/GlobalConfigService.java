@@ -22,15 +22,19 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
+import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
 import com.welab.wefe.serving.service.api.system.GlobalConfigUpdateApi;
 import com.welab.wefe.serving.service.api.system.UpdateRsaKeyByBoardApi;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.dto.globalconfig.ServiceCacheConfigModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
 import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,25 +127,21 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         }
 
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
-//            String groupName = group.getKey();
-//            Map<String, String> groupItems = group.getValue();
-//            for (Map.Entry<String, String> item : groupItems.entrySet()) {
-//                if (item.getKey().equals("id")) {
-//                    continue;
-//                }
-//                if (item.getKey().equalsIgnoreCase("rsa_public_key")) {
-//                    continue;
-//                }
-//                if (item.getKey().equalsIgnoreCase("rsa_private_key")) {
-//                    continue;
-//                }
-//                String key = item.getKey();
-//                String value = item.getValue();
-//                put(groupName, key, value, null);
-//            }
-////
             AbstractConfigModel model = toModel(group.getKey(), group.getValue());
             put(model);
+        }
+        ServiceCacheConfigModel cacheConfigModel = getModel(ServiceCacheConfigModel.class);
+        if (cacheConfigModel == null) {
+            return;
+        }
+        // update PrivateInformationRetrievalServer
+        if (ServiceCacheConfigModel.CacheType.redis.equals(cacheConfigModel.getType())) {
+            PrivateInformationRetrievalServer.set(100,
+                    new RedisIntermediateCache(cacheConfigModel.getRedisHost(),
+                            Integer.valueOf(cacheConfigModel.getRedisPort()),
+                            cacheConfigModel.getRedisPassword()));
+        } else {
+            PrivateInformationRetrievalServer.set(100, null);
         }
     }
 
