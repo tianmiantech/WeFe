@@ -158,6 +158,8 @@ alter table `service`
 
 alter table fee_config modify column `service_id` varchar (255) COMMENT '服务Id';
 
+alter table fee_detail
+    add column `save_ip` varchar(32) COMMENT '统计方ip';
 
 CREATE TABLE `base_service` (
   `id` varchar(32) NOT NULL COMMENT '全局唯一标识',
