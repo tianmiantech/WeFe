@@ -22,15 +22,19 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
+import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
 import com.welab.wefe.serving.service.api.system.GlobalConfigUpdateApi;
 import com.welab.wefe.serving.service.api.system.UpdateRsaKeyByBoardApi;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
-import com.welab.wefe.serving.service.dto.globalconfig.MailServerModel;
+import com.welab.wefe.serving.service.dto.globalconfig.ServiceCacheConfigModel;
 import com.welab.wefe.serving.service.dto.globalconfig.UnionInfoModel;
+import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
+import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +55,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
      * Is the system initialized
      */
     public boolean isInitialized() {
-        return getIdentityInfo() != null;
+        return getModel(IdentityInfoModel.class) != null;
     }
 
     /**
@@ -70,7 +74,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
         checkInitialized();
 
-        setIdentityInfo(model);
+        put(model);
 
         CacheObjects.refreshGlobalConfig();
     }
@@ -82,50 +86,75 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
 //        checkInitialized();
 
-        setIdentityInfo(identityInfoModel);
+        put(identityInfoModel);
 
-        setUnionInfo(unionInfoModel);
+        put(unionInfoModel);
 
         CacheObjects.refreshGlobalConfig();
     }
+//
+//    public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
+//        if (!CurrentAccount.isAdmin()) {
+//            StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
+//        }
+//
+//        for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
+//            String groupName = group.getKey();
+//            Map<String, String> groupItems = group.getValue();
+//            for (Map.Entry<String, String> item : groupItems.entrySet()) {
+//                if (item.getKey().equals("id")) {
+//                    continue;
+//                }
+//                if (item.getKey().equalsIgnoreCase("rsa_public_key")) {
+//                    continue;
+//                }
+//                if (item.getKey().equalsIgnoreCase("rsa_private_key")) {
+//                    continue;
+//                }
+//                String key = item.getKey();
+//                String value = item.getValue();
+//                put(groupName, key, value, null);
+//            }
+//        }
+//
+//        CacheObjects.refreshGlobalConfig();
+//    }
 
-    public void update(GlobalConfigUpdateApi.Input input) throws StatusCodeWithException {
+
+    public void update(GlobalConfigUpdateApi.Input input) throws Exception {
         if (!CurrentAccount.isAdmin()) {
             StatusCode.ILLEGAL_REQUEST.throwException("只有管理员才能执行此操作。");
         }
 
         for (Map.Entry<String, Map<String, String>> group : input.groups.entrySet()) {
-            String groupName = group.getKey();
-            Map<String, String> groupItems = group.getValue();
-            for (Map.Entry<String, String> item : groupItems.entrySet()) {
-                if (item.getKey().equals("id")) {
-                    continue;
-                }
-                if (item.getKey().equalsIgnoreCase("rsa_public_key")) {
-                    continue;
-                }
-                if (item.getKey().equalsIgnoreCase("rsa_private_key")) {
-                    continue;
-                }
-                String key = item.getKey();
-                String value = item.getValue();
-                put(groupName, key, value, null);
-            }
+            AbstractConfigModel model = toModel(group.getKey(), group.getValue());
+            put(model);
         }
-
-        CacheObjects.refreshGlobalConfig();
+        ServiceCacheConfigModel cacheConfigModel = getModel(ServiceCacheConfigModel.class);
+        if (cacheConfigModel == null) {
+            return;
+        }
+        // update PrivateInformationRetrievalServer
+        if (ServiceCacheConfigModel.CacheType.redis.equals(cacheConfigModel.getType())) {
+            PrivateInformationRetrievalServer.set(100,
+                    new RedisIntermediateCache(cacheConfigModel.getRedisHost(),
+                            Integer.valueOf(cacheConfigModel.getRedisPort()),
+                            cacheConfigModel.getRedisPassword()));
+        } else {
+            PrivateInformationRetrievalServer.set(100, null);
+        }
     }
 
 
     public void updateRsaKeyByBoard(UpdateRsaKeyByBoardApi.Input input) throws StatusCodeWithException {
-        IdentityInfoModel model = getIdentityInfo();
+        IdentityInfoModel model = getModel(IdentityInfoModel.class);
         if (ServingModeEnum.standalone.name().equals(model.getMode())) {
             StatusCode.ILLEGAL_REQUEST.throwException("当前Serving系统为独立模式，无法将board密钥同步！");
         }
 
         model.setRsaPrivateKey(input.getRsaPrivateKey());
         model.setRsaPublicKey(input.getRsaPublicKey());
-        setIdentityInfo(model);
+        put(model);
     }
 
 
@@ -137,11 +166,7 @@ public class GlobalConfigService extends BaseGlobalConfigService {
             throw new StatusCodeWithException("您没有编辑权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        IdentityInfoModel model = getIdentityInfo();
-
-//        if (ServingModeEnum.union.name().equals(model.getMode())) {
-//            throw new StatusCodeWithException("联邦模式下不能重置公私钥", StatusCode.SYSTEM_ERROR);
-//        }
+        IdentityInfoModel model = getModel(IdentityInfoModel.class);
 
         try {
             SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
@@ -154,30 +179,9 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         model.setMode(ServingModeEnum.standalone.name());
 
         // notify union
-        setIdentityInfo(model);
+        put(model);
 
         CacheObjects.refreshGlobalConfig();
     }
 
-
-    public IdentityInfoModel getIdentityInfo() {
-        return getModel(Group.IDENTITY_INFO, IdentityInfoModel.class);
-    }
-
-    public void setIdentityInfo(IdentityInfoModel model) throws StatusCodeWithException {
-        put(Group.IDENTITY_INFO, model);
-    }
-
-    public UnionInfoModel getUnionInfoModel() {
-        return getModel(Group.WEFE_UNION, UnionInfoModel.class);
-    }
-
-    public MailServerModel getMailServerModel() {
-        return getModel(Group.MAIL_SERVER, MailServerModel.class);
-    }
-
-
-    public void setUnionInfo(UnionInfoModel model) throws StatusCodeWithException {
-        put(Group.WEFE_UNION, model);
-    }
 }

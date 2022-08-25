@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.serving.service.dto;
+package com.welab.wefe.serving.service.dto.globalconfig;
 
 /**
- * @author Zane
+ * 用于标记反射位置
+ * 请不要移动此类的位置
+ *
+ * @author zane
+ * @date 2022/5/7
  */
-public class GlobalConfigInput {
-    public String group;
-    public String name;
-    public String value;
+public class GlobalConfigFlag {
 }

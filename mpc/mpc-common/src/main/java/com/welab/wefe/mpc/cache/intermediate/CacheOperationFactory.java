@@ -38,8 +38,16 @@ public class CacheOperationFactory {
         }
         isInit = true;
     }
+    
+    public synchronized static void setCacheOperation(CacheOperation cacheOperation) {
+        if (cacheOperation == null) {
+            CacheOperationFactory.cacheOperation = new LocalIntermediateCache();
+        } else {
+            CacheOperationFactory.cacheOperation = cacheOperation;
+        }
+    }
 
-    public static CacheOperation getCacheOperation() {
+    public synchronized static CacheOperation getCacheOperation() {
         if (!isInit) {
             init(null);
         }

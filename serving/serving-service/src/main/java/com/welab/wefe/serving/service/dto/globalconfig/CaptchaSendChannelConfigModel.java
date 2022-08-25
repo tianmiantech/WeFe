@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.welab.wefe.serving.service.dto.globalconfig;
 
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
 import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigGroupConstant;
 import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigModel;
@@ -23,24 +23,10 @@ import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigModel;
 /**
  * @author hunter.zhao
  */
-@ConfigModel(group = ConfigGroupConstant.WEFE_UNION)
-public class UnionInfoModel extends AbstractConfigModel {
-
-    /***
-     * union service intranet base url
+@ConfigModel(group = ConfigGroupConstant.CAPTCHA_SEND_CHANNEL)
+public class CaptchaSendChannelConfigModel extends AbstractConfigModel {
+    /**
+     * 找回密码功能的验证码通道
      */
-    public String intranetBaseUri;
-
-    //region getter/setter
-
-    public String getIntranetBaseUri() {
-        return intranetBaseUri;
-    }
-
-    public void setIntranetBaseUri(String intranetBaseUri) {
-        this.intranetBaseUri = intranetBaseUri;
-    }
-
-
-    //endregion
+    public CaptchaSendChannel channel = CaptchaSendChannel.email;
 }
