@@ -17,11 +17,17 @@
 package com.welab.wefe.serving.service.dto.globalconfig;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
+import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigModel;
 
 /**
  * @author hunter.zhao
  */
-public class IdentityInfoModel {
+@ConfigModel(group = ConfigGroupConstant.IDENTITY_INFO)
+public class IdentityInfoModel extends AbstractConfigModel {
 
     @Check(name = "系统 id", desc = "全局唯一，独立模式默认为uuid，联邦模式为memberId。")
     private String memberId;
@@ -35,6 +41,7 @@ public class IdentityInfoModel {
     private String avatar;
 
     @Check(name = "私钥")
+    @Secret(maskStrategy = MaskStrategy.BLOCK)
     private String rsaPrivateKey;
     @Check(name = "公钥")
     private String rsaPublicKey;

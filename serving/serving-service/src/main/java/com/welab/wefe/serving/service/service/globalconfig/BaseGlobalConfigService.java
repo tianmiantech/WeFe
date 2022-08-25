@@ -23,10 +23,17 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
+import com.welab.wefe.common.fieldvalidate.secret.SecretUtil;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.TempRsaCache;
 import com.welab.wefe.serving.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.serving.service.database.repository.GlobalConfigRepository;
-import com.welab.wefe.serving.service.dto.GlobalConfigInput;
+import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigModel;
+import com.welab.wefe.serving.service.dto.globalconfig.base.GlobalConfigInput;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.UnionServiceService;
 import org.apache.commons.lang3.StringUtils;
@@ -34,18 +41,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author zane
  */
 public class BaseGlobalConfigService {
-
-    public static class Group {
-        public static String IDENTITY_INFO = "identity_info";
-        public static String WEFE_UNION = "wefe_union";
-        public static String MAIL_SERVER = "mail_server";
-    }
 
 
     @Autowired
@@ -63,10 +65,11 @@ public class BaseGlobalConfigService {
         }
     }
 
+
     /**
      * Add or update an object (multiple records)
      */
-    protected void put(String group, Object obj) throws StatusCodeWithException {
+    public void put(AbstractConfigModel model) throws StatusCodeWithException {
         /**
          * 1. The names stored in the database are unified as underscores
          * 2. Since fastjson discards fields with a value of null by default,
@@ -74,11 +77,18 @@ public class BaseGlobalConfigService {
          */
         SerializeConfig config = new SerializeConfig();
         config.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
-        String json_string = JSON.toJSONString(obj, config, SerializerFeature.WriteMapNullValue);
+        String json_string = JSON.toJSONString(model, config, SerializerFeature.WriteMapNullValue);
+
+        ConfigModel annotation = model.getClass().getAnnotation(ConfigModel.class);
 
         JSONObject json = JSON.parseObject(json_string);
         for (String name : json.keySet()) {
-            put(group, name, json.getString(name), null);
+            String value = json.getString(name);
+            // value 为 null 时说明前端未指定，需要跳过。
+            if (value == null) {
+                continue;
+            }
+            put(annotation.group(), name, value, null);
         }
     }
 
@@ -143,11 +153,17 @@ public class BaseGlobalConfigService {
         return globalConfigRepository.findByGroup(group);
     }
 
+    public <T extends AbstractConfigModel> T getModel(String group) {
+        Class<T> clazz = (Class<T>) AbstractConfigModel.getModelClass(group);
+        return getModel(clazz);
+    }
+
     /**
      * Get the entity corresponding to the specified group
      */
-    protected <T> T getModel(String group, Class<T> clazz) {
-        List<GlobalConfigMysqlModel> list = list(group);
+    public <T extends AbstractConfigModel> T getModel(Class<T> clazz) {
+        ConfigModel annotation = clazz.getAnnotation(ConfigModel.class);
+        List<GlobalConfigMysqlModel> list = list(annotation.group());
         return toModel(list, clazz);
     }
 
@@ -164,5 +180,25 @@ public class BaseGlobalConfigService {
             json.put(item.getName(), item.getValue());
         }
         return json.toJavaObject(clazz);
+    }
+
+
+    /**
+     * 将 map 还原为 AbstractConfigModel
+     * <p>
+     * 这一步会对 @Secret 字段进行解密
+     */
+    public AbstractConfigModel toModel(String group, Map<String, String> map) throws Exception {
+        Class<? extends AbstractConfigModel> clazz = AbstractConfigModel.getModelClass(group);
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            Secret secret = SecretUtil.getAnnotation(clazz, entry.getKey());
+            if (secret != null && StringUtil.isNotEmpty(entry.getValue())) {
+                String decrypt = TempRsaCache.decrypt(entry.getValue());
+                entry.setValue(decrypt);
+            }
+        }
+
+        return JObject.create(map).toJavaObject(clazz);
     }
 }

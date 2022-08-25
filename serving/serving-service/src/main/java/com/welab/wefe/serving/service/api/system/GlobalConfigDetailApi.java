@@ -16,17 +16,14 @@
 
 package com.welab.wefe.serving.service.api.system;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.entity.GlobalConfigMysqlModel;
+import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.serving.service.utils.ServiceUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -37,30 +34,21 @@ import java.util.Map;
  * @author Zane
  */
 @Api(path = "global_config/detail", name = "get global settings")
-public class GlobalConfigDetailApi extends AbstractApi<GlobalConfigDetailApi.Input, Map<String, JSONObject>> {
+public class GlobalConfigDetailApi extends AbstractApi<GlobalConfigDetailApi.Input, Map<String, AbstractConfigModel>> {
 
 
     @Autowired
     private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult<Map<String, JSONObject>> handle(Input input) throws StatusCodeWithException {
+    protected ApiResult<Map<String, AbstractConfigModel>> handle(Input input) throws StatusCodeWithException {
 
-        Map<String, JSONObject> output = new HashMap<>();
+
+        Map<String, AbstractConfigModel> output = new HashMap<>();
 
         for (String group : input.groups) {
-            List<GlobalConfigMysqlModel> list = globalConfigService.list(group);
-            JSONObject json = new JSONObject();
-            list.forEach(x ->
-            {
-                if(!x.getName().equals("rsa_public_key") && !x.getName().equals("rsa_private_key")) {
-                    json.put(x.getName(), x.getValue());   
-                }
-                else {
-                    json.put(x.getName(), ServiceUtil.around(x.getValue(), 10, 10));
-                }
-            });
-            output.put(group, json);
+            AbstractConfigModel model = globalConfigService.getModel(group);
+            output.put(group, model);
         }
 
         return success(output);
