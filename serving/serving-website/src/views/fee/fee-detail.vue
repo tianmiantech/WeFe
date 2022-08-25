@@ -15,11 +15,11 @@
                 />
             </el-form-item>
 
-            <el-form-item label="客户名称：">
+            <el-form-item label="合作者名称：">
                 <el-input
                     v-model="search.clientName"
                     clearable
-                    placeholder="客户名称"
+                    placeholder="合作者名称"
                 />
             </el-form-item>
 
@@ -102,7 +102,7 @@
                 </template>
             </el-table-column>
             <el-table-column
-                label="客户名称"
+                label="合作者名称"
                 min-width="80"
             >
                 <template slot-scope="scope">
@@ -126,7 +126,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.service_type }}</p>
+                    <p>{{ serviceType[scope.row.service_type] }}</p>
                 </template>
             </el-table-column>
 
@@ -153,7 +153,7 @@
                 min-width="50"
             >
                 <template slot-scope="scope">
-                    <p>{{ scope.row.pay_type }}</p>
+                    <p>{{ payTypes[scope.row.pay_type] }}</p>
                 </template>
             </el-table-column>
 
@@ -214,6 +214,8 @@ export default {
                 4: '多方安全统计(查询方)',
                 5: '多方交集查询',
                 6: '多方匿踪查询',
+                7: '机器学习模型服务',
+                8: '深度学习模型服务',
             },
             serviceTypes: [
                 {

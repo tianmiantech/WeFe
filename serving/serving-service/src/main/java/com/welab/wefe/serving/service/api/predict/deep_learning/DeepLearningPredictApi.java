@@ -17,8 +17,6 @@ package com.welab.wefe.serving.service.api.predict.deep_learning;
 
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.file.decompression.SuperDecompressor;
-import com.welab.wefe.common.file.decompression.dto.DecompressionResult;
-import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -29,7 +27,6 @@ import com.welab.wefe.serving.service.utils.ServingFileUtil;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -45,38 +42,39 @@ public class DeepLearningPredictApi extends AbstractApi<DeepLearningPredictApi.I
     @Override
     protected ApiResult<String> handle(Input input) throws Exception {
         // zip 文件解压到以 taskId 命名的文件夹中
-        String distDir = ServingFileUtil.DeepLearningModelFile
-                .getZipFileUnzipDir(input.modelId)
-                .toAbsolutePath()
-                .toString();
-        File zipFile = ServingFileUtil.DeepLearningModelFile.getZipFile(input.modelId);
-        DecompressionResult result = SuperDecompressor.decompression(zipFile, distDir, false);
-
-        //构造labelList
-        Path labelList = ServingFileUtil
-                .getBaseDir(ServingFileUtil.FileType.Temp)
-                .resolve(input.modelId)
-                .resolve("lable_list.txt");
-        for (String label : input.labelList) {
-            FileUtil.writeTextToFile(label + System.lineSeparator(), labelList, true);
-        }
+        String distDir = getWordDir(input.getModelId());
 
         //指定结果输出路径
         Path output = ServingFileUtil.DeepLearningModelFile.getPredictOutputPath(input.getModelId());
 
         //调用paddle_serving服务
-        String resultStr = DeepLearningUtil.callPaddleServing(labelList.toString(), input.imagePath, output.toString());
+        String resultStr = DeepLearningUtil.callPaddleServing(input.imagePath, "label_list.txt", output.toString(), distDir);
 
         //转化结果
         return success(resultStr);
+    }
+
+    private String getWordDir(String modelId) throws Exception {
+        Path distDirPath = ServingFileUtil.DeepLearningModelFile
+                .getZipFileUnzipDir(modelId)
+                .toAbsolutePath();
+
+        unZipModelFile(modelId, distDirPath);
+
+        return distDirPath.toString();
+    }
+
+    private void unZipModelFile(String modelId, Path distDirPath) throws Exception {
+        if (!distDirPath.toFile().exists()) {
+            File zipFile = ServingFileUtil.DeepLearningModelFile.getZipFile(modelId);
+            SuperDecompressor.decompression(zipFile, distDirPath.toString(), false);
+        }
     }
 
     public static class Input extends AbstractApiInput {
 
         @Check(require = true, name = "模型唯一标识")
         private String modelId;
-        @Check(require = true, name = "标签list")
-        private List<String> labelList;
 
         @Check(name = "检测图片路径")
         private String imagePath;
@@ -92,14 +90,6 @@ public class DeepLearningPredictApi extends AbstractApi<DeepLearningPredictApi.I
             this.modelId = modelId;
         }
 
-        public List<String> getLabelList() {
-            return labelList;
-        }
-
-        public void setLabelList(List<String> labelList) {
-            this.labelList = labelList;
-        }
-
         public String getImagePath() {
             return imagePath;
         }
@@ -107,7 +97,6 @@ public class DeepLearningPredictApi extends AbstractApi<DeepLearningPredictApi.I
         public void setImagePath(String imagePath) {
             this.imagePath = imagePath;
         }
-
 
         //endregion
     }

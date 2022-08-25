@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author aaron.li
  **/
-@Api(path = "member/update_logo", name = "member_update_logo", allowAccessWithSign = true, login = false)
+@Api(path = "member/update_logo", name = "member_update_logo", allowAccessWithSign = true)
 public class UpdateLogoByIdApi extends AbstractApi<UpdateLogoByIdApi.Input, MemberOutput> {
     @Autowired
     private MemberContractService memberContractService;

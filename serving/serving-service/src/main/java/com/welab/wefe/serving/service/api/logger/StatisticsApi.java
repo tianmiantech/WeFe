@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-@Api(path = "log/statistics", name = "Get log statistics", login = false)
+@Api(path = "log/statistics", name = "Get log statistics")
 public class StatisticsApi extends AbstractApi<StatisticsApi.Input, List<StatisticsApi.Output>> {
     @Autowired
     PredictStatisticsService predictStatisticsService;

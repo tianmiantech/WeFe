@@ -24,11 +24,9 @@ import com.welab.wefe.common.web.api.base.AbstractNoneOutputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.serving.service.database.serving.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

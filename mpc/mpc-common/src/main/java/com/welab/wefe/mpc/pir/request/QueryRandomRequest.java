@@ -19,6 +19,7 @@ package com.welab.wefe.mpc.pir.request;
 import java.io.Serializable;
 
 public class QueryRandomRequest implements Serializable {
+    private static final long serialVersionUID = 6434400334265172434L;
     private String uuid;
     private int attemptCount;
 

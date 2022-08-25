@@ -16,15 +16,14 @@
 
 package com.welab.wefe.mpc.pir.request;
 
-
 import java.io.Serializable;
 
 public class QueryRandomLegalRequest implements Serializable {
+    private static final long serialVersionUID = 2214259830526630125L;
     private String uuid;
     private Boolean sLegal;
     private int attemptCount;
     private String r;
-
 
     public String getUuid() {
         return uuid;

@@ -16,20 +16,19 @@
 
 package com.welab.wefe.serving.service.manager;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.sdk.model.BaseModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
+import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
+import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelService;
-import org.apache.commons.collections4.CollectionUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author hunter.zhao
@@ -60,13 +59,13 @@ public class ModelManager {
         }
 
         synchronized (modelService) {
-            ModelMySqlModel mysqlModel = modelService.findOne(modelId);
+            TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
-                throw new StatusCodeWithException("modelId error: " + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException("{} 模型不存在！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
             }
 
 
-            MODEL_ENABLE.put(modelId, mysqlModel.isEnable());
+            MODEL_ENABLE.put(modelId, mysqlModel.getStatus() == 1);
         }
 
         return MODEL_ENABLE.get(modelId);
@@ -86,21 +85,18 @@ public class ModelManager {
         }
 
         synchronized (modelService) {
-            ModelMySqlModel mysqlModel = modelService.findOne(modelId);
+            TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
-                throw new StatusCodeWithException("modelId error: " + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException("{} 模型不存在！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
             }
 
             List<ModelMemberMySqlModel> member = modelService.findByModelIdAndMemberId(modelId, CacheObjects.getMemberId());
-            if (CollectionUtils.isEmpty(member)) {
-                throw new StatusCodeWithException("modelId error:" + modelId + " or memberId error :" + CacheObjects.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
-            }
 
             BaseModel model = new BaseModel();
             model.setAlgorithm(mysqlModel.getAlgorithm());
             model.setFlType(mysqlModel.getFlType());
             model.setParams(mysqlModel.getModelParam());
-            model.setModelId(mysqlModel.getModelId());
+            model.setModelId(mysqlModel.getServiceId());
             model.setMyRole(member.get(0).getRole());
             MODEL.put(modelId, model);
         }
@@ -115,21 +111,21 @@ public class ModelManager {
         }
 
         synchronized (modelService) {
-            ModelMySqlModel mysqlModel = modelService.findOne(modelId);
+            TableModelMySqlModel mysqlModel = modelService.findOne(modelId);
             if (mysqlModel == null) {
-                throw new StatusCodeWithException("modelId error: " + modelId, StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException("{} 模型不存在！" + modelId, StatusCode.PARAMETER_VALUE_INVALID);
             }
 
             ModelMemberMySqlModel member = modelService.findByModelIdAndMemberIdAndRole(modelId, CacheObjects.getMemberId(), myRole);
             if (member == null) {
-                throw new StatusCodeWithException("modelId error:" + modelId + " or memberId error :" + CacheObjects.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
+                throw new StatusCodeWithException("{} 模型数据有异常！！" + CacheObjects.getMemberId(), StatusCode.PARAMETER_VALUE_INVALID);
             }
 
             BaseModel model = new BaseModel();
             model.setAlgorithm(mysqlModel.getAlgorithm());
             model.setFlType(mysqlModel.getFlType());
             model.setParams(mysqlModel.getModelParam());
-            model.setModelId(mysqlModel.getModelId());
+            model.setModelId(mysqlModel.getServiceId());
             model.setMyRole(member.getRole());
             MODEL.put(modelId, model);
         }

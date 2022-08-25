@@ -62,7 +62,14 @@
             >
                 <template slot-scope="scope">
                     {{ scope.row.supplier_name }}
-                    <p class="id">{{ scope.row.supplier_id }}</p>
+                    <el-tooltip placement="top">
+                        <div slot="content">
+                            邮箱：{{scope.row.member_info.email}}<br/>
+                            服务地址：{{scope.row.member_info.serving_base_url}}<br/>
+                            联系方式：{{scope.row.member_info.mobile}}<br/>
+                        </div>
+                       <p class="id">{{scope.row.supplier_id }}</p>
+                    </el-tooltip>
                 </template>
             </el-table-column>
 
@@ -76,20 +83,11 @@
             </el-table-column>
 
             <el-table-column
-                label="API 名称"
-                min-width="140px"
-            >
-                <template slot-scope="scope">
-                    {{ scope.row.api_name }}
-                </template>
-            </el-table-column>
-
-            <el-table-column
                 label="URL"
                 min-width="140px"
             >
                 <template slot-scope="scope">
-                    {{ scope.row.base_url }}
+                    {{ scope.row.base_url }}{{ scope.row.api_name }}
                 </template>
             </el-table-column>
 
@@ -187,7 +185,6 @@ export default {
         //         this.list = data.list
         //     }
         // }
-
     },
 };
 </script>

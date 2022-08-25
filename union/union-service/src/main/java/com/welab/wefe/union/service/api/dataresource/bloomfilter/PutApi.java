@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "bloom_filter/put", name = "bloom_filter_put", allowAccessWithSign = true, login = false)
+@Api(path = "bloom_filter/put", name = "bloom_filter_put", allowAccessWithSign = true)
 public class PutApi extends AbstractDatResourcePutApi<PutApi.Input, AbstractApiOutput> {
     @Autowired
     protected BloomFilterContractService bloomFilterContractService;

@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author yuxin.zhang
  **/
-@Api(path = "data_set/delete", name = "data_set_delete", allowAccessWithSign = true, login = false)
+@Api(path = "data_set/delete", name = "data_set_delete", allowAccessWithSign = true)
 public class DeleteApi extends AbstractApi<DeleteApi.Input, DataSetOutput> {
     @Autowired
     protected DataSetContractService datasetContractService;

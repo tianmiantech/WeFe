@@ -98,7 +98,7 @@ public class ApiExecutor {
             // Checking login Status
             checkSessionToken(api, annotation);
             // Check the permissions
-            checkApiPermission(api, annotation, params);
+            checkApiPermission(httpServletRequest, annotation, params);
 
             // IP flow control check
             checkFlowLimitByIp(httpServletRequest, api, params);
@@ -179,13 +179,13 @@ public class ApiExecutor {
     /**
      * Check API access permissions
      */
-    private static void checkApiPermission(AbstractApi<?, ?> api, Api annotation, JSONObject params) throws Exception {
+    private static void checkApiPermission(HttpServletRequest httpServletRequest, Api annotation, JSONObject params) throws Exception {
         // If the permission check method is not set, the permission check is not performed.
         if (Launcher.API_PERMISSION_POLICY == null) {
             return;
         }
 
-        Launcher.API_PERMISSION_POLICY.check(api, annotation, params);
+        Launcher.API_PERMISSION_POLICY.check(httpServletRequest, annotation, params);
     }
 
     /**
