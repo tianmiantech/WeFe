@@ -15,20 +15,37 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.serving.service.service.DataSourceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author hunter.zhao
  */
 public abstract class AbstractServiceProcessor<T> {
 
+    protected List<JSONObject> calllogs = new ArrayList<>();
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     protected final DataSourceService dataSourceService = Launcher.getBean(DataSourceService.class);
 
     public abstract JObject process(JObject data, T input) throws Exception;
+
+    public List<JSONObject> calllogs() {
+        return calllogs;
+    }
+
+    public void addCalllog(JSONObject request, JSONObject response) {
+        JSONObject calllog = new JSONObject();
+        calllog.put("request", request);
+        calllog.put("response", response);
+        calllogs.add(response);
+    }
 }

@@ -697,6 +697,7 @@ public class ServiceService {
             AbstractServiceProcessor serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
             JObject serviceResult = serviceProcessor.process(JObject.create(input.getData()), service);
             result.putAll(serviceResult);
+            result.append("sub_calllogs", serviceProcessor.calllogs());
             return result;
 
         } catch (Exception e) {
@@ -755,24 +756,6 @@ public class ServiceService {
         callLog.setResponseStatus(responseStatus);
         callLog.setSpendTime(System.currentTimeMillis() - beginTime);
         serviceCallLogService.save(callLog);
-    }
-
-    private String preExecuteCallLog(String serviceOrderId, BaseServiceMySqlModel service, PartnerMysqlModel client,
-                                     RouteApi.Input input, String clientIp) {
-        ServiceCallLogMysqlModel serviceCallLogMysqlModel = serviceCallLogService.add(serviceOrderId, 0, client.getId(),
-                client.getName(), service.getServiceId(), service.getName(), service.getServiceType(), input.getRequestId(),
-                JSONObject.toJSONString(input), clientIp);
-        return serviceCallLogMysqlModel.getId();
-    }
-
-    private void afterExecute(String serviceOrderId, String callLogId, String status, JObject res, long beginTime) {
-        serviceOrderService.update(serviceOrderId, status);
-//        serviceCallLogService.add(serviceOrderId, CallByMeEnum.NO.getValue(), client.getId(),
-//                client.getName(), service.getId(), service.getName(), service.getServiceType(), input.getRequestId(),
-//                JSONObject.toJSONString(input), clientIp);
-        serviceCallLogService.update(callLogId, CacheObjects.getMemberId(), CacheObjects.getMemberName(),
-                res.getString("responseId"), res.toJSONString(), res.getInteger("code"),
-                ServiceResultEnum.getValueByCode(res.getInteger("code")), System.currentTimeMillis() - beginTime);
     }
 
     public File exportSdk(String serviceId) throws StatusCodeWithException, IOException {

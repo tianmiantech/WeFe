@@ -69,7 +69,12 @@ public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServ
 
         PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
         List<String> result = privateSetIntersection.query(communicationConfigs, clientIds);
-
+        // add calllog
+        JSONObject request = new JSONObject();
+        request.put("communicationConfigs", communicationConfigs);
+        request.put("clientIds", clientIds);
+        addCalllog(JSONObject.parseObject(JSONObject.toJSONString(request)),
+                JSONObject.parseObject(JSONObject.toJSONString(result)));
         return JObject.create("result", result);
     }
 }
