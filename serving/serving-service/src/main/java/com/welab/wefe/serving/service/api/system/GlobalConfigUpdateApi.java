@@ -35,7 +35,7 @@ public class GlobalConfigUpdateApi extends AbstractNoneOutputApi<GlobalConfigUpd
     private GlobalConfigService globalConfigService;
 
     @Override
-    protected ApiResult handler(Input input) throws StatusCodeWithException {
+    protected ApiResult handler(Input input) throws Exception {
         globalConfigService.update(input);
         return success();
     }

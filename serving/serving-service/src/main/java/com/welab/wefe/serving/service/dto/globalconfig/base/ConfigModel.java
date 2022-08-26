@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.serving.service.dto.globalconfig.base;
 
-package com.welab.wefe.mpc.cache;
-
-import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
-import com.welab.wefe.mpc.cache.intermediate.CacheOperationFactory;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @Author: eval
- * @Date: 2021-12-30
- **/
-public class CacheInit {
-
-    public static void init(CacheOperation operation) {
-        // 同一个请求，中间数据缓存操作实现
-        CacheOperationFactory.init(operation);
-    }
-    
-    public static void set(CacheOperation operation) {
-        // 同一个请求，中间数据缓存操作实现
-        CacheOperationFactory.setCacheOperation(operation);
-    }
+ * @author zane
+ * @date 2022/5/7
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ConfigModel {
+    String group();
 }
