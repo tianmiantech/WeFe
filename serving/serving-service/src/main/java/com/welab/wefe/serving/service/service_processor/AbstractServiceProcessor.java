@@ -46,6 +46,6 @@ public abstract class AbstractServiceProcessor<T> {
         JSONObject calllog = new JSONObject();
         calllog.put("request", request);
         calllog.put("response", response);
-        calllogs.add(response);
+        calllogs.add(calllog);
     }
 }

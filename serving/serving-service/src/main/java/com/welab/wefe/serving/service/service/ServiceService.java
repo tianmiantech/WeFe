@@ -684,6 +684,7 @@ public class ServiceService {
 
         JObject result = JObject.create();
         ServiceResultEnum status = ServiceResultEnum.SUCCESS;
+        AbstractServiceProcessor serviceProcessor =  null;
         try {
             // check params
             JObject res = check(input);
@@ -694,10 +695,9 @@ public class ServiceService {
                 return result;
             }
 
-            AbstractServiceProcessor serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
+            serviceProcessor = ServiceProcessorUtils.get(service.getServiceType());
             JObject serviceResult = serviceProcessor.process(JObject.create(input.getData()), service);
             result.putAll(serviceResult);
-            result.append("sub_calllogs", serviceProcessor.calllogs());
             return result;
 
         } catch (Exception e) {
@@ -708,7 +708,9 @@ public class ServiceService {
             String responseId = UUID.randomUUID().toString().replaceAll("-", "");
             result.append("responseId", responseId);
             result.append("code", status.getCode());
-            log(input, beginTime, service, result, status, responseId);
+            JObject tmpResult = (JObject)result.clone();
+            tmpResult.append("subCalllogs", serviceProcessor.calllogs());
+            log(input, beginTime, service, tmpResult, status, responseId);
         }
     }
 
@@ -716,7 +718,6 @@ public class ServiceService {
                      ServiceResultEnum status, String responseId) {
         ServiceOrderEnum orderStatus = ServiceResultEnum.SUCCESS.equals(status) ? ServiceOrderEnum.SUCCESS
                 : ServiceOrderEnum.FAILED;
-
         String serviceOrderId = createOrder(service, input, orderStatus);
         callLog(input, serviceOrderId, responseId, result, status.getCode(), status.getMessage(), beginTime);
     }
