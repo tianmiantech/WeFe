@@ -506,6 +506,15 @@ class Tracking(object):
             return model_param, binning_results
         return None, None
 
+    def get_score_result(self):
+        model = TaskResultDao.get_last_task_result(self.job_id, self.role, 'metric_score')
+        if model:
+            score_result = json.loads(model.result)
+            for component, component_result in score_result.items():
+                score_result = component_result['data']
+            return score_result
+        return None
+
     def saveProbBinsResult(self,metric_name: str, metric_namespace: str, metric_meta, kv , job_level=False,
                            need_value = False):
         self.save_metric_data_to_task_result(metric_name, metric_namespace, metric_meta, kv, job_level, need_value)

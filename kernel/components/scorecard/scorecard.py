@@ -55,8 +55,7 @@ class ScoreCard(ModelBase):
 
     def callback_score_data(self):
         metric_name = self.tracker.component_name
-        metric_namespace = "train"
-        self.__save_score(self.pdo, self.p0,  metric_name, metric_namespace, self.score_card_result)
+        self.__save_score(self.pdo, self.p0,  metric_name, "score", self.score_card_result)
 
     def __save_score(self, pdo, p0, metric_name, metric_namespace, kv):
         extra_metas = {}
@@ -90,14 +89,14 @@ class ScoreCard(ModelBase):
     @staticmethod
     def get_count_odds(bin_results):
         print(bin_results)
-        p = sum(list(map(int, bin_results.non_event_count_array))) / \
+        p = sum(list(map(int, bin_results.event_count_array))) / \
             sum(list(map(int, bin_results.count_array)))
         odds = p / (1 - p)
         return odds
 
     def cal_score(self, odds):
-        B_score = self.pdo / math.log(2, )
-        A_score = self.p0 + B_score * math.log(odds, )
+        B_score = - self.pdo / math.log(2, )
+        A_score = self.p0 - B_score * math.log(odds, )
         return A_score, B_score
 
 

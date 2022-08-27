@@ -138,7 +138,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Scorecard")
     parser.add_argument("-c", "--config", type=str,
-                        help="config file", default="../../config.yaml")
+                        help="config file", default="../../../config.yaml")
     parser.add_argument("-p", "--param", type=str,
                         help="config file for params", default="./config.yaml")
     args = parser.parse_args()
