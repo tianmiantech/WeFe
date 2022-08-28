@@ -537,9 +537,9 @@ class Evaluation(ModelBase):
                     else:
                         LOGGER.warning("Unknown metric:{}".format(metric))
 
-            metric_name = '_'.join([data_type, 'scores_distribution'])
+            metric_name = '_'.join([data_type, 'metric'])
             self.__save_bin_score_value(metric_name= metric_name, metric_namespace = "train_validate",
-                                            metric_meta = "SCORE_DISTRIBUTION", kv = self.bins_result,
+                                            metric_meta = "METRIC", kv = self.bins_result,
                                              need_value = False)
         if return_single_val_metrics:
             if len(self.validate_metric) != 0:

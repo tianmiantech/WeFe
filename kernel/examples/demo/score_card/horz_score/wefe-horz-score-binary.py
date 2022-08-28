@@ -128,7 +128,7 @@ def main(config="../../../config.yaml", param="./lr_config.yaml", namespace="wef
     handler.add_component(dataio_0, output_data_type=["train"])
     handler.add_component(horz_binning, data=Data(train_data=dataio_0.name), output_data_type=["train"])
     handler.add_component(horz_lr_0, data=Data(train_data=dataio_0.name))
-    handler.add_component(scorecard_0, data=Data(data=dataio_0.name), output_data_type=["train"])
+    handler.add_component(scorecard_0, data=Data(data=dataio_0.name))
     handler.add_component(evaluation_0, data=Data(data=horz_lr_0.name))
 
     # compile handler once finished adding modules, this step will form conf and dsl files for running job

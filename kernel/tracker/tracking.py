@@ -576,7 +576,7 @@ class Tracking(object):
 
         """
         if metric_namespace == "train_validate":
-            result_type = self._get_task_result_type(TaskResultDataType.DISTRIBUTION, metric_namespace)
+            result_type = self._get_task_result_type(TaskResultDataType.METRIC, metric_namespace)
         else:
             result_type = self._get_task_result_type(TaskResultDataType.METRIC, metric_namespace)
         metric_task_result = self.get_task_result(result_type, self.task_id)

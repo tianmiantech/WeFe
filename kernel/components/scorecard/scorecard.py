@@ -55,7 +55,7 @@ class ScoreCard(ModelBase):
 
     def callback_score_data(self):
         metric_name = self.tracker.component_name
-        self.__save_score(self.pdo, self.p0,  metric_name, "score", self.score_card_result)
+        self.__save_score(self.pdo, self.p0,  metric_name, metric_namespace= "score", kv = self.score_card_result)
 
     def __save_score(self, pdo, p0, metric_name, metric_namespace, kv):
         extra_metas = {}

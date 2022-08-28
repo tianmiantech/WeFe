@@ -122,7 +122,7 @@ def main(config="../../config.yaml", param="./binary_config.yaml", namespace="we
     handler.add_component(intersection_0, data=Data(data=dataio_0.name),  output_data_type=["train"])
     handler.add_component(vert_binning_0, data=Data(train_data=intersection_0.name))
     handler.add_component(vert_lr_0, data=Data(train_data=intersection_0.name))
-    handler.add_component(scorecard_0, data=Data(data=dataio_0.name), output_data_type=["train"])
+    handler.add_component(scorecard_0, data=Data(data=dataio_0.name))
     handler.add_component(evaluation_0, data=Data(data=vert_lr_0.name))
 
 
