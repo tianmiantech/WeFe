@@ -78,7 +78,7 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         response.setClientIdByServerKeys(encryptClientIds);
 
         // add calllog
-        addCalllog(JSONObject.parseObject(JSONObject.toJSONString(request)),
+        addCalllog("", JSONObject.parseObject(JSONObject.toJSONString(request)),
                 JSONObject.parseObject(JSONObject.toJSONString(response)));
         
         return JObject.create(response);

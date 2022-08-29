@@ -71,7 +71,7 @@ public class SAServiceProcessor extends AbstractServiceProcessor<TableServiceMyS
         CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
         queryResult.save(request.getUuid(), Constants.RESULT, Double.valueOf(resultStr));
         // add calllog
-        addCalllog(JSONObject.parseObject(JSONObject.toJSONString(request)),
+        addCalllog("", JSONObject.parseObject(JSONObject.toJSONString(request)),
                 JSONObject.parseObject(JSONObject.toJSONString(response)));
         
         return JObject.create(response);

@@ -105,9 +105,6 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
             request.setQueryParams(serverConfig.getQueryParams());
             request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
             QueryDiffieHellmanKeyResponse response = transferVariables.get(i).queryDiffieHellmanKey(request);
-            // add calllog
-            addCalllog(JSONObject.parseObject(JSONObject.toJSONString(request)),
-                    JSONObject.parseObject(JSONObject.toJSONString(response)));
             if (response.getCode() != 0) {
                 throw new Exception(response.getMessage());
             }
@@ -128,7 +125,7 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
                 throw new Exception(response.getMessage());
             }
             // add calllog
-            addCalllog(JSONObject.parseObject(JSONObject.toJSONString(saResultRequest)),
+            addCalllog(serverConfig.getServerUrl(), JSONObject.parseObject(JSONObject.toJSONString(saResultRequest)),
                     JSONObject.parseObject(JSONObject.toJSONString(response)));
             result += response.getResult();
         }
