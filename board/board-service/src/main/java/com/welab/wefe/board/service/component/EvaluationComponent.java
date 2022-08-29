@@ -255,7 +255,7 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
     }
 
     private TaskResultMySqlModel findEvaluationDistributionTaskResultByTaskId(String taskId) {
-        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.distribution_train_validate.name());
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train_validate.name());
     }
 
     /**

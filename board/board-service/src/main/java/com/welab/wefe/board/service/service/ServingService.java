@@ -289,7 +289,7 @@ public class ServingService extends AbstractService {
     }
 
     private Object getScoresDistribution(TaskResultMySqlModel taskResult) {
-        TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(), null, taskResult.getRole(), TaskResultType.distribution_train_validate.name());
+        TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(), null, taskResult.getRole(), TaskResultType.metric_train_validate.name());
         if (task == null) {
             return null;
         }
@@ -302,7 +302,7 @@ public class ServingService extends AbstractService {
         TaskResultMySqlModel task = taskResultService.findByJobIdAndComponentTypeAndType(
                 taskResult.getJobId(),
                 ComponentType.ScoreCard,
-                TaskResultType.metric_train,
+                TaskResultType.metric_score,
                 taskResult.getRole());
         if (task == null) {
             return null;
