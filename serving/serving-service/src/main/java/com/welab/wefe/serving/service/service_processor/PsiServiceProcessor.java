@@ -76,11 +76,6 @@ public class PsiServiceProcessor extends AbstractServiceProcessor<TableServiceMy
         request.getClientIds()
                 .forEach(id -> encryptClientIds.add(DiffieHellmanUtil.encrypt(id, serverKey, mod, false).toString(16)));
         response.setClientIdByServerKeys(encryptClientIds);
-
-        // add calllog
-        addCalllog("", JSONObject.parseObject(JSONObject.toJSONString(request)),
-                JSONObject.parseObject(JSONObject.toJSONString(response)));
-        
         return JObject.create(response);
     }
 }
