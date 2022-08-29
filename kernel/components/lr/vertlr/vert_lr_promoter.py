@@ -13,7 +13,6 @@
 # limitations under the License.
 
 
-
 from common.python.utils import log_utils
 from kernel.components.lr.lr_model_weight import LRModelWeights
 from kernel.components.lr.vertlr.sync import converg_sync
@@ -239,5 +238,10 @@ class VertLRPromoter(VertLRBaseModel):
         predict_result = data_instances.mapValues(lambda x: x.label)
         predict_result = predict_result.join(pred_prob, lambda x, y: (x, y))
         predict_result = predict_result.join(pred_label, lambda x, y: [x[0], y, x[1],{"0": (1 - x[1]), "1": x[1]}])
-        predict_result = predict_result.join(linear_result,lambda x,y : self.append_linear_result(x,y))
+
+        def _append_linear_result(x, y):
+            x.append(y)
+            return x
+        predict_result = predict_result.join(linear_result,lambda x,y : _append_linear_result(x,y))
         return predict_result
+

@@ -365,7 +365,5 @@ class BaseLRModel(ModelBase):
                                 "a check for input data")
         LOGGER.info("Check for abnormal value passed")
 
-    def append_linear_result(self, x, y):
-        x.append(y)
-        return x
+
 
