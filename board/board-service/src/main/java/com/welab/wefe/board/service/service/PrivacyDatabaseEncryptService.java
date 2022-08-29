@@ -57,7 +57,7 @@ public class PrivacyDatabaseEncryptService {
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
         // Account privacy data encrypt
-        //encryptAccountMysqlModel();
+        encryptAccountMysqlModel();
         // Verification privacy data encrypt
         encryptVerificationCodeMysqlModel();
         // GlobalConfig privacy data encrypt
