@@ -57,7 +57,7 @@ public class PrivacyDatabaseEncryptService {
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
         // Account privacy data encrypt
-        encryptAccountMysqlModel();
+        //encryptAccountMysqlModel();
         // Verification privacy data encrypt
         encryptVerificationCodeMysqlModel();
         // GlobalConfig privacy data encrypt
@@ -92,6 +92,7 @@ public class PrivacyDatabaseEncryptService {
             return;
         }
         for(GlobalConfigMysqlModel globalConfigMysqlModel : list) {
+            globalConfigMysqlModel.setUpdatedTime(new Date());
             globalConfigRepository.save(globalConfigMysqlModel);
         }
     }
