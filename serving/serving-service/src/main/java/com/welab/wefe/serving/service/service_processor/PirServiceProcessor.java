@@ -57,8 +57,8 @@ public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMy
 
         String uuid = UUID.randomUUID().toString().replace("-", "");
         JObject response = JObject.create();
+        QueryKeysRequest request = new QueryKeysRequest();
         if (Constants.PIR.HUACK_OT.equalsIgnoreCase(otMethod)) {
-            QueryKeysRequest request = new QueryKeysRequest();
             request.setIds((List) ids);
             request.setMethod("plain");
             request.setOtMethod(Constants.PIR.HUACK_OT);
@@ -74,7 +74,6 @@ public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             }
         } else {
             NaorPinkasRandomService service = new NaorPinkasRandomService();
-            QueryKeysRequest request = new QueryKeysRequest();
             request.setIds((List) ids);
             request.setMethod("plain");
             request.setOtMethod(Constants.PIR.NAORPINKAS_OT);

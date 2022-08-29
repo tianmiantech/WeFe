@@ -579,7 +579,7 @@ public class ProjectFlowService extends AbstractService {
     }
 
     private boolean isCalculateScoreDistribution(TaskMySqlModel evaluationTask) {
-        TaskResultMySqlModel model = taskResultService.findByTaskIdAndType(evaluationTask.getTaskId(), TaskResultType.distribution_train_validate.name());
+        TaskResultMySqlModel model = taskResultService.findByTaskIdAndType(evaluationTask.getTaskId(), TaskResultType.metric_train_validate.name());
         if (model == null) {
             return false;
         }

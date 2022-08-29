@@ -70,7 +70,6 @@ public class SAServiceProcessor extends AbstractServiceProcessor<TableServiceMyS
         // 将 0 步骤查询的数据 保存到 CacheOperation
         CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
         queryResult.save(request.getUuid(), Constants.RESULT, Double.valueOf(resultStr));
-
         return JObject.create(response);
     }
 }

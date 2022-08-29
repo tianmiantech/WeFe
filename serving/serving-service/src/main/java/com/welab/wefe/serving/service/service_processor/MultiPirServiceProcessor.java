@@ -76,6 +76,13 @@ public class MultiPirServiceProcessor extends AbstractServiceProcessor<TableServ
             try {
                 config.setTargetIndex(idx); // right index
                 result = privateInformationRetrievalQuery.query(config, communicationConfig, otMethod);
+                JSONObject request = new JSONObject();
+                request.put("config", config);
+                request.put("communicationConfig", communicationConfig);
+                request.put("otMethod", otMethod);
+                // add calllog
+                addCalllog(url, JSONObject.parseObject(JSONObject.toJSONString(request)),
+                        JSONObject.parseObject(JSONObject.toJSONString(result)));
                 JObject tmp = JObject.create("memberId", memberId).append("memberName", memberName)
                         .append("index", idx).append("result", result);
                 results.add(tmp);
