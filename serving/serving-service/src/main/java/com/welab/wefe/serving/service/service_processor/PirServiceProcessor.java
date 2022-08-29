@@ -119,9 +119,6 @@ public class PirServiceProcessor extends AbstractServiceProcessor<TableServiceMy
             queryResult.save(uuid, Constants.RESULT, result);
         });
         LOG.info("finished query data from datasource");
-        // add calllog
-        addCalllog("", JSONObject.parseObject(JSONObject.toJSONString(request)),
-                JSONObject.parseObject(JSONObject.toJSONString(response)));
         return response;
     }
 }

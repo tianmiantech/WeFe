@@ -81,7 +81,7 @@ public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServ
             JSONObject request = new JSONObject();
             request.put("config", config);
             request.put("clientIds", clientIds);
-            addCalllog(config.getServerUrl(), JSONObject.parseObject(JSONObject.toJSONString(request)),
+            addCalllog(config.getServerUrl() + config.getApiName(), JSONObject.parseObject(JSONObject.toJSONString(request)),
                     JSONObject.parseObject(JSONObject.toJSONString(psi)));
         }
         return JObject.create("result", result);

@@ -125,7 +125,8 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
                 throw new Exception(response.getMessage());
             }
             // add calllog
-            addCalllog(serverConfig.getServerUrl(), JSONObject.parseObject(JSONObject.toJSONString(saResultRequest)),
+            addCalllog(serverConfig.getServerUrl() + serverConfig.getServerName(),
+                    JSONObject.parseObject(JSONObject.toJSONString(saResultRequest)),
                     JSONObject.parseObject(JSONObject.toJSONString(response)));
             result += response.getResult();
         }
