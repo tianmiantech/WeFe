@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from common.python import Backend
 from common.python.common import consts
 from common.python.utils import conf_utils
-
+import os
 BITS = 2048
 
 
@@ -51,6 +51,9 @@ def to_bytes(value: int, bits):
 
 
 def check_aclr_support():
+    backend = os.environ.get('backend')
+    if backend == Backend.LOCAL:
+        return False
     aclr_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_ACCELERATION, "")
     return aclr_type in [consts.AccelerationType.GPU]
 

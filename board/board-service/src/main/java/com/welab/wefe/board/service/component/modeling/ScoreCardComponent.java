@@ -86,6 +86,9 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
     protected TaskResultMySqlModel getResult(String taskId, String type) {
 
         TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndType(taskId, type);
+        if (taskResult == null) {
+            return null;
+        }
 
         taskResult.setResult(getScoreCardResult(taskResult));
 
