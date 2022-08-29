@@ -87,17 +87,15 @@ public class PrivacyDatabaseEncryptService {
     }
 
     private void encryptGlobalConfigMysqlModel() {
-        List<GlobalConfigMysqlModel> totalGlobalConfigMysqlModelList = new ArrayList<>();
-        Set<String> globalConfigGroupSet = GlobalConfigMysqlModelListener.DB_PROTECTED_FIELD_MAP.keySet();
-        for (String group : globalConfigGroupSet) {
-            List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findByGroup(group);
-            totalGlobalConfigMysqlModelList.addAll(CollectionUtils.isEmpty(globalConfigMysqlModelList) ? new ArrayList<>() : globalConfigMysqlModelList);
+        List<GlobalConfigMysqlModel> list = globalConfigRepository.findAll();
+        if(CollectionUtils.isEmpty(list)) {
+            return;
         }
-        for (GlobalConfigMysqlModel model : totalGlobalConfigMysqlModelList) {
-            model.setUpdatedTime(new Date());
-            globalConfigRepository.save(model);
+        for(GlobalConfigMysqlModel globalConfigMysqlModel : list) {
+            globalConfigRepository.save(globalConfigMysqlModel);
         }
     }
+
 
     private void encryptDataSourceMysqlModel() {
         List<DataSourceMysqlModel> dataSourceMysqlModelList = dataSourceRepository.findAll();
