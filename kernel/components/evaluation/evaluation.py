@@ -256,16 +256,7 @@ class Evaluation(ModelBase):
                 sample_pro_result_list = []
                 for index, sample_pro_result in enumerate(eval_data_local):
                     sample_pro_result_list.append(sample_pro_result[1][2])
-            self.bins_result = self.to_binning(sample_pro_result_list)
-
-    def prob_bin_result(self, data):
-        classes = len(set([d[1][0] for d in data]))
-        if classes < 3 and self.model_param.prob_need_to_bin:
-            sample_pro_result_list = []
-            for index, sample_pro_result in enumerate(data):
-                sample_pro_result_list.append(sample_pro_result[1][2])
-            pro_scores_distribution = self.to_binning(sample_pro_result_list)
-            return pro_scores_distribution
+                self.bins_result = self.to_binning(sample_pro_result_list)
 
     def to_binning(self, to_bin_data):
             data_count = len(to_bin_data)
