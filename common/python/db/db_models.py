@@ -109,34 +109,34 @@ class GlobalSetting(object):
     @staticmethod
     def get_member_id():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return get_value_by_enable(GlobalConfigDao.getMemberInfo().member_id)
+        return GlobalConfigDao.getMemberInfo().member_id
 
     @staticmethod
     def get_member_name():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return get_value_by_enable(GlobalConfigDao.getMemberInfo().member_name)
+        return GlobalConfigDao.getMemberInfo().member_name
 
     @staticmethod
     def get_gateway_host():
         from common.python.db.global_config_dao import GlobalConfigDao
-        gateway_uri = get_value_by_enable(GlobalConfigDao.getMemberInfo().member_gateway_uri)
+        gateway_uri = GlobalConfigDao.getMemberInfo().member_gateway_uri
         return gateway_uri.split(':')[0] if gateway_uri else ""
 
     @staticmethod
     def get_gateway_port():
         from common.python.db.global_config_dao import GlobalConfigDao
-        gateway_uri = get_value_by_enable(GlobalConfigDao.getMemberInfo().member_gateway_uri)
+        gateway_uri = GlobalConfigDao.getMemberInfo().member_gateway_uri
         return gateway_uri.split(':')[1] if gateway_uri else ""
 
     @staticmethod
     def get_member_allow_public_data_set():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return get_value_by_enable(GlobalConfigDao.getMemberInfo().member_allow_public_data_set)
+        return GlobalConfigDao.getMemberInfo().member_allow_public_data_set
 
     @staticmethod
     def get_rsa_private_key():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return get_value_by_enable(GlobalConfigDao.getMemberInfo().rsa_private_key)
+        return GlobalConfigDao.getMemberInfo().rsa_private_key
 
     @staticmethod
     def get_flow_base_url():
