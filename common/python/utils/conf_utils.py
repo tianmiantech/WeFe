@@ -70,7 +70,7 @@ def get_db_config(key: tuple):
         return get_value_by_enable(group_config[var_name])
 
 
-def get_value_by_enable(value: str):
+def get_value_by_enable(value):
     enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
     sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
     if "true" == enable:

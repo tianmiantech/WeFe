@@ -109,12 +109,12 @@ class GlobalSetting(object):
     @staticmethod
     def get_member_id():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.getMemberInfo().member_id
+        return get_value_by_enable(GlobalConfigDao.getMemberInfo().member_id)
 
     @staticmethod
     def get_member_name():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.getMemberInfo().member_name
+        return get_value_by_enable(GlobalConfigDao.getMemberInfo().member_name)
 
     @staticmethod
     def get_gateway_host():
@@ -131,22 +131,22 @@ class GlobalSetting(object):
     @staticmethod
     def get_member_allow_public_data_set():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.getMemberInfo().member_allow_public_data_set
+        return get_value_by_enable(GlobalConfigDao.getMemberInfo().member_allow_public_data_set)
 
     @staticmethod
     def get_rsa_private_key():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.getMemberInfo().rsa_private_key
+        return get_value_by_enable(GlobalConfigDao.getMemberInfo().rsa_private_key)
 
     @staticmethod
     def get_flow_base_url():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
+        return get_value_by_enable(GlobalConfigDao.get('wefe_flow', 'intranet_base_uri'))
 
     @staticmethod
     def get_paddle_visual_dl_baseurl():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url')
+        return get_value_by_enable(GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url'))
 
 
 class DataResource(ModelBase):
