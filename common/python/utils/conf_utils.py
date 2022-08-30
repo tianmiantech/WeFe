@@ -39,25 +39,23 @@ def get_db_config(key: tuple):
     group_name, var_name = key
     group_config = GlobalConfigDao.list(group_name)
     if key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT:
-        return 'https://oss-' + get_value_by_enable(group_config['region']) + '-internal.aliyuncs.com'
+        return 'https://oss-' + group_config['region'] + '-internal.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_END_POINT:
-        return 'https://oss-' + get_value_by_enable(group_config['region']) + '.aliyuncs.com'
+        return 'https://oss-' + group_config['region'] + '.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_ARN:
-        return 'acs:ram::' + get_value_by_enable(group_config['account_id']) + ':role/wefe-fc-ossread'
+        return 'acs:ram::' + group_config['account_id'] + ':role/wefe-fc-ossread'
     elif key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_SESSION_NAME:
         return 'oss_data'
     elif key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_DURATION_SECONDS:
         return 36000
     elif key == consts.COMM_CONF_KEY_FC_END_POINT:
-        return 'https://' + get_value_by_enable(group_config['account_id']) \
-               + '.' + get_value_by_enable(group_config['region']) + '-internal.fc.aliyuncs.com'
+        return 'https://' + group_config['account_id'] + '.' + group_config['region'] + '-internal.fc.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_SERVICE_NAME:
         return "wefe-fc"
     elif key == consts.COMM_CONF_KEY_FC_OSS_ENDPOINT:
-        return 'http://oss-' + get_value_by_enable(group_config['region']) + '.aliyuncs.com'
+        return 'http://oss-' + group_config['region'] + '.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT:
-        return 'http://oss-' + get_value_by_enable(group_config['region']) \
-               + '-internal.aliyuncs.com'
+        return 'http://oss-' + group_config['region'] + '-internal.aliyuncs.com'
     # elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET or key == consts.COMM_CONF_KEY_CK_PWD:
     #     # enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
     #     # if "true" == enable:
@@ -67,7 +65,7 @@ def get_db_config(key: tuple):
     #     # else:
     #     return get_value_by_enable(group_config[var_name]
     else:
-        return get_value_by_enable(group_config[var_name])
+        return group_config[var_name]
 
 
 def get_value_by_enable(value):
