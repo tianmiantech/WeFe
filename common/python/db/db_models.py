@@ -23,7 +23,7 @@ from playhouse.pool import PooledMySQLDatabase
 
 from common.python.common import consts
 from common.python.utils import log_utils, sqlite_utils
-from common.python.utils.conf_utils import get_comm_config, get_env_config
+from common.python.utils.conf_utils import get_comm_config, get_env_config, get_value_by_enable
 
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
@@ -119,13 +119,13 @@ class GlobalSetting(object):
     @staticmethod
     def get_gateway_host():
         from common.python.db.global_config_dao import GlobalConfigDao
-        gateway_uri = GlobalConfigDao.getMemberInfo().member_gateway_uri
+        gateway_uri = get_value_by_enable(GlobalConfigDao.getMemberInfo().member_gateway_uri)
         return gateway_uri.split(':')[0] if gateway_uri else ""
 
     @staticmethod
     def get_gateway_port():
         from common.python.db.global_config_dao import GlobalConfigDao
-        gateway_uri = GlobalConfigDao.getMemberInfo().member_gateway_uri
+        gateway_uri = get_value_by_enable(GlobalConfigDao.getMemberInfo().member_gateway_uri)
         return gateway_uri.split(':')[1] if gateway_uri else ""
 
     @staticmethod
