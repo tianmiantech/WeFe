@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * @author lonnie
  */
 @Service
-class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> {
+public class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> {
 
     @Autowired
     private TaskService taskService;
@@ -327,12 +327,16 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
     }
 
     private JObject extractScoreDistributionData(JObject obj, String normalName) {
-        String curveKey = "train_validate_" + normalName + "_scores_distribution";
-        JObject scoresDistributionData = obj.getJObject(curveKey);
+        JObject scoresDistributionData = obj.getJObject(scoreDistributionKey(normalName));
         JObject data = scoresDistributionData.getJObject("data");
         JObject result = data.getJObject("bin_result");
         return result;
     }
+
+    public static String scoreDistributionKey(String taskResultName) {
+        return "train_validate_" + taskResultName + "_metric";
+    }
+
 
     /**
      * Get the corresponding curve data node information, dataType: validate_/train_
