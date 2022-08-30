@@ -35,37 +35,50 @@ from common.python.utils.sm4_utils import SM4CBC
 
 
 def get_db_config(key: tuple):
+    enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
+    sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
+
     from common.python.db.global_config_dao import GlobalConfigDao
     group_name, var_name = key
     group_config = GlobalConfigDao.list(group_name)
     if key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT:
-        return 'https://oss-' + group_config['region'] + '-internal.aliyuncs.com'
+        return 'https://oss-' + get_value_by_enable(group_config['region'], enable, sm4_key) + '-internal.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_END_POINT:
-        return 'https://oss-' + group_config['region'] + '.aliyuncs.com'
+        return 'https://oss-' + get_value_by_enable(group_config['region'], enable, sm4_key) + '.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_ARN:
-        return 'acs:ram::' + group_config['account_id'] + ':role/wefe-fc-ossread'
+        return 'acs:ram::' + get_value_by_enable(group_config['account_id'], enable, sm4_key) + ':role/wefe-fc-ossread'
     elif key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_SESSION_NAME:
         return 'oss_data'
     elif key == consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_DURATION_SECONDS:
         return 36000
     elif key == consts.COMM_CONF_KEY_FC_END_POINT:
-        return 'https://' + group_config['account_id'] + '.' + group_config['region'] + '-internal.fc.aliyuncs.com'
+        return 'https://' + get_value_by_enable(group_config['account_id'], enable, sm4_key) \
+               + '.' + get_value_by_enable(group_config['region'], enable, sm4_key) + '-internal.fc.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_SERVICE_NAME:
         return "wefe-fc"
     elif key == consts.COMM_CONF_KEY_FC_OSS_ENDPOINT:
-        return 'http://oss-' + group_config['region'] + '.aliyuncs.com'
+        return 'http://oss-' + get_value_by_enable(group_config['region'], enable, sm4_key) + '.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT:
-        return 'http://oss-' + group_config['region'] + '-internal.aliyuncs.com'
-    elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET or key == consts.COMM_CONF_KEY_CK_PWD:
-        enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
-        if "true" == enable:
-            sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
-            sm4_cipher = SM4CBC()
-            return sm4_cipher.decrypt(sm4_key, group_config[var_name])
-        else:
-            return group_config[var_name]
+        return 'http://oss-' + get_value_by_enable(group_config['region'], enable, sm4_key) \
+               + '-internal.aliyuncs.com'
+    # elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET or key == consts.COMM_CONF_KEY_CK_PWD:
+    #     # enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
+    #     # if "true" == enable:
+    #     #     sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
+    #     #     sm4_cipher = SM4CBC()
+    #     #     return sm4_cipher.decrypt(sm4_key, group_config[var_name])
+    #     # else:
+    #     return get_value_by_enable(group_config[var_name]
     else:
-        return group_config[var_name]
+        return get_value_by_enable(group_config[var_name], enable, sm4_key)
+
+
+def get_value_by_enable(value: str, enable: str, sm4_key):
+    if "true" == enable:
+        sm4_cipher = SM4CBC()
+        return sm4_cipher.decrypt(sm4_key, value)
+    else:
+        return value
 
 
 def get_fc_local_config(key):
@@ -193,5 +206,3 @@ def set_env(key, value):
 
     """
     os.environ[key] = value
-
-
