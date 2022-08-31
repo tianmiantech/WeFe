@@ -23,7 +23,7 @@ from playhouse.pool import PooledMySQLDatabase
 
 from common.python.common import consts
 from common.python.utils import log_utils, sqlite_utils
-from common.python.utils.conf_utils import get_comm_config, get_env_config
+from common.python.utils.conf_utils import get_comm_config, get_env_config, get_value_by_enable
 
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
@@ -141,12 +141,12 @@ class GlobalSetting(object):
     @staticmethod
     def get_flow_base_url():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
+        return get_value_by_enable(GlobalConfigDao.get('wefe_flow', 'intranet_base_uri'))
 
     @staticmethod
     def get_paddle_visual_dl_baseurl():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url')
+        return get_value_by_enable(GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url'))
 
 
 class DataResource(ModelBase):

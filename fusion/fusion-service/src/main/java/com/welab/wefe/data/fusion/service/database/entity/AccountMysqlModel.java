@@ -18,8 +18,8 @@ package com.welab.wefe.data.fusion.service.database.entity;
 
 import com.alibaba.fastjson.JSONArray;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.data.fusion.service.database.listener.AccountMysqlModelListener;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -31,12 +31,12 @@ import java.util.Date;
  */
 @Entity(name = "account")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-@EntityListeners(AccountMysqlModelListener.class)
 public class AccountMysqlModel extends AbstractBaseMySqlModel {
 
     /**
      * 手机号
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String phoneNumber;
     /**
      * 密码

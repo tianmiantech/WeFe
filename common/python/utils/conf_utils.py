@@ -56,16 +56,26 @@ def get_db_config(key: tuple):
         return 'http://oss-' + group_config['region'] + '.aliyuncs.com'
     elif key == consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT:
         return 'http://oss-' + group_config['region'] + '-internal.aliyuncs.com'
-    elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET or key == consts.COMM_CONF_KEY_CK_PWD:
-        enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
-        if "true" == enable:
-            sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
-            sm4_cipher = SM4CBC()
-            return sm4_cipher.decrypt(sm4_key, group_config[var_name])
-        else:
-            return group_config[var_name]
+    # elif key == consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID or key == consts.COMM_CONF_KEY_FC_KEY_SECRET or key == consts.COMM_CONF_KEY_CK_PWD:
+    #     # enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
+    #     # if "true" == enable:
+    #     #     sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
+    #     #     sm4_cipher = SM4CBC()
+    #     #     return sm4_cipher.decrypt(sm4_key, group_config[var_name])
+    #     # else:
+    #     return get_value_by_enable(group_config[var_name]
     else:
         return group_config[var_name]
+
+
+def get_value_by_enable(value):
+    enable = get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_ENABLE)
+    sm4_key = bytes.fromhex(get_comm_config(consts.COMM_CONF_KEY_PRIVACY_DATABASE_ENCRYPT_SECRET_KEY))
+    if "true" == enable:
+        sm4_cipher = SM4CBC()
+        return sm4_cipher.decrypt(sm4_key, value)
+    else:
+        return value
 
 
 def get_fc_local_config(key):
@@ -193,5 +203,3 @@ def set_env(key, value):
 
     """
     os.environ[key] = value
-
-

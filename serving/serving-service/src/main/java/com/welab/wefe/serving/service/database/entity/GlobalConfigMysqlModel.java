@@ -16,7 +16,10 @@
 
 package com.welab.wefe.serving.service.database.entity;
 
+import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
+
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 
 /**
@@ -36,6 +39,7 @@ public class GlobalConfigMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 配置项的值
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String value;
     /**
      * 配置项的解释说明
