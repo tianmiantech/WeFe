@@ -16,12 +16,12 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
+import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
 import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
 import com.welab.wefe.common.wefe.enums.VerificationCodeSendChannel;
-import com.welab.wefe.data.fusion.service.database.listener.VerificationCodeMysqlModelListener;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
@@ -32,7 +32,6 @@ import javax.persistence.Enumerated;
  * @date 2022/1/19 17:45
  **/
 @Entity(name = "verification_code")
-@EntityListeners(VerificationCodeMysqlModelListener.class)
 public class VerificationCodeMysqlModel extends AbstractMySqlModel {
     /**
      * Business id, This field can be used to associate business information
@@ -41,6 +40,7 @@ public class VerificationCodeMysqlModel extends AbstractMySqlModel {
     /**
      * mobile
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String mobile;
     /**
      * Verification code

@@ -17,17 +17,16 @@
 package com.welab.wefe.board.service.database.entity;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.board.service.database.listener.GlobalConfigMysqlModelListener;
+import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 
 /**
  * @author Zane
  */
 @Entity(name = "global_config")
-@EntityListeners(GlobalConfigMysqlModelListener.class)
 public class GlobalConfigMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 配置项所在的组
@@ -41,6 +40,7 @@ public class GlobalConfigMysqlModel extends AbstractBaseMySqlModel {
     /**
      * 配置项的值
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String value;
     /**
      * 配置项的解释说明

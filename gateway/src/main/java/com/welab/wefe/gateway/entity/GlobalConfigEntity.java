@@ -17,11 +17,11 @@
 package com.welab.wefe.gateway.entity;
 
 import com.welab.wefe.common.data.mysql.entity.AbstractUniqueIDEntity;
-import com.welab.wefe.gateway.entity.listener.GlobalConfigEntityListener;
+import com.welab.wefe.gateway.util.DatabaseEncryptConverter;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.Table;
 
 /**
@@ -31,7 +31,6 @@ import javax.persistence.Table;
  **/
 @Table(name = "global_config")
 @Entity
-@EntityListeners(GlobalConfigEntityListener.class)
 public class GlobalConfigEntity extends AbstractUniqueIDEntity {
     /**
      * The group in which the configuration item is located
@@ -45,6 +44,7 @@ public class GlobalConfigEntity extends AbstractUniqueIDEntity {
     /**
      * Value of configuration item
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String value;
     /**
      * Explanation of configuration items

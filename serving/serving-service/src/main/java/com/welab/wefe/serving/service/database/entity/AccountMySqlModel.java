@@ -18,8 +18,8 @@ package com.welab.wefe.serving.service.database.entity;
 
 import com.alibaba.fastjson.JSONArray;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
-import com.welab.wefe.serving.service.database.listener.AccountMysqlModelListener;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -30,12 +30,12 @@ import javax.persistence.*;
  */
 @Entity(name = "account")
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-@EntityListeners(AccountMysqlModelListener.class)
 public class AccountMySqlModel extends AbstractBaseMySqlModel {
 
     private static final long serialVersionUID = -6835962000573567824L;
 
     @Column(name = "phone_number")
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String phoneNumber;
 
     private String password;
