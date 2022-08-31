@@ -24,6 +24,8 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
 import com.welab.wefe.common.fieldvalidate.secret.Secret;
 
+import java.util.UUID;
+
 /**
  * @author zane.luo
  */
@@ -31,7 +33,7 @@ import com.welab.wefe.common.fieldvalidate.secret.Secret;
 public class MemberInfoModel extends AbstractConfigModel {
 
     @Check(name = "联邦成员 Id", desc = "全局唯一，默认为uuid。")
-    private String memberId;
+    public String memberId = UUID.randomUUID().toString().replaceAll("-", "");
     @Check(name = "联邦成员名称")
     private String memberName;
     @Check(name = "联邦成员邮箱")
@@ -53,10 +55,14 @@ public class MemberInfoModel extends AbstractConfigModel {
     private String memberLogo;
 
     @Check(name = "成员隐身状态")
-    private Boolean memberHidden;
+    private Boolean memberHidden = false;
 
     @Check(name = "密钥类型")
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
+
+    @Check(name = "成员是否已初始化")
+    public boolean memberInitialized = false;
+
 
     //region getter/setter
 
@@ -147,5 +153,14 @@ public class MemberInfoModel extends AbstractConfigModel {
     public void setSecretKeyType(SecretKeyType secretKeyType) {
         this.secretKeyType = secretKeyType;
     }
+
+    public boolean isMemberInitialized() {
+        return memberInitialized;
+    }
+
+    public void setMemberInitialized(boolean memberInitialized) {
+        this.memberInitialized = memberInitialized;
+    }
+
     //endregion
 }

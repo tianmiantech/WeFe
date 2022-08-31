@@ -17,6 +17,7 @@ import uuid
 from common.python.db.db_models import DB, GlobalConfigModel
 from common.python.dto.global_config import MailServerModel, GatewayConfigModel, \
     MemberInfo, BoardConfigModel, FunctionComputeConfig, SparkStandaloneConfig, StorageConfig, ClickhouseStorageConfig
+from common.python.utils.conf_utils import get_value_by_enable
 
 
 class GlobalConfigDao:
@@ -62,7 +63,7 @@ class GlobalConfigDao:
         if comment:
             ip = "\n# {}\n{}\n".format(comment, ip)
 
-        item = GlobalConfigDao.get("wefe_gateway", "ip_white_list")
+        item = get_value_by_enable(GlobalConfigDao.get("wefe_gateway", "ip_white_list"))
         if item is None:
             item = GlobalConfigModel()
             item.id = str(uuid.uuid1())
@@ -204,7 +205,7 @@ class GlobalConfigDao:
             items = GlobalConfigModel.select().where(GlobalConfigModel.group == group)
             result = {}
             for item in items:
-                result[item.name] = item.value
+                result[item.name] = get_value_by_enable(item.value)
 
             return result
 

@@ -19,8 +19,10 @@ package com.welab.wefe.serving.service.service;
 
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
+import com.welab.wefe.serving.service.database.entity.GlobalConfigMysqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.repository.DataSourceRepository;
+import com.welab.wefe.serving.service.database.repository.GlobalConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,10 +40,14 @@ public class PrivacyDatabaseEncryptService {
     @Autowired
     private DataSourceRepository dataSourceRepository;
 
+    @Autowired
+    protected GlobalConfigRepository globalConfigRepository;
+
     @Transactional(rollbackFor = Exception.class)
     public void encrypt() {
         encryptAccountMySqlModel();
         encryptDataSourceMysqlModel();
+        globalConfigMysqlModel();
     }
 
     private void encryptAccountMySqlModel() {
@@ -61,6 +67,17 @@ public class PrivacyDatabaseEncryptService {
                 model.setUpdatedTime(new Date());
                 dataSourceRepository.save(model);
             }
+        }
+    }
+
+    private void globalConfigMysqlModel() {
+        List<GlobalConfigMysqlModel> globalConfigMysqlModelList = globalConfigRepository.findAll();
+        if (CollectionUtils.isEmpty(globalConfigMysqlModelList)) {
+            return;
+        }
+        for (GlobalConfigMysqlModel globalConfigMysqlModel : globalConfigMysqlModelList) {
+            globalConfigMysqlModel.setUpdatedTime(new Date());
+            globalConfigRepository.save(globalConfigMysqlModel);
         }
     }
 }
