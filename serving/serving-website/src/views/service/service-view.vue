@@ -66,7 +66,6 @@
                 >
                     <el-input
                         v-model="form.name"
-                        :maxlength="30"
                         :minlength="4"
                         size="medium"
                     />
@@ -1401,9 +1400,7 @@ export default {
     },
     watch: {
         'form.service_type'() {
-            if(this.form.service_type === ''){
-                this.file_upload_options.files = [];
-            }
+            this.file_upload_options.files = [];
             this.setServiceDesc();
         },
         'predictResult.result.score_card': {

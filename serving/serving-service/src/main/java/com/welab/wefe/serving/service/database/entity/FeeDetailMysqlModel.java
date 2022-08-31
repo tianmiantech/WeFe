@@ -62,6 +62,17 @@ public class FeeDetailMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "pay_type")
     private Integer payType;
 
+    @Column(name = "save_ip")
+    private String saveIp;
+
+    public String getSaveIp() {
+        return saveIp;
+    }
+
+    public void setSaveIp(String saveIp) {
+        this.saveIp = saveIp;
+    }
+
     public Integer getPayType() {
         return payType;
     }

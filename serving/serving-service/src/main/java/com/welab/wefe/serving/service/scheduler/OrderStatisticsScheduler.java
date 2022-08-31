@@ -17,6 +17,8 @@ package com.welab.wefe.serving.service.scheduler;
 
 
 import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.HostUtil;
+import com.welab.wefe.common.web.util.HttpServletRequestUtil;
 import com.welab.wefe.serving.service.database.entity.OrderStatisticsMysqlModel;
 import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
@@ -115,6 +117,7 @@ public class OrderStatisticsScheduler {
                                 os.setServiceName(serviceOrderMysqlModel.getServiceName());
                                 os.setCreatedTime(endTime);
                                 os.setUpdatedTime(endTime);
+                                os.setSaveIp(HostUtil.getLocalIp());
 
                                 orderStatisticsMysqlModels.add(os);
                             });

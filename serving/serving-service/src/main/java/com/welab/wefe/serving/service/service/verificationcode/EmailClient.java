@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,6 @@
  */
 
 package com.welab.wefe.serving.service.service.verificationcode;
-
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -34,6 +29,10 @@ import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.serving.service.service.EmailService;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Email client
@@ -57,14 +56,15 @@ public class EmailClient extends AbstractClient {
         }
 
         GlobalConfigService configService = Launcher.CONTEXT.getBean(GlobalConfigService.class);
-        MailServerModel mailModel = configService.getMailServerModel();
-        if(mailModel == null) {
+        MailServerModel mailModel = configService.getModel(MailServerModel.class);
+        if (mailModel == null) {
             throw new StatusCodeWithException("邮箱服务器配置未设置", StatusCode.PERMISSION_DENIED);
         }
         String businessTypeStr = String.valueOf(getExtendParams().get("businessType"));
         VerificationCodeBusinessType businessType = VerificationCodeBusinessType.valueOf(businessTypeStr);
         String subject = String.valueOf(getExtendParams().get("subject"));
-        String content = String.valueOf(getExtendParams().get("content"));;
+        String content = String.valueOf(getExtendParams().get("content"));
+        ;
         if (VerificationCodeBusinessType.accountForgetPassword.equals(businessType)) {
             content = content.replace("#code#", verificationCode);
         }

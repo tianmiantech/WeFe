@@ -36,7 +36,7 @@ import re
 import sys
 import traceback
 
-from common.python import federation
+from common.python import federation, Backend
 from common.python import session
 from common.python.common import consts
 from common.python.common.consts import TaskStatus, ComponentName, FederatedLearningType, DataSetType, \
@@ -83,28 +83,39 @@ class TaskExecutor(object):
             print(f'task_config： {task_config}')
             params = task_config.get('params', {})
 
+            current_backend = Backend.LOCAL
             # 改为从 job_config 中获取
-            with DB.connection_context():
-                job = Job.get(Job.job_id == job_id)
-            job_config = json.loads(job.job_config)
-            job_env = job_config['env']
+            if task_config.get('job') and task_config.get('job').get('env').get('backend') == Backend.LOCAL:
+
+                job_config = task_config.get('job')
+                print(f'task run in {current_backend} env ...')
+            else:
+                with DB.connection_context():
+                    job = Job.get(Job.job_id == job_id)
+                job_config = json.loads(job.job_config)
+                current_backend = job_config.get("env").get("calculation_engine_config").get("backend")
+                print(f'task run in {current_backend} env ...')
+
             task_input_dsl = task_config['input']
             task_output_dsl = task_config['output']
             module_name = task_config['module']
 
             # 从 job_config 中获取信息
-            task_config['job'] = {
-                'federated_learning_type': job_config['federated_learning_type'],
-                'federated_learning_mode': job_config.get('federated_learning_mode', None),
-                'project': {
-                    'project_id': job_config['project']['project_id']
-                },
-                'members': job_config['members'],
-                'data_sets': job_config['data_sets'],
-                'env': job_config['env']
-            }
+            if current_backend != Backend.LOCAL:
+                task_config['job'] = {
+                    'federated_learning_type': job_config.get('federated_learning_type', None),
+                    'federated_learning_mode': job_config.get('federated_learning_mode', None),
+                    'project': {
+                        'project_id': job_config.get('project').get('project_id')
+                    },
+                    'members': job_config.get('members', None),
+                    'data_sets': job_config.get('data_sets', None),
+                    'env': job_config.get('env')
+                }
 
-            project_id = task_config['job']['project']['project_id']
+            job_env = job_config.get('env')
+
+            project_id = job_config.get('project').get('project_id')
 
             parameters = TaskExecutor.get_parameters(role, member_id, module_name, component_name, task_config)
 
@@ -123,16 +134,14 @@ class TaskExecutor(object):
             schedule_logger().info(
                 'update task status to running , job_id = {}, role={}, task_id={}'.format(job_id, role, task_id))
             TaskExecutor.update_task_status(job_id, role, task_id, TaskStatus.RUNNING)
-            # backend = conf_utils.get_backend_from_string(
-            #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
-            # )
-            backend = job_env['calculation_engine_config'].get('backend')
-            # backend = 0
-            print(f'job_env: {job_env}')
+            backend = current_backend
+            # 用于判断是否为GPU模式
+            os.environ['backend'] = backend
+
             options = TaskExecutor.session_options(task_config)
-            RuntimeConfig.init_config(WORK_MODE=job_env['work_mode'],
+            RuntimeConfig.init_config(WORK_MODE=job_env.get('work_mode'),
                                       BACKEND=backend,
-                                      DB_TYPE=job_env['storage_config'].get('db_type', DBTypes.CLICKHOUSE))
+                                      DB_TYPE=job_env.get('db_type', DBTypes.CLICKHOUSE))
 
             print(
                 f'word_mode: {RuntimeConfig.WORK_MODE}, backend: {RuntimeConfig.BACKEND}, db_type: {RuntimeConfig.DB_TYPE}')

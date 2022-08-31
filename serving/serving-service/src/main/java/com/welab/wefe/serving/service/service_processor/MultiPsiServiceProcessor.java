@@ -15,8 +15,10 @@
  */
 package com.welab.wefe.serving.service.service_processor;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -33,7 +35,7 @@ import com.welab.wefe.serving.service.service.ClientServiceService;
 /**
  * @author hunter.zhao
  */
-public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel>{
+public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServiceMySqlModel> {
 
     private final ClientServiceService clientServiceService = Launcher.getBean(ClientServiceService.class);
 
@@ -67,9 +69,21 @@ public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServ
             communicationConfigs.add(communicationConfig);
         }
 
+        List<String> result = new ArrayList<>(clientIds);
         PrivateSetIntersection privateSetIntersection = new PrivateSetIntersection();
-        List<String> result = privateSetIntersection.query(communicationConfigs, clientIds);
-
+        for (CommunicationConfig config : communicationConfigs) {
+            List<String> psi = privateSetIntersection.query(config, clientIds);
+            if (result.isEmpty()) {
+                break;
+            }
+            result = result.stream().filter(item -> psi.contains(item)).collect(Collectors.toList());
+            // add calllog
+            JSONObject request = new JSONObject();
+            request.put("config", config);
+            request.put("clientIds", clientIds);
+            addCalllog(config.getServerUrl() + config.getApiName(), JSONObject.parseObject(JSONObject.toJSONString(request)),
+                    JSONObject.parseObject(JSONObject.toJSONString(psi)));
+        }
         return JObject.create("result", result);
     }
 }

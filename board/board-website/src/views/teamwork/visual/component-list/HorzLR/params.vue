@@ -227,6 +227,7 @@
                         />
                     </el-form-item>
                 </el-collapse-item>
+
             </el-collapse>
         </el-form>
     </div>
@@ -263,7 +264,13 @@
             need_scorecard: false,
             p0:             50,
             pdo:            10,
-             
+
+        },
+        score_param: {
+            need_scorecard: false,
+            p0:             50,
+            pdo:            10,
+
         },
     };
 

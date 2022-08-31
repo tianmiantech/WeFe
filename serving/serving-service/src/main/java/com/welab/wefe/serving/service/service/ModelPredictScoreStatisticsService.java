@@ -67,9 +67,10 @@ public class ModelPredictScoreStatisticsService {
     public void increment(String serviceId, Double score) {
         initCurrentDay(serviceId);
 
-        for (double split : findBinningSplitPoint(serviceId)) {
-            if (score <= split) {
-                ModelPredictScoreStatisticsMySqlModel model = findByServiceIdAndDayAndBinning(serviceId, DateUtil.getCurrentDay(), split);
+        List<Double> splits = findBinningSplitPoint(serviceId);
+        for (int i = 0; i < splits.size(); i++) {
+            if (score <= splits.get(i) || i == splits.size() - 1) {
+                ModelPredictScoreStatisticsMySqlModel model = findByServiceIdAndDayAndBinning(serviceId, DateUtil.getCurrentDay(), splits.get(i));
                 model.setCount(model.getCount() + 1);
                 model.setUpdatedTime(new Date());
                 statisticsRepository.save(model);
@@ -99,6 +100,36 @@ public class ModelPredictScoreStatisticsService {
         model.setDay(DateUtil.getCurrentDay());
         statisticsRepository.save(model);
     }
+
+    private void refresh(String serviceId, Double splitPoint) {
+        ModelPredictScoreStatisticsMySqlModel model = findByServiceIdAndDayAndBinning(serviceId, DateUtil.getCurrentDay(), splitPoint);
+
+        if (model == null) {
+            model = new ModelPredictScoreStatisticsMySqlModel();
+            model.setServiceId(serviceId);
+            model.setSplitPoint(splitPoint);
+            model.setDay(DateUtil.getCurrentDay());
+            statisticsRepository.save(model);
+            return;
+        }
+
+//        model.setServiceId(serviceId);
+//        model.setSplitPoint(splitPoint);
+//        model.setDay(DateUtil.getCurrentDay());
+//        model.setCount(1);
+//        statisticsRepository.save(model);
+    }
+
+//    private int count(String serviceId, Double splitPoint) {
+//        Specification<ModelPredictScoreStatisticsMySqlModel> where = Where
+//                .create()
+//                .equal("serviceId", serviceId)
+//                .betweenAndDate("createdTime", DateUtil.getCurrentDay().getTime(), DateUtil.getCurrentDay().getTime())
+//                .equal("callByMe", CallByMeEnum.NO.getCode())
+//                .build(ModelPredictScoreStatisticsMySqlModel.class);
+//
+//        return statisticsRepository.findOne(where).get();
+//    }
 
     private ModelPredictScoreStatisticsMySqlModel findByServiceIdAndDayAndBinning(String serviceId, Date day, Double splitPoints) {
         Specification<ModelPredictScoreStatisticsMySqlModel> where = Where

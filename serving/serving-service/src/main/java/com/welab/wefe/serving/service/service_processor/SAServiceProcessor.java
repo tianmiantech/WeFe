@@ -59,6 +59,7 @@ public class SAServiceProcessor extends AbstractServiceProcessor<TableServiceMyS
                     Arrays.asList(resultfields.split(",")));
             if (resultMap == null || resultMap.isEmpty()) {
                 resultMap = new HashMap<>();
+                resultMap.put(resultfields, "0");
             }
             resultStr = resultMap.get(resultfields);// 目前只支持一个返回值
             LOG.info(queryParams.toJSONString() + "\t " + resultStr);
@@ -69,7 +70,6 @@ public class SAServiceProcessor extends AbstractServiceProcessor<TableServiceMyS
         // 将 0 步骤查询的数据 保存到 CacheOperation
         CacheOperation<Double> queryResult = CacheOperationFactory.getCacheOperation();
         queryResult.save(request.getUuid(), Constants.RESULT, Double.valueOf(resultStr));
-
         return JObject.create(response);
     }
 }

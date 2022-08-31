@@ -55,8 +55,7 @@ class ScoreCard(ModelBase):
 
     def callback_score_data(self):
         metric_name = self.tracker.component_name
-        metric_namespace = "train"
-        self.__save_score(self.pdo, self.p0,  metric_name, metric_namespace, self.score_card_result)
+        self.__save_score(self.pdo, self.p0,  metric_name, metric_namespace= "score", kv = self.score_card_result)
 
     def __save_score(self, pdo, p0, metric_name, metric_namespace, kv):
         extra_metas = {}
@@ -90,14 +89,14 @@ class ScoreCard(ModelBase):
     @staticmethod
     def get_count_odds(bin_results):
         print(bin_results)
-        p = sum(list(map(int, bin_results.non_event_count_array))) / \
+        p = sum(list(map(int, bin_results.event_count_array))) / \
             sum(list(map(int, bin_results.count_array)))
         odds = p / (1 - p)
         return odds
 
     def cal_score(self, odds):
-        B_score = self.pdo / math.log(2, )
-        A_score = self.p0 + B_score * math.log(odds, )
+        B_score = - self.pdo / math.log(2, )
+        A_score = self.p0 - B_score * math.log(odds, )
         return A_score, B_score
 
 
@@ -129,7 +128,7 @@ class ScoreCardProvider(ScoreCard):
         B_score = self.pdo / math.log(2, )
         bin_inner_param, bin_results, component_type = self._get_binning_result()
         feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
-        if component_type == 'horz':
+        if 'horz' in component_type.lower():
             odds = self.get_count_odds(feature_bin_results)
             A_score, B_score = self.cal_score(odds)
             self.score_card_result["odds"] = odds
