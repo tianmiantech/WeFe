@@ -125,7 +125,7 @@
                         class="mr10"
                         type="primary"
                         :underline="false"
-                        @click="linkTo('teamwork/detail/job/history', { project_id, flow_id: scope.row.flow_id })"
+                        @click="linkTo('teamwork/detail/job/history', { project_id, flow_id: scope.row.flow_id, is_project_admin: form.is_project_admin })"
                     >
                         执行记录
                     </el-link>
