@@ -20,6 +20,8 @@ package com.welab.wefe.board.service.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.data_output_info.PushModelToServingByProviderApi;
+import com.welab.wefe.board.service.component.EvaluationComponent;
+import com.welab.wefe.board.service.component.modeling.ScoreCardComponent;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -72,6 +74,7 @@ public class ServingService extends AbstractService {
 
     @Autowired
     private GatewayService gatewayService;
+
 
     /**
      * Update serving global configuration
@@ -294,7 +297,7 @@ public class ServingService extends AbstractService {
             return null;
         }
 
-        String key = "train_validate_" + taskResult.getName() + "_scores_distribution";
+        String key = EvaluationComponent.scoreDistributionKey(task.getName());
         return JObject.create(task.getResult()).get(key);
     }
 
@@ -310,7 +313,7 @@ public class ServingService extends AbstractService {
 
         JObject result = JObject.create();
         JObject data = JObject.create(task.getResult());
-        result.put("score_card", data.getJObjectByPath("train_" + task.getName() + ".data"));
+        result.put("score_card", data.getJObjectByPath(ScoreCardComponent.scoreCardKey(task.getName()) + ".data"));
 
         TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
                 taskResult.getJobId(),

@@ -153,9 +153,13 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
         return binning.getJObjectByPath("model_param.weight");
     }
 
+    public static String scoreCardKey(String name) {
+        return "score_" + name;
+    }
+
     private double extractBScore(TaskResultMySqlModel taskResult) {
         JObject scoreCard = JObject.create(taskResult.getResult());
-        String jsonPath = "train_ScoreCard_" + taskResult.getFlowNodeId() + ".data.b_score";
+        String jsonPath = scoreCardKey(taskResult.getName()) + ".data.b_score";
         return scoreCard.getDoubleByPath(jsonPath);
     }
 

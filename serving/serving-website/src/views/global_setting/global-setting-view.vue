@@ -100,7 +100,7 @@
                                 <el-input
                                     v-model="form.service_cache_config.redis_host"
                                     placeholder=""
-                                    :disabled="is_update"
+                                    :disabled="form.service_cache_config.type=='mem'"
                                 />
                             </el-form-item>
 
@@ -110,7 +110,7 @@
                                 <el-input
                                     v-model="form.service_cache_config.redis_port"
                                     placeholder=""
-                                    :disabled="is_update"
+                                    :disabled="form.service_cache_config.type=='mem'"
                                 />
                             </el-form-item>
 
@@ -124,6 +124,7 @@
                                     @contextmenu.prevent
                                     @change="redisPwdChange"
                                     clearable
+                                    :disabled="form.service_cache_config.type=='mem'"
                                 />
                                 
                             </el-form-item>
