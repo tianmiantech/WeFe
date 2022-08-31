@@ -16,11 +16,11 @@
 
 package com.welab.wefe.data.fusion.service.database.entity;
 
+import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
-import com.welab.wefe.data.fusion.service.database.listener.DataSourceMysqlModelListener;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
@@ -29,7 +29,6 @@ import javax.persistence.Enumerated;
  * @date 2020/9/16
  */
 @Entity(name = "data_source")
-@EntityListeners(DataSourceMysqlModelListener.class)
 public class DataSourceMySqlModel extends AbstractBaseMySqlModel {
     /**
      * Data source name
@@ -65,6 +64,7 @@ public class DataSourceMySqlModel extends AbstractBaseMySqlModel {
     /**
      * password
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String password;
 
 
