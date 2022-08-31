@@ -44,7 +44,6 @@
                                             <el-table-column label="WOE变化图" prop="weight" width="260" align="center">
                                                 <template v-slot="scope">
                                                     <LineChart
-                                                        v-if="row.dataList[props.$index].isShowWOE"
                                                         ref="LineChart"
                                                         :config="scope.row.woeLineConfig"
                                                     />
