@@ -23,61 +23,6 @@
                             :name="`${row.member_id}-${index}`"
                             :label="`${row.member_name} (${row.member_role === 'provider' ? '协作方' : '发起方'})`"
                         >
-                            <!-- <el-table
-                                :data="row.dataList"
-                                class="mt10"
-                                stripe
-                                border
-                            >
-                                <el-table-column
-                                    label="序号"
-                                    type="index"
-                                />
-                                <el-table-column
-                                    label="列名"
-                                    prop="column"
-                                />
-                                <el-table-column
-                                    label="分箱数量"
-                                    prop="binNums"
-                                />
-                                <el-table-column
-                                    label="分箱方式"
-                                    prop="paramsMethod"
-                                />
-                                <el-table-column
-                                    label="iv"
-                                    prop="iv"
-                                />
-                                <el-table-column
-                                    label="woe"
-                                    prop="woeArray"
-                                />
-                                <el-table-column
-                                    label="count"
-                                    prop="countArray"
-                                />
-                                <el-table-column
-                                    label="count_rate"
-                                    prop="countRateArray"
-                                />
-                                <el-table-column
-                                    label="bad_rate"
-                                    prop="nonEventRateArray"
-                                />
-                                <el-table-column
-                                    label="event_count"
-                                    prop="eventCountArray"
-                                />
-                                <el-table-column
-                                    label="event_rate"
-                                    prop="eventRateArray"
-                                />
-                                <el-table-column
-                                    label="non_event_count"
-                                    prop="nonEventCountArray"
-                                />
-                            </el-table> -->
                             <el-table :data="row.dataList" stripe :border="true" style="width :100%" class="fold-table">
                                 <el-table-column type="expand">
                                     <template #default="props">
@@ -100,7 +45,7 @@
                                                     />
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column label="分布" width="300" align="center">
+                                            <el-table-column label="分布" width="430" align="center" fixed="right">
                                                 <template v-slot="scope">
                                                     <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
                                                 </template>
@@ -184,26 +129,46 @@
 
                             for(const column in binningResult) {
                                 const val = binningResult[column];
-                                const series = [], xAxis = [];
+                                const series = [], xAxis = [], goodData = [], badData = [], badLineData = [];
 
+                                // 概率
+                                // for (let i=0; i<val.countArray.length; i++) {
+                                //     goodData.push((val.eventCountArray[i] / val.countArray[i])*val.countRateArray[i]);
+                                //     badData.push((val.nonEventCountArray[i] / val.countArray[i])*val.countRateArray[i]);
+                                //     badLineData.push(val.nonEventCountArray[i] / val.countArray[i]);
+                                // }
+
+                                // 样本量
+                                for (let i=0; i<val.countArray.length; i++) {
+                                    goodData.push(val.eventCountArray[i]);
+                                    badData.push(val.nonEventCountArray[i]);
+                                    badLineData.push(val.nonEventCountArray[i] / val.countArray[i]);
+                                }
+                                
                                 series.push(
                                     {
                                         name:      'good',
                                         stack:     'Ad',
                                         type:      'bar',
-                                        data:      val.eventCountArray,
+                                        data:      goodData,
                                         itemStyle: {
                                             color: 'rgba(5, 115, 107, .7)',
                                         },
+                                        // tooltip: {
+                                        //     valueFormatter: (value) => value.toFixed(3),
+                                        // },
                                     },
                                     {
                                         name:      'bad',
                                         stack:     'Ad',
                                         type:      'bar',
-                                        data:      val.nonEventCountArray,
+                                        data:      badData,
                                         itemStyle: {
                                             color: 'rgba(174, 6, 23, .7)',
                                         },
+                                        // tooltip: {
+                                        //     valueFormatter: (value) => value.toFixed(3),
+                                        // },
                                     },
                                     {
                                         type:       'line',
@@ -211,30 +176,41 @@
                                         itemStyle:  {
                                             color: 'rgba(11, 89, 153, 1)',
                                         },
-                                        data:  val.splitPoints,
+                                        data:  badLineData,
                                         label: {
                                             show:     true,
-                                            position: 'inside',
+                                            position: 'top',
                                             formatter (value) {
-                                                return Number(value.data).toFixed(3);
+                                                return Number(value.data).toFixed(2);
                                             },
+                                        },
+                                        tooltip: {
+                                            valueFormatter: (value) => value.toFixed(3),
                                         },
                                     },
                                 );
-                                for(let i=0; i<val.eventCountArray.length; i++) {
-                                    xAxis.push(i);
+                                for(let i=0; i<val.splitPoints.length; i++) {
+                                    xAxis.push(val.splitPoints[i].toFixed(3));
                                 }
                                 const mapdata = {
                                     xAxis: {
                                         type: 'category',
-                                        data: val.eventCountArray || [],
+                                        data: xAxis || [],
                                     },
                                     yAxis: [
                                         {
-                                            type: 'value',
+                                            type:         'value',
+                                            name:         'Bin count distribution',
+                                            nameLocation: 'middle',
+                                            nameGap:      30,
+                                            nameRotate:   90,
                                         },
                                         {
-                                            type: 'value',
+                                            type:         'value',
+                                            name:         'Bad probability',
+                                            nameLocation: 'middle',
+                                            nameGap:      30,
+                                            nameRotate:   90,
                                         },
                                     ],
                                     series,
