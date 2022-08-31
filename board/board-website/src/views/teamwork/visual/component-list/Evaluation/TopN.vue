@@ -34,7 +34,7 @@
                     </template>
                 </el-table-column>
             </el-table-column>
-            <el-table-column label="测试集" align="center">
+            <el-table-column label="验证集" align="center">
                 <el-table-column
                     label="cutoff 区间"
                     width="120">
@@ -80,7 +80,7 @@
             const methods = {};
 
             const renderTopnTable = (result) => {
-                const topnList = result.validate_topn || result.train_topn;
+                const topnList = result.train_topn || [];
 
                 vData.validate_topn = result.validate_topn;
                 if(topnList && topnList.length) {
