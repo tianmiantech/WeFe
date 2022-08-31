@@ -58,6 +58,8 @@ class SM4CBC:
         -------
             原字符串
         """
+        if encrypt_value is None or encrypt_value == '':
+            return None
         crypt_sm4 = self.crypt_sm4
         crypt_sm4.set_key(decrypt_key, SM4_DECRYPT)
         d_value = crypt_sm4.crypt_cbc(self.iv, bytes.fromhex(encrypt_value))  # bytes类型
