@@ -145,13 +145,14 @@ public class PsiApi extends AbstractApi<PsiApi.Input, PsiApi.Output> {
     }
 
     private double subtract(double actual, double expected) {
-        double temp = actual == 0.0 ? 0.1 : actual;
-        return temp - expected;
+//        double temp = actual == 0.0 ? 0.1 : actual;
+        return actual - expected;
     }
 
     private double ln(double actual, double expected) {
-        double temp = actual == 0.0 ? 0.1 : actual;
-        return Math.log(temp / expected);
+//        double tempActual = actual == 0.0 ? 0.1 : actual;
+//        double tempExpected = expected == 0.0 ? 0.1 : expected;
+        return Math.log(actual / expected);
     }
 
     public static void main(String[] args) {
