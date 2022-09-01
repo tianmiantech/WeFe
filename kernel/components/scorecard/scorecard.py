@@ -89,13 +89,13 @@ class ScoreCard(ModelBase):
     @staticmethod
     def get_count_odds(bin_results):
         print(bin_results)
-        p = sum(list(map(int, bin_results.event_count_array))) / \
+        p = sum(list(map(int, bin_results.non_event_count_array))) / \
             sum(list(map(int, bin_results.count_array)))
         odds = p / (1 - p)
         return odds
 
     def cal_score(self, odds):
-        B_score = - self.pdo / math.log(2, )
+        B_score = self.pdo / math.log(2, )
         A_score = self.p0 - B_score * math.log(odds, )
         return A_score, B_score
 
