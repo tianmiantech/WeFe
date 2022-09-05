@@ -221,14 +221,14 @@
                                 let val = this.currentRadio === 'PSI' ? sitem[3] : this.currentRadio === 'Count' ? sitem[1] : sitem[2];
                                 const label = `['${[sitem[0]]}']`;
 
-                                val = Number(val.toFixed(5));
+                                val = val === null ? 'null' : Number(val.toFixed(5));
                                 obj[label] = val;
                                 count_rows.push(obj);
                                 new_rows = Object.assign(
                                     { ...obj }, 
                                     count_rows[0],
                                 );
-                                count_count +=val;
+                                if (val !== 'null') count_count +=val;
                             });
                         }
                         
