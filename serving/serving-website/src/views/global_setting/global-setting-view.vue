@@ -366,6 +366,12 @@ export default {
 
             if (code === 0) {
                 if (data.sms_config === null) data.sms_config = {};
+                if (data.identity_info === null) data.identity_info = {};
+                if (data.wefe_union === null) data.wefe_union = {};
+                if (data.mail_server === null) data.mail_server = {};
+                if (data.captcha_send_channel === null) data.captcha_send_channel = {};
+                if (data.service_cache_config === null) data.service_cache_config = {};
+
                 this.form = data;
                 if (data.identity_info.mode === 'union') {
                     this.mode = 1;
@@ -443,6 +449,7 @@ export default {
             if (code === 0) {
                 this.$message.success('保存成功!');
                 this.$router.push({ name: 'global-setting-view' });
+                this.getData();
             }
             this.loading = false;
         },
