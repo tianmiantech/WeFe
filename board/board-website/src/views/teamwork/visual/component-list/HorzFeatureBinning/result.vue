@@ -43,13 +43,10 @@
                                             <el-table-column label="IV" prop="ivArray" align="center" />
                                             <el-table-column v-if="row.dataList[props.$index].splitPoints.length" label="WOE变化图" prop="weight" width="260" align="center">
                                                 <template v-slot="scope">
-                                                    <LineChart
-                                                        ref="LineChart"
-                                                        :config="scope.row.woeLineConfig"
-                                                    />
+                                                    <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column label="分布" width="430" align="center" fixed="right">
+                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" width="430" align="center" fixed="right">
                                                 <template v-slot="scope">
                                                     <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
                                                 </template>
@@ -256,11 +253,15 @@
                                         column,
                                         countArray:         val.countArray[j],
                                         countRateArray:     Number(val.countRateArray[j]).toFixed(2),
-                                        eventCountArray:    member_role === 'promoter' ? Number(val.eventCountArray[j]).toFixed(2) : '-',
-                                        eventRateArray:     member_role === 'promoter' ? Number(val.eventRateArray[j]).toFixed(2) : '-',
+                                        // eventCountArray:    member_role === 'promoter' ? Number(val.eventCountArray[j]).toFixed(2) : '-',
+                                        // eventRateArray:     member_role === 'promoter' ? Number(val.eventRateArray[j]).toFixed(2) : '-',
+                                        // nonEventCountArray: member_role === 'promoter' ? val.nonEventCountArray[j] : '-',
+                                        // nonEventRateArray:  member_role === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
+                                        eventCountArray:    Number(val.eventCountArray[j]).toFixed(2),
+                                        eventRateArray:     Number(val.eventRateArray[j]).toFixed(2),
+                                        nonEventCountArray: val.nonEventCountArray[j],
+                                        nonEventRateArray:  Number(val.nonEventRateArray[j]).toFixed(2),
                                         ivArray:            Number(val.ivArray[j]).toFixed(2),
-                                        nonEventCountArray: member_role === 'promoter' ? val.nonEventCountArray[j] : '-',
-                                        nonEventRateArray:  member_role === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
                                         splitPoints:        Number(val.splitPoints[j]).toFixed(2),
                                         woeArray:           Number(val.woeArray[j]).toFixed(2),
                                         binning:            binningData,
