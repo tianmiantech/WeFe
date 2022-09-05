@@ -241,7 +241,7 @@
                                         ivArray:            Number(val.ivArray[j]).toFixed(2),
                                         nonEventCountArray: member_role === 'promoter' ? val.nonEventCountArray[j] : '-',
                                         nonEventRateArray:  member_role === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
-                                        splitPoints:        Number(val.splitPoints[j]).toFixed(2),
+                                        splitPoints:        val.splitPoints.length ? Number(val.splitPoints[j]).toFixed(2) : [],
                                         woeArray:           Number(val.woeArray[j]).toFixed(2),
                                         binning:            binningData,
                                         woeLineConfig:      woeData,
