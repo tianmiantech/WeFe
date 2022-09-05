@@ -39,14 +39,12 @@
                                             <el-table-column label="IV" prop="ivArray" align="center" />
                                             <el-table-column label="WOE变化图" width="260" align="center">
                                                 <template v-slot="scope">
-                                                    <LineChart v-if="scope.row.woeLineConfig.length" ref="LineChart" :config="scope.row.woeLineConfig" />
-                                                    <div v-else>暂无数据</div>
+                                                    <LineChart v-if="scope.row.woeLineConfig.series.length>0" ref="LineChart" :config="scope.row.woeLineConfig" />
                                                 </template>
                                             </el-table-column>
                                             <el-table-column label="分布" width="430" align="center" fixed="right">
                                                 <template v-slot="scope">
-                                                    <BarChartNew v-if="scope.row.mapdata.length" ref="BarChart" :config="scope.row.mapdata"/>
-                                                    <div v-else>暂无数据</div>
+                                                    <BarChartNew v-if="scope.row.mapdata.series.length>0" ref="BarChart" :config="scope.row.mapdata"/>
                                                 </template>
                                             </el-table-column>
                                         </el-table>
