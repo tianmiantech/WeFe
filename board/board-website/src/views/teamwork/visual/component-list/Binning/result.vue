@@ -37,7 +37,7 @@
                                             <el-table-column label="总占比" prop="countRateArray" align="center" />
                                             <el-table-column label="WOE" prop="woeArray" align="center" />
                                             <el-table-column label="IV" prop="ivArray" align="center" />
-                                            <el-table-column label="WOE变化图" width="260" align="center">
+                                            <el-table-column v-if="row.dataList[props.$index].splitPoints.length" label="WOE变化图" width="260" align="center">
                                                 <template v-slot="scope">
                                                     <LineChart v-if="scope.row.woeLineConfig.series.length>0" ref="LineChart" :config="scope.row.woeLineConfig" />
                                                 </template>
@@ -186,8 +186,14 @@
                                         },
                                     },
                                 );
-                                for(let i=0; i<val.splitPoints.length; i++) {
-                                    xAxis.push(val.splitPoints[i].toFixed(3));
+                                if (val.splitPoints.length) {
+                                    for(let i=0; i<val.splitPoints.length; i++) {
+                                        xAxis.push(val.splitPoints[i].toFixed(3));
+                                    }
+                                } else {
+                                    for (let j=0; j<Number(val.binNums); j++) {
+                                        xAxis.push(j+1);
+                                    }
                                 }
                                 const mapdata = {
                                     xAxis: {
@@ -219,6 +225,13 @@
                                 for (let j=0; j<Number(val.binNums); j++) {
                                     woeData.xAxis.push(j+1);
                                     woeData.series[0].push(val.splitPoints[j]);
+                                    let binningData = null;
+
+                                    if (val.splitPoints.length) {
+                                        binningData = j === 0 ? `(${Number.NEGATIVE_INFINITY}, ${Number(val.splitPoints[j]).toFixed(2)}]` : j === Number(val.binNums)-1 ? `(${Number(val.splitPoints[j]).toFixed(2)}, ${Number.POSITIVE_INFINITY})` : `(${Number(val.splitPoints[j-1]).toFixed(2)}, ${Number(val.splitPoints[j]).toFixed(2)}]`;
+                                    } else {
+                                        binningData = '-';
+                                    }
                                     inline_table.push({
                                         column,
                                         countArray:         val.countArray[j],
@@ -230,7 +243,7 @@
                                         nonEventRateArray:  member_role === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
                                         splitPoints:        Number(val.splitPoints[j]).toFixed(2),
                                         woeArray:           Number(val.woeArray[j]).toFixed(2),
-                                        binning:            j === 0 ? `(${Number.NEGATIVE_INFINITY}, ${Number(val.splitPoints[j]).toFixed(2)}]` : j === Number(val.binNums)-1 ? `(${Number(val.splitPoints[j]).toFixed(2)}, ${Number.POSITIVE_INFINITY})` : `(${Number(val.splitPoints[j-1]).toFixed(2)}, ${Number(val.splitPoints[j]).toFixed(2)}]`,
+                                        binning:            binningData,
                                         woeLineConfig:      woeData,
                                         mapdata,
                                     });
