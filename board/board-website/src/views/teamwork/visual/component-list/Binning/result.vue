@@ -37,7 +37,7 @@
                                             <el-table-column label="总占比" prop="countRateArray" align="center" />
                                             <el-table-column label="WOE" prop="woeArray" align="center" />
                                             <el-table-column label="IV" prop="ivArray" align="center" />
-                                            <el-table-column label="WOE变化图" prop="weight" width="260" align="center">
+                                            <el-table-column label="WOE变化图" width="260" align="center">
                                                 <template v-slot="scope">
                                                     <LineChart
                                                         ref="LineChart"
