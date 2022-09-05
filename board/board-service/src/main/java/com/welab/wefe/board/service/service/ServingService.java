@@ -297,7 +297,7 @@ public class ServingService extends AbstractService {
             return null;
         }
 
-        String key = EvaluationComponent.scoreDistributionKey(task.getName());
+        String key = EvaluationComponent.scoreDistributionKey(taskResult.getName());
         return JObject.create(task.getResult()).get(key);
     }
 
