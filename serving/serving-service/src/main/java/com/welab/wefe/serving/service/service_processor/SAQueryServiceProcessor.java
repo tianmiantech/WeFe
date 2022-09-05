@@ -93,12 +93,12 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
             throws Exception {
         Double result = 0.0;
         DiffieHellmanKey dhKey = DiffieHellmanUtil.generateKey(1024);
-
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         List<String> diffieHellmanValues = new ArrayList<>(serverConfigs.size());
         for (int i = 0; i < serverConfigs.size(); i++) {
             ServerConfig serverConfig = serverConfigs.get(i);
             QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
-            request.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
+            request.setUuid(uuid);
             request.setP(dhKey.getP().toString(16));
             request.setG(dhKey.getG().toString(16));
             request.setQueryParams(serverConfig.getQueryParams());
@@ -113,7 +113,7 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
         for (int i = 0; i < serverConfigs.size(); i++) {
             ServerConfig serverConfig = serverConfigs.get(i);
             QuerySAResultRequest saResultRequest = new QuerySAResultRequest();
-            saResultRequest.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
+            saResultRequest.setUuid(uuid);
             saResultRequest.setDiffieHellmanValues(diffieHellmanValues);
             saResultRequest.setIndex(i);
             saResultRequest.setP(dhKey.getP().toString(16));
