@@ -39,12 +39,12 @@
                                             <el-table-column label="IV" prop="ivArray" align="center" />
                                             <el-table-column v-if="row.dataList[props.$index].splitPoints.length" label="WOE变化图" width="260" align="center">
                                                 <template v-slot="scope">
-                                                    <LineChart v-if="scope.row.woeLineConfig.series.length>0" ref="LineChart" :config="scope.row.woeLineConfig" />
+                                                    <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column label="分布" width="430" align="center" fixed="right">
+                                            <el-table-column v-if="row.dataList[props.$index].splitPoints.length" label="分布" width="430" align="center" fixed="right">
                                                 <template v-slot="scope">
-                                                    <BarChartNew v-if="scope.row.mapdata.series.length>0" ref="BarChart" :config="scope.row.mapdata"/>
+                                                    <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
                                                 </template>
                                             </el-table-column>
                                         </el-table>
