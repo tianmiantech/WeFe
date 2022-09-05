@@ -26,6 +26,7 @@ import java.util.List;
  * @Date 2021/12/17
  **/
 public class QuerySAResultRequest {
+    
     /**
      * 请求标识
      */

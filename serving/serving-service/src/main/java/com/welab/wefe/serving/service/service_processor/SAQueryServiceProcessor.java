@@ -92,18 +92,16 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
     public Double query(List<ServerConfig> serverConfigs, List<SecureAggregationTransferVariable> transferVariables)
             throws Exception {
         Double result = 0.0;
-        String uuid = UUID.randomUUID().toString().replace("-", "");
         DiffieHellmanKey dhKey = DiffieHellmanUtil.generateKey(1024);
 
         List<String> diffieHellmanValues = new ArrayList<>(serverConfigs.size());
         for (int i = 0; i < serverConfigs.size(); i++) {
             ServerConfig serverConfig = serverConfigs.get(i);
             QueryDiffieHellmanKeyRequest request = new QueryDiffieHellmanKeyRequest();
-            request.setUuid(uuid);
+            request.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
             request.setP(dhKey.getP().toString(16));
             request.setG(dhKey.getG().toString(16));
             request.setQueryParams(serverConfig.getQueryParams());
-            request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
             QueryDiffieHellmanKeyResponse response = transferVariables.get(i).queryDiffieHellmanKey(request);
             if (response.getCode() != 0) {
                 throw new Exception(response.getMessage());
@@ -114,7 +112,7 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
         for (int i = 0; i < serverConfigs.size(); i++) {
             ServerConfig serverConfig = serverConfigs.get(i);
             QuerySAResultRequest saResultRequest = new QuerySAResultRequest();
-            saResultRequest.setUuid(uuid);
+            saResultRequest.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
             saResultRequest.setDiffieHellmanValues(diffieHellmanValues);
             saResultRequest.setIndex(i);
             saResultRequest.setP(dhKey.getP().toString(16));
@@ -125,7 +123,7 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
                 throw new Exception(response.getMessage());
             }
             // add calllog
-            addCalllog(serverConfig.getServerUrl() + serverConfig.getServerName(),
+            addCalllog(saResultRequest.getUuid(), serverConfig.getServerUrl() + serverConfig.getServerName(),
                     JSONObject.parseObject(JSONObject.toJSONString(serverConfig)),
                     JSONObject.parseObject(JSONObject.toJSONString(response)));
             result += response.getResult();

@@ -16,6 +16,11 @@
 
 package com.welab.wefe.mpc.pir.sdk.naor;
 
+import java.math.BigInteger;
+import java.util.UUID;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.welab.wefe.mpc.commom.Constants;
 import com.welab.wefe.mpc.pir.protocol.ro.hf.HashFunction;
 import com.welab.wefe.mpc.pir.protocol.ro.hf.Sha256;
@@ -27,10 +32,6 @@ import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 import com.welab.wefe.mpc.pir.sdk.crypt.CryptUtil;
 import com.welab.wefe.mpc.pir.sdk.trasfer.NaorPinkasTransferVariable;
 import com.welab.wefe.mpc.util.DiffieHellmanUtil;
-
-import cn.hutool.core.lang.UUID;
-
-import java.math.BigInteger;
 
 public class NaorPinkasQuery {
 
@@ -44,7 +45,8 @@ public class NaorPinkasQuery {
         QueryKeysRequest randomRequest = new QueryKeysRequest();
         randomRequest.setIds(config.getPrimaryKeys());
         randomRequest.setOtMethod(Constants.PIR.NAORPINKAS_OT);
-        randomRequest.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
+        randomRequest.setRequestId(StringUtils.isNotBlank(config.getRequestId()) ? config.getRequestId()
+                : UUID.randomUUID().toString().replaceAll("-", ""));
         QueryNaorPinkasRandomResponse randomResponse = transferVariable.queryNaorPinkasRandom(randomRequest);
         if(randomResponse.getCode() != 0) {
             throw new Exception(randomResponse.getMessage());
