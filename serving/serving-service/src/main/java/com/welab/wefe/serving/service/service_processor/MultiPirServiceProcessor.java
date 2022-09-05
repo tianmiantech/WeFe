@@ -32,6 +32,8 @@ import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 
+import cn.hutool.core.lang.UUID;
+
 /**
  * @author hunter.zhao
  */
@@ -71,6 +73,7 @@ public class MultiPirServiceProcessor extends AbstractServiceProcessor<TableServ
             communicationConfig.setServerUrl(baseUrl);
 
             PrivateInformationRetrievalConfig config = new PrivateInformationRetrievalConfig((List) ids, 0, 10, null);
+            config.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
             PrivateInformationRetrievalQuery privateInformationRetrievalQuery = new PrivateInformationRetrievalQuery();
             String result = null;
             try {
@@ -81,7 +84,7 @@ public class MultiPirServiceProcessor extends AbstractServiceProcessor<TableServ
                 request.put("communicationConfig", communicationConfig);
                 request.put("otMethod", otMethod);
                 // add calllog
-                addCalllog(url, JSONObject.parseObject(JSONObject.toJSONString(request)),
+                addCalllog(config.getRequestId(), url, JSONObject.parseObject(JSONObject.toJSONString(request)),
                         JSONObject.parseObject(JSONObject.toJSONString(result)));
                 JObject tmp = JObject.create("memberId", memberId).append("memberName", memberName)
                         .append("index", idx).append("result", result);

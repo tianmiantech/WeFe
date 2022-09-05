@@ -42,9 +42,10 @@ public abstract class AbstractServiceProcessor<T> {
         return calllogs;
     }
 
-    public void addCalllog(String url, JSONObject request, JSONObject response) {
+    public void addCalllog(String requestId, String url, JSONObject request, JSONObject response) {
         JSONObject calllog = new JSONObject();
         calllog.put("url", url);
+        calllog.put("requestId", requestId);
         calllog.put("request", request);
         calllog.put("response", response);
         calllogs.add(calllog);

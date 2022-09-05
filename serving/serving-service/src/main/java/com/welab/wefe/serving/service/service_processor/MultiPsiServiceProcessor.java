@@ -32,6 +32,8 @@ import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
 import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
 import com.welab.wefe.serving.service.service.ClientServiceService;
 
+import cn.hutool.core.lang.UUID;
+
 /**
  * @author hunter.zhao
  */
@@ -66,6 +68,7 @@ public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServ
             communicationConfig.setCommercialId(activateModel.getCode());
             communicationConfig.setNeedSign(true);
             communicationConfig.setSignPrivateKey(activateModel.getPrivateKey());
+            communicationConfig.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
             communicationConfigs.add(communicationConfig);
         }
 
@@ -81,7 +84,8 @@ public class MultiPsiServiceProcessor extends AbstractServiceProcessor<TableServ
             JSONObject request = new JSONObject();
             request.put("config", config);
             request.put("clientIds", clientIds);
-            addCalllog(config.getServerUrl() + config.getApiName(), JSONObject.parseObject(JSONObject.toJSONString(request)),
+            addCalllog(config.getRequestId(), config.getServerUrl() + config.getApiName(),
+                    JSONObject.parseObject(JSONObject.toJSONString(request)),
                     JSONObject.parseObject(JSONObject.toJSONString(psi)));
         }
         return JObject.create("result", result);

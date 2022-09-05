@@ -4,6 +4,7 @@ public abstract class BaseResponse {
 
     protected int code;
     protected String message;
+    protected String responseId;
 
     public int getCode() {
         return code;
@@ -19,6 +20,14 @@ public abstract class BaseResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getResponseId() {
+        return responseId;
+    }
+
+    public void setResponseId(String responseId) {
+        this.responseId = responseId;
     }
 
 }
