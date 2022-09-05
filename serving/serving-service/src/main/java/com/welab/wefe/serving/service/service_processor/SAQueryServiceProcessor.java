@@ -102,6 +102,7 @@ public class SAQueryServiceProcessor extends AbstractServiceProcessor<TableServi
             request.setP(dhKey.getP().toString(16));
             request.setG(dhKey.getG().toString(16));
             request.setQueryParams(serverConfig.getQueryParams());
+            request.setRequestId(request.getUuid());
             QueryDiffieHellmanKeyResponse response = transferVariables.get(i).queryDiffieHellmanKey(request);
             if (response.getCode() != 0) {
                 throw new Exception(response.getMessage());
