@@ -16,21 +16,13 @@
 
 package com.welab.wefe.serving.service.database.repository;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.welab.wefe.serving.service.database.entity.ModelPredictScoreRecordMySqlModel;
+import com.welab.wefe.serving.service.database.repository.base.BaseRepository;
 import org.springframework.stereotype.Repository;
 
-import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
-
-import java.util.List;
-
-@Repository("tableModelRepository")
-public interface TableModelRepository extends BaseServiceRepository<TableModelMySqlModel> {
-    /**
-     * Gets all member ids
-     *
-     * @return List<String>
-     */
-    @Query(value = "select service_id from base_service where service_type = 7 group by service_id", nativeQuery = true)
-    List<String> getAllServiceId();
+/**
+ * @author ivenn.zheng
+ */
+@Repository
+public interface ModelPredictScoreRecordRepository extends BaseRepository<ModelPredictScoreRecordMySqlModel, String> {
 }

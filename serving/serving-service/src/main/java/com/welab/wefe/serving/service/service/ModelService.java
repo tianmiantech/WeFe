@@ -76,12 +76,6 @@ public class ModelService {
     @Autowired
     private ModelMemberRepository modelMemberRepository;
 
-    @Autowired
-    private ServiceOrderService serviceOrderService;
-
-    @Autowired
-    private ServiceCallLogService serviceCallLogService;
-
 
     @Transactional(rollbackFor = Exception.class)
     public String save(SaveModelApi.Input input) {

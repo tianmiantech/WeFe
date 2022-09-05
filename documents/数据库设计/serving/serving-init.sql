@@ -304,14 +304,14 @@ CREATE TABLE fee_detail
     total_fee           DECIMAL(24, 6) COMMENT '总费用',
     unit_price          DECIMAL(24, 6) COMMENT '单价(￥)',
     pay_type            TINYINT(1) NOT NULL COMMENT '付费类型: 1 预付费、0 后付费',
-    total_request_times INT         NOT NULL DEFAULT 0 COMMENT '总调用次数',
-    created_by          varchar(32)          DEFAULT NULL COMMENT '创建人',
-    created_time        datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_by          varchar(32)          DEFAULT NULL COMMENT '更新人',
-    updated_time        datetime             DEFAULT NULL COMMENT '更新时间',
-    service_name        varchar(32)          DEFAULT NULL COMMENT '服务名称',
-    client_name         varchar(32)          DEFAULT NULL COMMENT '客户名称',
-    save_ip             VARCHAR(32)  COMMENT '统计方ip',
+    total_request_times INT          NOT NULL DEFAULT 0 COMMENT '总调用次数',
+    created_by          varchar(32)           DEFAULT NULL COMMENT '创建人',
+    created_time        datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_by          varchar(32)           DEFAULT NULL COMMENT '更新人',
+    updated_time        datetime              DEFAULT NULL COMMENT '更新时间',
+    service_name        varchar(32)           DEFAULT NULL COMMENT '服务名称',
+    client_name         varchar(32)           DEFAULT NULL COMMENT '客户名称',
+    save_ip             VARCHAR(32) COMMENT '统计方ip',
     service_type        INT COMMENT '服务类型',
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT = '结算详情表';
@@ -448,7 +448,7 @@ CREATE TABLE order_statistics
     request_partner_name  VARCHAR(32)  NOT NULL COMMENT '请求方名称',
     response_partner_id   VARCHAR(32)  NOT NULL COMMENT '响应方id',
     response_partner_name VARCHAR(32)  NOT NULL COMMENT '响应方名称',
-    save_ip               VARCHAR(32)  COMMENT '统计方ip',
+    save_ip               VARCHAR(32) COMMENT '统计方ip',
     created_by            VARCHAR(32) COMMENT '创建人',
     created_time          DATETIME COMMENT '创建时间',
     updated_by            VARCHAR(32) COMMENT '更新人',
@@ -570,3 +570,16 @@ CREATE TABLE `model_predict_score_statistics`
     `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分箱统计表';
+
+
+CREATE TABLE `model_predict_score_record`
+(
+    `id`           varchar(32) NOT NULL,
+    `service_id`   varchar(255)         DEFAULT NULL COMMENT '服务ID',
+    `score`        double COMMENT '概率或分数',
+    `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
+    `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='预测记录表';

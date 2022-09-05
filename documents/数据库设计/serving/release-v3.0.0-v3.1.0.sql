@@ -230,3 +230,17 @@ CREATE TABLE `model_predict_score_statistics`
     `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分箱统计表';
+
+
+
+CREATE TABLE `model_predict_score_record`
+(
+    `id`           varchar(32) NOT NULL,
+    `service_id`   varchar(255)         DEFAULT NULL COMMENT '服务ID',
+    `score`        double COMMENT '概率或分数',
+    `created_time` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `created_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
+    `updated_time` datetime             DEFAULT NULL COMMENT '更新时间',
+    `updated_by`   varchar(32)          DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='预测记录表';

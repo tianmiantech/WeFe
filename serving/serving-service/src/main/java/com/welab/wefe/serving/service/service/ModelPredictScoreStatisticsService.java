@@ -20,8 +20,10 @@ import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.serving.service.database.entity.ModelPredictScoreRecordMySqlModel;
 import com.welab.wefe.serving.service.database.entity.ModelPredictScoreStatisticsMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
+import com.welab.wefe.serving.service.database.repository.ModelPredictScoreRecordRepository;
 import com.welab.wefe.serving.service.database.repository.ModelPredictScoreStatisticsRepository;
 import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import org.slf4j.Logger;
@@ -47,6 +49,9 @@ public class ModelPredictScoreStatisticsService {
     @Autowired
     private ModelPredictScoreStatisticsRepository statisticsRepository;
 
+    @Autowired
+    private ModelPredictScoreRecordRepository recordRepository;
+
     private List<Double> findBinningSplitPoint(String serviceId) {
         TableModelMySqlModel model = modelRepository.findOne("serviceId", serviceId, TableModelMySqlModel.class);
         JObject scoresDistribution = JObject.create(model.getScoresDistribution());
@@ -65,12 +70,19 @@ public class ModelPredictScoreStatisticsService {
     }
 
     public void increment(String serviceId, Double score) {
-        initCurrentDay(serviceId);
+        addRecord(serviceId, score);
 
+        increaseStatistics(serviceId, score);
+    }
+
+    private synchronized void increaseStatistics(String serviceId, Double score) {
         List<Double> splits = findBinningSplitPoint(serviceId);
         for (int i = 0; i < splits.size(); i++) {
             if (score <= splits.get(i) || i == splits.size() - 1) {
                 ModelPredictScoreStatisticsMySqlModel model = findByServiceIdAndDayAndBinning(serviceId, DateUtil.getCurrentDay(), splits.get(i));
+                if (model == null) {
+                    model = new ModelPredictScoreStatisticsMySqlModel();
+                }
                 model.setCount(model.getCount() + 1);
                 model.setUpdatedTime(new Date());
                 statisticsRepository.save(model);
@@ -79,57 +91,36 @@ public class ModelPredictScoreStatisticsService {
         }
     }
 
-    public void initCurrentDay(String serviceId) {
-        Specification<ModelPredictScoreStatisticsMySqlModel> where = Where
+    public void refresh(String serviceId) {
+        List<Double> splits = findBinningSplitPoint(serviceId);
+        for (int i = 0; i < splits.size(); i++) {
+            ModelPredictScoreStatisticsMySqlModel model = findByServiceIdAndDayAndBinning(serviceId, DateUtil.getCurrentDay(), splits.get(i));
+            if (model == null) {
+                model = new ModelPredictScoreStatisticsMySqlModel();
+            }
+            model.setServiceId(serviceId);
+            model.setSplitPoint(splits.get(i));
+            model.setDay(DateUtil.getCurrentDay());
+
+            Double beginSplitPoint = i == 0 ? 0.0 : splits.get(i - 1);
+            Double endSplitPoint = i == splits.size() - 1 ? null : splits.get(i);
+            model.setCount(count(serviceId, beginSplitPoint, endSplitPoint));
+
+            statisticsRepository.save(model);
+        }
+    }
+
+    private int count(String serviceId, Double beginSplitPoint, Double endSplitPoint) {
+        Specification<ModelPredictScoreRecordMySqlModel> where = Where
                 .create()
                 .equal("serviceId", serviceId)
-                .equal("day", DateUtil.getCurrentDay())
-                .build(ModelPredictScoreStatisticsMySqlModel.class);
-        if (statisticsRepository.count(where) > 0) {
-            return;
-        }
+                .greaterThan("score", beginSplitPoint)
+                .lessThanOrEqualTo("score", endSplitPoint)
+                .betweenAndDate("createdTime", DateUtil.getCurrentDay().getTime(), DateUtil.getNextDay(DateUtil.getCurrentDay()).getTime())
+                .build(ModelPredictScoreRecordMySqlModel.class);
 
-        findBinningSplitPoint(serviceId)
-                .forEach(x -> add(serviceId, x));
+        return Double.valueOf(recordRepository.count(where)).intValue();
     }
-
-    private void add(String serviceId, Double splitPoint) {
-        ModelPredictScoreStatisticsMySqlModel model = new ModelPredictScoreStatisticsMySqlModel();
-        model.setServiceId(serviceId);
-        model.setSplitPoint(splitPoint);
-        model.setDay(DateUtil.getCurrentDay());
-        statisticsRepository.save(model);
-    }
-
-    private void refresh(String serviceId, Double splitPoint) {
-        ModelPredictScoreStatisticsMySqlModel model = findByServiceIdAndDayAndBinning(serviceId, DateUtil.getCurrentDay(), splitPoint);
-
-        if (model == null) {
-            model = new ModelPredictScoreStatisticsMySqlModel();
-            model.setServiceId(serviceId);
-            model.setSplitPoint(splitPoint);
-            model.setDay(DateUtil.getCurrentDay());
-            statisticsRepository.save(model);
-            return;
-        }
-
-//        model.setServiceId(serviceId);
-//        model.setSplitPoint(splitPoint);
-//        model.setDay(DateUtil.getCurrentDay());
-//        model.setCount(1);
-//        statisticsRepository.save(model);
-    }
-
-//    private int count(String serviceId, Double splitPoint) {
-//        Specification<ModelPredictScoreStatisticsMySqlModel> where = Where
-//                .create()
-//                .equal("serviceId", serviceId)
-//                .betweenAndDate("createdTime", DateUtil.getCurrentDay().getTime(), DateUtil.getCurrentDay().getTime())
-//                .equal("callByMe", CallByMeEnum.NO.getCode())
-//                .build(ModelPredictScoreStatisticsMySqlModel.class);
-//
-//        return statisticsRepository.findOne(where).get();
-//    }
 
     private ModelPredictScoreStatisticsMySqlModel findByServiceIdAndDayAndBinning(String serviceId, Date day, Double splitPoints) {
         Specification<ModelPredictScoreStatisticsMySqlModel> where = Where
@@ -140,5 +131,12 @@ public class ModelPredictScoreStatisticsService {
                 .build(ModelPredictScoreStatisticsMySqlModel.class);
 
         return statisticsRepository.findOne(where).get();
+    }
+
+    private void addRecord(String serviceId, Double score) {
+        ModelPredictScoreRecordMySqlModel record = new ModelPredictScoreRecordMySqlModel();
+        record.setServiceId(serviceId);
+        record.setScore(score);
+        recordRepository.save(record);
     }
 }
