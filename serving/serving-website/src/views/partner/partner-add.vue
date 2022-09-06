@@ -99,7 +99,7 @@ export default {
                 email:  '',
                 servingBaseUrl:'',
                 isUnionMember:'0',
-                isMe:0,
+                isMe:'0',
                 remark: '',
                 code:   '',
                 status: '',
