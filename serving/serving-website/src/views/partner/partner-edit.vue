@@ -65,6 +65,23 @@
                     否
                 </el-radio>
             </el-form-item>
+            <el-form-item
+                label="是否是我自己："
+                prop="isMe"
+            >
+                <el-radio
+                    v-model="client.isMe"
+                    :label="1"
+                >
+                    是
+                </el-radio>
+                <el-radio
+                    v-model="client.isMe"
+                    :label="0"
+                >
+                    否
+                </el-radio>
+            </el-form-item>
 
             <el-form-item
                 label="状态："
@@ -135,6 +152,7 @@ export default {
                 remark: '',
                 code:   '',
                 isUnionMember:'',
+                isMe : '',
                 servingBaseUrl:'',
                 status: '',
                 codeCanUpdate:'',
@@ -184,6 +202,7 @@ export default {
                             updatedBy: this.userInfo.nickname,
                             status:    this.client.status,
                             code: this.client.code,
+                            isMe:this.client.isMe,
                         },
                     });
 
@@ -220,6 +239,7 @@ export default {
                 this.client.servingBaseUrl = data.serving_base_url;
                 this.client.status = data.status;
                 this.client.codeCanUpdate = (data.code === '');
+                this.client.isMe = data.is_me?1:0;
             }
         },
     },
