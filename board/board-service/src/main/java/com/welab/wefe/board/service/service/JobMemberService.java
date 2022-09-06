@@ -105,4 +105,8 @@ public class JobMemberService extends AbstractService {
 
         return repo.findAll(jobMemberWhere);
     }
+
+    public boolean isLocalJob(String jobId) {
+        return findListByJobId(jobId).size() > 1;
+    }
 }

@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.scheduler;
 
 import com.welab.wefe.serving.service.database.repository.TableModelRepository;
 import com.welab.wefe.serving.service.service.ModelPredictScoreStatisticsService;
+import com.welab.wefe.serving.service.service.TableModelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,8 @@ public class PredictScoreStatisticsScheduler {
     @Autowired
     private TableModelRepository tableModelRepository;
 
+    @Autowired
+    private TableModelService tableModelService;
 
     /**
      * 整分触发一次
@@ -53,6 +56,7 @@ public class PredictScoreStatisticsScheduler {
 
         serviceIds
                 .stream()
-                .forEach(serviceId -> statisticsService.initCurrentDay(serviceId));
+                .filter(serviceId -> tableModelService.isHaveScoredDistribution(serviceId))
+                .forEach(serviceId -> statisticsService.refresh(serviceId));
     }
 }

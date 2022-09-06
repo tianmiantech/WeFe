@@ -173,6 +173,8 @@ public class ServingService extends AbstractService {
      * Modeling synchronization to serving
      */
     public Object syncModelToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
+        check(taskId, role);
+
         //push to serving
         pushToServing(taskId, role);
 
@@ -187,6 +189,13 @@ public class ServingService extends AbstractService {
     private void pushToServing(String taskId, JobMemberRole role) throws StatusCodeWithException {
         TreeMap<String, Object> params = buildModelParams(taskId, role);
         request("model_save", params, true);
+    }
+
+    private void check(String taskId, JobMemberRole role) throws StatusCodeWithException {
+        TaskResultMySqlModel taskResult = getTaskResult(taskId, role);
+        if (jobMemberService.isLocalJob(taskResult.getJobId())) {
+            StatusCode.UNSUPPORTED_HANDLE.throwException("本机与本联合训练的模型不可推送!");
+        }
     }
 
     /**
