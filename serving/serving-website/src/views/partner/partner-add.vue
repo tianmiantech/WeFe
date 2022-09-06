@@ -52,6 +52,10 @@
                 <el-radio v-model="client.isUnionMember" label="1">是</el-radio>
                 <el-radio v-model="client.isUnionMember" label="0">否</el-radio>
             </el-form-item>
+            <el-form-item label="是否是我自己：" prop="isMe">
+                <el-radio v-model="client.isMe" label="1">是</el-radio>
+                <el-radio v-model="client.isMe" label="0">否</el-radio>
+            </el-form-item>
             <el-form-item label="备注">
                 <el-input
                     v-model="client.remark"
@@ -95,6 +99,7 @@ export default {
                 email:  '',
                 servingBaseUrl:'',
                 isUnionMember:'0',
+                isMe:0,
                 remark: '',
                 code:   '',
                 status: '',
@@ -134,6 +139,7 @@ export default {
                             createdBy: this.userInfo.nickname,
                             servingBaseUrl:this.client.servingBaseUrl,
                             isUnionMember:this.client.isUnionMember,
+                            isMe:this.client.isMe,
                             code:      this.client.code,
                         },
                     });
@@ -165,6 +171,7 @@ export default {
                 this.client.remark = data.remark;
                 this.client.servingBaseUrl = data.servingBaseUrl;
                 this.client.isUnionMember = data.isUnionMember;
+                this.client.isMe = data.isMe;
                 this.client.code = data.code;
             }
         },
