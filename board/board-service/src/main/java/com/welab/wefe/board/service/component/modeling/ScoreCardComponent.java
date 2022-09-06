@@ -56,7 +56,8 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
 
         FlowGraphNode intersectionNode4 = graph.findOneNodeFromParent(node, ComponentType.HorzLR);
         FlowGraphNode intersectionNode5 = graph.findOneNodeFromParent(node, ComponentType.VertLR);
-        if (intersectionNode4 == null && intersectionNode5 == null) {
+        FlowGraphNode intersectionNode6 = graph.findOneNodeFromParent(node, ComponentType.MixLR);
+        if (intersectionNode4 == null && intersectionNode5 == null && intersectionNode6 == null) {
             throw new FlowNodeException(node, "请在前面添加逻辑回归组件。");
         }
     }
