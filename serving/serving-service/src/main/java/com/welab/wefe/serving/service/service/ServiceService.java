@@ -729,7 +729,7 @@ public class ServiceService {
         ServiceOrderMysqlModel serviceOrderModel = serviceOrderService.add(service.getServiceId(), service.getName(),
                 service.getServiceType(),
                 input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
-                        : CallByMeEnum.NO.getCode(),
+                        : (partner.getIsMe() ? CallByMeEnum.YES.getCode() : CallByMeEnum.NO.getCode()),
                 status.getValue(), partner.getCode(), partner.getName(), CacheObjects.getMemberId(),
                 CacheObjects.getMemberName());
         return serviceOrderModel.getId();
