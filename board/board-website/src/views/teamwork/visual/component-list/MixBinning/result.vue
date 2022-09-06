@@ -46,7 +46,7 @@
                                                 <el-table-column label="总占比" prop="countRateArray" align="center" />
                                                 <el-table-column label="WOE" prop="woeArray" align="center" />
                                                 <el-table-column label="IV" prop="ivArray" align="center" />
-                                                <el-table-column v-if="row.dataList[props.$index].splitPoints.length" label="WOE变化图" prop="weight" width="260" align="center">
+                                                <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" width="260" align="center">
                                                     <template v-slot="scope">
                                                         <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
                                                     </template>
@@ -233,7 +233,7 @@
 
                                 for (let j=0; j<Number(val.binNums); j++) {
                                     woeData.xAxis.push(j+1);
-                                    woeData.series[0].push(val.splitPoints[j]);
+                                    woeData.series[0].push(val.woeArray[j]);
                                     let binningData = null;
 
                                     if (val.splitPoints.length) {
@@ -245,14 +245,14 @@
                                         column,
                                         countArray:         val.countArray[j],
                                         countRateArray:     Number(val.countRateArray[j]).toFixed(2),
-                                        // eventCountArray:    member_role === 'promoter' ? Number(val.eventCountArray[j]).toFixed(2) : '-',
-                                        // eventRateArray:     member_role === 'promoter' ? Number(val.eventRateArray[j]).toFixed(2) : '-',
-                                        // nonEventCountArray: member_role === 'promoter' ? val.nonEventCountArray[j] : '-',
-                                        // nonEventRateArray:  member_role === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
-                                        eventCountArray:    Number(val.eventCountArray[j]).toFixed(2),
-                                        eventRateArray:     Number(val.eventRateArray[j]).toFixed(2),
-                                        nonEventCountArray: val.nonEventCountArray[j],
-                                        nonEventRateArray:  Number(val.nonEventRateArray[j]).toFixed(2),
+                                        eventCountArray:    member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.eventCountArray[j]).toFixed(2) : '-',
+                                        eventRateArray:     member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.eventRateArray[j]).toFixed(2) : '-',
+                                        nonEventCountArray: member_role === 'promoter' && props.myRole === 'promoter' ? val.nonEventCountArray[j] : '-',
+                                        nonEventRateArray:  member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
+                                        // eventCountArray:    Number(val.eventCountArray[j]).toFixed(2),
+                                        // eventRateArray:     Number(val.eventRateArray[j]).toFixed(2),
+                                        // nonEventCountArray: val.nonEventCountArray[j],
+                                        // nonEventRateArray:  Number(val.nonEventRateArray[j]).toFixed(2),
                                         ivArray:            Number(val.ivArray[j]).toFixed(2),
                                         splitPoints:        Number(val.splitPoints[j]).toFixed(2),
                                         woeArray:           Number(val.woeArray[j]).toFixed(2),
