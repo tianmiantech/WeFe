@@ -31,7 +31,7 @@ import java.io.IOException;
  * @author: yuxin.zhang
  * @date: 2021/11/2
  */
-@Api(path = "user/reset/password", name = "password reset")
+@Api(path = "account/reset/password", name = "password reset")
 public class ResetPasswordApi extends AbstractApi<ResetPasswordInput, String> {
     @Autowired
     private AccountService accountService;
