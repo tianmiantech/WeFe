@@ -15,59 +15,51 @@
                         :jobDetail="jobDetail"
                     />
                 </el-collapse-item>
-                <el-collapse-item
-                    v-if="vData.results.length"
-                    title="成员信息"
-                    name="2"
-                >
-                    <template
-                        v-for="(result, index) in vData.results"
-                        :key="index"
+                <el-collapse-item title="成员信息" name="2">
+                    <el-tabs
+                        v-if="vData.list.length"
+                        v-model="vData.tabName"
                     >
-                        <strong class="mb10">{{ result.title }} :</strong>
-                        <el-tabs v-model="result.tabName">
-                            <el-tab-pane
-                                v-for="(row, index) in result.list"
-                                :key="`${row.member_id}-${index}`"
-                                :name="`${row.member_id}-${index}`"
-                                :label="`${row.member_name} (${row.member_role === 'provider' ? '协作方' : '发起方'})`"
-                            >
-                                <el-table :data="row.dataList" stripe :border="true" style="width :100%" class="fold-table">
-                                    <el-table-column type="expand">
-                                        <template #default="props">
-                                            <el-table :data="row.dataList[props.$index].inline_table" stripe border :span-method="methods.arraySpanMethod" style="width: 100%">
-                                                <el-table-column label="序号" width="55" type="index" align="center" />
-                                                <el-table-column label="划分区间" prop="binning" align="center" />
-                                                <el-table-column label="正样本数" prop="eventCountArray" align="center" />
-                                                <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
-                                                <el-table-column label="总样本数" prop="countArray" align="center" />
-                                                <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
-                                                <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
-                                                <el-table-column label="总占比" prop="countRateArray" align="center" />
-                                                <el-table-column label="WOE" prop="woeArray" align="center" />
-                                                <el-table-column label="IV" prop="ivArray" align="center" />
-                                                <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" width="260" align="center">
-                                                    <template v-slot="scope">
-                                                        <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
-                                                    </template>
-                                                </el-table-column>
-                                                <el-table-column v-if="row.member_role === 'promoter'" label="分布" width="430" align="center">
-                                                    <template v-slot="scope">
-                                                        <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
-                                                    </template>
-                                                </el-table-column>
-                                            </el-table>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column label="特征名称" prop="column"></el-table-column>
-                                    <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
-                                    <el-table-column label="分箱数量" prop="binNums"></el-table-column>
-                                    <el-table-column label="总IV" prop="iv"></el-table-column>
-                                </el-table>
-                            </el-tab-pane>
-                        </el-tabs>
-                        <el-divider v-if="index === 0"></el-divider>
-                    </template>
+                        <el-tab-pane
+                            v-for="(row, index) in vData.list"
+                            :key="`${row.member_id}-${index}`"
+                            :name="`${row.member_id}-${index}`"
+                            :label="`${row.member_name} (${row.member_role === 'provider' ? '协作方' : '发起方'})`"
+                        >
+                            <el-table :data="row.dataList" stripe :border="true" style="width :100%" class="fold-table">
+                                <el-table-column type="expand">
+                                    <template #default="props">
+                                        <el-table :data="row.dataList[props.$index].inline_table" stripe border :span-method="methods.arraySpanMethod" style="width: 100%">
+                                            <el-table-column label="序号" width="55" type="index" align="center" />
+                                            <el-table-column label="划分区间" prop="binning" align="center" />
+                                            <el-table-column label="正样本数" prop="eventCountArray" align="center" />
+                                            <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
+                                            <el-table-column label="总样本数" prop="countArray" align="center" />
+                                            <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
+                                            <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
+                                            <el-table-column label="总占比" prop="countRateArray" align="center" />
+                                            <el-table-column label="WOE" prop="woeArray" align="center" />
+                                            <el-table-column label="IV" prop="ivArray" align="center" />
+                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" width="260" align="center">
+                                                <template v-slot="scope">
+                                                    <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" width="430" align="center" fixed="right">
+                                                <template v-slot="scope">
+                                                    <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="特征名称" prop="column"></el-table-column>
+                                <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
+                                <el-table-column label="分箱数量" prop="binNums"></el-table-column>
+                                <el-table-column label="总IV" prop="iv"></el-table-column>
+                            </el-table>
+                        </el-tab-pane>
+                    </el-tabs>
                 </el-collapse-item>
             </el-collapse>
         </template>
@@ -102,7 +94,8 @@
             const LineChart = ref(); 
 
             let vData = reactive({
-                results:     [],
+                tabName:     '',
+                list:        [],
                 resultTypes: ['model_binning_model'],
             });
 
@@ -229,6 +222,7 @@
                                     series,
                                     legend: {},
                                 };
+
                                 const inline_table = [], woeData = { xAxis: [], series: [[]] };
 
                                 for (let j=0; j<Number(val.binNums); j++) {
@@ -254,7 +248,7 @@
                                         // nonEventCountArray: val.nonEventCountArray[j],
                                         // nonEventRateArray:  Number(val.nonEventRateArray[j]).toFixed(2),
                                         ivArray:            Number(val.ivArray[j]).toFixed(2),
-                                        splitPoints:        Number(val.splitPoints[j]).toFixed(2),
+                                        splitPoints:        val.splitPoints.length ? Number(val.splitPoints[j]).toFixed(2) : [],
                                         woeArray:           Number(val.woeArray[j]).toFixed(2),
                                         binning:            binningData,
                                         woeLineConfig:      woeData,
