@@ -50,7 +50,7 @@ def gen_config_file():
         f.close()
 
     # member-base.properties
-    with open(file_name, 'w') as f:
+    with open(member_base, 'w') as f:
         f.write('flow.log.root.path=./logs' + '\n')
         f.close()
 
