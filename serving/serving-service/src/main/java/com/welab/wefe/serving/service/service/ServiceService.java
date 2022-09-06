@@ -101,6 +101,7 @@ import com.welab.wefe.serving.service.dto.TreeNodeData;
 import com.welab.wefe.serving.service.enums.CallByMeEnum;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
+import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
 import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
@@ -504,6 +505,9 @@ public class ServiceService {
         TableServiceMySqlModel model = serviceRepository.findOne("id", input.getId(), TableServiceMySqlModel.class);
         if (model == null) {
             throw new StatusCodeWithException(StatusCode.DATA_NOT_FOUND);
+        }
+        if (model.getStatus() == ServiceStatusEnum.USED.getCode()) {
+            throw new StatusCodeWithException("上线的服务不允许更新", StatusCode.ILLEGAL_REQUEST);
         }
         if (!model.getName().equalsIgnoreCase(input.getName())) {
             List<BaseServiceMySqlModel> baseModels = baseServiceRepository

@@ -121,9 +121,6 @@ public class PartnerService {
         partnerMysqlModel.setId(input.getId());
         partnerMysqlModel.setIsUnionMember(input.getIsUnionMember());
         partnerMysqlModel.setIsMe(input.getIsMe());
-        if(StringUtils.isNotBlank(partnerMysqlModel.getId())) {
-            partnerMysqlModel.setIsMe(partnerMysqlModel.getId().equalsIgnoreCase(CacheObjects.getMemberId()));
-        }
         partnerRepository.save(partnerMysqlModel);
     }
 
