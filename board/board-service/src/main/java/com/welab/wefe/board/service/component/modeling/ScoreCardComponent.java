@@ -49,13 +49,15 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Binning);
         FlowGraphNode intersectionNode2 = graph.findOneNodeFromParent(node, ComponentType.HorzFeatureBinning);
-        if (intersectionNode == null && intersectionNode2 == null) {
+        FlowGraphNode intersectionNode3 = graph.findOneNodeFromParent(node, ComponentType.MixBinning);
+        if (intersectionNode == null && intersectionNode2 == null && intersectionNode3 == null) {
             throw new FlowNodeException(node, "请在前面添加分箱组件。");
         }
 
-        FlowGraphNode intersectionNode3 = graph.findOneNodeFromParent(node, ComponentType.HorzLR);
-        FlowGraphNode intersectionNode4 = graph.findOneNodeFromParent(node, ComponentType.VertLR);
-        if (intersectionNode3 == null && intersectionNode4 == null) {
+        FlowGraphNode intersectionNode4 = graph.findOneNodeFromParent(node, ComponentType.HorzLR);
+        FlowGraphNode intersectionNode5 = graph.findOneNodeFromParent(node, ComponentType.VertLR);
+        FlowGraphNode intersectionNode6 = graph.findOneNodeFromParent(node, ComponentType.MixLR);
+        if (intersectionNode4 == null && intersectionNode5 == null && intersectionNode6 == null) {
             throw new FlowNodeException(node, "请在前面添加逻辑回归组件。");
         }
     }
