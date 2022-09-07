@@ -241,9 +241,10 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
                     provider_binning_obj = CustomBinning(provider_model_params)
                     provider_binning_obj.cal_iv_woe(result_counts, provider_model_params.adjustment_factor)
                 provider_binning_obj.set_role_party(role=consts.PROVIDER, member_id=provider_member_id)
-                provider_binning_obj = self.restructure_binning_result(provider_binning_obj)
                 self.provider_results.append(provider_binning_obj)
-                per_provider_result["result"] = provider_binning_obj
+
+                res_provider_binning_obj = self.restructure_binning_result(provider_binning_obj)
+                per_provider_result["result"] = res_provider_binning_obj
                 per_provider_result["method"] = provider_model_params.method
                 per_provider_result["bin_num"] = provider_model_params.bin_num
                 encoded_split_points_result = encoded_split_points
@@ -254,9 +255,10 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
         return all_provider_result_list
 
     def restructure_binning_result(self, binning_obj):
+        binning_obj_copy = copy.deepcopy(binning_obj)
         to_none_list = ["event_count_array", "event_rate_array", "non_event_count_array", "non_event_rate_array"]
-        for bin_result_obj in binning_obj.bin_results.all_cols_results.items():
+        for bin_result_obj in binning_obj_copy.bin_results.all_cols_results.items():
             if bin_result_obj:
                 for static in to_none_list:
                     setattr(bin_result_obj[1], static, None)
-        return binning_obj
+        return binning_obj_copy
