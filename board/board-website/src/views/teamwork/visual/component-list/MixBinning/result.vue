@@ -31,8 +31,8 @@
                                     <el-table-column type="expand">
                                         <template #default="props">
                                             <template v-if="row.dataList[props.$index].inline_table && row.dataList[props.$index].inline_table.length">
-                                                <el-table :data="row.dataList[props.$index].inline_table" stripe border :span-method="methods.arraySpanMethod" style="width: 100%">
-                                                    <!-- <el-table-column label="序号" width="55" type="index" align="center" />
+                                                <!-- <el-table :data="row.dataList[props.$index].inline_table" stripe border :span-method="methods.arraySpanMethod" style="width: 100%">
+                                                    <el-table-column label="序号" width="55" type="index" align="center" />
                                                     <el-table-column label="划分区间" prop="binning" align="center" />
                                                     <el-table-column label="正样本数" prop="eventCountArray" align="center" />
                                                     <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
@@ -51,8 +51,8 @@
                                                         <template v-slot="scope">
                                                             <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
                                                         </template>
-                                                    </el-table-column> -->
-                                                </el-table>
+                                                    </el-table-column>
+                                                </el-table> -->
                                             </template>
                                         </template>
                                     </el-table-column>
