@@ -46,7 +46,7 @@ settings = {'host': env_host or host,
             'password': env_password or password,
             'port': env_port or port,
             'user': env_user or user,
-            'max_connections': 100
+            'max_connections': 500
             }
 
 work_mode = get_comm_config(consts.COMM_CONF_WEFE_JOB_WORK_MODE)
