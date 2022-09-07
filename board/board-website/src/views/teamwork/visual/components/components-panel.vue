@@ -266,12 +266,10 @@
             changeSize() {
                 if(this.maxSize) {
                     this.$refs['component-panel-box'].vData.rect.width = 350;
-                    this.maxSize = false;
                 } else {
                     this.$refs['component-panel-box'].vData.rect.width = this.pageRef.offsetWidth;
-                    this.maxSize = true;
                 }
-                // this.maxSize = !this.maxSize;
+                this.maxSize = !this.maxSize;
                 this.$emit('component-panel-change-size', this.maxSize);
             },
 
