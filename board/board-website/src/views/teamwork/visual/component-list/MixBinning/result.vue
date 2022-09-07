@@ -29,7 +29,7 @@
                             <template v-if="row.dataList && row.dataList.length">
                                 <el-table :data="row.dataList" stripe :border="true" style="width :100%" class="fold-table">
                                     <el-table-column type="expand">
-                                        <template #default="props">
+                                        <!-- <template #default="props">
                                             <template v-if="row.dataList[props.$index].inline_table && row.dataList[props.$index].inline_table.length">
                                                 <el-table :data="row.dataList[props.$index].inline_table" stripe border :span-method="methods.arraySpanMethod" style="width: 100%">
                                                     <el-table-column label="序号" width="55" type="index" align="center" />
@@ -54,7 +54,7 @@
                                                     </el-table-column>
                                                 </el-table>
                                             </template>
-                                        </template>
+                                        </template> -->
                                     </el-table-column>
                                     <el-table-column label="特征名称" prop="column"></el-table-column>
                                     <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
