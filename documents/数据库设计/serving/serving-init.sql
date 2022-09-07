@@ -481,22 +481,22 @@ CREATE TABLE `global_config`
 
 -- 合作者
 -- https://www.tapd.cn/53885119/prong/stories/view/1153885119001085243
-CREATE TABLE `partner`
-(
-    `id`               varchar(32) NOT NULL,
-    `name`             varchar(64)  DEFAULT NULL COMMENT '合作者名称',
-    `email`            varchar(255) DEFAULT NULL COMMENT '邮箱',
-    `serving_base_url` varchar(255) DEFAULT NULL COMMENT 'Serving服务地址',
-    `code`             varchar(255) DEFAULT '' COMMENT '客户 code',
-    `remark`           text COMMENT '备注',
-    `is_union_member`  tinyint(1) NOT NULL COMMENT '是否是联邦成员',
-    `status`           int(11) NOT NULL DEFAULT '1' COMMENT '合作者状态;1正常、0删除',
-    `created_time`     datetime    NOT NULL,
-    `updated_time`     datetime     DEFAULT NULL,
-    `created_by`       varchar(32)  DEFAULT NULL COMMENT '创建人',
-    `updated_by`       varchar(32)  DEFAULT NULL COMMENT '更新人',
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='合作者';
+CREATE TABLE `partner` (
+  `id` varchar(32) NOT NULL,
+  `name` varchar(64) DEFAULT NULL COMMENT '合作者名称',
+  `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
+  `serving_base_url` varchar(255) DEFAULT NULL COMMENT 'Serving服务地址',
+  `code` varchar(255) DEFAULT '' COMMENT '客户 code',
+  `remark` text COMMENT '备注',
+  `is_union_member` tinyint(1) NOT NULL COMMENT '是否是联邦成员',
+  `status` int(11) NOT NULL DEFAULT '1' COMMENT '合作者状态;1正常、0删除',
+  `created_time` datetime NOT NULL,
+  `updated_time` datetime DEFAULT NULL,
+  `created_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `updated_by` varchar(32) DEFAULT NULL COMMENT '更新人',
+  `is_me` tinyint(1) NOT NULL COMMENT '是否是我自己',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; COMMENT='合作者';
 
 
 CREATE TABLE `base_service`

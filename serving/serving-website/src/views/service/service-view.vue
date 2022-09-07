@@ -836,7 +836,7 @@
                     class="mt10"
                     type="primary"
                     size="medium"
-                    :disabled="!form.service_type"
+                    :disabled="!form.service_type || form.status === 1"
                     @click="save"
                 >
                     保存
@@ -849,6 +849,7 @@
                 >
                     点击下载工具包
                 </el-link>
+                <p v-if="form.status === 1" style="font-size: 10px;color:red">已上线服务不允许修改</p>
                 <div
                     v-if="api.params || api.method || api.url"
                     class="api-preview"
@@ -1185,6 +1186,7 @@ export default {
                 url:          '',
                 service_type: '',
                 operator:     'sum',
+                status : 0,
                 data_source:  {
                     id:               '',
                     table:            '',
@@ -1749,6 +1751,7 @@ export default {
                     this.form.url = data.url;
                     this.form.service_type = type;
                     this.form.processor = data.processor;
+                    this.form.status = data.status;
                     if(data.my_role) {
                         this.myRole = data.my_role[0];
                     }

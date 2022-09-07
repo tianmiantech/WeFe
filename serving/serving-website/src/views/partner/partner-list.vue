@@ -107,6 +107,14 @@
                     <p>{{scope.row.is_union_member ? '是':'否'}}</p>
                 </template>
             </el-table-column>
+            <el-table-column
+                label="我自己"
+                width="70"
+            >
+                <template slot-scope="scope">
+                    <p>{{scope.row.is_me ? '是':'否'}}</p>
+                </template>
+            </el-table-column>
 
             <el-table-column
                 label="状态"

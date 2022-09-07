@@ -71,7 +71,8 @@ public class UnionService extends AbstractUnionService {
      */
     public void lazyUpdateDataResource(DataResourceMysqlModel model) throws StatusCodeWithException {
         MemberInfoModel member = globalConfigService.getModel(MemberInfoModel.class);
-        if (!member.getMemberAllowPublicDataSet() || member.getMemberHidden()) {
+        if (member.getMemberAllowPublicDataSet() == null || !member.getMemberAllowPublicDataSet()
+                || member.getMemberHidden()) {
             return;
         }
 

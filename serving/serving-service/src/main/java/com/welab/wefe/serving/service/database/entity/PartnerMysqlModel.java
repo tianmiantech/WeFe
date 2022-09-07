@@ -58,6 +58,12 @@ public class PartnerMysqlModel extends AbstractBaseMySqlModel {
      * partner code
      */
     private String code;
+    
+    /**
+     * is me
+     * */
+    @Column(name = "is_me")
+    private boolean isMe = false;
 
     public String getName() {
         return name;
@@ -115,4 +121,11 @@ public class PartnerMysqlModel extends AbstractBaseMySqlModel {
         this.code = code;
     }
 
+    public boolean getIsMe() {
+        return isMe;
+    }
+
+    public void setIsMe(boolean isMe) {
+        this.isMe = isMe;
+    }
 }

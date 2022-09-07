@@ -65,6 +65,9 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         
         @Check(name = "Serving服务地址")
         private String servingBaseUrl;
+        
+        @Check(name = "是否是我自己")
+        private boolean isMe;
 
         public Integer getStatus() {
             return status;
@@ -137,7 +140,14 @@ public class UpdateApi extends AbstractNoneOutputApi<UpdateApi.Input> {
         public void setCode(String code) {
             this.code = code;
         }
-        
+
+        public boolean getIsMe() {
+            return isMe;
+        }
+
+        public void setIsMe(boolean isMe) {
+            this.isMe = isMe;
+        }
     }
 
 }
