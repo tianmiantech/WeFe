@@ -26,7 +26,7 @@
                             :name="`${row.member_id}-${index}`"
                             :label="`${row.member_name} (${row.member_role === 'provider' ? '协作方' : '发起方'})`"
                         >
-                            <el-table :data="row.dataList" stripe :border="true" style="width :100%" class="fold-table">
+                            <!-- <el-table :data="row.dataList" stripe :border="true" style="width :100%" class="fold-table">
                                 <el-table-column type="expand">
                                     <template #default="props">
                                         <template v-if="row.dataList[props.$index].inline_table && row.dataList[props.$index].inline_table.length">
@@ -59,7 +59,7 @@
                                 <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
                                 <el-table-column label="分箱数量" prop="binNums"></el-table-column>
                                 <el-table-column label="总IV" prop="iv"></el-table-column>
-                            </el-table>
+                            </el-table> -->
                         </el-tab-pane>
                     </el-tabs>
                 </el-collapse-item>
