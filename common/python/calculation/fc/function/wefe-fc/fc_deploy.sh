@@ -60,6 +60,7 @@ nas_upload(){
 
   cd common/python/calculation/fc/function/wefe-fc
   s nas upload -o ./config.properties /mnt/auto/$nas_env/pythonCode/  --debug
+  s nas upload -o ./member-base.properties /mnt/auto/$nas_env/pythonCode/  --debug
   s nas upload -ro ../../../../../../build/ /mnt/auto/$nas_env/pythonCode/  --debug
 
   rm -rf ../../../../../../build
@@ -69,6 +70,8 @@ nas_upload(){
 get_config_from_db(){
   echo 'remove old config.properties'
   rm -f ./config.properties
+  echo 'remove old member-base.properties'
+  rm -f ./member-base.properties
   echo 'get config from database...'
   python ./config_util.py
   echo 'generate new config.properties done!'
