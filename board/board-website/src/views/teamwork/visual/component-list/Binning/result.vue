@@ -37,7 +37,7 @@
                                             <el-table-column label="总占比" prop="countRateArray" align="center" />
                                             <el-table-column label="WOE" prop="woeArray" align="center" />
                                             <el-table-column label="IV" prop="ivArray" align="center" />
-                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" width="260" align="center">
+                                            <!-- <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" width="260" align="center">
                                                 <template v-slot="scope">
                                                     <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
                                                 </template>
@@ -46,7 +46,7 @@
                                                 <template v-slot="scope">
                                                     <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
                                                 </template>
-                                            </el-table-column>
+                                            </el-table-column> -->
                                         </el-table>
                                     </template>
                                 </el-table-column>
