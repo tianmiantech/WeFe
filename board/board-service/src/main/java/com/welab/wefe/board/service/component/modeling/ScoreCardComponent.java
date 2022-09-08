@@ -132,27 +132,53 @@ public class ScoreCardComponent extends AbstractModelingComponent<ScoreCardCompo
     }
 
     private JObject getBinningResult(TaskResultMySqlModel taskResult) {
-        TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
+        TaskResultMySqlModel binningTaskResult;
+        List<TaskResultMySqlModel> binningTaskResults = taskResultService.findModelByJobIdAndTypeAndRole(
                 taskResult.getJobId(),
-                null,
-                taskResult.getRole(),
-                TaskResultType.model_binning.name()
+                TaskResultType.model_binning.name(),
+                taskResult.getRole()
         );
 
+        if (binningTaskResults.size() == 1) {
+            binningTaskResult = binningTaskResults.get(0);
+            JObject binning = JObject.create(binningTaskResult.getResult());
+            return binning.getJObjectByPath("model_param.binningResult.binningResult");
+        }
+
+        binningTaskResult = binningTaskResults
+                .stream()
+                .filter(x -> takeSuffix(x.getName()).equals(takeSuffix(taskResult.getName())))
+                .findFirst().get();
         JObject binning = JObject.create(binningTaskResult.getResult());
         return binning.getJObjectByPath("model_param.binningResult.binningResult");
     }
 
+    private String takeSuffix(String value) {
+        int length = value.length();
+        return value.substring(length - 2, length - 1);
+    }
+
     private JObject getModelResult(TaskResultMySqlModel taskResult) {
-        TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
+        TaskResultMySqlModel modelTaskResult;
+        List<TaskResultMySqlModel> modelTaskResults = taskResultService.findModelByJobIdAndTypeAndRole(
                 taskResult.getJobId(),
-                null,
-                taskResult.getRole(),
-                TaskResultType.model_train.name()
+                TaskResultType.model_train.name(),
+                taskResult.getRole()
         );
 
-        JObject binning = JObject.create(binningTaskResult.getResult());
+        if (modelTaskResults.size() == 1) {
+            modelTaskResult = modelTaskResults.get(0);
+            JObject binning = JObject.create(modelTaskResult.getResult());
+            return binning.getJObjectByPath("model_param.weight");
+        }
+
+        modelTaskResult = modelTaskResults
+                .stream()
+                .filter(x -> takeSuffix(x.getName()).equals(takeSuffix(taskResult.getName())))
+                .findFirst().get();
+        JObject binning = JObject.create(modelTaskResult.getResult());
         return binning.getJObjectByPath("model_param.weight");
+
     }
 
     public static String scoreCardKey(String name) {
