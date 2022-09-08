@@ -26,28 +26,30 @@
                             <el-table :data="row.dataList" stripe :border="true" style="width :100%" class="fold-table">
                                 <el-table-column type="expand">
                                     <template #default="props">
-                                        <el-table :data="row.dataList[props.$index].inline_table" stripe border :span-method="methods.arraySpanMethod" style="width: 100%">
-                                            <el-table-column label="序号" width="55" type="index" align="center" />
-                                            <el-table-column label="划分区间" prop="binning" align="center" />
-                                            <el-table-column label="正样本数" prop="eventCountArray" align="center" />
-                                            <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
-                                            <el-table-column label="总样本数" prop="countArray" align="center" />
-                                            <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
-                                            <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
-                                            <el-table-column label="总占比" prop="countRateArray" align="center" />
-                                            <el-table-column label="WOE" prop="woeArray" align="center" />
-                                            <el-table-column label="IV" prop="ivArray" align="center" />
-                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" width="260" align="center">
-                                                <template v-slot="scope">
-                                                    <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
-                                                </template>
-                                            </el-table-column>
-                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" width="430" align="center" fixed="right">
-                                                <template v-slot="scope">
-                                                    <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
-                                                </template>
-                                            </el-table-column>
-                                        </el-table>
+                                        <template v-if="row.dataList[props.$index].inline_table && row.dataList[props.$index].inline_table.length">
+                                            <el-table :data="row.dataList[props.$index].inline_table" stripe border :span-method="methods.arraySpanMethod" style="width: 100%">
+                                                <el-table-column label="序号" width="55" type="index" align="center" />
+                                                <el-table-column label="划分区间" prop="binning" align="center" />
+                                                <el-table-column label="正样本数" prop="eventCountArray" align="center" />
+                                                <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
+                                                <el-table-column label="总样本数" prop="countArray" align="center" />
+                                                <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
+                                                <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
+                                                <el-table-column label="总占比" prop="countRateArray" align="center" />
+                                                <el-table-column label="WOE" prop="woeArray" align="center" />
+                                                <el-table-column label="IV" prop="ivArray" align="center" />
+                                                <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" width="260" align="center">
+                                                    <template v-slot="scope">
+                                                        <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
+                                                    </template>
+                                                </el-table-column>
+                                                <el-table-column v-if="row.member_role === 'promoter'" label="分布" width="430" align="center" fixed="right">
+                                                    <template v-slot="scope">
+                                                        <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
+                                                    </template>
+                                                </el-table-column>
+                                            </el-table>
+                                        </template>
                                     </template>
                                 </el-table-column>
                                 <el-table-column label="特征名称" prop="column"></el-table-column>
