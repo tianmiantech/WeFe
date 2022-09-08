@@ -254,7 +254,6 @@
 
                 if (code === 0) {
                     this.form = { ...data };
-                    this.form.member_logo = '';
 
                     this.member_logo = data.member_logo;
 
