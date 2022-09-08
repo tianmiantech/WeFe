@@ -118,6 +118,15 @@ public abstract class AbstractCheckpoint {
 
     }
 
+    /**
+     * 是否跳过当前检查点
+     *
+     * 子类可根据需要重写此方法。
+     */
+    public boolean skip() {
+        return false;
+    }
+
     protected void log(Exception e) {
         LOG.error(e.getClass() + " " + e.getMessage(), e);
     }
