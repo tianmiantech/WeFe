@@ -52,7 +52,7 @@ if fc_env is None or int(fc_env) != 1:
                 'password': env_password or password,
                 'port': env_port or port,
                 'user': env_user or user,
-                'max_connections': 100
+                'max_connections': 500
                 }
 
     # 改为读取数据库配置, 且该配置已放入 job config 中

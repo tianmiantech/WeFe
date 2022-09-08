@@ -865,11 +865,16 @@ public class ServiceService {
         Map<String, Object> valuesMap = new HashMap<>();
         if (model != null) {
             valuesMap.put("url", CacheObjects.getServingBaseUrl() + SERVICE_PRE_URL + model.getUrl());
+            valuesMap.put("serverUrl", CacheObjects.getServingBaseUrl());
+            valuesMap.put("apiName", SERVICE_PRE_URL + model.getUrl());
             valuesMap.put("params", displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
             valuesMap.put("desc", model.getName());
             valuesMap.put("method", "POST");
-            String templateString = "# url:\n" + "	${url}\n" + "	\n" + "# method:\n" + "	${method}\n" + "	\n"
-                    + "# params:\n" + "	${params}\n" + "	\n" + "# desc\n" + "	${desc}";
+            String templateString = "# serverUrl:\n" + "	${serverUrl}\n" + "	\n" 
+                    + "# apiName:\n" + "	${apiName}\n" + "	\n"
+                    + "# method:\n" + " ${method}\n" + "    \n"
+                    + "# params:\n" + "	${params}\n" + "	\n" 
+                    + "# desc\n" + "	${desc}";
             StringSubstitutor sub = new StringSubstitutor(valuesMap);
             String content = sub.replace(templateString);
             FileUtils.write(readme, content);
