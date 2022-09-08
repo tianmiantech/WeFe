@@ -25,7 +25,7 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 
-// 交集查询 psi
+// 两方交集查询 psi
 public class PsiClient {
     // 私钥
     private static final String 测试客户1_privateKey="***";
@@ -34,7 +34,7 @@ public class PsiClient {
     // 客户code
     private static final String 测试客户1_code = "TEST***25";
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		// params
 		JSONObject data = new JSONObject();
 		data.put("phone_number", "******");

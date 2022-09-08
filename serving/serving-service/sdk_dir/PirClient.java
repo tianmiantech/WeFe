@@ -23,7 +23,7 @@ import com.welab.wefe.mpc.pir.sdk.config.PrivateInformationRetrievalConfig;
 
 import java.util.List;
 
-// 匿踪查询 pir
+// 两方匿踪查询 pir
 public class PirClient {
     // 私钥
     private static final String 测试客户1_privateKey="***";

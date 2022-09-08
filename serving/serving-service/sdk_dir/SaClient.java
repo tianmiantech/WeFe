@@ -56,6 +56,7 @@ public class SaClient {
 		body.put("customer_id", 测试客户1_code);
 		body.put("sign", sign);
 		body.put("data", JSONObject.parseObject(data));
+		body.put("requestId", "xxx");
 		boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
 				RSAUtil.getPublicKey(测试客户1_publicKey), sign);
 		if(verified) {
