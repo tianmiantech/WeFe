@@ -21,15 +21,19 @@ import com.welab.wefe.mpc.util.RSAUtil;
 
 import java.util.TreeMap;
 
-// 多方安全统计 用来生成http请求参数
+// 多方安全统计 用来生成http请求参数，然后自己通过http请求
 public class SaClient {
     // 私钥
-    private static final String 测试客户1_privateKey="***";
+    private static final String 测试客户1_privateKey="***"; // TODO
     // 公钥
-    private static final String 测试客户1_publicKey="***";
+    private static final String 测试客户1_publicKey="***"; // TODO
     // 客户code
-    private static final String 测试客户1_code = "TEST***25";
-
+    private static final String 测试客户1_code = "TEST***25"; // TODO
+    // Serving服务地址
+    private static final String serverUrl = "https://****/serving-service-01/"; // TODO
+    // Service Api name
+    private String apiName = "api/*****"; // TODO
+    
 	public static void main(String[] args) throws Exception {
 		// params
 		String dataStr = "{\n" +
@@ -39,7 +43,7 @@ public class SaClient {
 				"}";
 		System.out.println("多方安全统计参数:\t" + request(dataStr));
         // 服务地址
-		System.out.println("多方安全统计 url:https://********/serving-service-01/api/******");
+		System.out.println("多方安全统计 url:" + serverUrl + apiName);
 	}
 
 	protected static String request(String dataStr) throws Exception {
