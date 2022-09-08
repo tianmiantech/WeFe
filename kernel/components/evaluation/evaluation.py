@@ -136,7 +136,7 @@ class Evaluation(ModelBase):
         super().__init__()
         self.model_param = EvaluateParam()
         self.eval_results = defaultdict(list)
-
+        self.bins_result = defaultdict(list)
         self.save_single_value_metric_list = [consts.AUC,
                                               consts.EXPLAINED_VARIANCE,
                                               consts.MEAN_ABSOLUTE_ERROR,
@@ -178,7 +178,10 @@ class Evaluation(ModelBase):
 
         split_result = defaultdict(list)
         for value in data:
-            mode = value[1][4]
+            if len(value[1]) > 5:
+                mode = value[1][5]
+            else:
+                mode = value[1][4]
             split_result[mode].append(value)
 
         return split_result
@@ -233,12 +236,57 @@ class Evaluation(ModelBase):
         self.eval_results.clear()
         for (key, eval_data) in data.items():
             eval_data_local = list(eval_data.collect())
+            self.cal_scord_card_bin(eval_data_local)
             split_data_with_label = self.split_data_with_type(eval_data_local)
             for mode, data in split_data_with_label.items():
                 eval_result = self.evaluate_metircs(mode, data)
                 self.eval_results[key].append(eval_result)
-
         return self.callback_metric_data(return_single_val_metrics=return_result)
+
+    def cal_scord_card_bin(self, eval_data_local):
+        score_result = self.tracker.get_score_result()
+        if score_result is not None and len(eval_data_local[0][1])>=6:
+            a_score, b_score= score_result['a_score'], score_result['b_score']
+            linear_scores = [data[1][4] for data in eval_data_local]
+            sample_scores = [a_score + b_score * linear_score for linear_score in linear_scores]
+            self.bins_result  = self.to_binning(sample_scores)
+        else:
+            classes = len(set([d[1][0] for d in eval_data_local]))
+            if classes < 3 and self.model_param.prob_need_to_bin:
+                sample_pro_result_list = []
+                for index, sample_pro_result in enumerate(eval_data_local):
+                    sample_pro_result_list.append(sample_pro_result[1][2])
+                self.bins_result = self.to_binning(sample_pro_result_list)
+
+    def to_binning(self, to_bin_data):
+            data_count = len(to_bin_data)
+            if self.model_param.bin_method == consts.QUANTILE:
+                bin = pd.qcut(np.array(to_bin_data, dtype=float),
+                              self.model_param.bin_num, duplicates='drop',retbins= True)
+            elif self.model_param.bin_method == consts.BUCKET:
+                bin = pd.cut(np.array(to_bin_data, dtype=float),
+                             bins = self.model_param.bin_num,retbins=True)
+
+            bin_values_counts = bin[0].value_counts()
+            bin_result ={}
+            staitic_count = sum([ bin_values_counts[i] for i in range(len(bin_values_counts))])
+            if staitic_count == data_count:
+                for i in range(len(bin_values_counts)):
+                    per_bin_result = { "count" : int(bin_values_counts[i]),
+                             "count_rate": float(bin_values_counts[i] / data_count) }
+                    bin_result[str(np.round(bin[1][i+1], 4))] = per_bin_result
+            else:
+                return ValueError("Staitic_count and count are not the same, check the binning statistics!")
+            scores_distribution ={
+                "bin_method": self.model_param.bin_method,
+                "bin_result": bin_result,
+                "max": max(to_bin_data),
+                "min": min(to_bin_data)}
+            return scores_distribution
+
+    def __save_bin_score_value(self,metric_name, metric_namespace, metric_meta, kv, need_value):
+        if kv:
+            self.tracker.saveProbBinsResult(metric_name, metric_namespace, metric_meta, kv, need_value)
 
     def __save_single_value(self, result, metric_name, metric_namespace, eval_name):
         self.tracker.saveMetricData(metric_name, metric_namespace, {'metric_type': 'EVALUATION_SUMMARY'},
@@ -480,6 +528,10 @@ class Evaluation(ModelBase):
                     else:
                         LOGGER.warning("Unknown metric:{}".format(metric))
 
+            metric_name = '_'.join([data_type, 'metric'])
+            self.__save_bin_score_value(metric_name= metric_name, metric_namespace = "train_validate",
+                                            metric_meta = "METRIC", kv = self.bins_result,
+                                             need_value = False)
         if return_single_val_metrics:
             if len(self.validate_metric) != 0:
                 LOGGER.debug("return validate metric")

@@ -23,22 +23,26 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.TreeMap;
 
-// 多方交集查询 用来生成http请求参数
+// 多方交集查询 用来生成http请求参数，然后自己通过http请求
 public class MultiPsi {
     // 私钥
-    private static final String 测试客户1_privateKey="***";
+    private static final String 测试客户1_privateKey="***"; // TODO
     // 公钥
-    private static final String 测试客户1_publicKey="***";
+    private static final String 测试客户1_publicKey="***"; // TODO
     // 客户code
-    private static final String 测试客户1_code = "TEST***25";
-
+    private static final String 测试客户1_code = "TEST***25"; // TODO
+    // Serving服务地址
+    private static final String serverUrl = "https://****/serving-service-01/"; // TODO
+    // Service Api name
+    private String apiName = "api/*****"; // TODO
+    
 	public static void main(String[] args) throws Exception {
 		String dataStr = "{\n" + "        \"client_ids\": [\n"
 				+ "            \"3717c5dbe0b312401f0d07b96e988645\"\n"
 				+ "        ]\n" + "    }";
 		System.out.println("多方交集查询参数:\t" + request(dataStr));
         // 服务地址
-		System.out.println("url: https://***/serving-service-01/api/****");
+		System.out.println("url: " + serverUrl + apiName);
 	}
 
 	protected static String request(String dataStr) throws Exception {
@@ -55,6 +59,7 @@ public class MultiPsi {
 		body.put("customer_id", 测试客户1_code);
 		body.put("sign", sign);
 		body.put("data", JSONObject.parseObject(data));
+		body.put("requestId", "xxx");
 		boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
 				RSAUtil.getPublicKey(测试客户1_publicKey), sign);
 		if(verified) {

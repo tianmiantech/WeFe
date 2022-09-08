@@ -268,7 +268,7 @@
                     query: {
                         id,
                         project_id:       this.project_id,
-                        is_project_admin: this.form.is_project_admi,
+                        is_project_admin: this.form.is_project_admin,
                     },
                 });
             },

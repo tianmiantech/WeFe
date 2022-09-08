@@ -41,7 +41,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
 
 /**
  * @author zane.luo
@@ -102,7 +101,8 @@ public class SystemInitializeService extends AbstractService {
      * Is the system initialized
      */
     public boolean isInitialized() {
-        return globalConfigService.getModel(MemberInfoModel.class) != null;
+        MemberInfoModel member = globalConfigService.getModel(MemberInfoModel.class);
+        return member.memberInitialized;
     }
 
     /**
@@ -119,13 +119,13 @@ public class SystemInitializeService extends AbstractService {
             throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }
 
-        MemberInfoModel model = new MemberInfoModel();
-        model.setMemberId(UUID.randomUUID().toString().replaceAll("-", ""));
+        MemberInfoModel model = globalConfigService.getModel(MemberInfoModel.class);
         model.setMemberName(input.getMemberName());
         model.setMemberEmail(input.getMemberEmail());
         model.setMemberMobile(input.getMemberMobile());
         model.setMemberAllowPublicDataSet(input.getMemberAllowPublicDataSet());
         model.setMemberHidden(false);
+        model.setMemberInitialized(true);
 
         try {
             input.setSecretKeyType(null == input.getSecretKeyType() ? SecretKeyType.rsa : input.getSecretKeyType());

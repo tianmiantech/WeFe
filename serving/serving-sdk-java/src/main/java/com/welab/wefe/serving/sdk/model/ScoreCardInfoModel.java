@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,14 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.welab.wefe.serving.sdk.model;
 
-package com.welab.wefe.serving.service.dto;
+import com.welab.wefe.common.util.JObject;
 
 /**
- * @author Zane
+ * @author hunter.zhao
  */
-public class GlobalConfigInput {
-    public String group;
-    public String name;
-    public String value;
+public class ScoreCardInfoModel {
+    private Object scoreCard;
+
+    private Object bin;
+
+    public Object getScoreCard() {
+        return scoreCard;
+    }
+
+    public void setScoreCard(Object scoreCard) {
+        this.scoreCard = scoreCard;
+    }
+
+    public Object getBin() {
+        return bin;
+    }
+
+    public void setBin(Object bin) {
+        this.bin = bin;
+    }
 }

@@ -89,6 +89,7 @@ public class DetailPartnerApi extends AbstractApi<DetailPartnerApi.Input, Detail
         private String servingBaseUrl;
         private String createdBy;
         private Integer status;
+        private boolean isMe;
 
         public Integer getStatus() {
             return status;
@@ -168,6 +169,14 @@ public class DetailPartnerApi extends AbstractApi<DetailPartnerApi.Input, Detail
 
         public void setServingBaseUrl(String servingBaseUrl) {
             this.servingBaseUrl = servingBaseUrl;
+        }
+
+        public boolean getIsMe() {
+            return isMe;
+        }
+
+        public void setIsMe(boolean isMe) {
+            this.isMe = isMe;
         }
     }
 

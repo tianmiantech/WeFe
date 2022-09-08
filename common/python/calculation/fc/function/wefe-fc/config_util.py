@@ -17,6 +17,7 @@ from common.python.utils.conf_utils import get_comm_config
 
 def gen_config_file():
     file_name = 'config.properties'
+    member_base = 'member-base.properties'
     access_key_id = get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
     access_key_secret = get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
     account_id = get_comm_config(consts.COMM_CONF_KEY_FC_ACCOUNT_ID)
@@ -46,6 +47,10 @@ def gen_config_file():
             v = v if v is not None else ''
             f.write(str(k + '=' + v + '\n'))
 
+        f.close()
+
+    # member-base.properties
+    with open(member_base, 'w') as f:
         f.write('flow.log.root.path=./logs' + '\n')
         f.close()
 

@@ -23,7 +23,7 @@ from playhouse.pool import PooledMySQLDatabase
 
 from common.python.common import consts
 from common.python.utils import log_utils, sqlite_utils
-from common.python.utils.conf_utils import get_comm_config, get_env_config
+from common.python.utils.conf_utils import get_comm_config, get_env_config, get_value_by_enable
 
 stat_logger = log_utils.get_logger("wefe_flow_stat")
 
@@ -52,7 +52,7 @@ if fc_env is None or int(fc_env) != 1:
                 'password': env_password or password,
                 'port': env_port or port,
                 'user': env_user or user,
-                'max_connections': 100
+                'max_connections': 500
                 }
 
     # 改为读取数据库配置, 且该配置已放入 job config 中
@@ -141,12 +141,12 @@ class GlobalSetting(object):
     @staticmethod
     def get_flow_base_url():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('wefe_flow', 'intranet_base_uri')
+        return get_value_by_enable(GlobalConfigDao.get('wefe_flow', 'intranet_base_uri'))
 
     @staticmethod
     def get_paddle_visual_dl_baseurl():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url')
+        return get_value_by_enable(GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url'))
 
 
 class DataResource(ModelBase):

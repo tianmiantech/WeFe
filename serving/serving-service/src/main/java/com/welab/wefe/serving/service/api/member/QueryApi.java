@@ -85,6 +85,8 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
         private String publicKey;
 
         private Date createdTime;
+        
+        private boolean isMe;
 
         //region getter/setter
 
@@ -136,7 +138,13 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
             this.createdTime = createdTime;
         }
 
+        public boolean getIsMe() {
+            return isMe;
+        }
 
+        public void setIsMe(boolean isMe) {
+            this.isMe = isMe;
+        }
         //endregion
     }
 }

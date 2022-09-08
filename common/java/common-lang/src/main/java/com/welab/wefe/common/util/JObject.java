@@ -122,7 +122,7 @@ public class JObject extends JSONObject implements Serializable {
     }
 
     public static JObject create(Object object) {
-        if(null == object) {
+        if (null == object) {
             return new JObject();
         }
         return create(JSON.toJSONString(object));
@@ -189,6 +189,12 @@ public class JObject extends JSONObject implements Serializable {
         return value;
     }
 
+    public JObject getJObjectByPath(String jsonPath) {
+        Object value = getObjectByPath(jsonPath);
+        return value == null ? JObject.create() : JObject.create(value);
+    }
+
+
     public List<JObject> getJSONList(String jsonPath) {
         Object obj = getObjectByPath(jsonPath);
 
@@ -203,7 +209,7 @@ public class JObject extends JSONObject implements Serializable {
 
     public <T> List<T> getJSONList(String key, Class<T> clazz) {
         JSONArray jsonArray = getJSONArray(key);
-        if(jsonArray != null) {
+        if (jsonArray != null) {
             return jsonArray.stream()
                     .map(item -> JSON.parseObject(JSON.toJSONString(item), clazz))
                     .collect(Collectors.toList());

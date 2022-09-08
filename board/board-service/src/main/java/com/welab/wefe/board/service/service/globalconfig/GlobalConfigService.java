@@ -41,7 +41,6 @@ import com.welab.wefe.common.wefe.enums.JobBackendType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 
@@ -56,9 +55,6 @@ public class GlobalConfigService extends BaseGlobalConfigService {
     private JobService jobService;
     @Autowired
     private DataSetStorageService dataSetStorageService;
-
-    @Autowired
-    private EntityManager entityManager;
 
     public void update(GlobalConfigUpdateApi.Input input) throws Exception {
         if (!CurrentAccount.isAdmin()) {
@@ -81,10 +77,6 @@ public class GlobalConfigService extends BaseGlobalConfigService {
 
         // Refresh persistent storage objects
         if (input.groups.containsKey(ConfigGroupConstant.STORAGE)) {
-            // Because there is a findone operation under the put method above, and this operation is in the same session as the getmodel library lookup method in initstorage below (cache lookup),
-            // The @postload callback method of globalconfigmysqlmodel is not triggered, so the data is not decrypted (the cache value has been encrypted and assigned in the put method above),
-            // Therefore, the JPA cache should be cleaned up before querying
-            entityManager.clear();
             dataSetStorageService.initStorage();
         }
         

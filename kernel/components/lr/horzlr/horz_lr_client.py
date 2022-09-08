@@ -121,6 +121,9 @@ class HorzLRClient(HorzLRBaseModel):
         pred_table = self.classify(predict_wx, self.model_param.predict_param.threshold)
 
         predict_result = data_instances.mapValues(lambda x: x.label)
-        predict_result = pred_table.join(predict_result, lambda x, y: [y, x[1], x[0],
-                                                                       {"1": x[0], "0": 1 - x[0]}])
+        predict_result = pred_table.join(predict_result, lambda x, y: [y, x[1], x[0],{"1": x[0], "0": 1 - x[0]}])
+        def _append_linear_result(x, y):
+            x.append(y)
+            return x
+        predict_result = predict_result.join(predict_wx,lambda x,y : _append_linear_result(x,y))
         return predict_result

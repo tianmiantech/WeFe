@@ -17,11 +17,11 @@
 package com.welab.wefe.board.service.database.entity;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractBaseMySqlModel;
-import com.welab.wefe.board.service.database.listener.DataSourceMysqlModelListener;
+import com.welab.wefe.common.web.util.DatabaseEncryptConverter;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
@@ -31,7 +31,6 @@ import javax.persistence.Enumerated;
  * @author Johnny.lin
  */
 @Entity(name = "data_source")
-@EntityListeners(DataSourceMysqlModelListener.class)
 public class DataSourceMysqlModel extends AbstractBaseMySqlModel {
     /**
      * Data source name
@@ -67,6 +66,7 @@ public class DataSourceMysqlModel extends AbstractBaseMySqlModel {
     /**
      * Password
      */
+    @Convert(converter= DatabaseEncryptConverter.class)
     private String password;
 
     public String getName() {

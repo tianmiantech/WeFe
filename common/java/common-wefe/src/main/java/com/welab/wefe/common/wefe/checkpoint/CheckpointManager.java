@@ -18,6 +18,8 @@ package com.welab.wefe.common.wefe.checkpoint;
 import com.welab.wefe.common.util.ReflectionsUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceCheckPointOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ import java.util.List;
  */
 @Service
 public class CheckpointManager {
+    private static final Logger LOG = LoggerFactory.getLogger(CheckpointManager.class);
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -49,6 +52,10 @@ public class CheckpointManager {
 
         for (Class<?> clazz : CHECKPOINT_LIST) {
             AbstractCheckpoint checkpoint = (AbstractCheckpoint) applicationContext.getBean(clazz);
+            if (checkpoint.skip()) {
+                LOG.info("skip checkpoint(" + checkpoint.getClass().getName() + "):" + checkpoint.desc());
+                continue;
+            }
             ServiceCheckPointOutput result = checkpoint.check();
             list.add(result);
         }
