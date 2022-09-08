@@ -61,6 +61,9 @@ public class SavePartnerApi extends AbstractApi<SavePartnerApi.Input, SavePartne
         @Check(name = "合作者 Serving地址")
         private String servingBaseUrl;
 
+        @Check(name = "是否是我自己")
+        private boolean isMe;
+        
         public String getId() {
             return id;
         }
@@ -124,6 +127,14 @@ public class SavePartnerApi extends AbstractApi<SavePartnerApi.Input, SavePartne
         public void setServingBaseUrl(String servingBaseUrl) {
             this.servingBaseUrl = servingBaseUrl;
         }
+        
+        public boolean getIsMe() {
+            return isMe;
+        }
+
+        public void setIsMe(boolean isMe) {
+            this.isMe = isMe;
+        }
     }
 
     public static class Output {
@@ -138,6 +149,7 @@ public class SavePartnerApi extends AbstractApi<SavePartnerApi.Input, SavePartne
         private String servingBaseUrl;
         private String createdBy;
         private Integer status;
+        private boolean isMe;
 
         public Integer getStatus() {
             return status;
@@ -217,6 +229,15 @@ public class SavePartnerApi extends AbstractApi<SavePartnerApi.Input, SavePartne
 
         public void setServingBaseUrl(String servingBaseUrl) {
             this.servingBaseUrl = servingBaseUrl;
+        }
+        
+
+        public boolean getIsMe() {
+            return isMe;
+        }
+
+        public void setIsMe(boolean isMe) {
+            this.isMe = isMe;
         }
     }
 

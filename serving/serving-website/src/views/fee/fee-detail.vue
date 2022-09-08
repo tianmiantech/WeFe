@@ -242,6 +242,14 @@ export default {
                     name:  '多方安全统计(被查询方)',
                     value: '3',
                 },
+                {
+                    name:  '机器学习模型服务',
+                    value: '7',
+                },
+                {
+                    name:  '深度学习模型服务',
+                    value: '8',
+                },
             ],
             queryDateTypes: [
                 { value: '1', label: '每年' },

@@ -120,6 +120,8 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
 
         private String dataSourceId;
 
+        private JObject scoreCardInfo;
+
         public String getId() {
             return id;
         }
@@ -344,7 +346,13 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
             this.dataSourceId = dataSourceId;
         }
 
+        public JObject getScoreCardInfo() {
+            return scoreCardInfo;
+        }
 
+        public void setScoreCardInfo(JObject scoreCardInfo) {
+            this.scoreCardInfo = scoreCardInfo;
+        }
     }
 
 }

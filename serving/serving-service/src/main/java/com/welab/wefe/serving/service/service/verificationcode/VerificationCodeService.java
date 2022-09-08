@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,29 +16,29 @@
 
 package com.welab.wefe.serving.service.service.verificationcode;
 
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.verification.code.AbstractClient;
 import com.welab.wefe.common.verification.code.AbstractResponse;
+import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
+import com.welab.wefe.common.verification.code.common.VerificationCodeBusinessType;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
-import com.welab.wefe.common.wefe.enums.VerificationCodeBusinessType;
-import com.welab.wefe.common.wefe.enums.VerificationCodeSendChannel;
 import com.welab.wefe.serving.service.config.Config;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.entity.VerificationCodeMysqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.database.repository.VerificationCodeRepository;
-
+import com.welab.wefe.serving.service.dto.globalconfig.CaptchaSendChannelConfigModel;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import net.jodah.expiringmap.ExpiringMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Verification code service class
@@ -69,6 +69,9 @@ public class VerificationCodeService {
 
     @Autowired
     private Config config;
+
+    @Autowired
+    private GlobalConfigService globalConfigService;
 
     /**
      * Send verification code
@@ -102,7 +105,7 @@ public class VerificationCodeService {
         try {
             // Generate verification code
             String verificationCode = generateVerificationCode();
-            VerificationCodeSendChannel sendChannel = VerificationCodeSendChannel.valueOf(config.getVerificationCodeSendChannel());
+            CaptchaSendChannel sendChannel = globalConfigService.getModel(CaptchaSendChannelConfigModel.class).channel;
             // Get Client
             AbstractClient client = ClientFactory.getClient(sendChannel, businessType);
             // send
@@ -126,27 +129,20 @@ public class VerificationCodeService {
      * Check verification code is valid
      */
     public void checkVerificationCode(String mobile, String verificationCode, VerificationCodeBusinessType businessType) throws StatusCodeWithException {
-        if(StringUtil.isEmpty(mobile)) {
+        if (StringUtil.isEmpty(mobile)) {
             throw new StatusCodeWithException("手机号不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
         }
-        if(StringUtil.isEmpty(verificationCode)) {
+        if (StringUtil.isEmpty(verificationCode)) {
             throw new StatusCodeWithException("验证码不能为空。", StatusCode.PARAMETER_VALUE_INVALID);
         }
         String cacheKey = buildCacheKey(mobile, businessType);
         String cacheVerificationCode = VERIFICATION_CODE_CACHE.get(cacheKey);
-        if(StringUtil.isEmpty(cacheVerificationCode)) {
+        if (StringUtil.isEmpty(cacheVerificationCode)) {
             throw new StatusCodeWithException("验证码无效,请重新获取验证码。", StatusCode.PARAMETER_VALUE_INVALID);
         }
-        if(!cacheVerificationCode.equals(verificationCode)) {
+        if (!cacheVerificationCode.equals(verificationCode)) {
             throw new StatusCodeWithException("验证码不正确。", StatusCode.PARAMETER_VALUE_INVALID);
         }
-    }
-
-    /**
-     * Get send channel
-     */
-    public String getSendChannel() {
-        return config.getVerificationCodeSendChannel();
     }
 
     /**
@@ -163,7 +159,7 @@ public class VerificationCodeService {
     /**
      * build entity model
      */
-    private VerificationCodeMysqlModel buildModel(String mobile, String verificationCode, VerificationCodeSendChannel sendChannel,
+    private VerificationCodeMysqlModel buildModel(String mobile, String verificationCode, CaptchaSendChannel sendChannel,
                                                   VerificationCodeBusinessType businessType, AbstractResponse response) {
         VerificationCodeMysqlModel model = new VerificationCodeMysqlModel();
         model.setBizId(UUID.randomUUID().toString().replace("-", ""));

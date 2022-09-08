@@ -23,6 +23,9 @@ package com.welab.wefe.mpc.config;
  * @Date: 2021-12-30
  **/
 public class CommunicationConfig {
+    
+    private String requestId;
+    
     /**
      * 查询的接口名
      */
@@ -85,5 +88,13 @@ public class CommunicationConfig {
 
     public void setNeedSign(boolean needSign) {
         this.needSign = needSign;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 }

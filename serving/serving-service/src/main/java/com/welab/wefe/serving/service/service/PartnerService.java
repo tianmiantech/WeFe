@@ -120,6 +120,7 @@ public class PartnerService {
         partnerMysqlModel.setCode(input.getCode());
         partnerMysqlModel.setId(input.getId());
         partnerMysqlModel.setIsUnionMember(input.getIsUnionMember());
+        partnerMysqlModel.setIsMe(input.getIsMe());
         partnerRepository.save(partnerMysqlModel);
     }
 
@@ -157,7 +158,7 @@ public class PartnerService {
         return ModelMapper.map(model, DetailPartnerApi.Output.class);
     }
 
-    public void detele(String id) {
+    public void delete(String id) {
         PartnerMysqlModel model = partnerRepository.findOne("id", id, PartnerMysqlModel.class);
         model.setStatus(ClientStatusEnum.DELETED.getValue());
         model.setUpdatedTime(new Date());
@@ -202,6 +203,7 @@ public class PartnerService {
         model.setIsUnionMember(input.getIsUnionMember());
         model.setServingBaseUrl(input.getServingBaseUrl());
         model.setRemark(input.getRemark());
+        model.setIsMe(input.getIsMe());
         if (StringUtils.isBlank(model.getCode()) && StringUtils.isNotBlank(input.getCode())) {
             model.setCode(input.getCode());
         }
@@ -268,7 +270,9 @@ public class PartnerService {
                 partnerMysqlModel.setId(id);
             }
         }
-
+        if (StringUtils.isNotBlank(id)) {
+            partnerMysqlModel.setIsMe(id.equalsIgnoreCase(CacheObjects.getMemberId()));
+        }
         partnerMysqlModel.setName(name);
         partnerMysqlModel.setEmail("");
         partnerMysqlModel.setRemark("");

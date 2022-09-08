@@ -20,6 +20,8 @@ package com.welab.wefe.board.service.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.api.data_output_info.PushModelToServingByProviderApi;
+import com.welab.wefe.board.service.component.EvaluationComponent;
+import com.welab.wefe.board.service.component.modeling.ScoreCardComponent;
 import com.welab.wefe.board.service.database.entity.job.JobMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
@@ -43,7 +45,6 @@ import com.welab.wefe.common.wefe.enums.TaskResultType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -73,6 +74,7 @@ public class ServingService extends AbstractService {
 
     @Autowired
     private GatewayService gatewayService;
+
 
     /**
      * Update serving global configuration
@@ -187,6 +189,13 @@ public class ServingService extends AbstractService {
         request("model_save", params, true);
     }
 
+    private void check(String taskId, JobMemberRole role) throws StatusCodeWithException {
+        TaskResultMySqlModel taskResult = getTaskResult(taskId, role);
+        if (jobMemberService.isLocalJob(taskResult.getJobId())) {
+            StatusCode.UNSUPPORTED_HANDLE.throwException("本机与本联合训练的模型不可推送或导出!");
+        }
+    }
+
     /**
      * notify other members to push
      *
@@ -263,6 +272,8 @@ public class ServingService extends AbstractService {
 
     public TreeMap<String, Object> buildModelParams(String taskId, JobMemberRole role) throws StatusCodeWithException {
 
+        check(taskId, role);
+
         TaskResultMySqlModel taskResult = getTaskResult(taskId, role);
 
         List<JSONObject> members = getMembersByJobId(taskResult.getJobId());
@@ -270,9 +281,6 @@ public class ServingService extends AbstractService {
         JobMySqlModel job = getByJobId(taskResult.getJobId(), role);
 
         Map<Integer, Object> featureEngineerMap = getFeatureEngineerMap(taskId, role);
-
-
-        //TODO 评估数据集合
 
         // body
         TreeMap<String, Object> params = new TreeMap<>();
@@ -282,12 +290,58 @@ public class ServingService extends AbstractService {
         params.put("name", extractName(job));
         // The v2 version job does not have Algorithm and flType parameters
         params.put("algorithm", getAlgorithm(taskResult.getComponentType()));
-        params.put("modelParam", taskResult.getResult());
+        params.put("modelParam", getModelParam(taskResult));
         params.put("flType", job.getFederatedLearningType().name());
         params.put("memberParams", members);
         params.put("featureEngineerMap", featureEngineerMap);
+        params.put("scoresDistribution", getScoresDistribution(taskResult));
+        params.put("scoreCardInfo", getScoreCardInfo(taskResult));
 
         return params;
+    }
+
+    private Object getScoresDistribution(TaskResultMySqlModel taskResult) {
+        TaskResultMySqlModel task = taskResultService.findOne(taskResult.getJobId(), null, taskResult.getRole(), TaskResultType.metric_train_validate.name());
+        if (task == null) {
+            return null;
+        }
+
+        String key = EvaluationComponent.scoreDistributionKey(taskResult.getName());
+        return JObject.create(task.getResult()).get(key);
+    }
+
+    private Object getScoreCardInfo(TaskResultMySqlModel taskResult) {
+        TaskResultMySqlModel task = taskResultService.findByJobIdAndComponentTypeAndType(
+                taskResult.getJobId(),
+                ComponentType.ScoreCard,
+                TaskResultType.metric_score,
+                taskResult.getRole());
+        if (task == null) {
+            return null;
+        }
+
+        JObject result = JObject.create();
+        JObject data = JObject.create(task.getResult());
+        result.put("score_card", data.getJObjectByPath(ScoreCardComponent.scoreCardKey(task.getName()) + ".data"));
+
+        TaskResultMySqlModel binningTaskResult = taskResultService.findOne(
+                taskResult.getJobId(),
+                null,
+                taskResult.getRole(),
+                TaskResultType.model_binning.name()
+        );
+
+        JObject binning = JObject.create(binningTaskResult.getResult());
+        result.put("bin", binning.getJObjectByPath("model_param.binningResult.binningResult"));
+
+        return result;
+    }
+
+
+    private JObject getModelParam(TaskResultMySqlModel taskResult) {
+        JObject modelParam = JObject.create(taskResult.getResult());
+        modelParam.put("scoreCardInfo", getScoreCardInfo(taskResult));
+        return modelParam;
     }
 
     private String extractName(JobMySqlModel job) {
@@ -313,35 +367,33 @@ public class ServingService extends AbstractService {
     }
 
     private List<JSONObject> fillPublicKey(List<JobMemberOutputModel> memberList) {
-        List<JSONObject> members = new ArrayList<>();
-        memberList.forEach(mem -> {
-            JSONObject member = new JSONObject();
-            member.put("memberId", mem.getMemberId());
-            member.put("role", mem.getJobRole());
-
-            // Find the public key
-            try {
-                JSONObject json = unionService.queryMemberById(mem.getMemberId());
-                member.put("name", json.getJSONObject("data").
-                        getJSONArray("list").
-                        getJSONObject(0).
-                        getString("name"));
-                member.put("publicKey", json.getJSONObject("data").
-                        getJSONArray("list").
-                        getJSONObject(0).
-                        getString("public_key"));
-                member.put("url", json.getJSONObject("data").
-                        getJSONArray("list").
-                        getJSONObject(0).
-                        getJSONObject("ext_json").
-                        getString("serving_base_url"));
-            } catch (StatusCodeWithException e) {
-                super.log(e);
-            }
-
-            members.add(member);
-        });
-        return members;
+        return memberList
+                .stream()
+                .map(mem -> {
+                    JSONObject member = new JSONObject();
+                    member.put("memberId", mem.getMemberId());
+                    member.put("role", mem.getJobRole());
+                    // Find the public key
+                    try {
+                        JSONObject json = unionService.queryMemberById(mem.getMemberId());
+                        member.put("name", json.getJSONObject("data").
+                                getJSONArray("list").
+                                getJSONObject(0).
+                                getString("name"));
+                        member.put("publicKey", json.getJSONObject("data").
+                                getJSONArray("list").
+                                getJSONObject(0).
+                                getString("public_key"));
+                        member.put("url", json.getJSONObject("data").
+                                getJSONArray("list").
+                                getJSONObject(0).
+                                getJSONObject("ext_json").
+                                getString("serving_base_url"));
+                    } catch (StatusCodeWithException e) {
+                        super.log(e);
+                    }
+                    return member;
+                }).collect(Collectors.toList());
     }
 
     private String getModelIdByTaskIdAndRole(String taskId, JobMemberRole role) {

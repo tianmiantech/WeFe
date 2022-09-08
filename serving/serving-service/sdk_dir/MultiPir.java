@@ -21,15 +21,19 @@ import com.welab.wefe.mpc.util.RSAUtil;
 
 import java.util.TreeMap;
 
-// 多方匿踪查询 用来生成http请求参数
+// 多方匿踪查询 用来生成http请求参数，然后自己通过http请求
 public class MultiPir {
 	// 私钥
-	private static final String 测试客户1_privateKey="***";
+	private static final String 测试客户1_privateKey="***"; // TODO
 	// 公钥
-	private static final String 测试客户1_publicKey="***";
+	private static final String 测试客户1_publicKey="***"; // TODO
 	// 客户code
-	private static final String 测试客户1_code = "TEST***25";
-
+	private static final String 测试客户1_code = "TEST***25"; // TODO
+    // Serving服务地址
+    private static final String serverUrl = "https://****/serving-service-01/"; // TODO
+    // Service Api name
+    private String apiName = "api/*****"; // TODO
+    
 	public static void main(String[] args) throws Exception {
 		String dataStr = "{\n" +
 				"  \"ids\": [\n" +
@@ -62,7 +66,7 @@ public class MultiPir {
 				"}";
 		System.out.println("多方匿踪查询参数 naorpinkas_ot方式:\t" + request(dataStr));
         // 服务地址
-		System.out.println("多方匿踪查询参数 url:https://xxxx/serving-service-01/api/*****");
+		System.out.println("多方匿踪查询参数 url:" + serverUrl + apiName);
 	}
 
 	protected static String request(String dataStr) throws Exception {
@@ -79,6 +83,7 @@ public class MultiPir {
 		body.put("customer_id", 测试客户1_code);
 		body.put("sign", sign);
 		body.put("data", JSONObject.parseObject(data));
+		body.put("requestId", "xxx");
 		boolean verified = RSAUtil.verify(params.get("data").toString().getBytes(),
 				RSAUtil.getPublicKey(测试客户1_publicKey), sign);
 		if(verified) {

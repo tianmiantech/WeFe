@@ -272,6 +272,7 @@
             n_splits: 5,
             shuffle:  true,
             need_cv:  false,
+             
         },
         other_param: {
             lr_method:             'lr',

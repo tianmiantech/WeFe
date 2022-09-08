@@ -64,6 +64,17 @@ public class OrderStatisticsMysqlModel extends AbstractBaseMySqlModel {
     @Column(name = "service_name")
     private String serviceName;
 
+    @Column(name = "save_ip")
+    private String saveIp;
+
+    public String getSaveIp() {
+        return saveIp;
+    }
+
+    public void setSaveIp(String saveIp) {
+        this.saveIp = saveIp;
+    }
+
     public Integer getCallTimes() {
         return callTimes;
     }

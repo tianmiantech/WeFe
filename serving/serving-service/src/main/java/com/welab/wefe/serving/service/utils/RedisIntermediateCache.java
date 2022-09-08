@@ -17,6 +17,8 @@
 package com.welab.wefe.serving.service.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.welab.wefe.mpc.cache.intermediate.CacheOperation;
 
@@ -26,6 +28,8 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisIntermediateCache implements CacheOperation {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(RedisIntermediateCache.class);
+    
 	private JedisPool jedisPool = null;
 	private String host;
 	private int port;
@@ -65,10 +69,10 @@ public class RedisIntermediateCache implements CacheOperation {
 		}
 		// 从连接池中获取一个连接
 		try (Jedis jedis = jedisPool.getResource()) {
-			System.out.println(jedis);
 			byte[] bytes = SerializeUtil.serialize(value);
 			jedis.set((name + "_" + key).getBytes(), bytes);
 		}
+        LOG.info("jedis set name = " + name + "_" + key + ", value=" + value);
 	}
 
 	@Override
@@ -82,6 +86,7 @@ public class RedisIntermediateCache implements CacheOperation {
 			if (value == null || value.length == 0) {
 				return null;
 			}
+            LOG.info("jedis get name = " + name + "_" + key + ", value=" + value);
 			return SerializeUtil.unserialize(value);
 		}
 	}
@@ -95,6 +100,7 @@ public class RedisIntermediateCache implements CacheOperation {
 		try (Jedis jedis = jedisPool.getResource()) {
 			jedis.del(key.getBytes());
 		}
+        LOG.info("jedis del name = " + key);
 	}
 
 }

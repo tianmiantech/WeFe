@@ -24,6 +24,8 @@ import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
 import com.welab.wefe.serving.sdk.dto.PredictResult;
+import com.welab.wefe.serving.sdk.model.lr.LrPredictResultModel;
+import com.welab.wefe.serving.sdk.model.xgboost.XgboostPredictResultModel;
 import com.welab.wefe.serving.sdk.predicter.AbstractBasePredictor;
 import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
 import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
@@ -36,6 +38,7 @@ import com.welab.wefe.serving.service.predicter.single.PromoterPredictor;
 import com.welab.wefe.serving.service.predicter.single.ProviderPredictor;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ModelMemberService;
+import com.welab.wefe.serving.service.service.ModelPredictScoreStatisticsService;
 import com.welab.wefe.serving.service.service.ModelService;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -50,10 +53,12 @@ public class Predictor {
 
     private static ModelMemberService modelMemberService;
     private static ModelService modelService;
+    private static ModelPredictScoreStatisticsService modelPredictScoreStatisticsService;
 
     static {
         modelMemberService = Launcher.CONTEXT.getBean(ModelMemberService.class);
         modelService = Launcher.CONTEXT.getBean(ModelService.class);
+        modelPredictScoreStatisticsService = Launcher.CONTEXT.getBean(ModelPredictScoreStatisticsService.class);
     }
 
     /**
@@ -78,7 +83,37 @@ public class Predictor {
                                         Map<String, Object> featureData) throws StatusCodeWithException {
 
         AbstractBasePredictor predictor = constructPredictor(requestId, modelId, userId, featureData);
-        return predictor.predict();
+        PredictResult result = predictor.predict();
+
+        recordPredictScoreIncrement(modelId, result);
+
+        makeSensitiveData(result);
+
+        return result;
+    }
+
+    private static void recordPredictScoreIncrement(String modelId, PredictResult result) throws StatusCodeWithException {
+
+        if (JobMemberRole.provider.equals(findMyRole(modelId)) && FederatedLearningType.vertical.equals(findFlType(modelId))) {
+            return;
+        }
+
+        if (result.getResult() instanceof XgboostPredictResultModel) {
+            XgboostPredictResultModel scoreModel = (XgboostPredictResultModel) result.getResult();
+            modelPredictScoreStatisticsService.asyncIncrement(modelId, Double.valueOf(scoreModel.getScores().toString()));
+        }
+        if (result.getResult() instanceof LrPredictResultModel) {
+            LrPredictResultModel scoreModel = (LrPredictResultModel) result.getResult();
+            modelPredictScoreStatisticsService.asyncIncrement(modelId, scoreModel.getScore());
+        }
+    }
+
+    private static void makeSensitiveData(PredictResult result) {
+        if (result.getResult() instanceof LrPredictResultModel) {
+            LrPredictResultModel scoreModel = (LrPredictResultModel) result.getResult();
+            scoreModel.setScoreCard(null);
+            result.setResult(scoreModel);
+        }
     }
 
     public static PredictResult batch(String requestId,
@@ -88,6 +123,7 @@ public class Predictor {
 
         AbstractBasePredictor predictor = constructPredictor(requestId, modelId, userIds, featureDataMap);
         return predictor.predict();
+        //TODO 记录预测分数
     }
 
     private static AbstractBasePredictor constructPredictor(String requestId,
@@ -143,7 +179,9 @@ public class Predictor {
                                       JSONObject extendParams) throws Exception {
 
         AbstractBasePredictor predictor = constructDebugPredictor(modelId, userId, featureData, featureSource, extendParams);
-        return predictor.predict();
+        PredictResult result = predictor.predict();
+
+        return result;
     }
 
     private static AbstractBasePredictor constructDebugPredictor(String modelId,

@@ -5,6 +5,7 @@ import PasswordStrength from '../components/PasswordStrength.vue';
 import TableEmptyData from '../components/TableEmptyData.vue';
 import JsonViewer from 'vue-json-viewer';
 import 'vue-json-viewer/style.css';
+import CGrid from 'vue-cheetah-grid';
 
 export default {
     install (Vue) {
@@ -12,6 +13,7 @@ export default {
         Vue.use(ElDialog);
         Vue.use(JsonViewer);
         Vue.use(uploader);
+        Vue.use(CGrid);
 
         Vue.prototype.$ELEMENT = { size: 'small' };
 

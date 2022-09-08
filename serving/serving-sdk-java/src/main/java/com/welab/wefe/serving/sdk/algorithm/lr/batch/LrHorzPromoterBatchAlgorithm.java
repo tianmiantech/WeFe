@@ -32,10 +32,8 @@ public class LrHorzPromoterBatchAlgorithm extends AbstractLrBatchAlgorithm<BaseL
 
     @Override
     protected List<LrPredictResultModel> handle(BatchPredictParams batchPredictParams, List<JObject> federatedResult) {
-        List<LrPredictResultModel> predictModelList = batchExecute(batchPredictParams);
+        List<LrPredictResultModel> predictModelList = batchLocalCompute(batchPredictParams);
 
-        normalize(predictModelList);
-
-        return predictModelList;
+        return isScoreCard() ? predictModelList : normalize(predictModelList);
     }
 }

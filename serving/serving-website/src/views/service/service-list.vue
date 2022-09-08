@@ -236,14 +236,15 @@
                                     v-if="scope.row.service_type > 6"
                                     divided
                                 >
-                                    <el-button
-                                        v-if="scope.row.service_type > 6"
-                                        type="text"
-                                        size="small"
-                                        @click="alert('pass')"
-                                    >
-                                        效果
-                                    </el-button>
+                                    <router-link :to="{ name: 'psi-log-list', query: {service_id: scope.row.service_id} }">
+                                        <el-button
+                                            v-if="scope.row.service_type > 6"
+                                            type="text"
+                                            size="small"
+                                        >
+                                            效果
+                                        </el-button>
+                                    </router-link>
                                 </el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
@@ -279,7 +280,7 @@
             return {
                 accounts: [],
                 search:   {
-                    service_id: '',
+                    service_id:   '',
                     name:         '',
                     created_by:   '',
                     service_type: '',

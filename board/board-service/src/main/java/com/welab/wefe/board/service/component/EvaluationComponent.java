@@ -30,13 +30,15 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
-import org.springframework.beans.BeanUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +48,7 @@ import java.util.stream.Collectors;
  * @author lonnie
  */
 @Service
-class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> {
+public class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> {
 
     @Autowired
     private TaskService taskService;
@@ -61,7 +63,6 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         }
     }
 
-
     @Override
     public ComponentType taskType() {
         return ComponentType.Evaluation;
@@ -75,11 +76,12 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         }
 
         // Reassembly parameters
-        JObject output = JObject.create();
-        output.append("eval_type", params.getEvalType())
-                .append("pos_label", params.getPosLabel());
-
-        return output;
+        return JObject.create()
+                .append("eval_type", params.getEvalType())
+                .append("pos_label", params.getPosLabel())
+                .append("prob_need_to_bin", params.isProbNeedToBin())
+                .append("bin_method", params.getBinMethod())
+                .append("bin_num", params.getBinNum());
     }
 
     @Override
@@ -90,91 +92,170 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
     @Override
     protected TaskResultMySqlModel getResult(String taskId, String type) throws StatusCodeWithException {
 
-        TaskResultMySqlModel trainTaskResult = taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train.name());
-        TaskResultMySqlModel validateTaskResult = taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_validate.name());
-
-        if (trainTaskResult == null && validateTaskResult == null) {
+        TaskResultMySqlModel taskResultMySqlModel = findEvaluationTaskResultByTaskId(taskId);
+        if (taskResultMySqlModel == null) {
             return null;
         }
 
-        // Training and validation evaluation task_result only has different types,
-        // and finally the results are merged and returned.
-        TaskResultMySqlModel taskResultMySqlModel = new TaskResultMySqlModel();
-        if (trainTaskResult != null) {
-            BeanUtils.copyProperties(trainTaskResult, taskResultMySqlModel);
-        } else {
-            BeanUtils.copyProperties(validateTaskResult, taskResultMySqlModel);
-        }
+        JObject result = JObject.create()
+                .append("validate", getValidateJObject(taskId, taskResultMySqlModel))
+                .append("train", getTrainJObject(taskId, taskResultMySqlModel));
 
-        JObject trainObj = JObject.create(trainTaskResult != null ? trainTaskResult.getResult() : "");
-        JObject validateObj = JObject.create(validateTaskResult != null ? validateTaskResult.getResult() : "");
-
-        JObject result = JObject.create();
-
-
-        // Find out all the same branch nodes with the evaluation node
-        // and find the modeling node from them
-        // (this method solves the problem of null pointer when the evaluation node is deleted in the original editing process again)
-        List<TaskMySqlModel> homologousBranchTaskList = taskService.findHomologousBranchByJobId(taskResultMySqlModel.getJobId(), trainTaskResult.getRole(), taskResultMySqlModel.getTaskId());
-        TaskMySqlModel modelingTask = homologousBranchTaskList.stream().filter(x -> MODEL_COMPONENT_TYPE_LIST.contains(x.getTaskType())).findFirst().orElse(null);
-
-        String modelComponentType = modelingTask.getTaskType().toString();
-        String modelNodeId = modelingTask.getFlowNodeId();
-        String suffix = "";
-        if (!taskId.endsWith(taskResultMySqlModel.getFlowNodeId())) {
-            suffix = "_" + taskId.split("_")[taskId.split("_").length - 1];
-        }
         // Start parsing the required result data
-        String normalName = modelComponentType + "_" + modelNodeId + suffix;
-        String preValidateName = "validate_" + modelComponentType + "_" + modelNodeId + suffix;
-        String preTrainName = "train_" + modelComponentType + "_" + modelNodeId + suffix;
-
-        JObject validate = validateObj.getJObject(preValidateName);
-        JObject train = trainObj.getJObject(preTrainName);
-
-        result.append("validate", validate)
-                .append("train", train);
-
-        switch (type) {
-            case "ks":
-                result.putAll(parserTrainCurveData(trainObj, "ks_fpr", normalName));
-                result.putAll(parserValidateCurveData(validateObj, "ks_fpr", normalName));
-                result.putAll(parserTrainCurveData(trainObj, "ks_tpr", normalName));
-                result.putAll(parserValidateCurveData(validateObj, "ks_tpr", normalName));
-                break;
-            case "lift":
-                result.putAll(parserTrainCurveData(trainObj, "lift", normalName));
-                result.putAll(parserValidateCurveData(validateObj, "lift", normalName));
-                break;
-            case "gain":
-                result.putAll(parserTrainCurveData(trainObj, "gain", normalName));
-                result.putAll(parserValidateCurveData(validateObj, "gain", normalName));
-                break;
-            case "accuracy":
-                result.putAll(parserTrainCurveData(trainObj, "accuracy", normalName));
-                result.putAll(parserValidateCurveData(validateObj, "accuracy", normalName));
-                break;
-            case "precision_recall":
-                result.putAll(parserTrainCurveData(trainObj, "precision", normalName));
-                result.putAll(parserValidateCurveData(validateObj, "precision", normalName));
-                result.putAll(parserTrainCurveData(trainObj, "recall", normalName));
-                result.putAll(parserValidateCurveData(validateObj, "recall", normalName));
-                break;
-            case "roc":
-                result.putAll(parserTrainCurveData(trainObj, "roc", normalName));
-                result.putAll(parserValidateCurveData(validateObj, "roc", normalName));
-                break;
-            case "topn":
-                result.putAll(parserTopN(trainObj, normalName, "train"));
-                result.putAll(parserTopN(validateObj, normalName, "validate"));
-            default:
-                break;
-
-        }
+        result.putAll(getResultByType(taskId, type, extractNormalName(taskResultMySqlModel)));
 
         taskResultMySqlModel.setResult(result.toJSONString());
 
         return taskResultMySqlModel;
+    }
+
+    private JObject getTrainJObject(String taskId, TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
+        return getTrainObjByTaskId(taskId).getJObject(extractPreTrainName(taskResultMySqlModel));
+    }
+
+    private JObject getValidateJObject(String taskId, TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
+        return getValidateObjByTaskId(taskId).getJObject(extractPreValidateName(taskResultMySqlModel));
+    }
+
+    private JObject getResultByType(String taskId, String type, String normalName) throws StatusCodeWithException {
+
+        final JObject trainObj = getTrainObjByTaskId(taskId);
+        final JObject validateObj = getValidateObjByTaskId(taskId);
+
+
+        switch (type) {
+            case "ks":
+                JObject ks = JObject.create();
+                ks.putAll(parserTrainCurveData(trainObj, "ks_fpr", normalName));
+                ks.putAll(parserValidateCurveData(validateObj, "ks_fpr", normalName));
+                ks.putAll(parserTrainCurveData(trainObj, "ks_tpr", normalName));
+                ks.putAll(parserValidateCurveData(validateObj, "ks_tpr", normalName));
+                return ks;
+            case "lift":
+                JObject lift = JObject.create();
+                lift.putAll(parserTrainCurveData(trainObj, "lift", normalName));
+                lift.putAll(parserValidateCurveData(validateObj, "lift", normalName));
+                return lift;
+            case "gain":
+                JObject gain = JObject.create();
+                gain.putAll(parserTrainCurveData(trainObj, "gain", normalName));
+                gain.putAll(parserValidateCurveData(validateObj, "gain", normalName));
+                return gain;
+            case "accuracy":
+                JObject accuracy = JObject.create();
+                accuracy.putAll(parserTrainCurveData(trainObj, "accuracy", normalName));
+                accuracy.putAll(parserValidateCurveData(validateObj, "accuracy", normalName));
+                return accuracy;
+            case "precision_recall":
+                JObject precision_recall = JObject.create();
+                precision_recall.putAll(parserTrainCurveData(trainObj, "precision", normalName));
+                precision_recall.putAll(parserValidateCurveData(validateObj, "precision", normalName));
+                precision_recall.putAll(parserTrainCurveData(trainObj, "recall", normalName));
+                precision_recall.putAll(parserValidateCurveData(validateObj, "recall", normalName));
+                return precision_recall;
+            case "roc":
+                JObject roc = JObject.create();
+                roc.putAll(parserTrainCurveData(trainObj, "roc", normalName));
+                roc.putAll(parserValidateCurveData(validateObj, "roc", normalName));
+                return roc;
+            case "topn":
+                JObject topn = JObject.create();
+                topn.putAll(parserTopN(trainObj, normalName, "train"));
+                topn.putAll(parserTopN(validateObj, normalName, "validate"));
+                return topn;
+            case "scores_distribution":
+                final JObject distributionObj = getDistributionObjByTaskId(taskId);
+                JObject scores_distribution = JObject.create();
+                scores_distribution.putAll(parserScoresDistributionCurveData(distributionObj, normalName));
+                return scores_distribution;
+            default:
+                return JObject.create();
+        }
+    }
+
+    private String extractModelComponentType(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
+        TaskMySqlModel taskMySqlModel = findEvaluationTaskByTaskResult(taskResultMySqlModel);
+        return taskMySqlModel.getTaskType().toString();
+    }
+
+    private String extractFlowNodeId(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
+        TaskMySqlModel taskMySqlModel = findEvaluationTaskByTaskResult(taskResultMySqlModel);
+        return taskMySqlModel.getFlowNodeId();
+    }
+
+    private String extractPreTrainName(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
+        return "train_" + extractModelComponentType(taskResultMySqlModel) + "_" + extractFlowNodeId(taskResultMySqlModel) + extractSuffix(taskResultMySqlModel);
+    }
+
+    private String extractPreValidateName(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
+        return "validate_" + extractModelComponentType(taskResultMySqlModel) + "_" + extractFlowNodeId(taskResultMySqlModel) + extractSuffix(taskResultMySqlModel);
+    }
+
+    private String extractNormalName(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
+        return extractModelComponentType(taskResultMySqlModel) + "_" + extractFlowNodeId(taskResultMySqlModel) + extractSuffix(taskResultMySqlModel);
+    }
+
+    private String extractSuffix(TaskResultMySqlModel taskResultMySqlModel) {
+        return !taskResultMySqlModel.getTaskId().endsWith(taskResultMySqlModel.getFlowNodeId()) ?
+                "_" + taskResultMySqlModel.getTaskId().split("_")[taskResultMySqlModel.getTaskId().split("_").length - 1] : "";
+    }
+
+    /**
+     * <p>
+     * Find out all the same branch nodes with the evaluation node
+     * and find the modeling node from them
+     * (this method solves the problem of null pointer when the evaluation node is deleted in the original editing process again)
+     *
+     * </p>
+     *
+     * @param taskResultMySqlModel
+     * @return
+     * @throws StatusCodeWithException
+     */
+    private TaskMySqlModel findEvaluationTaskByTaskResult(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
+        List<TaskMySqlModel> homologousBranchTaskList = taskService.findHomologousBranchByJobId(taskResultMySqlModel.getJobId(), taskResultMySqlModel.getRole(), taskResultMySqlModel.getTaskId());
+        return homologousBranchTaskList
+                .stream()
+                .filter(x -> MODEL_COMPONENT_TYPE_LIST.contains(x.getTaskType()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private JObject getTrainObjByTaskId(String taskId) {
+        TaskResultMySqlModel trainTaskResult = findEvaluationTrainTaskResultByTaskId(taskId);
+        return trainTaskResult != null ? JObject.create(trainTaskResult.getResult()) : JObject.create("");
+    }
+
+    private JObject getValidateObjByTaskId(String taskId) {
+        TaskResultMySqlModel validateTaskResult = findEvaluationValidateTaskResultByTaskId(taskId);
+        return validateTaskResult != null ? JObject.create(validateTaskResult.getResult()) : JObject.create("");
+    }
+
+    private JObject getDistributionObjByTaskId(String taskId) {
+        TaskResultMySqlModel result = findEvaluationDistributionTaskResultByTaskId(taskId);
+        return result != null ? JObject.create(result.getResult()) : JObject.create("");
+    }
+
+    private TaskResultMySqlModel findEvaluationTaskResultByTaskId(String taskId) {
+        TaskResultMySqlModel trainTaskResult = findEvaluationTrainTaskResultByTaskId(taskId);
+        // Training and validation evaluation task_result only has different types,
+        // and finally the results are merged and returned.
+        return trainTaskResult != null ?
+                ModelMapper.map(trainTaskResult, TaskResultMySqlModel.class) :
+                ModelMapper.map(findEvaluationValidateTaskResultByTaskId(taskId), TaskResultMySqlModel.class);
+
+    }
+
+    private TaskResultMySqlModel findEvaluationTrainTaskResultByTaskId(String taskId) {
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train.name());
+    }
+
+    private TaskResultMySqlModel findEvaluationValidateTaskResultByTaskId(String taskId) {
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_validate.name());
+    }
+
+    private TaskResultMySqlModel findEvaluationDistributionTaskResultByTaskId(String taskId) {
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train_validate.name());
     }
 
     /**
@@ -197,6 +278,65 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
     private JObject parserValidateCurveData(JObject obj, String type, String normalName) {
         return parserCurveData(obj, type, normalName, "validate_");
     }
+
+    private JObject parserScoresDistributionCurveData(JObject obj, String normalName) {
+        JObject result = extractScoreDistributionData(obj, normalName);
+
+        List<String> dataKey = result.keySet().stream().sorted()
+                .collect(Collectors.toList());
+
+        List<List<Object>> dataList = Lists.newArrayList();
+
+        for (int i = 0; i < dataKey.size(); i++) {
+            String key = dataKey.get(i);
+            dataList.add(
+                    Arrays.asList(
+                            extractXAxis(dataKey, i, key),
+                            extractYAxis(result, key),
+                            extractYAxis2(result, key)
+                    )
+            );
+        }
+
+        return JObject.create().append("scores_distribution", dataList);
+    }
+
+    private double extractYAxis2(JObject result, String key) {
+        double rate = result.getJObject(key).getDoubleValue("count_rate");
+        return precisionProcessByDouble(rate);
+    }
+
+    private int extractYAxis(JObject result, String key) {
+        return result.getJObject(key).getIntValue("count");
+    }
+
+    private String extractXAxis(List<String> dataKey, int i, String key) {
+        String beforeKey = i == 0 ? "0" : dataKey.get(i - 1);
+        return precisionProcessByString(beforeKey) + "~" + precisionProcessByString(key);
+    }
+
+
+    private double precisionProcessByDouble(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        return bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    private double precisionProcessByString(String value) {
+        BigDecimal bd = new BigDecimal(value);
+        return bd.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    private JObject extractScoreDistributionData(JObject obj, String normalName) {
+        JObject scoresDistributionData = obj.getJObject(scoreDistributionKey(normalName));
+        JObject data = scoresDistributionData.getJObject("data");
+        JObject result = data.getJObject("bin_result");
+        return result;
+    }
+
+    public static String scoreDistributionKey(String taskResultName) {
+        return "train_validate_" + taskResultName + "_metric";
+    }
+
 
     /**
      * Get the corresponding curve data node information, dataType: validate_/train_
@@ -269,6 +409,16 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
         @Check(require = true)
         private int posLabel;
 
+        @Check(require = true)
+        private boolean probNeedToBin;
+
+        @Check
+        private String binMethod;
+
+        @Check
+        private int binNum;
+
+
         public String getEvalType() {
             return evalType;
         }
@@ -283,6 +433,30 @@ class EvaluationComponent extends AbstractComponent<EvaluationComponent.Params> 
 
         public void setPosLabel(int posLabel) {
             this.posLabel = posLabel;
+        }
+
+        public boolean isProbNeedToBin() {
+            return probNeedToBin;
+        }
+
+        public void setProbNeedToBin(boolean probNeedToBin) {
+            this.probNeedToBin = probNeedToBin;
+        }
+
+        public String getBinMethod() {
+            return binMethod;
+        }
+
+        public void setBinMethod(String binMethod) {
+            this.binMethod = binMethod;
+        }
+
+        public int getBinNum() {
+            return binNum;
+        }
+
+        public void setBinNum(int binNum) {
+            this.binNum = binNum;
         }
     }
 }

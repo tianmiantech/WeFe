@@ -71,6 +71,7 @@
                                 project_id: scope.row.project_id,
                                 flow_id: scope.row.flow_id,
                                 job_id: scope.row.job_id,
+                                is_project_admin: is_project_admin
                             }
                         }"
                     >
@@ -285,10 +286,11 @@
             },
         },
         created() {
-            const { project_id, flow_id } = this.$route.query;
+            const { project_id, flow_id, is_project_admin } = this.$route.query;
 
             this.flow_id = flow_id;
             this.project_id = project_id;
+            this.is_project_admin = is_project_admin;
             this.pagination.page_size = 20;
             this.getTableList();
         },
