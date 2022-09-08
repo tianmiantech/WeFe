@@ -16,10 +16,15 @@
 
 package com.welab.wefe.serving.service.dto.globalconfig;
 
+import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigModel;
+
 /**
  * @author hunter.zhao
  */
-public class UnionInfoModel {
+@ConfigModel(group = ConfigGroupConstant.WEFE_UNION)
+public class UnionInfoModel extends AbstractConfigModel {
 
     /***
      * union service intranet base url

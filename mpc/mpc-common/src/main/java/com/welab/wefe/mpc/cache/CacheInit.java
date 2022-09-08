@@ -29,4 +29,9 @@ public class CacheInit {
         // 同一个请求，中间数据缓存操作实现
         CacheOperationFactory.init(operation);
     }
+    
+    public static void set(CacheOperation operation) {
+        // 同一个请求，中间数据缓存操作实现
+        CacheOperationFactory.setCacheOperation(operation);
+    }
 }

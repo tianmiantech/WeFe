@@ -27,53 +27,37 @@
                             :name="`${row.member_id}-${index}`"
                             :label="`${row.member_name} (${row.member_role === 'provider' ? '协作方' : '发起方'})`"
                         >
-                            <el-table
-                                :data="row.dataList"
-                                max-height="600px"
-                                class="mt10"
-                                stripe
-                                border
-                            >
-                                <el-table-column
-                                    label="序号"
-                                    type="index"
-                                />
-                                <el-table-column
-                                    label="列名"
-                                    prop="column"
-                                />
-                                <el-table-column
-                                    label="分箱数量"
-                                    prop="binNums"
-                                />
-                                <el-table-column
-                                    label="分箱方式"
-                                    prop="paramsMethod"
-                                />
-                                <el-table-column
-                                    label="iv"
-                                    prop="iv"
-                                />
-                                <el-table-column
-                                    label="woe"
-                                    prop="woeArray"
-                                />
-                                <el-table-column
-                                    label="event_count"
-                                    prop="eventCountArray"
-                                />
-                                <el-table-column
-                                    label="event_rate"
-                                    prop="eventRateArray"
-                                />
-                                <el-table-column
-                                    label="non_event_count"
-                                    prop="nonEventCountArray"
-                                />
-                                <el-table-column
-                                    label="non_event_rate"
-                                    prop="nonEventRateArray"
-                                />
+                            <el-table :data="row.dataList" stripe :border="true" style="width :100%" class="fold-table" :row-class-name="methods.tableRowClassName" @expand-change="methods.expandChange">
+                                <el-table-column type="expand">
+                                    <template #default="props">
+                                        <el-table :data="row.dataList[props.$index].inline_table" stripe border :span-method="methods.arraySpanMethod" style="width: 100%">
+                                            <el-table-column label="序号" width="55" type="index" align="center" />
+                                            <el-table-column label="划分区间" prop="binning" align="center" width="110" />
+                                            <el-table-column label="正样本数" prop="eventCountArray" align="center" />
+                                            <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
+                                            <el-table-column label="总样本数" prop="countArray" align="center" />
+                                            <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
+                                            <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
+                                            <el-table-column label="总占比" prop="countRateArray" align="center" />
+                                            <el-table-column label="WOE" prop="woeArray" align="center" />
+                                            <el-table-column label="IV" prop="ivArray" align="center" />
+                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" width="260" align="center">
+                                                <template v-slot="scope">
+                                                    <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" width="430" align="center" fixed="right">
+                                                <template v-slot="scope">
+                                                    <BarChartNew ref="BarChart" :config="scope.row.mapdata"/>
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="特征名称" prop="column"></el-table-column>
+                                <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
+                                <el-table-column label="分箱数量" prop="binNums"></el-table-column>
+                                <el-table-column label="总IV" prop="iv"></el-table-column>
                             </el-table>
                         </el-tab-pane>
                     </el-tabs>
@@ -109,6 +93,7 @@
         },
         setup(props, context) {
             const activeName = ref('1');
+            const LineChart = ref();
 
             let vData = reactive({
                 tabName:     '',
@@ -117,16 +102,173 @@
             });
 
             let methods = {
+                expandChange(row) {
+                    const tabIdx = vData.tabName.split('-')[1];
+
+                    vData.list[tabIdx].dataList[row.Index].isShowWOE = true;
+                },
+                tableRowClassName({ row, rowIndex }) {
+                    row.Index = rowIndex;
+                    methods.expandChange(row);
+                },
+                arraySpanMethod({ row, column, rowIndex, columnIndex }) {
+                    const tabIdx = vData.tabName.split('-')[1];
+
+                    if (columnIndex === 10 || columnIndex === 11) {
+                        // if (rowIndex % 2 === 0) {
+                        //     return {
+                        //         rowspan: vData.list[tabIdx].dataList.length || 0,
+                        //         colspan: 1,
+                        //     };
+                        // } else {
+                        //     console.log('else',rowIndex);
+                        //     return {
+                        //         rowspan: 0,
+                        //         colspan: 0,
+                        //     };
+                        // }
+                        return {
+                            rowspan: vData.list[tabIdx].dataList.length || 0,
+                            colspan: 1,
+                        };
+                    }
+                },
                 showResult(data) {
                     if(data[0].result) {
                         const list = [];
 
                         data[0].result.result.forEach(member => {
-                            const { binningResult } = member;
+                            const { binningResult, member_role } = member;
                             const dataList = [];
 
                             for(const column in binningResult) {
                                 const val = binningResult[column];
+                                const series = [], xAxis = [], goodData = [], badData = [], badLineData = [];
+
+                                // 概率
+                                // for (let i=0; i<val.countArray.length; i++) {
+                                //     goodData.push((val.eventCountArray[i] / val.countArray[i])*val.countRateArray[i]);
+                                //     badData.push((val.nonEventCountArray[i] / val.countArray[i])*val.countRateArray[i]);
+                                //     badLineData.push(val.nonEventCountArray[i] / val.countArray[i]);
+                                // }
+
+                                // 样本量
+                                for (let i=0; i<val.countArray.length; i++) {
+                                    goodData.push(val.eventCountArray[i]);
+                                    badData.push(val.nonEventCountArray[i]);
+                                    badLineData.push(val.nonEventCountArray[i] / val.countArray[i]);
+                                }
+                                
+                                series.push(
+                                    {
+                                        name:      'good',
+                                        stack:     'Ad',
+                                        type:      'bar',
+                                        data:      goodData,
+                                        itemStyle: {
+                                            color: 'rgba(5, 115, 107, .7)',
+                                        },
+                                        // tooltip: {
+                                        //     valueFormatter: (value) => value.toFixed(3),
+                                        // },
+                                    },
+                                    {
+                                        name:      'bad',
+                                        stack:     'Ad',
+                                        type:      'bar',
+                                        data:      badData,
+                                        itemStyle: {
+                                            color: 'rgba(174, 6, 23, .7)',
+                                        },
+                                        // tooltip: {
+                                        //     valueFormatter: (value) => value.toFixed(3),
+                                        // },
+                                    },
+                                    {
+                                        type:       'line',
+                                        yAxisIndex: 1,
+                                        itemStyle:  {
+                                            color: 'rgba(11, 89, 153, 1)',
+                                        },
+                                        data:  badLineData,
+                                        label: {
+                                            show:     true,
+                                            position: 'top',
+                                            formatter (value) {
+                                                return Number(value.data).toFixed(2);
+                                            },
+                                        },
+                                        tooltip: {
+                                            valueFormatter: (value) => value.toFixed(3),
+                                        },
+                                    },
+                                );
+                                if (val.splitPoints.length) {
+                                    for(let i=0; i<val.splitPoints.length; i++) {
+                                        xAxis.push(val.splitPoints[i].toFixed(3));
+                                    }
+                                } else {
+                                    for (let j=0; j<Number(val.binNums); j++) {
+                                        xAxis.push(j+1);
+                                    }
+                                }
+                                const mapdata = {
+                                    xAxis: {
+                                        type: 'category',
+                                        data: xAxis || [],
+                                    },
+                                    yAxis: [
+                                        {
+                                            type:         'value',
+                                            name:         'Bin count distribution',
+                                            nameLocation: 'middle',
+                                            nameGap:      30,
+                                            nameRotate:   90,
+                                        },
+                                        {
+                                            type:         'value',
+                                            name:         'Bad probability',
+                                            nameLocation: 'middle',
+                                            nameGap:      30,
+                                            nameRotate:   90,
+                                        },
+                                    ],
+                                    series,
+                                    legend: {},
+                                };
+
+                                const inline_table = [], woeData = { xAxis: [], series: [[]] };
+
+                                for (let j=0; j<Number(val.binNums); j++) {
+                                    woeData.xAxis.push(j+1);
+                                    woeData.series[0].push(val.woeArray[j]);
+                                    let binningData = null;
+
+                                    if (val.splitPoints.length) {
+                                        binningData = j === 0 ? `(${Number.NEGATIVE_INFINITY}, ${Number(val.splitPoints[j]).toFixed(2)}]` : j === Number(val.binNums)-1 ? `(${Number(val.splitPoints[j]).toFixed(2)}, ${Number.POSITIVE_INFINITY})` : `(${Number(val.splitPoints[j-1]).toFixed(2)}, ${Number(val.splitPoints[j]).toFixed(2)}]`;
+                                    } else {
+                                        binningData = '-';
+                                    }
+                                    inline_table.push({
+                                        column,
+                                        countArray:         val.countArray[j],
+                                        countRateArray:     Number(val.countRateArray[j]).toFixed(2),
+                                        eventCountArray:    member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.eventCountArray[j]).toFixed(2) : '-',
+                                        eventRateArray:     member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.eventRateArray[j]).toFixed(2) : '-',
+                                        nonEventCountArray: member_role === 'promoter' && props.myRole === 'promoter' ? val.nonEventCountArray[j] : '-',
+                                        nonEventRateArray:  member_role === 'promoter' && props.myRole === 'promoter' ? Number(val.nonEventRateArray[j]).toFixed(2): '-',
+                                        // eventCountArray:    Number(val.eventCountArray[j]).toFixed(2),
+                                        // eventRateArray:     Number(val.eventRateArray[j]).toFixed(2),
+                                        // nonEventCountArray: val.nonEventCountArray[j],
+                                        // nonEventRateArray:  Number(val.nonEventRateArray[j]).toFixed(2),
+                                        ivArray:            Number(val.ivArray[j]).toFixed(2),
+                                        splitPoints:        Number(val.splitPoints[j]).toFixed(2),
+                                        woeArray:           Number(val.woeArray[j]).toFixed(2),
+                                        binning:            binningData,
+                                        woeLineConfig:      woeData,
+                                        mapdata,
+                                    });
+                                }
 
                                 dataList.push({
                                     column,
@@ -136,6 +278,9 @@
                                     eventRateArray:     val.eventRateArray.length ? val.eventRateArray.join(','): '',
                                     nonEventCountArray: val.nonEventCountArray.length ? val.nonEventCountArray.join(','): '',
                                     nonEventRateArray:  val.nonEventRateArray.length ? val.nonEventRateArray.join(','): '',
+                                    isCheckBarChart:    false,
+                                    inline_table,
+                                    isShowWOE:          false,
                                 });
                             }
 
@@ -167,6 +312,7 @@
                 vData,
                 methods,
                 activeName,
+                LineChart,
             };
         },
     };

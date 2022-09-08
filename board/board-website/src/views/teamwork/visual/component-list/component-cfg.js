@@ -102,4 +102,8 @@ export default {
     VertOneHot: {
         ...defaultCfg,
     },
+    /* 评分卡 */
+    ScoreCard: {
+        ...defaultCfg,
+    },
 };

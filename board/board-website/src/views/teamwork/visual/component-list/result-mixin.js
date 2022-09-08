@@ -49,6 +49,7 @@ export default () => {
                     running:   true,
                     wait_stop: true,
                 },
+                label_species_count: 0,
             });
             const $methods = {
                 async readData() {
@@ -103,6 +104,27 @@ export default () => {
                         vData.result = data[0].result;
                     }
                 },
+                async getDataLabelSpeciesCount() {
+                    const { code, data } = await $http.get({ 
+                        url:    '/flow/dataset/info', 
+                        params: {
+                            flow_id: props.flowId, 
+                        }, 
+                    }); 
+ 
+                    if (code === 0) {
+                        if (data.flow_data_set_features.length) { 
+                            const members = data.flow_data_set_features[0].members || []; 
+
+                            members.forEach(member => { 
+                                if (member.label_distribution) { 
+                                    vData.label_species_count = member.label_distribution.label_species_count; 
+                                    return; 
+                                } 
+                            }); 
+                        }
+                    } 
+                },
             };
 
             // merge mixin
@@ -113,6 +135,7 @@ export default () => {
                 if (props.autoReadResult) {
                     methods.readData();
                 }
+                methods.getDataLabelSpeciesCount();
             });
 
             onBeforeUnmount(_ => {

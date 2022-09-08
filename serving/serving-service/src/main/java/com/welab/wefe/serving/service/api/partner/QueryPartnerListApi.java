@@ -88,6 +88,9 @@ public class QueryPartnerListApi
 
         @Check(name = "合作者状态")
         private Integer status;
+        
+        @Check(name = "是否是自己")
+        private boolean isMe;
 
         public Integer getStatus() {
             return status;
@@ -175,6 +178,14 @@ public class QueryPartnerListApi
 
         public void setRemark(String remark) {
             this.remark = remark;
+        }
+
+        public boolean getIsMe() {
+            return isMe;
+        }
+
+        public void setIsMe(boolean isMe) {
+            this.isMe = isMe;
         }
 
     }

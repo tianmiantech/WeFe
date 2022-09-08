@@ -23,6 +23,8 @@ public class BaseAlgorithmModel {
 
     private ModelMeta modelMeta;
 
+    private ScoreCardInfoModel scoreCardInfo;
+
     protected Double getLearningRate() {
         return modelMeta.getLearningRate();
     }
@@ -33,5 +35,13 @@ public class BaseAlgorithmModel {
 
     public void setModelMeta(ModelMeta modelMeta) {
         this.modelMeta = modelMeta;
+    }
+
+    public ScoreCardInfoModel getScoreCardInfo() {
+        return scoreCardInfo;
+    }
+
+    public void setScoreCardInfo(ScoreCardInfoModel scoreCardInfo) {
+        this.scoreCardInfo = scoreCardInfo;
     }
 }

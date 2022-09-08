@@ -29,9 +29,9 @@ import java.util.List;
  * @author hunter.zhao
  */
 public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends AbstractBatchAlgorithm<T, R> {
-    protected List<LrPredictResultModel> batchExecute(BatchPredictParams batchPredictParams) {
+    protected List<LrPredictResultModel> batchLocalCompute(BatchPredictParams batchPredictParams) {
         List<LrPredictResultModel> predictResult = LrAlgorithmHelper.batchCompute(
-                modelParam.getModelParam(), batchPredictParams);
+                modelParam.getModelParam(), batchPredictParams, modelParam.getScoreCardInfo());
 
         predictResult.stream().forEach(
                 x -> x.setFeatureResult(PredictModel.extractFeatureResult(
@@ -53,6 +53,7 @@ public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends
                 )
         );
     }
+
     /**
      * batch sigmod function
      */
@@ -62,9 +63,15 @@ public abstract class AbstractLrBatchAlgorithm<T extends BaseLrModel, R> extends
         );
     }
 
-    protected void normalize(List<LrPredictResultModel> predictResultList) {
+    protected List<LrPredictResultModel> normalize(List<LrPredictResultModel> predictResultList) {
         intercept(predictResultList);
         sigmod(predictResultList);
+
+        return predictResultList;
+    }
+
+    protected boolean isScoreCard() {
+        return modelParam.getScoreCardInfo() != null;
     }
 
 }

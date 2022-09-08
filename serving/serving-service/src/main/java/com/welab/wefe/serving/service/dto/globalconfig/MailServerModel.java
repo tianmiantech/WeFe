@@ -16,11 +16,21 @@
 
 package com.welab.wefe.serving.service.dto.globalconfig;
 
-public class MailServerModel {
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.fieldvalidate.secret.MaskStrategy;
+import com.welab.wefe.common.fieldvalidate.secret.Secret;
+import com.welab.wefe.serving.service.dto.globalconfig.base.AbstractConfigModel;
+import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigGroupConstant;
+import com.welab.wefe.serving.service.dto.globalconfig.base.ConfigModel;
+
+@ConfigModel(group = ConfigGroupConstant.MAIL_SERVER)
+public class MailServerModel extends AbstractConfigModel {
 
     private String host;
     private String port;
     private String username;
+    @Check(require = true)
+    @Secret(maskStrategy = MaskStrategy.PASSWORD)
     private String password;
 
     public String getHost() {

@@ -25,16 +25,21 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 
-// 交集查询 psi
+// 两方交集查询 psi 
+// 配合 mpc-psi-sdk-1.0.0.jar使用
 public class PsiClient {
     // 私钥
-    private static final String 测试客户1_privateKey="***";
+    private static final String 测试客户1_privateKey="***"; // TODO
     // 公钥
-    private static final String 测试客户1_publicKey="***";
+    private static final String 测试客户1_publicKey="***"; // TODO
     // 客户code
-    private static final String 测试客户1_code = "TEST***25";
+    private static final String 测试客户1_code = "TEST***25"; // TODO
+    // Serving服务地址
+    private static final String serverUrl = "https://****/serving-service-01/"; // TODO
+    // Service Api name
+    private String apiName = "api/*****"; // TODO
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		// params
 		JSONObject data = new JSONObject();
 		data.put("phone_number", "******");
@@ -47,10 +52,12 @@ public class PsiClient {
 		config.setSignPrivateKey(测试客户1_privateKey);//私钥
 		config.setCommercialId(测试客户1_code); // 客户ID
         // 服务地址
-		config.setServerUrl("http://*********/serving-service-01/");
-		config.setApiName("api/*****");
+		config.setServerUrl(serverUrl);
+		config.setApiName(apiName);
 
 		List<String> result = privateSetIntersection.query(config, clientIds, 1024);
+		
+		// 如果 clientId = result 说明有结果
 		System.out.println(clientId);
 		System.out.println(result);
 	}

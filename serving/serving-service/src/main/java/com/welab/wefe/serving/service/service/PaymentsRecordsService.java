@@ -168,7 +168,7 @@ public class PaymentsRecordsService {
         Optional<BaseServiceMySqlModel> serviceMySqlModel = serviceRepository.findById(input.getServiceId());
         if (serviceMySqlModel.isPresent()) {
             BaseServiceMySqlModel service = serviceMySqlModel.get();
-            model.setServiceId(service.getId());
+            model.setServiceId(service.getServiceId());
             model.setServiceName(service.getName());
             model.setServiceType(service.getServiceType());
         }

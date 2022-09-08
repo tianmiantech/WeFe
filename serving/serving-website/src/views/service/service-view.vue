@@ -66,7 +66,6 @@
                 >
                     <el-input
                         v-model="form.name"
-                        :maxlength="30"
                         :minlength="4"
                         size="medium"
                     />
@@ -764,16 +763,59 @@
                                     </el-button>
                                 </div>
 
-                                <div
-                                    v-if="predictResult !== ''"
-                                    class="test_result"
-                                    style="margin-top: 30px; margin-left: 35px;"
-                                >
-                                    结果：
-                                    <JsonViewer
-                                        :value="predictResult"
-                                        copyable
-                                    />
+                                <div>
+                                    <div
+                                        v-if="predictResult && predictResult.result.score_card && predictResult.result.score_card.length"
+                                        class="mt10"
+                                    >
+                                        <el-table
+                                            id="table_debug"
+                                            ref="tableDebug"
+                                            :data="predictResult.result.score_card"
+                                            stripe
+                                            border
+                                            height="300"
+                                            show-summary
+                                            sum-text="总分"
+                                            :summary-method="getSummaries"
+                                        >
+                                            <el-table-column
+                                                label="特征"
+                                                prop="feature"
+                                                width="60"
+                                                align="center"
+                                            />
+                                            <el-table-column
+                                                label="原始值"
+                                                prop="value"
+                                                width="100"
+                                            />
+                                            <el-table-column
+                                                label="分箱"
+                                                prop="bin"
+                                                width="90"
+                                            />
+                                            <el-table-column
+                                                label="woe"
+                                                prop="woe"
+                                            />
+                                            <el-table-column
+                                                label="评分"
+                                                prop="score"
+                                            />
+                                        </el-table>
+                                    </div>
+                                    <div
+                                        v-if="predictResult && !predictResult.result.score_card"
+                                        class="test_result"
+                                        style="margin-top: 30px; margin-left: 35px;"
+                                    >
+                                        结果：
+                                        <JsonViewer
+                                            :value="predictResult"
+                                            copyable
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
@@ -794,7 +836,7 @@
                     class="mt10"
                     type="primary"
                     size="medium"
-                    :disabled="!form.service_type"
+                    :disabled="!form.service_type || form.status === 1"
                     @click="save"
                 >
                     保存
@@ -807,6 +849,7 @@
                 >
                     点击下载工具包
                 </el-link>
+                <p v-if="form.status === 1" style="font-size: 10px;color:red">已上线服务不允许修改</p>
                 <div
                     v-if="api.params || api.method || api.url"
                     class="api-preview"
@@ -962,6 +1005,28 @@
                     height="500"
                     border
                 >
+                    <el-table-column type="expand">
+                        <template #default="props">
+                            <el-table
+                                :data="gridData[props.$index].inlineTable"
+                                stripe
+                                border
+                            >
+                                <el-table-column
+                                    label="分箱"
+                                    prop="binning"
+                                />
+                                <el-table-column
+                                    label="评分"
+                                    prop="score"
+                                />
+                                <el-table-column
+                                    label="woe"
+                                    prop="woe"
+                                />
+                            </el-table>
+                        </template>
+                    </el-table-column>
                     <el-table-column
                         property="feature"
                         label="特征"
@@ -1091,8 +1156,12 @@ export default {
     },
     data() {
         return {
-            dataBaseOptions:   [],
-            predictResult:     '',
+            dataBaseOptions: [],
+            predictResult:   {
+                result: {
+                    score_card: [],
+                },
+            },
             requestDataDialog: false,
             jsonData:          '',
             title:             '',
@@ -1117,6 +1186,7 @@ export default {
                 url:          '',
                 service_type: '',
                 operator:     'sum',
+                status : 0,
                 data_source:  {
                     id:               '',
                     table:            '',
@@ -1332,10 +1402,29 @@ export default {
     },
     watch: {
         'form.service_type'() {
-            if(this.form.service_type === ''){
-                this.file_upload_options.files = [];
-            }
+            this.file_upload_options.files = [];
             this.setServiceDesc();
+        },
+        'predictResult.result.score_card': {
+            immediate: true,
+            handler(val) {
+                if (val.length) {
+                    this.$nextTick(() => {
+                        const tds = document.querySelectorAll(
+                            '#table_debug .el-table__footer-wrapper tr>td',
+                        );
+
+                        tds[tds.length-1].colSpan = 4;
+                        tds[tds.length-1].style.textAlign = 'right';
+                        tds[1].style.display = 'none';
+                        tds[2].style.display = 'none';
+                        tds[3].style.display = 'none';
+
+                        // tds[1].colSpan = 2;
+                        // tds[3].style.display = 'none';
+                    });
+                }
+            },
         },
     },
     created() {
@@ -1662,11 +1751,11 @@ export default {
                     this.form.url = data.url;
                     this.form.service_type = type;
                     this.form.processor = data.processor;
+                    this.form.status = data.status;
                     if(data.my_role) {
                         this.myRole = data.my_role[0];
                     }
                     this.activeName = data.feature_source;
-                    console.log(data);
                     if (data.id && data.service_type > 6) {
                         this.form.model_data.model_sql_config.model_id = data.model_id;
                         this.form.model_data.model_id = data.service_id;
@@ -1703,6 +1792,7 @@ export default {
                                 this.gridData.push({
                                     feature,
                                     weight,
+                                    inlineTable: data.score_card_info && Object.keys(data.score_card_info).length ? data.score_card_info[name] : [],
                                 });
                             }
                         }
@@ -1713,8 +1803,9 @@ export default {
                             const name = data.model_param.header[i];
 
                             this.gridData.push({
-                                feature: name,
-                                weight:  data.model_param.weight[name],
+                                feature:     name,
+                                weight:      data.model_param.weight[name],
+                                inlineTable: data.score_card_info && Object.keys(data.score_card_info).length ? data.score_card_info[name] : [],
                             });
                         }
                     }
@@ -1789,6 +1880,32 @@ export default {
                 }
             }
             this.loading = false;
+        },
+        getSummaries(param) {
+            const { columns, data } = param;
+            const sums = [];
+
+            columns.forEach((column, index) => {
+                if (index === 0) {
+                    sums[index] = '总评分';
+                    return;
+                }
+                const values = data.map(item => Number(item[column.property]));
+
+                if (!values.every(value => isNaN(value))) {
+                    sums[index] = values.reduce((prev, curr) => {
+                        const value = Number(curr);
+
+                        if (!isNaN(value) && column.property === 'score') {
+                            return this.predictResult.result.score ? this.predictResult.result.score : prev + curr;
+                        }
+                    }, 0);
+                } else {
+                    sums[index] = '';
+                }
+            });
+
+            return sums;
         },
         serviceTypeChange() {
             this.form.data_source.table = '';

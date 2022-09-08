@@ -16,15 +16,14 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.mail.Address;
-import javax.mail.SendFailedException;
-import javax.mail.internet.MimeMessage;
-
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.enums.MessageLevel;
+import com.welab.wefe.common.wefe.enums.ProducerType;
+import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
+import com.welab.wefe.serving.service.database.entity.MessageMysqlModel;
+import com.welab.wefe.serving.service.database.repository.AccountRepository;
+import com.welab.wefe.serving.service.dto.globalconfig.MailServerModel;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,14 +34,13 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.MessageLevel;
-import com.welab.wefe.common.wefe.enums.ProducerType;
-import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.entity.MessageMysqlModel;
-import com.welab.wefe.serving.service.database.repository.AccountRepository;
-import com.welab.wefe.serving.service.dto.globalconfig.MailServerModel;
-import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
+import javax.mail.Address;
+import javax.mail.SendFailedException;
+import javax.mail.internet.MimeMessage;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * email service
@@ -51,9 +49,9 @@ import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
  **/
 @Service
 public class EmailService {
-    
+
     protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
-    
+
     private static final String MAIL_DEFAULT_ENCODING = "UTF-8";
     private static final String MAIL_SMTP_AUTH = "true";
     private static final String MAIL_SMTP_WRITE_TIMEOUT = "30000";
@@ -66,6 +64,7 @@ public class EmailService {
     private AccountRepository accountRepository;
     @Autowired
     private GlobalConfigService configService;
+
     /**
      * Send approval task notification email (multiple persons)
      *
@@ -74,12 +73,12 @@ public class EmailService {
     public Set<String> sendApprovalJobNotifyMail() {
         String subject = "这是一个标题";
         String content = "这是正文";
-        MailServerModel mailModel = configService.getMailServerModel();
+        MailServerModel mailModel = configService.getModel(MailServerModel.class);
         // Failed to send mailbox list
         Set<String> sendFailEmails = new HashSet<>(16);
         try {
             Set<String> totalEmails = getTotalEmails();
-            if(mailModel == null) {
+            if (mailModel == null) {
                 savePartSendFailMessage("邮件服务器未设置：" + sendFailEmails);
                 return sendFailEmails;
             }
@@ -174,12 +173,11 @@ public class EmailService {
     }
 
 
-
     /**
      * Get message sender
      */
     private JavaMailSenderImpl getMailSender() throws Exception {
-        MailServerModel mailModel = configService.getMailServerModel();
+        MailServerModel mailModel = configService.getModel(MailServerModel.class);
         if (mailModel == null) {
             throw new Exception("邮件服务器未设置");
         }

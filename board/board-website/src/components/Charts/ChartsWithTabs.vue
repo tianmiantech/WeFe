@@ -14,11 +14,12 @@
                 :key="`${tab.name}-${index}`"
                 :name="tab.name"
                 :label="tab.label"
+                :nova="tab.chart.type"
             >
                 <TopN ref="topn" v-if="tab.name === 'topn'"></TopN>
                 <component
                     :ref="tab.name"
-                    :is="`${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}Chart`"
+                    :is="charts[tab.name] && tab.name === 'scoresDistribution' ? `${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}ChartNew` : `${tab.chart.type.substring(0,1).toUpperCase()}${tab.chart.type.substring(1)}Chart`"
                     v-if="charts[tab.name] && tab.name !== 'topn'"
                     :config="charts[tab.name].config"
                 >
@@ -48,6 +49,7 @@
     // import { getCurrentInstance } from 'vue';
     import ChartsMap from './ChartTypesMap';
     import TopN from '@views/teamwork/visual/component-list/Evaluation/TopN.vue';
+    const orginChartsMap = JSON.parse(JSON.stringify(ChartsMap));
 
     export default {
         name:  'ChartsWithTabs',
@@ -62,14 +64,15 @@
         data() {
             return {
                 ChartsMap,
-                componentType: '',
-                tabName:       '',
-                loading:       false,
-                charts:        {},
+                componentType:    '',
+                tabName:          '',
+                loading:          false,
+                charts:           {},
+                prob_need_to_bin: false,
             };
         },
-        created() {
-            this.readResult();
+        async created() {
+            await this.readResult();
             // show topn or not for modeling-list
             if (!this.showTopn && this.ChartsMap.Evaluation.tabs && this.ChartsMap.Evaluation.tabs.length) {
                 this.ChartsMap.Evaluation.tabs.forEach((item, idx) => {
@@ -122,9 +125,16 @@
 
                 if (code === 0 && data) {
                     const $data = Array.isArray(data) ? data[0] : data;
-                    const { result, component_type } = $data;
+                    const { result, component_type, task_config, prob_need_to_bin } = $data;
 
                     this.componentType = component_type;
+                    this.prob_need_to_bin = task_config && task_config.params && task_config.params.prob_need_to_bin ? task_config.params.prob_need_to_bin : prob_need_to_bin ? prob_need_to_bin : false;
+
+                    if (this.prob_need_to_bin) {
+                        this.ChartsMap[this.componentType].tabs = orginChartsMap[this.componentType].tabs;
+                    } else {
+                        this.ChartsMap[this.componentType].tabs = this.ChartsMap[this.componentType].tabs.filter(item => item.name !== 'scoresDistribution');
+                    }
 
                     if (result) {
                         const currentChart = this.ChartsMap[this.componentType];
@@ -333,6 +343,8 @@
 
                         } else if (tabName === 'topn') {
                             ref.renderTopnTable(result);
+                        } else if (tabName === 'scoresDistribution') {
+                            this.renderScoreDistribution({ result });
                         } else {
                             const lineNames = [`train_${tabName}`, `validate_${tabName}`];
 
@@ -346,6 +358,94 @@
                 setTimeout(_ => {
                     ref.loading = false;
                 }, 200);
+            },
+
+            renderScoreDistribution({ result }) {
+                const { tabName } = this;
+                const { scores_distribution } = result;
+                const score_d_bar = [],
+                      score_d_line = [],
+                      series = [],
+                      xAxisData = [];
+
+                let xAxis = {}, yAxis = [];
+
+                if (scores_distribution) {
+                    for (let i=0; i<scores_distribution.length; i++) {
+                        xAxisData.push(scores_distribution[i][0]);
+                        score_d_bar.push(scores_distribution[i][1]);
+                        score_d_line.push(scores_distribution[i][2]*100);
+                    }
+                    xAxis = {
+                        type:        'category',
+                        name:        '分箱区间',
+                        data:        xAxisData,
+                        // min:         2,
+                        axisPointer: {
+                            type: 'shadow',
+                        },
+                        axisTick: {
+                            alignWithLabel: true,
+                        },
+                    };
+                    yAxis = [
+                        // { type: 'value', name: '样本占比' },
+                        {
+                            type:      'value',
+                            name:      '样本数量',
+                            // data:      score_d_line,
+                            axisLabel: {
+                                // formatter (value) {
+                                //     console.log(value);
+                                //     return Number(value).toFixed(2) /10 + '%';
+                                // },
+                            },
+                        },
+                    ];
+                    series.push(
+                        // 1. 直方图展示原来折线图数据
+                        {
+                            name:      '占比',
+                            type:      'line',
+                            data:      score_d_line,
+                            itemStyle: {
+                                // color: '#3398DB',
+                                color:       'transparent',
+                                borderColor: 'transparent',
+                            },
+                            label: {
+                                show:     true,
+                                position: 'top',
+                                formatter (value) {
+                                    return Number(value.data).toFixed(2) + '%';
+                                },
+                            },
+                        },
+
+                        // 2. 直方图展示依旧
+                        {
+                            name:      '数量',
+                            type:      'bar',
+                            itemStyle: {
+                                color: 'rgba(217, 135, 19, 1)',
+                                // color: 'transparent',
+                            },
+                            data:  score_d_bar,
+                            label: {
+                                show:     true,
+                                position: 'top',
+                                // formatter (value) {
+                                //     return Number(value).toFixed(2)*100;
+                                // },
+                            },
+                        },
+                    );
+                }
+
+                this.charts[tabName].config.xAxis = xAxis;
+                this.charts[tabName].config.yAxis = yAxis;
+                this.charts[tabName].config.series = series;
+
             },
 
             renderRoc({ result }) {

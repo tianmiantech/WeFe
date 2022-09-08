@@ -365,3 +365,5 @@ class BaseLRModel(ModelBase):
                                 "a check for input data")
         LOGGER.info("Check for abnormal value passed")
 
+
+

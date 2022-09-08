@@ -202,6 +202,32 @@
                         </el-radio>
                     </el-form-item>
                 </el-collapse-item>
+
+                <el-collapse-item title="评分基准分设置" name="5">
+                    <el-form-item label="是否启用评分卡：">
+                        <el-switch
+                            v-model="vData.form.score_param.need_scorecard"
+                            active-color="#13ce66">
+                        </el-switch>
+                    </el-form-item>
+
+                    <el-form-item label="基准分：" v-if="vData.form.score_param.need_scorecard">
+                        <el-input
+                            v-model="vData.form.score_param.p0"
+                            type="number"
+                            controls-position="right"
+                        />
+                    </el-form-item>
+
+                    <el-form-item label="pdo：" v-if="vData.form.score_param.need_scorecard">
+                        <el-input
+                            v-model="vData.form.score_param.pdo"
+                            type="number"
+                            controls-position="right"
+                        />
+                    </el-form-item>
+                </el-collapse-item>
+
             </el-collapse>
         </el-form>
     </div>
@@ -233,6 +259,18 @@
             decay:         1,
             decay_sqrt:    true,
             multi_class:   'ovr',
+        },
+        score_param: {
+            need_scorecard: false,
+            p0:             50,
+            pdo:            10,
+
+        },
+        score_param: {
+            need_scorecard: false,
+            p0:             50,
+            pdo:            10,
+
         },
     };
 

@@ -104,5 +104,4 @@ public class AbstractLRInput extends AbstractCheckModel {
             this.needCv = needCv;
         }
     }
-
 }
