@@ -16,6 +16,8 @@
 
 package com.welab.wefe.serving.service.api.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -25,14 +27,12 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.enums.ServiceResultEnum;
 import com.welab.wefe.serving.service.service.ServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Api(path = "api", name = "api service", forward = true, allowAccessWithSign = true, domain = Caller.Customer)
 public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
 
     @Autowired
     private ServiceService serviceService;
-
 
     @Override
     protected ApiResult<JObject> handle(Input input) {
@@ -50,6 +50,24 @@ public class RouteApi extends AbstractApi<RouteApi.Input, JObject> {
         }
     }
 
+    /**
+     * Maximum parallelism allowed by an interface
+     */
+    @Override
+    protected int parallelism() {
+        return 20;
+    }
+    
+    /**
+     * Specifies whether the interface allows concurrency. The default value is yes.
+     * <p>
+     * Override this method in a subclass if changes are needed.
+     */
+    @Override
+    public boolean canParallel() {
+        return true;
+    }
+    
     public static class Input extends AbstractApiInput {
 
         @Check(name = "合作者ID")
