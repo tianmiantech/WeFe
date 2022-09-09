@@ -50,7 +50,7 @@ public class PredictScoreStatisticsScheduler {
     /**
      * 整分触发一次
      */
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0/5 * * * ?")
     public void statistics() {
         List<String> serviceIds = tableModelRepository.getAllServiceId();
 
