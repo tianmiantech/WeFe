@@ -714,7 +714,9 @@ public class ServiceService {
             result.append("responseId", responseId);
             result.append("code", status.getCode());
             JObject tmpResult = new JObject((JSONObject)result.clone());
-            tmpResult.put("subCalllogs", serviceProcessor.calllogs());
+            if(serviceProcessor != null) {
+                tmpResult.put("subCalllogs", serviceProcessor.calllogs());
+            }
             log(input, beginTime, service, tmpResult, status, responseId);
         }
     }
