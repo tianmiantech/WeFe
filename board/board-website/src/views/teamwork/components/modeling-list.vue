@@ -37,6 +37,7 @@
                     搜索
                 </el-button>
                 <el-button
+                    hidden
                     type="primary"
                     @click="modelCompare"
                 >
