@@ -115,6 +115,7 @@ public class ModelMemberService {
         return isProvider(list) ?
                 Lists.newArrayList() : list.stream()
                 .filter(x -> !CacheObjects.getMemberId().equals(x.getMemberId()))
+                .filter(x -> !JobMemberRole.promoter.equals(x.getRole()))
                 .map(x -> checkAvailable(serviceId, x))
                 .collect(Collectors.toList());
     }

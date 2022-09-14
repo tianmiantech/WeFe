@@ -130,7 +130,7 @@ public class ModelPredictScoreStatisticsService {
                 .equal("splitPoint", splitPoints)
                 .build(ModelPredictScoreStatisticsMySqlModel.class);
 
-        return statisticsRepository.findOne(where).get();
+        return statisticsRepository.findOne(where).orElse(null);
     }
 
     private void addRecord(String serviceId, Double score) {
