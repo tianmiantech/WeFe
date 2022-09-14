@@ -270,6 +270,7 @@
                         :audit-status="true"
                         :search-field="vData.rawSearch"
                         :paramsExclude="['allList', 'list']"
+                        :member-id="vData.memberId"
                         @list-loaded="methods.listLoaded"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
@@ -311,6 +312,7 @@
                         :paramsExclude="['allList', 'list']"
                         :search-field="vData.derivedSearch"
                         :project-type="projectType"
+                        :member-id="vData.memberId"
                         @selectDataSet="methods.selectDataSet"
                         @close-dialog="vData.showSelectDataSet=false;"
                     >
