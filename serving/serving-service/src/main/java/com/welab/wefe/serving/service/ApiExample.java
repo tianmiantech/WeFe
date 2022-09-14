@@ -25,6 +25,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
 /**
  * @author hunter.zhao
@@ -51,6 +52,7 @@ public class ApiExample {
         params.put("serviceId", "%s");
         params.put("userId", "手机号");
         params.put("partnerCode", "分配的客户号");
+        params.put("requestId", UUID.randomUUID().toString().replace("-", ""));
 //        params.put("featureData", map1);
 
         /**
