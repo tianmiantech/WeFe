@@ -115,7 +115,12 @@ public class X509CertHandler {
          */
         v3CertGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(isCaCert));
         if (keyUsage != null) {
-            v3CertGen.addExtension(Extension.keyUsage, false, keyUsage);
+            KeyUsage ku1 = new KeyUsage(KeyUsage.dataEncipherment);
+            KeyUsage ku2 = new KeyUsage(KeyUsage.digitalSignature);
+            KeyUsage ku3 = new KeyUsage(KeyUsage.nonRepudiation);
+            v3CertGen.addExtension(Extension.keyUsage, false, ku1);
+            v3CertGen.addExtension(Extension.keyUsage, false, ku2);
+            v3CertGen.addExtension(Extension.keyUsage, false, ku3);
         }
         
         List<GeneralName> namesList = new ArrayList<GeneralName>();
