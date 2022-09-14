@@ -28,14 +28,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CRLHolder;
 import org.bouncycastle.cert.X509v2CRLBuilder;
@@ -114,12 +112,12 @@ public class X509CertHandler {
                 extUtils.createAuthorityKeyIdentifier(SubjectPublicKeyInfo.getInstance(publicKey.getEncoded())));
          */
         v3CertGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(isCaCert));
+        KeyUsage ku2 = new KeyUsage(KeyUsage.digitalSignature); // 数字签名
+        v3CertGen.addExtension(Extension.keyUsage, false, ku2);
         if (keyUsage != null) {
-            KeyUsage ku1 = new KeyUsage(KeyUsage.dataEncipherment);
-            KeyUsage ku2 = new KeyUsage(KeyUsage.digitalSignature);
-            KeyUsage ku3 = new KeyUsage(KeyUsage.nonRepudiation);
+            KeyUsage ku1 = new KeyUsage(KeyUsage.keyEncipherment); // 密钥加密
+            KeyUsage ku3 = new KeyUsage(KeyUsage.nonRepudiation); // 认可签名
             v3CertGen.addExtension(Extension.keyUsage, false, ku1);
-            v3CertGen.addExtension(Extension.keyUsage, false, ku2);
             v3CertGen.addExtension(Extension.keyUsage, false, ku3);
         }
         
