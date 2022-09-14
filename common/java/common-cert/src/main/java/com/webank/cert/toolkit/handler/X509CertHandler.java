@@ -112,15 +112,20 @@ public class X509CertHandler {
                 extUtils.createAuthorityKeyIdentifier(SubjectPublicKeyInfo.getInstance(publicKey.getEncoded())));
          */
         v3CertGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(isCaCert));
-        KeyUsage ku2 = new KeyUsage(KeyUsage.digitalSignature); // 数字签名
-        v3CertGen.addExtension(Extension.keyUsage, false, ku2);
+//        KeyUsage ku2 = new KeyUsage(KeyUsage.digitalSignature); // 数字签名
+//        v3CertGen.addExtension(Extension.keyUsage, false, ku2);
+//        if (keyUsage != null) {
+//            KeyUsage ku1 = new KeyUsage(KeyUsage.keyEncipherment); // 密钥加密
+//            KeyUsage ku3 = new KeyUsage(KeyUsage.nonRepudiation); // 认可签名
+//            v3CertGen.addExtension(Extension.keyUsage, false, ku1);
+//            v3CertGen.addExtension(Extension.keyUsage, false, ku3);
+//        }
         if (keyUsage != null) {
-            KeyUsage ku1 = new KeyUsage(KeyUsage.keyEncipherment); // 密钥加密
-            KeyUsage ku3 = new KeyUsage(KeyUsage.nonRepudiation); // 认可签名
-            v3CertGen.addExtension(Extension.keyUsage, false, ku1);
-            v3CertGen.addExtension(Extension.keyUsage, false, ku3);
+            v3CertGen.addExtension(Extension.keyUsage, false, keyUsage);
+        } else {
+            KeyUsage ku2 = new KeyUsage(KeyUsage.digitalSignature); // 数字签名
+            v3CertGen.addExtension(Extension.keyUsage, false, ku2);
         }
-        
         List<GeneralName> namesList = new ArrayList<GeneralName>();
         namesList.add(new GeneralName(GeneralName.dNSName, "wefe.tianmiantech.com.test"));
 //        namesList.add(new GeneralName(GeneralName.iPAddress, "127.0.0.1"));
