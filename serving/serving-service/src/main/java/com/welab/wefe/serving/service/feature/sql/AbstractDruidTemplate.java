@@ -37,6 +37,8 @@ import java.util.Map;
  */
 public abstract class AbstractDruidTemplate extends AbstractTemplate {
 
+    private static final Map<String, DruidPooledConnection> DRUID_POOL_CONNECTION = new HashMap<>();
+
     private static final Map<String, Object> PROPERTIES = new HashMap<>();
 
     static {
@@ -95,21 +97,32 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
         } catch (SQLException e) {
             e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
+//        finally {
+//            if (connection != null) {
+//                try {
+//                    connection.close();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
         return null;
     }
 
 
     private static DruidPooledConnection getConnection(String url, String username, String password, String driver) throws StatusCodeWithException {
+
+        DruidPooledConnection pool = DRUID_POOL_CONNECTION.get(url);
+
+        try {
+            if (pool != null && !pool.isClosed()) {
+                return pool;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         synchronized (PROPERTIES) {
             PROPERTIES.put("url", url);
@@ -122,13 +135,13 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
                 DruidDataSource druidDataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(PROPERTIES);
                 druidDataSource.setBreakAfterAcquireFailure(true);
                 druidDataSource.setConnectionErrorRetryAttempts(0);
-                return druidDataSource.getConnection();
-
+                DRUID_POOL_CONNECTION.put(url, druidDataSource.getConnection());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new StatusCodeWithException("connection error: " + url, StatusCode.PARAMETER_VALUE_INVALID);
             }
         }
 
+        return DRUID_POOL_CONNECTION.get(url);
     }
 }

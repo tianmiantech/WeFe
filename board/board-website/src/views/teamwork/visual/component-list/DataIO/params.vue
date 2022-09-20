@@ -420,7 +420,10 @@
 
                             if(~datasetIndex) {
                                 const item = dataset_list[datasetIndex];
-                                const column_name_list = item.features ? item.features : item.feature_name_list ? item.feature_name_list.split(',') : [];
+
+                                let column_name_list = [];
+
+                                if ((item.features && item.features.length) || (item.feature_name_list && item.feature_name_list.length)) column_name_list = item.derived_from ? item.features : item.feature_name_list.split(',');
 
                                 member.$data_set_list.push({
                                     ...item,
