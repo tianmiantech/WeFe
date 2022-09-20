@@ -465,13 +465,13 @@ public class XgboostAlgorithmHelper {
             return skipProviderPredictModel(model, userId, featureDataMap);
         } else {
 
-            Map<Integer, Map<Integer, Boolean>> result = new HashMap<>(16);
+            Map<String, Map<String, Boolean>> result = new HashMap<>(16);
 
             //Traverse the tree
             for (int i = 0; i < model.getTrees().size(); i++) {
 
                 XgboostDecisionTreeModel decisionTree = model.getTrees().get(i);
-                Map<Integer, Boolean> treeRoute = new HashMap<>(16);
+                Map<String, Boolean> treeRoute = new HashMap<>(16);
 
                 for (int j = 0; j < decisionTree.getTree().size(); j++) {
 
@@ -510,10 +510,10 @@ public class XgboostAlgorithmHelper {
 
                     }
 
-                    treeRoute.put(j, direction);
+                    treeRoute.put(String.valueOf(j), direction);
                 }
 
-                result.put(i, treeRoute);
+                result.put(String.valueOf(i), treeRoute);
             }
 
             return PredictModel.ofObject(userId, result);
@@ -529,7 +529,7 @@ public class XgboostAlgorithmHelper {
      * @return PredictModel
      */
     private static PredictModel skipProviderPredictModel(XgboostModel model, String userId, Map<String, Object> featureDataMap) {
-        Map<Integer, Integer> result = new HashMap<>(16);
+        Map<String, Integer> result = new HashMap<>(16);
         int[] treeNodeIds = new int[model.getTreeNum()];
 
         /**
@@ -547,7 +547,7 @@ public class XgboostAlgorithmHelper {
 
             treeNodeIds[i] = providerDecision(model, i, treeNodeIds[i], featureDataMap);
 
-            result.put(i, treeNodeIds[i]);
+            result.put(String.valueOf(i), treeNodeIds[i]);
         }
 
 
