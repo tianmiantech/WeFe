@@ -16,7 +16,9 @@
 
 package com.welab.wefe.board.service.api.member;
 
+import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.SystemInitializeService;
+import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -34,10 +36,15 @@ public class UpdateMemberInfoApi extends AbstractNoneOutputApi<UpdateMemberInfoA
 
     @Autowired
     private SystemInitializeService systemInitializeService;
-
+    
+    @Autowired
+    protected GatewayService gatewayService;
+    
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
         systemInitializeService.updateMemberInfo(input);
+        // Notify the gateway to also refresh the corresponding cache
+        gatewayService.restartExternalGrpcServer();
         return success();
     }
 

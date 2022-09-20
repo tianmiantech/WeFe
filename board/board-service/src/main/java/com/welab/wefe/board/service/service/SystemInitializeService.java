@@ -166,8 +166,6 @@ public class SystemInitializeService extends AbstractService {
         unionService.uploadMemberInfoExcludeLogo(model);
 
         CacheObjects.refreshMemberInfo();
-        // Notify the gateway to also refresh the corresponding cache
-        gatewayService.restartExternalGrpcServer();
     }
 
 
