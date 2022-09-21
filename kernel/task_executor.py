@@ -427,9 +427,9 @@ class TaskExecutor(object):
             e = NoneTypeError()
         elif "NaN" in message:
             e = NaNTypeError()
-        elif "spark" in message or "Py4J" in message:
+        elif "spark" in message.lower() or "py4j" in message.lower():
 
-            if "OutOfMemoryError" in message:
+            if "OutOfMemoryError" in message or "jvm" in message.lower():
                 e = SparkOutOfMemoryError()
             else:
 
