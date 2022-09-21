@@ -40,11 +40,6 @@ public class MessageQueueMySqlModel extends AbstractMySqlModel {
      * Priority; Those with higher priority will be consumed first
      */
     private Integer priority;
-    /**
-     * action name
-     */
-    @Enumerated(EnumType.STRING)
-    private GatewayActionType action;
 
     /**
      * action params
@@ -65,14 +60,6 @@ public class MessageQueueMySqlModel extends AbstractMySqlModel {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
-    }
-
-    public GatewayActionType getAction() {
-        return action;
-    }
-
-    public void setAction(GatewayActionType action) {
-        this.action = action;
     }
 
     public String getParams() {
