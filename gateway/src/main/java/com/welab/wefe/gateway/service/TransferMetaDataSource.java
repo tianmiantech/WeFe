@@ -26,6 +26,7 @@ import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.NetworkDataTransferProxyServiceGrpc;
 import com.welab.wefe.gateway.api.streammessage.PushDataResponseStreamObserver;
+import com.welab.wefe.gateway.cache.CaCertificateCache;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.ConfigDataBuilder;
 import com.welab.wefe.gateway.common.EndpointBuilder;
@@ -36,6 +37,7 @@ import com.welab.wefe.gateway.interceptor.SignVerifyClientInterceptor;
 import com.welab.wefe.gateway.interceptor.SystemTimestampVerifyClientInterceptor;
 import com.welab.wefe.gateway.service.base.AbstractTransferMetaDataSource;
 import com.welab.wefe.gateway.util.GrpcUtil;
+import com.welab.wefe.gateway.util.TlsUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
@@ -223,7 +225,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
      * @param transferMetaDataList List of metadata to be sent
      * @return Send failed metadata list
      */
-    private List<GatewayMetaProto.TransferMeta> sendBlockTransferMetaDataListToRemote(GatewayMetaProto.TransferMeta block, List<GatewayMetaProto.TransferMeta> transferMetaDataList) throws ExecutionException, InterruptedException {
+    private List<GatewayMetaProto.TransferMeta> sendBlockTransferMetaDataListToRemote(GatewayMetaProto.TransferMeta block, List<GatewayMetaProto.TransferMeta> transferMetaDataList) throws Exception {
         if (CollectionUtils.isEmpty(transferMetaDataList)) {
             return null;
         }
@@ -235,7 +237,8 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
         StreamObserver<GatewayMetaProto.TransferMeta> requestStreamObserver = null;
         boolean isCompleted = false;
         try {
-            originalChannel = GrpcUtil.getManagedChannel(block.getDst().getEndpoint());
+            //originalChannel = GrpcUtil.getManagedChannel(block.getDst().getEndpoint());
+            originalChannel = buildManagedChannel(block.getDst());
             // Set client interceptor
             Channel channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor());
             NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(channel);
@@ -319,7 +322,8 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
             boolean isCompleted = false;
             try {
                 transferMeta = transferMeta.toBuilder().setTransferStatus(GatewayMetaProto.TransferStatus.COMPLETE).build();
-                originalChannel = GrpcUtil.getManagedChannel(transferMeta.getDst().getEndpoint());
+                //originalChannel = GrpcUtil.getManagedChannel(transferMeta.getDst().getEndpoint());
+                originalChannel = buildManagedChannel(transferMeta.getDst());
                 // Set client interceptor
                 Channel channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor());
                 NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(channel);
@@ -521,4 +525,12 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
         PAGE_SIZE_THREAD_LOCAL.remove();
     }
 
+    private static ManagedChannel buildManagedChannel(GatewayMetaProto.Member member) throws Exception {
+        MemberEntity memberEntity = MemberCache.getInstance().get(member.getMemberId());
+        if (Boolean.TRUE.equals(memberEntity.getGatewayTlsEnable())) {
+            return GrpcUtil.getSslManagedChannel(member.getEndpoint(), TlsUtil.buildCertificates(CaCertificateCache.getInstance().getAll()));
+        }
+
+        return GrpcUtil.getManagedChannel(member.getEndpoint());
+    }
 }
