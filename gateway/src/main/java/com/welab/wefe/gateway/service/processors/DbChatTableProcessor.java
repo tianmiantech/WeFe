@@ -53,9 +53,7 @@ public class DbChatTableProcessor extends AbstractProcessor {
         messageQueueEntity.setProducer(ProducerType.gateway.name());
         messageQueueEntity.setUpdatedTime(null);
         messageQueueEntity.setPriority(0);
-        messageQueueEntity.setAction(transferMeta.getAction());
         messageQueueEntity.setParams(transferMeta.getContent().getObjectData());
-        messageQueueEntity.setChannel(transferMeta.getChannel());
         GatewayServer.CONTEXT.getBean(MessageQueueService.class).save(messageQueueEntity);
     }
 }

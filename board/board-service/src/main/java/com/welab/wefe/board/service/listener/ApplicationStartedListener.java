@@ -82,14 +82,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
                         continue;
                     }
 
-                    switch (message.getAction()) {
-                        case create_chat_msg: {
-                            memberChatService.handleChatMessage(message);
-                            break;
-                        }
-                        default:
-                            LOG.info("Illegal type[" + message.getAction() + "]");
-                    }
+                    memberChatService.handleChatMessage(message);
                 } catch (Exception e) {
                     ThreadUtil.sleep(5, TimeUnit.SECONDS);
                     LOG.error("Listening chat message queue exception", e);
