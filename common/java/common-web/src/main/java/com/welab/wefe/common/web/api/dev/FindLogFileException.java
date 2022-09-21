@@ -18,6 +18,7 @@ package com.welab.wefe.common.web.api.dev;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
+import com.welab.wefe.common.util.OS;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -26,9 +27,7 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 
 /**
  * @author zane
@@ -46,28 +45,25 @@ public class FindLogFileException extends AbstractApi<FindLogFileException.Input
             StatusCode.PERMISSION_DENIED.throwException("普通用户无法进行此操作。");
         }
 
+        // 调试了很久，windows 上总是体验不好，与其被当成 bug，不如不提供。
+        boolean isWindows = OS.get() == OS.windows;
+        if (isWindows){
+            return success(new Output("此功能不支持 windows 系统"));
+        }
+
         File file = new File(commonConfig.getLoggingFilePath());
         if (!file.exists()) {
             StatusCode
                     .FILE_DOES_NOT_EXIST
                     .throwException("日志文件不存在：" + file.getAbsolutePath());
         }
-        String command = "cat '" + file.getAbsolutePath() +
-                "'| grep -i '^[[:space:]]*at ' -B 5 -A 5 | cut -c 1-300 | tail -" +
-                input.tailCount;
 
-        ProcessBuilder processBuilder = new ProcessBuilder("sh", "-c", command);
-        Process process = processBuilder.start();
+        String command = isWindows
+                ? "type " + file.getAbsolutePath() + " | findstr /i '^ *at ' | select -last " + input.tailCount
+                : "cat '" + file.getAbsolutePath() + "'| grep -i '^[[:space:]]*at ' -B 5 -A 5 | cut -c 1-300 | tail -" + input.tailCount;
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        StringBuilder builder = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            builder.append(line);
-            builder.append(System.lineSeparator());
-        }
-
-        return success(new Output(builder.toString()));
+        Output output = new Output(OS.execute(command));
+        return success(output);
     }
 
 
