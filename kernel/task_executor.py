@@ -456,6 +456,8 @@ class TaskExecutor(object):
                 param_str = param_str[:-1]
 
             message = f'[{e.code}] {e.message} {param_str}'
+        else:
+            message = '发生未知异常，请下载任务日志查看详细信息！'
 
         return message
 
