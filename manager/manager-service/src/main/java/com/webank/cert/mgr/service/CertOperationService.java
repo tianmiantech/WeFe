@@ -23,6 +23,9 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.List;
+
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.RDN;
@@ -74,8 +77,13 @@ public class CertOperationService {
     }
 
     // 更新证书状态
-    public void updateStatus(String serialNumber, int status) {
-        certDao.updateStatus(serialNumber, status);
+    public void updateStatusBySerialNumber(String serialNumber, int status, String reason) {
+        certDao.updateStatusBySerialNumber(serialNumber, status, reason);
+    }
+
+    // 更新证书状态
+    public void updateStatusByUserId(String userId, int status, String reason) {
+        certDao.updateStatusByUserId(userId, status, reason);
     }
 
     // 更新证书信任状态
@@ -128,6 +136,9 @@ public class CertOperationService {
         return certDao.findKeys(userId, pageIndex, pageSize);
     }
 
+    public List<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert) {
+        return certDao.findCertList(userId, pCertId, isCACert, isCACert);
+    }
     // 证书列表查询
     public PageOutput<CertInfo> findCertList(String userId, String pCertId, Boolean isCACert, Boolean isRootCert,
             int status, int pageIndex, int pageSize) {
@@ -137,6 +148,7 @@ public class CertOperationService {
     }
 
     // 初始化根证书
+    @Transactional
     public CertVO initRootCert(String commonName, String organizationName, String organizationUnitName)
             throws Exception {
         X500NameInfo issuer = X500NameInfo.builder().commonName(commonName).organizationName(organizationName)
@@ -167,6 +179,7 @@ public class CertOperationService {
     }
 
     // 创建issuer证书
+    @Transactional
     public CertVO createIssuerCert(String rootCertId, String commonName, String organizationName,
             String organizationUnitName) throws Exception {
         String userId = CurrentAccount.id();
@@ -243,6 +256,7 @@ public class CertOperationService {
      * @return
      * @throws Exception
      */
+    @Transactional
     public CertVO createUserCert(String issuerCertId, String memberId, String certRequestContent) throws Exception {
         Date beginDate = new Date();
         Date endDate = new Date(beginDate.getTime() + 315360000000L);

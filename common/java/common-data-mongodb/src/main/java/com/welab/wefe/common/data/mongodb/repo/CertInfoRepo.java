@@ -103,10 +103,17 @@ public class CertInfoRepo extends AbstractMongoRepo<CertInfo> {
         return mongoManagerTemplate.findAll(CertInfo.class);
     }
 
-    public void updateStatus(String serialNumber, int status) {
+    public void updateStatusBySerialNumber(String serialNumber, int status, String reason) {
         Query query = new QueryBuilder().append("serialNumber", serialNumber).build();
-        Update update = new UpdateBuilder().append("status", status).append("updateTime", System.currentTimeMillis())
-                .build();
+        Update update = new UpdateBuilder().append("status", status).append("update_status_reason", reason)
+                .append("updateTime", System.currentTimeMillis()).build();
+        mongoManagerTemplate.updateFirst(query, update, CertInfo.class);
+    }
+
+    public void updateStatusByUserId(String userId, int status, String reason) {
+        Query query = new QueryBuilder().append("userId", userId).build();
+        Update update = new UpdateBuilder().append("status", status).append("update_status_reason", reason)
+                .append("updateTime", System.currentTimeMillis()).build();
         mongoManagerTemplate.updateFirst(query, update, CertInfo.class);
     }
 

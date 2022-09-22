@@ -17,24 +17,14 @@
 package com.welab.wefe.manager.service.api.member;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
-import com.webank.cert.mgr.model.vo.CertVO;
-import com.webank.cert.mgr.service.CertOperationService;
-import com.webank.cert.toolkit.enums.CertStatusEnums;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.data.mongodb.dto.PageOutput;
-import com.welab.wefe.common.data.mongodb.entity.manager.CertInfo;
-import com.welab.wefe.common.data.mongodb.entity.union.Member;
-import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
-import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.manager.service.dto.member.RealNameAuthInput;
-import com.welab.wefe.manager.service.service.MemberContractService;
+import com.welab.wefe.manager.service.service.RealNameAuthAuditService;
 
 /**
  * @author yuxin.zhang
@@ -42,57 +32,11 @@ import com.welab.wefe.manager.service.service.MemberContractService;
 @Api(path = "member/realname/auth/audit", name = "member_realname_auth_audit")
 public class RealNameAuthAuditApi extends AbstractApi<RealNameAuthInput, AbstractApiOutput> {
     @Autowired
-    protected MemberContractService memberContractService;
-
-    @Autowired
-    private CertOperationService certOperationService;
-
-    @Autowired
-    private MemberMongoReop memberMongoReop;
+    private RealNameAuthAuditService realNameAuthAuditService;
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(RealNameAuthInput input) throws StatusCodeWithException {
-        MemberExtJSON memberExtJSON = new MemberExtJSON();
-        memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
-        memberExtJSON.setAuditComment(input.getAuditComment());
-
-        if (input.getRealNameAuthStatus() == 2) {
-            Member member = memberMongoReop.findMemberId(input.getId());
-            if (member == null) {
-                throw new StatusCodeWithException("成员不存在", StatusCode.DATA_NOT_FOUND);
-            }
-            memberExtJSON = member.getExtJson();
-            memberExtJSON.setRealNameAuthStatus(input.getRealNameAuthStatus());
-            memberExtJSON.setAuditComment(input.getAuditComment());
-            memberExtJSON.setRealNameAuthTime(System.currentTimeMillis());
-            // 用户ID
-            String memberId = member.getMemberId();
-            // 证书请求内容
-            String certRequestContent = memberExtJSON.getCertRequestContent();
-            // 签发机构的证书ID
-            PageOutput<CertInfo> results = certOperationService.findCertList(null, null, true, false, 2, 0, 10);
-            if (CollectionUtils.isEmpty(results.getList())) {
-                throw new StatusCodeWithException("没有签发证书", StatusCode.DATA_NOT_FOUND);
-            }
-            CertInfo issuerCert = results.getList().get(0);
-            try {
-                // 签发证书
-                CertVO cert = certOperationService.createUserCert(issuerCert.getPkId(), memberId, certRequestContent);
-                memberExtJSON.setCertStatus(CertStatusEnums.VALID.name());
-                // 将证书内容写入
-                memberExtJSON.setCertPemContent(cert.getCertContent());
-                memberExtJSON.setCertSerialNumber(cert.getSerialNumber());
-            } catch (Exception e) {
-                throw new StatusCodeWithException(e.getMessage(), StatusCode.SYSTEM_ERROR);
-            }
-        } else if (input.getRealNameAuthStatus() == -1) { // -1认证失败 /0未认证 /1认证中 /2已认证
-            memberExtJSON.setUpdatedTime(System.currentTimeMillis());
-            memberExtJSON.setCertStatus(CertStatusEnums.INVALID.name());
-            // 更新证书状态
-            certOperationService.updateStatus(memberExtJSON.getCertSerialNumber(), CertStatusEnums.INVALID.getCode());
-        }
-        memberContractService.updateExtJson(input.getId(), memberExtJSON);
+        realNameAuthAuditService.audit(input);
         return success();
     }
-
 }
