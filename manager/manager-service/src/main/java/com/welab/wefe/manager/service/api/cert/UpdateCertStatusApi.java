@@ -64,7 +64,7 @@ public class UpdateCertStatusApi extends AbstractApi<CertDetailInput, CertVO> {
             throw new StatusCodeWithException("非法操作", StatusCode.ILLEGAL_REQUEST);
         }
         vo.setStatus(input.getStatus());
-        certOperationService.updateStatusBySerialNumber(vo.getSerialNumber(), input.getStatus(), "update_status 接口");
+        certOperationService.updateStatusBySerialNumber(vo.getSerialNumber(), input.getStatus(), "from cert/update_status, 界面操作");
         // 同步到区块链
         Member member = memberMongoReop.findMemberId(vo.getUserId());
         if (member == null) {

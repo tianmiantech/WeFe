@@ -84,9 +84,12 @@ public class CertInfo extends AbstractNormalMongoModel {
 
     // 创建人
     private String createdBy;
-    
+
     // 是否在信任库中
     private Boolean canTrust;
+
+    @Column(name = "update_status_reason")
+    private String updateStatusReason;
 
     public String getPkId() {
         return pkId;
@@ -230,6 +233,14 @@ public class CertInfo extends AbstractNormalMongoModel {
 
     public void setCanTrust(Boolean canTrust) {
         this.canTrust = canTrust;
+    }
+
+    public String getUpdateStatusReason() {
+        return updateStatusReason;
+    }
+
+    public void setUpdateStatusReason(String updateStatusReason) {
+        this.updateStatusReason = updateStatusReason;
     }
 
 }

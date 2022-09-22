@@ -44,7 +44,7 @@ public class RealNameAuthAuditService {
                 if (certInfo.getStatus() == CertStatusEnums.VALID.getCode()) {
                     // 将之前的证书状态置为无效
                     certOperationService.updateStatusBySerialNumber(certInfo.getSerialNumber(),
-                            CertStatusEnums.INVALID.getCode(), "realname auditing....,实名认证审核中");
+                            CertStatusEnums.INVALID.getCode(), "realname auditing,实名认证二次审核");
                 }
             }
         }

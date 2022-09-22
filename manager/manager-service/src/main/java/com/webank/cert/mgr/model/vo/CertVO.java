@@ -63,9 +63,20 @@ public class CertVO implements Serializable {
     private int status; // 证书状态
 
     private long createTime; // 创建时间
-    
+
     // 是否在信任库中
     private Boolean canTrust;
+
+    @JSONField(name = "update_status_reason")
+    private String updateStatusReason;
+
+    public String getUpdateStatusReason() {
+        return updateStatusReason;
+    }
+
+    public void setUpdateStatusReason(String updateStatusReason) {
+        this.updateStatusReason = updateStatusReason;
+    }
 
     public String getPkId() {
         return pkId;
