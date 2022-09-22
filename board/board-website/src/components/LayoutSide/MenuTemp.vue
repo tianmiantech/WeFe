@@ -49,7 +49,7 @@
                 </el-menu-item>
             </template>
 
-            <template v-else-if="!item.meta.hidden && (userInfo.admin_role || (!userInfo.admin_role && item.meta.normalUserCanSee !== false))">
+            <template v-else-if="showMenuItem(item)">
                 <el-menu-item
                     :key="index"
                     :index="item.path"
@@ -100,6 +100,29 @@
             return {
                 userInfo,
             };
+        },
+        methods: {
+            showMenuItem(item){
+                if(item.meta.hidden){
+                    return false;
+                }
+
+                if(item.meta.normalUserCanSee){
+                    return true;
+                }
+
+                // 仅超级管理员可见
+                if(item.meta.onlySuperAdmin && this.userInfo.super_admin_role){
+                    return true;
+                }
+
+                // 仅管理员可见
+                if(!item.meta.normalUserCanSee && this.userInfo.admin_role){
+                    return true;
+                }
+
+                return false;
+            },
         },
     };
 </script>

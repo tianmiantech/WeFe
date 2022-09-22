@@ -445,9 +445,9 @@ const baseRoutes = [
                 path: `${prefixPath}dev-tools`,
                 name: 'dev-tools',
                 meta: {
-                    loginAndRefresh:  true,
-                    title:            '运维人员工具',
-                    normalUserCanSee: false,
+                    loginAndRefresh: true,
+                    title:           '运维人员工具',
+                    onlySuperAdmin:  true,
                 },
                 component: () => import('../views/dev/dev-tools'),
             },
