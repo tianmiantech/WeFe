@@ -24,6 +24,7 @@ import com.welab.wefe.serving.service.database.serving.entity.ModelMySqlModel;
 import com.welab.wefe.serving.service.database.serving.entity.ModelSqlConfigMySqlModel;
 import com.welab.wefe.serving.service.database.serving.repository.ModelRepository;
 import com.welab.wefe.serving.service.database.serving.repository.ModelSqlConfigRepository;
+import com.welab.wefe.serving.service.manager.FeatureManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,8 +66,9 @@ public class ModelSqlConfigService {
         }
 
         model.setFeatureSource(featureSource);
-
         modelRepository.save(model);
+
+        FeatureManager.refresh(modelId, featureSource);
 
         if (!featureSource.equals(PredictFeatureDataSource.sql)) {
 
