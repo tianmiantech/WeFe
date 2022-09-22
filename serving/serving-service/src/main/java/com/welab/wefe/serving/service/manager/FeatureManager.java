@@ -130,6 +130,10 @@ public class FeatureManager {
         return SqlFeatureDataHandle.get(type, url, username, password, sqlContext, userId);
     }
 
+    public static synchronized void refresh(String modelId, PredictFeatureDataSource featureDataSource) {
+        FEATURE_SOURCE.put(modelId, featureDataSource);
+    }
+
     /**
      * Process name
      */
