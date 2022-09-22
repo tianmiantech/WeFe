@@ -58,7 +58,9 @@ public class UpdateCertStatusApi extends AbstractApi<CertDetailInput, CertVO> {
         if (vo.getIsCACert() || vo.getIsRootCert()) {
             throw new StatusCodeWithException("非法操作", StatusCode.ILLEGAL_REQUEST);
         }
-        if (vo.getStatus() == input.getStatus()) {
+        
+        // 不允许置为有效
+        if (vo.getStatus() == input.getStatus() || input.getStatus() == CertStatusEnums.VALID.getCode()) {
             throw new StatusCodeWithException("非法操作", StatusCode.ILLEGAL_REQUEST);
         }
         vo.setStatus(input.getStatus());
@@ -70,6 +72,8 @@ public class UpdateCertStatusApi extends AbstractApi<CertDetailInput, CertVO> {
         }
         MemberExtJSON memberExtJSON = member.getExtJson();
         memberExtJSON.setCertStatus(CertStatusEnums.getStatus(input.getStatus()).name());
+        memberExtJSON.setCertPemContent(vo.getCertContent());
+        memberExtJSON.setCertSerialNumber(vo.getSerialNumber());
         memberContractService.updateExtJson(vo.getUserId(), memberExtJSON);
         return success(vo);
     }
