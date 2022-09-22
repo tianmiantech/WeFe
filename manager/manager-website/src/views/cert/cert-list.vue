@@ -89,14 +89,14 @@
                 fixed="right"
             >
                 <template v-slot="scope">
-                    <template v-if="scope.row.status === 0 && !scope.row.is_ca_cert">
-                        <el-button
-                            type="primary"
-                            @click="changeStatus($event, scope.row.pk_id, 2)"
-                        >
-                            置为有效
-                        </el-button>
-                    </template>
+<!--                    <template v-if="scope.row.status === 0 && !scope.row.is_ca_cert">-->
+<!--                        <el-button-->
+<!--                            type="primary"-->
+<!--                            @click="changeStatus($event, scope.row.pk_id, 2)"-->
+<!--                        >-->
+<!--                            置为有效-->
+<!--                        </el-button>-->
+<!--                    </template>-->
                     <template v-if="scope.row.status === 2 && !scope.row.is_ca_cert">
                         <el-button
                             type="danger"
@@ -174,7 +174,7 @@ export default {
     },
     methods: {
         changeStatus($event, pk_id, status) {
-            this.$confirm(`你确定要${status === 0 ? '禁用' : '启用'}该证书吗?`, '警告', {
+            this.$confirm(`你确定要${status === 0 ? '禁用' : '启用'}该证书吗? 此操作不可逆`, '警告', {
                 type: 'warning',
                 cancelButtonText: '取消',
                 confirmButtonText: '确定',
