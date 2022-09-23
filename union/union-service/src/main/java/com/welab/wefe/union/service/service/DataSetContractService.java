@@ -16,6 +16,16 @@
 
 package com.welab.wefe.union.service.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
+import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.DataSetExtJSON;
@@ -26,22 +36,11 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.union.service.contract.DataSetContract;
 import com.welab.wefe.union.service.entity.DataSet;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
-import org.fisco.bcos.sdk.transaction.model.dto.TransactionResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author yuxin.zhang
  */
 @Service
-@Transactional(transactionManager = "transactionUnionManager", rollbackFor = Exception.class)
 public class DataSetContractService extends AbstractContractService {
 
     @Autowired
@@ -52,8 +51,6 @@ public class DataSetContractService extends AbstractContractService {
     private MemberContractService memberContractService;
     @Autowired
     private DataSetMongoReop dataSetMongoReop;
-    @Autowired
-    private DataSetMemberPermissionContractService dataSetMemberPermissionContractService;
 
     public void upsert(DataSet dataset) throws StatusCodeWithException {
         try {
