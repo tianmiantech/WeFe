@@ -30,6 +30,7 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -87,6 +88,14 @@ public class VertOneHotComponent extends AbstractComponent<VertOneHotComponent.P
 	public boolean canSelectFeatures() {
 		return true;
 	}
+	
+    /**
+     * Do you need to stop creating the after task
+     */
+    @Override
+    public boolean stopCreateAfterTask(List<FlowGraphNode> preNodes, FlowGraphNode node) throws StatusCodeWithException {
+        return true;
+    }
 
 	@Override
 	protected List<InputMatcher> inputs(FlowGraph graph, FlowGraphNode node) throws FlowNodeException {
