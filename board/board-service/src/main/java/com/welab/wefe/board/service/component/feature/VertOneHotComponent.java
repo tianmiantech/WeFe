@@ -39,9 +39,9 @@ import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 
 @Service
@@ -128,7 +128,7 @@ public class VertOneHotComponent extends AbstractComponent<VertOneHotComponent.P
 	}
 	
 
-	public static class Params extends AbstractCheckModel {
+	public static class Params extends AbstractApiInput {
 
 		@Check(name = "成员信息", require = true)
 		private List<MemberInfoModel> members;
