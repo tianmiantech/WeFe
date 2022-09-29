@@ -159,9 +159,9 @@ public abstract class BaseFlowGraph {
 
                 jobSteps.add(node);
                 
-                boolean stopCreateAfterTask = component.stopCreateAfterTask(preNodes, node);
+                stopCreateTask = component.stopCreateAfterTask(preNodes, node);
                 
-                if (stopCreateAfterTask) {
+                if (stopCreateTask) {
                     break;
                 }
 

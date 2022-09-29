@@ -311,7 +311,6 @@ public class MemberChatService extends AbstractService {
         Specification<MessageQueueMySqlModel> queryCondtion = Where
                 .create()
                 .equal("producer", ProducerType.gateway)
-                .equal("action", GatewayActionType.create_chat_msg)
                 .orderBy("createdTime", OrderBy.asc)
                 .build(MessageQueueMySqlModel.class);
 
