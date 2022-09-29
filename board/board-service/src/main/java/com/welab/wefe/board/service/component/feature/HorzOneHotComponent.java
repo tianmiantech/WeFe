@@ -22,6 +22,8 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.component.feature.VertOneHotComponent.Params;
+import com.welab.wefe.board.service.component.feature.VertOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
@@ -32,6 +34,8 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.enums.ComponentType;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -76,13 +80,30 @@ public class HorzOneHotComponent extends AbstractComponent<VertOneHotComponent.P
 	public boolean canSelectFeatures() {
 		return true;
 	}
-	
+
     /**
-     * Do you need to stop creating the after task
+     * Do you need to stop creating the after task(exclude current node)
+     * 是否运行完当前节点就暂停流程
      */
-	@Override
-    public boolean stopCreateAfterTask(List<FlowGraphNode> preNodes, FlowGraphNode node) throws StatusCodeWithException {
-        return true;
+    @Override
+    public boolean stopCreateAfterTask(FlowGraphNode node, List<FlowGraphNode> nextNodes)
+            throws StatusCodeWithException {
+        Params params = (Params) node.getParamsModel();
+
+        // When feature is selected,stop creating after task.
+        if (CollectionUtils.isNotEmpty(params.getMembers()) && params.getMembers().size() > 0) {
+            boolean selectFeature = false;
+            for (MemberInfoModel member : params.getMembers()) {
+                if (CollectionUtils.isNotEmpty(member.getFeatures()) && member.getFeatures().size() > 0) {
+                    selectFeature = true;
+                }
+            }
+            return selectFeature;
+        } else {
+            // If there is no member node, then there is no feature, not stop creating after
+            // tasks.
+            return false;
+        }
     }
 
 	@Override
