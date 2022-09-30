@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -130,7 +131,7 @@ public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
 	
 	   
 
-    public static class Params extends AbstractApiInput {
+    public static class Params extends AbstractCheckModel {
 
         @Check(name = "成员信息", require = true)
         private List<MemberInfoModel> members;

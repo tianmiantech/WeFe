@@ -11,7 +11,6 @@
 
     <artifactId>board-service</artifactId>
 
-
     <properties>
         <grpc.version>1.29.0</grpc.version>
     </properties>
@@ -20,11 +19,6 @@
         <dependency>
             <groupId>com.welab.wefe</groupId>
             <artifactId>common-web</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.welab.wefe</groupId>
-            <artifactId>common-lang</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
@@ -47,6 +41,12 @@
             <groupId>com.welab.wefe</groupId>
             <artifactId>common-data-storage</artifactId>
             <version>${project.parent.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.welab.wefe</groupId>
+                    <artifactId>common-web</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -79,10 +79,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
@@ -148,14 +144,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.welab.wefe</groupId>
-            <artifactId>fusion-core</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
-        </dependency>
-
-
         <dependency>
             <groupId>com.welab.wefe</groupId>
             <artifactId>common-verification-code</artifactId>
