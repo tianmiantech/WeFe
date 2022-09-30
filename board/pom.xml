@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.welab.wefe</groupId>
-        <artifactId>board</artifactId>
+        <artifactId>wefe</artifactId>
         <version>1.0.0</version>
     </parent>
 
