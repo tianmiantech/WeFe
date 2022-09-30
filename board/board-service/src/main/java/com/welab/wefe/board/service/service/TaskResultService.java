@@ -16,6 +16,21 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -27,8 +42,8 @@ import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.NodeOutputItem;
 import com.welab.wefe.board.service.component.feature.FeatureSelectionComponent;
-import com.welab.wefe.board.service.component.feature.VertOneHotComponent;
-import com.welab.wefe.board.service.component.feature.VertOneHotComponent.Params.MemberInfoModel;
+import com.welab.wefe.board.service.component.feature.HorzOneHotComponent;
+import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
@@ -52,15 +67,6 @@ import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -589,8 +595,8 @@ public class TaskResultService extends AbstractService {
         List<DataIOComponent.DataSetItem> dataSetItems = dataIOParams.getDataSetList();
 
         // need filter
-        VertOneHotComponent.Params params = JObject.create(node.getParams())
-                .toJavaObject(VertOneHotComponent.Params.class);
+        HorzOneHotComponent.Params params = JObject.create(node.getParams())
+                .toJavaObject(HorzOneHotComponent.Params.class);
         if (params == null || CollectionUtils.isEmpty(params.getMembers())) {
             return getMemberFeatures(flowGraph, flowGraph.getNode(node.getNodeId()));
         }
