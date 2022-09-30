@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -40,9 +39,9 @@ import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 
 @Service
