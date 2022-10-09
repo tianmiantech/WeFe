@@ -140,7 +140,7 @@ class ClickHouseStorage(Storage):
 
     def collect(self, min_chunk_size=0, use_serialize=True, partition=None) -> list:
         use_serialize = set_force_serialize(use_serialize)
-        sql = f"SELECT k,v FROM {self.table_name} ORDER BY k DESC"
+        sql = f"SELECT k,v FROM {self.table_name} ORDER BY id DESC"
         try:
             client = self.get_conn()
             data = client.execute_iter(sql)
