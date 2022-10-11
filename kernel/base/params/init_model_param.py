@@ -50,7 +50,7 @@ class InitParam(BaseParam):
 
     """
 
-    def __init__(self, init_method='random_uniform', init_const=1, fit_intercept=True, random_seed=None):
+    def __init__(self, init_method='random_uniform', init_const=1, fit_intercept=True, random_seed=100):
         super().__init__()
         self.init_method = init_method
         self.init_const = init_const
