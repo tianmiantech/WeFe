@@ -76,7 +76,5 @@ public class SecretUtil {
             }
         }
         SECRET_FIELD_MAP.put(clazz, secretFieldsMap);
-        // 观察下性能，以后会删掉。
-        System.out.println("extractSecret spend:" + (System.currentTimeMillis() - start) + " " + clazz.getName());
     }
 }

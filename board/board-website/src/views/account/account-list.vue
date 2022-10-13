@@ -90,7 +90,7 @@
             />
             <el-table-column
                 v-if="userInfo.admin_role"
-                min-width="200"
+                min-width="180"
                 label="email"
                 prop="email"
             />
@@ -168,7 +168,31 @@
                 </template>
             </el-table-column>
             <el-table-column
+                label="审核状态"
+                width="100"
+            >
+                <template v-slot="scope">
+                    <el-tag :type="scope.row.audit_status === 'agree' ? 'success' : scope.row.audit_status === 'disagree' ? 'danger' : 'warning'" class="status_tag">
+                        {{ auditStatusType(scope.row.audit_status) }}
+                    </el-tag>
+                    <el-tooltip
+                        v-if="scope.row.audit_status === 'disagree'"
+                        placement="top"
+                        effect="light"
+                    >
+                        <template #content>
+                            <p v-html="scope.row.audit_comment"></p>
+                        </template>
+                        <el-icon class="ml5">
+                            <elicon-info-filled />
+                        </el-icon>
+                    </el-tooltip>
+                </template>
+            </el-table-column>
+            <el-table-column
                 label="注册时间"
+                width="150"
+                align="center"
             >
                 <template v-slot="scope">
                     {{ dateFormat(scope.row.created_time) }}
@@ -178,6 +202,7 @@
                 v-if="userInfo.admin_role"
                 min-width="340"
                 label="操作"
+                fixed="right"
             >
                 <template v-slot="scope">
                     <template v-if="userInfo.admin_role && userInfo.id !== scope.row.id">
@@ -191,7 +216,7 @@
                         <template v-else>
                             <template v-if="userInfo.super_admin_role">
                                 <el-button
-                                    v-if="!scope.row.admin_role"
+                                    v-if="!scope.row.admin_role && !scope.row.super_admin_role && scope.row.audit_status !== 'disagree'"
                                     type="primary"
                                     @click="changeUserRole(scope.row)"
                                 >
@@ -205,23 +230,25 @@
                                     设为普通用户
                                 </el-button>
                             </template>
-                            <el-button @click="resetPassword(scope.row)">
-                                重置密码
-                            </el-button>
-                            <el-button
-                                v-if="scope.row.enable"
-                                type="danger"
-                                @click="disableUser(scope.row)"
-                            >
-                                禁用
-                            </el-button>
-                            <el-button
-                                v-else
-                                type="danger"
-                                @click="disableUser(scope.row)"
-                            >
-                                取消禁用
-                            </el-button>
+                            <template v-if="!scope.row.super_admin_role">
+                                <el-button @click="resetPassword(scope.row)">
+                                    重置密码
+                                </el-button>
+                                <el-button
+                                    v-if="scope.row.enable"
+                                    type="danger"
+                                    @click="disableUser(scope.row)"
+                                >
+                                    禁用
+                                </el-button>
+                                <el-button
+                                    v-else
+                                    type="danger"
+                                    @click="disableUser(scope.row)"
+                                >
+                                    取消禁用
+                                </el-button>
+                            </template>
                         </template>
                     </template>
                 </template>
@@ -465,6 +492,11 @@
         },
         computed: {
             ...mapGetters(['userInfo']),
+            auditStatusType(val) {
+                return function(val) {
+                    return val === 'agree' ? '已通过' : val === 'disagree' ? '已拒绝' : '审核中';
+                };
+            },
         },
         created() {
             this.getList();
@@ -654,5 +686,9 @@
         border-radius: 2px;
         border: 1px solid #e5e5e5;
         background: #f9f9f9;
+    }
+    .status_tag {
+        padding-top: 4px;
+        padding-bottom: 4px;
     }
 </style>

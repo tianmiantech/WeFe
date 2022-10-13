@@ -102,6 +102,10 @@ public class FeatureManager {
         return SqlFeatureDataHandler.debug(dataSourceId, sqlScript, sqlConditionField, userId);
     }
 
+    public static synchronized void refresh(String modelId, PredictFeatureDataSource featureDataSource) {
+        FEATURE_SOURCE.put(modelId, featureDataSource);
+    }
+
     /**
      * Process name
      */
