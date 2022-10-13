@@ -672,8 +672,10 @@ public class ServiceService {
             String responseId = UUID.randomUUID().toString().replaceAll("-", "");
             result.append("responseId", responseId);
             result.append("code", status.getCode());
-            JObject tmpResult = new JObject((JSONObject) result.clone());
-            tmpResult.put("subCalllogs", serviceProcessor.calllogs());
+            JObject tmpResult = new JObject((JSONObject)result.clone());
+            if(serviceProcessor != null) {
+                tmpResult.put("subCalllogs", serviceProcessor.calllogs());
+            }
             log(input, beginTime, service, tmpResult, status, responseId);
         }
     }

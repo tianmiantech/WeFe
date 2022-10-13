@@ -46,7 +46,7 @@ class FcBudgetScheduler(threading.Thread):
             task_list = []
             for job in job_list:
                 where = [Task.status == TaskStatus.RUNNING, Task.job_id == job.job_id]
-                task_list = Task.select().where(*tuple(where)).execute()
+                task_list = Task.select().where(*tuple(where)).execute() + task_list
             return task_list
 
     def get_month_budget(self):
