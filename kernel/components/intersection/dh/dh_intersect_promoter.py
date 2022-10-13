@@ -14,8 +14,8 @@
 
 import random
 
-from common.python.calculation.acceleration.utils import aclr_utils
 from common.python.calculation.acceleration.aclr import dh_encrypt_id
+from common.python.calculation.acceleration.utils import aclr_utils
 from common.python.utils import log_utils
 from kernel.components.intersection.intersect import DhIntersect
 from kernel.security.diffie_hellman import DiffieHellman
@@ -42,13 +42,15 @@ class DhIntersectionPromoter(DhIntersect):
         return encrypt_common_id
 
     def promoter_id_process(self, k, key, p, is_hash=False):
+        # return k, k
         if is_hash:
             return DiffieHellman.encrypt(int(self.hash(k), 16), key, p), k
         else:
             return DiffieHellman.encrypt(k, key, p), k
 
     def run(self, data_instances):
-        LOGGER.info("Start dh intersection")
+        LOGGER.info(f"Start dh intersection1:{data_instances.first()}")
+        #
         abnormal_detection.empty_table_detection(data_instances)
         public_keys = self.transfer_variable.dh_mod.get(-1)
         LOGGER.info("Get dh mod:{} from Provider".format(public_keys))
@@ -61,7 +63,7 @@ class DhIntersectionPromoter(DhIntersect):
         else:
             promoter_id_list = [data_instances.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i], True))
                                 for i in range(len(self.r))]
-
+        LOGGER.info(f"promoter_id_list :{promoter_id_list[0].first()}")
         for i, promoter_ids in enumerate(promoter_id_list):
             promoter_ids_provider = promoter_ids.mapValues(lambda v: 1, need_send=True)
             self.transfer_variable.intersect_promoter_ids.remote(promoter_ids_provider,
@@ -71,10 +73,10 @@ class DhIntersectionPromoter(DhIntersect):
 
         # (provider_eid, 1)
         provider_id_list = self.transfer_variable.intersect_provider_ids_process.get(-1)
-
+        LOGGER.info(f"provider_id_list :{provider_id_list[0].first()}")
         # (promoter_eeid, promoter_eid)
         encrypt_promoter_id_list = self.transfer_variable.intersect_promoter_ids_process.get(-1)
-
+        LOGGER.info(f"encrypt_promoter_id_list :{encrypt_promoter_id_list[0].first()}")
         # (provider_eeid, provider_eid)
         if aclr_utils.check_aclr_support():
             encrypt_provider_id_list = [dh_encrypt_id(ids, self.r[i], self.p[i]) for i, ids in
@@ -83,15 +85,21 @@ class DhIntersectionPromoter(DhIntersect):
             encrypt_provider_id_list = [ids.map(lambda k, v: self.promoter_id_process(k, self.r[i], self.p[i])) for
                                         i, ids
                                         in enumerate(provider_id_list)]
-
+        LOGGER.info(f"encrypt_provider_id_list :{encrypt_provider_id_list[0].first()}")
         # (intersect_eeid, (promoter_eid, provider_eid))
         encrypt_intersect_id_list = [
             encrypt_promoter_id_list[i].join(encrypt_provider_id_list[i], lambda pm_eid, pv_eid: (pm_eid, pv_eid))
             for i
             in range(len(self.p))]
+        LOGGER.info(f"encrypt_intersect_id_list :{encrypt_intersect_id_list[0].first()}")
+        # 上面的是一致的
+
+
 
         # (promoter_eid, provider_eid)
         intersect_id_list = [ids.map(lambda k, v: (v[0], v[1])) for ids in encrypt_intersect_id_list]
+        LOGGER.info(f"intersect_id_list :{intersect_id_list[0].first()}")
+
 
         member_count = len(self.provider_member_id_list)
         if member_count > 1:
@@ -101,21 +109,21 @@ class DhIntersectionPromoter(DhIntersect):
             # (id, pm_eid)
             raw_intersect_id_list = [ids.map(lambda pm_eid, id: (id, pm_eid)) for ids in raw_intersect_id_list]
             # (id, 1)
-            common_intersect_ids = self.get_common_intersection(raw_intersect_id_list)
+            intersect_ids = self.get_common_intersection(raw_intersect_id_list)
             # (id, new_id)
-            intersect_ids = self.generate_id_nums(common_intersect_ids, has_encrypt_key=False)
+            # intersect_ids = self.generate_id_nums(common_intersect_ids, has_encrypt_key=False)
 
             for i, provider_member_id in enumerate(self.provider_member_id_list):
-                # (id, (pm_eid, new_id)
-                intersect_eid_nid = intersect_ids.join(raw_intersect_id_list[i], lambda nid, pm_eid: (pm_eid, nid))
-                # (pm_eid, new_id)
-                intersect_eid_nid = intersect_eid_nid.map(lambda k, v: (v[0], v[1]))
-                # (pm_eid, (pv_eid, new_id))
-                intersect_provider_eid_nid = intersect_eid_nid.join(intersect_id_list[i],
-                                                                    lambda nid, pv_eid: (pv_eid, nid))
-                # (pv_eid, new_id)
-                remote_intersect_id = intersect_provider_eid_nid.map(lambda k, v: (v[0], v[1]), need_send=True)
-                self.transfer_variable.intersect_ids.remote(remote_intersect_id,
+                # # (id, (pm_eid, new_id)
+                # intersect_eid_nid = intersect_ids.join(raw_intersect_id_list[i], lambda nid, pm_eid: (pm_eid, nid))
+                # # (pm_eid, new_id)
+                # intersect_eid_nid = intersect_eid_nid.map(lambda k, v: (v[0], v[1]))
+                # # (pm_eid, (pv_eid, new_id))
+                # intersect_provider_eid_nid = intersect_eid_nid.join(intersect_id_list[i],
+                #                                                     lambda nid, pv_eid: (pv_eid, nid))
+                # # (pv_eid, new_id)
+                # remote_intersect_id = intersect_provider_eid_nid.map(lambda k, v: (v[0], v[1]), need_send=True)
+                self.transfer_variable.intersect_ids.remote(intersect_ids,
                                                             role=consts.PROVIDER,
                                                             idx=i)
                 LOGGER.info("Remote intersect ids to Provider {}!".format(provider_member_id))
@@ -123,16 +131,26 @@ class DhIntersectionPromoter(DhIntersect):
             pass
         else:
             intersect_ids = intersect_id_list[0]
-            new_intersect_ids = self.generate_id_nums(intersect_ids, has_encrypt_key=True)
-            remote_intersect_id = new_intersect_ids.map(lambda k, v: (v[0], v[1]), need_send=True)
-            self.transfer_variable.intersect_ids.remote(remote_intersect_id,
+            # (pm_eid,id)
+            raw_intersect_id = intersect_ids.join(promoter_id_list[i], lambda pv_eid, id: id)
+            LOGGER.info(f"raw_intersect_id :{raw_intersect_id.first()}")
+            # (id, 1)
+            intersect_ids = raw_intersect_id.map(lambda pm_eid, id: (id, 1))
+            LOGGER.info(f"intersect_ids :{intersect_ids.first()}")
+            # new_intersect_ids = self.generate_id_nums(intersect_ids, has_encrypt_key=True)
+            # remote_intersect_id = new_intersect_ids.map(lambda k, v: (v[0], v[1]), need_send=True)
+            self.transfer_variable.intersect_ids.remote(intersect_ids,
                                                         role=consts.PROVIDER,
                                                         idx=0)
-            intersect_ids = new_intersect_ids.join(promoter_ids, lambda new_id, id: (id, new_id[1]))
-            intersect_ids = intersect_ids.map(lambda k, v: (v[0], v[1]))
+            # intersect_ids = new_intersect_ids.join(promoter_ids, lambda new_id, id: (id, new_id[1]))
+            # intersect_ids = intersect_ids.map(lambda k, v: (v[0], v[1]))
 
         LOGGER.info("Finish intersect_ids computing")
+        intersect_ids_map = intersect_ids.map(lambda k, v: (k, k))
 
         intersect_ids = self._get_value_from_data(intersect_ids, data_instances)
         LOGGER.info("intersect_ids count {}".format(intersect_ids.count()))
-        return intersect_ids
+        LOGGER.debug(f"first:{intersect_ids.first()}")
+        for i in list(intersect_ids.collect()):
+            LOGGER.debug(f"item:{i}")
+        return intersect_ids, intersect_ids_map
