@@ -328,14 +328,6 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     public boolean stopCreateTask(List<FlowGraphNode> preNodes, FlowGraphNode node) throws StatusCodeWithException {
         return false;
     }
-    
-    /**
-     * Do you need to stop creating the after task (exclude current node)
-     * 是否运行完当前节点就暂停流程
-     */
-    public boolean stopCreateAfterTask(FlowGraphNode node, List<FlowGraphNode> nextNodes) throws StatusCodeWithException {
-        return false;
-    }
 
     /**
      * Show all execution results

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
@@ -29,7 +28,6 @@ import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
-import com.welab.wefe.board.service.component.feature.HorzOneHotComponent.Params.MemberInfoModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.dto.entity.MemberModel;
@@ -38,7 +36,6 @@ import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
 import com.welab.wefe.board.service.model.JobBuilder;
 import com.welab.wefe.board.service.service.CacheObjects;
-import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.AbstractCheckModel;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -82,31 +79,6 @@ public class HorzOneHotComponent extends AbstractComponent<HorzOneHotComponent.P
 	public boolean canSelectFeatures() {
 		return true;
 	}
-
-    /**
-     * Do you need to stop creating the after task(exclude current node)
-     * 是否运行完当前节点就暂停流程
-     */
-    @Override
-    public boolean stopCreateAfterTask(FlowGraphNode node, List<FlowGraphNode> nextNodes)
-            throws StatusCodeWithException {
-        Params params = (Params) node.getParamsModel();
-
-        // When feature is selected,stop creating after task.
-        if (CollectionUtils.isNotEmpty(params.getMembers()) && params.getMembers().size() > 0) {
-            boolean selectFeature = false;
-            for (MemberInfoModel member : params.getMembers()) {
-                if (CollectionUtils.isNotEmpty(member.getFeatures()) && member.getFeatures().size() > 0) {
-                    selectFeature = true;
-                }
-            }
-            return selectFeature;
-        } else {
-            // If there is no member node, then there is no feature, not stop creating after
-            // tasks.
-            return false;
-        }
-    }
 
 	@Override
 	protected List<TaskResultMySqlModel> getAllResult(String taskId) {

@@ -158,12 +158,6 @@ public abstract class BaseFlowGraph {
                 }
 
                 jobSteps.add(node);
-                
-                stopCreateTask = component.stopCreateAfterTask(node, node.getChildren());
-                
-                if (stopCreateTask) {
-                    break;
-                }
 
             } catch (FlowNodeException e) {
                 throw e;
