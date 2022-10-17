@@ -1,0 +1,9 @@
+
+POST http://localhost:8080/board-service/partner_config/query
+Content-Type: application/json
+token: {{token}}
+
+{
+}
+
+###

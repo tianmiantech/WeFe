@@ -18,15 +18,15 @@ package com.welab.wefe.gateway.service.base;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.cache.MemberCache;
+import com.welab.wefe.gateway.cache.PartnerConfigCache;
 import com.welab.wefe.gateway.common.EndpointBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusEnum;
 import com.welab.wefe.gateway.entity.MemberEntity;
-import com.welab.wefe.gateway.init.InitStorageManager;
+import com.welab.wefe.gateway.entity.PartnerConfigEntity;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import com.welab.wefe.gateway.service.MessageService;
 import com.welab.wefe.gateway.util.ActionProcessorMappingUtil;
@@ -68,10 +68,6 @@ public abstract class AbstractSendTransferMetaService {
             mMessageService.saveError("消息参数非法", returnStatus, transferMeta);
             return returnStatus;
         }
-        /*if (!GatewayProcessorType.refreshPersistentStorageProcessor.name().equals(transferMeta.getProcessor()) && !InitStorageManager.PERSISTENT_INIT.get()) {
-            mMessageService.saveError("资源未初始化完成", "Clickhouse未初始化完成，请在Board系统里正确配置Clickhouse相关信息", transferMeta);
-            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "Persistent service uninitialized.", transferMeta.getSessionId());
-        }*/
 
         // Set the receiver and sender of the message
         transferMeta = setMemberInfo(transferMeta);
@@ -152,7 +148,7 @@ public abstract class AbstractSendTransferMetaService {
         }
 
         GatewayMetaProto.Member dstMember = transferMeta.getDst();
-        if (null == dstMember || StringUtil.isEmpty(dstMember.getMemberId())) {
+        if (StringUtil.isEmpty(dstMember.getMemberId())) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "dst member id is cannot be empty.", transferMeta.getSessionId());
         }
 
@@ -170,7 +166,7 @@ public abstract class AbstractSendTransferMetaService {
         if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
             String intranetBaseUri = globalConfigService.getGatewayConfig().intranetBaseUri;
             if (!GrpcUtil.checkGatewayUriValid(intranetBaseUri)) {
-                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 IP:PORT", transferMeta.getSessionId());
+                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 HOST:PORT", transferMeta.getSessionId());
             }
         } else if (StringUtil.isEmpty(dstMemberEntity.getIp())) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
@@ -185,29 +181,13 @@ public abstract class AbstractSendTransferMetaService {
      */
     protected GatewayMetaProto.TransferMeta setMemberInfo(GatewayMetaProto.TransferMeta transferMeta) {
         MemberCache memberCache = MemberCache.getInstance();
-        GatewayMetaProto.Member dstMember = transferMeta.getDst();
-        MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
-        String dstIp = dstMemberEntity.getIp();
-        int dstPort = dstMemberEntity.getPort();
-        if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
-            String intranetBaseUri = globalConfigService.getGatewayConfig().intranetBaseUri;
-            dstIp = intranetBaseUri.split(":")[0];
-            dstPort = Integer.parseInt(intranetBaseUri.split(":")[1]);
-        }
-
         GatewayMetaProto.Member srcMember = GatewayMetaProto.Member.newBuilder()
                 .setMemberId(memberCache.getSelfMember().getId())
                 .setMemberName(memberCache.getSelfMember().getName())
                 .build();
 
         GatewayMetaProto.TransferMeta.Builder builder = transferMeta.toBuilder();
-        builder.setSrc(srcMember)
-                .getDstBuilder()
-                .setMemberName(dstMemberEntity.getName())
-                .setEndpoint(EndpointBuilder.create(dstIp, dstPort));
-
-        return builder.build();
-
+        return builder.setSrc(srcMember).setDst(setDstMemberInfo(transferMeta)).build();
     }
 
 
@@ -226,5 +206,33 @@ public abstract class AbstractSendTransferMetaService {
             transferMeta = transferMeta.toBuilder().setProcessor(StringUtil.isEmpty(processor) ? "not_found_processor" : processor).build();
         }
         return transferMeta;
+    }
+
+    /**
+     * 设置目的成员信息
+     */
+    private GatewayMetaProto.Member setDstMemberInfo(GatewayMetaProto.TransferMeta transferMeta) {
+        MemberCache memberCache = MemberCache.getInstance();
+        GatewayMetaProto.Member dstMember = transferMeta.getDst();
+        MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
+        dstMember = dstMember.toBuilder().setMemberName(dstMemberEntity.getName()).build();
+        BasicMetaProto.Endpoint dstEndpoint = dstMember.getEndpoint();
+        if (StringUtil.isNotEmpty(dstEndpoint.getIp())) {
+            return dstMember;
+        }
+
+        if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
+            String intranetBaseUri = globalConfigService.getGatewayConfig().intranetBaseUri;
+            dstEndpoint = EndpointBuilder.create(intranetBaseUri);
+        } else {
+            PartnerConfigEntity partnerConfig = PartnerConfigCache.getInstance().get(dstMember.getMemberId());
+            if (null != partnerConfig && StringUtil.isNotEmpty(partnerConfig.getGatewayAddress())) {
+                dstEndpoint = EndpointBuilder.create(partnerConfig.getGatewayAddress());
+            } else {
+                dstEndpoint = EndpointBuilder.create(dstMemberEntity.getIp(), dstMemberEntity.getPort());
+            }
+        }
+
+        return dstMember.toBuilder().setEndpoint(dstEndpoint).build();
     }
 }

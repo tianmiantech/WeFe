@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.welab.wefe.gateway.service.processors.available;
+package com.welab.wefe.gateway.service.processors;
 
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
+import com.welab.wefe.gateway.cache.PartnerConfigCache;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
-import com.welab.wefe.gateway.service.processors.AbstractProcessor;
 
-/**
- * Gateway survival processor
- *
- * @author aaron.li
- **/
-@Processor(type = GatewayProcessorType.gatewayAliveProcessor, desc = "Gateway survival processor")
-public class GatewayAliveProcessor extends AbstractProcessor {
+@Processor(type = GatewayProcessorType.refreshPartnerConfigCacheProcessor, desc = "Refresh local partner config processor")
+public class RefreshPartnerConfigCacheProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
-        if (dstMemberIsSelf(transferMeta)) {
-            return ReturnStatusBuilder.ok(transferMeta.getSessionId());
-        }
-
-        return toRemote(transferMeta);
+        PartnerConfigCache partnerConfigCache = PartnerConfigCache.getInstance();
+        return partnerConfigCache.refreshCache() ? ReturnStatusBuilder.ok() : ReturnStatusBuilder.sysExc("刷新合作伙伴设置信息缓存失败", transferMeta.getSessionId());
     }
 }

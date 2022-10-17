@@ -37,14 +37,23 @@ public class CheckMemberRouteConnectApi extends AbstractNoneOutputApi<CheckMembe
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        gatewayService.pingGatewayAlive(input.memberGatewayUri);
+        gatewayService.pingGatewayAlive(input);
         return success();
     }
 
 
     public static class Input extends AbstractApiInput {
+        private String memberId;
         @Check(name = "Gateway IP:PORT. If the value is not empty, it means to directly test its own gateway alive")
         private String memberGatewayUri;
+
+        public String getMemberId() {
+            return memberId;
+        }
+
+        public void setMemberId(String memberId) {
+            this.memberId = memberId;
+        }
 
         public String getMemberGatewayUri() {
             return memberGatewayUri;

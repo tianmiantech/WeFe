@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.listener;
 
+import com.welab.wefe.gateway.cache.PartnerConfigCache;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.init.*;
 import org.slf4j.Logger;
@@ -54,6 +55,8 @@ public class InitListener implements ApplicationListener<ApplicationStartedEvent
         LoadSendTransferMetaToCache.load();
         // Load member blacklist to cache
         LoadMemberBlacklistToCache.load();
+        // Load partner config to cache
+        PartnerConfigCache.getInstance().refreshCache();
         // Start the forward message task
         new SendTransferMetaCacheTask().start();
         // Start RPC service; Note: this method will block, so it should be put to the end
