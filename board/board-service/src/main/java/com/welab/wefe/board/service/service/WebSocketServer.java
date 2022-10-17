@@ -200,7 +200,7 @@ public class WebSocketServer {
 
             String nickName = CacheObjects.getAccountMap().get(fromAccountId);
             if (StringUtil.isEmpty(nickName)) {
-                throw new StatusCodeWithException(nickName + " is empty", StatusCode.INVALID_USER);
+                throw new StatusCodeWithException("nickName is empty", StatusCode.INVALID_USER);
             }
 
             // send message

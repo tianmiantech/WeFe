@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.api.member.CheckMemberRouteConnectApi;
 import com.welab.wefe.board.service.api.project.flow.*;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.api.project.project.AddApi;
@@ -399,22 +400,25 @@ public class GatewayService extends BaseGatewayService {
                 )
                 .toStringWithNull();
 
-        sendToMyselfGateway(gatewayUri, GatewayActionType.http_job, data, GatewayProcessorType.boardHttpProcessor).toJavaObject(ApiResult.class);
+        sendToMyselfGateway(gatewayUri, GatewayActionType.none, data, GatewayProcessorType.boardHttpProcessor).toJavaObject(ApiResult.class);
     }
+
 
     /**
      * Check the alive of the gateway
-     *
-     * @param gatewayUri Gateway IP: prot address. If the value is not empty, it means to directly test its own gateway alive
      */
-    public void pingGatewayAlive(String gatewayUri) throws StatusCodeWithException {
-
-        if (StringUtil.isEmpty(gatewayUri)) {
-            gatewayUri = globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri;
+    public void pingGatewayAlive(CheckMemberRouteConnectApi.Input input) throws StatusCodeWithException {
+        boolean isSelf = StringUtil.isEmpty(input.getMemberId()) || CacheObjects.getMemberId().equals(input.getMemberId());
+        if (isSelf) {
+            String gatewayUri = input.getMemberGatewayUri();
+            gatewayUri = (StringUtil.isEmpty(gatewayUri) ? globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri : gatewayUri);
+            sendToMyselfGateway(gatewayUri, GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
+        } else {
+            if (StringUtil.isEmpty(input.getMemberId())) {
+                throw new StatusCodeWithException("网关地址不能为空", StatusCode.RPC_ERROR);
+            }
+            sendToOtherGateway(input.getMemberId(), input.getMemberGatewayUri(), GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
         }
-
-        sendToMyselfGateway(gatewayUri, GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
     }
-
 
 }

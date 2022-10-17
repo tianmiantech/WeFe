@@ -25,6 +25,7 @@ import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.NetworkDataTransferProxyServiceGrpc;
 import com.welab.wefe.gateway.cache.MemberCache;
+import com.welab.wefe.gateway.cache.PartnerConfigCache;
 import com.welab.wefe.gateway.common.GrpcConstant;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.entity.MemberEntity;
@@ -154,7 +155,7 @@ public class GrpcUtil {
             // Failed retries count
             int failTryCount = 3;
             int sleepInterval = 1;
-            for (int i = 1; i <= failTryCount; i++) {
+            for (int i = 0; i <= failTryCount; i++) {
                 try {
                     // Binding generated signature, system time, tamper proof interceptor
                     originalChannel = GrpcUtil.getManagedChannel(dstMember.getEndpoint());
@@ -172,17 +173,16 @@ public class GrpcUtil {
                         return returnStatus;
                     }
                     if (GrpcUtil.checkIsConnectionDisableExp(e)) {
-                        //The connection is unavailable. The address may have been updated. You need to refresh the destination address and try again
-                        MemberEntity dstMemberEntity = MemberCache.getInstance().refreshCacheById(dstMember.getMemberId());
-                        if (null != dstMemberEntity) {
-                            // Close the original channel
-                            if (null != originalChannel) {
-                                originalChannel.shutdownNow().awaitTermination(1, TimeUnit.SECONDS);
+                        // 用户没指定具体的专有网络地址
+                        if (null == PartnerConfigCache.getInstance().get(dstMember.getMemberId())) {
+                            //The connection is unavailable. The address may have been updated. You need to refresh the destination address and try again
+                            MemberEntity dstMemberEntity = MemberCache.getInstance().refreshCacheById(dstMember.getMemberId());
+                            if (null != dstMemberEntity) {
+                                // Reset destination member IP and port
+                                dstMember = dstMember.toBuilder().setEndpoint(BasicMetaProto.Endpoint.newBuilder().setIp(dstMemberEntity.getIp()).setPort(dstMemberEntity.getPort()).build()).build();
+                            } else {
+                                LOG.error("Message push failed,re obtain destination address information is empty, dst member id is:" + dstMember.getMemberId());
                             }
-                            // Reset destination member IP and port
-                            dstMember = dstMember.toBuilder().setEndpoint(BasicMetaProto.Endpoint.newBuilder().setIp(dstMemberEntity.getIp()).setPort(dstMemberEntity.getPort()).build()).build();
-                        } else {
-                            LOG.error("Message push failed,re obtain destination address information is empty, dst member id is:" + dstMember.getMemberId());
                         }
 
                         // Record the last error message
@@ -208,7 +208,7 @@ public class GrpcUtil {
                         originalChannel.shutdownNow().awaitTermination(1, TimeUnit.SECONDS);
                     }
                 }
-                ThreadUtil.sleep(sleepInterval * 1000);
+                ThreadUtil.sleep(sleepInterval * 1000L);
                 sleepInterval++;
             }
         } catch (Exception e) {
