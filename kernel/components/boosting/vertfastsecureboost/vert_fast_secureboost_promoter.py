@@ -134,8 +134,8 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
                 else:
                     self.sync_stop_flag(False, i)
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         LOGGER.debug("history loss is {}".format(min(self.history_loss)))
         self.callback_metric("loss",
@@ -282,3 +282,38 @@ class VertFastSecureBoostingTreePromoter(VertSecureBoostingPromoter):
             self.tree_plan = plan.decode_plan(list(model_param.get("treePlan")))
         else:
             self.tree_plan = plan.decode_plan(model_param.tree_plan)
+
+    def set_grid_search_params(self, params_name, params_value):
+
+        if params_name is None or params_value is None:
+            return
+        if len(params_name) != len(params_value):
+            raise ValueError(
+                "grid search params name_list size: {} vs value_list size: {} not match".format(len(params_name),
+                                                                                                len(params_value)))
+
+        # "num_trees", "bin_num", "max_depth", "learning_rate", "subsample_feature_rate"
+        for i, name in enumerate(params_name):
+            if name == 'num_trees':
+                self.num_trees = params_value[i]
+            elif name == "bin_num":
+                self.bin_num = params_value[i]
+            elif name == "learning_rate":
+                self.learning_rate = params_value[i]
+            elif name == "max_depth":
+                self.tree_param.max_depth = params_value[i]
+                half_depth = int(params_value[i] / 2)
+                if self.work_mode == consts.LAYERED_TREE:
+                    if (params_value[i] % 2) == 0:
+                        self.promoter_depth = half_depth
+                        self.provider_depth = half_depth
+                    else:
+                        self.promoter_depth = half_depth
+                        self.provider_depth = half_depth + 1
+
+            elif name == "subsample_feature_rate":
+                self.subsample_feature_rate = params_value[i]
+            else:
+                raise NotImplementedError("grid search param: {} cannot be support.".format(name))
+
+        return dict(zip(params_name, params_value))

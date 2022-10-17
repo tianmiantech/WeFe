@@ -44,6 +44,7 @@ from kernel.transfer.variables.base_transfer_variable import BaseTransferVariabl
 class VertSecureBoostingTransferVariable(BaseTransferVariables):
     def __init__(self, flowid=0):
         super().__init__(flowid)
+        self.anonymous_name_mapping = self._create_variable(name='anonymous_name_mapping')
         self.begin_iter = self._create_variable(name='begin_iter')
         self.predict_start_round = self._create_variable(name='predict_start_round')
         self.predict_stop_flag = self._create_variable(name='predict_stop_flag')

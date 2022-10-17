@@ -146,7 +146,7 @@ class MixSecureBoostingArbiter(BoostingTree):
 
         LOGGER.debug('begin to fit a boosting tree')
         bestIteration = self.sync_begin_iter()
-        self.tracker.set_task_progress(bestIteration)
+        self.tracker.set_task_progress(bestIteration, self.need_grid_search)
         for epoch_idx in range(bestIteration, self.num_trees):
 
             for t_idx in range(self.tree_dim):
@@ -174,7 +174,7 @@ class MixSecureBoostingArbiter(BoostingTree):
                 if should_stop:
                     break
 
-            self.tracker.add_task_progress(1)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         self.callback_metric("loss",
                              "train",
