@@ -33,6 +33,16 @@
   "encrypt_param": {
     "method": "Paillier"
   },
+  "cv_param": {
+    "n_splits": 5,
+    "need_cv": false,
+    "shuffle": true
+  },
+  "grid_search_param": {
+    "params_list": {
+    },
+  "need_grid_search": false
+  },
   "predict_param": {
     "with_proba": true,
     "threshold": 0.5

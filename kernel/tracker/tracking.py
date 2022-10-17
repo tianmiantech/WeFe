@@ -342,7 +342,9 @@ class Tracking(object):
 
         return TaskResultDao.get(*tuple(where_condition))
 
-    def save_training_best_model(self, model_buffers):
+    def save_training_best_model(self, model_buffers, need_grid_search=False):
+        if need_grid_search or model_buffers is None:
+            return
         # save to task_result
         model_json_obj = self._model_buffers_to_json_obj(model_buffers, self.member_model_id, self.model_version,
                                                          component_model_key='{}.{}'.format(self.component_name,
