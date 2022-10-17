@@ -16,14 +16,17 @@
 package com.welab.wefe.board.service.component.feature;
 
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.filter.OutputDataTypeAndNameOutputFilter;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
 import com.welab.wefe.board.service.component.base.io.Names;
 import com.welab.wefe.board.service.component.base.io.OutputItem;
+import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
+import com.welab.wefe.board.service.dto.vo.data_set.table_data_set.LabelDistribution;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
@@ -75,10 +78,20 @@ public class FeaturePsiComponent extends AbstractComponent<FeaturePsiComponent.P
         }
 
         // 限定只支持二分类的数据集
-        // if (graph.getJob().getMyRole()==JobMemberRole.promoter) {
-        //     DataIOComponent.Params dataIOParams = (DataIOComponent.Params) graph.findOneNodeFromParent(node, ComponentType.DataIO).getParamsModel();
-        //
-        // }
+        if (graph.getJob().getMyRole() == JobMemberRole.promoter) {
+            DataIOComponent.Params dataIOParams = (DataIOComponent.Params) graph.findOneNodeFromParent(node, ComponentType.DataIO).getParamsModel();
+            TableDataSetMysqlModel myDataSet = dataIOParams.getMyDataSet();
+            LabelDistribution labelDistribution = myDataSet.getLabelDistribution().toJavaObject(LabelDistribution.class);
+            if (labelDistribution.labelSpeciesCount > 2) {
+                throw new FlowNodeException(
+                        node,
+                        ComponentType.VertFeaturePSI.getLabel() +
+                                " 只支持二分类场景，您当前选择的数据集 y 值有 " +
+                                labelDistribution.labelSpeciesCount +
+                                " 种类型。"
+                );
+            }
+        }
 
         graph.findOneNodeFromParent(node, ComponentType.DataIO);
     }
