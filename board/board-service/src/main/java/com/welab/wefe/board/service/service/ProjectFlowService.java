@@ -23,19 +23,18 @@ import com.welab.wefe.board.service.api.project.flow.*;
 import com.welab.wefe.board.service.api.project.job.OnJobFinishedApi;
 import com.welab.wefe.board.service.api.project.modeling.DetailApi;
 import com.welab.wefe.board.service.api.project.modeling.QueryApi;
+import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.database.entity.flow.FlowTemplateMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.*;
-import com.welab.wefe.board.service.database.repository.JobRepository;
-import com.welab.wefe.board.service.database.repository.ProjectFlowNodeRepository;
-import com.welab.wefe.board.service.database.repository.ProjectFlowRepository;
-import com.welab.wefe.board.service.database.repository.TaskResultRepository;
+import com.welab.wefe.board.service.database.repository.*;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.job.ProjectFlowNodeOutputModel;
 import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.dto.entity.modeling_config.ModelingInfoOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectFlowListOutputModel;
 import com.welab.wefe.board.service.dto.entity.project.ProjectFlowProgressOutputModel;
+import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
 import com.welab.wefe.board.service.onlinedemo.OnlineDemoBranchStrategy;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -91,7 +90,8 @@ public class ProjectFlowService extends AbstractService {
     private TaskResultService taskResultService;
     @Autowired
     private ModelOotRecordService modelOotRecordService;
-
+    @Autowired
+    private TaskRepository taskRepository;
     /**
      * delete flow
      */
@@ -488,14 +488,111 @@ public class ProjectFlowService extends AbstractService {
 
 
     public void flowFinished(OnJobFinishedApi.Input input) throws StatusCodeWithException {
-        List<JobMySqlModel> jobs = jobService.listByJobId(input.getJobId());
-        JobMySqlModel job = null;
+        // 由于横向任务包含 arbiter，这里剔除一下。
+        JobMySqlModel job = jobService
+                .listByJobId(input.getJobId())
+                .stream()
+                .filter(x -> x.getMyRole() != JobMemberRole.arbiter)
+                .findFirst()
+                .orElse(null);
 
-        if (CollectionUtils.isNotEmpty(jobs)) {
-            job = jobs.get(0);
+        if (job == null) {
+            return;
         }
-        if (job != null) {
-            projectService.updateFlowStatusStatistics(job.getProjectId());
+
+        // 更新流程状态统计结果
+        projectService.updateFlowStatusStatistics(job.getProjectId());
+
+        // 处理包含网格搜索动作的任务
+        handleJobWithGridSearch(job);
+    }
+
+    /*
+     * 对于包含网格搜索的任务，在任务结束后，要将计算出的最优参数回写到组件参数中。
+     *
+     * kernel 输出的最优参数：
+     * {
+     *     "train_best_parameters":{
+     *         "metric_name":"best_parameters",
+     *         "metric_namespace":"train",
+     *         "data":{
+     *             "best_parameters":{
+     *                 "value":{
+     *                     "batch_size":1000,
+     *                     "optimizer":"adam"
+     *                 }
+     *             }
+     *         }
+     *     }
+     * }
+     */
+    private void handleJobWithGridSearch(JobMySqlModel job) throws StatusCodeWithException {
+
+        // 找到该 job 下所有 need_grid_search=true 的task
+        List<TaskMySqlModel> taskList = taskService.listTaskWithGridSearch(job.getJobId());
+
+        for (TaskMySqlModel task : taskList) {
+            // 找到 task 下 type=metric_train 的 task_result
+            TaskResultMySqlModel taskResult = taskResultService.findByTaskIdAndType(task.getTaskId(), "metric_train");
+
+            if (taskResult == null) {
+                continue;
+            }
+
+            JSONObject bestParams = (JSONObject) JObject
+                    .create(taskResult.getResult())
+                    .getObjectByPath("train_best_parameters.data.best_parameters.value");
+
+            // 将最优参数回写到 task_config
+            TaskConfig taskConfig = JSON.parseObject(task.getTaskConf()).toJavaObject(TaskConfig.class);
+            updateOldParams(taskConfig.getParams(), bestParams);
+            task.setTaskConf(JSON.toJSONString(taskConfig));
+            taskRepository.save(task);
+
+            // 将建模节点输出的最优参数回写到该节点的表单
+            ProjectFlowNodeMySqlModel node = projectFlowNodeService.findOne(task.getFlowId(), task.getFlowNodeId());
+            JSONObject nodeParams = JSON.parseObject(node.getParams());
+            updateOldParams(nodeParams, bestParams);
+
+            // 更新节点参数
+            UpdateApi.Input input = new UpdateApi.Input();
+            input.setFlowId(task.getFlowId());
+            input.setNodeId(task.getFlowNodeId());
+            input.setComponentType(task.getTaskType());
+            input.setParams(nodeParams.toString());
+            projectFlowNodeService.updateFlowNode(input);
+
+        }
+    }
+
+    /**
+     * 根据约定，best_parameters 内的字段名与外部的参数名一致，所以根据名称来覆盖即可。
+     */
+    private void updateOldParams(Map<String, Object> oldParams, JSONObject bestParams) {
+        // nodeParams 目前的设计是最多只有两层，暂时硬编码两层循环，如果以后深度变多，考虑使用递归。
+        for (String key1 : oldParams.keySet()) {
+            // 按照需求，grid_search_param 节点不更新。
+            if ("grid_search_param".equals(key1)) {
+                continue;
+            }
+
+            Object value1 = oldParams.get(key1);
+            if (value1 instanceof JSONObject) {
+
+                JSONObject json2 = (JSONObject) value1;
+                for (String key2 : json2.keySet()) {
+                    Object value2 = json2.get(key2);
+                    if (!(value2 instanceof JSONObject)) {
+                        if (bestParams.containsKey(key2)) {
+                            json2.put(key2, bestParams.get(key2));
+                        }
+                    }
+                }
+            } else {
+                if (bestParams.containsKey(key1)) {
+                    oldParams.put(key1, bestParams.get(key1));
+                }
+            }
         }
     }
 
@@ -531,11 +628,25 @@ public class ProjectFlowService extends AbstractService {
 
         PagingOutput<ModelingInfoOutputModel> pagingOutput = taskResultRepository.paging(where, input, ModelingInfoOutputModel.class);
 
-        pagingOutput.getList().forEach(x -> {
+        pagingOutput.getList().parallelStream().forEach(x -> {
             ProjectFlowMySqlModel flow = findOne(x.getFlowId());
             if (flow != null) {
                 x.setFlowName(flow.getFlowName());
                 x.setComponentName(x.getComponentType().getLabel());
+            }
+
+            // 如果要求填充建模节点参数，要查出来。
+            if (input.withModelingParams) {
+                TaskMySqlModel task = taskService.findOne(x.getTaskId());
+
+                // 如果是 arbiter 输出的模型，不会有对应的 task。
+                if (task != null) {
+                    x.setModelingParams(
+                            JSON
+                                    .parseObject(task.getTaskConf())
+                                    .getJSONObject("params")
+                    );
+                }
             }
         });
 

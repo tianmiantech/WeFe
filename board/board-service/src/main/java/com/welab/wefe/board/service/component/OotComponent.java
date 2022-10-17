@@ -230,7 +230,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             JObject taskConfigObj = JObject.create(JObject.toJSONString(taskConfig));
             // If it is a dataio component, replace it with a new dataset
             if (DATA_IO_COMPONENT_TYPE_LIST.contains(taskType)) {
-                newDataIoParam.append("with_label", isSelectedMyself ? myDataSet.isContainsY() : false)
+                newDataIoParam.append("with_label", isSelectedMyself && myDataSet.isContainsY())
                         .append("label_name", "y")
                         .append("namespace", isSelectedMyself ? myDataSet.getStorageNamespace() : taskConfigObj.getStringByPath("params.namespace"))
                         .append("name", isSelectedMyself ? myDataSet.getStorageResourceName() : taskConfigObj.getStringByPath("params.name"))
@@ -245,6 +245,22 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 inputObj.append("model", JObject.create().append(Names.Data.TRAIN_DATA_SET, Arrays.asList(taskName)));
                 inputObj.append("data", dataObj);
                 taskConfigObj.put("input", inputObj);
+
+                // oot时不运行网格
+                JObject paramsObj = taskConfigObj.getJObject("params");
+                paramsObj.put("need_grid_search", false);
+                JObject gridSearchParamObj = paramsObj.getJObject("grid_search_param");
+                if (null != gridSearchParamObj && !gridSearchParamObj.isEmpty()) {
+                    gridSearchParamObj.put("need_grid_search", false);
+                    paramsObj.put("grid_search_param", gridSearchParamObj);
+                }
+                JObject cvParamObj = paramsObj.getJObject("cv_param");
+                if (null != cvParamObj && !cvParamObj.isEmpty()) {
+                    cvParamObj.put("need_cv", false);
+                    paramsObj.put("cv_param", cvParamObj);
+                }
+
+                taskConfigObj.put("params", paramsObj);
 
                 // Mark as modeling component
                 extendOotParams.put("is_model", true);
