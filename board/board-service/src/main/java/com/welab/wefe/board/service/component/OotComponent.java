@@ -253,14 +253,14 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 if (null != gridSearchParamObj && !gridSearchParamObj.isEmpty()) {
                     gridSearchParamObj.put("need_grid_search", false);
                     paramsObj.put("grid_search_param", gridSearchParamObj);
-                    taskConfigObj.put("params", paramsObj);
                 }
                 JObject cvParamObj = paramsObj.getJObject("cv_param");
                 if (null != cvParamObj && !cvParamObj.isEmpty()) {
                     cvParamObj.put("need_cv", false);
                     paramsObj.put("cv_param", cvParamObj);
-                    taskConfigObj.put("params", paramsObj);
                 }
+
+                taskConfigObj.put("params", paramsObj);
 
                 // Mark as modeling component
                 extendOotParams.put("is_model", true);
