@@ -66,7 +66,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
      */
     private final static List<ComponentType> EXCLUDE_COMPONENT_TYPE_LIST = Arrays.asList(ComponentType.FeatureStatistic,
             ComponentType.FeatureCalculation, ComponentType.MixStatistic,
-            ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot);
+            ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot, ComponentType.VertFeaturePSI,ComponentType.VertFilter);
     /**
      * List of temporarily unsupported components
      */
@@ -196,10 +196,12 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 .collect(Collectors.toList());
 
         // Whether there is an evaluation component. If not, create a new evaluation component and add it to the OOT process
-        if (!isExistEvaluationComponent(preTasks)) {
+        TaskMySqlModel evaluationTaskMySqlModel = getEvaluationTaskMySqlModel(preTasks);
+        if (null == evaluationTaskMySqlModel) {
             // Find the dataio component of the original process
             TaskMySqlModel dataIoTaskMysqlModel = findDataIoTask(preTasks);
-            preTasks.add(createEvaluationTaskMySqlModel(graph, node, dataIoTaskMysqlModel, params));
+            evaluationTaskMySqlModel = createEvaluationTaskMySqlModel(graph, node, dataIoTaskMysqlModel, params);
+            preTasks.add(evaluationTaskMySqlModel);
         }
 
         // Sub task name list
@@ -222,7 +224,8 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                     .append("flow_node_id", taskMySqlModel.getFlowNodeId())
                     .append("component_name", taskName)
                     .append("job_id", isOotMode ? params.jobId : graph.getJob().getJobId())
-                    .append("is_model", false);
+                    .append("is_model", false)
+                    .append("eval_type", JObject.create(evaluationTaskMySqlModel.getTaskConf()).getStringByPath("params.eval_type"));
 
             // Add the OOT mode parameters and the required parameters in the corresponding OOT mode on the basis of the original task configuration
             TaskConfig taskConfig = JObject.parseObject(taskMySqlModel.getTaskConf(), TaskConfig.class);
@@ -230,7 +233,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             JObject taskConfigObj = JObject.create(JObject.toJSONString(taskConfig));
             // If it is a dataio component, replace it with a new dataset
             if (DATA_IO_COMPONENT_TYPE_LIST.contains(taskType)) {
-                newDataIoParam.append("with_label", isSelectedMyself ? myDataSet.isContainsY() : false)
+                newDataIoParam.append("with_label", isSelectedMyself && myDataSet.isContainsY())
                         .append("label_name", "y")
                         .append("namespace", isSelectedMyself ? myDataSet.getStorageNamespace() : taskConfigObj.getStringByPath("params.namespace"))
                         .append("name", isSelectedMyself ? myDataSet.getStorageResourceName() : taskConfigObj.getStringByPath("params.name"))
@@ -259,7 +262,10 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 .append("flow_node_id", node.getNodeId())
                 .append("task_id", node.createTaskId(graph.getJob()))
                 .append("sub_component_name_list", subTaskNameList)
-                .append("sub_component_task_config_dick", subTaskConfigMap);
+                .append("sub_component_task_config_dick", subTaskConfigMap)
+                .append("bin_method", params.binMethod)
+                .append("bin_num", params.binNumber)
+                .append("split_points", CollectionUtils.isEmpty(params.splitPoints) ? new ArrayList<>() : params.splitPoints);
 
         // OotParam
         return output;
@@ -289,6 +295,9 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // Evaluation results
         JObject evaluationObj = taskResultObj.getJObject("evaluation");
         String evaluationTaskId = findComponentTaskId(evaluationObj);
+
+        // PSI results
+        JObject psiObj = taskResultObj.getJObject("psi");
 
         // Final output
         JObject result = JObject.create("validate", evaluationObj.getJObject(evaluationTaskId));
@@ -341,6 +350,9 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             case "model":
                 // Standardized output results of modeling nodes
                 result.putAll(normalizerModel(modelObj));
+                break;
+            case "psi":
+                result.put("psi", null == psiObj ? JObject.create() : psiObj);
                 break;
             default:
         }
@@ -548,16 +560,16 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
      *
      * @param taskMySqlModelList task list
      */
-    private boolean isExistEvaluationComponent(List<TaskMySqlModel> taskMySqlModelList) {
+    private TaskMySqlModel getEvaluationTaskMySqlModel(List<TaskMySqlModel> taskMySqlModelList) {
         if (CollectionUtils.isEmpty(taskMySqlModelList)) {
-            return false;
+            return null;
         }
         for (TaskMySqlModel taskMySqlModel : taskMySqlModelList) {
             if (ComponentType.Evaluation.equals(taskMySqlModel.getTaskType())) {
-                return true;
+                return taskMySqlModel;
             }
         }
-        return false;
+        return null;
     }
 
     /**
@@ -587,7 +599,10 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         // Reassemble evaluation parameters
         JObject evaluationParam = JObject.create();
         evaluationParam.append("eval_type", ootParams.evalType)
-                .append("pos_label", ootParams.posLabel);
+                .append("pos_label", ootParams.posLabel)
+                .append("bin_method", ootParams.binMethod)
+                .append("bin_num", ootParams.binNumber)
+                .append("split_points", CollectionUtils.isEmpty(ootParams.splitPoints) ? new ArrayList<>() : ootParams.splitPoints);
         taskConfig.setParams(evaluationParam);
         evaluationTaskMySqlModel.setTaskConf(JSON.toJSONString(taskConfig));
         return evaluationTaskMySqlModel;
@@ -674,6 +689,13 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
          */
         private Integer posLabel;
 
+        private String binMethod;
+
+        private Integer binNumber;
+
+        private List<Double> splitPoints;
+
+
         public String getJobId() {
             return jobId;
         }
@@ -704,6 +726,30 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
 
         public void setModelFlowNodeId(String modelFlowNodeId) {
             this.modelFlowNodeId = modelFlowNodeId;
+        }
+
+        public String getBinMethod() {
+            return binMethod;
+        }
+
+        public void setBinMethod(String binMethod) {
+            this.binMethod = binMethod;
+        }
+
+        public Integer getBinNumber() {
+            return binNumber;
+        }
+
+        public void setBinNumber(Integer binNumber) {
+            this.binNumber = binNumber;
+        }
+
+        public List<Double> getSplitPoints() {
+            return splitPoints;
+        }
+
+        public void setSplitPoints(List<Double> splitPoints) {
+            this.splitPoints = splitPoints;
         }
     }
 }
