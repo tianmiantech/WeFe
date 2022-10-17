@@ -227,7 +227,7 @@ public class BaseGatewayService extends AbstractService {
      *
      * @param gatewayUri Gateway address, the format must be: <ip/host>:<port>
      */
-    private boolean isValidGatewayUri(String gatewayUri) {
+    public boolean isValidGatewayUri(String gatewayUri) {
         if (StringUtil.isEmpty(gatewayUri)) {
             return false;
         }

@@ -263,6 +263,17 @@ public class GatewayService extends BaseGatewayService {
     }
 
     /**
+     * Notify the gateway to update the partner config cache
+     */
+    public void refreshPartnerConfigCache() throws StatusCodeWithException {
+        sendToMyselfGateway(
+                GatewayActionType.none,
+                "",
+                GatewayProcessorType.refreshPartnerConfigCacheProcessor
+        );
+    }
+
+    /**
      * Notify the gateway to update the IP whitelist cache
      */
     public void refreshIpWhiteListCache() throws StatusCodeWithException {
