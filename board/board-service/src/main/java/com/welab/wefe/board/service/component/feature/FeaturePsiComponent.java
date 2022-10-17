@@ -86,7 +86,7 @@ public class FeaturePsiComponent extends AbstractComponent<FeaturePsiComponent.P
                 throw new FlowNodeException(
                         node,
                         ComponentType.VertFeaturePSI.getLabel() +
-                                "只支持二分类场景，您当前选择的数据集 y 值有 " +
+                                " 只支持二分类场景，您当前选择的数据集 y 值有 " +
                                 labelDistribution.labelSpeciesCount +
                                 " 种类型。"
                 );
