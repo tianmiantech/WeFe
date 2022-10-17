@@ -1,12 +1,12 @@
 /**
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,6 +34,8 @@ import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.wefe.enums.ComponentType;
+import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -50,7 +52,11 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
     @Override
     protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
                                           Params params) throws FlowNodeException {
-        JObject resultObj = JObject.create();
+        JObject resultObj = JObject
+                .create()
+                // 默认每次都输出衍生数据集
+                .append("save_dataset", params.isSaveDataset());
+
         params.getMembers().forEach(member -> {
             if (CacheObjects.getMemberId().equals(member.getMemberId())
                     && graph.getJob().getMyRole() == member.getMemberRole()) {
@@ -73,7 +79,10 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
 
     @Override
     protected TaskResultMySqlModel getResult(String taskId, String type) {
-        return null;
+        if (StringUtils.isEmpty(type)) {
+            type = TaskResultType.metric_train.name();
+        }
+        return taskResultService.findByTaskIdAndType(taskId, type);
     }
 
     @Override
@@ -90,6 +99,8 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
 
         @Check(name = "成员信息", require = true)
         private List<MemberInfoModel> members;
+        @Check(name = "是否保存衍生数据集")
+        private boolean saveDataset = false;
 
         public List<MemberInfoModel> getMembers() {
             return members;
@@ -99,8 +110,16 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
             this.members = members;
         }
 
+        public boolean isSaveDataset() {
+            return saveDataset;
+        }
+
+        public void setSaveDataset(boolean saveDataset) {
+            this.saveDataset = saveDataset;
+        }
+
         public static class MemberInfoModel extends MemberModel {
-            @Check(name = "过滤规则", desc = "支持 >,<,>=,<=,=,!=", blockXss=false)
+            @Check(name = "过滤规则", desc = "支持 >,<,>=,<=,=,!=", blockXss = false)
             private String filterRules;
 
             public String getFilterRules() {

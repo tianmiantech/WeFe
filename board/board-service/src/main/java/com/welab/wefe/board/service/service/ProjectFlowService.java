@@ -347,7 +347,8 @@ public class ProjectFlowService extends AbstractService {
         node.setFlowId(flowId);
         node.setNodeId(nodeId);
         node.setProjectId(projectId);
-
+        // 由于不确定是否是游离节点，暂时全部初始化为 false，后续流程进行标记。
+        node.setStartNode(false);
 
         return node;
 
