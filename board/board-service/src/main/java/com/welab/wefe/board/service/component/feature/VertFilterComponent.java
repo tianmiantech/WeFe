@@ -54,7 +54,6 @@ public class VertFilterComponent extends AbstractComponent<VertFilterComponent.P
                                           Params params) throws FlowNodeException {
         JObject resultObj = JObject
                 .create()
-                // 默认每次都输出衍生数据集
                 .append("save_dataset", params.isSaveDataset());
 
         params.getMembers().forEach(member -> {
