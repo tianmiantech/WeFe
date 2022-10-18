@@ -98,6 +98,7 @@ public class AccountService extends AbstractAccountService {
                 .contains("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus())
                 .contains("nickname", input.getNickname())
+                .equal("adminRole", input.getAdminRole())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(AccountMysqlModel.class);
 
