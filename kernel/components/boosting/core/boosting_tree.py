@@ -35,11 +35,12 @@ import numpy as np
 from kernel.base.sparse_vector import SparseVector
 from kernel.components.boosting.param import BoostingTreeParam
 from kernel.model_base import ModelBase
-from kernel.model_selection.k_fold import KFold
 from kernel.utils import consts
 from kernel.utils import data_util
 from kernel.utils.data_util import NoneType
 from kernel.utils.validation_strategy import ValidationStrategy
+from kernel.model_selection import start_cross_validation
+from kernel.model_selection.grid_search import GridSearch
 
 
 class BoostingTree(ModelBase):
@@ -48,7 +49,6 @@ class BoostingTree(ModelBase):
         self.tree_param = None
         self.task_type = None
         self.objective_param = None
-        self.learning_rate = None
         self.learning_rate = None
         self.num_trees = None
         self.subsample_feature_rate = None
@@ -98,7 +98,7 @@ class BoostingTree(ModelBase):
             self.tree_param.use_missing = self.use_missing
             self.tree_param.zero_as_missing = self.zero_as_missing
 
-        self.tracker.init_task_progress(boostingtree_param.num_trees)
+        self.tracker.init_task_progress(boostingtree_param.num_trees, self.need_grid_search)
 
     @staticmethod
     def data_format_transform(row):
@@ -160,12 +160,40 @@ class BoostingTree(ModelBase):
         return validation_strategy
 
     def cross_validation(self, data_instances):
+        return start_cross_validation.run(self, data_instances)
+
+    def grid_search(self, train_data, eval_data, need_cv=False):
         if not self.need_run:
-            return data_instances
-        kflod_obj = KFold()
-        cv_param = self._get_cv_param()
-        kflod_obj.run(cv_param, data_instances, self, False)
-        return data_instances
+            return train_data
+        grid_obj = GridSearch()
+        grid_search_param = self._get_grid_search_param()
+        output_data = grid_obj.run(grid_search_param, train_data, eval_data, self, need_cv, False)
+        return output_data
+
+    def set_grid_search_params(self, params_name, params_value):
+        if params_name is None or params_value is None:
+            return
+        if len(params_name) != len(params_value):
+            raise ValueError(
+                "grid search params name_list size: {} vs value_list size: {} not match".format(len(params_name),
+                                                                                                len(params_value)))
+
+        # "num_trees", "bin_num", "max_depth", "learning_rate", "subsample_feature_rate"
+        for i, name in enumerate(params_name):
+            if name == 'num_trees':
+                self.num_trees = params_value[i]
+            elif name == "bin_num":
+                self.bin_num = params_value[i]
+            elif name == "learning_rate":
+                self.learning_rate = params_value[i]
+            elif name == "max_depth":
+                self.tree_param.max_depth = params_value[i]
+            elif name == "subsample_feature_rate":
+                self.subsample_feature_rate = params_value[i]
+            else:
+                raise NotImplementedError("grid search param: {} cannot be support.".format(name))
+
+        return dict(zip(params_name, params_value))
 
     def _get_cv_param(self):
         self.model_param.cv_param.role = self.role

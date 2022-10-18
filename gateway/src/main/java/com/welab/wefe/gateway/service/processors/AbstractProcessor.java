@@ -16,6 +16,7 @@
 
 package com.welab.wefe.gateway.service.processors;
 
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
@@ -70,5 +71,14 @@ public abstract class AbstractProcessor {
      */
     public BasicMetaProto.ReturnStatus remoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
         return ReturnStatusBuilder.ok(transferMeta.getSessionId());
+    }
+
+    /**
+     * Dst is self availability
+     */
+    protected boolean dstMemberIsSelf(GatewayMetaProto.TransferMeta transferMeta) {
+        GatewayMetaProto.Member srcMember = transferMeta.getSrc();
+        GatewayMetaProto.Member dstMember = transferMeta.getDst();
+        return StringUtil.isEmpty(dstMember.getMemberId()) || srcMember.getMemberId().equals(dstMember.getMemberId());
     }
 }

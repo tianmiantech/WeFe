@@ -69,3 +69,22 @@ ALTER TABLE `message`
 update `message`
 set `level`='error'
 where `level` in ('0', '1', '2', '3', '4', '5');
+
+-- -------------------------------------
+-- 加表：partner_config
+-- author: zane.luo
+-- -------------------------------------
+DROP TABLE IF EXISTS `partner_config`;
+CREATE TABLE `partner_config`
+(
+    `id`              varchar(32) NOT NULL COMMENT '全局唯一标识',
+    `created_by`      varchar(32) COMMENT '创建人',
+    `created_time`    datetime(6) NOT NULL default CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_by`      varchar(32) COMMENT '更新人',
+    `updated_time`    datetime(6) COMMENT '更新时间',
+    `member_id`       varchar(32) NOT NULL COMMENT '成员Id',
+    `gateway_address` varchar(128) COMMENT '自定义gateway address',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `index_unique_member` (`member_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='合作伙伴设置';

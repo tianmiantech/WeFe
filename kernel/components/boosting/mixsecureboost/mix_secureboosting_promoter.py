@@ -603,7 +603,7 @@ class MixSecureBoostingPromoter(BoostingTree):
             bestIteration = model_param['treeNum']
             self.set_model_param(model_param)
         self.sync_begin_iter(bestIteration)
-        self.tracker.set_task_progress(bestIteration)
+        self.tracker.set_task_progress(bestIteration, self.need_grid_search)
         for epoch_idx in range(bestIteration, self.num_trees):
             self.compute_grad_and_hess(data_inst)
             for tidx in range(self.tree_dim):
@@ -641,8 +641,8 @@ class MixSecureBoostingPromoter(BoostingTree):
                 else:
                     self.sync_stop_flag(False, epoch_idx)
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         # LOGGER.debug("history loss is {}".format(min(self.history_loss)))
         # self.callback_metric("loss",
@@ -895,8 +895,11 @@ class MixSecureBoostingPromoter(BoostingTree):
 
     def export_model(self):
 
-        if self.need_cv:
-            return None
+        if self.model_output is not None:
+            return self.model_output
+
+        if self.need_cv and not self.need_grid_search:
+            return
 
         meta_name, meta_protobuf = self.get_model_meta()
         param_name, param_protobuf = self.get_model_param()

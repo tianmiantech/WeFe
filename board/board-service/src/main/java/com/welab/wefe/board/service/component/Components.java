@@ -104,7 +104,8 @@ public class Components {
     private PaddleDetectionComponent paddleDetectionComponent;
     @Autowired
     private ScoreCardComponent scoreCardComponent;
-
+    @Autowired
+    private FeaturePsiComponent featurePsiComponent;
 
     public static AbstractComponent<?> get(ComponentType componentType) {
 
@@ -179,6 +180,8 @@ public class Components {
                 return Launcher.getBean(Components.class).paddleDetectionComponent;
             case ScoreCard:
                 return Launcher.getBean(Components.class).scoreCardComponent;
+            case VertFeaturePSI:
+                return Launcher.getBean(Components.class).featurePsiComponent;
             default:
                 return null;
         }

@@ -32,6 +32,10 @@ import com.welab.wefe.gateway.service.processors.AbstractProcessor;
 public class GatewayAliveProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
-        return ReturnStatusBuilder.ok(transferMeta.getSessionId());
+        if (dstMemberIsSelf(transferMeta)) {
+            return ReturnStatusBuilder.ok(transferMeta.getSessionId());
+        }
+
+        return toRemote(transferMeta);
     }
 }

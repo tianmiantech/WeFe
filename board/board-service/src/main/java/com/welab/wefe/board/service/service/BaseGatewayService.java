@@ -68,6 +68,7 @@ public class BaseGatewayService extends AbstractService {
                 gatewayUri,
                 CacheObjects.getMemberId(),
                 CacheObjects.getMemberName(),
+                null,
                 action,
                 data,
                 processorType);
@@ -81,6 +82,22 @@ public class BaseGatewayService extends AbstractService {
                 globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri,
                 dstMemberId,
                 CacheObjects.getMemberName(dstMemberId),
+                null,
+                action,
+                data,
+                processorType
+        );
+    }
+
+    /**
+     * Send message to other party's gateway service
+     */
+    protected JSONObject sendToOtherGateway(String dstMemberId, String dstGatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+        return callGateway(
+                globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri,
+                dstMemberId,
+                CacheObjects.getMemberName(dstMemberId),
+                dstGatewayUri,
                 action,
                 data,
                 processorType
@@ -93,17 +110,18 @@ public class BaseGatewayService extends AbstractService {
      * @param gatewayUri    gateway service address
      * @param dstMemberId   the member_id of the target member
      * @param dstMemberName The member_name of the target member
+     * +@param dstGatewayUri The gateway uri of the target member
      * @param action        action of the message
      * @param data          data of the message
      * @param processorType enum, see:{@link com.welab.wefe.common.wefe.enums.GatewayProcessorType}
      */
-    private JSONObject callGateway(String gatewayUri, String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
+    private JSONObject callGateway(String gatewayUri, String dstMemberId, String dstMemberName, String dstGatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) throws StatusCodeWithException {
 
         if (StringUtil.isEmpty(gatewayUri)) {
             StatusCode.RPC_ERROR.throwException("尚未设置 gateway 内网地址，请在[全局设置][系统设置]中设置 gateway 服务的内网地址。");
         }
 
-        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data, processorType);
+        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, dstGatewayUri, action, data, processorType);
         ManagedChannel grpcChannel = null;
         String message = "[grpc] end to " + dstMemberName;
         try {
@@ -183,12 +201,10 @@ public class BaseGatewayService extends AbstractService {
 
     private ManagedChannel getGrpcChannel(String gatewayUri) throws StatusCodeWithException {
         if (StringUtil.isEmpty(gatewayUri)) {
-            throw new StatusCodeWithException("请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 IP:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
-        if (!isValidGatewayUri(gatewayUri)) {
-            throw new StatusCodeWithException("网关地址格式不正确，格式应为 IP:PORT", StatusCode.PARAMETER_VALUE_INVALID);
-        }
+        isValidGatewayUri(gatewayUri);
 
         return ManagedChannelBuilder
                 .forTarget(gatewayUri)
@@ -197,7 +213,7 @@ public class BaseGatewayService extends AbstractService {
                 .build();
     }
 
-    protected GatewayMetaProto.TransferMeta buildTransferMeta(String dstMemberId, String dstMemberName, GatewayActionType action, String data, GatewayProcessorType processorType) {
+    protected GatewayMetaProto.TransferMeta buildTransferMeta(String dstMemberId, String dstMemberName, String dstGatewayUri, GatewayActionType action, String data, GatewayProcessorType processorType) {
         GatewayMetaProto.Member.Builder builder = GatewayMetaProto.Member.newBuilder()
                 .setMemberId(dstMemberId);
 
@@ -207,6 +223,11 @@ public class BaseGatewayService extends AbstractService {
 
         GatewayMetaProto.Member dstMember = builder
                 .build();
+        if (StringUtil.isNotEmpty(dstGatewayUri)) {
+            String dstHost = dstGatewayUri.split(":")[0];
+            int dstPort = Integer.parseInt(dstGatewayUri.split(":")[1]);
+            dstMember = dstMember.toBuilder().setEndpoint(BasicMetaProto.Endpoint.newBuilder().setIp(dstHost).setPort(dstPort).build()).build();
+        }
 
         GatewayMetaProto.Content content = GatewayMetaProto.Content.newBuilder()
                 .setObjectData(data)
@@ -225,15 +246,18 @@ public class BaseGatewayService extends AbstractService {
     /**
      * Check if it is a legal gateway format
      *
-     * @param gatewayUri Gateway address, the format must be: <ip/host>:<port>
+     * @param gatewayUri Gateway address, the format must be: <host>:<port>
      */
-    private boolean isValidGatewayUri(String gatewayUri) {
-        if (StringUtil.isEmpty(gatewayUri)) {
-            return false;
-        }
-
+    public void isValidGatewayUri(String gatewayUri) throws StatusCodeWithException {
         String splitSymbol = ":";
-        return gatewayUri.contains(splitSymbol) && gatewayUri.split(splitSymbol).length <= 2 && StringUtil.isNumeric(gatewayUri.split(splitSymbol)[1]);
+        if (StringUtil.isEmpty(gatewayUri) || gatewayUri.split(splitSymbol).length != 2) {
+            throw new StatusCodeWithException("网关地址格式不正确，格式应为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        String host = gatewayUri.split(splitSymbol)[0];
+        String portStr = gatewayUri.split(splitSymbol)[1];
+        if (StringUtil.isEmpty(host) || StringUtil.isEmpty(portStr) || !StringUtil.isNumeric(portStr)) {
+            throw new StatusCodeWithException("网关地址格式不正确，格式应为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+        }
     }
 
 }
