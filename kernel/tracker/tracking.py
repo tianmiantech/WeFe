@@ -169,14 +169,16 @@ class Tracking(object):
                 data_table_namespace=save_namespace, data_table_name=save_name)
 
             data_input = {'table_name': save_name, 'table_namespace': save_namespace, 'partition': save_partitions,
-                          'table_create_count': data_table.count() if data_table else 0, 'fcs_info': fcs_info}
+                          'table_create_count': data_table.count() if data_table else 0, 'fcs_info': fcs_info,
+                          'show_name': None}
 
             # self.save_data_info(data_input=data_input, mark=True, data_name=data_name)
+            if save_dataset:
+                self.save_dataset(data_input, data_table.schema, data_table)
 
             self.save_task_result(data_input, self._get_task_result_type(TaskResultDataType.DATA, data_name))
 
-            if save_dataset:
-                self.save_dataset(data_input, data_table.schema, data_table)
+
 
     def get_output_data_table(self, data_name: str = 'component'):
         """
@@ -678,6 +680,9 @@ class Tracking(object):
         table_data_set.y_name_list = data_set_old.y_name_list
         table_data_set.primary_key_column = data_set_old.primary_key_column
         table_data_set.y_count = data_set_old.y_count
+
+        # save resource name to task result
+        data_input['show_name'] = data_resource.name
 
         # column = primary_key + y + feature
         if table_data_set.y_name_list is None:
