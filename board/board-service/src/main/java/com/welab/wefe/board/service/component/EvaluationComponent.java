@@ -101,8 +101,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
 
         JObject result = JObject.create()
                 .append("validate", getValidateJObject(taskId, taskResultMySqlModel))
-                .append("train", getTrainJObject(taskId, taskResultMySqlModel))
-                .append("psi", getPsiJObject(taskId, taskResultMySqlModel));
+                .append("train", getTrainJObject(taskId, taskResultMySqlModel));
 
         // Start parsing the required result data
         result.putAll(getResultByType(taskId, type, extractNormalName(taskResultMySqlModel)));
@@ -118,10 +117,6 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
 
     private JObject getValidateJObject(String taskId, TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
         return getValidateObjByTaskId(taskId).getJObject(extractPreValidateName(taskResultMySqlModel));
-    }
-
-    private JObject getPsiJObject(String taskId, TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
-        return getPsiObjByTaskId(taskId).getJObject(extractPsiName(taskResultMySqlModel));
     }
 
     private JObject getResultByType(String taskId, String type, String normalName) throws StatusCodeWithException {
@@ -176,9 +171,9 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 scores_distribution.putAll(parserScoresDistributionCurveData(distributionObj, normalName));
                 return scores_distribution;
             case "psi":
-                JObject psiData = (null == psi ? JObject.create() : psi.getJObject("data"));
-                result.append("psi", null == psiData ? JObject.create() : psiData);
-                break;
+                JObject psi = JObject.create();
+                psi.put("psi", psiObj.getJObjectByPath("train_validate_" + normalName + ".data"));
+                return psi;
             default:
                 return JObject.create();
         }
@@ -209,10 +204,6 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
     private String extractSuffix(TaskResultMySqlModel taskResultMySqlModel) {
         return !taskResultMySqlModel.getTaskId().endsWith(taskResultMySqlModel.getFlowNodeId()) ?
                 "_" + taskResultMySqlModel.getTaskId().split("_")[taskResultMySqlModel.getTaskId().split("_").length - 1] : "";
-    }
-
-    private String extractPsiName(TaskResultMySqlModel taskResultMySqlModel) throws StatusCodeWithException {
-        return "train_validate_" + extractModelComponentType(taskResultMySqlModel) + "_" + extractFlowNodeId(taskResultMySqlModel) + extractSuffix(taskResultMySqlModel);
     }
 
     /**
