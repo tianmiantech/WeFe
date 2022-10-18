@@ -71,6 +71,7 @@ ROOT_MEAN_SQUARED_ERROR = "root_mean_squared_error"
 ROC = "roc"
 TOPN = "topn"
 SCORED = "scored"
+PSI = "psi"
 
 # evaluation alias metric
 ALL_METRIC_NAME = [AUC, KS, LIFT, GAIN, PRECISION, RECALL, ACCURACY, EXPLAINED_VARIANCE, MEAN_ABSOLUTE_ERROR,
