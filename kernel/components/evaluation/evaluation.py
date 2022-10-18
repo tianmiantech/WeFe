@@ -236,27 +236,32 @@ class Evaluation(ModelBase):
         self.eval_results.clear()
         for (key, eval_data) in data.items():
             eval_data_local = list(eval_data.collect())
-            self.cal_scord_card_bin(eval_data_local)
             split_data_with_label = self.split_data_with_type(eval_data_local)
             for mode, data in split_data_with_label.items():
                 eval_result = self.evaluate_metircs(mode, data)
                 self.eval_results[key].append(eval_result)
+            scored_result = self.cal_scord_card_bin(eval_data_local)
+            self.eval_results[key].append(scored_result)
         return self.callback_metric_data(return_single_val_metrics=return_result)
 
     def cal_scord_card_bin(self, eval_data_local):
         score_result = self.tracker.get_score_result()
+        bins_result = None
         if score_result is not None and len(eval_data_local[0][1])>=6:
             a_score, b_score= score_result['a_score'], score_result['b_score']
             linear_scores = [data[1][4] for data in eval_data_local]
             sample_scores = [a_score + b_score * linear_score for linear_score in linear_scores]
-            self.bins_result  = self.to_binning(sample_scores)
+            bins_result  = self.to_binning(sample_scores)
         else:
             classes = len(set([d[1][0] for d in eval_data_local]))
             if classes < 3 and self.model_param.prob_need_to_bin:
                 sample_pro_result_list = []
                 for index, sample_pro_result in enumerate(eval_data_local):
                     sample_pro_result_list.append(sample_pro_result[1][2])
-                self.bins_result = self.to_binning(sample_pro_result_list)
+                bins_result = self.to_binning(sample_pro_result_list)
+        scored = defaultdict(list)
+        scored['scored'] = ['train_validate', bins_result]
+        return scored
 
     def to_binning(self, to_bin_data):
             data_count = len(to_bin_data)
@@ -542,13 +547,17 @@ class Evaluation(ModelBase):
                                                  "_".join([consts.RECALL.upper(), self.eval_type.upper()]),
                                                  abscissa_name="", ordinate_name="Recall", curve_name=recall_curve_name,
                                                  pair_type=data_type, thresholds=recall_thresholds)
+
+                    elif metric == consts.SCORED:
+                        # metric_name_scored = '_'.join([metric_name, "scored"])
+                        metric_type = "_".join(["SCORED", "EVALUATION"])
+                        self.__save_bin_score_value(metric_name= metric_name, metric_namespace=metric_res[0],
+                                                    metric_meta={"metric_type": metric_type}, kv=metric_res[1],
+                                                    need_value=False)
+
                     else:
                         LOGGER.warning("Unknown metric:{}".format(metric))
 
-            metric_name = '_'.join([data_type, 'metric'])
-            self.__save_bin_score_value(metric_name= metric_name, metric_namespace = "train_validate",
-                                            metric_meta = "METRIC", kv = self.bins_result,
-                                             need_value = False)
         if return_single_val_metrics:
             if len(self.validate_metric) != 0:
                 LOGGER.debug("return validate metric")
