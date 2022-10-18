@@ -30,24 +30,24 @@
 # limitations under the License.
 
 
-
 from common.python.utils import log_utils
 from kernel.model_selection.k_fold import KFold
 
 LOGGER = log_utils.get_logger()
 
 
-def _get_cv_param(model):
+def get_cv_param(model):
     model.model_param.cv_param.role = model.role
     model.model_param.cv_param.mode = model.mode
     return model.model_param.cv_param
 
 
-def run(model, data_instances):
+def run(model, data_instances, provider_do_evaluate=False):
     if not model.need_run:
         return data_instances
     kflod_obj = KFold()
-    cv_param = _get_cv_param(model)
-    kflod_obj.run(cv_param, data_instances, model)
+    cv_param = get_cv_param(model)
+    output_data = kflod_obj.run(cv_param, data_instances, model, provider_do_evaluate)
     LOGGER.info("Finish KFold run")
-    return data_instances
+    return output_data
+

@@ -710,6 +710,12 @@
    "dst": [
     "promoter"
    ]
+  },
+  "anonymous_name_mapping": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
   }
  },
  "VertDecisionTreeTransferVariable": {
@@ -856,6 +862,12 @@
    ]
   },
   "provider_predict_data": {
+   "src": "provider",
+   "dst": [
+    "promoter"
+   ]
+  },
+  "anonymous_name_mapping": {
    "src": "provider",
    "dst": [
     "promoter"
@@ -2105,6 +2117,28 @@
    "src": "arbiter",
    "dst": [
     "provider"
+   ]
+  }
+ },
+ "GridSearchTransferVariable": {
+  "best_iter": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  },
+  "best_parameters": {
+   "src": "promoter",
+   "dst": [
+    "provider"
+   ]
+  }
+ },
+ "VertFeaturePSICalculateTransferVariable": {
+  "feature_psi_result": {
+   "src": "provider",
+   "dst": [
+    "promoter"
    ]
   }
  },

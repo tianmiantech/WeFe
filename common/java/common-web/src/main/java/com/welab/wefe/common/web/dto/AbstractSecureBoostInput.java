@@ -177,4 +177,77 @@ public class AbstractSecureBoostInput extends AbstractCheckModel {
         }
     }
 
+
+    @Check(require = true)
+    private GridSearchParam gridSearchParam;
+
+    public GridSearchParam getGridSearchParam() {
+        return gridSearchParam;
+    }
+
+    public void setGridSearchParam(GridSearchParam gridSearchParam) {
+        this.gridSearchParam = gridSearchParam;
+    }
+
+    public static class GridSearchParam extends AbstractGridSearchParam {
+        @Check(name = "学习率")
+        private float[] learningRate;
+
+        @Check(name = "最大树数量")
+        private int[] numTrees;
+
+        @Check(name = "树的最大深度")
+        private int[] maxDepth;
+
+        @Check(name = "特征随机采样比率")
+        private float[] subsampleFeatureRate;
+
+        @Check(name = "最大桶数量")
+        private int[] binNum;
+
+        // region getter/setter
+
+        public float[] getLearningRate() {
+            return learningRate;
+        }
+
+        public void setLearningRate(float[] learningRate) {
+            this.learningRate = learningRate;
+        }
+
+        public int[] getNumTrees() {
+            return numTrees;
+        }
+
+        public void setNumTrees(int[] numTrees) {
+            this.numTrees = numTrees;
+        }
+
+        public int[] getMaxDepth() {
+            return maxDepth;
+        }
+
+        public void setMaxDepth(int[] maxDepth) {
+            this.maxDepth = maxDepth;
+        }
+
+        public float[] getSubsampleFeatureRate() {
+            return subsampleFeatureRate;
+        }
+
+        public void setSubsampleFeatureRate(float[] subsampleFeatureRate) {
+            this.subsampleFeatureRate = subsampleFeatureRate;
+        }
+
+        public int[] getBinNum() {
+            return binNum;
+        }
+
+        public void setBinNum(int[] binNum) {
+            this.binNum = binNum;
+        }
+
+
+        // endregion
+    }
 }

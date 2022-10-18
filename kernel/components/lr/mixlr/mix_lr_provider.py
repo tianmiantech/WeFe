@@ -123,7 +123,7 @@ class MixLRProvider(MixLRBaseModel):
             self.load_single_model(model_param)
         continue_flag = self.iter_transfer.get_cur_iter(member_id_list=[self.mix_promoter_member_id])
         self.n_iter_ = continue_flag
-        self.tracker.set_task_progress(self.n_iter_)
+        self.tracker.set_task_progress(self.n_iter_, self.need_grid_search)
         while self.n_iter_ < self.max_iter + 1:
             LOGGER.info("iter:" + str(self.n_iter_))
             batch_data_generator = self.batch_generator.generate_batch_data()
@@ -169,8 +169,8 @@ class MixLRProvider(MixLRBaseModel):
             if self.is_converged:
                 break
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         if self.validation_strategy and self.validation_strategy.has_saved_best_model():
             self.load_model(self.validation_strategy.cur_best_model)
