@@ -49,7 +49,7 @@ public class FieldInfoService extends AbstractService {
             fields.addAll(Arrays.asList(x.getColumns().split(",")));
         });
 
-        return new HashSet<>(fields.stream().collect(Collectors.toList()));
+        return fields;
     }
 
 
