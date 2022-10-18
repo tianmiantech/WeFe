@@ -47,6 +47,8 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<AccountOu
         private String nickname;
         private AuditStatus auditStatus;
 
+        private Boolean adminRole;
+
         //region getter/setter
 
         public String getPhoneNumber() {
@@ -71,6 +73,14 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<AccountOu
 
         public void setAuditStatus(AuditStatus auditStatus) {
             this.auditStatus = auditStatus;
+        }
+
+        public Boolean getAdminRole() {
+            return adminRole;
+        }
+
+        public void setAdminRole(Boolean adminRole) {
+            this.adminRole = adminRole;
         }
 
         //endregion
