@@ -83,8 +83,6 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
 
         private boolean hasFeatureStatistic;
 
-        private boolean hasFeatureCalculation;
-        
         private boolean hasCV;
         
         private boolean hasIV;
@@ -99,14 +97,6 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
 
         public void setHasFeatureStatistic(boolean hasFeatureStatistic) {
             this.hasFeatureStatistic = hasFeatureStatistic;
-        }
-
-        public boolean isHasFeatureCalculation() {
-            return hasFeatureCalculation;
-        }
-
-        public void setHasFeatureCalculation(boolean hasFeatureCalculation) {
-            this.hasFeatureCalculation = hasFeatureCalculation;
         }
 
         public List<MemberFeatureInfoModel> getMembers() {

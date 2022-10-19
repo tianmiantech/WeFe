@@ -17,6 +17,7 @@
 package com.welab.wefe.common.wefe.enums;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -96,6 +97,18 @@ public enum ComponentType {
             VertNN
     );
 
+    private static List<ComponentType> STATISTIC_TYPES = Arrays.asList(
+            MixStatistic,
+            FeatureStatistic,
+            HorzStatistic
+    );
+
+    private static List<ComponentType> BINNING_TYPES = Arrays.asList(
+            MixBinning,
+            Binning,
+            HorzFeatureBinning
+    );
+
     /**
      * 深度学习相关组件列表
      */
@@ -142,6 +155,14 @@ public enum ComponentType {
      */
     public boolean isModeling() {
         return MODELING_TYPES.contains(this);
+    }
+
+    public boolean isStatistic() {
+        return STATISTIC_TYPES.contains(this);
+    }
+
+    public boolean isBinning() {
+        return BINNING_TYPES.contains(this);
     }
 
     public boolean isDeepLearningComponents() {

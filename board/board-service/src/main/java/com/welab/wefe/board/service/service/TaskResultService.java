@@ -46,7 +46,6 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.FederatedLearningType;
@@ -484,56 +483,36 @@ public class TaskResultService extends AbstractService {
 
         // If the current node is a feature screening node,
         // it is necessary to determine whether the previous component has feature calculation (the result has cv/iv)/feature statistics (the result has a missing rate)
-        if (node.getComponentType() == ComponentType.FeatureSelection) {
-            FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node,
-                    x -> x.getComponentType() == ComponentType.MixStatistic
-                            || x.getComponentType() == ComponentType.FeatureStatistic
-                            || x.getComponentType() == ComponentType.HorzStatistic);
-            out.setHasFeatureStatistic(false);
-            out.setHasFeatureCalculation(false);
-            if (featureStatisticNode != null && StringUtil.isNotEmpty(input.getJobId())) {
-                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-                TaskMySqlModel featureStatisticTask = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), project.getMyRole().name());
-                if (featureStatisticTask != null) {
+        if (node.getComponentType() == ComponentType.FeatureSelection && graph.getLastJob() != null) {
 
-                    TaskResultMySqlModel featureStatisticResult = findByTaskIdAndTypeAndRole(featureStatisticTask.getTaskId(), TaskResultType.data_feature_statistic.name(), project.getMyRole());
-                    if (featureStatisticResult != null) {
-                        out.setHasFeatureStatistic(true); // 缺失率 cv
+            FlowGraphNode featureStatisticNode = graph.findOneNodeFromParent(node, x -> x.getComponentType().isStatistic());
+            if (featureStatisticNode != null) {
+                TaskMySqlModel task = taskRepository.findOne(input.getJobId(), featureStatisticNode.getNodeId(), graph.getLastJob().getMyRole().name());
+                if (task != null) {
+
+                    TaskResultMySqlModel taskResult = findByTaskIdAndTypeAndRole(
+                            task.getTaskId(),
+                            TaskResultType.data_feature_statistic.name(),
+                            graph.getLastJob().getMyRole()
+                    );
+                    if (taskResult != null) {
+                        out.setHasFeatureStatistic(true);
                         out.setHasLossRate(true);
                         out.setHasCV(true);
                     }
                 }
             }
 
-            FlowGraphNode featureCalculationNode = graph.findOneNodeFromParent(node, ComponentType.FeatureCalculation);
-            if (featureCalculationNode != null && StringUtil.isNotEmpty(input.getJobId())) {
-                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-                TaskMySqlModel featureCalculationTask = taskRepository.findOne(input.getJobId(), featureCalculationNode.getNodeId(), project.getMyRole().name());
-                if (featureCalculationTask != null) {
-                    TaskResultMySqlModel featureCalculationResult = findByTaskIdAndTypeAndRole(featureCalculationTask.getTaskId(), TaskResultType.model_result.name(), project.getMyRole());
-                    if (featureCalculationResult != null) {
-                        out.setHasFeatureCalculation(true); // cv_iv
-                        out.setHasCV(true);
-                        out.setHasIV(true);
-                    }
-                }
-            }
-
-            FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node,
-                    x -> x.getComponentType() == ComponentType.MixBinning
-                            || x.getComponentType() == ComponentType.Binning
-                            || x.getComponentType() == ComponentType.HorzFeatureBinning);
-            if (featureBinningNode != null && StringUtil.isNotEmpty(input.getJobId())) {
-                ProjectMySqlModel project = projectService.findProjectByJobId(input.getJobId());
-                TaskMySqlModel featureBinningTask = taskRepository.findOne(input.getJobId(),
-                        featureBinningNode.getNodeId(), project.getMyRole().name());
-                if (featureBinningTask != null) {
-                    TaskResultMySqlModel featureBinningResult = findByTaskIdAndTypeAndRole(
-                            featureBinningTask.getTaskId(), TaskResultType.model_binning.name(), project.getMyRole());
-                    if (featureBinningResult != null) {
-                        if (!out.isHasFeatureCalculation()) {
-                            out.setHasFeatureCalculation(out.isHasFeatureStatistic());
-                        }
+            FlowGraphNode featureBinningNode = graph.findOneNodeFromParent(node, x -> x.getComponentType().isBinning());
+            if (featureBinningNode != null) {
+                TaskMySqlModel task = taskRepository.findOne(input.getJobId(), featureBinningNode.getNodeId(), graph.getLastJob().getMyRole().name());
+                if (task != null) {
+                    TaskResultMySqlModel taskResult = findByTaskIdAndTypeAndRole(
+                            task.getTaskId(),
+                            TaskResultType.model_binning.name(),
+                            graph.getLastJob().getMyRole()
+                    );
+                    if (taskResult != null) {
                         out.setHasIV(true);
                     }
                 }
