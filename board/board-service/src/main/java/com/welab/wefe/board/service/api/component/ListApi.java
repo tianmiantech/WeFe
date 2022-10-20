@@ -47,7 +47,7 @@ public class ListApi extends AbstractApi<ListApi.Input, List<ComponentOutputMode
                 // Exclude the relevant components of the validation data set, which have not been developed yet.
                 .filter(x -> !x.name().contains("ValidationDataSetLoader"))
                 // “计算特征价值”组件已被移除，请使用“特征统计”组件替代其计算CV的功能。
-                .filter(x -> x != ComponentType.FeatureSelection)
+                .filter(x -> x != ComponentType.FeatureCalculation)
                 .map(x -> new ComponentOutputModel(x.name(), x.getLabel(), x.getDesc())).collect(Collectors.toList());
 
         return success(list);
