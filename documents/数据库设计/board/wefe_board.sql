@@ -140,18 +140,18 @@ CREATE TABLE `data_set`
 DROP TABLE IF EXISTS `data_source`;
 CREATE TABLE `data_source`
 (
-    `database_type` varchar(255) COMMENT '数据库类型',
-    `host`          varchar(255) COMMENT '数据库ip',
-    `port`          int(255) COMMENT '数据库端口',
-    `database_name` varchar(255) COMMENT '数据库名',
-    `user_name`     varchar(255) COMMENT '数据库用户名',
-    `password`      varchar(255) COMMENT '数据库密码',
+    `database_type` varchar(32) COMMENT '数据库类型',
+    `host`          varchar(32) COMMENT '数据库ip',
+    `port`          int(6) COMMENT '数据库端口',
+    `database_name` varchar(32) COMMENT '数据库名',
+    `user_name`     varchar(128) COMMENT '数据库用户名',
+    `password`      varchar(128) COMMENT '数据库密码',
     `id`            varchar(32) NOT NULL COMMENT '全局唯一标识',
     `created_time`  datetime(0) COMMENT '创建时间',
     `updated_time`  datetime(0) COMMENT '更新时间',
-    `name`          varchar(255) COMMENT '记录名',
-    `created_by`    varchar(255) COMMENT '创建者',
-    `updated_by`    varchar(255) COMMENT '更新者',
+    `name`          varchar(128) COMMENT '记录名',
+    `created_by`    varchar(32) COMMENT '创建者',
+    `updated_by`    varchar(32) COMMENT '更新者',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据源';
@@ -317,9 +317,7 @@ CREATE TABLE `message_queue`
     `updated_time` datetime(6) COMMENT '更新时间',
     `producer`     varchar(32) NOT NULL COMMENT '消息生产者',
     `priority`     int(11) NOT NULL DEFAULT '0' COMMENT '优先级 优先级大的会被先消费',
-    `action`       varchar(32) NOT NULL COMMENT '动作名称',
     `params`       text COMMENT '动作参数',
-    `channel`      varchar(50) COMMENT '消息产生渠道',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='消息队列';

@@ -113,3 +113,6 @@ CREATE TABLE `cert_request_info` (
   `issue` tinyint(2) DEFAULT NULL COMMENT '是否签发',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='证书请求';
+
+ALTER TABLE message_queue DROP COLUMN `action`;
+ALTER TABLE message_queue DROP COLUMN channel;
