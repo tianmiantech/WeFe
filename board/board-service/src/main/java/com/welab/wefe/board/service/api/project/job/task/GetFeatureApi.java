@@ -103,10 +103,7 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
                 return;
             }
 
-            // 仅保留4位小数
-            feature.missingRate = new BigDecimal(missingValue)
-                    .setScale(4, RoundingMode.HALF_UP)
-                    .doubleValue();
+            feature.missingRate = missingValue;
         }
 
         public void putCv(String memberId, JobMemberRole role, String featureName, double cv) {
@@ -116,10 +113,7 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
                 return;
             }
 
-            // 仅保留4位小数
-            feature.cv = new BigDecimal(cv)
-                    .setScale(4, RoundingMode.HALF_UP)
-                    .doubleValue();
+            feature.cv = cv;
         }
 
         public void putIv(String memberId, JobMemberRole role, String featureName, double iv) {
@@ -129,10 +123,7 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
                 return;
             }
 
-            // 仅保留4位小数
-            feature.iv = new BigDecimal(iv)
-                    .setScale(4, RoundingMode.HALF_UP)
-                    .doubleValue();
+            feature.iv = iv;
         }
 
 
