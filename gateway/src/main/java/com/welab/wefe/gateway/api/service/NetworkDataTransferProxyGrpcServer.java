@@ -19,7 +19,7 @@ package com.welab.wefe.gateway.api.service;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.NetworkDataTransferProxyServiceGrpc;
-import com.welab.wefe.gateway.api.streammessage.PushDataRequestStreamObserver;
+import com.welab.wefe.gateway.api.streammessage.PushDataSourceRequestStreamObserver;
 import com.welab.wefe.gateway.base.GrpcServer;
 import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import com.welab.wefe.gateway.interceptor.AntiTamperServerInterceptor;
@@ -52,8 +52,8 @@ public class NetworkDataTransferProxyGrpcServer extends NetworkDataTransferProxy
     }
 
     @Override
-    public StreamObserver<GatewayMetaProto.TransferMeta> pushData(StreamObserver<GatewayMetaProto.TransferMeta> responseObserver) {
-        return new PushDataRequestStreamObserver(responseObserver);
+    public StreamObserver<GatewayMetaProto.TransferMeta> pushDataSource(StreamObserver<GatewayMetaProto.TransferMeta> responseObserver) {
+        return new PushDataSourceRequestStreamObserver(responseObserver);
     }
 
 }

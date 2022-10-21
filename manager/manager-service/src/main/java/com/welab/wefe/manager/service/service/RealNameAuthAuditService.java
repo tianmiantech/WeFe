@@ -83,9 +83,6 @@ public class RealNameAuthAuditService {
         } else if (input.getRealNameAuthStatus() == -1) { // -1认证失败 /0未认证 /1认证中 /2已认证
             memberExtJSON.setUpdatedTime(System.currentTimeMillis());
             memberExtJSON.setCertStatus(CertStatusEnums.INVALID.name());
-            // 更新证书状态
-            certOperationService.updateStatusBySerialNumber(memberExtJSON.getCertSerialNumber(),
-                    CertStatusEnums.INVALID.getCode(), "realname audit failed, 实名认证审核未通过");
         }
         memberContractService.updateExtJson(input.getId(), memberExtJSON);
 

@@ -78,16 +78,25 @@ public class CertOperationService {
 
     // 更新证书状态
     public void updateStatusBySerialNumber(String serialNumber, int status, String reason) {
+        if(StringUtils.isBlank(serialNumber)) {
+            return;
+        }
         certDao.updateStatusBySerialNumber(serialNumber, status, reason);
     }
 
     // 更新证书状态
     public void updateStatusByUserId(String userId, int status, String reason) {
+        if(StringUtils.isBlank(userId)) {
+            return;
+        }
         certDao.updateStatusByUserId(userId, status, reason);
     }
 
     // 更新证书信任状态
     public void updateCanTrust(String serialNumber, boolean status) {
+        if(StringUtils.isBlank(serialNumber)) {
+            return;
+        }
         certDao.updateCanTrust(serialNumber, status);
     }
 

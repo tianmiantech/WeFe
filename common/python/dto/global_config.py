@@ -54,6 +54,7 @@ class MailServerModel(object):
 class FunctionComputeConfig(object):
     max_cost_in_day: int
     max_cost_in_month: int
+    cloud_provider: str
 
 
 class SparkStandaloneConfig(object):

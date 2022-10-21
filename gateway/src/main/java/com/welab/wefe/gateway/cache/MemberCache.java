@@ -143,6 +143,8 @@ public class MemberCache {
                 selfMember.setPort(entity.getPort());
                 selfMember.setSecretKeyType(null == entity.getSecretKeyType() ? SecretKeyType.rsa : entity.getSecretKeyType());
                 selfMember.setGatewayTlsEnable(entity.getGatewayTlsEnable());
+                selfMember.setGatewayExternalUri(entity.getGatewayExternalUri());
+                selfMember.setGatewayInternalUri(entity.getGatewayInternalUri());
             }
             return true;
         } catch (Exception e) {

@@ -25,22 +25,21 @@ import com.welab.wefe.common.util.ThreadUtil;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.NetworkDataTransferProxyServiceGrpc;
-import com.welab.wefe.gateway.api.streammessage.PushDataResponseStreamObserver;
-import com.welab.wefe.gateway.cache.CaCertificateCache;
+import com.welab.wefe.gateway.api.streammessage.PushDataSourceResponseStreamObserver;
+import com.welab.wefe.gateway.cache.GrpcChannelCache;
 import com.welab.wefe.gateway.cache.MemberCache;
-import com.welab.wefe.gateway.common.ConfigDataBuilder;
 import com.welab.wefe.gateway.common.EndpointBuilder;
+import com.welab.wefe.gateway.common.KeyValueDataBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.entity.MemberEntity;
-import com.welab.wefe.gateway.interceptor.SignVerifyClientInterceptor;
-import com.welab.wefe.gateway.interceptor.SystemTimestampVerifyClientInterceptor;
+import com.welab.wefe.gateway.interceptor.RemoteGrpcProxyCallCredentials;
+import com.welab.wefe.gateway.interceptor.SignVerifyMetadataBuilder;
+import com.welab.wefe.gateway.interceptor.SystemTimestampMetadataBuilder;
 import com.welab.wefe.gateway.service.base.AbstractTransferMetaDataSource;
 import com.welab.wefe.gateway.util.GrpcUtil;
 import com.welab.wefe.gateway.util.TlsUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;
-import io.grpc.Channel;
-import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -52,8 +51,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * data source of dSourceProcessor type
@@ -114,7 +111,10 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
             String endpoint = dstMember.getEndpoint().getIp() + ":" + dstMember.getEndpoint().getPort();
             // Signature issue
             if (GrpcUtil.checkIsSignPermissionExp(e)) {
-                return ReturnStatusBuilder.sysExc("成员方[" + dstName + "]对您的签名验证不通过，请检查您的公私钥是否匹配以及公钥是否已上报到 union", transferMeta.getSessionId());
+                return ReturnStatusBuilder.sysExc("成员方[" + dstName + "]对您的签名验证不通过;　存在以下可能性：1、请检查您的公私钥是否匹配以及公钥是否已上报到 union. 2、请确认双方机器系统时间差是否超过5分钟. 3、如果对方的网关使用了nginx做负载转发,请确认对方的nginx配置项[underscores_in_headers]的值是否为[on]", transferMeta.getSessionId());
+            }
+            if (GrpcUtil.checkIsSslConnectionDisableExp(e)) {
+                return ReturnStatusBuilder.sysExc("访问成员方[" + dstName + "]的网关[" + endpoint + "]不通, 其网关启用了SSL通道,请确认CA证书的有效性.", transferMeta.getSessionId());
             }
             if (GrpcUtil.checkIsConnectionDisableExp(e)) {
                 return ReturnStatusBuilder.sysExc("访问成员方[" + dstName + "]的网关[" + endpoint + "]不通，请检查网络连接是否正常以及对方网关是否已启动", transferMeta.getSessionId());
@@ -144,7 +144,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
             return null;
         }
 
-        int failRetryCount = 4;
+        int failRetryCount = 10;
         for (int i = 0; i <= failRetryCount; i++) {
             try {
                 transferMetaDataList = sendBlockTransferMetaDataListToRemote(block, transferMetaDataList);
@@ -164,7 +164,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
                     // The destination address needs to be refreshed to avoid the exception caused by the other party updating the gateway address
                     GatewayMetaProto.Member dstMember = block.getDst()
                             .toBuilder()
-                            .setEndpoint(EndpointBuilder.create(dstMemberEntity.getIp(), dstMemberEntity.getPort()))
+                            .setEndpoint(EndpointBuilder.create(dstMemberEntity.getGatewayExternalUri()))
                             .build();
 
                     block = block.toBuilder().setDst(dstMember).build();
@@ -198,18 +198,18 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
         }
 
         // Packaging data
-        List<GatewayMetaProto.ConfigData> configDataList = wrapData(outputModel);
+        List<BasicMetaProto.KeyValueData> configDataList = wrapData(outputModel);
         // Split data
-        List<List<GatewayMetaProto.ConfigData>> splitConfigDataList = splitConfigDataList(configDataList);
+        List<List<BasicMetaProto.KeyValueData>> splitConfigDataList = splitConfigDataList(configDataList);
         List<GatewayMetaProto.TransferMeta> transferMetaDataList = new ArrayList<>();
         // Calculate start serial number
         int blockStartSequenceNo = getBlockSequenceNo(block.getSequenceNo());
-        for (List<GatewayMetaProto.ConfigData> dataList : splitConfigDataList) {
+        for (List<BasicMetaProto.KeyValueData> dataList : splitConfigDataList) {
             GatewayMetaProto.TransferMeta.Builder builder = block.toBuilder();
             builder.setSequenceIsEnd(false)
                     .setSequenceNo(blockStartSequenceNo++)
                     .setTransferStatus(GatewayMetaProto.TransferStatus.PROCESSING)
-                    .getContentBuilder().clearConfigDatas().addAllConfigDatas(dataList);
+                    .getContentBuilder().clearKeyValueDatas().addAllKeyValueDatas(dataList);
             GatewayMetaProto.TransferMeta transferMetaNew = builder.build();
 
             transferMetaDataList.add(transferMetaNew);
@@ -236,14 +236,19 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
         ManagedChannel originalChannel = null;
         StreamObserver<GatewayMetaProto.TransferMeta> requestStreamObserver = null;
         boolean isCompleted = false;
+        GrpcChannelCache channelCache = GrpcChannelCache.getInstance();
         try {
-            //originalChannel = GrpcUtil.getManagedChannel(block.getDst().getEndpoint());
-            originalChannel = buildManagedChannel(block.getDst());
-            // Set client interceptor
-            Channel channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor());
-            NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(channel);
+            boolean tlsEnable = GrpcUtil.checkTlsEnable(block);
+            GatewayMetaProto.Member dstMember = block.getDst();
+            originalChannel = channelCache.getNonNull(EndpointBuilder.endpointToUri(dstMember.getEndpoint()), tlsEnable, TlsUtil.getAllCertificates(tlsEnable));
+            // Set header
+            NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel)
+                    .withCallCredentials(new RemoteGrpcProxyCallCredentials(null,
+                            new SignVerifyMetadataBuilder(null),
+                            new SystemTimestampMetadataBuilder(null)));
+
             // Get the request flow associated with the server
-            requestStreamObserver = asyncClientStub.pushData(new PushDataResponseStreamObserver(finishFuture, asyncResponseCollector));
+            requestStreamObserver = asyncClientStub.pushDataSource(new PushDataSourceResponseStreamObserver(finishFuture, asyncResponseCollector));
 
             for (GatewayMetaProto.TransferMeta transferMetaData : transferMetaDataList) {
                 requestStreamObserver.onNext(transferMetaData);
@@ -268,10 +273,6 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
                 }
             }
             throw e;
-        } finally {
-            if (null != originalChannel) {
-                originalChannel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
-            }
         }
     }
 
@@ -314,24 +315,27 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
      * Send data submission completion request flag
      */
     private boolean sendCompleteRequest(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
+        GrpcChannelCache channelCache = GrpcChannelCache.getInstance();
         // Failed retries count
-        int failRetryCount = 4;
+        int failRetryCount = 10;
+        ManagedChannel originalChannel = null;
         for (int i = 0; i <= failRetryCount; i++) {
-            ManagedChannel originalChannel = null;
             StreamObserver<GatewayMetaProto.TransferMeta> requestStreamObserver = null;
             boolean isCompleted = false;
             try {
+                boolean tlsEnable = GrpcUtil.checkTlsEnable(transferMeta);
+                originalChannel = channelCache.getNonNull(EndpointBuilder.endpointToUri(transferMeta.getDst().getEndpoint()), tlsEnable, TlsUtil.getAllCertificates(tlsEnable));
                 transferMeta = transferMeta.toBuilder().setTransferStatus(GatewayMetaProto.TransferStatus.COMPLETE).build();
-                //originalChannel = GrpcUtil.getManagedChannel(transferMeta.getDst().getEndpoint());
-                originalChannel = buildManagedChannel(transferMeta.getDst());
-                // Set client interceptor
-                Channel channel = ClientInterceptors.intercept(originalChannel, new SystemTimestampVerifyClientInterceptor(), new SignVerifyClientInterceptor());
-                NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(channel);
+                // Set header
+                NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceStub asyncClientStub = NetworkDataTransferProxyServiceGrpc.newStub(originalChannel)
+                        .withCallCredentials(new RemoteGrpcProxyCallCredentials(null,
+                                new SignVerifyMetadataBuilder(null),
+                                new SystemTimestampMetadataBuilder(null)));
 
                 // Synchronizer
                 final SettableFuture<Void> finishFuture = SettableFuture.create();
                 AsyncResponseCollector asyncResponseCollector = new AsyncResponseCollector();
-                requestStreamObserver = asyncClientStub.pushData(new PushDataResponseStreamObserver(finishFuture, asyncResponseCollector));
+                requestStreamObserver = asyncClientStub.pushDataSource(new PushDataSourceResponseStreamObserver(finishFuture, asyncResponseCollector));
 
                 requestStreamObserver.onNext(transferMeta);
                 requestStreamObserver.onCompleted();
@@ -352,10 +356,6 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
                 // If the maximum number of failed retries is exceeded, the exception can be thrown directly
                 if (i >= failRetryCount) {
                     throw e;
-                }
-            } finally {
-                if (null != originalChannel) {
-                    originalChannel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
                 }
             }
         }
@@ -434,15 +434,15 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     /**
      * Packaging data
      */
-    private List<GatewayMetaProto.ConfigData> wrapData(PageOutputModel<byte[], byte[]> outputModel) {
-        List<GatewayMetaProto.ConfigData> configDataList = new ArrayList<>();
+    private List<BasicMetaProto.KeyValueData> wrapData(PageOutputModel<byte[], byte[]> outputModel) {
+        List<BasicMetaProto.KeyValueData> configDataList = new ArrayList<>();
         if (null != outputModel) {
             List<DataItemModel<byte[], byte[]>> dataList = outputModel.getData();
             for (int i = 0; i < dataList.size(); i++) {
                 DataItemModel dataItemModel = dataList.get(i);
                 byte[] key = (byte[]) dataItemModel.getK();
                 byte[] value = (byte[]) dataItemModel.getV();
-                configDataList.add(ConfigDataBuilder.create(key, value));
+                configDataList.add(KeyValueDataBuilder.create(key, value));
             }
         }
         return configDataList;
@@ -467,8 +467,8 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     /**
      * Data split
      */
-    private List<List<GatewayMetaProto.ConfigData>> splitConfigDataList(List<GatewayMetaProto.ConfigData> configDataList) {
-        List<List<GatewayMetaProto.ConfigData>> resultList = new ArrayList<>();
+    private List<List<BasicMetaProto.KeyValueData>> splitConfigDataList(List<BasicMetaProto.KeyValueData> configDataList) {
+        List<List<BasicMetaProto.KeyValueData>> resultList = new ArrayList<>();
         int totalSize = configDataList.size();
         // The number of split count
         int splitBlockCount = getSplitBlockCount(totalSize, OPTIMAL_SUB_BLOCK_SIZE_THREAD_LOCAL.get());
@@ -511,7 +511,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
     private void setPagingParams(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
         PersistentStorage storage = PersistentStorage.getInstance();
         // Calculate the optimal size of each page
-        long byteSize = (long) (configProperties.getSendActionConfigBlockSize() * 1024 * 1024d);
+        long byteSize = (long) (configProperties.getPersistentStorageBatchInsertSize() * 1024 * 1024d);
         int sendBlockSize = storage.getCountByByteSize(TransferMetaUtil.getDbName(transferMeta), TransferMetaUtil.getTableName(transferMeta), byteSize);
         OPTIMAL_SUB_BLOCK_SIZE_THREAD_LOCAL.set(sendBlockSize);
         PAGE_SIZE_THREAD_LOCAL.set(sendBlockSize * 3);
@@ -525,12 +525,4 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
         PAGE_SIZE_THREAD_LOCAL.remove();
     }
 
-    private static ManagedChannel buildManagedChannel(GatewayMetaProto.Member member) throws Exception {
-        MemberEntity memberEntity = MemberCache.getInstance().get(member.getMemberId());
-        if (Boolean.TRUE.equals(memberEntity.getGatewayTlsEnable())) {
-            return GrpcUtil.getSslManagedChannel(member.getEndpoint(), TlsUtil.buildCertificates(CaCertificateCache.getInstance().getAll()));
-        }
-
-        return GrpcUtil.getManagedChannel(member.getEndpoint());
-    }
 }

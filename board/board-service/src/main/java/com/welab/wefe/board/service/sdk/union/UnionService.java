@@ -24,7 +24,6 @@ import com.welab.wefe.board.service.database.entity.data_resource.DataResourceMy
 import com.welab.wefe.board.service.dto.entity.data_resource.output.BloomFilterOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.TableDataSetOutputModel;
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.sdk.AbstractUnionService;
 import com.welab.wefe.board.service.sdk.union.dto.MemberBaseInfo;
 import com.welab.wefe.common.CommonThreadPool;
@@ -32,6 +31,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
 import com.welab.wefe.common.wefe.enums.DataResourceType;
 import org.apache.commons.collections4.CollectionUtils;

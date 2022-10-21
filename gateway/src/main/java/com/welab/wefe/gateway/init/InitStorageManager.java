@@ -18,15 +18,20 @@ package com.welab.wefe.gateway.init;
 
 import com.welab.wefe.common.data.storage.service.fc.FcStorage;
 import com.welab.wefe.common.data.storage.service.fc.aliyun.AliyunOssConfig;
+import com.welab.wefe.common.data.storage.service.fc.tencent.TencentCosConfig;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
-import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.dto.global_config.calculation_engine.fc.AliyunFunctionComputeConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.calculation_engine.fc.FunctionComputeBaseConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.calculation_engine.fc.TencentServerlessCloudFunctionConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.storage.ClickHouseStorageConfigModel;
+import com.welab.wefe.common.wefe.dto.storage.ClickhouseConfig;
+import com.welab.wefe.common.wefe.enums.FcCloudProvider;
 import com.welab.wefe.gateway.GatewayServer;
-import com.welab.wefe.gateway.dto.AliyunFunctionComputeConfigModel;
-import com.welab.wefe.gateway.dto.ClickhouseStorageConfigModel;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -87,11 +92,11 @@ public class InitStorageManager {
     private static boolean initPersistentStorage() {
         try {
             GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-            ClickhouseStorageConfigModel configModel = globalConfigService.getClickhouseStorageConfig();
+            ClickHouseStorageConfigModel configModel = globalConfigService.getModel(ClickHouseStorageConfigModel.class);
             if (null == configModel) {
                 return false;
             }
-            PersistentStorage.init(new ClickhouseConfig(configModel.getHost(), configModel.getHttpPort(), configModel.getUsername(), configModel.getPassword()));
+            PersistentStorage.init(new ClickhouseConfig(configModel.host, configModel.http_port, configModel.username, configModel.password));
             return true;
         } catch (Exception e) {
             LOG.error("Init persistent storage fail, exception: ", e);
@@ -102,13 +107,24 @@ public class InitStorageManager {
     private static boolean initFcStorage() {
         try {
             GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-            AliyunFunctionComputeConfigModel configModel = globalConfigService.getAliyunFunctionComputeConfig();
-            if (null == configModel || StringUtil.isEmpty(configModel.getAccessKeyId()) || StringUtil.isEmpty(configModel.getAccessKeySecret())) {
-                return false;
+            FunctionComputeBaseConfigModel functionComputeBaseConfigModel = globalConfigService.getModel(FunctionComputeBaseConfigModel.class);
+            if ((functionComputeBaseConfigModel.cloudProvider).equals(FcCloudProvider.aliyun)) {
+                AliyunFunctionComputeConfigModel configModel = globalConfigService.getModel(AliyunFunctionComputeConfigModel.class);
+                if (null == configModel || StringUtil.isEmpty(configModel.accessKeyId) || StringUtil.isEmpty(configModel.accessKeySecret)) {
+                    return false;
+                }
+                AliyunOssConfig aliyunOssConfig = new AliyunOssConfig(configModel.accessKeyId,
+                        configModel.accessKeySecret, configModel.ossBucketName, "wefe-fc", configModel.region);
+                FcStorage.initWithAliyun(aliyunOssConfig);
+            } else if((functionComputeBaseConfigModel.cloudProvider).equals(FcCloudProvider.tencentcloud)){
+                TencentServerlessCloudFunctionConfigModel configModel = globalConfigService.getModel(TencentServerlessCloudFunctionConfigModel.class);
+                if (null == configModel || StringUtil.isEmpty(configModel.accessKeyId) || StringUtil.isEmpty(configModel.accessKeySecret)){
+                    return false;
+                }
+                TencentCosConfig tencentCosConfig = new TencentCosConfig(configModel.accessKeyId,configModel.accessKeySecret,configModel.cosBucketName,configModel.region);
+                FcStorage.initWithTencent(tencentCosConfig);
+
             }
-            AliyunOssConfig aliyunOssConfig = new AliyunOssConfig(configModel.getAccessKeyId(),
-                    configModel.getAccessKeySecret(), configModel.getOssBucketName(), "wefe-fc", configModel.getRegion());
-            FcStorage.initWithAliyun(aliyunOssConfig);
             return true;
         } catch (Exception e) {
             LOG.error("Init FC storage fail, exception: ", e);

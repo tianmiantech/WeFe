@@ -25,7 +25,6 @@ import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.DataResourceOutputModel;
 import com.welab.wefe.board.service.dto.entity.data_resource.output.ImageDataSetOutputModel;
-import com.welab.wefe.board.service.dto.globalconfig.BoardConfigModel;
 import com.welab.wefe.board.service.dto.kernel.Member;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.Env;
 import com.welab.wefe.board.service.dto.kernel.deep_learning.KernelJob;
@@ -44,6 +43,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.api.base.Api;
+import com.welab.wefe.common.wefe.dto.global_config.BoardConfigModel;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
 

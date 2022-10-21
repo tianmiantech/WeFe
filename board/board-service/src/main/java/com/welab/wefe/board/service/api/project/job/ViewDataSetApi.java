@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.api.project.job;
 
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
-import com.welab.wefe.board.service.dto.globalconfig.FlowConfigModel;
 import com.welab.wefe.board.service.service.TaskResultService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -28,6 +27,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.FlowConfigModel;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;

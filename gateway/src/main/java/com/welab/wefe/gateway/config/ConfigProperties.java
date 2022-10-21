@@ -88,8 +88,8 @@ public class ConfigProperties {
     /**
      * Size of data block fragment of forwarding dsource type (only valid for processor of dsource processor type), unit: M
      */
-    @Value("${send.action.config.block.size:1}")
-    private double sendActionConfigBlockSize;
+    @Value("${persistent.storage.batch.insert.size:3}")
+    private double persistentStorageBatchInsertSize;
 
     public Integer getRpcServerPort() {
         return rpcServerPort;
@@ -150,12 +150,12 @@ public class ConfigProperties {
         this.dataSinkCorePoolSize = dataSinkCorePoolSize;
     }
 
-    public double getSendActionConfigBlockSize() {
-        return sendActionConfigBlockSize;
+    public double getPersistentStorageBatchInsertSize() {
+        return persistentStorageBatchInsertSize;
     }
 
-    public void setSendActionConfigBlockSize(double sendActionConfigBlockSize) {
-        this.sendActionConfigBlockSize = sendActionConfigBlockSize;
+    public void setPersistentStorageBatchInsertSize(double persistentStorageBatchInsertSize) {
+        this.persistentStorageBatchInsertSize = persistentStorageBatchInsertSize;
     }
 
     public Integer getGrpcServerInternalPort() {

@@ -17,17 +17,16 @@
 package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSON;
-import com.welab.wefe.board.service.dto.globalconfig.storage.ClickHouseStorageConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.storage.StorageBaseConfigModel;
 import com.welab.wefe.common.data.storage.common.Constant;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
-import com.welab.wefe.common.data.storage.service.persistent.clickhouse.ClickhouseConfig;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
+import com.welab.wefe.common.wefe.dto.global_config.storage.ClickHouseStorageConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.storage.StorageBaseConfigModel;
+import com.welab.wefe.common.wefe.dto.storage.ClickhouseConfig;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +59,6 @@ public class DataSetStorageService extends AbstractService {
 
         // 通知 gateway
         gatewayService.sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.refreshPersistentStorageProcessor
         );

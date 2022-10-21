@@ -16,11 +16,17 @@
 
 package com.welab.wefe.gateway.service.processors;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.AsymmetricCryptoUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.SM4Util;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.dto.global_config.BoardConfigModel;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
@@ -28,14 +34,9 @@ import com.welab.wefe.gateway.base.Processor;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.config.ConfigProperties;
-import com.welab.wefe.gateway.dto.BoardConfigModel;
 import com.welab.wefe.gateway.entity.MemberEntity;
 import com.welab.wefe.gateway.sdk.BoardHelper;
 import com.welab.wefe.gateway.service.GlobalConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Push to the board module message processor in HTTP mode
@@ -67,7 +68,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus remoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
         try {
-            String data = decryptContent(transferMeta.getContent().getObjectData());
+            String data = decryptContent(transferMeta.getContent().getStrData());
 
             JObject contentJson = JObject.create(data);
             String url = contentJson.getString("url");
@@ -75,7 +76,7 @@ public class BoardHttpProcessor extends AbstractProcessor {
             String body = contentJson.getString("body");
             Map<String, String> headers = new HashMap<>(16);
             headers.put("srcMemberId", transferMeta.getSrc().getMemberId());
-            BoardConfigModel boardConfig = globalConfigService.getBoardConfig();
+            BoardConfigModel boardConfig = globalConfigService.getModel(BoardConfigModel.class);
             if (boardConfig == null || StringUtil.isEmpty(boardConfig.intranetBaseUri)) {
                 LOG.error("The intranet communication address of board service is not set");
                 return ReturnStatusBuilder.sysExc("board内网通信地址未设置", transferMeta.getSessionId());
@@ -102,20 +103,20 @@ public class BoardHttpProcessor extends AbstractProcessor {
      * Encrypt content
      */
     private GatewayMetaProto.TransferMeta encryptTransferMeta(GatewayMetaProto.TransferMeta transferMeta) throws Exception {
-        String body = transferMeta.getContent().getObjectData();
+        String body = transferMeta.getContent().getStrData();
         if (StringUtil.isEmpty(body)) {
             return transferMeta;
         }
         MemberEntity dstMember = MemberCache.getInstance().get(transferMeta.getDst().getMemberId());
         GatewayMetaProto.Content.Builder contentBuilder = transferMeta.getContent().toBuilder();
         if (dstMember.getGatewayTlsEnable()) {
-            return transferMeta.toBuilder().setContent(contentBuilder.setObjectData(NON_ENCRYPT_MARK_PREFIX + body).build()).build();
+            return transferMeta.toBuilder().setContent(contentBuilder.setStrData(NON_ENCRYPT_MARK_PREFIX + body).build()).build();
         }
 
         String secretKey = SM4Util.generateKeyString();
         String encryptSecretKey = AsymmetricCryptoUtil.encryptByPublicKey(secretKey, dstMember.getPublicKey(), dstMember.getSecretKeyType());
         String encryptBody = SM4Util.encrypt(secretKey, body);
-        GatewayMetaProto.Content content = contentBuilder.setObjectData(encryptSecretKey + ":" + encryptBody).build();
+        GatewayMetaProto.Content content = contentBuilder.setStrData(encryptSecretKey + ":" + encryptBody).build();
 
         return transferMeta.toBuilder().setContent(content).build();
     }

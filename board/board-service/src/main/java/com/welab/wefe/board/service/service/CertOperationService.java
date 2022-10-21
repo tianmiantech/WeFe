@@ -45,13 +45,13 @@ import com.welab.wefe.board.service.database.entity.cert.CertRequestInfoMysqlMod
 import com.welab.wefe.board.service.database.repository.CertInfoRepository;
 import com.welab.wefe.board.service.database.repository.CertKeyInfoRepository;
 import com.welab.wefe.board.service.database.repository.CertRequestInfoRepository;
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.sdk.union.UnionService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.AESUtil;
 import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 
 @Service
 public class CertOperationService {

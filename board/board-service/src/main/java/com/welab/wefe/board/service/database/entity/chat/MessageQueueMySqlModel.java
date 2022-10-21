@@ -17,7 +17,6 @@
 package com.welab.wefe.board.service.database.entity.chat;
 
 import com.welab.wefe.board.service.database.entity.base.AbstractMySqlModel;
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 
 import javax.persistence.Entity;

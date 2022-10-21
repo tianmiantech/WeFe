@@ -22,6 +22,7 @@ import com.welab.wefe.common.web.util.HttpServletRequestUtil;
 import com.welab.wefe.serving.service.database.entity.OrderStatisticsMysqlModel;
 import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.service.OrderStatisticsService;
 import com.welab.wefe.serving.service.service.ServiceOrderService;
@@ -74,7 +75,8 @@ public class OrderStatisticsScheduler {
             input.setUpdatedStartTime(startTime);
             input.setUpdatedEndTime(endTime);
             input.setStatus(ServiceOrderEnum.ORDERING.getValue());
-
+            // 非我方生成的订单
+            input.setOrderType(CallByMeEnum.NO.getCode());
 
             List<ServiceOrderMysqlModel> serviceOrderMysqlModels = serviceOrderService.getByParams(input);
 

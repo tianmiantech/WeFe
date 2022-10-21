@@ -18,9 +18,9 @@ package com.welab.wefe.gateway.service.processors.available.checkpoint;
 import com.welab.wefe.common.http.HttpResponse;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.wefe.dto.global_config.BoardConfigModel;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import com.welab.wefe.gateway.cache.MemberCache;
-import com.welab.wefe.gateway.dto.BoardConfigModel;
 import com.welab.wefe.gateway.entity.MemberEntity;
 import com.welab.wefe.gateway.sdk.BoardHelper;
 import com.welab.wefe.gateway.service.GlobalConfigService;
@@ -35,7 +35,6 @@ import java.util.HashMap;
  */
 @Service
 public class BoardCheckpoint extends AbstractCheckpoint {
-
     @Autowired
     private GlobalConfigService globalConfigService;
 
@@ -51,7 +50,7 @@ public class BoardCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected String getConfigValue() {
-        BoardConfigModel boardConfig = globalConfigService.getBoardConfig();
+        BoardConfigModel boardConfig = globalConfigService.getModel(BoardConfigModel.class);
         if (boardConfig == null) {
             return null;
         }

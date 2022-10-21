@@ -1,12 +1,12 @@
-/**
+/*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,23 +16,26 @@
 
 package com.welab.wefe.gateway.service;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.common.constant.SecretKeyType;
-import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.gateway.GatewayServer;
-import com.welab.wefe.gateway.dto.MemberInfoModel;
-import com.welab.wefe.gateway.entity.MemberEntity;
-import com.welab.wefe.gateway.sdk.UnionHelper;
-import com.welab.wefe.gateway.service.base.AbstractMemberService;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.storage.ClickHouseStorageConfigModel;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.common.constant.SecretKeyType;
+import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
+import com.welab.wefe.gateway.GatewayServer;
+import com.welab.wefe.gateway.entity.MemberEntity;
+import com.welab.wefe.gateway.sdk.UnionHelper;
+import com.welab.wefe.gateway.service.base.AbstractMemberService;
 
 /**
  * @author aaron.li
@@ -53,12 +56,8 @@ public class MemberService extends AbstractMemberService {
         MemberEntity member = null;
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject obj = jsonArray.getJSONObject(i);
-            String gatewayUri = obj.getString("gateway_uri");
             member = new MemberEntity();
-            if (StringUtil.isNotEmpty(gatewayUri) && gatewayUri.split(":").length == 2) {
-                member.setIp(gatewayUri.split(":")[0]);
-                member.setPort(NumberUtils.toInt(gatewayUri.split(":")[1]));
-            }
+            member.setGatewayExternalUri(obj.getString("gateway_uri"));
             member.setName(obj.getString("name"));
             member.setId(obj.getString("id"));
             member.setPublicKey(obj.getString("public_key"));
@@ -80,7 +79,7 @@ public class MemberService extends AbstractMemberService {
      */
     @Override
     public MemberEntity findSelf() {
-        MemberInfoModel memberInfo = globalConfigService.getMemberInfo();
+        MemberInfoModel memberInfo = globalConfigService.getModel(MemberInfoModel.class);
         if (null == memberInfo) {
             return null;
         }
@@ -89,13 +88,10 @@ public class MemberService extends AbstractMemberService {
         memberEntity.setName(memberInfo.getMemberName());
         memberEntity.setPrivateKey(memberInfo.getRsaPrivateKey());
         memberEntity.setPublicKey(memberInfo.getRsaPublicKey());
-        String memberGatewayUri = memberInfo.getMemberGatewayUri();
-        if (StringUtil.isNotEmpty(memberGatewayUri)) {
-            String[] memberGatewayUriArray = memberGatewayUri.split(":");
-            if (memberGatewayUriArray.length == 2) {
-                memberEntity.setIp(memberGatewayUriArray[0]);
-                memberEntity.setPort(NumberUtils.toInt(memberGatewayUriArray[1]));
-            }
+        memberEntity.setGatewayExternalUri(memberInfo.getMemberGatewayUri());
+        GatewayConfigModel gatewayConfigModel = globalConfigService.getModel(GatewayConfigModel.class);
+        if (null != gatewayConfigModel) {
+            memberEntity.setGatewayInternalUri(gatewayConfigModel.intranetBaseUri);
         }
         memberEntity.setSecretKeyType(null == memberInfo.getSecretKeyType() ? SecretKeyType.rsa : memberInfo.getSecretKeyType());
         memberEntity.setGatewayTlsEnable(memberInfo.getMemberGatewayTlsEnable());
@@ -104,7 +100,7 @@ public class MemberService extends AbstractMemberService {
 
     public boolean getMemberGatewayTlsEnable() {
         GlobalConfigService globalConfigService = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-        MemberInfoModel memberInfoModel = globalConfigService.getMemberInfo();
+        MemberInfoModel memberInfoModel = globalConfigService.getModel(MemberInfoModel.class);
         return memberInfoModel.getMemberGatewayTlsEnable() == null ? Boolean.FALSE
                 : memberInfoModel.getMemberGatewayTlsEnable();
     }

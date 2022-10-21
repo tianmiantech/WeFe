@@ -252,10 +252,6 @@ export default {
                     name:  '机器学习模型服务',
                     value: '7',
                 },
-                {
-                    name:  '深度学习模型服务',
-                    value: '8',
-                },
             ],
             payTypes: [
                 {value: '1', label: '充值'},

@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@GrpcServer(interceptors = {IpAddressWhiteListServerInterceptor.class})
+@GrpcServer(useScope = GrpcServerScopeEnum.INTERNAL, interceptors = {IpAddressWhiteListServerInterceptor.class})
 public class TransferGrpcServer extends TransferServiceGrpc.TransferServiceImplBase {
 
     private final Logger LOG = LoggerFactory.getLogger(TransferGrpcServer.class);

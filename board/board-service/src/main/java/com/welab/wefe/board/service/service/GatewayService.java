@@ -24,7 +24,6 @@ import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
-import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -35,6 +34,7 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.common.wefe.enums.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -245,7 +245,6 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshSystemConfigCache() throws StatusCodeWithException {
         sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.refreshSystemConfigCacheProcessor
         );
@@ -256,7 +255,6 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshMemberBlacklistCache() throws StatusCodeWithException {
         sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.refreshMemberBlacklistCacheProcessor
         );
@@ -267,7 +265,6 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshIpWhiteListCache() throws StatusCodeWithException {
         sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.refreshSystemConfigCacheProcessor
         );
@@ -278,15 +275,23 @@ public class GatewayService extends BaseGatewayService {
      */
     public void restartExternalGrpcServer() throws StatusCodeWithException {
         sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.restartExternalGrpcServer
         );
     }
 
+    /**
+     * 检查gateway是否活着
+     */
+    public void checkGatewayAliveProcessor() throws StatusCodeWithException {
+        sendToMyselfGateway(
+                "",
+                GatewayProcessorType.gatewayAliveProcessor
+        );
+    }
+
     public ServiceAvailableCheckOutput getLocalGatewayAvailable() throws StatusCodeWithException {
         return sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.gatewayAvailableProcessor
         ).toJavaObject(ServiceAvailableCheckOutput.class);
@@ -364,7 +369,6 @@ public class GatewayService extends BaseGatewayService {
 
         JSONObject result = sendToOtherGateway(
                 dstMemberId,
-                GatewayActionType.none,
                 request,
                 GatewayProcessorType.boardHttpProcessor
         );
@@ -399,7 +403,7 @@ public class GatewayService extends BaseGatewayService {
                 )
                 .toStringWithNull();
 
-        sendToMyselfGateway(gatewayUri, GatewayActionType.http_job, data, GatewayProcessorType.boardHttpProcessor).toJavaObject(ApiResult.class);
+        sendToMyselfGateway(gatewayUri, data, GatewayProcessorType.boardHttpProcessor).toJavaObject(ApiResult.class);
     }
 
     /**
@@ -407,13 +411,8 @@ public class GatewayService extends BaseGatewayService {
      *
      * @param gatewayUri Gateway IP: prot address. If the value is not empty, it means to directly test its own gateway alive
      */
-    public void pingGatewayAlive(String gatewayUri) throws StatusCodeWithException {
-
-        if (StringUtil.isEmpty(gatewayUri)) {
-            gatewayUri = globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri;
-        }
-
-        sendToMyselfGateway(gatewayUri, GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
+    public void pingGatewayAlive(String dstMemberId, String gatewayUri) throws StatusCodeWithException {
+        sendToOtherGateway(dstMemberId, gatewayUri, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
     }
 
 

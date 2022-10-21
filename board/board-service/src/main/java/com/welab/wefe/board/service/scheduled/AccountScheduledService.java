@@ -37,7 +37,7 @@ public class AccountScheduledService {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Scheduled(fixedDelay = 600_000, initialDelay = 10_000)
+    @Scheduled(fixedDelay = 1000 * 60 * 60, initialDelay = 10_000)
     //@Scheduled(fixedDelay = 5_000, initialDelay = 1_000)
     public void run() {
 

@@ -28,3 +28,5 @@ aiohttp==3.7.3
 oss2==2.14.0
 pandas==1.1.5
 netifaces==0.11.0
+gmssl==3.2.1
+cos-python-sdk-v5==1.9.15

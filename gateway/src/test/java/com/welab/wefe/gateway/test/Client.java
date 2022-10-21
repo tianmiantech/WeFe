@@ -23,7 +23,6 @@ import java.util.UUID;
 import javax.net.ssl.SSLException;
 
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
@@ -50,13 +49,13 @@ public class Client {
     }
 
     public static String callLocalGateway(GatewayProcessorType processorType, String data) throws Exception {
-        return callGateway1("d0f47307804844898ecfc65b875abe87", "local_test", GatewayActionType.none, processorType,
+        return callGateway1("d0f47307804844898ecfc65b875abe87", "local_test", processorType,
                 data);
     }
 
-    public static String callGateway1(String dstMemberId, String dstMemberName, GatewayActionType action,
+    public static String callGateway1(String dstMemberId, String dstMemberName,
             GatewayProcessorType processorType, String data) throws Exception {
-        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data,
+        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, data,
                 processorType);
         List<CaCertificateCache.CaCertificate> caCertificateList = new ArrayList<>();
         CaCertificateCache.CaCertificate ca = new CaCertificateCache.CaCertificate();
@@ -95,9 +94,9 @@ public class Client {
                 .maxInboundMetadataSize(2000 * 1024 * 1024).build();
     }
 
-    public static String callGateway(String dstMemberId, String dstMemberName, GatewayActionType action,
+    public static String callGateway(String dstMemberId, String dstMemberName,
             GatewayProcessorType processorType, String data) throws Exception {
-        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, action, data,
+        GatewayMetaProto.TransferMeta transferMeta = buildTransferMeta(dstMemberId, dstMemberName, data,
                 processorType);
         ManagedChannel grpcChannel = ManagedChannelBuilder.forTarget("127.0.0.1:50050").usePlaintext().build();
         TransferServiceGrpc.TransferServiceBlockingStub clientStub = TransferServiceGrpc.newBlockingStub(grpcChannel);
@@ -116,8 +115,7 @@ public class Client {
 
     }
 
-    private static GatewayMetaProto.TransferMeta buildTransferMeta(String dstMemberId, String dstMemberName,
-            GatewayActionType action, String data, GatewayProcessorType processorType) {
+    private static GatewayMetaProto.TransferMeta buildTransferMeta(String dstMemberId, String dstMemberName, String data, GatewayProcessorType processorType) {
         GatewayMetaProto.Member.Builder builder = GatewayMetaProto.Member.newBuilder().setMemberId(dstMemberId);
 
         if (StringUtil.isNotBlank(dstMemberName)) {
@@ -126,9 +124,9 @@ public class Client {
 
         GatewayMetaProto.Member dstMember = builder.build();
 
-        GatewayMetaProto.Content content = GatewayMetaProto.Content.newBuilder().setObjectData(data).build();
+        GatewayMetaProto.Content content = GatewayMetaProto.Content.newBuilder().setStrData(data).build();
 
-        return GatewayMetaProto.TransferMeta.newBuilder().setAction(action.name()).setDst(dstMember).setContent(content)
+        return GatewayMetaProto.TransferMeta.newBuilder().setDst(dstMember).setContent(content)
                 .setSessionId(UUID.randomUUID().toString().replaceAll("-", "")).setProcessor(processorType.name())
                 .build();
 

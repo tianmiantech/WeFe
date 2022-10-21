@@ -18,7 +18,6 @@ package com.welab.wefe.gateway.service.base;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.cache.MemberCache;
@@ -26,10 +25,8 @@ import com.welab.wefe.gateway.common.EndpointBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusEnum;
 import com.welab.wefe.gateway.entity.MemberEntity;
-import com.welab.wefe.gateway.init.InitStorageManager;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import com.welab.wefe.gateway.service.MessageService;
-import com.welab.wefe.gateway.util.ActionProcessorMappingUtil;
 import com.welab.wefe.gateway.util.GrpcUtil;
 import com.welab.wefe.gateway.util.ReturnStatusUtil;
 import com.welab.wefe.gateway.util.TransferMetaUtil;
@@ -46,7 +43,7 @@ public abstract class AbstractSendTransferMetaService {
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private MessageService mMessageService;
+    private MessageService messageService;
 
     @Autowired
     private GlobalConfigService globalConfigService;
@@ -58,14 +55,11 @@ public abstract class AbstractSendTransferMetaService {
      * @return Forwarding results
      */
     public BasicMetaProto.ReturnStatus send(GatewayMetaProto.TransferMeta transferMeta) {
-
-        // Handle the compatibility between the old version of action and the new version of processor
-        transferMeta = actionMappingProcessor(transferMeta);
         // Check the validity of parameters
         BasicMetaProto.ReturnStatus returnStatus = checkCommonReqParam(transferMeta);
         if (!ReturnStatusUtil.ok(returnStatus)) {
             LOG.error("Illegal message parameter：{} ---> {}", TransferMetaUtil.toMessageString(transferMeta), returnStatus.getMessage());
-            mMessageService.saveError("消息参数非法", returnStatus, transferMeta);
+            messageService.saveError("消息参数非法", returnStatus, transferMeta);
             return returnStatus;
         }
         // Set the receiver and sender of the message
@@ -114,7 +108,7 @@ public abstract class AbstractSendTransferMetaService {
         } else {
             LOG.error("Message push failed：{} ---> {}", TransferMetaUtil.toMessageString(transferMeta), returnStatus.getMessage());
             String dstMemberName = transferMeta.getDst().getMemberName();
-            mMessageService.saveError("向 " + dstMemberName + " 推送消息失败", returnStatus, transferMeta);
+            messageService.saveError("向 " + dstMemberName + " 推送消息失败", returnStatus, transferMeta);
         }
 
         return returnStatus;
@@ -128,46 +122,34 @@ public abstract class AbstractSendTransferMetaService {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "Session id cannot be empty.", transferMeta.getSessionId());
         }
 
-        // Old version of action field
-        String action = transferMeta.getAction();
         // New version of processor field
-        String processor = transferMeta.getProcessor();
-        if (StringUtil.isEmpty(action) && StringUtil.isEmpty(processor)) {
-            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "Action or Processor one of them should not be empty.", transferMeta.getSessionId());
-        }
-
-        // If the action field is not empty and the processor field is empty, it means that it is a request submitted by an old version of the client,
-        // and the action field shall prevail
-        if (StringUtil.isNotEmpty(action) && StringUtil.isEmpty(processor)) {
-            processor = ActionProcessorMappingUtil.getProcessorByAction(action);
-            if (StringUtil.isEmpty(processor)) {
-                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "Action not found mapping Processor, Action name:" + action, transferMeta.getSessionId());
-            }
-            transferMeta = transferMeta.toBuilder().setProcessor(processor).build();
+        if (StringUtil.isEmpty(transferMeta.getProcessor())) {
+            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "Processor should not be empty.", transferMeta.getSessionId());
         }
 
         GatewayMetaProto.Member dstMember = transferMeta.getDst();
-        if (null == dstMember || StringUtil.isEmpty(dstMember.getMemberId())) {
+        if (StringUtil.isEmpty(dstMember.getMemberId())) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "dst member id is cannot be empty.", transferMeta.getSessionId());
         }
 
         MemberCache memberCache = MemberCache.getInstance();
-        MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
-        if (null == dstMemberEntity) {
-            // Avoid the problem that the gateway starts first and the board module starts later,
-            // but the gateway cache has not been updated and the member information cannot be found
-            MemberCache.getInstance().refreshCacheById(dstMember.getMemberId());
-            dstMemberEntity = memberCache.get(dstMember.getMemberId());
+        MemberEntity selfMemberEntity = memberCache.getSelfMember();
+        if (!GrpcUtil.checkGatewayUriValid(selfMemberEntity.getGatewayInternalUri())) {
+            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 HOST:PORT", transferMeta.getSessionId());
         }
+        if (!GrpcUtil.checkGatewayUriValid(selfMemberEntity.getGatewayExternalUri())) {
+            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关外网地址,格式为 HOST:PORT", transferMeta.getSessionId());
+        }
+
+        MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
+        // Avoid the problem that the gateway starts first and the board module starts later,
+        // but the gateway cache has not been updated and the member information cannot be found
+        dstMemberEntity = (null == dstMemberEntity ? MemberCache.getInstance().refreshCacheById(dstMember.getMemberId()) : dstMemberEntity);
         if (null == dstMemberEntity) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员id[" + dstMember.getMemberId() + "]不存在，请确认成员信息是否已同步到Union.", transferMeta.getSessionId());
         }
-        if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
-            String intranetBaseUri = globalConfigService.getGatewayConfig().intranetBaseUri;
-            if (!GrpcUtil.checkGatewayUriValid(intranetBaseUri)) {
-                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 IP:PORT", transferMeta.getSessionId());
-            }
-        } else if (StringUtil.isEmpty(dstMemberEntity.getIp())) {
+
+        if (StringUtil.isEmpty(dstMemberEntity.getGatewayExternalUri())) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
         }
 
@@ -180,47 +162,37 @@ public abstract class AbstractSendTransferMetaService {
      */
     protected GatewayMetaProto.TransferMeta setMemberInfo(GatewayMetaProto.TransferMeta transferMeta) {
         MemberCache memberCache = MemberCache.getInstance();
-        GatewayMetaProto.Member dstMember = transferMeta.getDst();
-        MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
-        String dstIp = dstMemberEntity.getIp();
-        int dstPort = dstMemberEntity.getPort();
-
-        if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
-            String intranetBaseUri = globalConfigService.getGatewayConfig().intranetBaseUri;
-            dstIp = intranetBaseUri.split(":")[0];
-            dstPort = Integer.parseInt(intranetBaseUri.split(":")[1]);
-        }
-
         GatewayMetaProto.Member srcMember = GatewayMetaProto.Member.newBuilder()
                 .setMemberId(memberCache.getSelfMember().getId())
                 .setMemberName(memberCache.getSelfMember().getName())
                 .build();
 
         GatewayMetaProto.TransferMeta.Builder builder = transferMeta.toBuilder();
-        builder.setSrc(srcMember)
-                .getDstBuilder()
-                .setMemberName(dstMemberEntity.getName())
-                .setEndpoint(EndpointBuilder.create(dstIp, dstPort));
-
-        return builder.build();
-
+        return builder.setSrc(srcMember).setDst(setDstMemberInfo(transferMeta)).build();
     }
-
 
     /**
-     * The action field of the old version is mapped to the processor field of the new version
+     * 设置目的成员信息
      */
-    private GatewayMetaProto.TransferMeta actionMappingProcessor(GatewayMetaProto.TransferMeta transferMeta) {
-        // Old version of action field
-        String action = transferMeta.getAction();
-        // New version of processor field
-        String processor = transferMeta.getProcessor();
-        // If the action field is not empty and the processor field is empty, it means that it is a request submitted by an old version of the client,
-        // and the action field shall prevail
-        if (StringUtil.isNotEmpty(action) && StringUtil.isEmpty(processor)) {
-            processor = ActionProcessorMappingUtil.getProcessorByAction(action);
-            transferMeta = transferMeta.toBuilder().setProcessor(StringUtil.isEmpty(processor) ? "not_found_processor" : processor).build();
+    private GatewayMetaProto.Member setDstMemberInfo(GatewayMetaProto.TransferMeta transferMeta) {
+        MemberCache memberCache = MemberCache.getInstance();
+        GatewayMetaProto.Member dstMember = transferMeta.getDst();
+        MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
+        dstMember = dstMember.toBuilder().setMemberName(dstMemberEntity.getName()).build();
+        BasicMetaProto.Endpoint dstEndpoint = dstMember.getEndpoint();
+        // 目的地址使用指定值
+        if (StringUtil.isNotEmpty(dstEndpoint.getIp())) {
+            return dstMember;
         }
-        return transferMeta;
+
+        MemberEntity selfMemberEntity = memberCache.getSelfMember();
+        if (selfMemberEntity.getId().equals(dstMember.getMemberId())) {
+            dstEndpoint = EndpointBuilder.create(selfMemberEntity.getGatewayInternalUri());
+        } else {
+            dstEndpoint = EndpointBuilder.create(dstMemberEntity.getGatewayExternalUri());
+        }
+
+        return dstMember.toBuilder().setEndpoint(dstEndpoint).build();
     }
+
 }

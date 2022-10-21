@@ -15,25 +15,27 @@
  */
 package com.welab.wefe.gateway.init.grpc;
 
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.webank.cert.toolkit.utils.CertUtils;
 import com.webank.cert.toolkit.utils.KeyUtils;
 import com.welab.wefe.common.util.AESUtil;
+import com.welab.wefe.common.wefe.dto.global_config.ServerCertInfoModel;
 import com.welab.wefe.gateway.GatewayServer;
 import com.welab.wefe.gateway.cache.MemberCache;
 import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import com.welab.wefe.gateway.config.ConfigProperties;
-import com.welab.wefe.gateway.dto.ServerCertInfoModel;
 import com.welab.wefe.gateway.service.MemberService;
 import com.welab.wefe.gateway.service.ServerCertService;
+
 import io.grpc.netty.GrpcSslContexts;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 
 /**
  * Grpc server context
@@ -62,6 +64,7 @@ public class GrpcServerContext {
      * Start grpc server
      */
     public boolean start() {
+        boolean success = false;
         try {
             ConfigProperties config = GatewayServer.CONTEXT.getBean(ConfigProperties.class);
             int internalPort = config.getGrpcServerInternalPort();
@@ -76,17 +79,20 @@ public class GrpcServerContext {
             if (!internalGrpcServer.start()) {
                 return false;
             }
-            return externalGrpcServer.start();
+            success = externalGrpcServer.start();
+            return success;
         } catch (Exception e) {
             LOG.error("Start grpc server fail: ", e);
-            if (null != internalGrpcServer) {
-                internalGrpcServer.stop();
-            }
-            if (null != externalGrpcServer) {
-                externalGrpcServer.stop();
+        } finally {
+            if (!success) {
+                if (null != internalGrpcServer) {
+                    internalGrpcServer.stop();
+                }
+                if (null != externalGrpcServer) {
+                    externalGrpcServer.stop();
+                }
             }
         }
-
         return false;
     }
 
@@ -142,10 +148,12 @@ public class GrpcServerContext {
     private SslContext buildSslContext() throws Exception {
         ServerCertService serverCertService = GatewayServer.CONTEXT.getBean(ServerCertService.class);
         ServerCertInfoModel serverCertInfoModel = serverCertService.getCertInfo();
+        if (null == serverCertInfoModel) {
+            LOG.error("Unable to find a valid service certificate.");
+            throw new Exception("Unable to find a valid service certificate");
+        }
         String key = serverCertInfoModel.getKey();
         String content = serverCertInfoModel.getContent();
-        //LOG.info("buildSslContext key = " + key);
-        //LOG.info("buildSslContext cert content = " + content);
         PrivateKey privateKey = KeyUtils
                 .getRSAKeyPair(AESUtil.decrypt(key, MemberCache.getInstance().getSelfMember().getId())).getPrivate();
         X509Certificate keyCertChain = CertUtils.convertStrToCert(content);

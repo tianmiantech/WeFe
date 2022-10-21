@@ -17,40 +17,17 @@
 
 package com.welab.wefe.gateway.util;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
-import org.apache.commons.collections4.CollectionUtils;
-
 import com.webank.cert.toolkit.utils.CertUtils;
 import com.welab.wefe.gateway.cache.CaCertificateCache;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * TLS tool class
  */
 public class TlsUtil {
-    /**
-     * Build the list of certificate objects according to the address list of CRT file
-     */
-    public static X509Certificate[] buildCertificates(String[] crtPaths) throws Exception {
-        if (null == crtPaths) {
-            return null;
-        }
-        X509Certificate[] certificates = new X509Certificate[crtPaths.length];
-        for (int i = 0; i < crtPaths.length; i++) {
-            try (InputStream inStream = new FileInputStream(crtPaths[i])) {
-                CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                X509Certificate cert = (X509Certificate) cf.generateCertificate(inStream);
-                certificates[i] = cert;
-            }
-        }
-        return certificates;
-    }
-
-
     public static X509Certificate[] buildCertificates(List<CaCertificateCache.CaCertificate> caCertificateList) throws Exception {
         if (CollectionUtils.isEmpty(caCertificateList)) {
             return null;
@@ -64,4 +41,8 @@ public class TlsUtil {
         return certificates;
     }
 
+
+    public static X509Certificate[] getAllCertificates(boolean tlsEnable) throws Exception {
+        return tlsEnable ? TlsUtil.buildCertificates(CaCertificateCache.getInstance().getAll()) : null;
+    }
 }

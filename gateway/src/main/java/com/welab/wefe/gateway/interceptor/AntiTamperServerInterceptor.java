@@ -51,7 +51,7 @@ public class AntiTamperServerInterceptor extends AbstractServerInterceptor {
      * Due to the special reasons of streaming mode, the data does not arrive in the sending order, and tamper prevention cannot be realized temporarily.
      * Therefore, the interception of streaming interface is excluded
      */
-    private final static List<String> EXCLUDE_INTERCEPT_METHODS = Arrays.asList("pushData");
+    private final static List<String> EXCLUDE_INTERCEPT_METHODS = Arrays.asList("pushDataSource");
 
     public AntiTamperServerInterceptor() {
         super(EXCLUDE_INTERCEPT_METHODS);

@@ -21,3 +21,8 @@ message ReturnStatus {
     string sessionId = 3;
     string data = 4;
 }
+
+message KeyValueData {
+    bytes key = 1;
+    bytes value = 2;
+}

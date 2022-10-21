@@ -16,10 +16,17 @@
 
 package com.welab.wefe.gateway.service;
 
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.gateway.dto.ServerCertInfoModel;
+import com.welab.wefe.common.wefe.dto.global_config.ServerCertInfoModel;
 import com.welab.wefe.gateway.entity.CertInfoEntity;
 import com.welab.wefe.gateway.entity.CertKeyInfoEntity;
 import com.welab.wefe.gateway.entity.CertRequestInfoEntity;
@@ -27,12 +34,6 @@ import com.welab.wefe.gateway.repository.CertInfoRepository;
 import com.welab.wefe.gateway.repository.CertKeyInfoRepository;
 import com.welab.wefe.gateway.repository.CertRequestInfoRepository;
 import com.welab.wefe.gateway.util.DatabaseEncryptUtil;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ServerCertService {

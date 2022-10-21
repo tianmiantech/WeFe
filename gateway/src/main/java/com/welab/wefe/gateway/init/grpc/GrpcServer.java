@@ -96,7 +96,7 @@ public class GrpcServer {
                 BindableService rpcService = rpcServerAnnotateConfig.getRpcBean();
                 List<Class<? extends ServerInterceptor>> interceptors = rpcServerAnnotateConfig.getInterceptors();
                 if (CollectionUtils.isNotEmpty(interceptors)) {
-                    serverBuilder.addService(ServerInterceptors.intercept(rpcService, listToInstanceArray(interceptors)));
+                    serverBuilder.addService(ServerInterceptors.interceptForward(rpcService, listToInstanceArray(interceptors)));
                 } else {
                     serverBuilder.addService(rpcService);
                 }
@@ -119,9 +119,7 @@ public class GrpcServer {
             status = RpcServerStatusEnum.RUNNING;
             // Registration tick
             Runtime.getRuntime().addShutdownHook(new Thread(GrpcServer.this::stop));
-            LOG.info("Start 【" + name + "】 grpc server success, binding port is: " + port);
-            // Start daemon
-            //blockUntilShutdown();
+            LOG.info("Start 【{}】 grpc server success, binding port is: {}, tls enable: {}", name, port, tlsEnable);
             return true;
         } catch (Exception e) {
             LOG.error("Start 【" + name + "】 grpc server fail: ", e);
@@ -139,9 +137,10 @@ public class GrpcServer {
             if (null != server && RpcServerStatusEnum.RUNNING.equals(status)) {
                 server.shutdown().awaitTermination(3, TimeUnit.SECONDS);
             }
+            server = null;
             boolean ret = start();
             if (ret) {
-                LOG.info("Restart 【" + name + "】 grpc server success.");
+                LOG.info("Restart 【{}】 grpc server success, tls enable: {}", name, tlsEnable);
             } else {
                 LOG.error("Restart 【" + name + "】 grpc server fail.");
             }
@@ -150,15 +149,6 @@ public class GrpcServer {
             LOG.error("Restart 【" + name + "】 grpc server fail: ", e);
         }
         return false;
-    }
-
-    /**
-     * Start daemon
-     */
-    protected void blockUntilShutdown() throws InterruptedException {
-        if (null != server) {
-            server.awaitTermination();
-        }
     }
 
 

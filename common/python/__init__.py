@@ -108,6 +108,10 @@ class RuntimeInstance(object):
         return cls.OPTIONS.get(RuntimeOptionKey.MEMBERS_BACKEND).get(member_id)
 
     @classmethod
+    def get_member_fc_provider(cls, member_id) -> str:
+        return cls.OPTIONS.get(RuntimeOptionKey.MEMBERS_FC_PROVIDER).get(member_id)
+
+    @classmethod
     def get_alcr_ins(cls):
         if cls.ACLR_INS is None:
             aclr_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_ACCELERATION, "")

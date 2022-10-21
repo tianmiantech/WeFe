@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.welab.wefe.common.wefe.enums;
 
 /**
- * @author zane
- * @date 2021/11/10
+ * @author yuxin.zhang
  */
 public enum DataResourceStorageType {
     /**
-     * local file system
+     * Supported databases
      */
-    LocalFileSystem,
-    StorageService
+    CLICKHOUSE,
+    MYSQL,
+    LMDB
 }
