@@ -16,9 +16,13 @@
 
 package com.welab.wefe.board.service.service.checkpoint;
 
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
+import com.welab.wefe.board.service.service.CacheObjects;
+import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,9 @@ import org.springframework.stereotype.Service;
 public class GatewayInternetCheckpoint extends AbstractCheckpoint {
     @Autowired
     protected GlobalConfigService globalConfigService;
+
+    @Autowired
+    private GatewayService gatewayService;
 
     @Override
     public ServiceType service() {
@@ -57,6 +64,6 @@ public class GatewayInternetCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck(String value) throws Exception {
-
+        gatewayService.sendToOtherGateway(CacheObjects.getMemberId(), value, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
     }
 }

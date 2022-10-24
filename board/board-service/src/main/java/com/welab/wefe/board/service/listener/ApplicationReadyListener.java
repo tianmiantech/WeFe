@@ -16,11 +16,11 @@
 
 package com.welab.wefe.board.service.listener;
 
-import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.util.HostUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

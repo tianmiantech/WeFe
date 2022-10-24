@@ -24,7 +24,6 @@ import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.AccountListAllOutputModel;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
-import com.welab.wefe.board.service.dto.globalconfig.BoardConfigModel;
 import com.welab.wefe.board.service.dto.vo.AccountInputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -47,6 +46,7 @@ import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.service.account.HistoryPasswordItem;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
+import com.welab.wefe.common.wefe.dto.global_config.BoardConfigModel;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
@@ -320,6 +320,11 @@ public class AccountService extends AbstractAccountService {
         account.setAuditComment(input.getEnable()
                 ? CacheObjects.getNickname(CurrentAccount.id()) + "启用了该账号"
                 : CacheObjects.getNickname(CurrentAccount.id()) + "禁用了该账号");
+
+        // 为避免启用后被周期任务再次禁用，刷新最后活动时间。
+        if(input.getEnable()){
+            account.setLastActionTime(new Date());
+        }
 
         accountRepository.save(account);
 

@@ -20,6 +20,7 @@ import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
+import com.welab.wefe.gateway.common.EndpointBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.service.processors.AbstractProcessor;
 
@@ -32,6 +33,15 @@ import com.welab.wefe.gateway.service.processors.AbstractProcessor;
 public class GatewayAliveProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
-        return ReturnStatusBuilder.ok(transferMeta.getSessionId());
+        GatewayMetaProto.Member srcMember = transferMeta.getSrc();
+        GatewayMetaProto.Member dstMember = transferMeta.getDst();
+        String srcUri = EndpointBuilder.generateUri(srcMember.getEndpoint());
+        String dstUri = EndpointBuilder.generateUri(dstMember.getEndpoint());
+        // 证明是测试内网连接通性
+        if (srcMember.getMemberId().equals(dstMember.getMemberId()) && srcUri.equals(dstUri)) {
+            return ReturnStatusBuilder.ok(transferMeta.getSessionId());
+        }
+        // 测试外网连接通性
+        return toRemote(transferMeta);
     }
 }

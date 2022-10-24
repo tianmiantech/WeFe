@@ -27,6 +27,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.union.service.constant.CertStatusEnums;
 import com.welab.wefe.union.service.dto.base.BaseInput;
 import com.welab.wefe.union.service.service.MemberContractService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +56,9 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
         extJSON.setPrincipalName(input.principalName);
         extJSON.setAuthType(input.authType);
         extJSON.setDescription(input.description);
-
-
+        extJSON.setCertRequestContent(input.certRequestContent);
+        extJSON.setCertRequestId(input.certRequestId);
+        extJSON.setCertStatus(CertStatusEnums.WAIT_VERIFY.name());
         List<RealnameAuthFileInfo> realnameAuthFileInfoList = new ArrayList<>();
         for (String fileId :
                 input.fileIdList) {
@@ -86,6 +88,10 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
         private String description;
         @Check(require = true)
         private List<String> fileIdList;
+        @Check(require = true)
+        private String certRequestContent;
+        @Check(require = true)
+        private String certRequestId;
 
 
         public String getPrincipalName() {
@@ -118,6 +124,22 @@ public class RealnameAuthApi extends AbstractApi<RealnameAuthApi.Input, Abstract
 
         public void setFileIdList(List<String> fileIdList) {
             this.fileIdList = fileIdList;
+        }
+
+        public String getCertRequestContent() {
+            return certRequestContent;
+        }
+
+        public void setCertRequestContent(String certRequestContent) {
+            this.certRequestContent = certRequestContent;
+        }
+
+        public String getCertRequestId() {
+            return certRequestId;
+        }
+
+        public void setCertRequestId(String certRequestId) {
+            this.certRequestId = certRequestId;
         }
     }
 }

@@ -19,8 +19,9 @@ package com.welab.wefe.gateway.api.service;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.api.service.proto.NetworkDataTransferProxyServiceGrpc;
-import com.welab.wefe.gateway.api.streammessage.PushDataRequestStreamObserver;
-import com.welab.wefe.gateway.base.RpcServer;
+import com.welab.wefe.gateway.api.streammessage.PushDataSourceRequestStreamObserver;
+import com.welab.wefe.gateway.base.GrpcServer;
+import com.welab.wefe.gateway.common.GrpcServerScopeEnum;
 import com.welab.wefe.gateway.interceptor.AntiTamperServerInterceptor;
 import com.welab.wefe.gateway.interceptor.SignVerifyServerInterceptor;
 import com.welab.wefe.gateway.interceptor.SystemTimestampVerifyServerInterceptor;
@@ -36,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author aaron.li
  **/
-@RpcServer(interceptors = {AntiTamperServerInterceptor.class, SignVerifyServerInterceptor.class, SystemTimestampVerifyServerInterceptor.class})
+@GrpcServer(interceptors = {AntiTamperServerInterceptor.class, SignVerifyServerInterceptor.class, SystemTimestampVerifyServerInterceptor.class})
 public class NetworkDataTransferProxyGrpcServer extends NetworkDataTransferProxyServiceGrpc.NetworkDataTransferProxyServiceImplBase {
     private final Logger LOG = LoggerFactory.getLogger(NetworkDataTransferProxyGrpcServer.class);
 
@@ -51,8 +52,8 @@ public class NetworkDataTransferProxyGrpcServer extends NetworkDataTransferProxy
     }
 
     @Override
-    public StreamObserver<GatewayMetaProto.TransferMeta> pushData(StreamObserver<GatewayMetaProto.TransferMeta> responseObserver) {
-        return new PushDataRequestStreamObserver(responseObserver);
+    public StreamObserver<GatewayMetaProto.TransferMeta> pushDataSource(StreamObserver<GatewayMetaProto.TransferMeta> responseObserver) {
+        return new PushDataSourceRequestStreamObserver(responseObserver);
     }
 
 }

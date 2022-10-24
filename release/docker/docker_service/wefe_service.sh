@@ -85,6 +85,13 @@ edit_wefe_config(){
         sed -i "/fc.oss.internal_endpoint/s@//.*@//oss-$FC_REGION-internal.aliyuncs.com@g" ./config.properties
         sed -i "/fc.oss.endpoint/s@//.*@//oss-$FC_REGION.aliyuncs.com@g" ./config.properties
     else
+        if [[ $FC_STORAGE_TYPE == 'cos' ]]; then
+            # 修改 cos 配置
+            sed -i "/fc.cos.bucket_name/s/=.*/=$FC_COS_BUCKET_NAME/g" ./config.properties
+            sed -i "/fc.scf.url/s/=.*/=$FC_SCF_URL/g" ./config.properties
+
+        fi
+    else
         echo "函数存储类型不支持该类型：$FC_STORAGE_TYPE"
     fi
     sed -i "/fc.storage.type/s/=.*/=$FC_STORAGE_TYPE/g" ./config.properties

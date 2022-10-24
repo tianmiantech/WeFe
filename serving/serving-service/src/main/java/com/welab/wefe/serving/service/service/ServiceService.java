@@ -16,38 +16,6 @@
 
 package com.welab.wefe.serving.service.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -69,50 +37,41 @@ import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostDecisionTreeModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostModel;
 import com.welab.wefe.serving.sdk.model.xgboost.XgboostNodeModel;
-import com.welab.wefe.serving.service.api.service.AddApi;
-import com.welab.wefe.serving.service.api.service.DetailApi;
-import com.welab.wefe.serving.service.api.service.QueryApi;
-import com.welab.wefe.serving.service.api.service.QueryOneApi;
-import com.welab.wefe.serving.service.api.service.RouteApi;
+import com.welab.wefe.serving.service.api.service.*;
 import com.welab.wefe.serving.service.api.service.ServiceSQLTestApi.Output;
 import com.welab.wefe.serving.service.api.service.UpdateApi.Input;
 import com.welab.wefe.serving.service.config.Config;
-import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
-import com.welab.wefe.serving.service.database.entity.BaseServiceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.DataSourceMySqlModel;
-import com.welab.wefe.serving.service.database.entity.ModelMemberMySqlModel;
-import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
-import com.welab.wefe.serving.service.database.entity.TableModelMySqlModel;
-import com.welab.wefe.serving.service.database.entity.TableServiceMySqlModel;
-import com.welab.wefe.serving.service.database.repository.AccountRepository;
-import com.welab.wefe.serving.service.database.repository.BaseServiceRepository;
-import com.welab.wefe.serving.service.database.repository.ModelMemberRepository;
-import com.welab.wefe.serving.service.database.repository.TableModelRepository;
-import com.welab.wefe.serving.service.database.repository.TableServiceRepository;
-import com.welab.wefe.serving.service.dto.ModelSqlConfigOutput;
-import com.welab.wefe.serving.service.dto.ModelStatusOutput;
-import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.dto.ServiceDetailOutput;
-import com.welab.wefe.serving.service.dto.TreeNode;
-import com.welab.wefe.serving.service.dto.TreeNodeData;
-import com.welab.wefe.serving.service.enums.CallByMeEnum;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.enums.ServiceResultEnum;
-import com.welab.wefe.serving.service.enums.ServiceStatusEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
+import com.welab.wefe.serving.service.database.entity.*;
+import com.welab.wefe.serving.service.database.repository.*;
+import com.welab.wefe.serving.service.dto.*;
+import com.welab.wefe.serving.service.enums.*;
 import com.welab.wefe.serving.service.manager.FeatureManager;
 import com.welab.wefe.serving.service.manager.ModelManager;
 import com.welab.wefe.serving.service.service_processor.AbstractServiceProcessor;
 import com.welab.wefe.serving.service.service_processor.ServiceProcessorUtils;
-import com.welab.wefe.serving.service.utils.MD5Util;
-import com.welab.wefe.serving.service.utils.SHA256Utils;
-import com.welab.wefe.serving.service.utils.ServiceUtil;
-import com.welab.wefe.serving.service.utils.SignUtils;
-import com.welab.wefe.serving.service.utils.ZipUtils;
+import com.welab.wefe.serving.service.utils.*;
 import com.welab.wefe.serving.service.utils.component.ScoreCardComponentUtil;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 服务 Service
@@ -192,7 +151,7 @@ public class ServiceService {
 
     private List<ModelStatusOutput> getModelStatus(TableModelMySqlModel model, DetailApi.Output output) {
         return output.getMyRole().contains(JobMemberRole.promoter)
-                && FederatedLearningType.vertical.equals(output.getFlType()) ? checkModelStatus(model.getServiceId())
+                && !FederatedLearningType.horizontal.equals(output.getFlType()) ? checkModelStatus(model.getServiceId())
                 : null;
     }
 
@@ -679,7 +638,7 @@ public class ServiceService {
         return serviceRepository.findOne("id", serviceId, TableServiceMySqlModel.class);
     }
 
-    
+
     public JObject executeService(RouteApi.Input input) throws StatusCodeWithException {
 
         long beginTime = System.currentTimeMillis();
@@ -689,7 +648,7 @@ public class ServiceService {
 
         JObject result = JObject.create();
         ServiceResultEnum status = ServiceResultEnum.SUCCESS;
-        AbstractServiceProcessor serviceProcessor =  null;
+        AbstractServiceProcessor serviceProcessor = null;
         try {
             // check params
             JObject res = check(input);
@@ -872,10 +831,10 @@ public class ServiceService {
             valuesMap.put("params", displayServiceQueryParams(model.getQueryParams(), model.getQueryParamsConfig()));
             valuesMap.put("desc", model.getName());
             valuesMap.put("method", "POST");
-            String templateString = "# serverUrl:\n" + "	${serverUrl}\n" + "	\n" 
+            String templateString = "# serverUrl:\n" + "	${serverUrl}\n" + "	\n"
                     + "# apiName:\n" + "	${apiName}\n" + "	\n"
                     + "# method:\n" + " ${method}\n" + "    \n"
-                    + "# params:\n" + "	${params}\n" + "	\n" 
+                    + "# params:\n" + "	${params}\n" + "	\n"
                     + "# desc\n" + "	${desc}";
             StringSubstitutor sub = new StringSubstitutor(valuesMap);
             String content = sub.replace(templateString);

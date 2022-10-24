@@ -80,6 +80,7 @@
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
                     <p class="id">{{ scope.row.service_id }}</p>
+                    <p class="id">url:{{ scope.row.url }}</p>
                 </template>
             </el-table-column>
 

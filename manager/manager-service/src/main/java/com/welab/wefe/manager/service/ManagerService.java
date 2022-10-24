@@ -16,14 +16,6 @@
 
 package com.welab.wefe.manager.service;
 
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.Launcher;
-import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
-import com.welab.wefe.common.web.service.account.AccountInfo;
-import com.welab.wefe.manager.service.operation.ManagerApiLogger;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -34,6 +26,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
+import com.webank.cert.mgr.CertApp;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
+import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
+import com.welab.wefe.manager.service.operation.ManagerApiLogger;
 
 /**
  * @author yuxin.zhang
@@ -51,7 +52,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         nameGenerator = ApiBeanNameGenerator.class,
         basePackageClasses = {
                 Launcher.class,
-                ManagerService.class
+                ManagerService.class,
+                CertApp.class
         }
 )
 public class ManagerService implements ApplicationContextAware {

@@ -37,7 +37,6 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.ProducerType;
 import org.apache.commons.collections4.CollectionUtils;
@@ -154,7 +153,7 @@ public class MemberChatService extends AbstractService {
 
         // Push the message to the destination member through the gateway
         try {
-            gatewayService.sendToOtherGateway(toMemberId, GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
+            gatewayService.sendToOtherGateway(toMemberId, data, GatewayProcessorType.dbChatTableProcessor);
         } catch (Exception e) {
             // Message sending failed
             memberChatModel.setStatus(ChatConstant.MESSAGE_STATUS_SEND_FAIL);
@@ -216,7 +215,7 @@ public class MemberChatService extends AbstractService {
                 .toString();
 
         // Push the message to the destination member through the gateway
-        gatewayService.sendToOtherGateway(model.getToMemberId(), GatewayActionType.create_chat_msg, data, GatewayProcessorType.dbChatTableProcessor);
+        gatewayService.sendToOtherGateway(model.getToMemberId(), data, GatewayProcessorType.dbChatTableProcessor);
 
         // Update message status is successful
         memberChatRepository.updateById(model.getId(), "status", ChatConstant.MESSAGE_STATUS_SEND_SUCCESS, MemberChatMySqlModel.class, false);
@@ -311,7 +310,6 @@ public class MemberChatService extends AbstractService {
         Specification<MessageQueueMySqlModel> queryCondtion = Where
                 .create()
                 .equal("producer", ProducerType.gateway)
-                .equal("action", GatewayActionType.create_chat_msg)
                 .orderBy("createdTime", OrderBy.asc)
                 .build(MessageQueueMySqlModel.class);
 

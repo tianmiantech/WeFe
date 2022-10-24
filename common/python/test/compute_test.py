@@ -51,10 +51,9 @@ class ComputerTest(object):
         self.apply_partitions()
         self.map_reduce_partitions()
 
-
     def reset_data(self, backend, multi_dataset=1, diff_count=0):
         RuntimeInstance.SESSION = None
-        session.init(job_id="computer-test", db_type=DBTypes.LMDB, backend=backend, options={
+        session.init(job_id="computer-test", db_type=DBTypes.LOCAL_FS, backend=backend, options={
             # "fc_partition": FunctionConfig.FC_DEFAULT_PARTITION,
             "fc_partition": 2,
             "features_count": 10})

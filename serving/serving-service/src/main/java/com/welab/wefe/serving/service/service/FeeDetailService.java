@@ -16,6 +16,16 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.service.api.feedetail.QueryListApi;
@@ -25,16 +35,6 @@ import com.welab.wefe.serving.service.database.repository.FeeDetailRepository;
 import com.welab.wefe.serving.service.database.repository.FeeRecordRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.enums.QueryDateTypeEnum;
-import com.welab.wefe.serving.service.enums.ServiceResultEnum;
-import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class FeeDetailService {
@@ -45,8 +45,12 @@ public class FeeDetailService {
     @Autowired
     private FeeDetailRepository feeDetailRepository;
 
-    public void save(FeeDetailMysqlModel input) {
+    public FeeDetailMysqlModel getLastRecord() {
+        return feeDetailRepository.getLastRecord();
+    }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void save(FeeDetailMysqlModel input) {
         FeeDetailMysqlModel model = feeDetailRepository.findOne("id", input.getId(), FeeDetailMysqlModel.class);
         if (null == model) {
             model = new FeeDetailMysqlModel();

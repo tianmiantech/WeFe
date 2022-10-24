@@ -33,6 +33,14 @@ import java.util.Map;
 @Repository
 public interface OrderStatisticsRepository extends BaseRepository<OrderStatisticsMysqlModel, String> {
 
+    /**
+     * 查询表中最新一条记录
+     *
+     * @return
+     */
+    @Query(value = "select * from order_statistics as os order by os.updated_time desc LIMIT 1 ", nativeQuery = true)
+    OrderStatisticsMysqlModel getLastRecord();
+
 
     /**
      * 根据条件查询按"分钟粒度"统计订单
@@ -61,7 +69,7 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
             "if(:end_time is not null ,:end_time ,NOW() ) " +
             "group by os.minute, os.service_id, os.request_partner_id, os.response_partner_id " +
             "order by os.minute desc ", nativeQuery = true, countProjection = "1")
-    List<Map<String,Object>>  groupByMinute(@Param("service_id") String serviceId,
+    List<Map<String, Object>> groupByMinute(@Param("service_id") String serviceId,
                                             @Param("service_name") String serviceName,
                                             @Param("request_partner_id") String requestPartnerId,
                                             @Param("request_partner_name") String requestPartnerName,
@@ -97,14 +105,14 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
             "if(:end_time is not null ,:end_time ,NOW() ) " +
             "group by os.hour, os.service_id, os.request_partner_id, os.response_partner_id " +
             "order by os.hour desc ", nativeQuery = true, countProjection = "1")
-    List<Map<String,Object>> groupByHour(@Param("service_id") String serviceId,
-                                                @Param("service_name") String serviceName,
-                                                @Param("request_partner_id") String requestPartnerId,
-                                                @Param("request_partner_name") String requestPartnerName,
-                                                @Param("response_partner_id") String responsePartnerId,
-                                                @Param("response_partner_name") String responsePartnerName,
-                                                @Param("start_time") Date startTime,
-                                                @Param("end_time") Date endTime);
+    List<Map<String, Object>> groupByHour(@Param("service_id") String serviceId,
+                                          @Param("service_name") String serviceName,
+                                          @Param("request_partner_id") String requestPartnerId,
+                                          @Param("request_partner_name") String requestPartnerName,
+                                          @Param("response_partner_id") String responsePartnerId,
+                                          @Param("response_partner_name") String responsePartnerName,
+                                          @Param("start_time") Date startTime,
+                                          @Param("end_time") Date endTime);
 
     /**
      * 根据条件查询按"按日粒度"统计订单
@@ -133,14 +141,14 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
             "if(:end_time is not null ,:end_time ,NOW() ) " +
             "group by os.day, os.service_id, os.request_partner_id, os.response_partner_id " +
             "order by os.day desc ", nativeQuery = true, countProjection = "1")
-    List<Map<String,Object>> groupByDay(@Param("service_id") String serviceId,
-                                               @Param("service_name") String serviceName,
-                                               @Param("request_partner_id") String requestPartnerId,
-                                               @Param("request_partner_name") String requestPartnerName,
-                                               @Param("response_partner_id") String responsePartnerId,
-                                               @Param("response_partner_name") String responsePartnerName,
-                                               @Param("start_time") Date startTime,
-                                               @Param("end_time") Date endTime);
+    List<Map<String, Object>> groupByDay(@Param("service_id") String serviceId,
+                                         @Param("service_name") String serviceName,
+                                         @Param("request_partner_id") String requestPartnerId,
+                                         @Param("request_partner_name") String requestPartnerName,
+                                         @Param("response_partner_id") String responsePartnerId,
+                                         @Param("response_partner_name") String responsePartnerName,
+                                         @Param("start_time") Date startTime,
+                                         @Param("end_time") Date endTime);
 
     /**
      * 根据条件查询按"按月粒度"统计订单
@@ -169,7 +177,7 @@ public interface OrderStatisticsRepository extends BaseRepository<OrderStatistic
             "if(:end_time is not null ,:end_time ,NOW() ) " +
             "group by os.month, os.service_id, os.request_partner_id, os.response_partner_id " +
             "order by os.`month` desc ", nativeQuery = true, countProjection = "1")
-    List<Map<String,Object>> groupByMonth(@Param("service_id") String serviceId,
+    List<Map<String, Object>> groupByMonth(@Param("service_id") String serviceId,
                                            @Param("service_name") String serviceName,
                                            @Param("request_partner_id") String requestPartnerId,
                                            @Param("request_partner_name") String requestPartnerName,

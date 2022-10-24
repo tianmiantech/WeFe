@@ -44,17 +44,13 @@
                                     </el-col>
                                 </el-row>
                             </el-card>
-                            <el-card v-show="vData.form.calculation_engine_config.backend === 'FC'">
+                            <el-card v-show="vData.form.calculation_engine_config.backend === 'FC'" style="min-height:350px">
                                 <el-row :gutter="24">
                                     <el-col :span="11">
                                         <el-form-item label="云服务供应商：">
                                             <el-radio-group v-model="vData.form.function_compute_config.cloud_provider" size="small">
                                                 <el-radio label="aliyun">阿里云</el-radio>
-                                                <el-radio disabled label="tencentcloud">
-                                                    <el-tooltip class="item" effect="dark" content="coming soon" placement="top-start">
-                                                        腾讯云
-                                                    </el-tooltip>
-                                                </el-radio>
+                                                <el-radio label="tencentcloud">腾讯云</el-radio>
                                             </el-radio-group>
                                         </el-form-item>
                                         <el-form-item label="每日费用上限：">
@@ -63,31 +59,52 @@
                                         <el-form-item label="每月费用上限：">
                                             <el-input type="number" v-model="vData.form.function_compute_config.max_cost_in_month" clearable style="width:80%" />&nbsp;<span style="color: #999">¥</span>
                                         </el-form-item>
+                                        <div v-if="vData.form.function_compute_config.cloud_provider==='aliyun'">
+                                            <el-form-item label="账号ID：">
+                                                <el-input v-model="vData.form.aliyun_function_compute_config.account_id" clearable />
+                                            </el-form-item>
+                                            <el-form-item label="AccessKeyId：">
+                                                <el-input v-model="vData.form.aliyun_function_compute_config.access_key_id" clearable />
+                                            </el-form-item>
+                                            <el-form-item label="AccessKeySecret：">
+                                                <el-input
+                                                    v-model="vData.form.aliyun_function_compute_config.access_key_secret"
+                                                    clearable
+                                                    type="password"
+                                                    placeholder="请输入密码"
+                                                    autocomplete="new-password"
+                                                    @contextmenu.prevent
+                                                    @change="methods.accessKeySecretChange"
+                                                />
+                                            </el-form-item>
+                                        </div>
+                                        <div v-if="vData.form.function_compute_config.cloud_provider==='tencentcloud'">
+                                            <el-form-item label="账号ID：">
+                                                <el-input v-model="vData.form.tencent_serverless_cloud_function_config.account_id" clearable />
+                                            </el-form-item>
+                                            <el-form-item label="AccessKeyId：">
+                                                <el-input v-model="vData.form.tencent_serverless_cloud_function_config.access_key_id" clearable />
+                                            </el-form-item>
+                                            <el-form-item label="AccessKeySecret：">
+                                                <el-input
+                                                    v-model="vData.form.tencent_serverless_cloud_function_config.access_key_secret"
+                                                    clearable
+                                                    type="password"
+                                                    placeholder="请输入密码"
+                                                    autocomplete="new-password"
+                                                    @contextmenu.prevent
+                                                    @change="methods.tencentAccessKeySecretChange"
+                                                />
+                                            </el-form-item>
+                                        </div>
+                                    </el-col>
+                                    <el-col :span="10" v-if="vData.form.function_compute_config.cloud_provider==='aliyun'">
                                         <el-form-item label="账号类型：">
                                             <el-radio-group v-model="vData.form.aliyun_function_compute_config.account_type" size="small">
                                                 <el-radio label="admin"></el-radio>
                                                 <el-radio label="api"></el-radio>
                                             </el-radio-group>
                                         </el-form-item>
-                                        <el-form-item label="账号ID：">
-                                            <el-input v-model="vData.form.aliyun_function_compute_config.account_id" clearable />
-                                        </el-form-item>
-                                        <el-form-item label="AccessKeyId：">
-                                            <el-input v-model="vData.form.aliyun_function_compute_config.access_key_id" clearable />
-                                        </el-form-item>
-                                        <el-form-item label="AccessKeySecret：">
-                                            <el-input
-                                                v-model="vData.form.aliyun_function_compute_config.access_key_secret"
-                                                clearable
-                                                type="password"
-                                                placeholder="请输入密码"
-                                                autocomplete="new-password"
-                                                @contextmenu.prevent
-                                                @change="methods.accessKeySecretChange"
-                                            />
-                                        </el-form-item>
-                                    </el-col>
-                                    <el-col :span="10">
                                         <el-form-item label="云服务所在区域：">
                                             <el-input v-model="vData.form.aliyun_function_compute_config.region" clearable />
                                         </el-form-item>
@@ -106,10 +123,26 @@
                                         <el-form-item label="版本号：">
                                             <el-input v-model="vData.form.aliyun_function_compute_config.qualifier" clearable />
                                         </el-form-item>
-
-
+                                    </el-col>
+                                    <el-col :span="10" v-if="vData.form.function_compute_config.cloud_provider==='tencentcloud'">
+                                        <el-form-item label="SCF 服务地址：">
+                                            <el-input
+                                                v-model="vData.form.tencent_serverless_cloud_function_config.scf_server_url"
+                                                placeholder="https://service-xxx-xxx.gz.apigw.tencentcs.com/release/invoke"
+                                                clearable />
+                                        </el-form-item>
+                                        <el-form-item label="云服务所在区域：">
+                                            <el-input v-model="vData.form.tencent_serverless_cloud_function_config.region" clearable />
+                                        </el-form-item>
+                                        <el-form-item label="COS bucket名称：">
+                                            <el-input v-model="vData.form.tencent_serverless_cloud_function_config.cos_bucket_name" clearable />
+                                        </el-form-item>
+                                        <el-form-item label="版本号：">
+                                            <el-input v-model="vData.form.tencent_serverless_cloud_function_config.qualifier" clearable />
+                                        </el-form-item>
                                     </el-col>
                                 </el-row>
+
                             </el-card>
                         </el-col>
 
@@ -182,6 +215,16 @@
                         security_group_id: '',
                         qualifier:         '',
                     },
+                    tencent_serverless_cloud_function_config: {
+                        account_type:      '',
+                        account_id:        '',
+                        region:            '',
+                        access_key_id:     '',
+                        access_key_secret: '',
+                        cos_bucket_name:   '',
+                        qualifier:         '',
+                        scf_server_url:    '',
+                    },
                     // deeplearning
                     deep_learning_config: {
                         device:                    'cpu',
@@ -193,9 +236,10 @@
                         executor_memory:        '',
                     },
                 },
-                loading:                    false,
-                isChangeAccessKeySecretPwd: false,
-                publicKey:                  '',
+                loading:                           false,
+                isChangeAccessKeySecretPwd:        false,
+                isChangeTencentAccessKeySecretPwd: false,
+                publicKey:                         '',
             });
             const methods = {
                 async getData() {
@@ -208,6 +252,7 @@
                             'calculation_engine_config',
                             'spark_standalone_config',
                             'aliyun_function_compute_config',
+                            'tencent_serverless_cloud_function_config',
                         ] },
                     });
 
@@ -218,6 +263,9 @@
                 },
                 accessKeySecretChange() {
                     vData.isChangeAccessKeySecretPwd = true;
+                },
+                tencentAccessKeySecretChange() {
+                    vData.isChangeTencentAccessKeySecretPwd = true;
                 },
                 async getGenerate_rsa_key_pair() {
                     const { code, data } = await $http.get('/crypto/generate_rsa_key_pair');
@@ -230,11 +278,23 @@
                 },
                 async update() {
                     // 判断是否修改过密码
-                    if (!vData.isChangeAccessKeySecretPwd) {
-                        vData.form.aliyun_function_compute_config.access_key_secret = null;
-                    } else {
+                    if (vData.isChangeAccessKeySecretPwd || vData.isChangeTencentAccessKeySecretPwd) {
                         await methods.getGenerate_rsa_key_pair();
-                        vData.form.aliyun_function_compute_config.access_key_secret = Rsa.encrypt(vData.publicKey, vData.form.aliyun_function_compute_config.access_key_secret);
+                        if (vData.isChangeAccessKeySecretPwd && vData.isChangeTencentAccessKeySecretPwd) {
+                            vData.form.aliyun_function_compute_config.access_key_secret = Rsa.encrypt(vData.publicKey, vData.form.aliyun_function_compute_config.access_key_secret);
+                            vData.form.tencent_serverless_cloud_function_config.access_key_secret = Rsa.encrypt(vData.publicKey, vData.form.tencent_serverless_cloud_function_config.access_key_secret);
+                        }
+                        if (vData.isChangeAccessKeySecretPwd && !vData.isChangeTencentAccessKeySecretPwd) {
+                            vData.form.aliyun_function_compute_config.access_key_secret = Rsa.encrypt(vData.publicKey, vData.form.aliyun_function_compute_config.access_key_secret);
+                            vData.form.tencent_serverless_cloud_function_config.access_key_secret = null;
+                        }
+                        if(!vData.isChangeAccessKeySecretPwd && vData.isChangeTencentAccessKeySecretPwd) {
+                            vData.form.aliyun_function_compute_config.access_key_secret = null;
+                            vData.form.tencent_serverless_cloud_function_config.access_key_secret = Rsa.encrypt(vData.publicKey, vData.form.tencent_serverless_cloud_function_config.access_key_secret);
+                        }
+                    } else {
+                        vData.form.aliyun_function_compute_config.access_key_secret = null;
+                        vData.form.tencent_serverless_cloud_function_config.access_key_secret = null;
                     }
 
                     vData.loading = true;
@@ -250,6 +310,7 @@
                             methods.getData();
                         }
                         vData.isChangeAccessKeySecretPwd = false;
+                        vData.isChangeTencentAccessKeySecretPwd = false;
                         vData.loading = false;
                     });
                 },
