@@ -314,6 +314,23 @@ class Evaluation(ModelBase):
 
         self.tracker.saveMetricData(metric_name, metric_namespace, metric_meta=extra_metas, kv=points)
 
+    def eval_results_score(self):
+        score_result = {}
+        for (data_type, eval_res_list) in self.eval_results.items():
+            for eval_res in eval_res_list:
+                collect_dict = {}
+                for (metric, metric_res) in eval_res.items():
+                    metric_namespace = metric_res[0]
+                    if metric == consts.R2_SCORE or metric == consts.ACCURACY or metric == consts.AUC:
+                        collect_dict[metric] = metric_res[1]
+                    elif metric == consts.KS:
+                        best_ks, fpr, tpr, thresholds, cuts = metric_res[1]
+                        collect_dict[metric] = best_ks
+
+                score_result[metric_namespace] = collect_dict
+
+        return score_result
+
     def __filt_override_unit_ordinate_coordinate(self, x_sets, y_sets):
         max_y_dict = {}
         for idx, x_value in enumerate(x_sets):

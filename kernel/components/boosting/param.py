@@ -36,6 +36,7 @@ import copy
 from common.python.utils import log_utils
 from kernel.base.params.base_param import BaseParam
 from kernel.base.params.cross_validation_param import CrossValidationParam
+from kernel.base.params.grid_search_param import GridSearchParam
 from kernel.base.params.encrypt_param import EncryptParam
 from kernel.base.params.encrypted_mode_calculation_param import EncryptedModeCalculatorParam
 from kernel.base.params.predict_param import PredictParam
@@ -293,7 +294,7 @@ class BoostingTreeParam(BaseParam):
                  bin_num=32,
                  encrypted_mode_calculator_param=EncryptedModeCalculatorParam(),
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
-                 validation_freqs=None, early_stopping_rounds=None,
+                 grid_search_param=GridSearchParam(), validation_freqs=None, early_stopping_rounds=None,
                  use_missing=False, zero_as_missing=False, metrics=None, use_first_metric_only=True):
 
         self.tree_param = copy.deepcopy(tree_param)
@@ -311,6 +312,7 @@ class BoostingTreeParam(BaseParam):
         self.encrypted_mode_calculator_param = copy.deepcopy(encrypted_mode_calculator_param)
         self.predict_param = copy.deepcopy(predict_param)
         self.cv_param = copy.deepcopy(cv_param)
+        self.grid_search_param = copy.deepcopy(grid_search_param)
         self.validation_freqs = validation_freqs
         self.early_stopping_rounds = early_stopping_rounds
         self.metrics = metrics
@@ -413,7 +415,7 @@ class VertSecureBoostParam(BoostingTreeParam):
                  bin_num=32,
                  encrypted_mode_calculator_param=EncryptedModeCalculatorParam(),
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
-                 validation_freqs=None, early_stopping_rounds=None,
+                 grid_search_param=GridSearchParam(), validation_freqs=None, early_stopping_rounds=None,
                  use_missing=False, zero_as_missing=False, metrics=None, use_first_metric_only=True,
                  complete_secure=False, sparse_optimization=False,
                  run_goss=False, top_rate=0.2, other_rate=0.1, cipher_compress_error=None, new_ver=True,cipher_compress=True):
@@ -421,7 +423,7 @@ class VertSecureBoostParam(BoostingTreeParam):
         super(VertSecureBoostParam, self).__init__(tree_param, task_type, objective_param, learning_rate,
                                                    num_trees, subsample_feature_rate, n_iter_no_change, tol,
                                                    encrypt_param, bin_num, encrypted_mode_calculator_param,
-                                                   predict_param, cv_param, validation_freqs,
+                                                   predict_param, cv_param, grid_search_param, validation_freqs,
                                                    early_stopping_rounds, use_missing, zero_as_missing, metrics,
                                                    use_first_metric_only)
 
@@ -482,14 +484,14 @@ class VertDPSecureBoostParam(BoostingTreeParam):
                  bin_num=32,
                  encrypted_mode_calculator_param=EncryptedModeCalculatorParam(),
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
-                 validation_freqs=None, early_stopping_rounds=None,
+                 grid_search_param=GridSearchParam(), validation_freqs=None, early_stopping_rounds=None,
                  use_missing=False, zero_as_missing=False, metrics=None, use_first_metric_only=True,
                  run_goss=False, top_rate=0.2, other_rate=0.1,epsilon=3):
 
         super(VertDPSecureBoostParam, self).__init__(tree_param, task_type, objective_param, learning_rate,
                                                    num_trees, subsample_feature_rate, n_iter_no_change, tol,
                                                    encrypt_param, bin_num, encrypted_mode_calculator_param,
-                                                   predict_param, cv_param, validation_freqs,
+                                                   predict_param, cv_param, grid_search_param, validation_freqs,
                                                    early_stopping_rounds, use_missing, zero_as_missing, metrics,
                                                    use_first_metric_only)
         self.run_goss = run_goss
@@ -530,7 +532,7 @@ class VertFastSecureBoostParam(VertSecureBoostParam):
                  bin_num=32,
                  encrypted_mode_calculator_param=EncryptedModeCalculatorParam(),
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
-                 validation_freqs=None, early_stopping_rounds=None,
+                 grid_search_param=GridSearchParam(), validation_freqs=None, early_stopping_rounds=None,
                  use_missing=False, zero_as_missing=False, metrics=None, use_first_metric_only=True,
                  complete_secure=False, sparse_optimization=False,
                  run_goss=False, top_rate=0.2, other_rate=0.1, cipher_compress_error=None, new_ver=True,cipher_compress=True,
@@ -555,7 +557,7 @@ class VertFastSecureBoostParam(VertSecureBoostParam):
         super(VertFastSecureBoostParam, self).__init__(tree_param, task_type, objective_param, learning_rate,
                                                        num_trees, subsample_feature_rate, n_iter_no_change, tol,
                                                        encrypt_param, bin_num, encrypted_mode_calculator_param,
-                                                       predict_param, cv_param, validation_freqs,
+                                                       predict_param, cv_param, grid_search_param, validation_freqs,
                                                        early_stopping_rounds, use_missing, zero_as_missing, metrics,
                                                        use_first_metric_only,
                                                        complete_secure, sparse_optimization, run_goss, top_rate,
@@ -594,14 +596,14 @@ class MixSecureBoostParam(BoostingTreeParam):
                  bin_num=32,
                  encrypted_mode_calculator_param=EncryptedModeCalculatorParam(),
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
-                 validation_freqs=None, early_stopping_rounds=None,
+                 grid_search_param=GridSearchParam(), validation_freqs=None, early_stopping_rounds=None,
                  use_missing=False, zero_as_missing=False, metrics=None, use_first_metric_only=True,
                  random_cipher_seed=None
                  ):
         super(MixSecureBoostParam, self).__init__(tree_param, task_type, objective_param, learning_rate,
                                                   num_trees, subsample_feature_rate, n_iter_no_change, tol,
                                                   encrypt_param, bin_num, encrypted_mode_calculator_param,
-                                                  predict_param, cv_param, validation_freqs,
+                                                  predict_param, cv_param, grid_search_param, validation_freqs,
                                                   early_stopping_rounds, use_missing, zero_as_missing, metrics,
                                                   use_first_metric_only)
 
