@@ -151,17 +151,10 @@ public abstract class AbstractSendTransferMetaService {
         if (null == dstMemberEntity) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员id[" + dstMember.getMemberId() + "]不存在，请确认成员信息是否已同步到Union.", transferMeta.getSessionId());
         }
-        if (memberCache.getSelfMember().getId().equals(dstMember.getMemberId())) {
-            String intranetBaseUri = globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri;
-            if (!GrpcUtil.checkGatewayUriValid(intranetBaseUri)) {
-                return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "请设置自己的网关内网地址,格式为 HOST:PORT", transferMeta.getSessionId());
-            }
-        } else if (StringUtil.isEmpty(dstMemberEntity.getIp())) {
+
+        if (StringUtil.isEmpty(dstMemberEntity.getGatewayExternalUri())) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
         }
-//        if (StringUtil.isEmpty(dstMemberEntity.getGatewayExternalUri())) {
-//            return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "成员[" + dstMemberEntity.getName() + "]未设置网关公网地址.", transferMeta.getSessionId());
-//        }
 
         return ReturnStatusBuilder.ok(transferMeta.getSessionId());
     }
@@ -190,16 +183,23 @@ public abstract class AbstractSendTransferMetaService {
         MemberEntity dstMemberEntity = memberCache.get(dstMember.getMemberId());
         dstMember = dstMember.toBuilder().setMemberName(dstMemberEntity.getName()).build();
         BasicMetaProto.Endpoint dstEndpoint = dstMember.getEndpoint();
-        // 目的地址使用指定值
+        // 目的地址由接口调用方指定
         if (StringUtil.isNotEmpty(dstEndpoint.getIp())) {
             return dstMember;
         }
 
         MemberEntity selfMemberEntity = memberCache.getSelfMember();
+        // 自已访问自己，直接走内网地址即可
         if (selfMemberEntity.getId().equals(dstMember.getMemberId())) {
             dstEndpoint = EndpointBuilder.create(selfMemberEntity.getGatewayInternalUri());
         } else {
-            dstEndpoint = EndpointBuilder.create(dstMemberEntity.getGatewayExternalUri());
+            PartnerConfigEntity partnerConfig = PartnerConfigCache.getInstance().get(dstMember.getMemberId());
+            // 由系统在页面配置指定目的方地址(一般是专线情况下)
+            if (null != partnerConfig && StringUtil.isNotEmpty(partnerConfig.getGatewayAddress())) {
+                dstEndpoint = EndpointBuilder.create(partnerConfig.getGatewayAddress());
+            } else {
+                dstEndpoint = EndpointBuilder.create(dstMemberEntity.getGatewayExternalUri());
+            }
         }
 
         return dstMember.toBuilder().setEndpoint(dstEndpoint).build();
