@@ -534,6 +534,10 @@ class Binning(object):
             col_split_points = split_points[col_name]
 
             value = instance.features[col_index]
+            # LOGGER.debug("value:{}".format(value))
+            if type(value) == 'str':
+                raise TypeError('{} data is {} ,the data type is str, which is not supported temporarily!'.
+                                format(col_name, value))
             col_bin_num = Binning.get_bin_num(value, col_split_points)
             result_bin_nums[col_name] = col_bin_num
 

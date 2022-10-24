@@ -27,6 +27,7 @@ from kernel.examples.handler.component.vert_secureboost import VertSecureBoost
 from kernel.examples.handler.component.vert_sshe_lr import VertSSHELR
 from kernel.examples.handler.component.vert_dp_secureboost import VertDPSecureBoost
 from kernel.examples.handler.component.scorecard import Scorecard
+from kernel.examples.handler.component.feature_psi import VertFeaturePSI
 
 
 __all__ = ["DataIO", "Evaluation", "VertLR", "VertSecureBoost", "VertFastSecureBoost","VertDPSecureBoost", "HorzLR", "HorzNN",
@@ -41,5 +42,6 @@ __all__ = ["DataIO", "Evaluation", "VertLR", "VertSecureBoost", "VertFastSecureB
            "HorzPearson",
            "MixStatistic",
             "VertSSHELR",
-           "Scorecard"
+           "Scorecard",
+           "VertFeaturePSI"
            ]
