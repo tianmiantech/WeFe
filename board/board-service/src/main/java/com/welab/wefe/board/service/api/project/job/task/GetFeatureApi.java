@@ -16,6 +16,7 @@
 
 package com.welab.wefe.board.service.api.project.job.task;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.welab.wefe.board.service.dto.entity.MemberFeatureInfoModel;
 import com.welab.wefe.board.service.service.TaskResultService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -24,9 +25,13 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author lonnie
@@ -84,12 +89,65 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
         private boolean hasFeatureStatistic;
 
         private boolean hasCV;
-        
+
         private boolean hasIV;
-        
+
         private boolean hasLossRate;
 
         List<MemberFeatureInfoModel> members;
+
+        public void putMissingRate(String memberId, JobMemberRole role, String featureName, double missingValue) {
+
+            MemberFeatureInfoModel.Feature feature = findFeature(memberId, role, featureName);
+            if (feature == null) {
+                return;
+            }
+
+            feature.missingRate = missingValue;
+        }
+
+        public void putCv(String memberId, JobMemberRole role, String featureName, double cv) {
+
+            MemberFeatureInfoModel.Feature feature = findFeature(memberId, role, featureName);
+            if (feature == null) {
+                return;
+            }
+
+            feature.cv = cv;
+        }
+
+        public void putIv(String memberId, JobMemberRole role, String featureName, double iv) {
+
+            MemberFeatureInfoModel.Feature feature = findFeature(memberId, role, featureName);
+            if (feature == null) {
+                return;
+            }
+
+            feature.iv = iv;
+        }
+
+
+        /**
+         * 找到指定的特征对象
+         */
+        @JSONField(serialize = false)
+        private MemberFeatureInfoModel.Feature findFeature(String memberId, JobMemberRole role, String featureName) {
+            MemberFeatureInfoModel member = members.stream()
+                    .filter(x -> x.getMemberId().equals(memberId) && x.getMemberRole() == role)
+                    .findAny()
+                    .orElse(null);
+
+            if (member == null) {
+                return null;
+            }
+
+            return member.getFeatures().parallelStream()
+                    .filter(x -> x.getName().equals(featureName))
+                    .findAny()
+                    .orElse(null);
+
+        }
+
 
         public boolean isHasFeatureStatistic() {
             return hasFeatureStatistic;
@@ -107,28 +165,29 @@ public class GetFeatureApi extends AbstractApi<GetFeatureApi.Input, GetFeatureAp
             this.members = members;
         }
 
-		public boolean isHasCV() {
-			return hasCV;
-		}
+        public boolean isHasCV() {
+            return hasCV;
+        }
 
-		public void setHasCV(boolean hasCV) {
-			this.hasCV = hasCV;
-		}
+        public void setHasCV(boolean hasCV) {
+            this.hasCV = hasCV;
+        }
 
-		public boolean isHasIV() {
-			return hasIV;
-		}
+        public boolean isHasIV() {
+            return hasIV;
+        }
 
-		public void setHasIV(boolean hasIV) {
-			this.hasIV = hasIV;
-		}
+        public void setHasIV(boolean hasIV) {
+            this.hasIV = hasIV;
+        }
 
-		public boolean isHasLossRate() {
-			return hasLossRate;
-		}
+        public boolean isHasLossRate() {
+            return hasLossRate;
+        }
 
-		public void setHasLossRate(boolean hasLossRate) {
-			this.hasLossRate = hasLossRate;
-		}
+        public void setHasLossRate(boolean hasLossRate) {
+            this.hasLossRate = hasLossRate;
+        }
+
     }
 }
