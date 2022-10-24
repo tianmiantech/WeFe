@@ -16,13 +16,13 @@
 package com.welab.wefe.board.service.dto.kernel.deep_learning;
 
 import com.welab.wefe.board.service.component.deep_learning.ImageDataIOComponent;
-import com.welab.wefe.board.service.dto.globalconfig.DeepLearningConfigModel;
 import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.Convert;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.dto.global_config.DeepLearningConfigModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

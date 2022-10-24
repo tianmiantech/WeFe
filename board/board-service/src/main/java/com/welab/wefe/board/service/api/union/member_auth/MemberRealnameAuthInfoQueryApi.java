@@ -15,16 +15,18 @@
  */
 package com.welab.wefe.board.service.api.union.member_auth;
 
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.sdk.union.UnionService;
+import com.welab.wefe.board.service.service.CertOperationService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
 
 /**
  * @Description:
@@ -35,10 +37,24 @@ import java.io.IOException;
 public class MemberRealnameAuthInfoQueryApi extends AbstractApi<AbstractApiInput, Object> {
     @Autowired
     private UnionService unionService;
+    @Autowired
+    private CertOperationService certOperationService;
 
     @Override
     protected ApiResult<Object> handle(AbstractApiInput input) throws StatusCodeWithException, IOException {
         JSONObject result = unionService.realnameAuthInfoQuery();
+        int code = result.getInteger("code");
+        if (code == 0) {
+            try {
+                JSONObject data = result.getJSONObject("data");
+                String certPemContent = data.getString("cert_pem_content");
+                String certRequestId = data.getString("cert_request_id");
+                String certStatus = data.getString("cert_status");
+                certOperationService.saveCertInfo(certRequestId, certPemContent, certStatus);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return unionApiResultToBoardApiResult(result);
     }
 }

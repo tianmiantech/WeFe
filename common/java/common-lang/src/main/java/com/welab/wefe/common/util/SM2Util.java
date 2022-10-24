@@ -1,8 +1,32 @@
+/*
+ * Copyright 2021 Tianmian Tech. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.welab.wefe.common.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+import org.bouncycastle.crypto.engines.SM2Engine;
+import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.crypto.params.ParametersWithRandom;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +43,7 @@ public class SM2Util {
     private static final Logger LOG = LoggerFactory.getLogger(IpAddressUtil.class);
 
     static {
-        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null){
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
             Security.addProvider(new BouncyCastleProvider());
         }
     }
@@ -88,6 +112,9 @@ public class SM2Util {
 
     }
 
+    /**
+     * Verify signature
+     */
     public static boolean verify(byte[] data, PublicKey publicKey, String sign) throws Exception {
         Signature signature = Signature.getInstance(
                 GMObjectIdentifiers.sm2sign_with_sm3.toString()
@@ -97,4 +124,34 @@ public class SM2Util {
         return signature.verify(Base64.decodeBase64(sign.getBytes()));
     }
 
+    /**
+     * Encrypt data by public key
+     */
+    public static String encryptByPublicKey(String plaintext, String publicKeyStr) throws Exception {
+        BCECPublicKey publicKey = (BCECPublicKey) getPublicKey(publicKeyStr);
+        ECParameterSpec ecParameterSpec = publicKey.getParameters();
+        ECDomainParameters ecDomainParameters = new ECDomainParameters(ecParameterSpec.getCurve(),
+                ecParameterSpec.getG(), ecParameterSpec.getN());
+        ECPublicKeyParameters ecPublicKeyParameters = new ECPublicKeyParameters(publicKey.getQ(), ecDomainParameters);
+        SM2Engine sm2Engine = new SM2Engine(SM2Engine.Mode.C1C3C2);
+        sm2Engine.init(true, new ParametersWithRandom(ecPublicKeyParameters, new SecureRandom()));
+        byte[] data = plaintext.getBytes(StandardCharsets.UTF_8);
+        return new String(Base64.encodeBase64(sm2Engine.processBlock(data, 0, data.length)));
+    }
+
+    /**
+     * Decrypt by private key
+     */
+    public static String decryptByPrivateKey(String ciphertext, String privateKeyStr) throws Exception {
+        BCECPrivateKey privateKey = (BCECPrivateKey) getPrivateKey(privateKeyStr);
+        ECParameterSpec ecParameterSpec = privateKey.getParameters();
+        ECDomainParameters ecDomainParameters = new ECDomainParameters(ecParameterSpec.getCurve(),
+                ecParameterSpec.getG(), ecParameterSpec.getN());
+        ECPrivateKeyParameters ecPrivateKeyParameters = new ECPrivateKeyParameters(privateKey.getD(),
+                ecDomainParameters);
+        SM2Engine sm2Engine = new SM2Engine(SM2Engine.Mode.C1C3C2);
+        sm2Engine.init(false, ecPrivateKeyParameters);
+        byte[] data = Base64.decodeBase64(ciphertext.getBytes(StandardCharsets.UTF_8));
+        return new String(sm2Engine.processBlock(data, 0, data.length), StandardCharsets.UTF_8);
+    }
 }

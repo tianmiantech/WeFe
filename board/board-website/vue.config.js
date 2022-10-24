@@ -175,7 +175,7 @@ module.exports = {
          */
         proxy:      {
             '/api': {
-                target:       'http://localhost:8080/board-service',
+                target:       'http://10.90.0.87:100/board-service/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

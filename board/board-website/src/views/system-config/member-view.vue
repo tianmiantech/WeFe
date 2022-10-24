@@ -162,6 +162,37 @@
                                 class="color-danger f13"
                                 style="margin-top:-10px;"
                             ><strong>认证有效期：{{ real_name_auth_useful_life }}</strong></p>
+                            <p>&nbsp;</p>
+                            <p class="tips-alert" v-if="userInfo.super_admin_role && enterpriseAuth === 2 && real_name_auth_useful_life && form.cert_status !== 'VALID'"> ※ 证书已失效</p>
+                            <el-form-item :span="10" label="开启TLS通信："
+                                          v-if="userInfo.super_admin_role && enterpriseAuth === 2 && real_name_auth_useful_life">
+                                <el-tooltip>
+                                    <template #content>
+                                        <div>
+                                            <strong>tips：</strong>
+                                            <br />
+                                            开启后Gateway将采用TLS协议与其他成员进行数据加密通信
+                                        </div>
+                                    </template>
+                                    <el-icon class="mr5">
+                                        <elicon-info-filled />
+                                    </el-icon>
+                                </el-tooltip>
+                                <el-radio
+                                    v-model="form.member_gateway_tls_enable"
+                                    :label="true"
+                                    :disabled="!userInfo.super_admin_role"
+                                >
+                                    是
+                                </el-radio>
+                                <el-radio
+                                    v-model="form.member_gateway_tls_enable"
+                                    :label="false"
+                                    :disabled="!userInfo.super_admin_role"
+                                >
+                                    否
+                                </el-radio>
+                            </el-form-item>
                         </div>
                     </el-col>
                 </el-row>
@@ -233,6 +264,8 @@
                     member_allow_public_data_set: true,
                     member_gateway_uri:           '',
                     last_activity_time:           0,
+                    member_gateway_tls_enable:  true,
+                    cert_status:'',
                 },
                 enterpriseAuth: '',
                 audit_comment:  '',
@@ -274,6 +307,7 @@
 
                     if (res.code === 0) {
                         this.form.last_activity_time = res.data.list[0].last_activity_time;
+                        this.form.cert_status = res.data.list[0].ext_json.cert_status;
                     }
                 }
 
@@ -336,6 +370,7 @@
                     this.userInfo.member_name = this.form.member_name;
                     this.userInfo.member_email = this.form.member_email;
                     this.userInfo.member_mobile = this.form.member_mobile;
+                    this.userInfo.member_gateway_tls_enable = this.form.member_gateway_tls_enable;
                     this.$store.commit('UPDATE_USERINFO', this.userInfo);
                     this.refresh();
                 }

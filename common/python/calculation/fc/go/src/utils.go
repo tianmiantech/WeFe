@@ -586,6 +586,21 @@ func callFC(inputParam *C.char, endpoint *C.char, accessKeyId *C.char, accessKey
 	return C.CString(string(data))
 }
 
+//export callSCF
+func callSCF(url *C.char, inputParam *C.char, endpoint *C.char, accessKeyId *C.char, accessKeySecret *C.char,
+	serviceName *C.char, functionName *C.char, qualifier *C.char) *C.char {
+
+	resp := fc.CallSCF(C.GoString(url),
+		C.GoString(inputParam), C.GoString(endpoint),
+		C.GoString(accessKeyId), C.GoString(accessKeySecret),
+		C.GoString(serviceName), C.GoString(functionName), C.GoString(qualifier))
+	data, err := json.Marshal(resp)
+	if err != nil {
+		panic(err)
+	}
+	return C.CString(string(data))
+}
+
 //======================  Test =======================
 func goTest() {
 	endPoint := C.CString("https://fc-***.cn-shenzhen.ots.aliyuncs.com")

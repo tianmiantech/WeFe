@@ -60,6 +60,23 @@ public class MemberEntity implements Serializable {
      */
     private SecretKeyType secretKeyType = SecretKeyType.rsa;
 
+    /**
+     * External grpc server is tls enable
+     */
+    private Boolean gatewayTlsEnable = false;
+
+    /**
+     * 网关内网地址
+     */
+    private String gatewayInternalUri;
+    /**
+     * 网关外网地址
+     */
+    private String gatewayExternalUri;
+
+    public boolean tlsEnable() {
+        return Boolean.TRUE.equals(gatewayTlsEnable);
+    }
 
     public String getId() {
         return id;
@@ -123,5 +140,29 @@ public class MemberEntity implements Serializable {
 
     public void setSecretKeyType(SecretKeyType secretKeyType) {
         this.secretKeyType = secretKeyType;
+    }
+
+    public Boolean getGatewayTlsEnable() {
+        return gatewayTlsEnable;
+    }
+
+    public void setGatewayTlsEnable(Boolean gatewayTlsEnable) {
+        this.gatewayTlsEnable = gatewayTlsEnable;
+    }
+
+    public String getGatewayInternalUri() {
+        return gatewayInternalUri;
+    }
+
+    public void setGatewayInternalUri(String gatewayInternalUri) {
+        this.gatewayInternalUri = gatewayInternalUri;
+    }
+
+    public String getGatewayExternalUri() {
+        return gatewayExternalUri;
+    }
+
+    public void setGatewayExternalUri(String gatewayExternalUri) {
+        this.gatewayExternalUri = gatewayExternalUri;
     }
 }

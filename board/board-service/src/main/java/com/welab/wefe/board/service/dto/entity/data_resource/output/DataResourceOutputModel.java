@@ -21,9 +21,9 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.enums.ComponentType;
-import com.welab.wefe.common.wefe.enums.DataResourceStorageType;
-import com.welab.wefe.common.wefe.enums.DataResourceType;
 import com.welab.wefe.common.wefe.enums.DataResourcePublicLevel;
+import com.welab.wefe.common.wefe.enums.DataResourceStorageServiceType;
+import com.welab.wefe.common.wefe.enums.DataResourceType;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -42,7 +42,7 @@ public class DataResourceOutputModel extends AbstractOutputModel {
     @Check(name = "标签")
     private String tags;
     @Check(name = "存储类型")
-    private DataResourceStorageType storageType;
+    private DataResourceStorageServiceType storageType;
     @Check(name = "资源在存储中的命名空间;库名、目录路径）")
     private String storageNamespace;
     @Check(name = "资源在存储中的名称;表名、文件名）")
@@ -136,11 +136,11 @@ public class DataResourceOutputModel extends AbstractOutputModel {
         this.tags = tags;
     }
 
-    public DataResourceStorageType getStorageType() {
+    public DataResourceStorageServiceType getStorageType() {
         return storageType;
     }
 
-    public void setStorageType(DataResourceStorageType storageType) {
+    public void setStorageType(DataResourceStorageServiceType storageType) {
         this.storageType = storageType;
     }
 

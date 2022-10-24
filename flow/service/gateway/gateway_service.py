@@ -107,7 +107,7 @@ class GatewayService:
             transfer_meta = TransferMeta(
                 sessionId=get_commit_id(),
                 dst=dst,
-                content=gateway_meta_pb2.Content(objectData=data),
+                content=gateway_meta_pb2.Content(strData=data),
                 taggedVariableName=None,
                 processor=processor
             )
