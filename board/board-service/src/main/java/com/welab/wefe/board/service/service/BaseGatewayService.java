@@ -210,7 +210,7 @@ public class BaseGatewayService extends AbstractService {
 
     private ManagedChannel getGrpcChannel(String gatewayUri) throws StatusCodeWithException {
         if (StringUtil.isEmpty(gatewayUri)) {
-            throw new StatusCodeWithException("请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 IP:PORT", StatusCode.PARAMETER_VALUE_INVALID);
+            throw new StatusCodeWithException("请到 [全局设置] -> [系统设置] 菜单下配置网关地址信息，格式为 HOST:PORT", StatusCode.PARAMETER_VALUE_INVALID);
         }
 
         if (!isValidGatewayUri(gatewayUri)) {
@@ -234,6 +234,11 @@ public class BaseGatewayService extends AbstractService {
 
         GatewayMetaProto.Member dstMember = builder
                 .build();
+        if (StringUtil.isNotEmpty(dstGatewayUri)) {
+            String dstHost = dstGatewayUri.split(":")[0];
+            int dstPort = Integer.parseInt(dstGatewayUri.split(":")[1]);
+            dstMember = dstMember.toBuilder().setEndpoint(BasicMetaProto.Endpoint.newBuilder().setIp(dstHost).setPort(dstPort).build()).build();
+        }
 
         if (StringUtil.isNotEmpty(dstGatewayUri)) {
             String dstIp = dstGatewayUri.split(":")[0];
@@ -259,7 +264,7 @@ public class BaseGatewayService extends AbstractService {
      *
      * @param gatewayUri Gateway address, the format must be: <host>:<port>
      */
-    private boolean isValidGatewayUri(String gatewayUri) {
+    public boolean isValidGatewayUri(String gatewayUri) {
         String separator = ":";
         if (StringUtil.isEmpty(gatewayUri) || gatewayUri.split(separator).length != 2
                 || StringUtil.isEmpty(gatewayUri.split(separator)[0]) || !NumberUtils.isDigits(gatewayUri.split(separator)[1])) {
