@@ -17,10 +17,10 @@
 package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
-import com.welab.wefe.board.service.dto.globalconfig.MailServerModel;
 import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.dto.global_config.MailServerModel;
 import com.welab.wefe.common.wefe.enums.MessageEvent;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

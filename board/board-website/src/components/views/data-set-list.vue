@@ -78,7 +78,7 @@
                     {{ sourceTypeMap[scope.row.data_resource_type ]}}
                 </template>
             </el-table-column>
-            <el-table-column
+            <!-- <el-table-column
                 v-if="projectType !== 'DeepLearning'"
                 label="包含Y"
                 width="100"
@@ -98,7 +98,7 @@
                     </p>
                     <p v-else>-</p>
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column
                 label="关键词"
                 min-width="120"
@@ -141,7 +141,7 @@
                         样本量：{{ scope.row.data_resource ? scope.row.data_resource.total_data_count : scope.row.total_data_count }}
                         <template v-if="scope.row.data_resource_type === 'TableDataSet'">
                             <br>
-                            <template v-if="(!scope.row.label_distribution || (scope.row.label_distribution && scope.row.label_distribution.label_species_count <=2)) && memberId === userInfo.member_id">
+                            <template v-if="(!scope.row.label_distribution || (scope.row.label_distribution && scope.row.label_distribution.label_species_count <=2)) && memberId === userInfo.member_id && (scope.row.data_resource && scope.row.data_resource.contains_y || scope.row.contains_y)">
                                 正例样本数量：{{ scope.row.data_resource ? scope.row.data_resource.y_positive_sample_count : scope.row.y_positive_sample_count }}
                                 <br>
                                 正例样本比例：{{((scope.row.data_resource ? scope.row.data_resource.y_positive_sample_ratio : scope.row.y_positive_sample_ratio) * 100).toFixed(1)}}%
@@ -150,7 +150,8 @@
                             <template v-if="scope.row.label_distribution && scope.row.label_distribution.label_species_count > 2">
                                 标签类别数量：{{ scope.row.label_distribution.label_species_count }}
                             </template>
-                            <el-tag v-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
+                            <el-tag v-if="scope.row.data_resource && scope.row.data_resource.contains_y" type="success" class="mr5">包含Y</el-tag>
+                            <el-tag v-else-if="scope.row.contains_y" type="success" class="mr5">包含Y</el-tag>
                             <el-tag v-else type="danger" class="mr5">不包含Y</el-tag>
                         </template>
                     </p>

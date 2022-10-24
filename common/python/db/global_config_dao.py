@@ -17,7 +17,7 @@ import uuid
 from common.python.db.db_models import DB, GlobalConfigModel
 from common.python.dto.global_config import MailServerModel, GatewayConfigModel, \
     MemberInfo, BoardConfigModel, FunctionComputeConfig, SparkStandaloneConfig, StorageConfig, ClickhouseStorageConfig
-from common.python.utils.conf_utils import get_value_by_enable
+from common.python.utils.conf_utils import get_value_by_enable, set_value_by_enable
 
 
 class GlobalConfigDao:
@@ -63,14 +63,14 @@ class GlobalConfigDao:
         if comment:
             ip = "\n# {}\n{}\n".format(comment, ip)
 
-        item = get_value_by_enable(GlobalConfigDao.get("wefe_gateway", "ip_white_list"))
+        item = GlobalConfigDao.get("wefe_gateway", "ip_white_list")
         if item is None:
             item = GlobalConfigModel()
             item.id = str(uuid.uuid1())
             item.group = "wefe_gateway"
             item.name = "ip_white_list"
 
-        item.value += ip
+        item.value = set_value_by_enable(get_value_by_enable(item.value) + ip)
 
         with DB.connection_context():
             item.save()

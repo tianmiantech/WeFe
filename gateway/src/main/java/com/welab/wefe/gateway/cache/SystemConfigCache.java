@@ -18,8 +18,8 @@ package com.welab.wefe.gateway.cache;
 
 import com.welab.wefe.common.util.IpAddressUtil;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.gateway.GatewayServer;
-import com.welab.wefe.gateway.dto.GatewayConfigModel;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +96,7 @@ public class SystemConfigCache {
     public synchronized boolean refreshCache() {
         try {
             GlobalConfigService service = GatewayServer.CONTEXT.getBean(GlobalConfigService.class);
-            GatewayConfigModel gatewayConfig = service.getGatewayConfig();
+            GatewayConfigModel gatewayConfig = service.getModel(GatewayConfigModel.class);
             if (null == gatewayConfig) {
                 IP_ADDRESS_LIST.clear();
                 return true;

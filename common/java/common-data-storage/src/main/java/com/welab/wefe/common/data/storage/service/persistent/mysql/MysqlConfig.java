@@ -16,7 +16,7 @@
 package com.welab.wefe.common.data.storage.service.persistent.mysql;
 
 import com.welab.wefe.common.data.storage.common.Constant;
-import com.welab.wefe.common.data.storage.service.persistent.base.DataSourceConfig;
+import com.welab.wefe.common.wefe.dto.storage.DataSourceConfig;
 
 /**
  * @author zane

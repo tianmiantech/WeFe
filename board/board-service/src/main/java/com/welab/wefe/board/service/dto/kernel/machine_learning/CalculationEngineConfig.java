@@ -16,10 +16,10 @@
 package com.welab.wefe.board.service.dto.kernel.machine_learning;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.welab.wefe.board.service.dto.globalconfig.calculation_engine.CalculationEngineBaseConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.calculation_engine.fc.FunctionComputeBaseConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.web.Launcher;
+import com.welab.wefe.common.wefe.dto.global_config.calculation_engine.CalculationEngineBaseConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.calculation_engine.fc.FunctionComputeBaseConfigModel;
 import com.welab.wefe.common.wefe.enums.FcCloudProvider;
 import com.welab.wefe.common.wefe.enums.JobBackendType;
 

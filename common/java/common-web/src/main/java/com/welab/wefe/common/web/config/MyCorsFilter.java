@@ -59,7 +59,7 @@ public class MyCorsFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if ("OPTIONS".equals(request.getMethod().toUpperCase())) {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             setCorsInfoIntoResponseHeader(response);
             response.setStatus(HttpServletResponse.SC_OK);
             return;
@@ -68,11 +68,11 @@ public class MyCorsFilter extends OncePerRequestFilter {
         if (CorsUtils.isCorsRequest(request)) {
             if (needCheckCors) {
                 if (blockRequest(request, response)) {
-                    setCorsInfoIntoResponseHeader(response);
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "request origin not allowed");
                     return;
                 }
             }
+            setCorsInfoIntoResponseHeader(response);
         }
 
         filterChain.doFilter(request, response);
