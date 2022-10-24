@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+from common.python.common.consts import JobStatus
+from common.python.db.db_models import DB, Job
+from flow.service.job_scheduler.job_stop_action import JobStopAction
 from flow.web.api.base.base_api import BaseApi
 from flow.web.api.base.dto.base_api_input import BaseApiInput
 from flow.web.api.base.dto.base_api_output import BaseApiOutput
-from flow.web.service.before_stop_service import BeforeStop
 
 
 class Input(BaseApiInput):
@@ -26,10 +29,24 @@ class Api(BaseApi):
 
     def run(self, input):
         """
-        Flow cleanup before stop
+        stop all running job
         """
-        BeforeStop().do()
+
+        self.stop_all()
 
         return BaseApiOutput.success(input)
 
+    @staticmethod
+    def stop_all():
+        with DB.connection_context():
+            jobs = Job.select().where(
+                (Job.status == JobStatus.WAIT_RUN) |
+                (Job.status == JobStatus.WAIT_STOP) |
+                (Job.status == JobStatus.RUNNING)
+            )
 
+            for job in jobs:
+                JobStopAction(job.job_id, job.my_role).do(
+                    JobStatus.ERROR_ON_RUNNING,
+                    "由于 flow 服务关闭导致该任务被中断，请重新启动任务"
+                )
