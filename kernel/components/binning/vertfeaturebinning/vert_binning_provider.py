@@ -95,10 +95,11 @@ class VertFeatureBinningProvider(BaseVertFeatureBinning):
             self.binning_obj_list[i].bin_results.all_cols_results = all_cols_results
 
         LOGGER.debug("binning_obj_list :{}".format(self.binning_obj_list))
-        if self.transform_type != 'woe':
-            data_instances = self.transform(data_instances)
+        data_instances = self.transform(data_instances)
         self.set_schema(data_instances)
         self.data_output = data_instances
+        LOGGER.info('transform_type====>:{}, bining_data_output：{}'.format(self.transform_type,
+                                                                      self.data_output.first()[1].features))
         return self.data_output
 
     def _sync_init_bucket(self, encrypted_label_table, data_instances, split_points, need_shuffle=False):
