@@ -13,10 +13,9 @@
 # limitations under the License.
 
 
-
 import importlib
 import json
-
+from collections import defaultdict
 from common.python import federation
 from common.python import session
 from common.python.common.consts import ComponentName, DataSetType, TaskResultDataType
@@ -26,6 +25,9 @@ from kernel.model_base import ModelBase
 from kernel.task_executor import TaskExecutor
 from kernel.tracker.tracking import Tracking
 from kernel.utils import consts
+from kernel.components.evaluation.evaluation import Evaluation
+from common.python.db.task_result_dao import TaskResultDao
+from common.python.db.db_models import TaskResult
 
 LOGGER = log_utils.get_logger()
 
@@ -38,9 +40,10 @@ class Oot(ModelBase):
     # RunTaskAction
     def __init__(self):
         super().__init__()
-        self.role = consts.PROMOTER
         self.oot_data_output = None
         self.model_param = OotParam()
+
+        self.need_data_check = False
 
     def fit(self, data_instances):
         LOGGER.info("Start Oot")
@@ -57,11 +60,17 @@ class Oot(ModelBase):
         # Task result output of evaluation sub component
         sub_component_evaluation_task_result = None
 
+        # 被oot的原流程Job id
+        oot_job_id = None
+        # 原流程训练的预测结果集（PSI业务使用）
+        train_data_table = None
+
         # Previous sub component task configuration
         pre_sub_component_task_config = None
         # Previous subcomponent result output
         pre_sub_component_output_data = []
-        progress_step = 100 // len(sub_component_name_list)
+        sub_component_name_list_count = len(sub_component_name_list)
+        progress_step = 100 // sub_component_name_list_count
         for index, sub_component_name in enumerate(sub_component_name_list):
             sub_component_task_config = sub_component_task_config_dick[sub_component_name]
             need_run = sub_component_task_config['oot_params']['need_run']
@@ -73,6 +82,9 @@ class Oot(ModelBase):
             federation.init(job_id=federation_session_id, runtime_conf=sub_parameters)
             # Recreate the result tracking object for the sub component
             tracker = self.build_tracking(sub_component_task_config)
+            # 记录当前被oot的原流程job id
+            if oot_job_id is None:
+                oot_job_id = tracker.job_id
 
             # Save the task configuration of the previous subcomponent
             if index > 0:
@@ -83,7 +95,9 @@ class Oot(ModelBase):
                                                                                  pre_sub_component_task_config,
                                                                                  pre_sub_component_output_data)
             # Run subcomponents
-            sub_component_output_data_tmp = self.sub_component_run(sub_parameters, sub_component_task_run_args, tracker)
+            sub_component_output_data_tmp = self.sub_component_run(sub_parameters,
+                                                                   sub_component_task_run_args,
+                                                                   tracker)
 
             if not isinstance(sub_component_output_data_tmp, list):
                 sub_component_output_data_tmp_list = [sub_component_output_data_tmp]
@@ -102,19 +116,29 @@ class Oot(ModelBase):
                 sub_component_model_task_config = sub_component_task_config
                 sub_component_model_output_data = sub_component_output_data_tmp
 
+                # 需要做PSI
+                evaluation_eval_type = sub_component_task_config['oot_params']['eval_type']
+                if self.is_need_psi(module_name, evaluation_eval_type):
+                    train_data_table = self.get_train_predict_data(oot_job_id,
+                                                                   sub_component_task_config['oot_params']['task_id'])
+                else:
+                    LOGGER.info(
+                        f'oot psi->job_id:{self.tracker.job_id},module_name:{module_name},eval_type:{evaluation_eval_type} not need to run psi.')
+
             # If it is an evaluation component, you need to query its output KS, AUC and other information
             if module_name == ComponentName.EVALUATION:
                 # Query the output of subcomponent evaluation
                 data_type = TaskResultDataType.METRIC + '_predict_' + tracker.component_name + '_oot'
                 sub_component_evaluation_task_result = tracker.get_task_result(data_type, self.tracker.task_id)
 
+            if index >= (sub_component_name_list_count - 1):
+                # Calculate the output result of OOT component and save it in the task result table
+                self.save_oot_task_result(sub_component_model_task_config,
+                                          sub_component_model_output_data,
+                                          sub_component_evaluation_task_result,
+                                          train_data_table)
+
             self.tracker.add_task_progress(progress_step)
-
-        # Calculate the output result of OOT component and save it in the task result table
-        self.save_oot_task_result(sub_component_model_task_config,
-                                  sub_component_model_output_data,
-                                  sub_component_evaluation_task_result)
-
         return None
 
     def sub_component_run(self, sub_component_parameters=None, sub_component_task_run_args=None, tracker=None):
@@ -141,7 +165,7 @@ class Oot(ModelBase):
         # Run subcomponents
         run_sub_component_object.run(sub_component_parameters, sub_component_task_run_args)
 
-        return run_sub_component_object.output_data()
+        return run_sub_component_object.output_data(), run_sub_component_object.output_ids_map()
 
     def build_sub_component_parameters(self, sub_component_task_config=None):
         """
@@ -154,9 +178,6 @@ class Oot(ModelBase):
         member_id = self.tracker.member_id
         sub_module_name = sub_component_task_config['module']
         sub_component_name = sub_component_task_config['oot_params']['component_name']
-
-        sub_component_task_config['job'] = self.component_parameters['job']
-
         parameters = TaskExecutor.get_parameters(role, member_id, sub_module_name, sub_component_name,
                                                  sub_component_task_config)
         return parameters
@@ -297,7 +318,7 @@ class Oot(ModelBase):
         return False
 
     def save_oot_task_result(self, sub_component_model_task_config=None, sub_component_model_output_data=None,
-                             sub_component_evaluation_task_result=None):
+                             sub_component_evaluation_task_result=None, train_data_table=None):
         """
         describe：Save the output of the OOT component
         :param sub_component_model_task_config: Task configuration of modeling subcomponent
@@ -341,7 +362,74 @@ class Oot(ModelBase):
         oot_task_result['model'] = sub_component_model_static
         oot_task_result['evaluation'] = json.loads(evaluation_task_result) if evaluation_task_result else {}
 
-        print(f'segment metric_data: {oot_task_result}')
+        LOGGER.info(f'segment metric_data: {oot_task_result}')
+
+        # 计算PSI
+        if train_data_table is not None:
+            psi_result = self.oot_evaluate_psi(train_data_table, sub_component_model_output_data)
+            oot_task_result['psi'] = psi_result
+        else:
+            LOGGER.info('oot psi->job_id:{},not need to run psi.'.format(self.tracker.job_id))
 
         # Save to task result table
         self.tracker.save_task_result(oot_task_result, 'metric_predict', self.tracker.component_name)
+
+    def get_train_predict_data(self, job_id, task_id):
+        """
+        获取原流程的训练的预测结果集
+        :param job_id: 原流程的job_id
+        :param task_id: 原流程建模组件的task_id
+        :return:
+        """
+        model = TaskResultDao.get(
+            TaskResult.job_id == job_id,
+            TaskResult.task_id == task_id,
+            TaskResult.role == self.role,
+            TaskResult.type == 'data_normal'
+        )
+        if model is None:
+            raise Exception(f'找不到原流程的训练预测记录,原流程job_id为{job_id}!')
+        result = model.result
+        if not result:
+            raise Exception(f'找不到原流程的训练预测记录结果,原流程job_id为{job_id}!')
+
+        result_json = json.loads(result)
+        table_namespace = result_json['table_namespace']
+        table_name = result_json['table_name']
+        train_data_table = session.table(
+            namespace=table_namespace,
+            name=table_name
+        )
+        if train_data_table is None:
+            raise Exception(f'找不到原流程的训练预测记录,原流程job_id为{job_id},namespace:{table_namespace}, name:{table_name}!')
+        return train_data_table.filter(lambda k, v: v[-1] == 'train')
+
+    def is_need_psi(self, module_name=None, evaluation_eval_type=None):
+        """
+        是否需要做PSI业务
+        :param module_name: 组件名
+        :param evaluation_eval_type: 分类类型
+        :return:
+        """
+        if module_name is None or evaluation_eval_type is None or self.role != consts.PROMOTER:
+            return False
+        if module_name == ComponentName.VERT_LR or module_name == ComponentName.VERT_SECURE_BOOST or module_name == ComponentName.VERT_FAST_SECURE_BOOST or module_name == ComponentName.VERT_DP_SECURE_BOOST:
+            if evaluation_eval_type == consts.BINARY:
+                return True
+
+        return False
+
+    def oot_evaluate_psi(self, train_data, predict_data):
+        eval_data_label = list(train_data.collect())
+        predict_data_label = list(predict_data.collect())
+        evaluat_obj = Evaluation()
+        evaluat_obj.model_param.bin_num = self.model_param.bin_num
+        evaluat_obj.model_param.bin_method = self.model_param.bin_method
+        evaluat_obj.model_param.split_points = self.model_param.split_points
+        split_data_with_label = evaluat_obj.split_data_with_type(eval_data_label)
+        concat_data_label = defaultdict(list)
+        concat_data_label['validate'] = predict_data_label
+        concat_data_label['train'] = split_data_with_label['train']
+        psi_results = evaluat_obj.evaluate_psi(concat_data_label)
+        psi_results_data = psi_results.get('psi')[-1]
+        return psi_results_data
