@@ -70,7 +70,7 @@ public class RSAUtil {
 
     public static String encryptByPublicKey(String data, String publicKeyStr) throws Exception {
         RSAPublicKey publicKey = getPublicKey(publicKeyStr);
-        byte[] enData = encryptByPublicKey(data.getBytes("UTF-8"), publicKey);
+        byte[] enData = encryptByPublicKey(data.getBytes(StandardCharsets.UTF_8), publicKey);
         return Base64Util.encode(enData);
     }
 
@@ -90,7 +90,7 @@ public class RSAUtil {
      * @return Encrypted string
      */
     public static String encryptByPrivateKey(String data, RSAPrivateKey privateKey) throws Exception {
-        byte[] datas = data.getBytes();
+        byte[] datas = data.getBytes(StandardCharsets.UTF_8);
         byte[] encrypt = null;
         int dataLen = datas.length;
         int nBlock = (dataLen / ENCRYPT_BLOCK);
@@ -129,7 +129,7 @@ public class RSAUtil {
      * @throws Exception
      */
     public static String decryptByPublicKey(String data, RSAPublicKey publicKey) throws Exception {
-        byte[] bytes = Base64.decodeBase64(data.getBytes("UTF-8"));
+        byte[] bytes = Base64.decodeBase64(data.getBytes(StandardCharsets.UTF_8));
         byte[] decrypt = null;
         int dataLen = bytes.length;
 

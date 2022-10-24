@@ -15,7 +15,6 @@
  */
 package com.welab.wefe.serving.service.scheduler;
 
-
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.HostUtil;
 import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
@@ -23,6 +22,7 @@ import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
 import com.welab.wefe.serving.service.database.entity.FeeDetailMysqlModel;
 import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
 import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
 import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
 import com.welab.wefe.serving.service.service.*;
 import org.slf4j.Logger;
@@ -32,10 +32,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * 用于定时将订单信息转化为费用记录
@@ -60,7 +59,7 @@ public class OrderToFeeDetailScheduler {
     @Autowired
     private ServiceOrderService serviceOrderService;
 
-    @Scheduled(cron = "0 0 0-23 * * ?")
+    @Scheduled(cron = "0 0-59 * * * ?")
     public void feeRecord() {
 
         try {
@@ -75,73 +74,76 @@ public class OrderToFeeDetailScheduler {
             calendar.add(Calendar.HOUR, -1);
             Date startTime = calendar.getTime();
 
-            List<ClientServiceMysqlModel> clientServiceMysqlModels = clientServiceService.getAll();
+            ServiceOrderInput input = new ServiceOrderInput();
+            // 不统计正在进行时的订单
+            input.setStatus(ServiceOrderEnum.ORDERING.getValue());
+            input.setUpdatedStartTime(startTime);
+            input.setUpdatedEndTime(endTime);
+            // 非我方发起的订单
+            input.setOrderType(CallByMeEnum.NO.getCode());
 
-            for (ClientServiceMysqlModel model : clientServiceMysqlModels) {
-                ServiceOrderInput input = new ServiceOrderInput();
-                input.setStatus(ServiceOrderEnum.ORDERING.getValue());
-                input.setServiceId(model.getServiceId());
-                input.setRequestPartnerId(model.getClientId());
-                input.setCreatedStartTime(startTime);
-                input.setCreatedEndTime(endTime);
-                // get request records
-                List<ServiceOrderMysqlModel> list = serviceOrderService.getByParams(input);
+            List<ServiceOrderMysqlModel> orders = serviceOrderService.getByParams(input);
+            Map<String, List<ServiceOrderMysqlModel>> collect = orders.stream()
+                    .collect(Collectors.toMap(k -> k.getServiceId() + "," + k.getRequestPartnerId(), v -> {
+                        List<ServiceOrderMysqlModel> list = new ArrayList<>();
+                        list.add(v);
+                        return list;
+                    }, (v1, v2) -> {
+                        v1.addAll(v2);
+                        return v1;
+                    }));
 
-                if (list.size() != 0) {
+            collect.forEach((k, groupOrders) -> {
+                if (!groupOrders.isEmpty()) {
+                    ServiceOrderMysqlModel order = groupOrders.get(0);
+                    FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(order.getServiceId(),
+                            order.getRequestPartnerId());
+                    ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService
+                            .queryByIdAndServiceId(order.getRequestPartnerId(), order.getServiceId());
 
-                    FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(model.getServiceId(), model.getClientId());
                     if (feeConfigMysqlModel == null) {
-                        logger.error("client service cannot set fee config, serviceId: " + model.getServiceId() + ", clientId: " + model.getClientId());
-                        continue;
+                        logger.error("client service cannot set fee config, serviceId: "
+                                + clientServiceMysqlModel.getServiceId() + ", clientId: "
+                                + clientServiceMysqlModel.getClientId());
+                        return;
                     }
 
                     Double unitPrice = feeConfigMysqlModel.getUnitPrice();
-                    if (unitPrice == 0) {
-                        logger.warn("unit price is zero!");
-                    }
 
                     // cal total fee
-                    BigDecimal totalFee = BigDecimal.valueOf(list.size() * unitPrice);
+                    BigDecimal totalFee = BigDecimal.valueOf(groupOrders.size() * unitPrice);
 
                     // save fee detail
                     FeeDetailMysqlModel feeDetailMysqlModel = new FeeDetailMysqlModel();
-                    feeDetailMysqlModel.setTotalRequestTimes((long) list.size());
+                    feeDetailMysqlModel.setTotalRequestTimes((long) groupOrders.size());
                     feeDetailMysqlModel.setTotalFee(totalFee);
                     feeDetailMysqlModel.setClientId(feeConfigMysqlModel.getClientId());
                     feeDetailMysqlModel.setServiceId(feeConfigMysqlModel.getServiceId());
                     feeDetailMysqlModel.setUnitPrice(unitPrice);
                     feeDetailMysqlModel.setFeeConfigId(feeConfigMysqlModel.getId());
                     feeDetailMysqlModel.setPayType(feeConfigMysqlModel.getPayType());
-
-                    // 创建时间为整点
                     feeDetailMysqlModel.setCreatedTime(endTime);
                     // 其他信息
-                    feeDetailMysqlModel.setClientName(model.getClientName());
-                    feeDetailMysqlModel.setServiceType(model.getServiceType());
-                    feeDetailMysqlModel.setServiceName(model.getServiceName());
+                    feeDetailMysqlModel.setClientName(clientServiceMysqlModel.getClientName());
+                    feeDetailMysqlModel.setServiceType(clientServiceMysqlModel.getServiceType());
+                    feeDetailMysqlModel.setServiceName(clientServiceMysqlModel.getServiceName());
                     feeDetailMysqlModel.setSaveIp(HostUtil.getLocalIp());
 
                     feeDetailService.save(feeDetailMysqlModel);
-
                     logger.info("save fee detail by the scheduler in: " + DateUtil.getCurrentDate() + ", service id: "
-                            + model.getServiceId() + ", request partner id: " + model.getClientId()
-                            + ", startTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(startTime)
-                            + ", endTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime)
-                            + ", saveIp: " + HostUtil.getLocalIp()
-                    );
-                    logger.info("OrderToFeeDetailScheduler end.");
-                } else {
-                    logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
+                            + clientServiceMysqlModel.getServiceId() + ", request partner id: "
+                            + clientServiceMysqlModel.getClientId() + ", startTime: "
+                            + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(startTime) + ", endTime: "
+                            + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime) + ", saveIp: " + HostUtil.getLocalIp());
                 }
-            }
+
+            });
+            logger.info("OrderToFeeDetailScheduler end.");
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             logger.error("error occur when fee details scheduler execute, happen in " + DateUtil.getCurrentDate());
         }
 
-
     }
-
-
 }

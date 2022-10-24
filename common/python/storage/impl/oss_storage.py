@@ -130,6 +130,7 @@ class OssStorage(FCStorage):
 
         """
         internal_end_point = temp_auth.get("temp_auth_internal_end_point")
+        print ("temp_auth_internal_end_point:",internal_end_point)
 
         # if in fc environment, and then determines to use internal address whether in the same region
         if RuntimeInstance.BACKEND is not None and RuntimeInstance.BACKEND.is_fc():
@@ -169,6 +170,7 @@ class OssStorage(FCStorage):
             temp_access_key_secret = temp_auth.get("temp_access_key_secret")
             temp_auth_bucket_name = temp_auth.get("temp_auth_bucket_name")
             temp_access_end_point = self.get_optimal_endpoint_from_temp_auth(temp_auth)
+            print ("temp_access_end_point:",temp_access_end_point)
             sts_token = temp_auth.get("sts_token")
 
             auth = oss2.StsAuth(temp_access_key_id,

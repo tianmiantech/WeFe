@@ -51,9 +51,7 @@ public class DbFlowTableProcessor extends AbstractProcessor {
         flowActionQueueEntity.setProducer(ProducerType.gateway.name());
         flowActionQueueEntity.setUpdatedTime(null);
         flowActionQueueEntity.setPriority(0);
-        flowActionQueueEntity.setAction(transferMeta.getAction());
-        flowActionQueueEntity.setParams(transferMeta.getContent().getObjectData());
-        flowActionQueueEntity.setChannel(transferMeta.getChannel());
+        flowActionQueueEntity.setParams(transferMeta.getContent().getStrData());
         GatewayServer.CONTEXT.getBean(FlowActionQueueService.class).save(flowActionQueueEntity);
     }
 }

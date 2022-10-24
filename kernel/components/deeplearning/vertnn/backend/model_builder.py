@@ -36,5 +36,5 @@ def model_builder(role="promoter", vert_nn_param=None, backend="keras"):
 
     if role == "promoter":
         return VertNNKerasPromoterModel(vert_nn_param)
-    elif role == "host":
+    elif role == "provider":
         return VertNNKerasProviderModel(vert_nn_param)

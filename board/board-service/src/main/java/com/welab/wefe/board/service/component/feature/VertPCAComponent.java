@@ -39,16 +39,16 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Params> {
+public class VertPCAComponent extends AbstractComponent<HorzOneHotComponent.Params> {
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-    		VertOneHotComponent.Params params) throws FlowNodeException {
+            HorzOneHotComponent.Params params) throws FlowNodeException {
         FlowGraphNode intersectionNode = graph.findOneNodeFromParent(node, ComponentType.Intersection);
         if (intersectionNode == null) {
             throw new FlowNodeException(node, "请在前面添加样本对齐组件。");
         }
         
-        List<VertOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
+        List<HorzOneHotComponent.Params.MemberInfoModel> members = params.getMembers();
         if (members.size() > 2) {
             throw new FlowNodeException(node, "两方纵向PCA参与成员不能超过两方。");
         }
@@ -56,7 +56,7 @@ public class VertPCAComponent extends AbstractComponent<VertOneHotComponent.Para
 
     @Override
     protected JSONObject createTaskParams(JobBuilder jobBuilder, FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node,
-                                          VertOneHotComponent.Params params) throws FlowNodeException {
+            HorzOneHotComponent.Params params) throws FlowNodeException {
         JObject resultObj = JObject.create();
         List<String> featureList = new ArrayList<>();
         params.getMembers().forEach(member -> {

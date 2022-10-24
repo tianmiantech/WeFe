@@ -18,6 +18,7 @@ package com.welab.wefe.serving.service.database.repository;
 
 import com.welab.wefe.serving.service.database.entity.FeeDetailMysqlModel;
 import com.welab.wefe.serving.service.database.repository.base.BaseRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,5 +26,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface FeeDetailRepository extends BaseRepository<FeeDetailMysqlModel, String> {
+
+    /**
+     * get last record in table fee_detail
+     * @return
+     */
+    @Query(value = "select * from fee_detail as fd order by fd.updated_time desc LIMIT 1 ", nativeQuery = true)
+    FeeDetailMysqlModel getLastRecord();
 
 }

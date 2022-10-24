@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.global_config;
 
-import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
+
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
@@ -24,6 +24,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.base.AbstractConfigModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;

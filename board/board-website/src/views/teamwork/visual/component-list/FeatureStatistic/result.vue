@@ -9,12 +9,12 @@
                     <el-tabs v-model="vData.tabName">
                         <el-tab-pane v-for="(member, mIdx) in vData.members" :key="`${member.member_id}-${member.member_role}`" :name="`${member.member_id}-${member.member_role}`" :label="`${member.member_name} (${member.member_role === 'provider' ? '协作方' : '发起方' })`">
                             <p class="mb10 pb5">分布:</p>
-                            <el-table :data="member.table" stripe :border="true" style="width :100%" class="fold-table">
+                            <el-table :data="member.table" stripe :border="true" style="width :100%" class="fold-table" default-expand-all @expand-change="methods.expandChange">
                                 <el-table-column type="expand">
                                     <template #default="props">
                                         <el-tabs
                                             type="border-card"
-                                            v-model="vData.activeTab"
+                                            v-model="member.table[props.$index].activeTab"
                                             @tab-click="methods.tabChangeEvent(props.$index, mIdx, $event)"
                                         >
                                             <el-tab-pane label="Overview" name="overview">
@@ -78,7 +78,7 @@
                                                     label="Histogram"
                                                     name="histogram"
                                                 >
-                                                    <BarChart ref="BarChart" v-if="vData.isBarChart" :config="props.row.distributionChart"/>
+                                                    <BarChart v-if="member.table[props.$index].isBarChart" ref="BarChart" :config="props.row.distributionChart"/>
                                                 </el-tab-pane>
                                                 <!--Discrete type-->
                                                 <el-tab-pane v-else label="Categories" name="categories">
@@ -88,7 +88,7 @@
                                                             <el-table-column prop="count" label="count" width="180"></el-table-column>
                                                             <el-table-column prop="frequency" label="frequency"></el-table-column>
                                                         </el-table>
-                                                        <PieChart ref="PieChart" v-if="`${member.member_id}-${member.member_role}` === vData.tabName" style="flex: 1" :config="props.row.pieChartData"/>
+                                                        <PieChart v-if="member.table[props.$index].isPieChart" ref="PieChart" style="flex: 1" :config="props.row.pieChartData"/>
                                                     </div>
                                                 </el-tab-pane>
                                             </template>
@@ -139,8 +139,6 @@
                 tabName:     '',
                 members:     [],
                 resultTypes: [],
-                activeTab:   'overview',
-                isBarChart:  false,
             }), BarChart = {};
             const PieChart = ref();
             const { appContext, ctx } = getCurrentInstance();
@@ -248,6 +246,8 @@
                                     },
                                     overviewtable: [],
                                     activeTab:     'overview',
+                                    isBarChart:    true,
+                                    isPieChart:    true,
                                     pieChartData:  {
                                         titleText: key,
                                         series:    pieSeries,
@@ -267,19 +267,21 @@
                                 table,
                             });
                         });
+                        console.log(vData.members);
                     }
                 },
                 tabChangeEvent(idx, mIdx, $event){
                     nextTick(_ => {
-                        switch (vData.activeTab) {
+                        switch ($event.props.name) {
                         case 'categories':
-                            PieChart.value.chartResize();
+                            setTimeout(()=>{
+                                if (PieChart.value) PieChart.value.chartResize();
+                            }, 200);
                             break;
                         case 'histogram':
-                            vData.isBarChart = true;
                             setTimeout(()=>{
                                 BarChart = ctx.$refs.BarChart[0];
-                                BarChart.chartResize();
+                                if (BarChart) BarChart.chartResize();
                             }, 200);
                             break;
                         }

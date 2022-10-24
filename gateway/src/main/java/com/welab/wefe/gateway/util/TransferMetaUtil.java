@@ -33,7 +33,7 @@ public class TransferMetaUtil {
      * Get database name from message
      */
     public static String getDbName(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         return dbConfig.getString(StorageConstant.NAMESPACE_KEY);
     }
 
@@ -41,29 +41,29 @@ public class TransferMetaUtil {
      * Get table name from message
      */
     public static String getTableName(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         return dbConfig.getString(StorageConstant.NAME_KEY);
     }
 
     public static String getDstDbName(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         String dstDbName = dbConfig.getString(StorageConstant.DST_NAMESPACE_KEY);
         return StringUtil.isNotEmpty(dstDbName) ? dstDbName : getDbName(transferMeta);
     }
 
     public static String getDstTableName(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         String dstTableName = dbConfig.getString(StorageConstant.DST_NAME_KEY);
         return StringUtil.isNotEmpty(dstTableName) ? dstTableName : getTableName(transferMeta);
     }
 
     public static String getFCNamespace(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         return dbConfig.getString(StorageConstant.FC_NAMESPACE);
     }
 
     public static String getFCName(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         return dbConfig.getString(StorageConstant.FC_NAME);
     }
 
@@ -71,7 +71,7 @@ public class TransferMetaUtil {
      * Get the number of slices
      */
     public static Integer getPartitions(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         String partitions = dbConfig.getString(StorageConstant.PARTITIONS);
         return Integer.parseInt(partitions);
     }
@@ -80,13 +80,13 @@ public class TransferMetaUtil {
      * Get the number of slices
      */
     public static Integer getFCPartitions(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         String partitions = dbConfig.getString(StorageConstant.FC_PARTITIONS);
         return Integer.parseInt(partitions);
     }
 
     public static String getStorageType(GatewayMetaProto.TransferMeta transferMeta) {
-        JObject dbConfig = JObject.create(transferMeta.getContent().getObjectData());
+        JObject dbConfig = JObject.create(transferMeta.getContent().getStrData());
         return dbConfig.getString(StorageConstant.DST_STORAGE_TYPE);
     }
 
@@ -100,9 +100,6 @@ public class TransferMetaUtil {
         StringBuilder messageStrSb = new StringBuilder();
         messageStrSb.append("session_id:[")
                 .append(transferMeta.getSessionId())
-                .append("],")
-                .append("action:[")
-                .append(transferMeta.getAction())
                 .append("],")
                 .append("src:[")
                 .append(src.getMemberId())

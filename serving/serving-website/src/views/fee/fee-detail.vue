@@ -215,7 +215,6 @@ export default {
                 5: '多方交集查询',
                 6: '多方匿踪查询',
                 7: '机器学习模型服务',
-                8: '深度学习模型服务',
             },
             serviceTypes: [
                 {
@@ -245,10 +244,6 @@ export default {
                 {
                     name:  '机器学习模型服务',
                     value: '7',
-                },
-                {
-                    name:  '深度学习模型服务',
-                    value: '8',
                 },
             ],
             queryDateTypes: [

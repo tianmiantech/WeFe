@@ -37,6 +37,8 @@ import java.util.Map;
  */
 public abstract class AbstractDruidTemplate extends AbstractTemplate {
 
+    private static final Map<String, DruidDataSource> DRUID_DATA_SOURCE = new HashMap<>();
+
     private static final Map<String, Object> PROPERTIES = new HashMap<>();
 
     static {
@@ -72,11 +74,11 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
     protected Map<String, Object> execute(String sql) throws StatusCodeWithException {
         //Get connection pool
         DruidPooledConnection connection = getConnection(url(), username, password, driver());
-
+        ResultSet resultSet = null;
         try {
 
             PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery();
+            resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
 
@@ -96,9 +98,16 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
             e.printStackTrace();
             throw new StatusCodeWithException(e.getMessage(), StatusCode.PARAMETER_VALUE_INVALID);
         } finally {
-            if (connection != null) {
-                try {
+            try {
+                if (connection != null) {
                     connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -108,8 +117,18 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
         return null;
     }
 
-
     private static DruidPooledConnection getConnection(String url, String username, String password, String driver) throws StatusCodeWithException {
+        DruidDataSource dataSource = DRUID_DATA_SOURCE.get(url);
+
+        try {
+            if (dataSource != null) {
+                return dataSource.getConnection();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        DruidPooledConnection connection = null;
 
         synchronized (PROPERTIES) {
             PROPERTIES.put("url", url);
@@ -122,13 +141,25 @@ public abstract class AbstractDruidTemplate extends AbstractTemplate {
                 DruidDataSource druidDataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(PROPERTIES);
                 druidDataSource.setBreakAfterAcquireFailure(true);
                 druidDataSource.setConnectionErrorRetryAttempts(0);
-                return druidDataSource.getConnection();
 
+                connection = druidDataSource.getConnection();
+
+                DRUID_DATA_SOURCE.put(url, druidDataSource);
             } catch (Exception e) {
                 e.printStackTrace();
+
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
                 throw new StatusCodeWithException("connection error: " + url, StatusCode.PARAMETER_VALUE_INVALID);
             }
         }
 
+        return connection;
     }
 }

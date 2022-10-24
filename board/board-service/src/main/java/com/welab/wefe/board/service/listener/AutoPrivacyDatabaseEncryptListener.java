@@ -17,9 +17,9 @@
 package com.welab.wefe.board.service.listener;
 
 import com.welab.wefe.board.service.constant.Config;
-import com.welab.wefe.board.service.dto.globalconfig.PrivacyConfigModel;
 import com.welab.wefe.board.service.service.PrivacyDatabaseEncryptService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.common.wefe.dto.global_config.PrivacyConfigModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
