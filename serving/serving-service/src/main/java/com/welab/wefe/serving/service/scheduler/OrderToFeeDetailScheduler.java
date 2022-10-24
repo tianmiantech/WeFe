@@ -15,26 +15,36 @@
  */
 package com.welab.wefe.serving.service.scheduler;
 
-import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.common.util.HostUtil;
-import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
-import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
-import com.welab.wefe.serving.service.database.entity.FeeDetailMysqlModel;
-import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
-import com.welab.wefe.serving.service.dto.ServiceOrderInput;
-import com.welab.wefe.serving.service.enums.CallByMeEnum;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.service.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.common.util.HostUtil;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeDetailMysqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
+import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.service.ClientServiceService;
+import com.welab.wefe.serving.service.service.FeeConfigService;
+import com.welab.wefe.serving.service.service.FeeDetailService;
+import com.welab.wefe.serving.service.service.PartnerService;
+import com.welab.wefe.serving.service.service.ServiceOrderService;
 
 /**
  * 用于定时将订单信息转化为费用记录
@@ -58,6 +68,9 @@ public class OrderToFeeDetailScheduler {
 
     @Autowired
     private ServiceOrderService serviceOrderService;
+    
+    @Autowired
+    private PartnerService partnerService;
 
     @Scheduled(cron = "0 0-59 * * * ?")
     public void feeRecord() {
@@ -98,9 +111,9 @@ public class OrderToFeeDetailScheduler {
                     ServiceOrderMysqlModel order = groupOrders.get(0);
                     FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(order.getServiceId(),
                             order.getRequestPartnerId());
+                    PartnerMysqlModel partnerMysqlModel = partnerService.queryByCode(order.getRequestPartnerId());
                     ClientServiceMysqlModel clientServiceMysqlModel = clientServiceService
-                            .queryByIdAndServiceId(order.getRequestPartnerId(), order.getServiceId());
-
+                            .queryByIdAndServiceId(partnerMysqlModel.getId(), order.getServiceId());
                     if (feeConfigMysqlModel == null) {
                         logger.error("client service cannot set fee config, serviceId: "
                                 + clientServiceMysqlModel.getServiceId() + ", clientId: "
