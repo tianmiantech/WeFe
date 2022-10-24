@@ -107,6 +107,9 @@ public class VertSecureBoostComponent extends AbstractModelingComponent<VertSecu
         } else if ("dp".equalsIgnoreCase(params.otherParam.workMode)) {
             output.append("epsilon", params.otherParam.epsilon);
         }
+
+        output.append("grid_search_param",params.getGridSearchParam().toKernelParam());
+
         return output;
     }
 

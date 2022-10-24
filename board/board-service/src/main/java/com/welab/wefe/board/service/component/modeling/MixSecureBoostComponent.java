@@ -89,6 +89,8 @@ public class MixSecureBoostComponent extends AbstractModelingComponent<MixSecure
                 .append("encrypt_param", encryptParam)
                 .append("cv_param", cvParam);
 
+        output.append("grid_search_param",params.getGridSearchParam().toKernelParam());
+
         return output;
     }
 

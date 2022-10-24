@@ -249,6 +249,22 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
                 inputObj.append("data", dataObj);
                 taskConfigObj.put("input", inputObj);
 
+                // oot时不运行网格
+                JObject paramsObj = taskConfigObj.getJObject("params");
+                paramsObj.put("need_grid_search", false);
+                JObject gridSearchParamObj = paramsObj.getJObject("grid_search_param");
+                if (null != gridSearchParamObj && !gridSearchParamObj.isEmpty()) {
+                    gridSearchParamObj.put("need_grid_search", false);
+                    paramsObj.put("grid_search_param", gridSearchParamObj);
+                }
+                JObject cvParamObj = paramsObj.getJObject("cv_param");
+                if (null != cvParamObj && !cvParamObj.isEmpty()) {
+                    cvParamObj.put("need_cv", false);
+                    paramsObj.put("cv_param", cvParamObj);
+                }
+
+                taskConfigObj.put("params", paramsObj);
+
                 // Mark as modeling component
                 extendOotParams.put("is_model", true);
 

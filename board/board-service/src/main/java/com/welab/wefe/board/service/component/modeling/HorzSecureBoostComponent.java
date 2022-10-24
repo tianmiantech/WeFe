@@ -84,6 +84,7 @@ public class HorzSecureBoostComponent extends AbstractModelingComponent<HorzSecu
                 .append("objective_param", objectiveParam)
                 .append("cv_param", cvParam);
 
+        output.append("grid_search_param",params.getGridSearchParam().toKernelParam());
         return output;
     }
 
