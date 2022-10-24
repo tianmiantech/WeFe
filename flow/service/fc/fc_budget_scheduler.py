@@ -14,7 +14,9 @@
 
 import traceback
 from common.python.common.consts import TaskStatus, JobStatus
+from common.python.utils import conf_utils
 from flow.utils.budget_utils import BudgetUtils
+from flow.utils.budget_scf_utils import BudgetScfUtils
 from common.python.db.global_config_dao import GlobalConfigDao
 import threading
 from common.python.db.db_models import *
@@ -135,33 +137,61 @@ class FcBudgetScheduler(threading.Thread):
         else:
             return True
 
-    def run(self):
+    def check_aliyun(self):
         budget_util = BudgetUtils()
+        month_cost = budget_util.get_month_cost()
+        day_cost = budget_util.get_day_cost()
+        # get current budget
+        month_budget = self.get_month_budget()
+        day_budget = self.get_day_budget()
+        self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
+        self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
+
+        # Overspend daily or monthly
+        if float(month_budget) <= month_cost:
+            task_list = self.get_running_task()
+            self.logger.info("进行函数计算每月限额检测...")
+            self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
+        elif float(day_budget) <= day_cost:
+            task_list = self.get_running_task()
+            self.logger.info("进行函数计算每日限额检测...")
+            self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
+        else:
+            time.sleep(10)
+
+    def check_tencent(self):
+        budget_scf_util = BudgetScfUtils()
+        month_cost = budget_scf_util.get_month_cost()
+        day_cost = budget_scf_util.get_day_cost()
+        # get current budget
+        month_budget = self.get_month_budget()
+        day_budget = self.get_day_budget()
+        self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
+        self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
+
+        # Overspend daily or monthly
+        if float(month_budget) <= month_cost:
+            task_list = self.get_running_task()
+            self.logger.info("进行函数计算每月限额检测...")
+            self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
+        elif float(day_budget) <= day_cost:
+            task_list = self.get_running_task()
+            self.logger.info("进行函数计算每日限额检测...")
+            self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
+        else:
+            time.sleep(10)
+
+    def run(self):
 
         while True:
             # get fc task list
             fc_task_list = self.get_running_task()
             if len(fc_task_list) > 0:
                 try:
-                    month_cost = budget_util.get_month_cost()
-                    day_cost = budget_util.get_day_cost()
-                    # get current budget
-                    month_budget = self.get_month_budget()
-                    day_budget = self.get_day_budget()
-                    self.logger.info(f"current month budget is: {month_budget}, and month cost is: {month_cost}")
-                    self.logger.info(f"current day budget is: {day_budget}, and day cost is: {day_cost}")
-
-                    # Overspend daily or monthly
-                    if float(month_budget) <= month_cost:
-                        task_list = self.get_running_task()
-                        self.logger.info("进行函数计算每月限额检测...")
-                        self.stop_tasks(task_list, budget=month_budget, cost=month_cost)
-                    elif float(day_budget) <= day_cost:
-                        task_list = self.get_running_task()
-                        self.logger.info("进行函数计算每日限额检测...")
-                        self.stop_tasks(task_list, is_month=False, budget=day_budget, cost=day_cost)
-                    else:
-                        time.sleep(10)
+                    if conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.ALIYUN:
+                        self.check_aliyun()
+                    elif conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.TENCENTCLOUD:
+                        self.check_tencent()
                 except Exception as e:
                     traceback.print_exc()
                     schedule_logger().exception("函数计算预算检测出现异常：%s", e)

@@ -42,11 +42,13 @@ public class EndpointBuilder {
     }
 
     public static String generateUri(BasicMetaProto.Endpoint endpoint) {
+        if (null == endpoint) {
+            return "";
+        }
         return generateUri(endpoint.getIp(), endpoint.getPort());
     }
 
     public static String generateUri(String ip, int port) {
         return ip + ":" + port;
     }
-
 }

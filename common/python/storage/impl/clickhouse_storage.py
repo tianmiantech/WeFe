@@ -23,10 +23,11 @@ from clickhouse_driver import Client
 from common.python.common import consts
 from common.python.common.consts import NAMESPACE
 from common.python.storage.storage import Storage
-from common.python.utils import conf_utils
+from common.python.utils import conf_utils, log_utils
 from common.python.utils.core_utils import deserialize
 
 FORCE_SERI = False
+LOGGER = log_utils.get_logger()
 
 
 def set_force_serialize(in_seri):

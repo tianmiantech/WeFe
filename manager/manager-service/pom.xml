@@ -22,6 +22,11 @@
             <artifactId>common-lang</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.welab.wefe</groupId>
+            <artifactId>common-cert</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!--联盟链-->
         <dependency>
             <groupId>org.fisco-bcos.java-sdk</groupId>
@@ -37,7 +42,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.53.Final</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -51,7 +55,22 @@
             <artifactId>common-data-mongodb</artifactId>
             <version>1.0.0</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.60</version>
+        </dependency>
 
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.60</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -18,6 +18,8 @@ package com.welab.wefe.common.data.storage.service.fc;
 import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.service.fc.aliyun.AliyunOssConfig;
 import com.welab.wefe.common.data.storage.service.fc.aliyun.AliyunOssStorage;
+import com.welab.wefe.common.data.storage.service.fc.tencent.TencentCosConfig;
+import com.welab.wefe.common.data.storage.service.fc.tencent.TencentCosStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,15 @@ public abstract class FcStorage {
      */
     public synchronized static void initWithAliyun(AliyunOssConfig config) {
         storage = new AliyunOssStorage(config);
+    }
+
+    /**
+     * 初始化对象
+     * <p>
+     * 当配置信息变化时，重新初始化即可刷新对象。
+     */
+    public synchronized static void initWithTencent(TencentCosConfig config) {
+        storage = new TencentCosStorage(config);
     }
 
     public static FcStorage getInstance() {

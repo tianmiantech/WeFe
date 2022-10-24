@@ -16,7 +16,7 @@
 
 package com.welab.wefe.gateway.init;
 
-import com.welab.wefe.gateway.base.RpcServerAnnotate;
+import com.welab.wefe.gateway.base.GrpcServerAnnotate;
 import com.welab.wefe.gateway.config.ConfigProperties;
 import com.welab.wefe.gateway.util.ClassUtil;
 import io.grpc.*;
@@ -59,15 +59,15 @@ public class InitRpcServer {
      */
     public void start() throws Exception {
         try {
-            Map<String, RpcServerAnnotate> rpcClassBeans = ClassUtil.loadRpcClassBeans();
+            Map<String, GrpcServerAnnotate> rpcClassBeans = ClassUtil.loadRpcClassBeans();
             if (rpcClassBeans.isEmpty()) {
                 throw new Exception("start rpc server fail, is not exist available gRpc server.");
             }
             // Binding port
             NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(configProperties.getRpcServerPort());
 
-            for (Map.Entry<String, RpcServerAnnotate> entry : rpcClassBeans.entrySet()) {
-                RpcServerAnnotate rpcServerAnnotateConfig = entry.getValue();
+            for (Map.Entry<String, GrpcServerAnnotate> entry : rpcClassBeans.entrySet()) {
+                GrpcServerAnnotate rpcServerAnnotateConfig = entry.getValue();
                 BindableService rpcService = rpcServerAnnotateConfig.getRpcBean();
                 List<Class<? extends ServerInterceptor>> interceptors = rpcServerAnnotateConfig.getInterceptors();
                 if (CollectionUtils.isNotEmpty(interceptors)) {

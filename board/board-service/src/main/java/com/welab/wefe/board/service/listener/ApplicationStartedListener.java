@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.listener;
 
 import cn.hutool.core.thread.ThreadUtil;
+import com.welab.wefe.board.service.cache.CaCertificateCache;
 import com.welab.wefe.board.service.constant.Config;
 import com.welab.wefe.board.service.database.entity.chat.MessageQueueMySqlModel;
 import com.welab.wefe.board.service.database.repository.ChatUnreadMessageRepository;
@@ -65,6 +66,8 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
             LOG.error(e.getMessage(), e);
         }
         startChatListener();
+
+        loadCaCertificate();
     }
 
     private void startChatListener() {
@@ -79,19 +82,18 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
                         continue;
                     }
 
-                    switch (message.getAction()) {
-                        case create_chat_msg: {
-                            memberChatService.handleChatMessage(message);
-                            break;
-                        }
-                        default:
-                            LOG.info("Illegal type[" + message.getAction() + "]");
-                    }
+                    memberChatService.handleChatMessage(message);
                 } catch (Exception e) {
                     ThreadUtil.sleep(5, TimeUnit.SECONDS);
                     LOG.error("Listening chat message queue exception", e);
                 }
             }
         });
+    }
+
+    private void loadCaCertificate() {
+        LOG.info("Start refresh certificate cache..............");
+        CaCertificateCache.getInstance().refreshCache();
+        LOG.info("End refresh certificate cache.");
     }
 }

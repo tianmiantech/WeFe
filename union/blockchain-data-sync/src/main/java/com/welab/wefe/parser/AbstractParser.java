@@ -53,10 +53,11 @@ public abstract class AbstractParser {
             parseContractEvent();
         }
         long endParser = System.currentTimeMillis();
-        log.info("parser:{} blockNum:{},event:{},parserData success spend:{} ms",
+        log.info("parser:{} blockNum:{},event:{},extJson:{},parserData success spend:{} ms",
                 this.getClass().getSimpleName(),
                 eventBO.getBlockNumber(),
                 eventBO.getEventName(),
+                extJsonStr,
                 (endParser - startParser)
         );
 

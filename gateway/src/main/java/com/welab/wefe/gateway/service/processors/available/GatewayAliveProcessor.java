@@ -20,6 +20,7 @@ import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.base.Processor;
+import com.welab.wefe.gateway.common.EndpointBuilder;
 import com.welab.wefe.gateway.common.ReturnStatusBuilder;
 import com.welab.wefe.gateway.service.processors.AbstractProcessor;
 
@@ -35,7 +36,6 @@ public class GatewayAliveProcessor extends AbstractProcessor {
         if (dstMemberIsSelf(transferMeta)) {
             return ReturnStatusBuilder.ok(transferMeta.getSessionId());
         }
-
         return toRemote(transferMeta);
     }
 }

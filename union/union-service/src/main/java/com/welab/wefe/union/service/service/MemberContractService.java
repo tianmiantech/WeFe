@@ -16,6 +16,7 @@
 
 package com.welab.wefe.union.service.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.entity.union.ext.MemberExtJSON;
 import com.welab.wefe.common.data.mongodb.repo.MemberMongoReop;
@@ -134,7 +135,8 @@ public class MemberContractService extends AbstractContractService {
      */
     public void updateExcludeLogo(UpdateExcludeLogoApi.Input input) throws StatusCodeWithException {
         try {
-            JObject extJson = JObject.create(memberMongoReop.findMemberId(input.curMemberId).getExtJson());
+
+            JObject extJson = buildExtJson(input);
 
             List<String> params = new ArrayList<>();
             params.add(input.getId());
@@ -173,6 +175,21 @@ public class MemberContractService extends AbstractContractService {
             LOG.error("updateExcludeLogo failed: ", e);
             throw new StatusCodeWithException("updateExcludeLogo failed", StatusCode.SYSTEM_ERROR);
         }
+    }
+
+    public JObject buildExtJson(UpdateExcludeLogoApi.Input input) throws IllegalAccessException {
+        MemberExtJSON extJSON = new MemberExtJSON();
+        extJSON.setSecretKeyType(input.getSecretKeyType());
+        extJSON.setMemberGatewayTlsEnable(input.getMemberGatewayTlsEnable());
+        JObject extJson = JObject.create(memberMongoReop.findMemberId(input.curMemberId).getExtJson());
+        Field[] fields = extJSON.getClass().getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            fields[i].setAccessible(true);
+            if (null != fields[i].get(extJSON)) {
+                extJson.put(StringUtil.camelCaseToUnderLineCase(fields[i].getName()), fields[i].get(extJSON));
+            }
+        }
+        return extJson;
     }
 
     /**

@@ -406,6 +406,9 @@ class TaskExecutor(object):
         # members_backend
         options[RuntimeOptionKey.MEMBERS_BACKEND] = TaskExecutor.parse_members_backend(task_config)
 
+        #members_fc_provider
+        options[RuntimeOptionKey.MEMBERS_FC_PROVIDER] = TaskExecutor.parse_members_fc_provider(task_config)
+
         return options
 
     @staticmethod
@@ -416,6 +419,15 @@ class TaskExecutor(object):
         for member in members:
             members_backend[member["member_id"]] = member.get("backend")
         return members_backend
+
+    @staticmethod
+    def parse_members_fc_provider(task_config: dict):
+        members_fc_provider = {}
+        job_config = task_config["job"]
+        members = job_config.get("members")
+        for member in members:
+            members_fc_provider[member["member_id"]] = member.get("fc_provider")
+        return members_fc_provider
 
     @staticmethod
     def get_error_message(exc_value, e: Exception):

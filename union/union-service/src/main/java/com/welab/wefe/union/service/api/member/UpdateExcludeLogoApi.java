@@ -16,6 +16,7 @@
 
 package com.welab.wefe.union.service.api.member;
 
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.web.api.base.AbstractApi;
@@ -55,6 +56,8 @@ public class UpdateExcludeLogoApi extends AbstractApi<UpdateExcludeLogoApi.Input
         @Check(require = true)
         private String publicKey;
         private String gatewayUri;
+        private SecretKeyType secretKeyType;
+        private Boolean memberGatewayTlsEnable;
 
         public String getId() {
             return id;
@@ -134,6 +137,23 @@ public class UpdateExcludeLogoApi extends AbstractApi<UpdateExcludeLogoApi.Input
 
         public void setGatewayUri(String gatewayUri) {
             this.gatewayUri = gatewayUri;
+        }
+
+
+        public SecretKeyType getSecretKeyType() {
+            return secretKeyType;
+        }
+
+        public void setSecretKeyType(SecretKeyType secretKeyType) {
+            this.secretKeyType = secretKeyType;
+        }
+
+        public Boolean getMemberGatewayTlsEnable() {
+            return memberGatewayTlsEnable;
+        }
+
+        public void setMemberGatewayTlsEnable(Boolean memberGatewayTlsEnable) {
+            this.memberGatewayTlsEnable = memberGatewayTlsEnable;
         }
     }
 }

@@ -19,7 +19,6 @@ package com.welab.wefe.board.service.api.storage;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.repository.data_resource.TableDataSetRepository;
-import com.welab.wefe.board.service.dto.globalconfig.FlowConfigModel;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -32,6 +31,7 @@ import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.FlowConfigModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;

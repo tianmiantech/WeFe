@@ -16,16 +16,15 @@
 
 package com.welab.wefe.serving.service.listener;
 
-import com.welab.wefe.common.util.DateUtil;
-import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
-import com.welab.wefe.serving.service.database.entity.*;
-import com.welab.wefe.serving.service.dto.OrderStatisticsInput;
-import com.welab.wefe.serving.service.dto.ServiceOrderInput;
-import com.welab.wefe.serving.service.dto.globalconfig.ServiceCacheConfigModel;
-import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
-import com.welab.wefe.serving.service.service.*;
-import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +32,27 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.welab.wefe.common.util.DateUtil;
+import com.welab.wefe.mpc.pir.server.PrivateInformationRetrievalServer;
+import com.welab.wefe.serving.service.database.entity.ClientServiceMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeConfigMysqlModel;
+import com.welab.wefe.serving.service.database.entity.FeeDetailMysqlModel;
+import com.welab.wefe.serving.service.database.entity.OrderStatisticsMysqlModel;
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.entity.ServiceOrderMysqlModel;
+import com.welab.wefe.serving.service.dto.ServiceOrderInput;
+import com.welab.wefe.serving.service.dto.globalconfig.ServiceCacheConfigModel;
+import com.welab.wefe.serving.service.enums.CallByMeEnum;
+import com.welab.wefe.serving.service.enums.ServiceClientTypeEnum;
+import com.welab.wefe.serving.service.enums.ServiceOrderEnum;
+import com.welab.wefe.serving.service.service.ClientServiceService;
+import com.welab.wefe.serving.service.service.FeeConfigService;
+import com.welab.wefe.serving.service.service.FeeDetailService;
+import com.welab.wefe.serving.service.service.OrderStatisticsService;
+import com.welab.wefe.serving.service.service.PartnerService;
+import com.welab.wefe.serving.service.service.ServiceOrderService;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.serving.service.utils.RedisIntermediateCache;
 
 /**
  * @author ivenn.zheng
@@ -64,6 +80,9 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     @Autowired
     private GlobalConfigService globalConfigService;
 
+    @Autowired
+    private PartnerService partnerService;
+
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         checkAndSaveFeeDetail();
@@ -86,24 +105,26 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         }
     }
 
-
     public void checkAndSaveOrderStatistics() {
-        // 获取1h之前的时间
-        String now = DateUtil.getCurrentDate();
-        Date oneHourAgo = DateUtil.addHours(DateUtil.fromString(now, DateUtil.YYYY_MM_DD_HH_MM_SS2), -1);
+        String now = DateUtil.getCurrentDate2();
+        // 获取 order_statistics 表中最新一次统计的时间
+        OrderStatisticsMysqlModel lastRecord = orderStatisticsService.getLastRecord();
+        Date lastRecordCreatedTime = lastRecord.getCreatedTime();
 
         ServiceOrderInput input = new ServiceOrderInput();
-        input.setUpdatedStartTime(oneHourAgo);
-        input.setUpdatedEndTime(DateUtil.fromString(now, DateUtil.YYYY_MM_DD_HH_MM_SS2));
-        // 排除进行中的订单
+        input.setUpdatedStartTime(lastRecordCreatedTime);
+        input.setUpdatedEndTime(DateUtil.fromString(now, DateUtil.YYYY_MM_DD_HH_MM_SS3));
+        // 排除进行中的、我方自调的订单
         input.setStatus(ServiceOrderEnum.ORDERING.getValue());
+        input.setOrderType(CallByMeEnum.NO.getCode());
+
         List<ServiceOrderMysqlModel> serviceOrderMysqlModelList = serviceOrderService.getByParams(input);
         // 进行分组
-        Map<String, Map<String, Map<String, List<ServiceOrderMysqlModel>>>> collect = serviceOrderMysqlModelList.stream().collect(
-                Collectors.groupingBy(ServiceOrderMysqlModel::getServiceId,
-                        Collectors.groupingBy(ServiceOrderMysqlModel::getRequestPartnerId,
-                                Collectors.groupingBy(x -> DateUtil.toString(x.getUpdatedTime(), DateUtil.YYYY_MM_DD_HH_MM))))
-        );
+        Map<String, Map<String, Map<String, List<ServiceOrderMysqlModel>>>> collect = serviceOrderMysqlModelList
+                .stream()
+                .collect(Collectors.groupingBy(ServiceOrderMysqlModel::getServiceId, Collectors.groupingBy(
+                        ServiceOrderMysqlModel::getRequestPartnerId,
+                        Collectors.groupingBy(x -> DateUtil.toString(x.getUpdatedTime(), DateUtil.YYYY_MM_DD_HH_MM)))));
 
         List<OrderStatisticsMysqlModel> orderStatisticsMysqlModels = new ArrayList<>();
 
@@ -112,11 +133,11 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
                 v2.forEach((str, list) -> {
                     ServiceOrderMysqlModel serviceOrderMysqlModel = list.get(0);
                     OrderStatisticsMysqlModel os = new OrderStatisticsMysqlModel();
-                    int successTimes = (int) list.stream().filter(x ->
-                            ServiceOrderEnum.SUCCESS.getValue().equals(x.getStatus())).count();
+                    int successTimes = (int) list.stream()
+                            .filter(x -> ServiceOrderEnum.SUCCESS.getValue().equals(x.getStatus())).count();
 
-                    int failedTimes = (int) list.stream().filter(x ->
-                            ServiceOrderEnum.FAILED.getValue().equals(x.getStatus())).count();
+                    int failedTimes = (int) list.stream()
+                            .filter(x -> ServiceOrderEnum.FAILED.getValue().equals(x.getStatus())).count();
 
                     Date date = DateUtil.addMinutes(serviceOrderMysqlModel.getUpdatedTime(), 1);
                     // 秒位置0
@@ -142,47 +163,26 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
             });
         });
 
-
         // 统计时间段内未进行的订单统计
         orderStatisticsMysqlModels.forEach(x -> {
-            OrderStatisticsInput input1 = new OrderStatisticsInput();
-            input1.setServiceId(x.getServiceId());
-            input1.setRequestPartnerId(x.getRequestPartnerId());
-            input1.setMinute(x.getMinute());
-            List<OrderStatisticsMysqlModel> orderStatisticsMysqlModelList = orderStatisticsService.getByParams(input1);
-            if (orderStatisticsMysqlModelList.size() == 0) {
-                orderStatisticsService.insert(x);
-            }
+            orderStatisticsService.insert(x);
         });
 
-
     }
-
 
     public void checkAndSaveFeeDetail() {
-
         List<ClientServiceMysqlModel> clientServiceMysqlModels = clientServiceService.getAll();
-
-        // 获取1h之前的时间
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-        calendar.setTime(now);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        Date oneHourAgo = calendar.getTime();
-
+        // 获取最后记录时间
+        Date lastRecordTime = feeDetailService.getLastRecord().getCreatedTime();
         for (ClientServiceMysqlModel model : clientServiceMysqlModels) {
-            FeeDetailMysqlModel feeDetailMysqlModel = feeDetailService.getByIdAndDateTime(model.getServiceId(), model.getClientId(), oneHourAgo);
-            if (feeDetailMysqlModel == null) {
-                // 上个小时无记录，需要即刻统计
-                addFeeDetailRecord(model.getServiceId(), model.getClientId(), oneHourAgo);
+            if (model.getType() == null || model.getType() == ServiceClientTypeEnum.ACTIVATE.getValue()) {
+                continue;
             }
+            // 统计开通服务
+            PartnerMysqlModel partnerServiceOne = partnerService.findOne(model.getClientId());
+            addFeeDetailRecord(model.getServiceId(), partnerServiceOne.getCode(), lastRecordTime);
         }
-
-
     }
-
 
     public void addFeeDetailRecord(String serviceId, String clientId, Date endTime) {
 
@@ -196,24 +196,21 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
             // get request records
             ServiceOrderInput input = new ServiceOrderInput();
             input.setStatus(ServiceOrderEnum.ORDERING.getValue());
+            // 不统计我方调起的订单
+            input.setOrderType(CallByMeEnum.NO.getCode());
             input.setServiceId(serviceId);
             input.setRequestPartnerId(clientId);
-            input.setCreatedStartTime(startTime);
-            input.setCreatedEndTime(endTime);
+            input.setUpdatedStartTime(startTime);
+            input.setUpdatedEndTime(endTime);
             List<ServiceOrderMysqlModel> list = serviceOrderService.getByParams(input);
 
-            if (list.size() != 0) {
+            if (!list.isEmpty()) {
                 ServiceOrderMysqlModel serviceOrderMysqlModel = list.get(0);
-                FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService.queryOne(serviceOrderMysqlModel.getServiceId(), serviceOrderMysqlModel.getRequestPartnerId());
-
+                FeeConfigMysqlModel feeConfigMysqlModel = feeConfigService
+                        .queryOne(serviceOrderMysqlModel.getServiceId(), serviceOrderMysqlModel.getRequestPartnerId());
                 Double unitPrice = feeConfigMysqlModel.getUnitPrice();
-                if (unitPrice == 0) {
-                    logger.warn("unit price is zero!");
-                }
-
                 // cal total fee
                 BigDecimal totalFee = BigDecimal.valueOf(list.size() * unitPrice);
-
                 // save fee detail
                 FeeDetailMysqlModel feeDetailMysqlModel = new FeeDetailMysqlModel();
                 feeDetailMysqlModel.setTotalRequestTimes((long) list.size());
@@ -233,11 +230,10 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
                 feeDetailService.save(feeDetailMysqlModel);
 
                 logger.info("save fee detail by the listener in: " + DateUtil.getCurrentDate() + ", service id: "
-                        + serviceOrderMysqlModel.getServiceId() + ", request partner id: " + serviceOrderMysqlModel.getRequestPartnerId()
-                        + ", startTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(startTime)
-                        + ", endTime: " + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime));
-            } else {
-                logger.info("there is no request record between startTime: " + startTime + " and endTime: " + endTime);
+                        + serviceOrderMysqlModel.getServiceId() + ", request partner id: "
+                        + serviceOrderMysqlModel.getRequestPartnerId() + ", startTime: "
+                        + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(startTime) + ", endTime: "
+                        + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(endTime));
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -51,7 +51,7 @@
             />
             <el-table-column
                 label="服务提供商名称"
-                width="220"
+                width="150"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.client_name }}</p>
@@ -59,21 +59,12 @@
             </el-table-column>
             <el-table-column
                 label="服务名称"
-                width="230"
+                width="250"
             >
                 <template slot-scope="scope">
                     <p>{{ scope.row.service_name }}</p>
                 </template>
             </el-table-column>
-            <el-table-column
-                label="我的code"
-                width="130"
-            >
-                <template slot-scope="scope">
-                    <p>{{ scope.row.code }}</p>
-                </template>
-            </el-table-column>
-
             <el-table-column
                 label="服务访问URL"
                 width="400"
@@ -87,6 +78,14 @@
                     >
                         <p>{{ scope.row.url }} </p>
                     </el-tooltip>
+                </template>
+            </el-table-column>
+            <el-table-column
+                label="我的code"
+                width="240"
+            >
+                <template slot-scope="scope">
+                    <p>{{ scope.row.code }}</p>
                 </template>
             </el-table-column>
 

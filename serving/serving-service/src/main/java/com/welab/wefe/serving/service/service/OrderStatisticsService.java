@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -182,6 +183,7 @@ public class OrderStatisticsService {
         orderStatisticsRepository.save(model);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void insertList(List<OrderStatisticsMysqlModel> list) {
         orderStatisticsRepository.saveAll(list);
     }
@@ -251,6 +253,7 @@ public class OrderStatisticsService {
     }
 
 
+    @Transactional(rollbackFor = Exception.class)
     public void insert(OrderStatisticsMysqlModel model) {
         orderStatisticsRepository.save(model);
     }
@@ -270,5 +273,8 @@ public class OrderStatisticsService {
         return orderStatisticsRepository.findAll(where);
     }
 
+    public OrderStatisticsMysqlModel getLastRecord() {
+        return orderStatisticsRepository.getLastRecord();
+    }
 
 }

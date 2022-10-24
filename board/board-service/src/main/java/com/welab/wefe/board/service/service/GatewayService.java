@@ -16,16 +16,25 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.member.CheckMemberRouteConnectApi;
-import com.welab.wefe.board.service.api.project.flow.*;
+import com.welab.wefe.board.service.api.project.flow.AddFlowApi;
+import com.welab.wefe.board.service.api.project.flow.CopyFlowApi;
+import com.welab.wefe.board.service.api.project.flow.DeleteApi;
+import com.welab.wefe.board.service.api.project.flow.UpdateFlowBaseInfoApi;
+import com.welab.wefe.board.service.api.project.flow.UpdateFlowGraphApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.api.project.project.AddApi;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
 import com.welab.wefe.board.service.database.repository.JobMemberRepository;
-import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.exception.MemberGatewayException;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -36,13 +45,11 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
-import com.welab.wefe.common.wefe.enums.*;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 /**
  * @author zane.luo
@@ -246,7 +253,6 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshSystemConfigCache() throws StatusCodeWithException {
         sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.refreshSystemConfigCacheProcessor
         );
@@ -257,7 +263,6 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshMemberBlacklistCache() throws StatusCodeWithException {
         sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.refreshMemberBlacklistCacheProcessor
         );
@@ -268,7 +273,6 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshPartnerConfigCache() throws StatusCodeWithException {
         sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.refreshPartnerConfigCacheProcessor
         );
@@ -279,15 +283,33 @@ public class GatewayService extends BaseGatewayService {
      */
     public void refreshIpWhiteListCache() throws StatusCodeWithException {
         sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.refreshSystemConfigCacheProcessor
         );
     }
 
+    /**
+     * Notify the gateway to update the system configuration cache
+     */
+    public void restartExternalGrpcServer() throws StatusCodeWithException {
+        sendToMyselfGateway(
+                "",
+                GatewayProcessorType.restartExternalGrpcServer
+        );
+    }
+
+    /**
+     * 检查gateway是否活着
+     */
+    public void checkGatewayAliveProcessor() throws StatusCodeWithException {
+        sendToMyselfGateway(
+                "",
+                GatewayProcessorType.gatewayAliveProcessor
+        );
+    }
+
     public ServiceAvailableCheckOutput getLocalGatewayAvailable() throws StatusCodeWithException {
         return sendToMyselfGateway(
-                GatewayActionType.none,
                 "",
                 GatewayProcessorType.gatewayAvailableProcessor
         ).toJavaObject(ServiceAvailableCheckOutput.class);
@@ -365,7 +387,6 @@ public class GatewayService extends BaseGatewayService {
 
         JSONObject result = sendToOtherGateway(
                 dstMemberId,
-                GatewayActionType.none,
                 request,
                 GatewayProcessorType.boardHttpProcessor
         );
@@ -399,26 +420,15 @@ public class GatewayService extends BaseGatewayService {
                                 .toString()
                 )
                 .toStringWithNull();
-
-        sendToMyselfGateway(gatewayUri, GatewayActionType.none, data, GatewayProcessorType.boardHttpProcessor).toJavaObject(ApiResult.class);
+        sendToMyselfGateway(gatewayUri, data, GatewayProcessorType.boardHttpProcessor).toJavaObject(ApiResult.class);
     }
 
 
     /**
      * Check the alive of the gateway
      */
-    public void pingGatewayAlive(CheckMemberRouteConnectApi.Input input) throws StatusCodeWithException {
-        boolean isSelf = StringUtil.isEmpty(input.getMemberId()) || CacheObjects.getMemberId().equals(input.getMemberId());
-        if (isSelf) {
-            String gatewayUri = input.getMemberGatewayUri();
-            gatewayUri = (StringUtil.isEmpty(gatewayUri) ? globalConfigService.getModel(GatewayConfigModel.class).intranetBaseUri : gatewayUri);
-            sendToMyselfGateway(gatewayUri, GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
-        } else {
-            if (StringUtil.isEmpty(input.getMemberId())) {
-                throw new StatusCodeWithException("网关地址不能为空", StatusCode.RPC_ERROR);
-            }
-            sendToOtherGateway(input.getMemberId(), input.getMemberGatewayUri(), GatewayActionType.none, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
-        }
+    public void pingGatewayAlive(String dstMemberId, String gatewayUri) throws StatusCodeWithException {
+        sendToOtherGateway(dstMemberId, gatewayUri, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
     }
 
 }

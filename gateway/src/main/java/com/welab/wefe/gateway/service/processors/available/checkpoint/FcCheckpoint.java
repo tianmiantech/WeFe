@@ -16,9 +16,9 @@
 package com.welab.wefe.gateway.service.processors.available.checkpoint;
 
 import com.welab.wefe.common.wefe.checkpoint.AbstractCheckpoint;
+import com.welab.wefe.common.wefe.dto.global_config.calculation_engine.CalculationEngineBaseConfigModel;
 import com.welab.wefe.common.wefe.enums.JobBackendType;
 import com.welab.wefe.common.wefe.enums.ServiceType;
-import com.welab.wefe.gateway.dto.CalculationEngineBaseConfigModel;
 import com.welab.wefe.gateway.init.InitStorageManager;
 import com.welab.wefe.gateway.service.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,10 +46,7 @@ public class FcCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected String getConfigValue() {
-        CalculationEngineBaseConfigModel config = globalConfigService.getModel(
-                GlobalConfigService.Group.CALCULATION_ENGINE_CONFIG,
-                CalculationEngineBaseConfigModel.class
-        );
+        CalculationEngineBaseConfigModel config = globalConfigService.getModel(CalculationEngineBaseConfigModel.class);
 
         if (config == null) {
             return null;
@@ -65,10 +62,7 @@ public class FcCheckpoint extends AbstractCheckpoint {
 
     @Override
     protected void doCheck(String value) throws Exception {
-        CalculationEngineBaseConfigModel config = globalConfigService.getModel(
-                GlobalConfigService.Group.CALCULATION_ENGINE_CONFIG,
-                CalculationEngineBaseConfigModel.class
-        );
+        CalculationEngineBaseConfigModel config = globalConfigService.getModel(CalculationEngineBaseConfigModel.class);
         if (config == null || config.backend != JobBackendType.FC) {
             return;
         }

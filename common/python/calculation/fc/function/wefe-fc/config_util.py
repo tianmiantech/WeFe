@@ -28,6 +28,7 @@ def gen_config_file():
     bucket_name = get_comm_config(consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME)
     oss_endpoint = get_comm_config(consts.COMM_CONF_KEY_FC_OSS_ENDPOINT)
     oss_internal_endpoint = get_comm_config(consts.COMM_CONF_KEY_FC_OSS_INTERNAL_ENDPOINT)
+    fc_cloud_provider = get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER)
 
     json_obj = {
         'fc.access_key_id': access_key_id,
@@ -39,7 +40,8 @@ def gen_config_file():
         'fc.account_type': account_type,
         'fc.oss.bucket_name': bucket_name,
         'fc.oss.endpoint': oss_endpoint,
-        'fc.oss.internal_endpoint': oss_internal_endpoint
+        'fc.oss.internal_endpoint': oss_internal_endpoint,
+        'fc.cloud.provider': fc_cloud_provider
     }
 
     with open(file_name, 'w') as f:

@@ -16,15 +16,25 @@
 
 package com.welab.wefe.gateway.listener;
 
-import com.welab.wefe.gateway.cache.PartnerConfigCache;
-import com.welab.wefe.gateway.config.ConfigProperties;
-import com.welab.wefe.gateway.init.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import com.welab.wefe.gateway.cache.CaCertificateCache;
+import com.welab.wefe.gateway.cache.PartnerConfigCache;
+import com.welab.wefe.gateway.config.ConfigProperties;
+import com.welab.wefe.gateway.init.InitRpcServer;
+import com.welab.wefe.gateway.init.InitStorageManager;
+import com.welab.wefe.gateway.init.LoadMemberBlacklistToCache;
+import com.welab.wefe.gateway.init.LoadMemberToCache;
+import com.welab.wefe.gateway.init.LoadRecvTransferMateToCache;
+import com.welab.wefe.gateway.init.LoadSendTransferMetaToCache;
+import com.welab.wefe.gateway.init.LoadSystemConfigToCache;
+import com.welab.wefe.gateway.init.SendTransferMetaCacheTask;
+import com.welab.wefe.gateway.init.grpc.GrpcServerContext;
 
 /**
  * Initialize the data listener (such as member information loading, blacklist loading, grpc service...)
@@ -57,18 +67,17 @@ public class InitListener implements ApplicationListener<ApplicationStartedEvent
         LoadMemberBlacklistToCache.load();
         // Load partner config to cache
         PartnerConfigCache.getInstance().refreshCache();
+        // Load Ca info to cache
+        CaCertificateCache.getInstance().refreshCache();
+        // Start grpc service
+        startGrpcServer();
         // Start the forward message task
         new SendTransferMetaCacheTask().start();
-        // Start RPC service; Note: this method will block, so it should be put to the end
-        startRpcServer();
     }
 
-    private void startRpcServer() {
-        try {
-            LOG.info("start rpc server, port[{}].", configProperties.getRpcServerPort());
-            initRpcServer.start();
-        } catch (Exception e) {
-            LOG.error("start rpc server fail, system exit: ", e);
+    private void startGrpcServer() {
+        if (!GrpcServerContext.getInstance().start()) {
+            LOG.error("Start grpc server fail, system exit!!!system exit!!!system exit!!!");
             System.exit(-1);
         }
     }

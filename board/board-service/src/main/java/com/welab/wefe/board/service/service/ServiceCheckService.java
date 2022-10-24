@@ -18,7 +18,6 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.member.MemberAvailableCheckApi;
 import com.welab.wefe.board.service.database.entity.job.ProjectMemberMySqlModel;
-import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
 import com.welab.wefe.board.service.sdk.FlowService;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.StatusCode;
@@ -27,6 +26,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
 import com.welab.wefe.common.wefe.checkpoint.dto.MemberAvailableCheckOutput;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
 import com.welab.wefe.common.wefe.enums.ServiceType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

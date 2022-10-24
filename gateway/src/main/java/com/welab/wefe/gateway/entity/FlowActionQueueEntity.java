@@ -61,9 +61,6 @@ public class FlowActionQueueEntity extends AbstractUniqueIDEntity {
     @Column(name = "params")
     private String params;
 
-    @Column(name = "channel")
-    private String channel;
-
     public String getCreatedBy() {
         return createdBy;
     }
@@ -110,13 +107,5 @@ public class FlowActionQueueEntity extends AbstractUniqueIDEntity {
 
     public void setParams(String params) {
         this.params = params;
-    }
-
-    public String getChannel() {
-        return channel;
-    }
-
-    public void setChannel(String channel) {
-        this.channel = channel;
     }
 }

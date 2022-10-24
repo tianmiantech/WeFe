@@ -151,7 +151,6 @@ public class MemberContractEventParser extends AbstractParser {
         member.setLastActivityTime(StringUtil.strTrim2(params.getString(11)));
         member.setDataSyncTime(System.currentTimeMillis());
         member.setExtJson(extJSON);
-
         memberMongoReop.updateExcludeLogo(member);
 
     }
