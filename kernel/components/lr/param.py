@@ -33,13 +33,13 @@ import copy
 
 from kernel.base.params.base_param import BaseParam
 from kernel.base.params.cross_validation_param import CrossValidationParam
+from kernel.base.params.grid_search_param import GridSearchParam
 from kernel.base.params.encrypt_param import EncryptParam
 from kernel.base.params.encrypted_mode_calculation_param import EncryptedModeCalculatorParam
 from kernel.base.params.init_model_param import InitParam
 from kernel.base.params.predict_param import PredictParam
 from kernel.base.params.sqn_param import StochasticQuasiNewtonParam
 from kernel.base.params.stepwise_param import StepwiseParam
-from kernel.callbacks.callback_param import CallbackParam
 from kernel.utils import consts
 
 
@@ -91,6 +91,8 @@ class LogisticParam(BaseParam):
 
     cv_param: CrossValidationParam object, default: default CrossValidationParam object
 
+    grid_search_param: GridSearchParam object, default: default GridSearchParam object
+
     multi_class: str, 'ovr', default: 'ovr'
         If it is a multi_class task, indicate what strategy to use. Currently, support 'ovr' short for one_vs_rest only.
 
@@ -124,7 +126,7 @@ class LogisticParam(BaseParam):
                  batch_size=-1, learning_rate=0.01, init_param=InitParam(),
                  max_iter=100, early_stop='diff', encrypt_param=EncryptParam(),
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
-                 decay=1, decay_sqrt=True,
+                 grid_search_param=GridSearchParam(), decay=1, decay_sqrt=True,
                  multi_class='ovr', validation_freqs=None, early_stopping_rounds=None,
                  stepwise_param=StepwiseParam(),
                  metrics=None,
@@ -147,6 +149,7 @@ class LogisticParam(BaseParam):
         self.encrypt_param = encrypt_param
         self.predict_param = copy.deepcopy(predict_param)
         self.cv_param = copy.deepcopy(cv_param)
+        self.grid_search_param = copy.deepcopy(grid_search_param)
         self.decay = decay
         self.decay_sqrt = decay_sqrt
         self.multi_class = multi_class
@@ -160,7 +163,6 @@ class LogisticParam(BaseParam):
         self.use_mix_rand = use_mix_rand
         self.reveal_strategy = reveal_strategy
         self.reveal_every_iter = reveal_every_iter
-        self.cv_param = cv_param
         self.encrypted_mode_calculator_param = copy.deepcopy(encrypted_mode_calculator_param)
 
     def check(self):
@@ -283,7 +285,7 @@ class HorzLogisticParam(LogisticParam):
                  max_iter=100, early_stop='diff',
                  encrypt_param=EncryptParam(), re_encrypt_batches=2,
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
-                 decay=1, decay_sqrt=True,
+                 grid_search_param=GridSearchParam(), decay=1, decay_sqrt=True,
                  aggregate_iters=1, multi_class='ovr', validation_freqs=None,
                  early_stopping_rounds=None,
                  metrics=['auc', 'ks'],
@@ -294,7 +296,7 @@ class HorzLogisticParam(LogisticParam):
                                                 learning_rate=learning_rate,
                                                 init_param=init_param, max_iter=max_iter, early_stop=early_stop,
                                                 encrypt_param=encrypt_param, predict_param=predict_param,
-                                                cv_param=cv_param, multi_class=multi_class,
+                                                cv_param=cv_param, grid_search_param=grid_search_param, multi_class=multi_class,
                                                 validation_freqs=validation_freqs,
                                                 decay=decay, decay_sqrt=decay_sqrt,
                                                 early_stopping_rounds=early_stopping_rounds,
@@ -337,6 +339,7 @@ class VertLogisticParam(LogisticParam):
                  max_iter=100, early_stop='diff',
                  encrypted_mode_calculator_param=EncryptedModeCalculatorParam(),
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
+                 grid_search_param=GridSearchParam(),
                  decay=1, decay_sqrt=True, sqn_param=StochasticQuasiNewtonParam(),
                  multi_class='ovr', validation_freqs=None, early_stopping_rounds=None,
                  metrics=['auc', 'ks'],
@@ -348,7 +351,7 @@ class VertLogisticParam(LogisticParam):
                                                 learning_rate=learning_rate,
                                                 init_param=init_param, max_iter=max_iter, early_stop=early_stop,
                                                 predict_param=predict_param, cv_param=cv_param,
-                                                decay=decay,
+                                                grid_search_param=grid_search_param, decay=decay,
                                                 decay_sqrt=decay_sqrt, multi_class=multi_class,
                                                 validation_freqs=validation_freqs,
                                                 early_stopping_rounds=early_stopping_rounds,
@@ -372,6 +375,7 @@ class MixLogisticParam(LogisticParam):
                  max_iter=100, early_stop='diff',
                  encrypted_mode_calculator_param=EncryptedModeCalculatorParam(),
                  predict_param=PredictParam(), cv_param=CrossValidationParam(),
+                 grid_search_param=GridSearchParam(),
                  decay=1, decay_sqrt=True, sqn_param=StochasticQuasiNewtonParam(),
                  multi_class='ovr', validation_freqs=None, early_stopping_rounds=None,
                  metrics=['auc', 'ks'],
@@ -383,7 +387,7 @@ class MixLogisticParam(LogisticParam):
                                                learning_rate=learning_rate,
                                                init_param=init_param, max_iter=max_iter, early_stop=early_stop,
                                                predict_param=predict_param, cv_param=cv_param,
-                                               decay=decay,
+                                               grid_search_param=grid_search_param, decay=decay,
                                                decay_sqrt=decay_sqrt, multi_class=multi_class,
                                                validation_freqs=validation_freqs,
                                                early_stopping_rounds=early_stopping_rounds,
