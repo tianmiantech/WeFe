@@ -36,13 +36,18 @@ class OotParam(BaseParam):
     """
 
     def __init__(self, mode=consts.VERT, feature_columns='', with_label=False, label_name='y',
-                 label_type='int', flow_node_id='', sub_component_name_list=[], sub_component_task_config_dick={}):
+                 label_type='int', flow_node_id='', sub_component_name_list=[], sub_component_task_config_dick={},
+                 bin_method='bucket', bin_num=6,split_points=None):
+        super().__init__()
         self.mode = mode
         self.feature_columns = feature_columns
         self.with_label = with_label
         self.label_name = label_name
         self.label_type = label_type
         self.flow_node_id = flow_node_id
+        self.bin_method = bin_method
+        self.bin_num = bin_num
+        self.split_points = split_points
         self.sub_component_name_list = sub_component_name_list
         self.sub_component_task_config_dick = sub_component_task_config_dick
 
