@@ -279,7 +279,6 @@
 
                         vData.list = list;
                         vData.tabName = `${list[0].member_id}-0`;
-                        console.log(vData.list);
                     }
                 },
             };

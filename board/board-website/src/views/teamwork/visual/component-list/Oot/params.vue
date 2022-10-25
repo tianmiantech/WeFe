@@ -139,6 +139,12 @@
             </div>
         </div>
 
+        <psi-bin 
+            v-if="vData.exitVertComponent"
+            v-model:binValue="vData.binValue" 
+            title="PSI分箱方式（预测概率/评分）"
+            :disabled="disabled"
+            :filterMethod="['quantile']" />
         <!-- Select the dataset for the specified member -->
         <el-dialog
             title="选择数据资源"
@@ -278,11 +284,15 @@
     import { useStore } from 'vuex';
     import { useRoute, useRouter } from 'vue-router';
     import DataSetList from '@comp/views/data-set-list';
+    import psiBin from '../../components/psi/psi-bin';
+    import { checkExitVertModelComponet } from '@src/service';
+    import { psiCustomSplit,replace } from '../common/utils';
 
     export default {
         name:       'Oot',
         components: {
             DataSetList,
+            psiBin,
         },
         props: {
             projectId:          String,
@@ -354,10 +364,17 @@
                     pos_label: 1,
                 },
                 oot_job_id: '',
+                binValue:   {
+                    method:       'bucket',
+                    binNumber:    6,
+                    split_points: '',
+                },
+                exitVertComponent: false,
             });
 
             const methods = {
                 async getNodeDetail(model) {
+                    methods.checkExistVertModel(model);
                     const { code, data } = await $http.get({
                         url:    '/project/flow/node/detail',
                         params: {
@@ -367,7 +384,7 @@
                     });
 
                     if (code === 0 && data && data.params && data.params.dataset_list) {
-                        const { dataset_list, eval_type, pos_label } = data.params;
+                        const { dataset_list, eval_type, pos_label, bin_method = 'bucket', bin_number = 6,split_points=[] } = data.params;
 
                         for(const memberIndex in vData.member_list) {
                             const member = vData.member_list[memberIndex];
@@ -403,7 +420,27 @@
 
                         vData.form.eval_type = eval_type || 'binary';
                         vData.form.pos_label = pos_label || 1;
+                        vData.binValue = {
+                            method:       bin_method,
+                            binNumber:    bin_number ,
+                            split_points: split_points.join(','),
+                        };
                     }
+                },
+
+                /**
+                 * 判断是否展示psi组件
+                 */
+                checkExistVertModel(model){
+                    const { ootModelFlowNodeId,flowId,ootJobId } = props;
+
+                    checkExitVertModelComponet({
+                        nodeId:      model.id,
+                        modelNodeId: ootModelFlowNodeId,
+                        flowId,jobId:       ootJobId,
+                    }).then((bool = false)=>{
+                        vData.exitVertComponent = bool;
+                    });
                 },
 
                 async getNodeData() {
@@ -680,10 +717,24 @@
                 },
 
                 checkParams() {
+                    const { binValue,exitVertComponent } = vData;
+                    const { method, binNumber,split_points } = binValue;
+                    const isCustom = method === 'custom';
+                    const array = replace(split_points).replace(/，/g,',').replace(/,$/, '').split(',');
+
+                    if(isCustom && !psiCustomSplit(array)){
+                        return false;
+                    }
                     const dataset_list = [];
+                    const re = array.map(parseFloat);
+
+                    re.sort(((a,b) => a-b));
                     const params = {
                         job_id:          props.ootJobId,
                         modelFlowNodeId: props.ootModelFlowNodeId,
+                        bin_method:      exitVertComponent ? method : undefined,
+                        bin_number:      exitVertComponent && !isCustom ? binNumber : undefined,
+                        split_points:    exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])] : undefined,
                     };
 
                     vData.member_list.forEach((member, index) => {

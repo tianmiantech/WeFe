@@ -96,7 +96,6 @@
 
             onBeforeMount(() => {
                 $bus.$on('drag-end', _ => {
-                    console.log(0);
                     piechartRefs.forEach($ref => {
                         if ($ref.value) {
                             nextTick(_=> {

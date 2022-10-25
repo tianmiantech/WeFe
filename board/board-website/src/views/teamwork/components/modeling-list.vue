@@ -19,7 +19,7 @@
         </template>
         <el-form inline @submit.prevent>
             <el-form-item label="来源组件：">
-                <el-select v-model="search.component_type">
+                <el-select v-model="search.component_type" clearable>
                     <el-option
                         v-for="item in component_types"
                         :key="item.value"
@@ -32,12 +32,14 @@
                 <el-input
                     v-model="search.flow_id"
                     placeholder="选填"
+                    clearable
                 />
             </el-form-item>
             <el-form-item label="任务 id：">
                 <el-input
                     v-model="search.job_id"
                     placeholder="选填"
+                    clearable
                 />
             </el-form-item>
             <el-form-item>
@@ -45,15 +47,21 @@
                     type="primary"
                     @click="getList"
                 >
-                    搜索
+                    查询
                 </el-button>
                 <el-button
                     hidden
                     type="primary"
                     @click="modelCompare"
+                    :disabled="form.promoterList.length"
                 >
                     模型对比
                 </el-button>
+                <el-tooltip v-if="form.promoterList.length" effect="dark" content="混合项目暂不支持该功能！" placement="right">
+                    <el-icon class="el-icon-warning ml5" style="color: #FFB403;">
+                        <elicon-warning />
+                    </el-icon>
+                </el-tooltip>
             </el-form-item>
         </el-form>
 

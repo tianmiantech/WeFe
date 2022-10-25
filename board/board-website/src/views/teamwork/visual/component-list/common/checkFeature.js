@@ -128,6 +128,7 @@ export default () => {
                 },
 
                 removeRow ({ id }, index) {
+                    vData.feature_column_count--;
                     vData.selectList.splice(index, 1);
                     vData.featureSelectTab.forEach(member => {
                         member.$feature_list.forEach(row => {
@@ -167,6 +168,7 @@ export default () => {
                 },
 
                 autoCheck (item) {
+                    if(!item) return;
                     vData.columnListLoading = true;
 
                     setTimeout(() => {

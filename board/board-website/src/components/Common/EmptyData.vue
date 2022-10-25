@@ -5,14 +5,17 @@
                 class="empty-data-img"
                 src="../../assets/images/empty_data.png"
             >
-            <p class="empty-data-message mt20">哦豁，啥也没有~</p>
+            <p class="empty-data-message mt20">{{msg ? msg : '哦豁，啥也没有~'}}</p>
         </slot>
     </div>
 </template>
 
 <script>
     export default {
-        name: 'EmptyData',
+        name:  'EmptyData',
+        props: {
+            msg: String,
+        },
     };
 </script>
 

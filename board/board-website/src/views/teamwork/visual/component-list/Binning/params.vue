@@ -89,6 +89,7 @@
                                     v-model.trim="scope.row.points"
                                     style="width:160px;"
                                     clearable
+                                    @input="methods.pointsInput(scope.row.points, index, scope.$index)"
                                 />
                             </template>
                             <template v-else-if="scope.row.method">
@@ -280,6 +281,11 @@
                     }
 
                     return true;
+                },
+                pointsInput(val, idx, sidx){
+                    val = val.replace(/，/g, ',');
+                    val = val.replace(/。/g, '.');
+                    vData.featureSelectTab[idx].$feature_list[sidx].points = val;
                 },
             };
 

@@ -15,10 +15,10 @@
                     <i class="icon-add" />
                     创建项目
                 </router-link>
-                <div class="guide" @click="showGuideVideo">
+                <!-- <div class="guide" @click="showGuideVideo">
                     新手指引
                     <i class="ml10 el-icon-video-play" />
-                </div>
+                </div> -->
             </div>
             <template v-if="list.length">
                 <router-link
@@ -305,18 +305,20 @@
     .add-wrap{
         display: block;
         color: #303133;
-        height: 160px;
+        // height: 160px;
+        height: 100%;
         line-height: 30px;
         text-align: center;
         background: #F5F7FA;
-        border-bottom: 1px solid #DCDFE6;
+        // border-bottom: 1px solid #DCDFE6;
         padding-top: 10px;
         .icon-add{
             display: block;
             position: relative;
             width: 60px;
             height:60px;
-            margin:20px auto 15px;
+            // margin:20px auto 15px;
+            margin:50px auto 20px;
             cursor: pointer;
             &:before,
             &:after{
