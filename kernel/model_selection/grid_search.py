@@ -17,7 +17,6 @@ import copy
 import itertools
 
 from common.python.utils import log_utils
-from kernel.components.evaluation.evaluation import Evaluation
 from kernel.model_selection import start_cross_validation
 from kernel.model_selection.evaluate import evaluate
 from kernel.model_selection.k_fold import KFold
