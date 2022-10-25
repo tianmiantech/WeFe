@@ -131,7 +131,7 @@
             </el-table-column>
             <el-table-column label="查看任务">
                 <template v-slot="scope">
-                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.data_resource.derived_from_job_id, project_id, member_role: scope.row.member_role }}">
+                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.job_id, flow_id: scope.row.flow_id, project_id, member_role: scope.row.member_role }}">
                         查看任务
                     </router-link>
                 </template>
@@ -241,6 +241,12 @@
                 const { code, data } = await this.$http.get(params);
 
                 if(code === 0) {
+                    data.list.forEach(item => {
+                        item.members.forEach(sitem => {
+                            item.job_id = sitem.job_id;
+                            item.flow_id = sitem.flow_id;
+                        });
+                    });
                     this.derived.list = data.list;
                     this.derived.total = data.total;
                 }

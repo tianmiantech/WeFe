@@ -30,7 +30,7 @@
                 class="heading-bar-title text-l f14"
             />
             <div class="heading-tools">
-                <el-tooltip
+                <!-- <el-tooltip
                     v-model="vData.videoTip"
                     popper-class="video-guide-tip"
                     placement="left"
@@ -45,7 +45,7 @@
                         href="javascript:;"
                         @click="showVideoGuide"
                     >操作指引</a>
-                </el-tooltip>
+                </el-tooltip> -->
                 <a
                     href="https://www.wjx.top/vj/hW9y0cp.aspx"
                     target="_blank"
@@ -100,16 +100,16 @@
         </div>
         <layout-tags v-show="tagsList.length" />
 
-        <VideoGuideDialog
+        <!-- <VideoGuideDialog
             ref="VideoGuideDialog"
             @show-video-tip="showVideoTip"
-        />
+        /> -->
     </div>
 </template>
 
 <script>
     import {
-        ref,
+        // ref,
         computed,
         reactive,
         getCurrentInstance,
@@ -136,7 +136,7 @@
             const { appContext } = getCurrentInstance();
             const { $bus } = appContext.config.globalProperties;
 
-            const VideoGuideDialog = ref();
+            // const VideoGuideDialog = ref();
             const vData = reactive({
                 headingTitle:  '',
                 videoTip:      false,
@@ -238,9 +238,9 @@
                 }
             };
             // show video help
-            const showVideoGuide = () => {
+            /* const showVideoGuide = () => {
                 VideoGuideDialog.value.vData.show = true;
-            };
+            }; */
             const showVideoTip = () => {
                 vData.videoTip = true;
                 setTimeout(() => {
@@ -295,15 +295,15 @@
 
             return {
                 vData,
+                backward,
                 userInfo: userInfo.value,
                 tagsList: tagsList.value,
-                backward,
                 handleCommand,
                 fullScreenSwitch,
-                VideoGuideDialog,
-                getConnect,
-                showVideoGuide,
+                // VideoGuideDialog,
+                // showVideoGuide,
                 showVideoTip,
+                getConnect,
             };
         },
     };
