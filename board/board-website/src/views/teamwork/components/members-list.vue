@@ -56,7 +56,7 @@
                     border
                     stripe
                 >
-                    <el-table-column type="index" />
+                    <el-table-column label="序号" type="index" />
                     <el-table-column
                         label="数据资源"
                         width="260"
@@ -373,10 +373,23 @@
                     ImageDataSet: '图像数据集',
                     BloomFilter:  '布隆过滤器',
                 },
+                privateMembers: [],
             };
         },
         computed: {
             ...mapGetters(['userInfo']),
+            selectedPrivateMembers: ({ form, privateMembers, promoter }) =>
+                privateMembers.filter(({ member_id }) =>
+                    [promoter, ...form.memberList, ...form.promoterList].find(
+                        (each) => each.member_id === member_id,
+                    ),
+                ),
+        },
+        created() {
+            this.$http.post('/partner_config/query').then(({ code,data }) => {
+                if(code === 0)
+                    this.privateMembers = data.list;
+            });
         },
         methods: {
             showDataSetPreview(item){
@@ -637,4 +650,14 @@
             &:hover{opacity:0.9;}
         }
     }
+    .privatenetwork{
+            font-size: 14px;
+            .title{
+                font-weight: 600;
+            }
+            .desc{
+                font-size: 12px;
+                color:#808080;
+            }
+        }
 </style>

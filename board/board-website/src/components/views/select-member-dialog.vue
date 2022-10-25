@@ -1,11 +1,11 @@
 <template>
     <el-dialog
         v-model="show"
-        width="750px"
+        width="900px"
         title="请选择成员"
         destroy-on-close
         :close-on-click-modal="false"
-        top="10vh"
+        top="50px"
     >
         <el-form
             inline
@@ -31,12 +31,14 @@
                     clearable
                 />
             </el-form-item>
-            <el-button
-                type="primary"
-                @click="loadDataList({ resetPagination: true })"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="loadDataList({ resetPagination: true })"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
         </el-form>
         <el-table
             v-loading="loading"
@@ -73,7 +75,6 @@
             </el-table-column>
             <el-table-column
                 label="操作"
-                width="100"
                 fixed="right"
                 align="center"
             >

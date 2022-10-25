@@ -26,7 +26,7 @@ from tensorflow import keras
 from tensorflow.keras import optimizers
 from tensorflow.keras.utils import to_categorical
 
-from kernel.examples.handler.utils.tools import JobConfig
+from kernel.examples.handler.utils.tools import load_job_config, JobConfig
 
 
 def build(param, shape1, shape2):
@@ -55,11 +55,9 @@ def build(param, shape1, shape2):
 
 def main(config="../../config.yaml", param="./param_conf_binary.yaml"):
     if isinstance(config, str):
-        config = JobConfig.load_from_file(config)
-        data_base_dir = config["data_base_dir"]
-    else:
-        data_base_dir = config.data_base_dir
-
+        config = load_job_config(config)
+    data_base_dir = config.data_base_dir
+    print(data_base_dir)
     if isinstance(param, str):
         param = JobConfig.load_from_file(param)
     data_guest = param["data_promoter"]

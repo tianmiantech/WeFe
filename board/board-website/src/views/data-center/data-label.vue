@@ -296,7 +296,6 @@
                         },
                     };
 
-                    console.log(params);
                     const { code } = await $http.post({
                         url:  '/image_data_set_sample/update',
                         data: params,

@@ -54,3 +54,6 @@ venv/
 .env.*.local
 .factorypath
 **/.factorypath
+
+*.lock
+*.lock.json

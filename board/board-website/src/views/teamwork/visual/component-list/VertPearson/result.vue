@@ -250,11 +250,12 @@
                     vData.promoterFeatureSelectTab = [];
                     vData.providerFeatureSelectTab = [];
                     vData.localFeatureSelectTab = [];
+                    vData.promoterConfig.xAxis = [];
+                    vData.promoterConfig.yAxis = [];
 
                     if(data[0].result) {
                         const maxFeatureNum = vData.feature_column_count > 30 ? 30 : vData.feature_column_count;
 
-                        console.log(maxFeatureNum);
                         const {
                             corr,
                             features,
@@ -558,7 +559,6 @@
                             $checkedColumnsArr.forEach(name => {
                                 chartData.yAxis.unshift(name);
                             });
-
                             if(role !== 'local') {
                                 chartData.featureColumnCount += $checkedColumnsArr.length;
                             }
@@ -579,7 +579,10 @@
                                 chartData.series.unshift([rowIndex, length - columnIndex - 1, String(row).replace(/^(.*\..{4}).*$/,'$1')]);
                             });
                         });
+
                     }
+                    // [fix_ID1038609_20221009_皮尔逊热力图Y轴选择特征之后倒序了]
+                    chartData.yAxis.reverse();
 
                     chartData.width = chartData.xAxis.length * (chartData.xAxis.length > 10 ? 60 : 100);
                     chartData.height = chartData.yAxis.length * 34 + (chartData.yAxis.length > 10 ? 50 : 100);

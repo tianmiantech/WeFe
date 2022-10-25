@@ -489,7 +489,6 @@
                                     methods.getPredictDetail();
                                 }, 3000);
                             }
-                            console.log(vData.forJobType);
                         });
                     }
                 },
