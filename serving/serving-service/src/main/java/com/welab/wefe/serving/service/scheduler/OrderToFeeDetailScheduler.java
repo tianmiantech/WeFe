@@ -81,10 +81,10 @@ public class OrderToFeeDetailScheduler {
             Date endTime = new Date();
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-            calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.setTime(endTime);
-            calendar.add(Calendar.HOUR, -1);
+            // 统计前1分钟
+            calendar.add(Calendar.MINUTE, -1);
             Date startTime = calendar.getTime();
 
             ServiceOrderInput input = new ServiceOrderInput();
