@@ -146,12 +146,12 @@
                             >
                                 上传数据资源文件
                             </el-radio>
-                            <!-- <el-radio
+                            <el-radio
                                 v-model="form.data_set_add_method"
                                 label="LocalFile"
                             >
                                 服务器本地文件
-                            </el-radio> -->
+                            </el-radio>
                             <el-radio
                                 v-model="form.data_set_add_method"
                                 label="Database"
@@ -159,14 +159,14 @@
                                 数据库
                             </el-radio>
                         </el-form-item>
-                        <!-- <div v-if="form.data_set_add_method === 'LocalFile'">
+                        <div v-if="form.data_set_add_method === 'LocalFile'">
                             <el-input
                                 v-model="local_filename"
                                 placeholder="文件在服务器上的绝对路径"
                                 @keydown.enter="previewDataSet"
                                 @keydown.tab="previewDataSet"
                             />
-                        </div> -->
+                        </div>
                         <uploader
                             v-if="form.data_set_add_method === 'HttpUpload'"
                             ref="uploaderRef"
