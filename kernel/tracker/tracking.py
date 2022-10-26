@@ -822,7 +822,7 @@ class Tracking(object):
 
         return model
 
-    def init_task_progress(self, work_amount: int):
+    def init_task_progress(self, work_amount: int, to_disable=False):
         """
 
         Initialize the total engineering quantity of the task schedule
@@ -841,6 +841,9 @@ class Tracking(object):
 
         """
         if self.oot:
+            return
+
+        if to_disable:
             return
 
         is_insert = True
@@ -886,7 +889,7 @@ class Tracking(object):
 
         TaskProgressDao.save(model, force_insert=is_insert)
 
-    def set_task_progress(self, work_amount: int):
+    def set_task_progress(self, work_amount: int, to_disable=False):
         """
         Update the progress according to the specified work amount
 
@@ -902,6 +905,9 @@ class Tracking(object):
         if self.oot:
             return
 
+        if to_disable:
+            return
+
         if work_amount >= 0:
             model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)
             if model:
@@ -910,7 +916,7 @@ class Tracking(object):
                 self._calc_progress(model)
                 TaskProgressDao.save(model)
 
-    def add_task_progress(self, step: int = 1):
+    def add_task_progress(self, step: int = 1, to_disable=False):
         """
 
         Increase progress according to step
@@ -924,6 +930,9 @@ class Tracking(object):
 
         """
         if self.oot:
+            return
+
+        if to_disable:
             return
 
         model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)
