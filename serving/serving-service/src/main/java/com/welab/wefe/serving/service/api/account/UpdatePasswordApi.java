@@ -36,7 +36,7 @@ public class UpdatePasswordApi extends AbstractApi<UpdatePasswordApi.Input, None
 
     @Override
     protected ApiResult<NoneApiOutput> handle(Input input) throws StatusCodeWithException {
-    	accountService.updatePassword(input.oldPassword, input.newPassword);
+    	//accountService.updatePassword(input.oldPassword, input.newPassword);
         return success();
     }
 

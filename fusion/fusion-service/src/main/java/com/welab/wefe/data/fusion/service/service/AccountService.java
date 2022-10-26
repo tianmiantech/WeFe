@@ -16,43 +16,39 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.Md5;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.service.account.AbstractAccountService;
 import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.BoardUserSource;
-import com.welab.wefe.data.fusion.service.api.account.*;
+import com.welab.wefe.data.fusion.service.api.account.AuditApi;
+import com.welab.wefe.data.fusion.service.api.account.ForgetPasswordApi;
+import com.welab.wefe.data.fusion.service.api.account.QueryApi;
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.data.fusion.service.database.repository.AccountRepository;
 import com.welab.wefe.data.fusion.service.dto.base.PagingOutput;
 import com.welab.wefe.data.fusion.service.dto.vo.AccountInputModel;
 import com.welab.wefe.data.fusion.service.dto.vo.AccountOutputModel;
 import com.welab.wefe.data.fusion.service.service.globalconfig.GlobalConfigService;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author Zane
  */
 @Service
-public class AccountService extends AbstractAccountService {
+public class AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
@@ -96,7 +92,7 @@ public class AccountService extends AbstractAccountService {
         String password = Sha1.of(input.getPassword() + salt);
 
         AccountMysqlModel model = new AccountMysqlModel();
-        model.setCreatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
         model.setPhoneNumber(input.getPhoneNumber());
         model.setNickname(input.getNickname());
         model.setEmail(input.getEmail());
@@ -142,7 +138,7 @@ public class AccountService extends AbstractAccountService {
      * The administrator reviews the account
      */
     public void audit(AuditApi.Input input) throws StatusCodeWithException {
-        AccountMysqlModel auditor = accountRepository.findById(CurrentAccount.id()).orElse(null);
+        AccountMysqlModel auditor = accountRepository.findById(CurrentAccountUtil.get().getId()).orElse(null);
         if (!auditor.getAdminRole()) {
             throw new StatusCodeWithException("您不是管理员，无权执行审核操作！", StatusCode.PARAMETER_VALUE_INVALID);
         }
@@ -153,191 +149,11 @@ public class AccountService extends AbstractAccountService {
 //        }
 
         account.setAuditStatus(input.getAuditStatus());
-        account.setAuditComment(CacheObjects.getNickname(CurrentAccount.id()) + "：" + input.getAuditComment());
-        account.setUpdatedBy(CurrentAccount.id());
+        account.setAuditComment(CacheObjects.getNickname(CurrentAccountUtil.get().getId()) + "：" + input.getAuditComment());
+        account.setUpdatedBy(CurrentAccountUtil.get().getId());
         accountRepository.save(account);
     }
 
-
-    /**
-     * Update user basic information
-     */
-    public void update(UpdateApi.Input input) throws StatusCodeWithException {
-
-        AccountMysqlModel superAccount = accountRepository.findById(CurrentAccount.id()).orElse(null);
-        AccountMysqlModel updateAccount = accountRepository.findById(input.getId()).orElse(null);
-
-        if (updateAccount == null || superAccount == null) {
-            throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
-        }
-
-        if (updateAccount.getId().equals(superAccount.getId())) {
-            // update self account
-            updateAccount = superAccount;
-        }
-
-        if (StringUtil.isNotEmpty(input.getNickname())) {
-            updateAccount.setNickname(input.getNickname());
-        }
-
-        if (StringUtil.isNotEmpty(input.getEmail())) {
-            updateAccount.setEmail(input.getEmail());
-        }
-
-        // Set someone else to be an administrator
-        if (input.getAdminRole() != null) {
-            if (!CurrentAccount.isSuperAdmin()) {
-                throw new StatusCodeWithException("非超级管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
-            }
-            updateAccount.setAdminRole(input.getAdminRole());
-        }
-
-        updateAccount.setUpdatedBy(CurrentAccount.id());
-        updateAccount.setUpdatedTime(new Date());
-
-        accountRepository.save(updateAccount);
-    }
-
-    /**
-     * Update the user's enable status
-     */
-    public void enable(EnableApi.Input input) throws StatusCodeWithException {
-
-        if (!CurrentAccount.isAdmin() && !CurrentAccount.isSuperAdmin()) {
-            throw new StatusCodeWithException("普通用户无法进行此操作。", StatusCode.PERMISSION_DENIED);
-        }
-
-        if (input.getId().equals(CurrentAccount.id())) {
-            throw new StatusCodeWithException("无法对自己进行此操作。", StatusCode.PERMISSION_DENIED);
-        }
-
-        AccountMysqlModel account = accountRepository.findById(input.getId()).orElse(null);
-        if (account == null) {
-            throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
-        }
-
-        if (account.getAdminRole() && !CurrentAccount.isSuperAdmin()) {
-            throw new StatusCodeWithException("非超级管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
-        }
-
-        account.setEnable(input.getEnable());
-        account.setUpdatedBy(CurrentAccount.id());
-        account.setUpdatedTime(new Date());
-        account.setAuditComment(input.getEnable()
-                ? CacheObjects.getNickname(CurrentAccount.id()) + "启用了该账号"
-                : CacheObjects.getNickname(CurrentAccount.id()) + "禁用了该账号");
-
-        accountRepository.save(account);
-
-        CurrentAccount.logout(input.getId());
-    }
-
-    /**
-     * Reset user password (administrator rights)
-     */
-    public String resetPassword(ResetPasswordApi.Input input) throws StatusCodeWithException {
-
-        if (!CurrentAccount.isAdmin()) {
-            throw new StatusCodeWithException("非管理员无法重置密码。", StatusCode.PERMISSION_DENIED);
-        }
-
-
-        AccountMysqlModel operator = accountRepository.findById(CurrentAccount.id()).orElse(null);
-        if (!super.verifyPassword(operator.getPassword(), input.getPassword(), operator.getSalt())) {
-            throw new StatusCodeWithException("密码错误，身份核实失败，已退出登录。", StatusCode.PERMISSION_DENIED);
-        }
-
-        AccountMysqlModel model = accountRepository.findById(input.getId()).orElse(null);
-
-        if (model == null) {
-            throw new StatusCodeWithException("找不到更新的用户信息。", StatusCode.DATA_NOT_FOUND);
-        }
-
-        if (model.getSuperAdminRole()) {
-            throw new StatusCodeWithException("不能重置超级管理员密码。", StatusCode.PERMISSION_DENIED);
-        }
-
-        String salt = SecurityUtil.createRandomSalt();
-        String newPassword = RandomStringUtils.randomAlphanumeric(2) + new Random().nextInt(999999);
-
-        String websitePassword = model.getPhoneNumber() + newPassword + model.getPhoneNumber() + model.getPhoneNumber().substring(0, 3) + newPassword.substring(newPassword.length() - 3);
-
-        model.setSalt(salt);
-        model.setPassword(Sha1.of(Md5.of(websitePassword) + salt));
-        model.setUpdatedBy(CurrentAccount.id());
-        model.setUpdatedTime(new Date());
-        accountRepository.save(model);
-
-        CurrentAccount.logout(model.getId());
-
-        return newPassword;
-    }
-//
-//
-//
-//    /**
-//     * Query the online account of the exchange center
-//     */
-//    public List<OnlineAccountOutput> queryOnlineAccount(QueryOnlineApi.Input input) throws StatusCodeWithException {
-//        List<OnlineAccountOutput> resultList = new ArrayList<>();
-//        // Don't need to go through the gateway to query the online accounts of your own members
-//        if (CacheObjects.getMemberId().equals(input.getMemberId()) || input.fromGateway()) {
-//            WebSocketServer.webSocketMap.forEach((k, v) -> {
-//                OnlineAccountOutput onlineAccountOutput = new OnlineAccountOutput();
-//                if (StringUtil.isEmpty(input.getAccountId())) {
-//                    onlineAccountOutput.setAccountId(k);
-//                    resultList.add(onlineAccountOutput);
-//                } else if (k.equals(input.getAccountId())) {
-//                    onlineAccountOutput.setAccountId(k);
-//                    resultList.add(onlineAccountOutput);
-//                }
-//
-//            });
-//            return resultList;
-//        }
-//        try {
-//            JObject data = JObject.create().append("memberId", input.getMemberId())
-//                    .append("accountId", input.getAccountId());
-//
-//            QueryOnlineApi.Output output = gatewayService.callOtherMemberBoard(
-//                    input.getMemberId(),
-//                    JobMemberRole.promoter,
-//                    QueryOnlineApi.class,
-//                    data,
-//                    QueryOnlineApi.Output.class
-//            );
-//
-//            return output.getList();
-//        } catch (Exception e) {
-//            throw new StatusCodeWithException("系统异常: " + e.getMessage(), StatusCode.SYSTEM_ERROR);
-//        }
-//    }
-//
-//    /**
-//     * Check whether the user with the specified mobile phone number exists
-//     */
-//    public boolean exist(String phoneNumber) {
-//        AccountMysqlModel model = accountRepository.findOne("phoneNumber", phoneNumber, AccountMysqlModel.class);
-//        return model != null;
-//    }
-//
-//
-
-    /**
-     * Transfer the super administrator status to another account
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void changeSuperAdmin(AccountMysqlModel account) throws StatusCodeWithException {
-        account.setAdminRole(true);
-        account.setSuperAdminRole(true);
-        account.setUpdatedBy(CurrentAccount.id());
-        account.setUpdatedTime(new Date());
-
-        // Update designated user as super administrator
-        accountRepository.save(account);
-        // Cancel the super administrator privileges of the current account
-        accountRepository.cancelSuperAdmin(CurrentAccount.id());
-    }
 
     public void forgetPassword(ForgetPasswordApi.Input input) throws StatusCodeWithException {
         if (StringUtil.isEmpty(input.getPhoneNumber())) {
@@ -363,36 +179,6 @@ public class AccountService extends AbstractAccountService {
         String salt = SecurityUtil.createRandomSalt();
         model.setSalt(salt);
         model.setPassword(Sha1.of(input.getPassword() + salt));
-        accountRepository.save(model);
-    }
-
-    @Override
-    public AccountInfo getAccountInfo(String phoneNumber) throws StatusCodeWithException {
-        AccountMysqlModel model = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(phoneNumber));
-        return toAccountInfo(model);
-    }
-
-    @Override
-    public AccountInfo getSuperAdmin() {
-        List<AccountMysqlModel> list = accountRepository.findAll(Where
-                .create()
-                .equal("superAdminRole", true)
-                .build(AccountMysqlModel.class)
-        );
-
-        if (list.isEmpty()) {
-            return null;
-        }
-
-        return toAccountInfo(list.get(0));
-    }
-
-    @Override
-    public void saveSelfPassword(String password, String salt, JSONArray historyPasswords) throws StatusCodeWithException {
-        AccountMysqlModel model = accountRepository.findById(CurrentAccount.id()).orElse(null);
-        model.setPassword(password);
-        model.setSalt(salt);
-        model.setHistoryPasswordList(historyPasswords);
         accountRepository.save(model);
     }
 

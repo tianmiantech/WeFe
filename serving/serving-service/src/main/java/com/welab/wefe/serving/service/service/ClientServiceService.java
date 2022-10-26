@@ -23,7 +23,6 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.http.HttpRequest;
 import com.welab.wefe.common.http.HttpResponse;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.serving.sdk.dto.ProviderParams;
 import com.welab.wefe.serving.service.api.clientservice.*;
@@ -224,9 +223,9 @@ public class ClientServiceService {
         Specification<ClientServiceMysqlModel> where = Where.create().equal("serviceId", input.getServiceId())
                 .equal("clientId", input.getClientId()).build(ClientServiceMysqlModel.class);
         Optional<ClientServiceMysqlModel> optional = clientServiceRepository.findOne(where);
-        if (!CurrentAccount.isAdmin() || !CurrentAccount.isSuperAdmin()) {
+        /*if (!CurrentAccount.isAdmin() || !CurrentAccount.isSuperAdmin()) {
             throw new StatusCodeWithException(StatusCode.ILLEGAL_REQUEST);
-        }
+        }*/
         if (optional.isPresent()) {
             ClientServiceMysqlModel model = optional.get();
             if (model.getType().equals(ServiceClientTypeEnum.ACTIVATE.getValue())) {

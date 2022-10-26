@@ -19,7 +19,7 @@ package com.welab.wefe.data.fusion.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.data.fusion.service.api.system.InitializeApi;
 import com.welab.wefe.data.fusion.service.database.entity.AccountMysqlModel;
@@ -69,7 +69,7 @@ public class SystemInitializeService {
             throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "系统已初始化，不能重复操作。");
         }
 
-        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccount.phoneNumber()));
+        AccountMysqlModel account = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(CurrentAccountUtil.get().getPhoneNumber()));
         if (!account.getSuperAdminRole()) {
             throw new StatusCodeWithException("您没有初始化系统的权限，请联系超级管理员（第一个注册的人）进行操作。", StatusCode.INVALID_USER);
         }

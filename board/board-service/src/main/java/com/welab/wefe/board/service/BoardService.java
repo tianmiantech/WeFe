@@ -68,10 +68,10 @@ public class BoardService implements ApplicationContextAware {
     public static void main(String[] args) {
         Launcher
                 .instance()
-                .apiLogger(new BoardApiLogger())
+                //.apiLogger(new BoardApiLogger())
                 .apiPackageClass(BoardService.class)
                 // 禁止未登录且无验签的访问
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
+                //.checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
                 .onApiExceptionFunction((api, e) -> {
 
                     // When an exception occurs in a node,

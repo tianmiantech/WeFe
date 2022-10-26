@@ -49,7 +49,7 @@ public class InitializeUnionModeApi extends AbstractNoneOutputApi<InitializeUnio
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
         //校验账号密码 check方法。
-        accountService.accountCheck(input.getPhoneNumber(), input.getPassword());
+        //accountService.accountCheck(input.getPhoneNumber(), input.getPassword());
 
         //initialize
         IdentityInfoModel identityInfoModel = input.convertToIdentityInfoModel();

@@ -17,7 +17,7 @@
 package com.welab.wefe.serving.service.database.repository.base;
 
 
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.serving.service.dto.PagingInput;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import org.apache.commons.collections4.CollectionUtils;
@@ -102,7 +102,7 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
         update
                 .set(root.get(key), value)
                 .set(root.get("updatedTime"), new Date())
-                .set(root.get("updatedBy"), CurrentAccount.id())
+                .set(root.get("updatedBy"), CurrentAccountUtil.get().getId())
                 .where(cb.equal(root.get("id"), id));
 
         return entityManager
@@ -120,7 +120,7 @@ public class BaseRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRep
 			update.set(entry.getKey(), entry.getValue());
 		}
 
-		update.set(root.get("updatedTime"), new Date()).set(root.get("updatedBy"), CurrentAccount.id())
+		update.set(root.get("updatedTime"), new Date()).set(root.get("updatedBy"), CurrentAccountUtil.get().getId())
 				.where(cb.equal(root.get("id"), id));
 
 		return entityManager.createQuery(update).executeUpdate();

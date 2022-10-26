@@ -61,16 +61,16 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
-        String token = accountService.login(input.phoneNumber, input.password, input.getKey(), input.getCode());
+       /* String token = accountService.login(input.phoneNumber, input.password, input.getKey(), input.getCode());
         AccountMySqlModel model = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(input.phoneNumber));
 
         Output output = new Output(token, model);
 
-        /**
+        *//**
          * After successful login, check whether the system has been initialized
          *
          * An exception is thrown when it is not initialized. When the front end obtains the exception, it will jump to the initialization interface.
-         */
+         *//*
         if (!globalConfigService.isInitialized()) {
             IdentityInfoModel identityInfoModel = new IdentityInfoModel();
             identityInfoModel.setMemberId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -86,7 +86,8 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
             globalConfigService.initializeToStandalone(identityInfoModel);
         }
 
-        return success(output);
+        return success(output);*/
+        return success();
     }
 
     public static class Input extends AbstractApiInput {

@@ -19,7 +19,7 @@ package com.welab.wefe.data.fusion.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.DatabaseType;
 import com.welab.wefe.data.fusion.service.api.datasource.*;
@@ -71,8 +71,8 @@ public class DataSourceService extends AbstractService {
         // 测试连接
         testDBConnect(input.getDatabaseType(), input.getHost(), input.getPort(), input.getUserName(), input.getPassword(), input.getDatabaseName());
         DataSourceMySqlModel model = ModelMapper.map(input, DataSourceMySqlModel.class);
-        model.setCreatedBy(CurrentAccount.id());
-        model.setUpdatedBy(CurrentAccount.id());
+        model.setCreatedBy(CurrentAccountUtil.get().getId());
+        model.setUpdatedBy(CurrentAccountUtil.get().getId());
         model.setCreatedTime(new Date());
         model.setUpdatedTime(new Date());
         dataSourceRepo.save(model);
@@ -94,7 +94,7 @@ public class DataSourceService extends AbstractService {
         params.put("port", input.getPort());
         params.put("userName", input.getUserName());
         params.put("password", input.getPassword());
-        params.put("updatedBy", CurrentAccount.id());
+        params.put("updatedBy", CurrentAccountUtil.get().getId());
         params.put("updatedTime", new Date());
         dataSourceRepo.updateById(input.getId(), params, DataSourceMySqlModel.class);
 

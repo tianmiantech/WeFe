@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.welab.wefe.board.service.base.LoginAccountInfo;
 import com.welab.wefe.board.service.constant.ChatConstant;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -25,6 +26,7 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.service.account.AccountInfo2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -81,7 +83,7 @@ public class WebSocketServer {
         this.session = session;
         this.token = token;
 
-        AccountInfo info = CurrentAccount.get(token);
+        AccountInfo2 info = LoginAccountInfo.getInstance().get(token);
         if (info == null) {
             log.error("Illegal user, the token does not exist: " + token);
             try {
@@ -91,14 +93,14 @@ public class WebSocketServer {
             }
             return;
         }
-        accountId = info.id;
+        accountId = info.getId();
         if (!webSocketMap.containsKey(accountId)) {
             //Online number plus 1
             ONLINE_COUNT.incrementAndGet();
         }
         webSocketMap.put(accountId, this);
 
-        log.info("User connection: " + info.phoneNumber + "，token: " + this.token + ", the number of people currently online is:" + ONLINE_COUNT.get());
+        log.info("User connection: " + info.getPhoneNumber() + "，token: " + this.token + ", the number of people currently online is:" + ONLINE_COUNT.get());
 
         try {
             sendMessage(responseNonchatMessage(StatusCode.SUCCESS.getCode(), "连接成功", null));
@@ -120,8 +122,8 @@ public class WebSocketServer {
             ONLINE_COUNT.decrementAndGet();
         }
 
-        AccountInfo info = CurrentAccount.get(token);
-        log.info("User exit: " + info.phoneNumber + ", token: " + token + ",the number of people currently online is:" + ONLINE_COUNT.get());
+        AccountInfo2 info = LoginAccountInfo.getInstance().get(token);
+        log.info("User exit: " + info.getPhoneNumber() + ", token: " + token + ",the number of people currently online is:" + ONLINE_COUNT.get());
     }
 
     /**
@@ -133,13 +135,13 @@ public class WebSocketServer {
     public void onMessage(String message, Session session) throws IOException {
         log.info("User message: {},content: {}", token, message);
 
-        AccountInfo info = CurrentAccount.get(token);
+        AccountInfo2 info = LoginAccountInfo.getInstance().get(token);
         if (info == null) {
             sendMessage(responseNonchatMessage(StatusCode.LOGIN_REQUIRED.getCode(), "token无效，请重新登录再试", null));
             return;
         }
 
-        log.info("user：" + info.phoneNumber);
+        log.info("user：" + info.getPhoneNumber());
         if (StringUtil.isEmpty(message)) {
             sendMessage(responseNonchatMessage(StatusCode.ILLEGAL_REQUEST.getCode(), "消息不能为空", null));
             return;
@@ -214,7 +216,7 @@ public class WebSocketServer {
         } catch (StatusCodeWithException e) {
             sendMessage(responseNonchatMessage(e.getStatusCode().getCode(), e.getMessage(), data));
         } catch (Exception e) {
-            log.error("User: " + info.phoneNumber + ", token: " + this.token + ", handle client message exception", e);
+            log.error("User: " + info.getPhoneNumber() + ", token: " + this.token + ", handle client message exception", e);
             sendMessage(responseNonchatMessage(StatusCode.SYSTEM_ERROR.getCode(), e.getMessage(), data));
         }
     }

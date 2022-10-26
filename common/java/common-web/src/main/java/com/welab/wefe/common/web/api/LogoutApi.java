@@ -17,7 +17,6 @@
 package com.welab.wefe.common.web.api;
 
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
@@ -34,7 +33,6 @@ public class LogoutApi extends AbstractApi<NoneApiInput, NoneApiOutput> {
     @Override
     protected ApiResult<NoneApiOutput> handle(NoneApiInput input) throws StatusCodeWithException {
 
-        CurrentAccount.logout();
         return success();
     }
 }

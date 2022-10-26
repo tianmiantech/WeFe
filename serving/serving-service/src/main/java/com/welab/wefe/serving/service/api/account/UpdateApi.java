@@ -38,7 +38,7 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, NoneApiOutput> {
 
     @Override
     protected ApiResult<NoneApiOutput> handle(UpdateApi.Input input) throws StatusCodeWithException {
-        accountService.update(input);
+        //accountService.update(input);
         return success();
     }
 

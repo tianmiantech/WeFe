@@ -19,7 +19,7 @@ package com.welab.wefe.serving.service.service;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.PredictFeatureDataSource;
@@ -107,13 +107,13 @@ public class ModelService {
         TableModelMySqlModel model = findOne(input.getServiceId());
         if (model == null) {
             model = new TableModelMySqlModel();
-            model.setCreatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
+            model.setCreatedBy(CurrentAccountUtil.get() == null ? "board推送" : CurrentAccountUtil.get().getId());
         }
 
         convertTo(input, model);
 
         model.setUpdatedTime(new Date());
-        model.setUpdatedBy(CurrentAccount.get() == null ? "board推送" : CurrentAccount.get().getId());
+        model.setUpdatedBy(CurrentAccountUtil.get() == null ? "board推送" : CurrentAccountUtil.get().getId());
         modelRepository.save(model);
 
         CacheObjects.refreshServiceMap();
@@ -329,7 +329,7 @@ public class ModelService {
             model.setSqlScript(sqlScript);
             model.setSqlConditionField(sqlConditionField);
             model.setDataSourceId(dataSourceId);
-            model.setUpdatedBy(CurrentAccount.id());
+            model.setUpdatedBy(CurrentAccountUtil.get().getId());
             model.setUpdatedTime(new Date());
             modelRepository.save(model);
         } else {
@@ -338,7 +338,7 @@ public class ModelService {
             model.setDataSourceId(null);
             model.setSqlScript("");
             model.setSqlConditionField("");
-            model.setUpdatedBy(CurrentAccount.id());
+            model.setUpdatedBy(CurrentAccountUtil.get().getId());
             model.setUpdatedTime(new Date());
             modelRepository.save(model);
         }

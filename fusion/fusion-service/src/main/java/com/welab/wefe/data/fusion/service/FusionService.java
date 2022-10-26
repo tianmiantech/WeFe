@@ -20,7 +20,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
@@ -51,7 +50,7 @@ public class FusionService implements ApplicationContextAware {
         Launcher
                 .instance()
                 .apiPackageClass(FusionService.class)
-                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                //.checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);

@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.chat.AddChatLastAccountApi;
 import com.welab.wefe.board.service.api.chat.DeleteChatLastAccountApi;
+import com.welab.wefe.board.service.base.LoginAccountInfo;
 import com.welab.wefe.board.service.database.entity.chat.ChatLastAccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.chat.ChatUnreadMessageMySqlModel;
 import com.welab.wefe.board.service.database.repository.ChatLastAccountRepository;
@@ -25,6 +26,8 @@ import com.welab.wefe.board.service.database.repository.ChatUnreadMessageReposit
 import com.welab.wefe.board.service.dto.entity.ChatLastAccountOutputModel;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
+import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +104,8 @@ public class ChatLastAccountService extends AbstractService {
             }
         }
 
+        // 由于在打开聊天对话框后会前端会定时调用该方法，因此在这里刷新当前登录用户信息比较合适
+        refreshLoginAccountCache();
         return resultList;
     }
 
@@ -150,5 +155,12 @@ public class ChatLastAccountService extends AbstractService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(DeleteChatLastAccountApi.Input input) {
         chatLastAccountRepository.deleteByAccountIdEqualsAndLiaisonAccountIdEquals(input.getAccountId(), input.getLiaisonAccountId());
+    }
+
+    /**
+     * 刷新当前登录用户缓存以防止过期
+     */
+    private void refreshLoginAccountCache() {
+        LoginAccountInfo.getInstance().get(CurrentAccountUtil.get().getId());
     }
 }
