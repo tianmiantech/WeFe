@@ -401,6 +401,7 @@
     .el-form{max-width: 500px;}
     .el-link{line-height: 1;}
     .el-uploader{
+        margin-top: 100px;
         :deep(.el-upload-dragger){width:500px;}
         :deep(.el-upload-list__item-thumbnail){display: none;}
         :deep(.el-upload-list__item-name){
