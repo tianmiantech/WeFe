@@ -97,7 +97,7 @@
 
             <el-button
                 v-loading="submitting"
-                v-if="true || userInfo.super_admin_role"
+                v-if="userInfo.super_admin_role"
                 :disabled="!form.principalName || !form.authType || !form.fileIdList.length || !!uploading"
                 style="width: 120px;"
                 class="save-btn"
