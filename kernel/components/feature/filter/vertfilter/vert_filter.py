@@ -99,7 +99,7 @@ class VertSampleFilter(ModelBase):
 
     def process_value(self, value):
         flag = False
-        LOGGER.debug('feature_filter_rules:{}'.format(self.feature_filter_rules))
+        # LOGGER.debug('feature_filter_rules:{}'.format(self.feature_filter_rules))
         for feature_name, feature in self.feature_filter_rules.items():
             idx = feature['idx']
             real_value = value.features[idx]
@@ -125,7 +125,7 @@ class VertSampleFilter(ModelBase):
                 right = feature['right'] if 'right' in feature.keys() else False
                 left = feature['left'] if 'left' in feature.keys() else False
                 if value_min is not None:
-                    LOGGER.debug('real_value:{} , value_min:{}, value_max:{}'.format(real_value, value_min, value_max))
+                    # LOGGER.debug('real_value:{} , value_min:{}, value_max:{}'.format(real_value, value_min, value_max))
                     if real_value < value_min:
                         flag = True
                     if not left:
