@@ -156,12 +156,14 @@
                     checkExitVertModelComponet({
                         nodeId:      model.id,
                         modelNodeId: ootModelFlowNodeId,
-                        flowId,jobId:       ootJobId,
+                        jobId:       ootJobId,
+                        flowId,
                     }).then((bool = false)=>{
                         vData.exitVertComponent = bool;
                     });
                 },
                 async getNodeDetail(model) {
+                    methods.checkExistVertModel(model);
                     const { code, data } = await $http.get({
                         url:    '/project/flow/node/detail',
                         params: {
