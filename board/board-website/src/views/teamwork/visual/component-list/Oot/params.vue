@@ -433,7 +433,6 @@
                  */
                 checkExistVertModel(model){
                     const { ootModelFlowNodeId,flowId,ootJobId } = props;
-                    alert(2)
 
                     checkExitVertModelComponet({
                         nodeId:      model.id,
