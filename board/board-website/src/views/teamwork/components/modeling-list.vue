@@ -50,7 +50,6 @@
                     查询
                 </el-button>
                 <el-button
-                    hidden
                     type="primary"
                     @click="modelCompare"
                     :disabled="form.promoterList.length"

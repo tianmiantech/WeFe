@@ -314,9 +314,5 @@
     .el-input-number{
         width: 104px;
         margin-right:10px;
-        :deep(.el-input__inner){
-            padding-left:5px;
-            padding-right: 40px;
-        }
     }
 </style>

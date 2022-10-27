@@ -97,7 +97,7 @@
 
             <el-button
                 v-loading="submitting"
-                v-if="userInfo.super_admin_role"
+                v-if="true || userInfo.super_admin_role"
                 :disabled="!form.principalName || !form.authType || !form.fileIdList.length || !!uploading"
                 style="width: 120px;"
                 class="save-btn"
@@ -401,6 +401,7 @@
     .el-form{max-width: 500px;}
     .el-link{line-height: 1;}
     .el-uploader{
+        margin-top: 100px;
         :deep(.el-upload-dragger){width:500px;}
         :deep(.el-upload-list__item-thumbnail){display: none;}
         :deep(.el-upload-list__item-name){
