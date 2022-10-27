@@ -43,7 +43,7 @@ public class ServingService implements ApplicationContextAware {
         Launcher
                 .instance()
                 .apiPackageClass(ServingService.class)
-                .apiLogger(new ServingApiLogger())
+                //.apiLogger(new ServingApiLogger())
                 // Login status check method
                 //.checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null || annotation.allowAccessWithSign())
                 .apiPermissionPolicy((request, annotation, params) -> {
