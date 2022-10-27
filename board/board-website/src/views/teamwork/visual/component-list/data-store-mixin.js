@@ -28,10 +28,6 @@ export default {
                 methods.getNodeDetail(model);
             },
             async getNodeDetail (model) {
-
-                if(methods.checkExistVertModel){
-                    methods.checkExistVertModel(model);
-                }
                 if (vData.loading) return;
                 vData.loading = true;
 
