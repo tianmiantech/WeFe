@@ -41,7 +41,6 @@ public class SuperAdminChangeApi extends AbstractApi<SuperAdminChangeApi.Input, 
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
-        accountService.changeSuperAdmin(input.accountId);
         return success();
     }
 

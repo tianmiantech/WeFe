@@ -38,7 +38,7 @@ public class UpdateUiConfigApi extends AbstractApi<UpdateUiConfigApi.Input, None
 
     @Override
     protected ApiResult<NoneApiOutput> handle(UpdateUiConfigApi.Input input) throws StatusCodeWithException {
-        accountService.updateUiConfig(input.uiConfig);
+        //accountService.updateUiConfig(input.uiConfig);
 
         return success();
     }

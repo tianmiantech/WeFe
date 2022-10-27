@@ -40,7 +40,6 @@ public class RegisterApi extends AbstractNoneOutputApi<RegisterApi.Input> {
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        accountService.register(input, BoardUserSource.board_register);
         return success();
     }
 

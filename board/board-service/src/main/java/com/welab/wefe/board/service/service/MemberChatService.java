@@ -18,6 +18,7 @@ package com.welab.wefe.board.service.service;
 
 import com.welab.wefe.board.service.api.chat.QueryChatDetailApi;
 import com.welab.wefe.board.service.api.chat.UpdateToReadApi;
+import com.welab.wefe.board.service.base.LoginAccountInfo;
 import com.welab.wefe.board.service.constant.ChatConstant;
 import com.welab.wefe.board.service.database.entity.chat.ChatLastAccountMysqlModel;
 import com.welab.wefe.board.service.database.entity.chat.MemberChatMySqlModel;
@@ -34,8 +35,8 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.web.service.account.AccountInfo;
+import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.ProducerType;
@@ -178,11 +179,11 @@ public class MemberChatService extends AbstractService {
     public JObject sendMessage(String toMemberId, String toMemberName, String toAccountId, String toAccountName,
                                String content) throws StatusCodeWithException {
 
-        AccountInfo info = CurrentAccount.get();
+        AccountInfo2 info = LoginAccountInfo.getInstance().get(CurrentAccountUtil.get().getId());
         if (null == info) {
             throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
         }
-        String fromAccountId = info.id;
+        String fromAccountId = info.getId();
         String fromAccountName = CacheObjects.getAccountMap().get(fromAccountId);
         return sendMessage(fromAccountId, fromAccountName, toMemberId, toAccountId, toMemberName, toAccountName, content);
     }

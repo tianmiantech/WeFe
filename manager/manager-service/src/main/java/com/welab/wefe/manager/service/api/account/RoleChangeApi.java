@@ -39,7 +39,6 @@ public class RoleChangeApi extends AbstractApi<AccountRoleChangeInput, AbstractA
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(AccountRoleChangeInput input) throws StatusCodeWithException, IOException {
-        accountService.changeAccountRole(input.getAccountId(), input.isAdminRole());
         return success();
     }
 }

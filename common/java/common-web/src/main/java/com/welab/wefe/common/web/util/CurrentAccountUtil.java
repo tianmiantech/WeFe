@@ -69,7 +69,8 @@ public class CurrentAccountUtil {
     }
 
     public static AccountInfo2 get() {
-        return CURRENT_ACCOUNT_INFO.get();
+        AccountInfo2 accountInfo = CURRENT_ACCOUNT_INFO.get();
+        return null == accountInfo ? buildAccountInfo(DEFAULT_ACCOUNT_ID, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_PHONE_NUMBER) : accountInfo;
     }
 
     public static void remove() {

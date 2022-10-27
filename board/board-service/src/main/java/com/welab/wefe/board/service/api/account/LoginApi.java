@@ -49,16 +49,16 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
 
-        String token = accountService.login(input.phoneNumber, input.password, input.key, input.code);
+       /* String token = accountService.login(input.phoneNumber, input.password, input.key, input.code);
         AccountMysqlModel model = accountRepository.findByPhoneNumber(DatabaseEncryptUtil.encrypt(input.phoneNumber));
         Output output = new Output(token, model);
         output.uiConfig = model.getUiConfig();
 
-        /**
+        *//**
          * After successful login, check whether the system has been initialized
          *
          * An exception is thrown when it is not initialized. When the front end obtains the exception, it will jump to the initialization interface.
-         */
+         *//*
         if (!systemInitializeService.isInitialized()) {
 
             // If the login is a super administrator, jump to the initialization page.
@@ -73,7 +73,8 @@ public class LoginApi extends AbstractApi<LoginApi.Input, LoginApi.Output> {
             }
         }
 
-        return success(output);
+        return success(output);*/
+        return success();
     }
 
     public static class Input extends AbstractApiInput {

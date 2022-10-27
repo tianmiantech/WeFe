@@ -39,8 +39,6 @@ public class AuditApi extends AbstractNoneOutputApi<AuditApi.Input> {
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        accountService.audit(input);
-
         return success();
     }
 

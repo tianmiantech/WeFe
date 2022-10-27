@@ -37,7 +37,7 @@ public class EnableApi extends AbstractApi<AccountEnableInput, AbstractApiOutput
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(AccountEnableInput input) throws Exception {
-        accountService.enableUser(input.getAccountId(),input.isEnable());
+        //accountService.enableUser(input.getAccountId(),input.isEnable());
         return success();
     }
 }

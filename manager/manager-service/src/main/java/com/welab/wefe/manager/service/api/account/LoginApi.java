@@ -16,13 +16,11 @@
 
 package com.welab.wefe.manager.service.api.account;
 
-import com.welab.wefe.common.data.mongodb.entity.manager.Account;
 import com.welab.wefe.common.data.mongodb.repo.AccountMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.manager.service.dto.account.LoginInput;
 import com.welab.wefe.manager.service.dto.account.LoginOutput;
 import com.welab.wefe.manager.service.service.AccountService;
@@ -43,13 +41,7 @@ public class LoginApi extends AbstractApi<LoginInput, LoginOutput> {
 
     @Override
     protected ApiResult<LoginOutput> handle(LoginInput input) throws StatusCodeWithException {
-        String token = accountService.login(input.getPhoneNumber()
-                , input.getPassword(), input.getKey(), input.getCode());
-        Account account = accountMongoRepo.findByPhoneNumber(DatabaseEncryptUtil.encrypt(input.getPhoneNumber()));
-        if (null != account) {
-            account.setPhoneNumber(DatabaseEncryptUtil.decrypt(account.getPhoneNumber()));
-        }
-        LoginOutput output = new LoginOutput(token, account);
-        return success(output);
+
+        return success();
     }
 }

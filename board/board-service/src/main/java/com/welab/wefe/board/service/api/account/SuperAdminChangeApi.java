@@ -22,7 +22,6 @@ import com.welab.wefe.board.service.service.account.AccountService;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
@@ -47,12 +46,6 @@ public class SuperAdminChangeApi extends AbstractApi<SuperAdminChangeApi.Input, 
         if (account == null) {
             throw new StatusCodeWithException("指定用户不存在", StatusCode.DATA_NOT_FOUND);
         }
-
-        if (!CurrentAccount.isSuperAdmin()) {
-            throw new StatusCodeWithException("非超级管理员无法进行此操作。", StatusCode.PERMISSION_DENIED);
-        }
-
-        accountService.changeSuperAdmin(account);
 
         return success();
     }

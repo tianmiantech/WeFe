@@ -39,6 +39,6 @@ public class ResetPasswordApi extends AbstractApi<ResetPasswordInput, String> {
 
     @Override
     protected ApiResult<String> handle(ResetPasswordInput input) throws StatusCodeWithException, IOException {
-        return success(accountService.resetPassword(input.getAccountId(), input.getOperatorPassword()));
+        return success();
     }
 }

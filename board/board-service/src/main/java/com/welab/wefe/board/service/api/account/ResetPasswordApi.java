@@ -36,7 +36,7 @@ public class ResetPasswordApi extends AbstractApi<ResetPasswordApi.Input, String
 
     @Override
     protected ApiResult<String> handle(Input input) throws StatusCodeWithException {
-        return success(accountService.resetPassword(input));
+        return success();
     }
 
     public static class Input extends AbstractApiInput {

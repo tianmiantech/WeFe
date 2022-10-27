@@ -16,12 +16,10 @@
 
 package com.welab.wefe.manager.service.service;
 
-import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mongodb.dto.PageOutput;
 import com.welab.wefe.common.data.mongodb.entity.common.OperationLog;
 import com.welab.wefe.common.data.mongodb.repo.ManagerOperationLogMongoRepo;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.manager.service.dto.operation.OperationLogQueryInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,10 +37,6 @@ public class OperationLogService {
     private ManagerOperationLogMongoRepo operationLogMongoRepo;
 
     public PageOutput<OperationLog> findList(OperationLogQueryInput input) throws StatusCodeWithException {
-
-        if (!CurrentAccount.isAdmin()) {
-            throw new StatusCodeWithException("非管理员无法查看。", StatusCode.PERMISSION_DENIED);
-        }
 
         return operationLogMongoRepo.findList(
                 input.getApiName(),

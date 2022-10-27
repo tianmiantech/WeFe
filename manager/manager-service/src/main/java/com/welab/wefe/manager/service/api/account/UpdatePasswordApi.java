@@ -40,7 +40,7 @@ public class UpdatePasswordApi extends AbstractApi<UpdatePasswordInput, Abstract
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(UpdatePasswordInput input) throws StatusCodeWithException, IOException {
-        accountService.updatePassword(input.getOldPassword(), input.getNewPassword());
+
         return success();
     }
 }

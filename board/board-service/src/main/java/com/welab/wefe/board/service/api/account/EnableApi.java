@@ -36,7 +36,6 @@ public class EnableApi extends AbstractNoneOutputApi<EnableApi.Input> {
 
     @Override
     protected ApiResult<?> handler(Input input) throws StatusCodeWithException {
-        accountService.enable(input);
         return success();
     }
 

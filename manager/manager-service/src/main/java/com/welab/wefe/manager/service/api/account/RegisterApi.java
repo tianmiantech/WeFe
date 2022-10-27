@@ -43,7 +43,6 @@ public class RegisterApi extends AbstractApi<RegisterInput, AbstractApiOutput> {
 
     @Override
     protected ApiResult<AbstractApiOutput> handle(RegisterInput input) throws StatusCodeWithException, IOException {
-        accountService.register(mAccountMapper.transfer(input));
         return success();   
     }
 }

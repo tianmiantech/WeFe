@@ -41,7 +41,6 @@ public class ForgetPasswordApi extends AbstractApi<ForgetPasswordApi.Input, None
 
     @Override
     protected ApiResult<NoneApiOutput> handle(Input input) throws StatusCodeWithException, IOException {
-        accountService.forgetPassword(input);
         return success();
     }
 
