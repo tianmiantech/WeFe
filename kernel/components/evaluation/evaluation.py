@@ -952,8 +952,8 @@ class Evaluation(ModelBase):
             pred_result[mode] = pred_scores
         train_pred_score = pred_result.get('train')
         eval_pred_score = pred_result.get('validate')
-        model_name = self.component_parameters.get('module')
-        if eval_pred_score and train_pred_score and model_name=='Evaluation':
+        if eval_pred_score and train_pred_score and self.component_parameters and \
+                self.component_parameters.get('module')=='Evaluation':
             train_bin_values, train_split_point = self.get_bin_result(train_pred_score)
             LOGGER.debug('train_bin_values and train_split_point'.format(train_bin_values, train_split_point))
             train_bin_results = self.cal_bin_rate(train_bin_values)
