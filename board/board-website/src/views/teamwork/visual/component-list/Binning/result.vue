@@ -54,25 +54,25 @@
                                                     </template>
                                                 </el-table-column>                       
                                             </el-table>
-
-                                            <el-collapse-item title="详细数据:" name="2" class="details" style="border-top: none; border-bottom: none;">
-                                                
-                                                    <el-table :data="row.dataList[props.$index].inline_table" style="width: 100%" :cell-style="{borderColor: 'white'}">
-                                                        <el-table-column label="箱号" width="55" type="index" align="center" />
-                                                        <el-table-column label="划分区间" prop="binning" align="center" width="110" />
-                                                        <el-table-column label="正样本数" prop="eventCountArray" align="center" />
-                                                        <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
-                                                        <el-table-column label="总样本数" prop="countArray" align="center" />
-                                                        <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
-                                                        <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
-                                                        <el-table-column label="总占比" prop="countRateArray" align="center" />
-                                                        <el-table-column label="WOE" prop="woeArray" align="center" />
-                                                        <el-table-column label="IV" prop="ivArray" align="center" />
-                                                        
-                                                    </el-table>
-                                                
-                                            </el-collapse-item>
-
+                                            <el-collapse v-model="activeDetails[props.$index]">
+                                                <el-collapse-item title="详细数据:" name="2" class="details" style="border-top: none; border-bottom: none;">
+                                                    
+                                                        <el-table :data="row.dataList[props.$index].inline_table" style="width: 100%" :cell-style="{borderColor: 'white'}">
+                                                            <el-table-column label="箱号" width="55" type="index" align="center" />
+                                                            <el-table-column label="划分区间" prop="binning" align="center" width="110" />
+                                                            <el-table-column label="正样本数" prop="eventCountArray" align="center" />
+                                                            <el-table-column label="负样本数" prop="nonEventCountArray" align="center" />
+                                                            <el-table-column label="总样本数" prop="countArray" align="center" />
+                                                            <el-table-column label="正样本占总样本比例" prop="eventRateArray" align="center" />
+                                                            <el-table-column label="负样本占总样本比例" prop="nonEventRateArray" align="center" />
+                                                            <el-table-column label="总占比" prop="countRateArray" align="center" />
+                                                            <el-table-column label="WOE" prop="woeArray" align="center" />
+                                                            <el-table-column label="IV" prop="ivArray" align="center" />
+                                                            
+                                                        </el-table>
+                                                    
+                                                </el-collapse-item>
+                                            </el-collapse>
                                         </template>
                                     </el-table-column>
                                     <el-table-column label="特征名称" prop="column"></el-table-column>
@@ -113,6 +113,7 @@
         },
         setup(props, context) {
             const activeName = ref('1');
+            const activeDetails = ref('[]');
             const LineChart = ref(); 
 
             let vData = reactive({
@@ -322,6 +323,7 @@
             return {
                 vData,
                 activeName,
+                activeDetails,
                 methods,
                 LineChart,
             };
