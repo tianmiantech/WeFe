@@ -41,7 +41,7 @@ public class IdentityInfoModel extends AbstractConfigModel {
     private String avatar;
 
     @Check(name = "私钥")
-    @Secret(maskStrategy = MaskStrategy.BLOCK)
+    @Secret(maskStrategy = MaskStrategy.PASSWORD)
     private String rsaPrivateKey;
     @Check(name = "公钥")
     private String rsaPublicKey;
