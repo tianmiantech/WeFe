@@ -33,6 +33,7 @@ public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
         AccountInfo2 accountInfo = CurrentAccountUtil.get();
         Output output = new Output();
         output.setId(accountInfo.getId());
+        output.setToken(accountInfo.getId());
         output.setPhoneNumber(accountInfo.getPhoneNumber());
         output.setNickname(accountInfo.getName());
 
@@ -41,6 +42,7 @@ public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
 
     public static class Output extends AbstractApiOutput {
         private String id;
+        private String token;
         private String phoneNumber;
         private String nickname;
 
@@ -50,6 +52,14 @@ public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
 
         public void setId(String id) {
             this.id = id;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
         }
 
         public String getPhoneNumber() {
