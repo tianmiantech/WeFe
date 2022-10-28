@@ -24,7 +24,10 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.enums.ComponentType;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Arrays;
 
 /**
  * Check whether there are evaluation components in the process
@@ -48,7 +51,7 @@ public class CheckExistEvaluationComponentApi extends AbstractApi<CheckExistEval
     @Override
     protected ApiResult<Output> handle(Input input) throws StatusCodeWithException {
         Output out = new Output();
-        out.setCheckResult(projectFlowNodeService.checkExistEvaluationComponent(input));
+        out.setCheckResult(projectFlowNodeService.checkExistSpecificComponent(input, Arrays.asList(ComponentType.Evaluation)));
         return success(out);
     }
 
