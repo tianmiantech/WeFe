@@ -5,15 +5,20 @@
         shadow="never"
         :show="project_type !== 'DeepLearning'"
         :idx="sortIndex"
+        style="background: white"
     >
         <template #header>
             <div class="clearfix mb10 flex-row">
-                <h3 class="card-title">衍生数据资源</h3>
+                <h3 class="card-title f19">
+                    <el-icon :class="['el-icon-document-copy', 'mr10', 'ml10']" style="font-size: xx-large; top:8px; right: -3px; color: dodgerblue"><elicon-document-copy />
+                        </el-icon>
+                            衍生数据资源
+                </h3>
                 <div v-if="form.is_project_admin" class="right-sort-area">
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
-                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
-                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-arrow-up', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-arrow-up /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-arrow-down', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-arrow-down /></el-icon>
                 </div>
             </div>
         </template>
@@ -169,132 +174,127 @@
 </template>
 
 <script>
+import { template } from 'lodash';
+
     export default {
-        props: {
-            projectType: String,
-            sortIndex:   Number,
-            maxIndex:    Number,
-            form:        Object,
-        },
-        emits: ['move-up', 'move-down', 'to-top', 'to-bottom'],
-        data() {
-            return {
-                derived: {
-                    name:         '',
-                    sourceJobId:  '',
-                    sourceFlowId: '',
-                    types:        [{
-                        label: '样本对齐',
-                        value: 'Intersection',
+    props: {
+        projectType: String,
+        sortIndex: Number,
+        maxIndex: Number,
+        form: Object,
+    },
+    emits: ["move-up", "move-down", "to-top", "to-bottom"],
+    data() {
+        return {
+            derived: {
+                name: "",
+                sourceJobId: "",
+                sourceFlowId: "",
+                types: [{
+                        label: "样本对齐",
+                        value: "Intersection",
                     }, {
-                        label: '分箱',
-                        value: 'Binning',
+                        label: "分箱",
+                        value: "Binning",
                     }, {
-                        label: '特征筛选',
-                        value: 'FeatureSelection',
+                        label: "特征筛选",
+                        value: "FeatureSelection",
                     }, {
-                        label: '特征标准化',
-                        value: 'FeatureStandardized',
+                        label: "特征标准化",
+                        value: "FeatureStandardized",
                     }, {
-                        label: '分箱并编码',
-                        value: 'HorzFeatureBinning',
+                        label: "分箱并编码",
+                        value: "HorzFeatureBinning",
                     }, {
-                        label: '缺失值填充',
-                        value: 'FillMissingValue',
+                        label: "缺失值填充",
+                        value: "FillMissingValue",
                     }, {
-                        label: '混合分箱',
-                        value: 'MixBinning',
+                        label: "混合分箱",
+                        value: "MixBinning",
                     }],
-                    list:       [],
-                    total:      0,
-                    page_index: 1,
-                    page_size:  10,
+                list: [],
+                total: 0,
+                page_index: 1,
+                page_size: 10,
+            },
+            project_id: "",
+        };
+    },
+    created() {
+        this.project_id = this.$route.query.project_id;
+        this.project_type = this.$route.query.project_type;
+        this.getDeriveData();
+    },
+    methods: {
+        async getDeriveData($event) {
+            const params = {
+                url: "/project/derived_data_set/query",
+                params: {
+                    sourceType: this.derived.name,
+                    project_id: this.project_id,
+                    sourceJobId: this.derived.sourceJobId,
+                    page_index: this.derived.page_index - 1,
+                    page_size: this.derived.page_size,
+                    data_resource_type: this.projectType === "DeepLearning" ? "ImageDataSet" : this.projectType === "MachineLearning" ? "TableDataSet" : "",
                 },
-                project_id: '',
             };
+            if ($event) {
+                params.btnState = {
+                    target: $event,
+                };
+            }
+            const { code, data } = await this.$http.get(params);
+            if (code === 0) {
+                this.derived.list = data.list;
+                this.derived.total = data.total;
+            }
         },
-        created() {
-            this.project_id = this.$route.query.project_id;
-            this.project_type = this.$route.query.project_type;
+        searchDeriveData() {
+            this.derived.page_index = 1;
             this.getDeriveData();
         },
-        methods: {
-            async getDeriveData($event) {
-                const params = {
-                    url:    '/project/derived_data_set/query',
-                    params: {
-                        sourceType:         this.derived.name,
-                        project_id:         this.project_id,
-                        sourceJobId:        this.derived.sourceJobId,
-                        page_index:         this.derived.page_index - 1,
-                        page_size:          this.derived.page_size,
-                        data_resource_type: this.projectType === 'DeepLearning' ? 'ImageDataSet' : this.projectType === 'MachineLearning' ? 'TableDataSet' : '',
-                    },
-                };
-
-                if($event) {
-                    params.btnState = {
-                        target: $event,
-                    };
-                }
-
-                const { code, data } = await this.$http.get(params);
-
-                if(code === 0) {
-                    this.derived.list = data.list;
-                    this.derived.total = data.total;
-                }
-            },
-
-            searchDeriveData() {
-                this.derived.page_index = 1;
-                this.getDeriveData();
-            },
-
-            derivedPageChange(val) {
-                this.derived.page_index = val;
-                this.getDeriveData();
-            },
-
-            derivedPageSizeChange(val) {
-                this.derived.page_size = val;
-                this.getDeriveData();
-            },
-
-            removeDataSet(row) {
-                this.$confirm('删除后将不再使用当前数据样本', '警告', {
-                    type: 'warning',
-                })
-                    .then(async action => {
-                        if(action === 'confirm') {
-                            const { code } = await this.$http.post({
-                                url:  '/project/data_resource/remove',
-                                data: {
-                                    project_id:  this.project_id,
-                                    data_set_id: row.data_set_id,
-                                    member_role: row.member_role,
-                                },
-                            });
-
-                            if(code === 0) {
-                                this.getDeriveData();
-                                this.$message.success('操作成功!');
-                            }
-                        }
-                    });
-            },
-            moveUp() {
-                this.$emit('move-up', this.sortIndex);
-            },
-            moveDown() {
-                this.$emit('move-down', this.sortIndex);
-            },
-            toTop() {
-                this.$emit('to-top', this.sortIndex);
-            },
-            toBottom() {
-                this.$emit('to-bottom', this.sortIndex);
-            },
+        derivedPageChange(val) {
+            this.derived.page_index = val;
+            this.getDeriveData();
         },
-    };
+        derivedPageSizeChange(val) {
+            this.derived.page_size = val;
+            this.getDeriveData();
+        },
+        removeDataSet(row) {
+            this.$confirm("删除后将不再使用当前数据样本", "警告", {
+                type: "warning",
+            })
+                .then(async (action) => {
+                if (action === "confirm") {
+                    const { code } = await this.$http.post({
+                        url: "/project/data_resource/remove",
+                        data: {
+                            project_id: this.project_id,
+                            data_set_id: row.data_set_id,
+                            member_role: row.member_role,
+                        },
+                    });
+                    if (code === 0) {
+                        this.getDeriveData();
+                        this.$message.success("操作成功!");
+                    }
+                }
+            });
+        },
+        moveUp() {
+            this.$emit("move-up", this.sortIndex);
+        },
+        moveDown() {
+            this.$emit("move-down", this.sortIndex);
+        },
+        toTop() {
+            this.$emit("to-top", this.sortIndex);
+        },
+        toBottom() {
+            this.$emit("to-bottom", this.sortIndex);
+        },
+    },
+    components: { template }
+};
 </script>

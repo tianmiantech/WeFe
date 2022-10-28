@@ -110,6 +110,7 @@
         <template v-for="(item, index) in form.project_type === 'MachineLearning' ? moduleList : dModuleList" :key="item.name">
             <MembersList
                 v-if="item.name === 'MembersList'"
+                class="member"
                 ref="membersListRef"
                 :form="form"
                 :promoter="promoter"
@@ -736,6 +737,7 @@
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
 
                 this.swapArray(list, idx, idx - 1);
+
             },
             moveDown(idx) {
                 const list = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
@@ -776,13 +778,16 @@
         justify-content: space-between;
         align-items: center;
         justify-content: space-between;
-        color: #c0c0c0;
+        color: #333;
         .el-icon, span {
             cursor: pointer;
         }
     }
     .el-card__header {
+        padding-top: 10px;
         padding-bottom: unset;
+        background: mintcream;
+        height: 65px;
     }
     .unedit-tips {
         .el-alert__content {
