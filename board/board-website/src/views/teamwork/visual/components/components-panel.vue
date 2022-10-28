@@ -493,17 +493,21 @@
 }
 .ctrl-btns{
     position: relative;
-    top: 57.8%;
+    top: 57.3%;
     right:9px;
     z-index: 200;
     .iconfont{
         cursor: pointer;
         font-size: 22px;
         color: #e5e9f2;
-        background: #fff;
+        background: white;
         border-radius: 0px 0px 4px 4px;
+        
         padding:0px;
-        border: 1px solid #e5e9f2;
+        border-left: 1px solid #e5e9f2;
+        border-right: 1px solid #e5e9f2;
+        border-bottom: 1px solid #e5e9f2;
+
         &:hover{color:$--color-primary;}
     }
 }
