@@ -924,7 +924,7 @@ class Evaluation(ModelBase):
     def cal_scord_card_bin(self, eval_data_local):
         score_result = self.tracker.get_score_result()
         bins_result = None
-        if score_result is not None and len(eval_data_local[0][1])>=6:
+        if score_result is not None and len(eval_data_local[0][1])>=6 and self.model_param.prob_need_to_bin:
             a_score, b_score= score_result['a_score'], score_result['b_score']
             linear_scores = [data[1][4] for data in eval_data_local]
             sample_scores = [a_score + b_score * linear_score for linear_score in linear_scores]
