@@ -229,9 +229,9 @@ public class ProjectFlowNodeService {
     }
 
     /**
-     * Check whether the current node has an evaluation node type
+     * Check whether the current node has specific node type
      */
-    public boolean checkExistEvaluationComponent(CheckExistEvaluationComponentApi.Input input) throws StatusCodeWithException {
+    public boolean checkExistSpecificComponent(CheckExistEvaluationComponentApi.Input input, List<ComponentType> targetComponentList) throws StatusCodeWithException {
         // Whether it is oot mode (click into the canvas in the model list, that is,
         // oot mode, in oot mode, only check whether there is an evaluation node)
         boolean isOotMode = StringUtil.isNotEmpty(input.getJobId());
@@ -256,7 +256,7 @@ public class ProjectFlowNodeService {
             String modelTaskId = myRoleTaskMySqlModelList.get(0).getTaskId();
             List<TaskMySqlModel> resultList = taskService.baseFindHomologousBranch(totalTaskMySqlModelList, modelTaskId);
             for (TaskMySqlModel taskMySqlModel : resultList) {
-                if (ComponentType.Evaluation == taskMySqlModel.getTaskType()) {
+                if (targetComponentList.contains(taskMySqlModel.getTaskType())) {
                     return true;
                 }
             }
@@ -279,7 +279,11 @@ public class ProjectFlowNodeService {
         }
 
         // Find related parent node types
-        FlowGraphNode preModelNode = flowGraph.findOneNodeFromParent(node, ComponentType.Evaluation);
-        return null != preModelNode;
+        for (ComponentType componentType : targetComponentList) {
+            if (null != flowGraph.findOneNodeFromParent(node, componentType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
