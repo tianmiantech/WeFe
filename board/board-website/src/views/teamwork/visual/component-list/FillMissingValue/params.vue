@@ -157,7 +157,6 @@
 
             if(props.learningType === 'vertical') {
                 vData.methodList.push({ value: 'mode', label: '众数' });
-                vData.methodList.push({ value: 'median', label: '中位数' });
             }
             if(props.learningType !== 'mix') {
                 vData.methodList.push({ value: 'median', label: '中位数' });
