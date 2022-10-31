@@ -279,6 +279,7 @@ class BaseVertFeatureBinning(ModelBase):
         if len(bin_feature_names) == 0:
             return bin_indexes
         data_feature_names = data_instances.schema["header"]
+        LOGGER.info('data_feature_names:{} and bin_feature_names:{}'.format(data_feature_names, bin_feature_names))
         for bin_feature_name in bin_feature_names:
             index = data_feature_names.index(bin_feature_name)
             bin_indexes.append(index)
