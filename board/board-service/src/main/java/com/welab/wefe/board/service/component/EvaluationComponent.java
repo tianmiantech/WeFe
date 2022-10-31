@@ -34,6 +34,7 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,8 +81,9 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 .append("eval_type", params.getEvalType())
                 .append("pos_label", params.getPosLabel())
                 .append("prob_need_to_bin", params.isProbNeedToBin())
-                .append("bin_method", params.getBinMethod())
-                .append("bin_num", params.getBinNum());
+                .append("bin_method", params.binMethod)
+                .append("bin_num", params.binNum)
+                .append("split_points", CollectionUtils.isEmpty(params.splitPoints) ? new ArrayList<>() : params.splitPoints);
     }
 
     @Override
@@ -121,7 +123,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
 
         final JObject trainObj = getTrainObjByTaskId(taskId);
         final JObject validateObj = getValidateObjByTaskId(taskId);
-
+        final JObject psiObj = getPsiObjByTaskId(taskId);
 
         switch (type) {
             case "ks":
@@ -168,6 +170,10 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 JObject scores_distribution = JObject.create();
                 scores_distribution.putAll(parserScoresDistributionCurveData(distributionObj, normalName));
                 return scores_distribution;
+            case "psi":
+                JObject psi = JObject.create();
+                psi.put("psi", psiObj.getJObjectByPath("train_validate_" + normalName + ".data"));
+                return psi;
             default:
                 return JObject.create();
         }
@@ -236,6 +242,11 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
         return result != null ? JObject.create(result.getResult()) : JObject.create("");
     }
 
+    private JObject getPsiObjByTaskId(String taskId) {
+        TaskResultMySqlModel psiTaskResult = findPsiTaskResultByTaskId(taskId);
+        return psiTaskResult != null ? JObject.create(psiTaskResult.getResult()) : JObject.create("");
+    }
+
     private TaskResultMySqlModel findEvaluationTaskResultByTaskId(String taskId) {
         TaskResultMySqlModel trainTaskResult = findEvaluationTrainTaskResultByTaskId(taskId);
         // Training and validation evaluation task_result only has different types,
@@ -255,6 +266,10 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
     }
 
     private TaskResultMySqlModel findEvaluationDistributionTaskResultByTaskId(String taskId) {
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train_validate.name());
+    }
+
+    private TaskResultMySqlModel findPsiTaskResultByTaskId(String taskId) {
         return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train_validate.name());
     }
 
@@ -412,11 +427,11 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
         @Check(require = true)
         private boolean probNeedToBin;
 
-        @Check
         private String binMethod;
 
-        @Check
-        private int binNum;
+        private Integer binNum;
+
+        private List<Double> splitPoints;
 
 
         public String getEvalType() {
@@ -451,12 +466,20 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             this.binMethod = binMethod;
         }
 
-        public int getBinNum() {
+        public Integer getBinNum() {
             return binNum;
         }
 
-        public void setBinNum(int binNum) {
+        public void setBinNum(Integer binNum) {
             this.binNum = binNum;
+        }
+
+        public List<Double> getSplitPoints() {
+            return splitPoints;
+        }
+
+        public void setSplitPoints(List<Double> splitPoints) {
+            this.splitPoints = splitPoints;
         }
     }
 }

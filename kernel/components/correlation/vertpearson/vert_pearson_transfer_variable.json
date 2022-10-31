@@ -11,6 +11,20 @@
       "dst": [
         "provider"
       ]
+    },
+    "promoter_feature_select": {
+      "src": [
+        "promoter"
+      ],
+      "dst": [
+        "provider"
+      ]
+    },
+    "provider_feature_select": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
     }
   }
 }

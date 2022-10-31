@@ -8,6 +8,7 @@
   "scripts": {
     "build": "vue-cli-service build",
     "dev": "vue-cli-service serve",
+    "start": "npm run dev",
     "report": "vue-cli-service build --report"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "welabx-g6": "^0.6.8"
   },
   "devDependencies": {
+    "commander": "^9.4.0",
     "@babel/core": "^7.15.5",
     "@babel/eslint-parser": "^7.15.4",
     "@babel/plugin-transform-runtime": "^7.15.0",

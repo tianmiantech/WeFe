@@ -84,7 +84,7 @@ def server_fit(self, data_inst):
             break
         self.aggregate_iteration_num += 1
 
-        self.tracker.add_task_progress(1)
+        self.tracker.add_task_progress(1, self.need_grid_search)
     else:
         LOGGER.warn(f"reach max iter: {self.aggregate_iteration_num}, not converged")
     self.set_summary(self._summary)
@@ -194,7 +194,7 @@ def client_fit(self, data_inst):
         )
         self.aggregate_iteration_num += 1
 
-        self.tracker.add_task_progress(1)
+        self.tracker.add_task_progress(1, self.need_grid_search)
     else:
         LOGGER.warn(f"reach max iter: {self.aggregate_iteration_num}, not converged")
 

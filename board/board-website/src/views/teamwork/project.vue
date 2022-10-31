@@ -131,16 +131,19 @@
                 </el-tab-pane>
             </template>
         </el-tabs>
+        <!-- <psi-table></psi-table> -->
     </div>
 </template>
 
 <script>
     import { throttle } from '@src/utils/tools';
     import ListPart from './project-list';
+    // import psiTable from './visual/components/psi/psi-table.vue';
 
     export default {
         components: {
             ListPart,
+            // psiTable,
         },
         data() {
             return {

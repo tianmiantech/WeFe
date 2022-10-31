@@ -121,11 +121,11 @@
                                         trigger="manual"
                                         effect="dark"
                                     >
-                                        <components-params-explain
+                                        <!-- <components-params-explain
                                             :is="`${key}`"
                                             :components-name="`${key}`"
                                             @closeExplainPop="closeExplainPop"
-                                        />
+                                        /> -->
 
                                         <template #reference>
                                             <component
@@ -179,6 +179,7 @@
                                         :flow-id="flowId"
                                         :job-id="jobId"
                                         :project-type="projectType"
+                                        :learning-type="learningType"
                                     />
                                 </el-scrollbar>
                             </el-tab-pane>

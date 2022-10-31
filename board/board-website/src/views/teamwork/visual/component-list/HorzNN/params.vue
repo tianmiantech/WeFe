@@ -1,6 +1,7 @@
 <template>
     <el-form
         ref="form"
+        class="flex-form"
         :model="vData.form"
         :disabled="disabled"
         @submit.prevent

@@ -50,22 +50,35 @@
         </el-form-item>
         <p v-if="vData.form.prob_need_to_bin"></p>
     </el-form>
+
+    <psi-bin 
+        v-if="vData.exitVertComponent"
+        v-model:binValue="vData.binValue"
+        title="PSI分箱方式（预测概率/评分）"
+        :disabled="disabled"
+        :filterMethod="['quantile']" />
 </template>
 
 <script>
     import { reactive, getCurrentInstance } from 'vue';
     import dataStore from '../data-store-mixin';
+    import psiBin from '../../components/psi/psi-bin';
+    import { checkExitVertModelComponet } from '@src/service';
+    import { psiCustomSplit,replace } from '../common/utils';
 
     export default {
-        name:  'Evaluation',
-        props: {
-            projectId:    String,
-            flowId:       String,
-            disabled:     Boolean,
-            learningType: String,
-            currentObj:   Object,
-            jobId:        String,
-            class:        String,
+        name:       'Evaluation',
+        components: { psiBin },
+        props:      {
+            projectId:          String,
+            flowId:             String,
+            disabled:           Boolean,
+            learningType:       String,
+            currentObj:         Object,
+            jobId:              String,
+            class:              String,
+            ootModelFlowNodeId: String,
+            ootJobId:           String,
         },
         setup(props) {
             const { appContext } = getCurrentInstance();
@@ -94,15 +107,63 @@
                     bin_num:          10,
                     bin_method:       'bucket',
                 },
+                binValue: {
+                    method:       'bucket',
+                    binNumber:    6,
+                    split_points: '',
+                },
+                exitVertComponent: false,
             });
 
             let methods = {
                 checkParams() {
+                    const { form, binValue,exitVertComponent } = vData;
+                    const { method, binNumber,split_points } = binValue;
+                    const isCustom = method === 'custom';
+                    const array = replace(split_points).replace(/，/g,',').replace(/,$/, '').split(',');
+
+                    if(isCustom && !psiCustomSplit(array)){
+                        return false;
+                    }
+                    const re = array.map(parseFloat);
+
+                    re.sort(((a,b) => a-b));
+
+                    
                     return {
-                        params: vData.form,
+                        params: { ...form,                       
+                                  bin_method:   exitVertComponent ? method : undefined,
+                                  bin_number:   exitVertComponent && !isCustom ? binNumber : undefined,
+                                  split_points: exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])]: undefined,
+                        },
                     };
                 },
+                formatter(params){
+                    const { bin_number = 6, bin_method = 'bucket',split_points=[] } = params;
+
+                    vData.binValue = {
+                        method:       bin_method,
+                        binNumber:    bin_number,
+                        split_points: split_points.join(','),
+                    };
+                },
+                /**
+                 * 判断是否展示psi组件
+                 */
+                checkExistVertModel(model){
+                    const { ootModelFlowNodeId,flowId,ootJobId } = props;
+
+                    checkExitVertModelComponet({
+                        nodeId:      model.id,
+                        modelNodeId: ootModelFlowNodeId,
+                        jobId:       ootJobId,
+                        flowId,
+                    }).then((bool = false)=>{
+                        vData.exitVertComponent = bool;
+                    });
+                },
                 async getNodeDetail(model) {
+                    methods.checkExistVertModel(model);
                     const { code, data } = await $http.get({
                         url:    '/project/flow/node/detail',
                         params: {
@@ -125,7 +186,6 @@
 
             vData = $data;
             methods = $methods;
-
             return {
                 vData,
                 methods,
@@ -138,9 +198,5 @@
     .el-input-number{
         width: 104px;
         margin:0 10px;
-        :deep(.el-input__inner){
-            padding-left:5px;
-            padding-right: 40px;
-        }
     }
 </style>

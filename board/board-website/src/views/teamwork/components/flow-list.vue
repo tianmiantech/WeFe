@@ -46,7 +46,7 @@
             stripe
         >
             <el-table-column
-                label="训练"
+                label="训练名称"
                 min-width="200"
             >
                 <template v-slot="scope">
@@ -67,7 +67,7 @@
             </el-table-column>
             <el-table-column
                 v-if="form.project_type === 'MachineLearning'"
-                label="进度"
+                label="训练进度"
                 min-width="130px"
             >
                 <template v-slot="scope">
@@ -76,14 +76,19 @@
                         :percentage="scope.row.job_progress || 0"
                         :color="customColorMethod"
                     />
+                    <el-progress
+                        v-else-if="scope.row.flow_status === 'wait_success' "
+                        :percentage="100"
+                        :color="customColorMethod"
+                    />
                     <template v-else>
                         编辑中
                     </template>
                 </template>
             </el-table-column>
-            <el-table-column label="训练类型">
+            <el-table-column v-if="form.project_type === 'MachineLearning'" label="训练类型">
                 <template v-slot="scope">
-                    <p>{{ form.project_type === 'MachineLearning' ? learningType(scope.row.federated_learning_type) : learningType(scope.row.deep_learning_job_type) }}</p>
+                    <p>{{ learningType(scope.row.federated_learning_type) }}</p>
                 </template>
             </el-table-column>
             <el-table-column

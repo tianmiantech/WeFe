@@ -1,0 +1,10 @@
+{
+  "VertFeaturePSICalculateTransferVariable": {
+    "feature_psi_result": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
+    }
+  }
+}

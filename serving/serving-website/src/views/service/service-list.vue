@@ -224,18 +224,6 @@
                                     v-if="scope.row.service_type > 6"
                                     divided
                                 >
-                                    <el-button
-                                        type="text"
-                                        size="small"
-                                        @click="alert('pass')"
-                                    >
-                                        监控
-                                    </el-button>
-                                </el-dropdown-item>
-                                <el-dropdown-item
-                                    v-if="scope.row.service_type > 6"
-                                    divided
-                                >
                                     <router-link :to="{ name: 'psi-log-list', query: {service_id: scope.row.service_id} }">
                                         <el-button
                                             v-if="scope.row.service_type > 6"

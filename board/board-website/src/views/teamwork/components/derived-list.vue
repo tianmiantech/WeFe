@@ -136,7 +136,7 @@
             </el-table-column>
             <el-table-column label="查看任务">
                 <template v-slot="scope">
-                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.data_resource.derived_from_job_id, project_id, member_role: scope.row.member_role }}">
+                    <router-link v-if="scope.row.data_resource" :to="{ name: 'project-job-detail', query: { job_id: scope.row.job_id, flow_id: scope.row.flow_id, project_id, member_role: scope.row.member_role }}">
                         查看任务
                     </router-link>
                 </template>
@@ -253,27 +253,75 @@ import { template } from 'lodash';
             this.derived.page_index = 1;
             this.getDeriveData();
         },
-        derivedPageChange(val) {
-            this.derived.page_index = val;
-            this.getDeriveData();
-        },
-        derivedPageSizeChange(val) {
-            this.derived.page_size = val;
-            this.getDeriveData();
-        },
-        removeDataSet(row) {
-            this.$confirm("删除后将不再使用当前数据样本", "警告", {
-                type: "warning",
-            })
-                .then(async (action) => {
-                if (action === "confirm") {
-                    const { code } = await this.$http.post({
-                        url: "/project/data_resource/remove",
-                        data: {
-                            project_id: this.project_id,
-                            data_set_id: row.data_set_id,
-                            member_role: row.member_role,
-                        },
+        methods: {
+            async getDeriveData($event) {
+                const params = {
+                    url:    '/project/derived_data_set/query',
+                    params: {
+                        sourceType:         this.derived.name,
+                        project_id:         this.project_id,
+                        sourceJobId:        this.derived.sourceJobId,
+                        page_index:         this.derived.page_index - 1,
+                        page_size:          this.derived.page_size,
+                        data_resource_type: this.projectType === 'DeepLearning' ? 'ImageDataSet' : this.projectType === 'MachineLearning' ? 'TableDataSet' : '',
+                    },
+                };
+
+                if($event) {
+                    params.btnState = {
+                        target: $event,
+                    };
+                }
+
+                const { code, data } = await this.$http.get(params);
+
+                if(code === 0) {
+                    data.list.forEach(item => {
+                        item.members.forEach(sitem => {
+                            item.job_id = sitem.job_id;
+                            item.flow_id = sitem.flow_id;
+                        });
+                    });
+                    this.derived.list = data.list;
+                    this.derived.total = data.total;
+                }
+            },
+
+            searchDeriveData() {
+                this.derived.page_index = 1;
+                this.getDeriveData();
+            },
+
+            derivedPageChange(val) {
+                this.derived.page_index = val;
+                this.getDeriveData();
+            },
+
+            derivedPageSizeChange(val) {
+                this.derived.page_size = val;
+                this.getDeriveData();
+            },
+
+            removeDataSet(row) {
+                this.$confirm('删除后将不再使用当前数据样本', '警告', {
+                    type: 'warning',
+                })
+                    .then(async action => {
+                        if(action === 'confirm') {
+                            const { code } = await this.$http.post({
+                                url:  '/project/data_resource/remove',
+                                data: {
+                                    project_id:  this.project_id,
+                                    data_set_id: row.data_set_id,
+                                    member_role: row.member_role,
+                                },
+                            });
+
+                            if(code === 0) {
+                                this.getDeriveData();
+                                this.$message.success('操作成功!');
+                            }
+                        }
                     });
                     if (code === 0) {
                         this.getDeriveData();

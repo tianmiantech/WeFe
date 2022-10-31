@@ -107,7 +107,7 @@
                     return false;
                 }
 
-                if(item.meta.normalUserCanSee){
+                if(item.meta.normalUserCanSee !== false){
                     return true;
                 }
 

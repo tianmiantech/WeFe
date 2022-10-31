@@ -74,6 +74,8 @@ public class MixLrComponent extends AbstractModelingComponent<MixLrComponent.Par
                 .append("shuffle", params.getCvParam().isShuffle())
                 .append("need_cv", params.getCvParam().isNeedCv());
 
+        output.append("grid_search_param",params.getGridSearchParam().toKernelParam());
+
         return output;
     }
 

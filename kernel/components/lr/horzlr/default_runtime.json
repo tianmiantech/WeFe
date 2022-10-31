@@ -35,5 +35,10 @@
       "thresholds": null
     },
     "need_cv": false
+  },
+  "grid_search_param": {
+    "params_list": {
+    },
+    "need_grid_search": false
   }
 }

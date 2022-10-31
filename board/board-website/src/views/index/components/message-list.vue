@@ -365,6 +365,7 @@
                 this.message_list = [];
                 this.noMore = false;
                 this.message_search.page_index = 0;
+                this.noMore = false;
                 if(!value){
                     this.message_search.unread = null;
                 }

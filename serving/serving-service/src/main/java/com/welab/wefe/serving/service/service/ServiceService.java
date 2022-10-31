@@ -665,6 +665,7 @@ public class ServiceService {
             return result;
 
         } catch (Exception e) {
+            e.printStackTrace();
             status = ServiceResultEnum.SERVICE_FAIL;
             result.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
             return result;

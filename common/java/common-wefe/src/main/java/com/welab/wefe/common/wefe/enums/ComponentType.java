@@ -47,6 +47,7 @@ public enum ComponentType {
 
     FeatureSelection("特征筛选", null, "挑选出需要入模的特征"),
     Segment("数据切割", null, "将数据集切割成训练集和测试集两部分"),
+    VertFeaturePSI("特征 PSI", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "特征 PSI 计算"),
     VertPearson("皮尔逊相关系数", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "描述两个特征的相关性"),
     FeatureStandardized("特征标准化", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical, FederatedLearningType.horizontal)), "对特征进行标准化"),
     VertFilter("样本筛选", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "样本筛选（纵向）"),

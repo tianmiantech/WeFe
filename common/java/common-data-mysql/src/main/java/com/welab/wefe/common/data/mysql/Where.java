@@ -18,6 +18,7 @@ package com.welab.wefe.common.data.mysql;
 
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.util.StringUtil;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,7 +51,7 @@ public class Where {
         }
         return this;
     }
-    
+
     public Where like(String name, String value) {
         if (StringUtil.isNotEmpty(value)) {
             where.add(new Item("like", name, value));
@@ -300,7 +301,14 @@ public class Where {
         return this;
     }
 
-    public <T> MySpecification<T> build(Class<T> clazz) {
+    /**
+     * @deprecated 直接调用无参的 build() 即可
+     */
+    public <T> Specification<T> build(Class<T> clazz) {
+        return build();
+    }
+
+    public <T> MySpecification<T> build() {
         return new MySpecification<>(where);
     }
 

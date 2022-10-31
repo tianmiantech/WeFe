@@ -484,11 +484,8 @@
                     // 3. 该项目是非管理员创建
                     const is_self_project = this.userInfo.id === data.created_by;
 
-                    console.log('is_self_project=',is_self_project, 'is_admin=',this.userInfo.admin_role, 'is_not_admin_created=',is_not_admin_created.length===0);
                     // const is_can_edit = (this.userInfo.admin_role || is_self_project || is_not_admin_created.length===0) ? true : false
                     const is_can_edit = !!((this.userInfo.admin_role || is_self_project || is_not_admin_created.length === 0));
-
-                    console.log('is_can_edit=',is_can_edit);
 
 
                     if (this.isDemo) {
@@ -497,7 +494,6 @@
                     } else {
                         this.form.is_project_admin = true;
                     }
-                    // console.log('is_not_admin_created='+is_not_admin_created.length, 'isDemo='+this.isDemo, 'is_project_admin='+this.form.is_project_admin);
                     const members = {};
                     const { providerService, promoterService } = this;
 
