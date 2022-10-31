@@ -58,14 +58,13 @@ public class ProjectFlowNodeOutputModel extends AbstractOutputModel {
     }
 
     public void setParams(String params) {
-        if (params != null) {
+        if (params == null) {
+            this.params = null;
+        } else {
             this.params = JSONObject.parseObject(params);
         }
     }
 
-    public void setParams(JSONObject json) {
-        this.params = json;
-    }
 
     //region getter/setter
 
