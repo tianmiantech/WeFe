@@ -19,7 +19,7 @@ workdir=$(pwd)/$(dirname $0)/../../ ; cd $workdir
 
 rm -rf node_modules
 nvm use 16.13.0 || :
-nrm use npm
+npm install yarn
 yarn install
 npm run build -- $CI_DEPLOY_ENV=manager-website
 
