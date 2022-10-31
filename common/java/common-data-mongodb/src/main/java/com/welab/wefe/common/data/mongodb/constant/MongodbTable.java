@@ -46,6 +46,7 @@ public class MongodbTable {
         public static final String BLOOM_FILTER = "BloomFilter";
         public static final String MEMBER_SERVICE = "MemberService";
         public static final String DATA_RESOURCE_DEFAULT_TAG = "DataResourceDefaultTag";
+        public static final String TRUST_CERTS = "TrustCerts";
     }
 
     public static final class Sms {
@@ -54,4 +55,7 @@ public class MongodbTable {
     }
 
     public static final String ACCOUNT = "account";
+    public static final String CERT_INFO = "certInfo";
+    public static final String CERT_KEY_INFO = "certKeyInfo";
+    public static final String CERT_REQUEST_INFO = "certRequestInfo";
 }

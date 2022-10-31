@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const { context } = require('./package.json');
+const pkg = require('./package.json');
 const { HashedModuleIdsPlugin } = require('webpack');
 const argv = require('minimist')(process.argv.slice(2));
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -13,19 +13,24 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const argvs = argv._[1] ? argv._[1].split('=') : '';
 const isProd = process.env.NODE_ENV === 'production';
 const resolve = dir => path.resolve(__dirname, dir);
-const CONTEXT_ENV = argvs[1] || context || '';
+const CONTEXT_ENV = argvs[1] || pkg.welab.contextPath || '';
 const buildDate = '3.0.0';
 
+console.log('Context_ENV:', CONTEXT_ENV);
+
 module.exports = {
-    assetsDir:           isProd ? `${CONTEXT_ENV}` : '',
-    indexPath:           isProd ? `${CONTEXT_ENV || '.'}/index.html` : 'index.html',
+    // TODO: dev, fat, prod, *. publicPath should to be same.
+    assetsDir:           './', // isProd ? `${CONTEXT_ENV}` : CONTEXT_ENV,
+    indexPath:           './index.html', // isProd ? `${CONTEXT_ENV || '.'}/index.html` : `${CONTEXT_ENV || '.'}/index.html` ,
     productionSourceMap: false,
+    outputDir:           'dist/manager-website',
+    publicPath:          '/manager-website',
     pages:               {
         index: {
             entry:    'src/app/app.js',
             template: 'index.html',
             filename: 'index.html',
-            BASE_URL: `${CONTEXT_ENV ? `/${CONTEXT_ENV}/` : '/'}`,
+            BASE_URL: `${CONTEXT_ENV ? `/${CONTEXT_ENV}/` : `/${CONTEXT_ENV}/`}`,
             chunks:   'inital',
         },
     },
@@ -109,6 +114,49 @@ module.exports = {
         if (argv['report']) {
             config.plugins.push(new BundleAnalyzerPlugin());
         }
+
+        config.optimization = {
+            splitChunks: {
+                chunks:                 'all',
+                minSize:                50 * 10e3, // 50k
+                maxSize:                244 * 10e3, // 244k
+                minChunks:              2,
+                maxAsyncRequests:       4,
+                maxInitialRequests:     4,
+                automaticNameDelimiter: '~',
+                name:                   true,
+                cacheGroups:            {
+                    echarts: {
+                        name:     'echarts',
+                        test:     /[\\/]node_modules[\\/]echarts[\\/]/,
+                        priority: 20,
+                    },
+                    'antv-g6': {
+                        name:     'antv-g6',
+                        test:     /[\\/]node_modules[\\/]@antv[\\/]/,
+                        priority: 20,
+                    },
+                    'cheetah-grid': {
+                        name:     'cheetah-grid',
+                        test:     /[\\/]node_modules[\\/](cheetah-grid|vue-cheetah-grid|zrender)[\\/]/,
+                        priority: 20,
+                    },
+                    vendors: {
+                        test:     /[\\/]node_modules[\\/](vue|vuex|vue-router|element-plus)[\\/]/,
+                        priority: -10,
+                    },
+                },
+            },
+        };
+
+        // vue-cli service 直接用config.output = {} 这种写法, 版本4不支持。 所以拆开写.
+        // 微应用的包名，这里与主应用中注册的微应用名称一致
+        config.output.library = 'wefe';
+        // 将你的 library 暴露为所有的模块定义下都可运行的方式
+        config.output.libraryTarget = 'umd';
+        // 按需加载相关，设置为 webpackJsonp_VueMicroApp 即可
+        config.output.jsonpFunction = 'webpackJsonp_wefe';
+
     },
     chainWebpack: config => {
         config.module
@@ -163,14 +211,18 @@ module.exports = {
     devServer: {
         hot:        true,
         liveReload: true,
+        // 配置跨域请求头，解决开发环境的跨域问题
+        headers:    {
+            'Access-Control-Allow-Origin': '*',
+        },
         /**
          * http://localhost:8080/manager-service
          * @author claude
          * @description webpack devServer proxy
          */
-        proxy:      {
+        proxy: {
             '/api': {
-                target:       'https://xxx.wolaidai.com/manager-service',
+                target:       'http://localhost:8080/manager-service',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

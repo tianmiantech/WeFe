@@ -17,13 +17,13 @@
 package com.welab.wefe.board.service.api.account;
 
 
-import com.welab.wefe.board.service.dto.globalconfig.AlertConfigModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.verification.code.common.CaptchaSendChannel;
 import com.welab.wefe.common.web.api.base.AbstractApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.web.dto.NoneApiInput;
+import com.welab.wefe.common.wefe.dto.global_config.AlertConfigModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

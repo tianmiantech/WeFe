@@ -44,6 +44,8 @@ public class DateUtil {
     public final static String YYYYMM = "yyyyMM";
     public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd.HH.mm.ss";
     public static final String YYYY_MM_DD_HH_MM_SS2 = "yyyy-MM-dd HH:mm:ss";
+    public static final String YYYY_MM_DD_HH_MM_SS3 = "yyyy-MM-dd HH:mm:00";
+    public static final String YYYY_MM_DD_HH_MM_SS4 = "yyyy-MM-dd HH:00:00";
     public static final String YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
     public static final String YYYY_MM_DD_HH = "yyyy-MM-dd HH:00:00";
     public static final String Y4_M2_D2_H2_M2_S2 = "yyyyMMddHHmmss";
@@ -327,6 +329,26 @@ public class DateUtil {
      */
     public static String getCurrentDate() {
         SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS2);
+        return sdf.format(new Date());
+    }
+
+    /**
+     * Gets the current date: time
+     *
+     * @return String
+     */
+    public static String getCurrentDate2() {
+        SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS3);
+        return sdf.format(new Date());
+    }
+
+    /**
+     * Gets the current date: time
+     *
+     * @return String
+     */
+    public static String getCurrentDate3() {
+        SimpleDateFormat sdf = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS4);
         return sdf.format(new Date());
     }
 

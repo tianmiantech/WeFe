@@ -23,8 +23,6 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.xml.ws.Service;
-
 /**
  * @author hunter.zhao
  * @date 2022/5/16

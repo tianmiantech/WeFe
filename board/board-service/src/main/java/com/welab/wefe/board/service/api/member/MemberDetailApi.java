@@ -16,12 +16,12 @@
 
 package com.welab.wefe.board.service.api.member;
 
-import com.welab.wefe.board.service.dto.globalconfig.MemberInfoModel;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.ApiResult;
+import com.welab.wefe.common.wefe.dto.global_config.MemberInfoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

@@ -34,7 +34,7 @@ public class RemoteCallbackProcessor extends AbstractProcessor {
     @Override
     public BasicMetaProto.ReturnStatus remoteProcess(GatewayMetaProto.TransferMeta transferMeta) {
         String memberName = transferMeta.getSrc().getMemberName();
-        String message = transferMeta.getContent().getObjectData();
+        String message = transferMeta.getContent().getStrData();
         messageService.saveError("远端错误消息", "成员[" + memberName + "]响应错误内容：" + message);
         return super.remoteProcess(transferMeta);
     }

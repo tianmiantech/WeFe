@@ -22,10 +22,6 @@ import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.welab.wefe.board.service.api.global_config.GlobalConfigUpdateApi;
-import com.welab.wefe.board.service.dto.globalconfig.GatewayConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.base.AbstractConfigModel;
-import com.welab.wefe.board.service.dto.globalconfig.base.ConfigGroupConstant;
-import com.welab.wefe.board.service.dto.globalconfig.base.ConfigModel;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.Env;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -35,7 +31,10 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.IpAddressUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
-import com.welab.wefe.common.wefe.enums.GatewayActionType;
+import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.base.AbstractConfigModel;
+import com.welab.wefe.common.wefe.dto.global_config.base.ConfigGroupConstant;
+import com.welab.wefe.common.wefe.dto.global_config.base.ConfigModel;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
 import com.welab.wefe.common.wefe.enums.JobBackendType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,12 +78,11 @@ public class GlobalConfigService extends BaseGlobalConfigService {
         if (input.groups.containsKey(ConfigGroupConstant.STORAGE)) {
             dataSetStorageService.initStorage();
         }
-        
+
         // Refresh function calculation storage
         if (input.groups.containsKey(ConfigGroupConstant.FC_CONFIG)) {
             if (Env.get().getCalculationEngineConfig().backend == JobBackendType.FC) {
                 gatewayService.sendToMyselfGateway(
-                        GatewayActionType.none,
                         "",
                         GatewayProcessorType.refreshFcStorageProcessor
                 );
@@ -132,7 +130,6 @@ public class GlobalConfigService extends BaseGlobalConfigService {
      */
     public synchronized void init() throws StatusCodeWithException, InstantiationException, IllegalAccessException {
         LOG.info("start init global config");
-
 
 
         // 遍历所有 ConfigModel，将配置项添加到数据库。

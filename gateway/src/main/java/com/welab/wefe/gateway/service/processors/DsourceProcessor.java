@@ -54,7 +54,7 @@ public class DsourceProcessor extends AbstractProcessor {
     public BasicMetaProto.ReturnStatus beforeSendToRemote(GatewayMetaProto.TransferMeta transferMeta) {
         JObject objectData = null;
         try {
-            objectData = JObject.create(transferMeta.getContent().getObjectData());
+            objectData = JObject.create(transferMeta.getContent().getStrData());
         } catch (Exception e) {
             return ReturnStatusBuilder.create(ReturnStatusEnum.PARAM_ERROR.getCode(), "ObjectData Illegal data structure ", transferMeta.getSessionId());
         }

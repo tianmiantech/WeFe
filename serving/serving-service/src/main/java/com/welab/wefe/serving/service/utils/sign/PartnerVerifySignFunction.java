@@ -15,7 +15,10 @@
  */
 package com.welab.wefe.serving.service.utils.sign;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.RSAUtil;
@@ -31,8 +34,6 @@ import com.welab.wefe.serving.service.database.repository.TableServiceRepository
 import com.welab.wefe.serving.service.service.ClientServiceService;
 import com.welab.wefe.serving.service.service.PartnerService;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author hunter.zhao
  * @date 2022/6/27
@@ -41,7 +42,8 @@ public class PartnerVerifySignFunction extends AbstractVerifySignFunction {
 
     @Override
     protected void rsaVerify(HttpServletRequest request, JSONObject params) throws Exception {
-        SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+//        SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
+        SignedApiInput signedApiInput = JSONObject.parseObject(params.toJSONString(), SignedApiInput.class, Feature.OrderedField);
         if (StringUtil.isNotEmpty(signedApiInput.getMemberId())) {
             signedApiInput.setPartnerCode(signedApiInput.getMemberId());
         }

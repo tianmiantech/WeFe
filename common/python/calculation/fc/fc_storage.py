@@ -18,10 +18,13 @@ from typing import Iterable
 
 from aliyunsdkcore.client import AcsClient
 from aliyunsdksts.request.v20150401.AssumeRoleRequest import AssumeRoleRequest
+from common.python.db.global_config_dao import GlobalConfigDao
 
 from common.python.common import consts
 from common.python.utils import conf_utils
+from common.python.utils.log_utils import LoggerFactory
 from common.python.utils.sm4_utils import SM4CBC
+
 
 class FCStorage(object):
     """
@@ -30,6 +33,9 @@ class FCStorage(object):
 
     _OTS = consts.STORAGETYPE.OTS
     _OSS = consts.STORAGETYPE.OSS
+    _COS = consts.STORAGETYPE.COS
+    logger = LoggerFactory.get_logger("FCStorage")
+
     storage = None
     TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -40,19 +46,10 @@ class FCStorage(object):
         self._namespace = namespace
         self._cloud_store_temp_auth = cloud_store_temp_auth
         self._storage_type = self.get_fc_storage_type()
+        self.logger.debug(f"_storage_type is: {self._storage_type}")
         self._instance_name = None
         self._bucket_name = None
-
-        if self._OTS == self._storage_type:
-            from common.python.storage.impl.ots_storage import OTS
-            self.storage = OTS(namespace=namespace, name=name, partitions=partitions,
-                               cloud_store_temp_auth=cloud_store_temp_auth)
-            if self._cloud_store_temp_auth:
-                self._instance_name = self.get_temp_storage_name()
-            else:
-                self._instance_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OTS_INSTANCE_NAME)
-
-        elif self._OSS == self._storage_type:
+        if self._OSS == self._storage_type:
             from common.python.storage.impl.oss_storage import OssStorage
             self.storage = OssStorage(namespace=namespace, name=name, partitions=partitions,
                                       cloud_store_temp_auth=cloud_store_temp_auth)
@@ -60,6 +57,15 @@ class FCStorage(object):
                 self._bucket_name = self.get_temp_storage_name()
             else:
                 self._bucket_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME)
+
+        elif self._COS == self._storage_type:
+            from common.python.storage.impl.cos_storage import CosStorage
+            self.storage = CosStorage(namespace=namespace, name=name, partitions=partitions,
+                                      cloud_store_temp_auth=cloud_store_temp_auth)
+            if self._cloud_store_temp_auth:
+                self._bucket_name = self.get_temp_storage_name()
+            else:
+                self._bucket_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_COS_BUCKET_NAME)
         else:
             raise NotImplementedError(f'not supported {self._storage_type} fc storage')
 
@@ -68,16 +74,22 @@ class FCStorage(object):
             if consts.STORAGETYPE.OTS in self._cloud_store_temp_auth['temp_auth_end_point'] or 'tablestore' in \
                     self._cloud_store_temp_auth['temp_auth_end_point']:
                 return consts.STORAGETYPE.OTS
+            # TODO temp_auth_end_point 这个位置需要改动
             elif consts.STORAGETYPE.OSS in self._cloud_store_temp_auth['temp_auth_end_point']:
                 return consts.STORAGETYPE.OSS
+            elif consts.STORAGETYPE.COS == self._cloud_store_temp_auth['temp_auth_end_point']:
+                return consts.STORAGETYPE.COS
         else:
-            return consts.STORAGETYPE.OSS
-            # return conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE, "oss")
+            if conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.ALIYUN:
+                return consts.STORAGETYPE.OSS
+            elif conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.TENCENTCLOUD:
+                return consts.STORAGETYPE.COS
 
     def get_temp_storage_name(self):
         if self._storage_type == consts.STORAGETYPE.OTS:
             return self._cloud_store_temp_auth['instance_name']
-        elif self._storage_type == consts.STORAGETYPE.OSS:
+        elif self._storage_type == consts.STORAGETYPE.OSS \
+                or self._storage_type == consts.STORAGETYPE.COS:
             return self._cloud_store_temp_auth['temp_auth_bucket_name']
 
     def to_dict(self):
@@ -103,65 +115,75 @@ class FCStorage(object):
         #     access_key_secret = sm4_util.decrypt(key, conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET))
         # else:
         access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_ACCESS_KEY_ID)
+        tencet_access_key_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_ACCESS_KEY_ID)
         access_key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_KEY_SECRET)
-
-        print(f'access_key_id: {access_key_id}, access_key_secret:{access_key_secret}   11111')
-
+        tencent_access_key_secret = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_KEY_SECRET)
         role_arn = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_ARN)
         region_id = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_REGION)
         temp_auth_internal_end_point = conf_utils.get_comm_config(
             consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_INTERNAL_END_POINT)
-        temp_auth_end_point = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_END_POINT)
         role_session_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_ROLE_SESSION_NAME)
         temp_auth_duration_seconds = conf_utils.get_comm_config(
             consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_DURATION_SECONDS)
 
-        fc_policy = {
-            "Version": "1",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Action": "oss:Get*",
-                    "Resource": [
-                        "acs:oss:*:*:" + self._bucket_name + "/" + self._namespace + "/*"
-                    ]
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": "oss:ListObjects",
-                    "Resource": "acs:oss:*:*:" + self._bucket_name,
-                    "Condition": {
-                        "StringLike": {
-                            "oss:Prefix": self._namespace + "/" + self._name + "/*"
+        cloud_store_temp_auth = {}
+        if self._storage_type == consts.STORAGETYPE.COS:
+            # Tencent Storage
+            cloud_store_temp_auth = {
+                "temp_access_key_id": tencet_access_key_id,
+                "temp_access_key_secret": tencent_access_key_secret,
+                "sts_token": None,
+                "temp_auth_internal_end_point": conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_REGION),
+                "temp_auth_end_point": "cos"
+            }
+        else:
+            temp_auth_end_point = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_CLOUD_STORE_TEMP_AUTH_END_POINT)
+            fc_policy = {
+                "Version": "1",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": "oss:Get*",
+                        "Resource": [
+                            "acs:oss:*:*:" + self._bucket_name + "/" + self._namespace + "/*"
+                        ]
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Action": "oss:ListObjects",
+                        "Resource": "acs:oss:*:*:" + self._bucket_name,
+                        "Condition": {
+                            "StringLike": {
+                                "oss:Prefix": self._namespace + "/" + self._name + "/*"
+                            }
                         }
                     }
-                }
-            ]
-        }
+                ]
+            }
 
-        # build an Alibaba Cloud client to initiate requests.
-        client = AcsClient(access_key_id, access_key_secret, region_id)
-        request = AssumeRoleRequest()
-        # set args
-        request.set_RoleArn(role_arn)
-        request.set_RoleSessionName(role_session_name)
-        request.set_DurationSeconds(temp_auth_duration_seconds)
-        # set policy
-        request.set_Policy(json.dumps(fc_policy))
+            # build an Alibaba Cloud client to initiate requests.
+            client = AcsClient(access_key_id, access_key_secret, region_id)
+            request = AssumeRoleRequest()
+            # set args
+            request.set_RoleArn(role_arn)
+            request.set_RoleSessionName(role_session_name)
+            request.set_DurationSeconds(temp_auth_duration_seconds)
+            # set policy
+            request.set_Policy(json.dumps(fc_policy))
 
-        response = client.do_action_with_exception(request)
-        result = json.loads(str(response, encoding='utf-8'))
-        temp_access_key_id = result.get('Credentials').get('AccessKeyId')
-        temp_access_key_secret = result.get('Credentials').get('AccessKeySecret')
-        sts_token = result.get('Credentials').get('SecurityToken')
+            response = client.do_action_with_exception(request)
+            result = json.loads(str(response, encoding='utf-8'))
+            temp_access_key_id = result.get('Credentials').get('AccessKeyId')
+            temp_access_key_secret = result.get('Credentials').get('AccessKeySecret')
+            sts_token = result.get('Credentials').get('SecurityToken')
 
-        cloud_store_temp_auth = {
-            "temp_access_key_id": temp_access_key_id,
-            "temp_access_key_secret": temp_access_key_secret,
-            "sts_token": sts_token,
-            "temp_auth_internal_end_point": temp_auth_internal_end_point,
-            "temp_auth_end_point": temp_auth_end_point
-        }
+            cloud_store_temp_auth = {
+                "temp_access_key_id": temp_access_key_id,
+                "temp_access_key_secret": temp_access_key_secret,
+                "sts_token": sts_token,
+                "temp_auth_internal_end_point": temp_auth_internal_end_point,
+                "temp_auth_end_point": temp_auth_end_point
+            }
 
         # when fc cloud storage is ots, with instance instance
         if self._storage_type == consts.STORAGETYPE.OTS:
@@ -170,13 +192,15 @@ class FCStorage(object):
         elif self._storage_type == consts.STORAGETYPE.OSS:
             bucket_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME)
             cloud_store_temp_auth["temp_auth_bucket_name"] = bucket_name
-
+        elif self._storage_type == consts.STORAGETYPE.COS:
+            bucket_name = conf_utils.get_comm_config(consts.COMM_CONF_KEY_SCF_COS_BUCKET_NAME)
+            cloud_store_temp_auth["temp_auth_bucket_name"] = bucket_name
         return cloud_store_temp_auth
 
     @classmethod
     def from_fcs_info(cls, info: dict):
         storage_type = info.get('storage_type')
-        if storage_type in [cls._OTS, cls._OSS]:
+        if storage_type in [cls._OTS, cls._OSS, cls._COS]:
             # If more than 20 hours, the cache will be invalid
             create_time = datetime.datetime.strptime(info.get('create_time'), FCStorage.TIME_FORMAT)
             seconds = (datetime.datetime.now() - create_time).seconds
@@ -187,6 +211,9 @@ class FCStorage(object):
                 return None
             if storage_type == cls._OSS and info.get("bucket_name") != conf_utils.get_comm_config(
                     consts.COMM_CONF_KEY_FC_OSS_BUCKET_NAME):
+                return None
+            if storage_type == cls._COS and info.get("bucket_name") != conf_utils.get_comm_config(
+                    consts.COMM_CONF_KEY_SCF_COS_BUCKET_NAME):
                 return None
             return FCStorage(info.get('namespace'), info.get('name'), info.get('partitions'))
 

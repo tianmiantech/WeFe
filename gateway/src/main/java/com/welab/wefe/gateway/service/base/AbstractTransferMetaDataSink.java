@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  **/
 public abstract class AbstractTransferMetaDataSink {
     @Autowired
-    private AbstractRecvTransferMetaCachePersistentService mReceivedTransferMateCachePersistent;
+    private AbstractRecvTransferMetaCachePersistentService receivedTransferMateCachePersistent;
 
 
     /**
@@ -51,13 +51,13 @@ public abstract class AbstractTransferMetaDataSink {
 
         // Empty the corresponding data body and put it into the cache to prevent excessive memory occupation
         GatewayMetaProto.Content newContent = transferMeta.getContent().toBuilder()
-                .clearConfigDatas().build();
+                .clearKeyValueDatas().build();
         GatewayMetaProto.TransferMeta tempTransferMeta = transferMeta.toBuilder()
                 .setContent(newContent)
                 .build();
 
         // Persistence handle
-        StatusCodeWithException statusCodeWithException = mReceivedTransferMateCachePersistent.save(tempTransferMeta);
+        StatusCodeWithException statusCodeWithException = receivedTransferMateCachePersistent.save(tempTransferMeta);
         if (statusCodeWithException.getStatusCode().equals(StatusCode.SUCCESS)) {
             cache.put(sessionId, tempTransferMeta);
             // Open the latch and notify the client that the data has been received

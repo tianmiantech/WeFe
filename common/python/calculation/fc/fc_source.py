@@ -400,10 +400,11 @@ class FCSource(Table):
                 return self._get_rtn_fcs(input_param)
 
             except Exception as ex:
-                # if used oss ，reset dst name
-                if conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE,
-                                              consts.STORAGETYPE.OSS) == consts.STORAGETYPE.OSS:
+                # if used oss cos，reset dst name
+                if conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE) == consts.STORAGETYPE.OSS \
+                        or conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE) == consts.STORAGETYPE.COS:
                     input_param = self._reset_dest_name(input_param)
+
                 LOGGER.error(f"function`{fc_name}`error,execution_name:{execution_name}", ex)
                 exception = ex
                 time.sleep(last_sleep_time)
@@ -582,7 +583,8 @@ class FCSource(Table):
         if self._dsource:
             return self._dsource.count()
         else:
-            if self._fcs.get_storage_type() == consts.STORAGETYPE.OSS:
+            if self._fcs.get_storage_type() == consts.STORAGETYPE.OSS \
+                    or self._fcs.get_storage_type() == consts.STORAGETYPE.COS:
                 return self._fcs.count()
 
             rtn_fcs = self._call_fc(fc_name='count')

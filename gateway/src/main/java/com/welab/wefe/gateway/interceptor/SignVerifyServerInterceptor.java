@@ -17,7 +17,6 @@
 package com.welab.wefe.gateway.interceptor;
 
 import com.welab.wefe.common.util.JObject;
-import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.cache.MemberCache;
@@ -27,12 +26,14 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.Status;
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Server signature verification interceptor
@@ -44,11 +45,15 @@ public class SignVerifyServerInterceptor extends AbstractServerInterceptor {
     /**
      * Valid duration of signature, unit: minutes
      */
-    private static final long SIGN_VALID_DURATION = 5 * 60 * 1000L;
+    private static final long SIGN_VALID_DURATION = 5;
     /**
      * Anti replay attack UUID request record cache,Key：UUID,Value：Timestamp
      */
-    private static final ConcurrentHashMap<String, Long> UUID_CACHE = new ConcurrentHashMap<>();
+    private ExpiringMap<String, Long> UUID_CACHE = ExpiringMap
+            .builder()
+            .expirationPolicy(ExpirationPolicy.ACCESSED)
+            .expiration(SIGN_VALID_DURATION + 1, TimeUnit.MINUTES)
+            .build();
 
 
     @Override
@@ -111,7 +116,7 @@ public class SignVerifyServerInterceptor extends AbstractServerInterceptor {
         }
 
         long timestamp = NumberUtils.toLong(timestampStr, 0);
-        if ((System.currentTimeMillis() - timestamp) > SIGN_VALID_DURATION) {
+        if ((System.currentTimeMillis() - timestamp) > (SIGN_VALID_DURATION * 60 * 1000L)) {
             LOG.error("The signature information of the client has expired. Signature verification failed");
             return false;
         }
@@ -122,8 +127,7 @@ public class SignVerifyServerInterceptor extends AbstractServerInterceptor {
             LOG.error("The data repeatedly submitted by the client is received, and the signature verification fails, member id: " + memberId);
             return false;
         }
-        // Add new request records to the cache and clean up expired request records
-        updateExpireUUIDCache(uuid);
+        UUID_CACHE.put(uuid, System.currentTimeMillis());
 
         try {
             byte[] data = signInfoObj.getString(GrpcConstant.SIGN_KEY_DATA).getBytes(StandardCharsets.UTF_8.toString());
@@ -132,11 +136,5 @@ public class SignVerifyServerInterceptor extends AbstractServerInterceptor {
             LOG.error("Signature verification exception：", e);
         }
         return false;
-    }
-
-
-    private void updateExpireUUIDCache(String uuid) {
-        UUID_CACHE.entrySet().removeIf(entry -> (System.currentTimeMillis() - entry.getValue()) > SIGN_VALID_DURATION);
-        UUID_CACHE.put(uuid, System.currentTimeMillis());
     }
 }

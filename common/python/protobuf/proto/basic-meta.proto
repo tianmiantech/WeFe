@@ -5,19 +5,24 @@ option java_outer_classname = "BasicMetaProto";
 
 // network endpoint
 message Endpoint {
-  string ip = 1;          // ip address
-  int32 port = 2;         // port
-  string hostname = 3;    // host name
+    string ip = 1;          // ip address
+    int32 port = 2;         // port
+    string hostname = 3;    // host name
 }
 
 message Endpoints {
-  repeated Endpoint endpoints = 1;
+    repeated Endpoint endpoints = 1;
 }
 
 // generic return status
 message ReturnStatus {
-  int32 code = 1;
-  string message = 2;
-  string sessionId = 3;
-  string data = 4;
+    int32 code = 1;
+    string message = 2;
+    string sessionId = 3;
+    string data = 4;
+}
+
+message KeyValueData {
+    bytes key = 1;
+    bytes value = 2;
 }
