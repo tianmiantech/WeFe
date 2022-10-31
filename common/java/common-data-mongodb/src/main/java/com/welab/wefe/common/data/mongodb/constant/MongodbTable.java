@@ -22,7 +22,6 @@ package com.welab.wefe.common.data.mongodb.constant;
 public class MongodbTable {
 
     public static final class Common {
-        public static final String FLOW_LIMIT = "FlowLimit";
         public static final String OPERATION_LOG = "OperationLog";
     }
 
@@ -49,12 +48,6 @@ public class MongodbTable {
         public static final String TRUST_CERTS = "TrustCerts";
     }
 
-    public static final class Sms {
-        public static final String VERIFICATION_CODE = "SmsVerificationCode";
-        public static final String DETAIL_INFO = "SmsDetailInfo";
-    }
-
-    public static final String ACCOUNT = "account";
     public static final String CERT_INFO = "certInfo";
     public static final String CERT_KEY_INFO = "certKeyInfo";
     public static final String CERT_REQUEST_INFO = "certRequestInfo";
