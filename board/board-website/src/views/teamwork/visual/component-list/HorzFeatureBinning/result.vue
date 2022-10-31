@@ -29,8 +29,8 @@
                                 :data="row.dataList"
                                 :stripe="true"
                                 :border="false"
-                                style="width :100%; "
-                                row-style="background: white; "
+                                style="width :100%;"
+                                row-style="background: whitesmoke; "
                                 class="fold-table"
                                 :row-class-name="methods.tableRowClassName"
                                 row-key="Index"
@@ -41,25 +41,27 @@
                                 
                             >
                                 <el-table-column type="expand" >
-                                    <template #default="props" >
-                                        <el-table :data="row.dataList[props.$index].inline_table" :span-method="methods.arraySpanMethod" style="width: 100%; " :cell-style="{borderColor: 'white'}"  :header-cell-style="{borderColor: 'white'}">
+                                    
+                                    <template #default="props">
+                                        
+                                        <el-table :data="row.dataList[props.$index].inline_table" :span-method="methods.arraySpanMethod" style="width: 100%; border: 1px solid lightgray; border-bottom: none;" :cell-style="{borderColor: 'white'}"  :header-cell-style="{borderColor: 'white'}">
                                             
-                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" width="650" align="center" >
+                                            <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" min-width="380%" align="center">
                                                 <template v-slot="scope">
                                                     <LineChart ref="LineChart" :config="scope.row.woeLineConfig" />
                                                 </template>
                                             </el-table-column>
 
-                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" width="980" align="center" fixed="right">
+                                            <el-table-column v-if="row.member_role === 'promoter'" label="分布" min-width="550%" align="center" fixed="right">
                                                 <template v-slot="scope">
                                                     <BarChartNew ref="BarChart" :config="scope.row.mapdata" />
                                                 </template>
                                             </el-table-column>                       
                                         </el-table>
-                                        <el-collapse v-model="activeDetails[props.$index]">
-                                            <el-collapse-item title="详细数据:" name="2" class="details" style="border-top: none; border-bottom: none;">
+                                        
+                                        <div>
                                                 
-                                                    <el-table :data="row.dataList[props.$index].inline_table" style="width: 100%" :cell-style="{borderColor: 'white'}">
+                                                    <el-table :data="row.dataList[props.$index].inline_table" style="width: 100%; border: 1px solid lightgray; border-top: none; border-bottom: 1px solid lightgray;" :cell-style="{borderColor: 'white'}" :header-cell-style="{borderColor: 'white'}">
                                                         <el-table-column label="箱号" width="55" type="index" align="center" />
                                                         <el-table-column label="划分区间" prop="binning" align="center" width="110" />
                                                         <el-table-column label="正样本数" prop="eventCountArray" align="center" />
@@ -73,10 +75,10 @@
                                                         
                                                     </el-table>
                                                 
-                                            </el-collapse-item>
-                                        </el-collapse>
-
+                                        </div><br>
+                                        
                                     </template>
+                                    
                                 </el-table-column>
                                 <el-table-column label="特征名称" prop="column"></el-table-column>
                                 <el-table-column label="分箱方法" prop="paramsMethod"></el-table-column>
@@ -358,13 +360,4 @@
     };
 </script>
 
-<style lang="scss">
-.el-collapse-item__header{
-    font-size: 12px;
-    border: none;
-}
-.el-collapse-item__wrap{
-    border: none;
-}
-</style>
 

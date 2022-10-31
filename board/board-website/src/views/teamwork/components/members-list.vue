@@ -17,8 +17,8 @@
                 <div v-if="form.is_project_admin" class="right-sort-area">
                     <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
                     <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-arrow-up', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-arrow-up /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-arrow-down', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-arrow-down /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
                     
                 </div>
             </div>
