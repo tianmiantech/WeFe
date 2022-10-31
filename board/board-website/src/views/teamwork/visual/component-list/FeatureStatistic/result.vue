@@ -79,8 +79,8 @@
                                                     name="histogram"
                                                 >
                                                     <BarChart
-                                                        :ref="barRefHandle"
-                                                        v-if="vData.isBarChart"
+                                                        v-if="member.table[props.$index].isBarChart"
+                                                        :ref="BarChartHandle"
                                                         :config="props.row.distributionChart"
                                                     />
                                                 </el-tab-pane>
@@ -93,8 +93,8 @@
                                                             <el-table-column prop="frequency" label="frequency"></el-table-column>
                                                         </el-table>
                                                         <PieChart
-                                                            v-if="`${member.member_id}-${member.member_role}` === vData.tabName"
-                                                            :ref="pieRefHandle" 
+                                                            v-if="member.table[props.$index].isPieChart"
+                                                            :ref="PieChartHandle"
                                                             style="flex: 1"
                                                             :config="props.row.pieChartData"
                                                         />
@@ -148,10 +148,9 @@
                 tabName:     '',
                 members:     [],
                 resultTypes: [],
-            }), BarChart = {};
+            })
+            const BarChart = ref();
             const PieChart = ref();
-            const PieChartRef = ref();
-            
             const { appContext, ctx } = getCurrentInstance();
             const { $bus } = appContext.config.globalProperties;
 
@@ -290,8 +289,7 @@
                             break;
                         case 'histogram':
                             setTimeout(()=>{
-                                BarChart = ctx.$refs.BarChart[0];
-                                if (BarChart) BarChart.chartResize();
+                                if (BarChart.value) BarChart.value.chartResize();
                             }, 200);
                             break;
                         }
@@ -308,9 +306,9 @@
 
             onBeforeMount(() => {
                 $bus.$on('drag-end', _ => {
-                    if (PieChartRef.value) {
+                    if (PieChart.value) {
                         nextTick(_=> {
-                            PieChartRef.value.chartResize();
+                            PieChart.value.chartResize();
                         });
                     }
                 });
@@ -323,10 +321,8 @@
                 vData,
                 activeName,
                 methods,
-                PieChartRef,
-                BarChart,
-                pieRefHandle: (el) => { PieChartRef.value = el; },
-                barRefHandle: (el) => { BarChart.value = el; },
+                PieChartHandle: el => PieChart.value = el,
+                BarChartHandle: el => BarChart.value = el
             };
         },
     };
