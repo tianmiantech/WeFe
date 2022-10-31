@@ -328,7 +328,7 @@ import { template } from 'lodash';
                         this.$message.success("操作成功!");
                     }
                 }
-            });
+            
         },
         moveUp() {
             this.$emit("move-up", this.sortIndex);
