@@ -26,7 +26,7 @@
                 <el-input-number
                     v-model="item.count"
                     type="number"
-                    :min="1"
+                    :min="2"
                     controls-position="right"
                     @blur="methods.changeMethodCount(item, index)"
                     @change="methods.changeMethodCount(item, index)"

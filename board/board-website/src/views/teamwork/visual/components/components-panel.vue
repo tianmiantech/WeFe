@@ -19,7 +19,7 @@
                 />
                 <i
                     v-else
-                    title="网页全屏"
+                    title="全屏显示"
                     class="iconfont icon-enlarge"
                     @click="changeSize"
                 />
@@ -478,13 +478,14 @@
 .drag-resize{
     min-width: 350px;
     background: #fff;
-    z-index: 10;
+    z-index: 10000;
     :deep(.drag-content){overflow: visible;}
     :deep(.ctrl-left){
-        left: -24px;
+        left: -9px;
         padding:12px 3px;
+        color: #e5e9f2;
         background: #fff;
-        border-radius:4px 0 0 4px;
+        border-radius:4px 4px 0px 0px;
         border: 1px solid #e5e9f2;
     }
     :deep(.control-points.covered){
@@ -492,17 +493,22 @@
     }
 }
 .ctrl-btns{
-    position: absolute;
-    top: 10px;
-    right:15px;
+    position: relative;
+    top: 57.3%;
+    right:9px;
     z-index: 200;
     .iconfont{
         cursor: pointer;
-        font-size: 20px;
-        color: $color-light;
-        background: #fff;
-        border-radius: 4px;
-        padding:5px;
+        font-size: 22px;
+        color: #e5e9f2;
+        background: white;
+        border-radius: 0px 0px 4px 4px;
+        
+        padding:0px;
+        border-left: 1px solid #e5e9f2;
+        border-right: 1px solid #e5e9f2;
+        border-bottom: 1px solid #e5e9f2;
+
         &:hover{color:$--color-primary;}
     }
 }
