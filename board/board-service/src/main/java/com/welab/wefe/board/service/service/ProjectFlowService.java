@@ -436,12 +436,11 @@ public class ProjectFlowService extends AbstractService {
         }
 
         // Get the node information of the original process
-        QueryFlowNodeListApi.Output output = gatewayService.callOtherMemberBoard(
+        ListFlowNodeApi.Output output = gatewayService.callOtherMemberBoard(
                 targetPromoterProjectMember.getMemberId(),
-                JobMemberRole.provider,
-                QueryFlowNodeListApi.class,
-                new QueryFlowNodeListApi.Input(input.getSourceFlowId()),
-                QueryFlowNodeListApi.Output.class
+                ListFlowNodeApi.class,
+                new ListFlowNodeApi.Input(input.getSourceFlowId()),
+                ListFlowNodeApi.Output.class
         );
         List<ProjectFlowNodeOutputModel> sourceProjectFlowNodeList = output.getList();
         if (CollectionUtils.isEmpty(sourceProjectFlowNodeList)) {
