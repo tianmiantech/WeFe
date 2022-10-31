@@ -103,7 +103,7 @@ class ComponentProperties(object):
         self.provider_member_idlist = component_parameters["role"].get("provider")
         self.local_member_id = component_parameters["local"].get("member_id")
         self.promoter_member_id = component_parameters["role"].get("promoter")
-        if len(self.promoter_member_id) == 0:
+        if len(self.promoter_member_id) != 0:
             self.promoter_member_id = self.promoter_member_id[0]
         if 'mix_promoter_member_id' in component_parameters:
             self.mix_promoter_member_id = component_parameters["mix_promoter_member_id"]
