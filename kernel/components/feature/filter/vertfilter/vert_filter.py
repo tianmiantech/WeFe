@@ -96,10 +96,9 @@ class VertSampleFilter(ModelBase):
             else:
                 raise ValueError(f'{operator} not support')
             self.feature_filter_rules[feature_name] = feature
+        LOGGER.info('feature_filter_rules:{}'.format(self.feature_filter_rules))
 
     def process_value(self, value):
-        print("feature_filter_rules:{}".format(self.feature_filter_rules))
-        time = 0
         flag = False
         for feature_name, feature in self.feature_filter_rules.items():
             idx = feature['idx']
@@ -112,10 +111,8 @@ class VertSampleFilter(ModelBase):
                         flag = True
                 # str
                 elif real_value != feature['min']:
-                    flag = False
-                    if time <10:
-                        print("real_value:{} and feature['min']:{}".format(real_value, feature['min']))
-                        time+=1
+                    flag = True
+
             elif operator == '!=':
                 if value_type == 'num':
                     if math.fabs(real_value - feature['min']) <= consts.FLOAT_ZERO:
