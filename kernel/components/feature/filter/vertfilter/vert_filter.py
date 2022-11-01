@@ -111,7 +111,7 @@ class VertSampleFilter(ModelBase):
                         flag = True
                 # str
                 elif real_value != feature['min']:
-                    flag = False
+                    flag = True
 
             elif operator == '!=':
                 if value_type == 'num':
