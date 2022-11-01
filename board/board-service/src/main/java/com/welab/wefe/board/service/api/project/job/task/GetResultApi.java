@@ -56,8 +56,8 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResul
         for (TaskMySqlModel task : tasks) {
             String taskConf = task.getTaskConf();
             JObject taskConfigJson = JObject.create(taskConf);
-            TaskResultOutputModel result = Components.get(task.getTaskType()).getTaskResult(task.getTaskId(),
-                    input.type);
+            TaskResultOutputModel result = Components.get(task.getTaskType())
+                    .getTaskResult(task.getTaskId(), input.type);
             if (result == null) {
                 result = new TaskResultOutputModel();
             }
@@ -69,11 +69,17 @@ public class GetResultApi extends AbstractApi<GetResultApi.Input, List<TaskResul
             result.setErrorCause(task.getErrorCause());
             result.setPosition(task.getPosition());
             result.setSpend(task.getSpend());
+            result.setJobId(task.getJobId());
+            result.setFlowId(task.getFlowId());
+            result.setFlowNodeId(task.getFlowNodeId());
+            result.setTaskId(task.getTaskId());
+
             JObject taskInfo = taskConfigJson.getJObject("task");
             if (taskInfo != null) {
                 result.setMembers(taskConfigJson.getJObject("task").getJSONList("members"));
             }
 
+            // 防止返回两个相同的结果
             if (result.getResult() != null && !temp.add(result.getResult().toJSONString()) && task.getRole() == JobMemberRole.provider
                     && (task.getTaskType() == ComponentType.MixStatistic
                     || task.getTaskType() == ComponentType.MixBinning
