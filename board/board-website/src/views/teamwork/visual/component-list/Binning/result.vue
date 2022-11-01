@@ -307,8 +307,11 @@
 
                         vData.list = list;
                         vData.tabName = `${list[0].member_id}-0`;
-                        list[0].dataList[0].isShowWOE = true;
-                        this.expandChange(vData.list[0].dataList[0]);
+                        
+                        if (list[0].member_id === list[1].member_id){
+                            vData.expandRowKeys = [];
+                        }
+                        
                     }
                 },
             };
