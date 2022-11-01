@@ -108,46 +108,50 @@ public class DataSyncTask {
 
         @Override
         public void run() {
-            try {
-                client = bcosSDK.getClient(groupId);
-                // Create a data sync context and save it to the instance
-                DataSyncContext dataSyncContext = DataSyncContext.create(client);
-                SyncConstant.setCurrentContext(dataSyncContext);
-                //Query part of the data that has been synchronized
-                BlockSyncHeight blockSyncHeight = blockSyncHeightService.findByGroupId(dataSyncContext.getGroupId());
-                long startBlockNumber = (null == blockSyncHeight ? 0 : blockSyncHeight.getBlockNumber() + 1);
-                while (true) {
-                    // The length of the synchronized part is greater than the current maximum length, it proves that the synchronization has been completed
-                    Long currentBlockNumber = BlockConstant.getGroupBlockNumber(dataSyncContext.getGroupId());
-                    if (null == currentBlockNumber || currentBlockNumber < 0 ||
-                            startBlockNumber > currentBlockNumber) {
-                        long sleepMillis = 500;
-                        LOG.info("Start sync data with group id: {}, current block number is: {}, less than start block number: {}, current thread sleep {} ms.", groupId, currentBlockNumber, startBlockNumber, sleepMillis);
-                        ThreadUtil.sleep(sleepMillis);
-                        continue;
-                    }
+            while (true) {
+                try {
+                    client = bcosSDK.getClient(groupId);
+                    // Create a data sync context and save it to the instance
+                    DataSyncContext dataSyncContext = DataSyncContext.create(client);
+                    SyncConstant.setCurrentContext(dataSyncContext);
+                    //Query part of the data that has been synchronized
+                    BlockSyncHeight blockSyncHeight = blockSyncHeightService.findByGroupId(dataSyncContext.getGroupId());
+                    long startBlockNumber = (null == blockSyncHeight ? 0 : blockSyncHeight.getBlockNumber() + 1);
+                    while (true) {
+                        // The length of the synchronized part is greater than the current maximum length, it proves that the synchronization has been completed
+                        Long currentBlockNumber = BlockConstant.getGroupBlockNumber(dataSyncContext.getGroupId());
+                        if (null == currentBlockNumber || currentBlockNumber < 0 ||
+                                startBlockNumber > currentBlockNumber) {
+                            long sleepMillis = 500;
+                            LOG.info("Start sync data with group id: {}, current block number is: {}, less than start block number: {}, current thread sleep {} ms.", groupId, currentBlockNumber, startBlockNumber, sleepMillis);
+                            ThreadUtil.sleep(sleepMillis);
+                            continue;
+                        }
 
-                    while (startBlockNumber <= currentBlockNumber) {
-                        LOG.info("Start sync data with group id: {}, block : {}, current block number: {} ....", groupId, startBlockNumber, currentBlockNumber.longValue());
-                        try {
-                            startSync(startBlockNumber);
-                            LOG.info("Sync of data with group id: {}, block: {} succeeded.", groupId, startBlockNumber);
-                            startBlockNumber++;
-                        } catch (BusinessException e) {
-                            LOG.error("Failed to sync data with group id: " + groupId + ", block: " + startBlockNumber + " , exception info: ", e);
-                            // Business error proofs need not be repeated, Manual intervention is required
-                            blockSyncHeightService.sendErrorMsg(groupId, startBlockNumber, e);
-                            return;
-                        } catch (Exception e) {
-                            LOG.error("Failed to sync data with group id:" + groupId + ", block: " + startBlockNumber + " , exception info: ", e);
-                            blockSyncHeightService.sendErrorMsg(groupId, startBlockNumber, e);
-                            ThreadUtil.sleepSeconds(5);
+                        while (startBlockNumber <= currentBlockNumber) {
+                            LOG.info("Start sync data with group id: {}, block : {}, current block number: {} ....", groupId, startBlockNumber, currentBlockNumber.longValue());
+                            try {
+                                startSync(startBlockNumber);
+                                LOG.info("Sync of data with group id: {}, block: {} succeeded.", groupId, startBlockNumber);
+                                startBlockNumber++;
+                            } catch (BusinessException e) {
+                                LOG.error("Failed to sync data with group id: " + groupId + ", block: " + startBlockNumber + " , exception info: ", e);
+                                // Business error proofs need not be repeated, Manual intervention is required
+                                blockSyncHeightService.sendErrorMsg(groupId, startBlockNumber, e);
+                                return;
+                            } catch (Exception e) {
+                                LOG.error("Failed to sync data with group id:" + groupId + ", block: " + startBlockNumber + " , exception info: ", e);
+                                blockSyncHeightService.sendErrorMsg(groupId, startBlockNumber, e);
+                                ThreadUtil.sleepSeconds(5);
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    LOG.error("Failed to sync data with group id:" + groupId + " exception info: ", e);
+                    blockSyncHeightService.sendErrorMsg(groupId, -1, e);
+                } finally {
+                    ThreadUtil.sleepSeconds(10);
                 }
-            } catch (Exception e) {
-                LOG.error("Failed to sync data with group id:" + groupId + " exception info: ", e);
-                blockSyncHeightService.sendErrorMsg(groupId, -1, e);
             }
         }
 
