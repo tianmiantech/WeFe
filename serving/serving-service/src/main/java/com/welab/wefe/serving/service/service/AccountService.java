@@ -17,92 +17,96 @@
 package com.welab.wefe.serving.service.service;
 
 
-import com.welab.wefe.common.data.mysql.Where;
-import com.welab.wefe.common.data.mysql.enums.OrderBy;
+import com.welab.wefe.common.SecurityUtil;
+import com.welab.wefe.common.constant.SecretKeyType;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.web.service.account.AccountInfo;
-import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
-import com.welab.wefe.common.web.util.ModelMapper;
-import com.welab.wefe.serving.service.api.account.ListAllApi;
-import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
-import com.welab.wefe.serving.service.api.account.QueryApi;
+import com.welab.wefe.common.util.Sha1;
+import com.welab.wefe.common.util.SignUtil;
+import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.serving.service.api.account.SsoLoginApi;
 import com.welab.wefe.serving.service.database.entity.AccountMySqlModel;
 import com.welab.wefe.serving.service.database.repository.AccountRepository;
-import com.welab.wefe.serving.service.dto.AccountListAllOutputModel;
-import com.welab.wefe.serving.service.dto.PagingOutput;
-import com.welab.wefe.serving.service.service.verificationcode.VerificationCodeService;
+import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
+import com.welab.wefe.serving.service.enums.ServingModeEnum;
+import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author Zane
  */
 @Service
-public class AccountService  {
+public class AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
-    private VerificationCodeService verificationCodeService;
+    private GlobalConfigService globalConfigService;
 
-    public List<AccountListAllOutputModel> listAll(ListAllApi.Input input) {
-
-        Specification<AccountMySqlModel> where = Where
-                .create()
-                .contains("nickname", input.getNickname())
-                .build(AccountMySqlModel.class);
-
-        List<AccountMySqlModel> list = accountRepository.findAll(where);
-        return ModelMapper.maps(list, AccountListAllOutputModel.class);
-    }
-
-
-    private AccountInfo toAccountInfo(AccountMySqlModel model) {
-        if (model == null) {
-            return null;
+    public SsoLoginApi.Output ssoLogin() throws StatusCodeWithException {
+        if (!globalConfigService.isInitialized()) {
+            IdentityInfoModel identityInfoModel = new IdentityInfoModel();
+            identityInfoModel.setMemberId(UUID.randomUUID().toString().replaceAll("-", ""));
+            identityInfoModel.setMemberName("serving系统");
+            identityInfoModel.setMode(ServingModeEnum.standalone.name());
+            try {
+                SignUtil.KeyPair keyPair = SignUtil.generateKeyPair(SecretKeyType.rsa);
+                identityInfoModel.setRsaPrivateKey(keyPair.privateKey);
+                identityInfoModel.setRsaPublicKey(keyPair.publicKey);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+            globalConfigService.initializeToStandalone(identityInfoModel);
         }
 
-        AccountInfo info = new AccountInfo();
-        info.setId(model.getId());
-        info.setPhoneNumber(model.getPhoneNumber());
-        info.setNickname(model.getNickname());
-        info.setPassword(model.getPassword());
-        info.setSalt(model.getSalt());
-        info.setAuditStatus(model.getAuditStatus());
-        info.setAuditComment(model.getAuditComment());
-        info.setAdminRole(model.getAdminRole());
-        info.setSuperAdminRole(model.getSuperAdminRole());
-        info.setEnable(model.getEnable());
-        info.setCancelled(model.isCancelled());
-        info.setHistoryPasswordList(model.getHistoryPasswordList());
-        return info;
-    }
+        AccountInfo2 accountInfo = CurrentAccountUtil.get();
+        AccountMySqlModel accountMysqlModel = accountRepository.findById(accountInfo.getId()).orElse(null);
+        if (null == accountMysqlModel) {
+            String salt = SecurityUtil.createRandomSalt();
+            String password = Sha1.of(UUID.randomUUID().toString().replace("-", "") + salt);
+            accountMysqlModel = new AccountMySqlModel();
+            accountMysqlModel.setId(accountInfo.getId());
+            accountMysqlModel.setNickname(accountInfo.getName());
+            accountMysqlModel.setPhoneNumber(accountInfo.getPhoneNumber());
+            accountMysqlModel.setPassword(password);
+            accountMysqlModel.setSalt(salt);
+            accountMysqlModel.setSuperAdminRole(true);
+            accountMysqlModel.setAdminRole(true);
+            accountMysqlModel.setAuditStatus(AuditStatus.agree);
+            accountMysqlModel.setEnable(true);
 
-    public List<Output> queryAll() {
-        List<AccountMySqlModel> accounts = accountRepository.findAll();
-        return accounts.stream().map(x -> com.welab.wefe.common.web.util.ModelMapper.map(x, Output.class))
-                .collect(Collectors.toList());
-    }
+            accountRepository.save(accountMysqlModel);
+        } else {
+            String nickName = accountMysqlModel.getNickname();
+            String phoneNumber = accountMysqlModel.getPhoneNumber();
+            boolean needUpdate = false;
+            if (StringUtil.isNotEmpty(nickName) && !nickName.equals(accountInfo.getName())) {
+                accountMysqlModel.setNickname(accountInfo.getName());
+                needUpdate = true;
+            }
+            if (StringUtil.isNotEmpty(phoneNumber) && !phoneNumber.equals(accountInfo.getPhoneNumber())) {
+                accountMysqlModel.setPhoneNumber(accountInfo.getPhoneNumber());
+                needUpdate = true;
+            }
+            if (needUpdate) {
+                accountMysqlModel.setUpdatedTime(new Date());
+                accountRepository.save(accountMysqlModel);
+            }
+        }
 
-    public List<Output> query() {
-        List<AccountMySqlModel> accounts = accountRepository.findAll();
-        return accounts.stream().map(x -> com.welab.wefe.common.web.util.ModelMapper.map(x, Output.class))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Paging query account
-     */
-    public PagingOutput<QueryApi.Output> query(QueryApi.Input input) throws StatusCodeWithException {
-        Specification<AccountMySqlModel> where = Where.create().contains("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()))
-                .equal("auditStatus", input.getAuditStatus()).contains("nickname", input.getNickname())
-                .orderBy("createdTime", OrderBy.desc).build(AccountMySqlModel.class);
-
-        return accountRepository.paging(where, input, QueryApi.Output.class);
+        SsoLoginApi.Output output = new SsoLoginApi.Output();
+        output.setId(accountInfo.getId());
+        output.setToken(accountInfo.getId());
+        output.setPhoneNumber(accountInfo.getPhoneNumber());
+        output.setNickname(accountInfo.getName());
+        return output;
     }
 }
