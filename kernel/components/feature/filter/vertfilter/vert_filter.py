@@ -143,7 +143,7 @@ class VertSampleFilter(ModelBase):
                         elif real_value == value_max:
                             flag = True
         if flag:
-            value.features = None
+            value.features = []
         return value
 
     def fit(self, data_instances):
