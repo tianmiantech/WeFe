@@ -150,6 +150,7 @@ class VertSampleFilter(ModelBase):
         return value
 
     def fit(self, data_instances):
+        LOGGER.info('start vert filter')
         self._init_param()
         self.header = get_header(data_instances)
         LOGGER.info(f'origin data:{data_instances.first()[1].features}')
