@@ -165,7 +165,8 @@ class Oot(ModelBase):
         # Run subcomponents
         run_sub_component_object.run(sub_component_parameters, sub_component_task_run_args)
 
-        return run_sub_component_object.output_data(), run_sub_component_object.output_ids_map()
+        # return run_sub_component_object.output_data(), run_sub_component_object.output_ids_map()
+        return run_sub_component_object.output_data()
 
     def build_sub_component_parameters(self, sub_component_task_config=None):
         """
