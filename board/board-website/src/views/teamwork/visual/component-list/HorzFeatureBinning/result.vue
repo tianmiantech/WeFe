@@ -39,12 +39,23 @@
                                 :fit="true"
                                 :cell-style="{borderColor: 'white'}"
                                 
-                            >
+                                >
+
                                 <el-table-column type="expand" >
                                     
                                     <template #default="props">
                                         
-                                        <el-table :data="row.dataList[props.$index].inline_table" :span-method="methods.arraySpanMethod" style="width: 100%; border: 1px solid lightgray; border-bottom: none;" :cell-style="{borderColor: 'white'}"  :header-cell-style="{borderColor: 'white'}">
+                                        <el-table  
+                                            :data="row.dataList[props.$index].inline_table" 
+                                            :span-method="methods.arraySpanMethod" 
+                                            class="fold-table-1"
+                                            style="width: 100%; 
+                                                border: 1px solid lightgray; 
+                                                border-bottom: none;" 
+                                            :cell-style="{borderColor: 'white'}"  
+                                            :header-cell-style="{borderColor: 'white'}"
+                                            
+                                            >
                                             
                                             <el-table-column v-if="row.dataList[props.$index].woeArray.length" label="WOE变化图" prop="weight" min-width="380%" align="center">
                                                 <template v-slot="scope">
@@ -61,7 +72,17 @@
                                         
                                         <div>
                                                 
-                                                    <el-table :data="row.dataList[props.$index].inline_table" style="width: 100%; border: 1px solid lightgray; border-top: none; border-bottom: 1px solid lightgray;" :cell-style="{borderColor: 'white'}" :header-cell-style="{borderColor: 'white'}">
+                                                    <el-table 
+                                                        :data="row.dataList[props.$index].inline_table" 
+                                                        class="fold-table-2"
+                                                        style="width: 100%; 
+                                                            border: 1px solid lightgray; 
+                                                            border-top: none; 
+                                                            border-bottom: 1px solid lightgray;" 
+                                                        :cell-style="{borderColor: 'white'}" 
+                                                        :header-cell-style="{borderColor: 'white'}"
+                                                        
+                                                        >
                                                         <el-table-column label="箱号" width="55" type="index" align="center" />
                                                         <el-table-column label="划分区间" prop="binning" align="center" width="110" />
                                                         <el-table-column label="正样本数" prop="eventCountArray" align="center" />
@@ -360,4 +381,9 @@
     };
 </script>
 
+<style lang="scss">
+    .fold-table tbody tr:hover>td{
+        background: white !important
+    }
+</style>
 
