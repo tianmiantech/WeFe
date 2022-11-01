@@ -603,7 +603,11 @@ class Evaluation(ModelBase):
             The AUC
         """
         if self.eval_type == consts.BINARY:
-            return roc_auc_score(labels, pred_scores)
+            try:
+                return roc_auc_score(labels, pred_scores)
+            except ValueError as e:
+                logging.warning("roc_auc_score error", e)
+                return None
         else:
             logging.warning("auc is just suppose Binary Classification! return None as results")
             return None
