@@ -98,7 +98,7 @@ class VertSampleFilter(ModelBase):
             self.feature_filter_rules[feature_name] = feature
 
     def process_value(self, value):
-        LOGGER.info("feature_filter_rules:{}".format(self.feature_filter_rules))
+        print("feature_filter_rules:{}".format(self.feature_filter_rules))
         time = 0
         flag = False
         for feature_name, feature in self.feature_filter_rules.items():
@@ -114,7 +114,7 @@ class VertSampleFilter(ModelBase):
                 elif real_value != feature['min']:
                     flag = False
                     if time <10:
-                        LOGGER.info("real_value:{} and feature['min']:{}".format(real_value, feature['min']))
+                        print("real_value:{} and feature['min']:{}".format(real_value, feature['min']))
                         time+=1
             elif operator == '!=':
                 if value_type == 'num':
