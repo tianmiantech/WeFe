@@ -33,6 +33,7 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
 import com.welab.wefe.common.wefe.checkpoint.CheckpointManager;
+import com.welab.wefe.union.service.cache.MemberActivityCache;
 import com.welab.wefe.union.service.dto.common.SM2SignedApiInput;
 import com.welab.wefe.union.service.operation.UnionApiLogger;
 import com.welab.wefe.union.service.service.MemberContractService;
@@ -114,10 +115,15 @@ public class UnionService implements ApplicationContextAware {
             throw new StatusCodeWithException("该成员已被冻结，请联系管理员", StatusCode.INVALID_MEMBER);
         }
 
+        // 更新成员活跃时间
         if (Long.parseLong(member.getLastActivityTime()) < DateUtil.currentDateMillis()) {
             member.setLastActivityTime(String.valueOf(System.currentTimeMillis()));
-            MemberContractService memberContractService = UnionService.CONTEXT.getBean(MemberContractService.class);
-            memberContractService.updateLastActivityTimeById(member.getMemberId(), member.getLastActivityTime());
+            MemberActivityCache memberActivityCache = MemberActivityCache.getInstance();
+            if (!memberActivityCache.isActivePeriod(member)) {
+                MemberContractService memberContractService = UnionService.CONTEXT.getBean(MemberContractService.class);
+                memberContractService.updateLastActivityTimeById(member.getMemberId(), member.getLastActivityTime());
+                memberActivityCache.add(member);
+            }
         }
 
         String publicKey = member.getPublicKey();
