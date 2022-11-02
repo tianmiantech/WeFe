@@ -423,11 +423,8 @@ class Oot(ModelBase):
         eval_data_label = list(train_data.collect())
         predict_data_label = list(predict_data.collect())
         evaluat_obj = Evaluation()
-        if self.model_param.need_PSI:
-            evaluat_obj.model_param.psi_param.need_PSI = self.model_param.need_PSI
-            evaluat_obj.model_param.psi_param.bin_num = self.model_param.bin_num
-            evaluat_obj.model_param.psi_param.bin_method = self.model_param.bin_method
-            evaluat_obj.model_param.psi_param.split_points = self.model_param.split_points
+        if self.model_param.psi_param.need_PSI:
+            evaluat_obj.model_param.psi_param = self.model_param.psi_param
             split_data_with_label = evaluat_obj.split_data_with_type(eval_data_label)
             concat_data_label = defaultdict(list)
             concat_data_label['validate'] = predict_data_label
