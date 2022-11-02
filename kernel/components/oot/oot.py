@@ -423,7 +423,7 @@ class Oot(ModelBase):
         eval_data_label = list(train_data.collect())
         predict_data_label = list(predict_data.collect())
         evaluat_obj = Evaluation()
-        if self.model_param.psi_param.need_PSI:
+        if self.model_param.psi_param.need_psi:
             evaluat_obj.model_param.psi_param = self.model_param.psi_param
             split_data_with_label = evaluat_obj.split_data_with_type(eval_data_label)
             concat_data_label = defaultdict(list)

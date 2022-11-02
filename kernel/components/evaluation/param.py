@@ -153,12 +153,12 @@ class EvaluateParam(BaseParam):
         self.check()
 
 class ScoreParam(BaseParam):
-    def __init__(self, prob_need_to_bin = False, bin_method = None, bin_num = None, split_points=None):
+    def __init__(self, prob_need_to_bin = False, bin_method = None, bin_num = None):
         super().__init__()
         self.prob_need_to_bin = prob_need_to_bin
         self.bin_num = bin_num
         self.bin_method = bin_method
-        self.split_points = split_points
+
 
     def check(self):
         if self.prob_need_to_bin:
@@ -168,17 +168,20 @@ class ScoreParam(BaseParam):
                 raise ValueError("bin_num is {}, should choose number of binning greater than 0".format(self.bin_num))
 
 class PSIParam(BaseParam):
-    def __init__(self, need_PSI = False, bin_method = None, bin_num = None, split_points=None):
+    def __init__(self, need_psi = False, bin_method = None, bin_num = None, split_points=None):
         super().__init__()
-        self.need_PSI = need_PSI
+        self.need_psi = need_psi
         self.bin_num = bin_num
         self.bin_method = bin_method
         self.split_points = split_points
 
     def check(self):
-        if self.need_PSI:
+        if self.need_psi:
             if self.bin_method not in ["bucket", "custom"]:
                 raise ValueError("bin_method{} not support".format(self.bin_method))
+            if self.bin_method == 'custom':
+                if not self.split_points:
+                    raise ValueError("split_points {} not NULL")
             if self.bin_num <= 0:
                 raise ValueError(
                     "bin_num is {}, should choose number of binning greater than 0".format(self.bin_num))
