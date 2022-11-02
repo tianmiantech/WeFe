@@ -16,12 +16,14 @@
 
 package com.welab.wefe.board.service.service.account;
 
-import com.welab.wefe.board.service.api.account.*;
+import com.alibaba.fastjson.JSON;
+import com.welab.wefe.board.service.api.account.QueryMemberAccountsApi;
+import com.welab.wefe.board.service.api.account.QueryOnlineApi;
+import com.welab.wefe.board.service.api.account.SsoLoginApi;
 import com.welab.wefe.board.service.base.LoginAccountInfo;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
-import com.welab.wefe.board.service.dto.entity.AccountListAllOutputModel;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -37,11 +39,9 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.service.account.AccountInfo;
 import com.welab.wefe.common.web.service.account.AccountInfo2;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
-import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.collections4.CollectionUtils;
@@ -49,10 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Zane
@@ -68,31 +65,16 @@ public class AccountService {
     @Autowired
     private GlobalConfigService globalConfigService;
 
-    @Autowired
-    private VerificationCodeService verificationCodeService;
-
-    public List<AccountListAllOutputModel> listAll(ListAllApi.Input input) {
-
-        Specification<AccountMysqlModel> where = Where
-                .create()
-                .contains("nickname", input.getNickname())
-                .build(AccountMysqlModel.class);
-
-        List<AccountMysqlModel> list = accountRepository.findAll(where);
-        return ModelMapper.maps(list, AccountListAllOutputModel.class);
-    }
-
     /**
      * Paging query account
      */
-    public PagingOutput<AccountOutputModel> query(QueryApi.Input input) throws StatusCodeWithException {
+    public PagingOutput<AccountOutputModel> query(QueryMemberAccountsApi.Input input) throws StatusCodeWithException {
 
         Specification<AccountMysqlModel> where = Where
                 .create()
                 .contains("phoneNumber", DatabaseEncryptUtil.encrypt(input.getPhoneNumber()))
                 .equal("auditStatus", input.getAuditStatus())
                 .contains("nickname", input.getNickname())
-                .equal("adminRole", input.getAdminRole())
                 .orderBy("createdTime", OrderBy.desc)
                 .build(AccountMysqlModel.class);
 
@@ -107,28 +89,6 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-
-    private AccountInfo toAccountInfo(AccountMysqlModel model) throws StatusCodeWithException {
-        if (model == null) {
-            return null;
-        }
-
-        AccountInfo info = new AccountInfo();
-        info.setId(model.getId());
-        info.setPhoneNumber(model.getPhoneNumber());
-        info.setNickname(model.getNickname());
-        info.setPassword(model.getPassword());
-        info.setSalt(model.getSalt());
-        info.setAuditStatus(model.getAuditStatus());
-        info.setAuditComment(model.getAuditComment());
-        info.setAdminRole(model.getAdminRole());
-        info.setSuperAdminRole(model.getSuperAdminRole());
-        info.setEnable(model.getEnable());
-        info.setCancelled(model.isCancelled());
-        info.setHistoryPasswordList(model.getHistoryPasswordList());
-        return info;
-    }
-
     /**
      * Query user information by member ID
      */
@@ -140,7 +100,7 @@ public class AccountService {
             pagingOutput = gatewayService.callOtherMemberBoard(
                     input.getMemberId(),
                     JobMemberRole.promoter,
-                    QueryApi.class,
+                    QueryMemberAccountsApi.class,
                     input,
                     pagingOutput.getClass()
             );
@@ -261,5 +221,9 @@ public class AccountService {
         output.setMemberId(CacheObjects.getMemberId());
         output.setMemberName(CacheObjects.getMemberName());
         return output;
+    }
+
+    public void updateUiConfig(Map<String, Object> config) {
+        accountRepository.updateUiConfig(CurrentAccountUtil.get().getId(), JSON.toJSONString(config));
     }
 }
