@@ -423,13 +423,15 @@ class Oot(ModelBase):
         eval_data_label = list(train_data.collect())
         predict_data_label = list(predict_data.collect())
         evaluat_obj = Evaluation()
-        evaluat_obj.model_param.bin_num = self.model_param.bin_num
-        evaluat_obj.model_param.bin_method = self.model_param.bin_method
-        evaluat_obj.model_param.split_points = self.model_param.split_points
-        split_data_with_label = evaluat_obj.split_data_with_type(eval_data_label)
-        concat_data_label = defaultdict(list)
-        concat_data_label['validate'] = predict_data_label
-        concat_data_label['train'] = split_data_with_label['train']
-        psi_results = evaluat_obj.evaluate_psi(concat_data_label)
-        psi_results_data = psi_results.get('psi')[-1]
-        return psi_results_data
+        if self.model_param.need_PSI:
+            evaluat_obj.model_param.psi_param.need_PSI = self.model_param.need_PSI
+            evaluat_obj.model_param.psi_param.bin_num = self.model_param.bin_num
+            evaluat_obj.model_param.psi_param.bin_method = self.model_param.bin_method
+            evaluat_obj.model_param.psi_param.split_points = self.model_param.split_points
+            split_data_with_label = evaluat_obj.split_data_with_type(eval_data_label)
+            concat_data_label = defaultdict(list)
+            concat_data_label['validate'] = predict_data_label
+            concat_data_label['train'] = split_data_with_label['train']
+            psi_results = evaluat_obj.evaluate_psi(concat_data_label)
+            psi_results_data = psi_results.get('psi')[-1]
+            return psi_results_data
