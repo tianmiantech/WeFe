@@ -1,7 +1,14 @@
 {
   "eval_type": "binary",
   "pos_label": 1,
-  "prob_need_to_bin": true,
-  "bin_num": 10,
-  "bin_method": "bucket"
+  "score_param": {
+    "prob_need_to_bin": true,
+    "bin_num": 10,
+    "bin_method": "bucket"
+  },
+    "psi_param": {
+    "need_PSI": true,
+    "bin_num": 10,
+    "bin_method": "bucket"
+  }
 }

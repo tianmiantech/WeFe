@@ -67,12 +67,13 @@ class ScoreCard(ModelBase):
     def _get_binning_result(self):
         model_param, binning_results = self.tracker.get_binning_result()
         if binning_results is None:
-            raise ValueError('not find binning result')
+            raise ValueError("Don't find binning result")
         for feature, binning_result in binning_results.items():
             if binning_result:
                 event_count_array = binning_result.get('eventCount')
                 nonevent_count_array = binning_result.get('noneventCount')
                 return event_count_array, nonevent_count_array, model_param
+        return ValueError("The binning result is NULL")
 
     @staticmethod
     def get_count_odds(event_counts, non_event_counts):
