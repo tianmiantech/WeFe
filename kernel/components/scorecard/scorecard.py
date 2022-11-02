@@ -33,8 +33,6 @@ import math
 from collections import defaultdict
 
 from common.python.utils import log_utils
-from kernel.components.binning.core.bin_inner_param import BinInnerParam
-from kernel.components.binning.core.bin_result import BinResults, BinColResults
 from kernel.components.scorecard.param import ScorecardParam
 from kernel.model_base import ModelBase
 
@@ -68,30 +66,17 @@ class ScoreCard(ModelBase):
 
     def _get_binning_result(self):
         model_param, binning_results = self.tracker.get_binning_result()
-        component_type = model_param.get('component_type')
         if binning_results is None:
             raise ValueError('not find binning result')
-        bin_inner_param = BinInnerParam()
-        bin_inner_param.header = model_param.get('header')
-        bin_inner_param.transform_bin_indexes = model_param.get('transform_bin_indexes')
-        binResults = BinResults()
-        all_cols_results = {}
-        LOGGER.debug(f'binning_results={binning_results}')
-        for feature, result in binning_results.items():
-            binColResults = BinColResults(woe_array=result.get('woe'), iv=-99)
-            binColResults.event_count_array,binColResults.non_event_count_array, binColResults.count_array = \
-                result.get('eventCount'), result.get('noneventCount'), result.get('countArray')
-            binColResults.set_split_points(result.get('split_points'))
-            all_cols_results[feature] = binColResults
-        binResults.all_cols_results = all_cols_results
-        return bin_inner_param, binResults, component_type
+        for feature, binning_result in binning_results.items():
+            if binning_result:
+                event_count_array = binning_result.get('eventCount')
+                nonevent_count_array = binning_result.get('noneventCount')
+                return event_count_array, nonevent_count_array, model_param
 
     @staticmethod
-    def get_count_odds(bin_results):
-        print(bin_results)
-        p = sum(list(map(int, bin_results.non_event_count_array))) / \
-            sum(list(map(int, bin_results.count_array)))
-        odds = p / (1 - p)
+    def get_count_odds(event_counts, non_event_counts):
+        odds = sum(list(map(int, event_counts))) / sum(list(map(int, non_event_counts)))
         return odds
 
     def cal_score(self, odds):
@@ -108,11 +93,9 @@ class ScoreCardPromoter(ScoreCard):
         self._init_param()
         LOGGER.debug("scorecard begainning, arg = {}".format(args))
         # get binning result
-        bin_inner_param, bin_results, component_type = self._get_binning_result()
-        feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
-
+        event_count_array, non_event_count_array, model_param = self._get_binning_result()
         # caculate static scores
-        odds = self.get_count_odds(feature_bin_results)
+        odds = self.get_count_odds(event_count_array, non_event_count_array)
         A_score, B_score = self.cal_score(odds)
         self.score_card_result["odds"] = odds
         self.score_card_result["a_score"] = A_score
@@ -126,10 +109,9 @@ class ScoreCardProvider(ScoreCard):
     def fit(self, *args):
         self._init_param()
         B_score = self.pdo / math.log(2, )
-        bin_inner_param, bin_results, component_type = self._get_binning_result()
-        feature_bin_results = bin_results.all_cols_results.get(list(bin_results.all_cols_results.keys())[0])
-        if 'horz' in component_type.lower():
-            odds = self.get_count_odds(feature_bin_results)
+        event_count_array, non_event_count_array, model_param = self._get_binning_result()
+        if 'horz' in model_param.get('component_type').lower():
+            odds = self.get_count_odds(event_count_array, non_event_count_array)
             A_score, B_score = self.cal_score(odds)
             self.score_card_result["odds"] = odds
             self.score_card_result["a_score"] = A_score
