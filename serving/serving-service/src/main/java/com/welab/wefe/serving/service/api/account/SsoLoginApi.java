@@ -22,13 +22,10 @@ import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.serving.service.service.AccountService;
-import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Api(path = "account/sso_login", name = "sso_login", login = false)
 public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
-    @Autowired
-    private GlobalConfigService globalConfigService;
 
     @Autowired
     private AccountService accountService;

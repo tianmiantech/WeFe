@@ -30,6 +30,11 @@ public class AccountInfo2 {
      */
     private String phoneNumber;
 
+    /**
+     * 邮箱
+     */
+    private String email;
+
     public String getId() {
         return id;
     }
@@ -52,5 +57,13 @@ public class AccountInfo2 {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
