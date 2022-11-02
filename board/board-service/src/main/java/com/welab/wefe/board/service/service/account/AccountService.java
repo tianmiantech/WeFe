@@ -30,7 +30,6 @@ import com.welab.wefe.board.service.service.CacheObjects;
 import com.welab.wefe.board.service.service.GatewayService;
 import com.welab.wefe.board.service.service.WebSocketServer;
 import com.welab.wefe.board.service.service.globalconfig.GlobalConfigService;
-import com.welab.wefe.board.service.service.verificationcode.VerificationCodeService;
 import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
@@ -39,7 +38,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
@@ -169,7 +168,7 @@ public class AccountService {
 
 
     public SsoLoginApi.Output ssoLogin() throws StatusCodeWithException {
-        AccountInfo2 accountInfo = CurrentAccountUtil.get();
+        SsoAccountInfo accountInfo = CurrentAccountUtil.get();
         AccountMysqlModel accountMysqlModel = accountRepository.findById(accountInfo.getId()).orElse(null);
 
         if (null == accountMysqlModel) {

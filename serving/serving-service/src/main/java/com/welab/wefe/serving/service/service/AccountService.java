@@ -23,7 +23,7 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.SignUtil;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.serving.service.api.account.SsoLoginApi;
@@ -67,7 +67,7 @@ public class AccountService {
             globalConfigService.initializeToStandalone(identityInfoModel);
         }
 
-        AccountInfo2 accountInfo = CurrentAccountUtil.get();
+        SsoAccountInfo accountInfo = CurrentAccountUtil.get();
         AccountMySqlModel accountMysqlModel = accountRepository.findById(accountInfo.getId()).orElse(null);
         if (null == accountMysqlModel) {
             String salt = SecurityUtil.createRandomSalt();

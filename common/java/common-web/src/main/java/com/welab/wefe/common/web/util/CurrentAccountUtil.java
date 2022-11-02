@@ -17,7 +17,7 @@
 package com.welab.wefe.common.web.util;
 
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -62,7 +62,7 @@ public class CurrentAccountUtil {
     /**
      * 当前登录用户
      */
-    private static final ThreadLocal<AccountInfo2> CURRENT_ACCOUNT_INFO = new InheritableThreadLocal();
+    private static final ThreadLocal<SsoAccountInfo> CURRENT_ACCOUNT_INFO = new InheritableThreadLocal();
 
 
     public static void set(HttpServletRequest httpServletRequest) {
@@ -75,12 +75,12 @@ public class CurrentAccountUtil {
         phoneNumber = StringUtil.isEmpty(phoneNumber) ? DEFAULT_ACCOUNT_PHONE_NUMBER : phoneNumber;
         email = StringUtil.isEmpty(email) ? DEFAULT_ACCOUNT_EMAIL : email;
 
-        AccountInfo2 accountInfo = buildAccountInfo(userId, userName, phoneNumber, email);
+        SsoAccountInfo accountInfo = buildAccountInfo(userId, userName, phoneNumber, email);
         CURRENT_ACCOUNT_INFO.set(accountInfo);
     }
 
-    public static AccountInfo2 get() {
-        AccountInfo2 accountInfo = CURRENT_ACCOUNT_INFO.get();
+    public static SsoAccountInfo get() {
+        SsoAccountInfo accountInfo = CURRENT_ACCOUNT_INFO.get();
         return null == accountInfo ? buildAccountInfo(DEFAULT_ACCOUNT_ID, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_PHONE_NUMBER, DEFAULT_ACCOUNT_EMAIL) : accountInfo;
     }
 
@@ -91,8 +91,8 @@ public class CurrentAccountUtil {
     /**
      * 创建用户
      */
-    private static AccountInfo2 buildAccountInfo(String id, String name, String phoneNumber, String email) {
-        AccountInfo2 accountInfo = new AccountInfo2();
+    private static SsoAccountInfo buildAccountInfo(String id, String name, String phoneNumber, String email) {
+        SsoAccountInfo accountInfo = new SsoAccountInfo();
         accountInfo.setId(id);
         accountInfo.setName(name);
         accountInfo.setPhoneNumber(phoneNumber);

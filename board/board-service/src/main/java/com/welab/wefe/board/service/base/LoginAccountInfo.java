@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.base;
 
-import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 
@@ -33,7 +33,7 @@ public class LoginAccountInfo {
      * KEY：当前登录TOKEN
      * VALUE：用户信息
      */
-    private static ExpiringMap<String, AccountInfo2> LOGIN_ACCOUNT_INFO = ExpiringMap.builder()
+    private static ExpiringMap<String, SsoAccountInfo> LOGIN_ACCOUNT_INFO = ExpiringMap.builder()
             .expirationPolicy(ExpirationPolicy.ACCESSED)
             .expiration(60, TimeUnit.MINUTES).build();
 
@@ -44,11 +44,11 @@ public class LoginAccountInfo {
         return loginAccountInfo;
     }
 
-    public void put(String id, AccountInfo2 accountInfo) {
+    public void put(String id, SsoAccountInfo accountInfo) {
         LOGIN_ACCOUNT_INFO.put(id, accountInfo);
     }
 
-    public AccountInfo2 get(String id) {
+    public SsoAccountInfo get(String id) {
         return LOGIN_ACCOUNT_INFO.get(id);
     }
 }

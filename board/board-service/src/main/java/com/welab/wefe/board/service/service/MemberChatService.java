@@ -35,7 +35,7 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
@@ -179,7 +179,7 @@ public class MemberChatService extends AbstractService {
     public JObject sendMessage(String toMemberId, String toMemberName, String toAccountId, String toAccountName,
                                String content) throws StatusCodeWithException {
 
-        AccountInfo2 info = LoginAccountInfo.getInstance().get(CurrentAccountUtil.get().getId());
+        SsoAccountInfo info = LoginAccountInfo.getInstance().get(CurrentAccountUtil.get().getId());
         if (null == info) {
             throw new StatusCodeWithException("请登录后访问", StatusCode.LOGIN_REQUIRED);
         }

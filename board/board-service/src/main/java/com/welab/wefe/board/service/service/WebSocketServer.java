@@ -24,7 +24,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -81,7 +81,7 @@ public class WebSocketServer {
         this.session = session;
         this.token = token;
 
-        AccountInfo2 info = LoginAccountInfo.getInstance().get(token);
+        SsoAccountInfo info = LoginAccountInfo.getInstance().get(token);
         if (info == null) {
             log.error("Illegal user, the token does not exist: " + token);
             try {
@@ -120,7 +120,7 @@ public class WebSocketServer {
             ONLINE_COUNT.decrementAndGet();
         }
 
-        AccountInfo2 info = LoginAccountInfo.getInstance().get(token);
+        SsoAccountInfo info = LoginAccountInfo.getInstance().get(token);
         log.info("User exit: " + info.getPhoneNumber() + ", token: " + token + ",the number of people currently online is:" + ONLINE_COUNT.get());
     }
 
@@ -133,7 +133,7 @@ public class WebSocketServer {
     public void onMessage(String message, Session session) throws IOException {
         log.info("User message: {},content: {}", token, message);
 
-        AccountInfo2 info = LoginAccountInfo.getInstance().get(token);
+        SsoAccountInfo info = LoginAccountInfo.getInstance().get(token);
         if (info == null) {
             sendMessage(responseNonchatMessage(StatusCode.LOGIN_REQUIRED.getCode(), "token无效，请重新登录再试", null));
             return;

@@ -26,7 +26,6 @@ import com.welab.wefe.board.service.database.repository.ChatUnreadMessageReposit
 import com.welab.wefe.board.service.dto.entity.ChatLastAccountOutputModel;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
-import com.welab.wefe.common.web.service.account.AccountInfo2;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;

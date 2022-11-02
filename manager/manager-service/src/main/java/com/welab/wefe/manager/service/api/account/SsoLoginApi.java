@@ -21,7 +21,7 @@ import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 
 
@@ -30,7 +30,7 @@ public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
 
     @Override
     protected ApiResult<Output> handle() throws StatusCodeWithException {
-        AccountInfo2 accountInfo = CurrentAccountUtil.get();
+        SsoAccountInfo accountInfo = CurrentAccountUtil.get();
         Output output = new Output();
         output.setId(accountInfo.getId());
         output.setToken(accountInfo.getId());

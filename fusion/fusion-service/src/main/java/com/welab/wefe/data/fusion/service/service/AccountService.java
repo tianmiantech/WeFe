@@ -21,7 +21,7 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Sha1;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.common.web.service.account.AccountInfo2;
+import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.data.fusion.service.api.account.SsoLoginApi;
@@ -50,7 +50,7 @@ public class AccountService {
         if (null == globalConfigService.getMemberInfo()) {
             throw new StatusCodeWithException(StatusCode.UNSUPPORTED_HANDLE, "系统尚未初始化.");
         }
-        AccountInfo2 accountInfo = CurrentAccountUtil.get();
+        SsoAccountInfo accountInfo = CurrentAccountUtil.get();
         AccountMysqlModel accountMysqlModel = accountRepository.findById(accountInfo.getId()).orElse(null);
         if (null == accountMysqlModel) {
             // generate salt

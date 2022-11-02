@@ -16,7 +16,7 @@
 
 package com.welab.wefe.common.web.service.account;
 
-public class AccountInfo2 {
+public class SsoAccountInfo {
     /**
      * 用户ID
      */
