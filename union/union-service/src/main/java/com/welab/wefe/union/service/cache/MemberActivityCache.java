@@ -17,10 +17,10 @@
 package com.welab.wefe.union.service.cache;
 
 import com.welab.wefe.common.data.mongodb.entity.union.Member;
+import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -54,23 +54,22 @@ public class MemberActivityCache {
         memberMap.put(member.getMemberId(), member);
     }
 
-    /**
-     * Delete cache
-     */
-    public Member remove(String key) {
-        if (StringUtil.isEmpty(key)) {
-            return null;
+    public boolean isActivePeriod(Member member) {
+        if (null == member || StringUtil.isEmpty(member.getMemberId()) || !memberMap.containsKey(member.getMemberId())) {
+            return false;
+        }
+        Member cacheMember = memberMap.get(member.getMemberId());
+        if (StringUtil.isEmpty(cacheMember.getLastActivityTime()) || StringUtil.isEmpty(member.getLastActivityTime())) {
+            return false;
         }
 
-        return memberMap.remove(key);
-    }
-
-    /**
-     * Get a list of cached data
-     */
-    public List<Member> getTotalList() {
-        List<Member> list = new ArrayList<>();
-        memberMap.forEach((key, value) -> list.add(value));
-        return list;
+        try {
+            long activityTime = DateUtil.dateMillis(new Date(Long.parseLong(member.getLastActivityTime())));
+            long cacheActivityTime = DateUtil.dateMillis(new Date(Long.parseLong(cacheMember.getLastActivityTime())));
+            return activityTime <= cacheActivityTime;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
