@@ -976,9 +976,9 @@ class Evaluation(ModelBase):
             return psi_values
         return None
 
-    def to_binning(self, to_bin_data, bin_model_param):
+    def to_binning(self, to_bin_data, score_bin_param):
             data_count = len(to_bin_data)
-            bin_values, split_point = self.get_bin_result(to_bin_data, bin_model_param)
+            bin_values, split_point = self.get_bin_result(to_bin_data, score_bin_param)
             bin_values_counts = bin_values.value_counts()
             bin_result ={}
             staitic_count = sum([ bin_values_counts[i] for i in range(len(bin_values_counts))])
