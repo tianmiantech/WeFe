@@ -187,7 +187,7 @@
                         //     };
                         // }
                         return {
-                            rowspan: vData.list[tabIdx].dataList.length || 0,
+                            rowspan: 120,
                             colspan: 1,
                         };
                     }
