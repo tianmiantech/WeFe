@@ -339,7 +339,6 @@
                                     task.task.task_conf.Chinese_params.多分类策略 = task.task.task_conf.params.multi_class || '';
                                     task.task.task_conf.Chinese_params.模型初始化方式 = task.task.task_conf.params.init_method || '';
                                     task.task.task_conf.Chinese_params.是否需要偏置系数 = task.task.task_conf.params.fit_intercept ? '是' : '否';
-                                    task.task.task_conf.Chinese_params.同态加密方法 = task.task.task_conf.params.encrypt_param ? task.task.task_conf.params.encrypt_param.method : task.task.task_conf.params.method;
                                     task.task.task_conf.Chinese_params.KFold分割次数 = task.task.task_conf.params.n_splits || '';
                                     task.task.task_conf.Chinese_params.KFold之前洗牌 = task.task.task_conf.params.shuffle ? '是' : '否';
                                     task.task.task_conf.Chinese_params.是否执行cv = task.task.task_conf.params.need_cv ? '是' : '否';

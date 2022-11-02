@@ -52,7 +52,7 @@ class EvaluateParam(BaseParam):
     """
 
     def __init__(self, eval_type="binary", pos_label=1, need_run=True, metrics=None, prob_need_to_bin = False,
-                 bin_method = None, bin_num = None, split_points=None):
+                 bin_method = None, bin_num = None, split_points=None, need_PSI=False):
         super().__init__()
         self.eval_type = eval_type
         self.pos_label = pos_label
@@ -62,6 +62,7 @@ class EvaluateParam(BaseParam):
         self.bin_num = bin_num
         self.bin_method = bin_method
         self.split_points = split_points
+        self.need_PSI = need_PSI
 
 
         self.default_metrics = {

@@ -82,7 +82,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 .append("pos_label", params.getPosLabel())
                 .append("prob_need_to_bin", params.isProbNeedToBin())
                 .append("bin_method", params.binMethod)
-                .append("bin_num", params.binNumber)
+                .append("bin_num", params.binNum)
                 .append("split_points", CollectionUtils.isEmpty(params.splitPoints) ? new ArrayList<>() : params.splitPoints);
     }
 
@@ -429,7 +429,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
 
         private String binMethod;
 
-        private Integer binNumber;
+        private Integer binNum;
 
         private List<Double> splitPoints;
 
@@ -466,12 +466,12 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             this.binMethod = binMethod;
         }
 
-        public Integer getBinNumber() {
-            return binNumber;
+        public Integer getBinNum() {
+            return binNum;
         }
 
-        public void setBinNumber(Integer binNumber) {
-            this.binNumber = binNumber;
+        public void setBinNum(Integer binNum) {
+            this.binNum = binNum;
         }
 
         public List<Double> getSplitPoints() {
