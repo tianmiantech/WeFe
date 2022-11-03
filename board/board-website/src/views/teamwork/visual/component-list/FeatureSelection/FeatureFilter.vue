@@ -305,13 +305,12 @@ watch(
         if (value) {
             const { selectedFeature, selectedConditions } = props;
 
-            console.log(selectedConditions);
             conditionList.value = selectedConditions;
-            manulSelectData.value = selectedFeature.filter(
-                ({ type }) => type === 'manul'
-            );
             computedSelectData.value = selectedFeature.filter(
                 ({ type }) => type === 'computed'
+            );
+            manulSelectData.value = selectedFeature.filter(
+                ({ type }) => type !== 'computed'
             );
         } else {
             allSelectData.value = [];

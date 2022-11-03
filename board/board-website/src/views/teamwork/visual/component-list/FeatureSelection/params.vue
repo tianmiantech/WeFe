@@ -121,7 +121,8 @@ export default {
                             ],
                             []
                         );
-                        selectedConditions.value = conditions;
+                        if (Array.isArray(conditions))
+                            selectedConditions.value = conditions;
                     }
                 });
             const { code, data } = await $http.post({
