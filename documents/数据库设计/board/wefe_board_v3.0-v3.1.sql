@@ -116,3 +116,6 @@ CREATE TABLE `cert_request_info` (
 
 ALTER TABLE message_queue DROP COLUMN `action`;
 ALTER TABLE message_queue DROP COLUMN channel;
+
+-- 删除手机号唯一索引
+ALTER TABLE `account` DROP INDEX `index_unique_phonenumber`;
