@@ -185,11 +185,13 @@ public class AccountService {
             accountMysqlModel.setAuditStatus(AuditStatus.agree);
             accountMysqlModel.setEnable(true);
             accountMysqlModel.setLastActionTime(new Date());
+            accountMysqlModel.setEmail(accountInfo.getEmail());
 
             accountRepository.save(accountMysqlModel);
         } else {
             String nickName = accountMysqlModel.getNickname();
             String phoneNumber = accountMysqlModel.getPhoneNumber();
+            String email = accountMysqlModel.getEmail();
             boolean needUpdate = false;
             if (StringUtil.isNotEmpty(nickName) && !nickName.equals(accountInfo.getName())) {
                 accountMysqlModel.setNickname(accountInfo.getName());
@@ -197,6 +199,10 @@ public class AccountService {
             }
             if (StringUtil.isNotEmpty(phoneNumber) && !phoneNumber.equals(accountInfo.getPhoneNumber())) {
                 accountMysqlModel.setPhoneNumber(accountInfo.getPhoneNumber());
+                needUpdate = true;
+            }
+            if (StringUtil.isNotEmpty(email) && !email.equals(accountInfo.getEmail())) {
+                accountMysqlModel.setEmail(accountInfo.getEmail());
                 needUpdate = true;
             }
             if (needUpdate) {
