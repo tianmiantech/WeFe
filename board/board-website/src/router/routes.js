@@ -34,7 +34,7 @@ const baseRoutes = [
                     icon:            'monitor',
                     loginAndRefresh: true,
                 },
-                component: () => import('../views/index/dashboard.vue'),
+                component: () => import('../views/index/dashboard.jsx'),
             },
         ],
     },
