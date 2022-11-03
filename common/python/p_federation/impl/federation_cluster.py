@@ -54,6 +54,7 @@ from common.python.utils.core_utils import serialize, deserialize
 from common.python.utils.log_utils import get_logger
 from common.python.utils.member import Member
 from common.python.utils.splitable import maybe_split_object
+from common.python.db.global_config_dao import GlobalConfigDao
 
 OBJECT_STORAGE_NAME = "__federation__"
 
@@ -86,17 +87,18 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
     # backend = conf_utils.get_backend_from_string(
     #     conf_utils.get_comm_config(consts.COMM_CONF_KEY_BACKEND)
     # )
-    # 默认都为 OSS
-    storage_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_FC_STORAGE_TYPE, consts.STORAGETYPE.OSS)
-    if recv_meta.action == TransferAction.DSOURCE:
+    storage_type = GlobalConfigDao.get_function_compute_config().cloud_provider
+    transfer_action = recv_meta.extField
+
+    if transfer_action == TransferAction.DSOURCE:
 
         if backend == Backend.FC:
             LOGGER.debug("remote is DSOURCE object, local is FCSource object")
-            if storage_type == consts.STORAGETYPE.OTS:
-                LOGGER.debug("local storage type is OTS")
-                source = _get_fcsource(recv_meta)
-            elif storage_type == consts.STORAGETYPE.OSS:
+            if conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.ALIYUN:
                 LOGGER.debug("local storage type is OSS")
+                source = _get_fcsource(recv_meta)
+            elif conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.TENCENTCLOUD:
+                LOGGER.debug("local storage type is COS")
                 source = _get_fcsource(recv_meta)
             else:
                 raise Exception(f'{storage_type} 暂不支持!')
@@ -110,18 +112,21 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
             source = _get_source(recv_meta)
             return source, source, None
 
-    if recv_meta.action == TransferAction.DOBJECT:
+    if transfer_action == TransferAction.DOBJECT:
         LOGGER.debug(f"[GET] object ready: {log_msg}")
-        return deserialize(recv_meta.content.objectByteData), (None, None), None
+        return deserialize(recv_meta.content.byteData), (None, None), None
 
-    if recv_meta.action == TransferAction.FCSOURCE:
+    if transfer_action == TransferAction.FCSOURCE:
         if backend == Backend.FC:
             if storage_type == consts.STORAGETYPE.OTS:
                 source = _get_fcsource(recv_meta)
                 LOGGER.debug("remote storage type is OTS")
-            elif storage_type == consts.STORAGETYPE.OSS:
+            elif conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.ALIYUN:
                 source = _get_fcsource(recv_meta)
                 LOGGER.debug("remote storage type is OSS")
+            elif conf_utils.get_comm_config(consts.COMM_CONF_CLOUD_PROVIDER) == consts.CLOUDPROVIDER.TENCENTCLOUD:
+                source = _get_fcsource(recv_meta)
+                LOGGER.debug("remote storage type is COS")
             else:
                 raise Exception(f'{storage_type} 暂不支持, 请检查配置是否正确!')
 
@@ -132,8 +137,8 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
             LOGGER.debug("remote is FCSource object, local is DSource object")
             fcsource = _get_fcsource(recv_meta)
             LOGGER.debug("loading data from FCSource")
-            args = json.loads(recv_meta.content.objectData)
-            LOGGER.debug(f"json.loads(recv_meta.content.objectData) args: {args}")
+            args = json.loads(recv_meta.content.strData)
+            LOGGER.debug(f"json.loads(recv_meta.content.strData) args: {args}")
             source = session.parallelize(fcsource.collect(), include_key=True, partition=args['partitions'])
             first_data = source.first()
             if first_data is None:
@@ -141,7 +146,7 @@ def _thread_receive(receive_func, name, tag, session_id, src, dst, backend):
             LOGGER.debug(f"[GET] FCSource ready: {log_msg}")
             return source, source, None
     else:
-        raise IOError(f"unknown transfer type: {recv_meta.action}")
+        raise IOError(f"unknown transfer type: {transfer_action}")
 
 
 def _fragment_tag(tag, idx):
@@ -149,7 +154,7 @@ def _fragment_tag(tag, idx):
 
 
 def _get_source(transfer_content):
-    object_data = transfer_content.content.objectData
+    object_data = transfer_content.content.strData
     object_data_json = json.loads(object_data)
     name = object_data_json['dst_name']
     namespace = object_data_json['dst_namespace']
@@ -159,7 +164,7 @@ def _get_source(transfer_content):
 
 
 def _get_fcsource(transfer_content):
-    object_data = transfer_content.content.objectData
+    object_data = transfer_content.content.strData
     object_data_json = json.loads(object_data)
     name = object_data_json['fc_name']
     namespace = object_data_json['fc_namespace']
@@ -176,7 +181,8 @@ def _get_fcsource(transfer_content):
         if consts.STORAGETYPE.OTS in cloud_store_temp_auth['temp_auth_end_point'] or 'tablestore' in \
                 cloud_store_temp_auth['temp_auth_end_point']:
             fcs._instance_name = object_data_json['cloud_store_temp_auth']['instance_name']
-        elif consts.STORAGETYPE.OSS in cloud_store_temp_auth['temp_auth_end_point']:
+        elif consts.STORAGETYPE.OSS in cloud_store_temp_auth['temp_auth_end_point'] \
+                or consts.STORAGETYPE.COS in cloud_store_temp_auth['temp_auth_end_point'] :
             fcs._bucket_name = object_data_json['cloud_store_temp_auth']['temp_auth_bucket_name']
 
     session_id = RuntimeInstance.SESSION.get_session_id()
@@ -307,7 +313,7 @@ class FederationRuntime(Federation):
             if obj._fcs:
                 for index, party in enumerate(parties):
                     log_msg = f"src={self.local_party}, dst={party}, name={name}, tag={tag}, " \
-                              f"session_id={self._session_id}"
+                        f"session_id={self._session_id}"
                     LOGGER.debug(f"[REMOTE] sending FCSource: {log_msg}")
 
                     ret = self._send(transfer_type=TransferAction.FCSOURCE, name=name, tag=tag, dst_party=party,
@@ -391,7 +397,7 @@ class FederationRuntime(Federation):
         return [rtn[p] for p in parties], rubbish
 
     def _send(self, transfer_type, name: str, tag: str, dst_party: Member, rubbish, source, obj=None, index=None):
-        content = gateway_meta_pb2.Content(objectByteData=serialize(obj))
+        content = gateway_meta_pb2.Content(byteData=serialize(obj))
         transfer_process = None
 
         if transfer_type == TransferAction.DOBJECT:
@@ -399,8 +405,17 @@ class FederationRuntime(Federation):
         elif transfer_type == TransferAction.DSOURCE:
             transfer_process = consts.GatewayTransferProcess.DSOURCE_PROCESS
 
+            #Todo 这里需要添加对存储类型的判断可能需要board修改代码
             dst_backend = RuntimeInstance.get_member_backend(dst_party.get_member_id())
-            dst_storage_type = consts.STORAGETYPE.OSS if dst_backend == Backend.FC else consts.STORAGETYPE.CLICKHOUSE
+            dst_fc_provider = RuntimeInstance.get_member_fc_provider(dst_party.get_member_id())
+
+            if dst_backend == Backend.FC:
+                if dst_fc_provider == "aliyun":
+                    dst_storage_type = consts.STORAGETYPE.OSS
+                elif dst_fc_provider == "tencentcloud":
+                    dst_storage_type = consts.STORAGETYPE.COS
+            else:
+                dst_storage_type = consts.STORAGETYPE.CLICKHOUSE
 
             object_data = {
                 "namespace": source.get_namespace(),
@@ -422,7 +437,7 @@ class FederationRuntime(Federation):
             }
 
             LOGGER.debug(f"[REMOTE] dsource info: {object_data}")
-            content = gateway_meta_pb2.Content(objectData=json.dumps(object_data))
+            content = gateway_meta_pb2.Content(strData=json.dumps(object_data))
             rubbish.add_table(source)
         elif transfer_type == TransferAction.FCSOURCE:
             transfer_process = consts.GatewayTransferProcess.MEMORY_PROCESS
@@ -442,18 +457,19 @@ class FederationRuntime(Federation):
             }
 
             LOGGER.debug(f"[REMOTE] fcsource info: {object_data}")
-            content = gateway_meta_pb2.Content(objectData=json.dumps(object_data))
+            content = gateway_meta_pb2.Content(strData=json.dumps(object_data))
 
         session_id = f"{self._session_id}-{name}-{tag}-{self.local_party.role}-{self.local_party.member_id}-" \
-                     f"{dst_party.role}-{dst_party.member_id}"
+            f"{dst_party.role}-{dst_party.member_id}"
 
         log_msg = f"src={self.local_party.role}, dst={dst_party.role}, name={name}, tag={tag}, session_id={session_id}"
         LOGGER.debug(f"[REMOTE] sending table: {log_msg}")
 
         member_id = dst_party.member_id
         dst = gateway_meta_pb2.Member(memberId=str(member_id))
-        transfer_meta = TransferMeta(sessionId=session_id, tag=tag, dst=dst, content=content, action=transfer_type,
-                                     taggedVariableName=None, processor=transfer_process)
+        transfer_meta = TransferMeta(sessionId=session_id, tag=tag, dst=dst, content=content,
+                                     taggedVariableName=None, processor=transfer_process,
+                                     extField=transfer_type)
         LOGGER.debug(f"[REMOTE] table done: {log_msg}")
         ret = self.gateway_send(transfer_meta)
         return ret

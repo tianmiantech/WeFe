@@ -70,7 +70,7 @@ public class BlockChainConfig {
     private String realnameAuthAgreementTemplateContractName;
     private String dataResourceContractName;
     private String dataResourceDefaultTagContractName;
-
+    private String trustCertsContractName = "TrustCertsContract";
 
     // add channel disconnect
     public static boolean PEER_CONNECTED = true;
@@ -237,6 +237,12 @@ public class BlockChainConfig {
     public DataResourceDefaultTagContract getLatestVersionDataResourceDefaultTagContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
         String address = getLatestContractAddressByName(cnsService, dataResourceDefaultTagContractName);
         return DataResourceDefaultTagContract.load(address, client, cryptoKeyPair);
+    }
+
+    @Bean
+    public TrustCertsContract getLatestVersionTrustCertsContract(CnsService cnsService, Client client, CryptoKeyPair cryptoKeyPair) throws StatusCodeWithException {
+        String address = getLatestContractAddressByName(cnsService, trustCertsContractName);
+        return TrustCertsContract.load(address, client, cryptoKeyPair);
     }
 
 

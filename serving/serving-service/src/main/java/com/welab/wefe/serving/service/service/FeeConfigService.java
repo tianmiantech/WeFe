@@ -18,6 +18,8 @@ package com.welab.wefe.serving.service.service;
 
 import java.util.List;
 
+import com.welab.wefe.serving.service.database.entity.PartnerMysqlModel;
+import com.welab.wefe.serving.service.database.repository.PartnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,9 @@ public class FeeConfigService {
 
     @Autowired
     private FeeConfigRepository feeConfigRepository;
+
+    @Autowired
+    private PartnerRepository partnerRepository;
 
 
     public FeeConfigMysqlModel save(SaveApi.Input input) {
@@ -61,16 +66,19 @@ public class FeeConfigService {
 
 
     public FeeConfigMysqlModel queryOne(String serviceId, String clientId) {
+
+        PartnerMysqlModel partnerMysqlModel = partnerRepository.findOne("code", clientId, PartnerMysqlModel.class);
+
         if (StringUtil.isNotEmpty(serviceId) && StringUtil.isNotEmpty(clientId)) {
             Specification<FeeConfigMysqlModel> where = Where
                     .create()
                     .equal("serviceId", serviceId)
-                    .equal("clientId", clientId)
+                    .equal("clientId", partnerMysqlModel.getId())
                     .orderBy("createdTime", OrderBy.desc)
                     .build(FeeConfigMysqlModel.class);
             // 返回最新的计费规则配置（因为一个客户服务可能存在多个计费规则）
             List<FeeConfigMysqlModel> all = feeConfigRepository.findAll(where);
-            return all.get(0);
+            return all.size() == 0 ? null : all.get(0);
         }
 
         return null;

@@ -64,7 +64,7 @@ class AppLauncher:
         AppLauncher.logger.info("---done---")
 
         AppLauncher.logger.info("start function computing budget scheduler")
-        FcBudgetScheduler().start()
+        # FcBudgetScheduler().start()
         AppLauncher.logger.info("---done---")
 
         # start web service

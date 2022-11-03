@@ -162,5 +162,14 @@ public class Member {
     public void setBackend(JobBackendType backend) {
         this.backend = backend;
     }
+
+    public FcCloudProvider getFcProvider() {
+        return fcProvider;
+    }
+
+    public void setFcProvider(FcCloudProvider fcProvider) {
+        this.fcProvider = fcProvider;
+    }
+
     //endregion
 }

@@ -19,6 +19,7 @@ import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
+import com.welab.wefe.common.wefe.dto.storage.ClickhouseConfig;
 import net.razorvine.pickle.Pickler;
 import net.razorvine.pickle.Unpickler;
 

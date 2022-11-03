@@ -141,12 +141,12 @@ class GlobalSetting(object):
     @staticmethod
     def get_flow_base_url():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return get_value_by_enable(GlobalConfigDao.get('wefe_flow', 'intranet_base_uri'))
+        return get_value_by_enable(GlobalConfigDao.get('wefe_flow', 'intranet_base_uri').value)
 
     @staticmethod
     def get_paddle_visual_dl_baseurl():
         from common.python.db.global_config_dao import GlobalConfigDao
-        return get_value_by_enable(GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url'))
+        return get_value_by_enable(GlobalConfigDao.get('deep_learning_config', 'paddle_visual_dl_base_url').value)
 
 
 class DataResource(ModelBase):
@@ -296,6 +296,7 @@ class FlowActionQueue(ModelBase):
     priority = IntegerField()
     action = CharField()
     params = CharField()
+
 
     class Meta:
         db_table = "flow_action_queue"

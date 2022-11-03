@@ -15,6 +15,7 @@ from common.python import Backend
 from common.python.common import consts
 from common.python.utils import conf_utils
 import os
+
 BITS = 2048
 
 
@@ -51,8 +52,10 @@ def to_bytes(value: int, bits):
 
 
 def check_aclr_support():
-    backend = os.environ.get('backend')
-    if backend == Backend.LOCAL:
+    env_dist = os.environ
+    backend = env_dist.get('backend')
+    is_fc = int(env_dist.get('IN_FC_ENV') or 0)
+    if backend == Backend.LOCAL or is_fc == 1:
         return False
     aclr_type = conf_utils.get_comm_config(consts.COMM_CONF_KEY_ACCELERATION, "")
     return aclr_type in [consts.AccelerationType.GPU]

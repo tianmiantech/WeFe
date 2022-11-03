@@ -16,7 +16,6 @@
 
 package com.welab.wefe.gateway.service;
 
-import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.gateway.api.meta.basic.BasicMetaProto;
 import com.welab.wefe.gateway.api.meta.basic.GatewayMetaProto;
 import com.welab.wefe.gateway.cache.MemberBlacklistCache;
@@ -28,7 +27,6 @@ import com.welab.wefe.gateway.entity.MemberEntity;
 import com.welab.wefe.gateway.service.base.AbstractRecvTransferMetaCachePersistentService;
 import com.welab.wefe.gateway.service.base.AbstractRecvTransferMetaService;
 import com.welab.wefe.gateway.service.processors.ProcessorContext;
-import com.welab.wefe.gateway.util.ActionProcessorMappingUtil;
 import com.welab.wefe.gateway.util.ReturnStatusUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,18 +46,19 @@ public class RecvTransferMetaService extends AbstractRecvTransferMetaService {
     private final Logger LOG = LoggerFactory.getLogger(RecvTransferMetaService.class);
 
     @Autowired
-    private AbstractRecvTransferMetaCachePersistentService mReceivedTransferMateCachePersistent;
+    private AbstractRecvTransferMetaCachePersistentService recvTransferMetaCachePersistentService;
 
     @Override
     public GatewayMetaProto.TransferMeta recv(GatewayMetaProto.TransferMeta transferMeta) {
         RecvTransferMetaCache receivedTransferMateCache = RecvTransferMetaCache.getInstance();
-        GatewayMetaProto.TransferMeta cacheData = receivedTransferMateCache.get(transferMeta.getSessionId());
+        String sessionId = transferMeta.getSessionId();
+        GatewayMetaProto.TransferMeta cacheData = receivedTransferMateCache.get(sessionId);
         // If completed, return directly
         if (null != cacheData) {
             GatewayMetaProto.TransferStatus status = cacheData.getTransferStatus();
             if (GatewayMetaProto.TransferStatus.COMPLETE.equals(status) || GatewayMetaProto.TransferStatus.ERROR.equals(status)) {
                 // Since the memory does not store the content body, it is necessary to take it again from the persistence layer
-                cacheData = mReceivedTransferMateCachePersistent.get(cacheData).toBuilder().build();
+                cacheData = recvTransferMetaCachePersistentService.get(cacheData);
                 deleteCache(cacheData);
                 LOG.info("Client recv data complete ==================> sessionId:" + cacheData.getSessionId());
                 return cacheData;
@@ -67,21 +66,22 @@ public class RecvTransferMetaService extends AbstractRecvTransferMetaService {
         }
 
         // Set blocking latch
-        CountDownLatch countDownLatch = RecvTransferMetaCountDownLatchCache.getInstance().closeCountDownLatch(transferMeta.getSessionId());
+        CountDownLatch countDownLatch = RecvTransferMetaCountDownLatchCache.getInstance().closeCountDownLatch(sessionId);
         try {
             countDownLatch.await(10, TimeUnit.SECONDS);
         } catch (Exception e) {
             LOG.error("Recv count down latch await exception:", e);
         }
-        cacheData = receivedTransferMateCache.get(transferMeta.getSessionId());
+        cacheData = receivedTransferMateCache.get(sessionId);
         if (null == cacheData) {
             cacheData = transferMeta.toBuilder().setTransferStatus(GatewayMetaProto.TransferStatus.PROCESSING).build();
         } else if (GatewayMetaProto.TransferStatus.COMPLETE.equals(cacheData.getTransferStatus())
                 || GatewayMetaProto.TransferStatus.ERROR.equals(cacheData.getTransferStatus())) {
-            cacheData = mReceivedTransferMateCachePersistent.get(cacheData).toBuilder().build();
+            cacheData = recvTransferMetaCachePersistentService.get(cacheData);
             LOG.info("Client recv data complete ==================> sessionId :" + cacheData.getSessionId());
             deleteCache(cacheData);
         }
+
         return cacheData;
     }
 
@@ -103,16 +103,6 @@ public class RecvTransferMetaService extends AbstractRecvTransferMetaService {
         if (!ReturnStatusUtil.ok(returnStatus)) {
             return returnStatus;
         }
-        // Old version of action field
-        String action = transferMeta.getAction();
-        // New version of processor field
-        String processor = transferMeta.getProcessor();
-        // If the action is not empty and the processor is empty, it means that it is a request submitted by an old version of the client,
-        // and the action shall prevail
-        if (StringUtil.isNotEmpty(action) && StringUtil.isEmpty(processor)) {
-            processor = ActionProcessorMappingUtil.getProcessorByAction(action);
-            transferMeta = transferMeta.toBuilder().setProcessor(processor).build();
-        }
 
         // Execute business processing
         try {
@@ -124,19 +114,6 @@ public class RecvTransferMetaService extends AbstractRecvTransferMetaService {
             returnStatus = ReturnStatusBuilder.sysExc("对端业务处理异常：" + e.getMessage(), transferMeta.getSessionId());
         }
         return returnStatus;
-    }
-
-
-    /**
-     * Delete cache
-     */
-    private void deleteCache(GatewayMetaProto.TransferMeta transferMeta) {
-        String sessionId = transferMeta.getSessionId();
-        RecvTransferMetaCountDownLatchCache countDownLatchCache = RecvTransferMetaCountDownLatchCache.getInstance();
-        RecvTransferMetaCache receivedTransferMateCache = RecvTransferMetaCache.getInstance();
-        countDownLatchCache.removeCountDownLatch(sessionId);
-        receivedTransferMateCache.remove(sessionId);
-        mReceivedTransferMateCachePersistent.delete(transferMeta);
     }
 
     /**
@@ -162,6 +139,19 @@ public class RecvTransferMetaService extends AbstractRecvTransferMetaService {
 
 
         return ReturnStatusBuilder.ok();
+    }
+
+
+    /**
+     * Delete cache
+     */
+    private void deleteCache(GatewayMetaProto.TransferMeta transferMeta) {
+        String sessionId = transferMeta.getSessionId();
+        RecvTransferMetaCountDownLatchCache countDownLatchCache = RecvTransferMetaCountDownLatchCache.getInstance();
+        RecvTransferMetaCache receivedTransferMateCache = RecvTransferMetaCache.getInstance();
+        countDownLatchCache.removeCountDownLatch(sessionId);
+        receivedTransferMateCache.remove(sessionId);
+        recvTransferMetaCachePersistentService.delete(transferMeta);
     }
 
 }

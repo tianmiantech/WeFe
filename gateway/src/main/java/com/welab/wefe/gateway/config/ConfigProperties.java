@@ -37,6 +37,17 @@ public class ConfigProperties {
     @Value("${rpc.server.port}")
     private Integer rpcServerPort;
 
+    /**
+     * Grpc private service port number
+     */
+    @Value("${grpc.server.internal.port:}")
+    private Integer grpcServerInternalPort;
+
+    /**
+     * Grpc public service port number
+     */
+    @Value("${grpc.server.external.port:}")
+    private Integer grpcServerExternalPort;
 
     /**
      * Message persistence type to be forwarded（The default is localfilesys）
@@ -77,8 +88,8 @@ public class ConfigProperties {
     /**
      * Size of data block fragment of forwarding dsource type (only valid for processor of dsource processor type), unit: M
      */
-    @Value("${send.action.config.block.size:1}")
-    private double sendActionConfigBlockSize;
+    @Value("${persistent.storage.batch.insert.size:3}")
+    private double persistentStorageBatchInsertSize;
 
     public Integer getRpcServerPort() {
         return rpcServerPort;
@@ -139,12 +150,27 @@ public class ConfigProperties {
         this.dataSinkCorePoolSize = dataSinkCorePoolSize;
     }
 
-    public double getSendActionConfigBlockSize() {
-        return sendActionConfigBlockSize;
+    public double getPersistentStorageBatchInsertSize() {
+        return persistentStorageBatchInsertSize;
     }
 
-    public void setSendActionConfigBlockSize(double sendActionConfigBlockSize) {
-        this.sendActionConfigBlockSize = sendActionConfigBlockSize;
+    public void setPersistentStorageBatchInsertSize(double persistentStorageBatchInsertSize) {
+        this.persistentStorageBatchInsertSize = persistentStorageBatchInsertSize;
     }
 
+    public Integer getGrpcServerInternalPort() {
+        return grpcServerInternalPort;
+    }
+
+    public void setGrpcServerInternalPort(Integer grpcServerInternalPort) {
+        this.grpcServerInternalPort = grpcServerInternalPort;
+    }
+
+    public Integer getGrpcServerExternalPort() {
+        return grpcServerExternalPort;
+    }
+
+    public void setGrpcServerExternalPort(Integer grpcServerExternalPort) {
+        this.grpcServerExternalPort = grpcServerExternalPort;
+    }
 }

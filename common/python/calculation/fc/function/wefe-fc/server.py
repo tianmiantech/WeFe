@@ -35,3 +35,13 @@ def event_invoke():
     data = request.stream.read()
     context = Context(rid)
     return handler(data, context)
+
+
+@app.route('/')
+def hello():
+    return 'hello docker&flask'
+
+
+### 阿里云不需要，腾讯云需要
+if __name__ == '__main__':
+    app.run(debug=True, port=9000, host='0.0.0.0')

@@ -28,8 +28,9 @@ public class RealNameAuthInput extends BaseInput {
     @Check(require = true)
     private String id;
     @Check(require = true)
-    private int realNameAuthStatus;
+    private int realNameAuthStatus; //-1认证失败 /0未认证 /1认证中 /2已认证
     private String auditComment;
+    private String issuerCertId;
 
     public String getId() {
         return id;
@@ -53,5 +54,13 @@ public class RealNameAuthInput extends BaseInput {
 
     public void setAuditComment(String auditComment) {
         this.auditComment = auditComment;
+    }
+
+    public String getIssuerCertId() {
+        return issuerCertId;
+    }
+
+    public void setIssuerCertId(String issuerCertId) {
+        this.issuerCertId = issuerCertId;
     }
 }

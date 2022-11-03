@@ -45,7 +45,7 @@ public class GrpcConstant {
     /**
      * The difference of the maximum system time cut, in seconds
      */
-    public static final int MAX_SYSTEM_TIMESTAMP_DIFF = 120;
+    public static final int MAX_SYSTEM_TIMESTAMP_DIFF = 300;
 
     /**
      * Connection unavailable exception keyword
@@ -76,5 +76,10 @@ public class GrpcConstant {
     public static final String SIGN_KEY_SIGN = "sign";
     public static final String SIGN_KEY_TIMESTAMP = "timestamp";
     public static final String SIGN_KEY_UUID = "uuid";
+
+    /**
+     * GRPC server max transfer message size, unin: M
+     */
+    public static final int MAX_BOUND_MESSAGE_SIZE = 2000;
 
 }
