@@ -165,7 +165,8 @@ class Oot(ModelBase):
         # Run subcomponents
         run_sub_component_object.run(sub_component_parameters, sub_component_task_run_args)
 
-        return run_sub_component_object.output_data(), run_sub_component_object.output_ids_map()
+        # return run_sub_component_object.output_data(), run_sub_component_object.output_ids_map()
+        return run_sub_component_object.output_data()
 
     def build_sub_component_parameters(self, sub_component_task_config=None):
         """
@@ -178,6 +179,9 @@ class Oot(ModelBase):
         member_id = self.tracker.member_id
         sub_module_name = sub_component_task_config['module']
         sub_component_name = sub_component_task_config['oot_params']['component_name']
+
+        sub_component_task_config['job'] = self.component_parameters['job']
+
         parameters = TaskExecutor.get_parameters(role, member_id, sub_module_name, sub_component_name,
                                                  sub_component_task_config)
         return parameters

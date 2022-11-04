@@ -46,32 +46,6 @@
                         @click="showVideoGuide"
                     >操作指引</a>
                 </el-tooltip> -->
-                <a
-                    href="https://www.wjx.top/vj/hW9y0cp.aspx"
-                    target="_blank"
-                >建议与反馈</a>
-                <el-tooltip
-                    effect="light"
-                    content="开启聊天"
-                    placement="bottom"
-                >
-                    <i
-                        class="iconfont icon-chat"
-                        @click="getConnect"
-                    >
-                        <i
-                            v-if="vData.hasUnreadNums"
-                            class="unread-num"
-                        >{{ vData.hasUnreadNums >= 99 ? `99+` : vData.hasUnreadNums }}</i>
-                    </i>
-                </el-tooltip>
-                <el-tooltip
-                    effect="light"
-                    :content="vData.isFullScreen ? '退出全屏' : '切换全屏'"
-                    placement="bottom"
-                >
-                    <el-icon class="el-icon-full-screen" @click="fullScreenSwitch"><elicon-full-screen /></el-icon>
-                </el-tooltip>
                 <div class="heading-user ml10">
                     你好,
                     <el-dropdown
@@ -96,6 +70,33 @@
                         </template>
                     </el-dropdown>
                 </div>
+                <el-tooltip
+                    effect="light"
+                    content="开启聊天"
+                    placement="bottom"
+                >
+                    <i
+                        class="iconfont icon-chat"
+                        @click="getConnect"
+                    >
+                        <i
+                            v-if="vData.hasUnreadNums"
+                            class="unread-num"
+                        >{{ vData.hasUnreadNums >= 99 ? `99+` : vData.hasUnreadNums }}</i>
+                    </i>
+                </el-tooltip>
+                <a
+                    href="https://www.wjx.top/vj/hW9y0cp.aspx"
+                    target="_blank"
+                    class="help"
+                >建议与反馈</a>
+                <el-tooltip
+                    effect="light"
+                    :content="vData.isFullScreen ? '退出全屏' : '切换全屏'"
+                    placement="bottom"
+                >
+                    <el-icon class="el-icon-full-screen" @click="fullScreenSwitch"><elicon-full-screen /></el-icon>
+                </el-tooltip>
             </div>
         </div>
         <layout-tags v-show="tagsList.length" />
@@ -337,6 +338,9 @@
 </style>
 
 <style lang="scss" scoped>
+    .help{
+        font-size: 14px;
+    }
     .heading-bar {
         white-space: nowrap;
         text-align: right;

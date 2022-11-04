@@ -141,7 +141,7 @@
 
                     if (columnIndex === 0 || columnIndex === 1) {
                         return {
-                            rowspan: vData.list[tabIdx].dataList.length || 0,
+                            rowspan: 120,
                             colspan: 1,
                         };
                     }
@@ -307,8 +307,10 @@
 
                         vData.list = list;
                         vData.tabName = `${list[0].member_id}-0`;
-                        list[0].dataList[0].isShowWOE = true;
-                        this.expandChange(vData.list[0].dataList[0]);
+                        if (list[0].member_id === list[1].member_id){
+                            vData.expandRowKeys = [];
+                        }
+
                     }
                 },
             };
@@ -335,11 +337,7 @@
 </script>
 
 <style lang="scss">
-.el-collapse-item__header{
-    font-size: 12px;
-    border: none;
-}
-.el-collapse-item__wrap{
-    border: none;
-}
+    .fold-table tbody tr:hover>td{
+            background: white !important
+        }
 </style>

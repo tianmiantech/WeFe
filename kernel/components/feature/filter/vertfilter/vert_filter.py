@@ -96,6 +96,7 @@ class VertSampleFilter(ModelBase):
             else:
                 raise ValueError(f'{operator} not support')
             self.feature_filter_rules[feature_name] = feature
+        LOGGER.info('feature_filter_rules:{}'.format(self.feature_filter_rules))
 
     def process_value(self, value):
         flag = False
@@ -108,9 +109,10 @@ class VertSampleFilter(ModelBase):
                 if value_type == 'num':
                     if math.fabs(real_value - feature['min']) > consts.FLOAT_ZERO:
                         flag = True
-                # string
+                # str
                 elif real_value != feature['min']:
-                    flag = False
+                    flag = True
+
             elif operator == '!=':
                 if value_type == 'num':
                     if math.fabs(real_value - feature['min']) <= consts.FLOAT_ZERO:
@@ -118,6 +120,7 @@ class VertSampleFilter(ModelBase):
                 # str
                 elif real_value == feature['min']:
                     flag = True
+            # >, >=, <, <=
             else:
                 value_min = feature['min'] if 'min' in feature.keys() else None
                 value_max = feature['max'] if 'max' in feature.keys() else None
@@ -144,6 +147,7 @@ class VertSampleFilter(ModelBase):
         return value
 
     def fit(self, data_instances):
+        LOGGER.info('start vert filter')
         self._init_param()
         self.header = get_header(data_instances)
         LOGGER.info(f'origin data:{data_instances.first()[1].features}')
