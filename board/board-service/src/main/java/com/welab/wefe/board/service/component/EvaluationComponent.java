@@ -349,7 +349,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
     }
 
     public static String scoreDistributionKey(String taskResultName) {
-        return "train_validate_" + taskResultName + "_metric";
+        return "train_validate_" + taskResultName + "_scored";
     }
 
 
