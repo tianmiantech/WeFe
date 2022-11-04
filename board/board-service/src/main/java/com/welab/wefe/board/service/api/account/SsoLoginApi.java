@@ -19,6 +19,7 @@ package com.welab.wefe.board.service.api.account;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.service.SystemInitializeService;
 import com.welab.wefe.board.service.service.account.AccountService;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
@@ -43,7 +44,8 @@ public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
     @Override
     protected ApiResult<Output> handle() throws StatusCodeWithException {
         if (!systemInitializeService.isInitialized()) {
-            return fail("The system has not been initialized.");
+            StatusCode status = StatusCode.SYSTEM_NOT_BEEN_INITIALIZED;
+            return fail(status.getCode(), status.getMessage());
         }
         return success(accountService.ssoLogin());
     }
