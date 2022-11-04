@@ -5,10 +5,10 @@
             :key="index"
         >
             <el-link
-                :type="item.highlight ? 'primary' : 'default'"
+                :type="item?.highlight ? 'primary' : 'default'"
                 :underline="false"
                 @click="jumpto(item)"
-            >{{ item.title }}</el-link>
+            >{{ item?.title }}</el-link>
         </li>
     </ul>
     <div v-if="vData.show" class="navigator">

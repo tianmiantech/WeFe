@@ -384,6 +384,7 @@
                         list[this.project.project_id] = this.form.project_type === 'MachineLearning' ? this.moduleList : this.dModuleList;
                     }
                 }
+                this.$bus.$emit('update-title-navigator');
                 
                 const { code } = await this.$http.post({
                     url:  '/account/update_ui_config',
