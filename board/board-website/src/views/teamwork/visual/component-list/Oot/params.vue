@@ -138,13 +138,18 @@
                 </el-form>
             </div>
         </div>
-
+        <el-form>
+            <el-form-item v-if="vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
+                <el-switch v-model="vData.need_PSI" active-color="#13ce66"/>
+            </el-form-item>
+        </el-form>
         <psi-bin 
-            v-if="vData.exitVertComponent"
+            v-if="vData.need_PSI"
             v-model:binValue="vData.binValue" 
             title="PSI分箱方式（预测概率/评分）"
             :disabled="disabled"
-            :filterMethod="['quantile']" />
+            :filterMethod="['quantile']"
+        />
         <!-- Select the dataset for the specified member -->
         <el-dialog
             title="选择数据资源"
@@ -364,6 +369,7 @@
                     pos_label: 1,
                 },
                 oot_job_id: '',
+                need_PSI: false,
                 binValue:   {
                     method:       'bucket',
                     binNumber:    6,
@@ -717,8 +723,8 @@
                 },
 
                 checkParams() {
-                    const { binValue,exitVertComponent } = vData;
-                    const { method, binNumber,split_points } = binValue;
+                    const { binValue, exitVertComponent, need_PSI } = vData;
+                    const { method, binNumber, split_points } = binValue;
                     const isCustom = method === 'custom';
                     const array = replace(split_points).replace(/，/g,',').replace(/,$/, '').split(',');
 
@@ -732,9 +738,12 @@
                     const params = {
                         job_id:          props.ootJobId,
                         modelFlowNodeId: props.ootModelFlowNodeId,
-                        bin_method:      exitVertComponent ? method : undefined,
-                        bin_number:      exitVertComponent && !isCustom ? binNumber : undefined,
-                        split_points:    exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])] : undefined,
+                        psi_param: {
+                            need_PSI,
+                            bin_method:      exitVertComponent ? method : undefined,
+                            bin_number:      exitVertComponent && !isCustom ? binNumber : undefined,
+                            split_points:    exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])] : undefined,
+                        }
                     };
 
                     vData.member_list.forEach((member, index) => {

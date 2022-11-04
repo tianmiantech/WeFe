@@ -1,7 +1,7 @@
 <!-- psi分箱配置组件 -->
 <template>
     <el-form>
-        <div class="psi-title">{{ title }}</div>
+        <div class="psi-title" v-if="title">{{ title }}</div>
         <el-form-item label="分箱方式">
             <el-select
                 :model-value="binValue.method"
@@ -49,7 +49,6 @@ const baseOptions = [
     { label: '等宽', value: 'bucket' },
     { label: '自定义', value: 'custom' },
 ];
-// eslint-disable-next-line no-undef
 const props = defineProps({
     disabled: Boolean,
     /** 值 */
@@ -72,7 +71,6 @@ const props = defineProps({
         default: '分箱方式',
     },
 });
-// eslint-disable-next-line no-undef
 const emit = defineEmits(['update:binValue']);
 const options = ref(
     baseOptions.filter((item) => !props.filterMethod.includes(item.value))
