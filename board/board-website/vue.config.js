@@ -186,7 +186,7 @@ module.exports = {
         },
         proxy: {
             '/api': {
-                target:       'https://xbd-fat.wolaidai.com/board-service-02/',
+                target:       'https://xbd-fat.wolaidai.com/board-service-01/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

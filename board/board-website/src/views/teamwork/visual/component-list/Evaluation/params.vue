@@ -25,38 +25,42 @@
         <el-form-item label="是否计算分布：">
             <el-switch
                 v-model="vData.form.prob_need_to_bin"
-                active-color="#13ce66">
-            </el-switch>
+                active-color="#13ce66"
+            />
         </el-form-item>
 
         <el-form-item v-if="vData.form.prob_need_to_bin">
-            <el-select 
+            <el-select
                 v-model="vData.form.bin_method"
                 placeholder="请选择"
-                disabled=true
-                style="width:84px;">
+                style="width: 84px;"
+            >
                 <el-option
                     v-for="item in vData.bin_method"
                     :key="item.value"
                     :label="item.text"
-                    :value="item.value">
-                </el-option>
+                    :value="item.value"
+                />
             </el-select>
             <el-input-number
                 v-model="vData.form.bin_num"
                 type="number"
                 controls-position="right"
-            />箱 <span style="color: #999;">（建议设置10-20箱）</span>
+            />箱
+            <span style="color: #999;">（建议设置10-20箱）</span>
         </el-form-item>
-        <p v-if="vData.form.prob_need_to_bin"></p>
+        <el-form-item v-if="vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
+            <el-switch v-model="vData.form.need_PSI" active-color="#13ce66"/>
+        </el-form-item>
     </el-form>
 
     <psi-bin 
-        v-if="vData.exitVertComponent"
+        v-if="vData.form.need_PSI"
+        title=""
         v-model:binValue="vData.binValue"
-        title="PSI分箱方式（预测概率/评分）"
         :disabled="disabled"
-        :filterMethod="['quantile']" />
+        :filterMethod="['quantile']"
+    />
 </template>
 
 <script>
@@ -99,11 +103,13 @@
                     prob_need_to_bin: false,
                     bin_num:          10,
                     bin_method:       'bucket',
+                    need_PSI:         false,
                 },
                 originForm: {
                     eval_type:        'binary',
                     pos_label:        1,
                     prob_need_to_bin: false,
+                    need_PSI:         false,
                     bin_num:          10,
                     bin_method:       'bucket',
                 },
@@ -117,27 +123,46 @@
 
             let methods = {
                 checkParams() {
-                    const { form, binValue,exitVertComponent } = vData;
-                    const { method, binNumber,split_points } = binValue;
-                    const isCustom = method === 'custom';
-                    const array = replace(split_points).replace(/，/g,',').replace(/,$/, '').split(',');
+                const { form, binValue, exitVertComponent } = vData;
+                const { method, binNumber, split_points } = binValue;
+                const isCustom = method === 'custom';
+                const array = replace(split_points)
+                    .replace(/，/g, ',')
+                    .replace(/,$/, '')
+                    .split(',');
 
-                    if(isCustom && !psiCustomSplit(array)){
-                        return false;
-                    }
-                    const re = array.map(parseFloat);
+                if (isCustom && !psiCustomSplit(array)) {
+                    return false;
+                }
+                const re = array.map(parseFloat);
 
-                    re.sort(((a,b) => a-b));
+                re.sort((a, b) => a - b);
 
-                    
-                    return {
-                        params: { ...form,                       
-                                  bin_method:   exitVertComponent ? method : undefined,
-                                  bin_number:   exitVertComponent && !isCustom ? binNumber : undefined,
-                                  split_points: exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])]: undefined,
+                const { eval_type, pos_label, prob_need_to_bin, bin_num, bin_method, need_PSI } = form;
+
+                return {
+                    params: {
+                        eval_type,
+                        pos_label,
+                        score_param: {
+                            prob_need_to_bin,
+                            bin_num,
+                            bin_method,
                         },
-                    };
-                },
+                        psi_param: {
+                            need_PSI,
+                            bin_method: exitVertComponent ? method : undefined,
+                            bin_number:
+                                exitVertComponent && !isCustom
+                                    ? binNumber
+                                    : undefined,
+                            split_points: exitVertComponent && isCustom
+                                ? [...new Set([0, ...re, 1])]
+                                : undefined,
+                        },
+                    },
+                };
+            },
                 formatter(params){
                     const { bin_number = 6, bin_method = 'bucket',split_points=[] } = params;
 
