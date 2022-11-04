@@ -941,18 +941,18 @@ class Evaluation(ModelBase):
         return scored
 
     def evaluate_psi(self, data):
-        pred_result = defaultdict(list)
-        for mode, mode_data in data.items():
-            label= []
-            pred_scores = []
-            for d in mode_data:
-                pred_scores.append(d[1][2])
-                label.append(d[1][0])
-            self.get_classify(label)
-            pred_result[mode] = pred_scores
-        train_pred_score = pred_result.get('train')
-        eval_pred_score = pred_result.get('validate')
-        if eval_pred_score and train_pred_score and self.model_param.psi_param.need_PSI:
+        if self.model_param.psi_param.need_psi:
+            pred_result = defaultdict(list)
+            for mode, mode_data in data.items():
+                label = []
+                pred_scores = []
+                for d in mode_data:
+                    pred_scores.append(d[1][2])
+                    label.append(d[1][0])
+                self.get_classify(label)
+                pred_result[mode] = pred_scores
+            train_pred_score = pred_result.get('train')
+            eval_pred_score = pred_result.get('validate')
             train_bin_values, train_split_point = self.get_bin_result(train_pred_score, self.model_param.psi_param)
             LOGGER.debug('train_bin_values and train_split_point'.format(train_bin_values, train_split_point))
             train_bin_results = self.cal_bin_rate(train_bin_values)
