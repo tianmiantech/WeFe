@@ -163,15 +163,6 @@
                     },
                 };
             },
-                formatter(params){
-                    const { bin_number = 6, bin_method = 'bucket',split_points=[] } = params;
-
-                    vData.binValue = {
-                        method:       bin_method,
-                        binNumber:    bin_number,
-                        split_points: split_points.join(','),
-                    };
-                },
                 /**
                  * 判断是否展示psi组件
                  */
@@ -199,6 +190,32 @@
 
                     if (code === 0 && data && data.params && Object.keys(data.params).length) {
                         vData.form = data.params;
+                        const { eval_type, pos_label, psi_param, score_param } =
+                        data.params;
+                        Object.assign(vData.form, {
+                            eval_type,
+                            pos_label,
+                        });
+                        if(psi_param) {
+                            const { need_PSI, bin_method, bin_number, split_points } = psi_param;
+                            vData.form.need_PSI = need_PSI;
+                            if(need_PSI) {
+                                vData.binValue = {
+                                    method:       bin_method,
+                                    binNumber:    bin_number,
+                                    split_points: split_points? split_points.join() : '',
+                                };
+                            }
+                        }
+                        if (score_param) {
+                        const { prob_need_to_bin, bin_num, bin_method } =
+                            score_param;
+                        Object.assign(vData.form, {
+                            prob_need_to_bin,
+                            bin_num,
+                            bin_method,
+                        });
+                    }
                     }
                 },
             };

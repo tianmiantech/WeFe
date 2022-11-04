@@ -390,7 +390,7 @@
                     });
 
                     if (code === 0 && data && data.params && data.params.dataset_list) {
-                        const { dataset_list, eval_type, pos_label, bin_method = 'bucket', bin_number = 6,split_points=[] } = data.params;
+                        const { dataset_list, eval_type, pos_label, psi_param } = data.params;
 
                         for(const memberIndex in vData.member_list) {
                             const member = vData.member_list[memberIndex];
@@ -426,11 +426,15 @@
 
                         vData.form.eval_type = eval_type || 'binary';
                         vData.form.pos_label = pos_label || 1;
-                        vData.binValue = {
-                            method:       bin_method,
-                            binNumber:    bin_number ,
-                            split_points: split_points.join(','),
-                        };
+                        if(psi_param){
+                            const { bin_method, bin_number, need_PSI, split_points } = psi_param;
+                            vData.need_PSI = need_PSI;
+                            vData.binValue = {
+                                method:       bin_method,
+                                binNumber:    bin_number ,
+                                split_points: split_points ? split_points.join() : '',
+                            };
+                        }
                     }
                 },
 
