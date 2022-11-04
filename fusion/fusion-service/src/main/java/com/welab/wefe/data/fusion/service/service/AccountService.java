@@ -59,6 +59,7 @@ public class AccountService {
             String password = Sha1.of(UUID.randomUUID().toString().replace("-", "") + salt);
 
             AccountMysqlModel model = new AccountMysqlModel();
+            model.setId(accountInfo.getId());
             model.setCreatedBy(CurrentAccountUtil.get().getId());
             model.setPhoneNumber(accountInfo.getPhoneNumber());
             model.setNickname(accountInfo.getName());
