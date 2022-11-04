@@ -267,11 +267,12 @@
 
                 if(code === 0) {
                     this.blobToDataURI(data, result => {
-                        this.fileList.push({
+                        const item = {
                             name: window.decodeURIComponent(fileName),
                             url:  result,
                             fileId,
-                        });
+                        };
+                        this.fileList = [...this.fileList, item];
 
                         if(this.fileList.length === files) {
                             setTimeout(() => {
@@ -351,15 +352,14 @@
                     if(~index) {
                         this.$message.error('文件已在列表中!');
                     } else {
-                        this.form.fileIdList.push({
-                            file_id: data.file_id,
-                        });
+                        this.form.fileIdList = [...this.form.fileIdList, { file_id: data.file_id }];
                         this.blobToDataURI(file, result => {
-                            this.fileList.push({
+                            const item = {
                                 name:   window.decodeURIComponent(file.name),
                                 fileId: data.file_id,
                                 url:    result,
-                            });
+                            };
+                            this.fileList = [...this.fileList, item];
                         });
                     }
                 }
