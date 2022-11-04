@@ -17,6 +17,7 @@
 package com.welab.wefe.board.service.service.account;
 
 import com.alibaba.fastjson.JSON;
+import com.welab.wefe.board.service.api.account.ListAllApi;
 import com.welab.wefe.board.service.api.account.QueryMemberAccountsApi;
 import com.welab.wefe.board.service.api.account.QueryOnlineApi;
 import com.welab.wefe.board.service.api.account.SsoLoginApi;
@@ -24,6 +25,7 @@ import com.welab.wefe.board.service.base.LoginAccountInfo;
 import com.welab.wefe.board.service.database.entity.AccountMysqlModel;
 import com.welab.wefe.board.service.database.repository.AccountRepository;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
+import com.welab.wefe.board.service.dto.entity.AccountListAllOutputModel;
 import com.welab.wefe.board.service.dto.entity.AccountOutputModel;
 import com.welab.wefe.board.service.dto.vo.OnlineAccountOutput;
 import com.welab.wefe.board.service.service.CacheObjects;
@@ -41,6 +43,7 @@ import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.service.account.SsoAccountInfo;
 import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.DatabaseEncryptUtil;
+import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import org.apache.commons.collections4.CollectionUtils;
@@ -63,6 +66,18 @@ public class AccountService {
     private GatewayService gatewayService;
     @Autowired
     private GlobalConfigService globalConfigService;
+
+
+    public List<AccountListAllOutputModel> listAll(ListAllApi.Input input) {
+
+        Specification<AccountMysqlModel> where = Where
+                .create()
+                .contains("nickname", input.getNickname())
+                .build(AccountMysqlModel.class);
+
+        List<AccountMysqlModel> list = accountRepository.findAll(where);
+        return ModelMapper.maps(list, AccountListAllOutputModel.class);
+    }
 
     /**
      * Paging query account
