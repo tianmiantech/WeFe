@@ -924,36 +924,36 @@ class Evaluation(ModelBase):
     def cal_scord_card_bin(self, eval_data_local):
         score_result = self.tracker.get_score_result()
         bins_result = None
-        if score_result is not None and len(eval_data_local[0][1])>=6 and self.model_param.prob_need_to_bin:
+        if score_result is not None and len(eval_data_local[0][1])>=6 and self.model_param.score_param.prob_need_to_bin:
             a_score, b_score= score_result['a_score'], score_result['b_score']
             linear_scores = [data[1][4] for data in eval_data_local]
             sample_scores = [a_score + b_score * linear_score for linear_score in linear_scores]
-            bins_result  = self.to_binning(sample_scores)
+            bins_result  = self.to_binning(sample_scores, self.model_param.score_param)
         else:
             classes = len(set([d[1][0] for d in eval_data_local]))
-            if classes < 3 and self.model_param.prob_need_to_bin:
+            if classes < 3 and self.model_param.score_param.prob_need_to_bin:
                 sample_pro_result_list = []
                 for index, sample_pro_result in enumerate(eval_data_local):
                     sample_pro_result_list.append(sample_pro_result[1][2])
-                bins_result = self.to_binning(sample_pro_result_list)
+                bins_result = self.to_binning(sample_pro_result_list, self.model_param.score_param)
         scored = defaultdict(list)
         scored['scored'] = ['train_validate', bins_result]
         return scored
 
     def evaluate_psi(self, data):
-        pred_result = defaultdict(list)
-        for mode, mode_data in data.items():
-            label= []
-            pred_scores = []
-            for d in mode_data:
-                pred_scores.append(d[1][2])
-                label.append(d[1][0])
-            self.get_classify(label)
-            pred_result[mode] = pred_scores
-        train_pred_score = pred_result.get('train')
-        eval_pred_score = pred_result.get('validate')
-        if eval_pred_score and train_pred_score and self.model_param.need_PSI:
-            train_bin_values, train_split_point = self.get_bin_result(train_pred_score)
+        if self.model_param.psi_param.need_psi:
+            pred_result = defaultdict(list)
+            for mode, mode_data in data.items():
+                label = []
+                pred_scores = []
+                for d in mode_data:
+                    pred_scores.append(d[1][2])
+                    label.append(d[1][0])
+                self.get_classify(label)
+                pred_result[mode] = pred_scores
+            train_pred_score = pred_result.get('train')
+            eval_pred_score = pred_result.get('validate')
+            train_bin_values, train_split_point = self.get_bin_result(train_pred_score, self.model_param.psi_param)
             LOGGER.debug('train_bin_values and train_split_point'.format(train_bin_values, train_split_point))
             train_bin_results = self.cal_bin_rate(train_bin_values)
             eval_bin_values = pd.cut(eval_pred_score, train_split_point)
@@ -976,9 +976,9 @@ class Evaluation(ModelBase):
             return psi_values
         return None
 
-    def to_binning(self, to_bin_data):
+    def to_binning(self, to_bin_data, score_bin_param):
             data_count = len(to_bin_data)
-            bin_values, split_point = self.get_bin_result(to_bin_data)
+            bin_values, split_point = self.get_bin_result(to_bin_data, score_bin_param)
             bin_values_counts = bin_values.value_counts()
             bin_result ={}
             staitic_count = sum([ bin_values_counts[i] for i in range(len(bin_values_counts))])
@@ -990,23 +990,24 @@ class Evaluation(ModelBase):
             else:
                 return ValueError("Staitic_count and count are not the same, check the binning statistics!")
             scores_distribution ={
-                "bin_method": self.model_param.bin_method,
+                "bin_method": self.model_param.psi_param.bin_method,
                 "bin_result": bin_result,
                 "max": max(to_bin_data),
                 "min": min(to_bin_data)}
             return scores_distribution
 
-    def get_bin_result(self, to_bin_values):
+    @staticmethod
+    def get_bin_result(to_bin_values, bin_model_param):
         bin_values, split_point= None, None
-        if self.model_param.bin_method == consts.CUSTOM:
-            LOGGER.debug('split_points is {}'.format(self.model_param.split_points))
-            bin_values, split_point = pd.cut(to_bin_values, self.model_param.split_points,
+        if bin_model_param.bin_method == consts.CUSTOM:
+            LOGGER.debug('split_points is {}'.format(bin_model_param.split_points))
+            bin_values, split_point = pd.cut(to_bin_values, bin_model_param.split_points,
                                                          retbins=True)
-        elif self.model_param.bin_method == consts.BUCKET:
-            bin_values, split_point = pd.cut(to_bin_values, bins=self.model_param.bin_num,
+        elif bin_model_param.bin_method == consts.BUCKET:
+            bin_values, split_point = pd.cut(to_bin_values, bins= bin_model_param.bin_num,
                                                          retbins=True)
-        elif self.model_param.bin_method == consts.QUANTILE:
-            bin_values, split_point = pd.qcut(np.array(to_bin_values, dtype=float),self.model_param.bin_num,
+        elif bin_model_param.bin_method == consts.QUANTILE:
+            bin_values, split_point = pd.qcut(np.array(to_bin_values, dtype=float), bin_model_param.bin_num,
                                               duplicates='drop',retbins= True)
 
         return bin_values, split_point
