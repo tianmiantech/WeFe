@@ -67,7 +67,7 @@ public class AccountService {
             model.setPassword(password);
             model.setSalt(salt);
             model.setSuperAdminRole(accountRepository.count() < 1);
-            model.setAdminRole(model.getSuperAdminRole());
+            model.setAdminRole(true);
             model.setEnable(true);
             model.setAuditStatus(AuditStatus.agree);
             model.setLastActionTime(new Date());
