@@ -360,7 +360,7 @@ public class FusionTaskService extends AbstractService {
 
         fusionTaskRepository.save(task);
 
-        ClientActuator client = new ClientActuator(
+        new ClientActuator(
                 task.getBusinessId(),
                 task.getDataResourceId(),
                 input.getTrace(),
@@ -368,11 +368,7 @@ public class FusionTaskService extends AbstractService {
                 task.getDstMemberId(),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
                         task.getRowCount() : task.getPartnerRowCount()
-        );
-
-        ActuatorManager.set(client);
-
-        client.run();
+        ).run();
     }
 
 
@@ -403,7 +399,7 @@ public class FusionTaskService extends AbstractService {
         /**
          * Generate the corresponding task handler
          */
-        ServerActuator server = new ServerActuator(
+        new ServerActuator(
                 task.getBusinessId(),
                 BloomFilterUtils.readFrom(
                         Paths.get(bf.getStorageNamespace(), bf.getStorageResourceName()).toString()
@@ -415,11 +411,7 @@ public class FusionTaskService extends AbstractService {
                 new BigInteger(bf.getRsaQ()),
                 DataResourceType.TableDataSet.equals(task.getDataResourceType()) ?
                         task.getRowCount() : task.getPartnerRowCount()
-        );
-
-        ActuatorManager.set(server);
-
-        server.run();
+        ).run();
     }
 
     /**

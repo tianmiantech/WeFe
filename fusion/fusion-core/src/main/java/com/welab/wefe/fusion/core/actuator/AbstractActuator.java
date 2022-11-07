@@ -18,14 +18,11 @@ package com.welab.wefe.fusion.core.actuator;
 
 import com.welab.wefe.common.TimeSpan;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
-import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiClientActuator;
 import com.welab.wefe.fusion.core.utils.FusionThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 
 import static com.welab.wefe.common.util.ThreadUtil.sleep;
@@ -38,21 +35,23 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     public AbstractActuator(String businessId) {
         this.businessId = businessId;
+        ActuatorCache.set(this);
     }
 
     protected String businessId;
 
-    public Long dataCount;
+    protected Long dataCount;
 
-    public LongAdder processedCount = new LongAdder();
+    protected volatile String error;
 
-    public LongAdder fusionCount = new LongAdder();
+    protected LongAdder processedCount = new LongAdder();
 
-    public volatile String error;
+    protected LongAdder fusionCount = new LongAdder();
+
     /**
      * Task start time
      */
-    public final long startTime = System.currentTimeMillis();
+    protected final long startTime = System.currentTimeMillis();
 
     /**
      * Maximum execution time of a task
@@ -141,12 +140,6 @@ public abstract class AbstractActuator implements AutoCloseable {
         ).intValue();
     }
 
-    protected void preprocess() {
-    }
-
-    protected void postprocess() {
-    }
-
     /**
      * Check whether the task is complete
      *
@@ -156,29 +149,15 @@ public abstract class AbstractActuator implements AutoCloseable {
 
 
     /**
-     * Initializes the task
-     *
-     * @throws StatusCodeWithException
-     */
-    public abstract void init() throws Exception;
-
-    /**
      * Executor execution method
      *
      * @throws StatusCodeWithException
      */
-    public abstract void fusion() throws StatusCodeWithException, InterruptedException;
-
-    /**
-     * Alignment data into the library implementation method
-     *
-     * @param fruit
-     */
-    public abstract void dump(List<JObject> fruit);
+    public abstract void fusion() throws Exception;
 
     public void run() {
         FusionThreadPool.run(() -> execute());
-        FusionThreadPool.run(() -> finish());
+        FusionThreadPool.run(() -> heartbeat());
     }
 
     private void execute() {
@@ -186,13 +165,7 @@ public abstract class AbstractActuator implements AutoCloseable {
 
             LOG.info("task execute...");
 
-            preprocess();
-
-            init();
-
             fusion();
-
-            postprocess();
 
             LOG.info("task execute end!");
 
@@ -204,7 +177,7 @@ public abstract class AbstractActuator implements AutoCloseable {
         }
     }
 
-    public void finish() {
+    private void heartbeat() {
         LOG.info("finish waiting...");
 
         while (true) {
@@ -216,15 +189,6 @@ public abstract class AbstractActuator implements AutoCloseable {
             }
 
             try {
-                if (this instanceof AbstractPsiClientActuator) {
-                    LOG.info("notify the server that the task has ended...");
-                    ((AbstractPsiClientActuator) this).notifyServerClose();
-                }
-            } catch (Exception e) {
-                LOG.error(e.getClass().getSimpleName() + " notify the server error：" + e.getMessage());
-            }
-
-            try {
                 LOG.info("close task...");
                 close();
             } catch (Exception e) {
@@ -232,6 +196,8 @@ public abstract class AbstractActuator implements AutoCloseable {
             }
 
             LOG.info("{} spend: {} ms", businessId, System.currentTimeMillis() - startTime);
+            //remove Actuator
+            ActuatorCache.remove(businessId);
             return;
         }
     }

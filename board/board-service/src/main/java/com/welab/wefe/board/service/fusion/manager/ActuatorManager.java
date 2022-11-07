@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.fusion.manager;
 
-import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.database.entity.fusion.FusionActuatorInfoMySqlModel;
 import com.welab.wefe.board.service.database.entity.fusion.FusionTaskMySqlModel;
 import com.welab.wefe.board.service.database.repository.fusion.FusionActuatorInfoRepository;
@@ -27,28 +26,16 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.fusion.core.actuator.AbstractActuator;
+import com.welab.wefe.fusion.core.actuator.ActuatorCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author hunter
  */
-public class ActuatorManager {
+public class ActuatorManager extends ActuatorCache {
     public static final Logger LOG = LoggerFactory.getLogger(ActuatorManager.class);
 
-    /**
-     * taskId : task
-     */
-    private static final ConcurrentHashMap<String, AbstractActuator> ACTUATORS = new ConcurrentHashMap<>();
-
-    public static AbstractActuator get(String businessId) {
-
-
-        return ACTUATORS.get(businessId);
-    }
 
     private static final FusionActuatorInfoRepository fusionActuatorInfoRepository;
     private static final FusionTaskService fusionTaskService;
@@ -58,42 +45,9 @@ public class ActuatorManager {
         fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
     }
 
-    public static void set(AbstractActuator task) {
-
-        String businessId = task.getBusinessId();
-        if (ACTUATORS.containsKey(businessId)) {
-            throw new RuntimeException(businessId + " This actuator already exists");
-        }
-
-        LOG.info("Set actuator successfully, businessId is {}", businessId);
-        ACTUATORS.put(businessId, task);
-
-    }
-
-    public synchronized static void remove(String businessId) {
-
-        ACTUATORS.remove(businessId);
-    }
-
-    public synchronized static List<JObject> dashboard() throws StatusCodeWithException {
-
-        List<JObject> list = Lists.newArrayList();
-        Object[] keys = ACTUATORS.keySet().toArray();
-
-        for (Object key : keys) {
-
-            JObject info = getTaskInfo(key.toString());
-
-            if (info != null) {
-                list.add(info);
-            }
-        }
-
-        return list;
-    }
 
     public static JObject getTaskInfo(String businessId) throws StatusCodeWithException {
-        AbstractActuator actuator = ACTUATORS.get(businessId);
+        AbstractActuator actuator = ACTUATOR_CACHE.get(businessId);
         if (actuator != null) {
             return JObject
                     .create()
@@ -127,15 +81,6 @@ public class ActuatorManager {
         return null;
     }
 
-    /**
-     * Number of tasks
-     *
-     * @return Number of tasks
-     */
-    public static int size() {
-        return ACTUATORS.size();
-    }
-
     public static void refresh(AbstractActuator actuator) {
         if (actuator instanceof ClientActuator) {
             FusionActuatorInfoMySqlModel info = new FusionActuatorInfoMySqlModel();
@@ -149,36 +94,5 @@ public class ActuatorManager {
             info.setBusinessId(actuator.getBusinessId());
             fusionActuatorInfoRepository.save(info);
         }
-    }
-
-    public static void main(String[] args) {
-        AbstractActuator actuator = new AbstractActuator("1") {
-            @Override
-            public void close() throws Exception {
-
-            }
-
-            @Override
-            public boolean isFinish() {
-                return false;
-            }
-
-            @Override
-            public void init() throws StatusCodeWithException {
-
-            }
-
-            @Override
-            public void fusion() throws StatusCodeWithException {
-
-            }
-
-            @Override
-            public void dump(List<JObject> fruit) {
-
-            }
-        };
-
-
     }
 }
