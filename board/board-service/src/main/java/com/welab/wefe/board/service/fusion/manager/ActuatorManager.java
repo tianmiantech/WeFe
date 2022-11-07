@@ -80,19 +80,4 @@ public class ActuatorManager extends ActuatorCache {
 
         return null;
     }
-
-    public static void refresh(AbstractActuator actuator) {
-        if (actuator instanceof ClientActuator) {
-            FusionActuatorInfoMySqlModel info = new FusionActuatorInfoMySqlModel();
-            info.setType(actuator.getClass().getSimpleName());
-            info.setBusinessId(actuator.getBusinessId());
-            info.setProgress(((ClientActuator) actuator).currentIndex);
-            fusionActuatorInfoRepository.save(info);
-        } else if (actuator instanceof ServerActuator) {
-            FusionActuatorInfoMySqlModel info = new FusionActuatorInfoMySqlModel();
-            info.setType(actuator.getClass().getSimpleName());
-            info.setBusinessId(actuator.getBusinessId());
-            fusionActuatorInfoRepository.save(info);
-        }
-    }
 }

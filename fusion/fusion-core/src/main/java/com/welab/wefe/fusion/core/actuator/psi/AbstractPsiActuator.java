@@ -28,7 +28,7 @@ public abstract class AbstractPsiActuator extends AbstractActuator {
         super(businessId);
     }
 
-    protected volatile PSIActuatorStatus status = PSIActuatorStatus.uninitialized;
+    public volatile PSIActuatorStatus status = PSIActuatorStatus.uninitialized;
 
     @Override
     public boolean isFinish() {

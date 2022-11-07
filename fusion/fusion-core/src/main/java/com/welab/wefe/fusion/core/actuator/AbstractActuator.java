@@ -42,7 +42,7 @@ public abstract class AbstractActuator implements AutoCloseable {
 
     protected Long dataCount;
 
-    protected volatile String error;
+    public volatile String error;
 
     protected LongAdder processedCount = new LongAdder();
 
