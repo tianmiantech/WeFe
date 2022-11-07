@@ -377,7 +377,7 @@
 
 <style lang="scss">
     .box-card{
-        height: 571px;
+        height: 563px;
         .empty-message-list{
             text-align: center;
             padding-top:15px;
