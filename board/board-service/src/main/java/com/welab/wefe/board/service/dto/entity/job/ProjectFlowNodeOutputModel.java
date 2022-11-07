@@ -66,7 +66,6 @@ public class ProjectFlowNodeOutputModel extends AbstractOutputModel {
     }
 
     //region getter/setter
-
     public String getNodeId() {
         return nodeId;
     }
