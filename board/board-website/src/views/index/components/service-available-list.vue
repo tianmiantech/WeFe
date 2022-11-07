@@ -1,7 +1,7 @@
 <template>
     <el-card class="service-box">
         <header>
-            <div style="line-height:60px; border-bottom: 1px solid black;">
+            <div style="line-height:60px; border-bottom: 1px solid lightgray;">
                 服务状态
             </div>
         </header>
