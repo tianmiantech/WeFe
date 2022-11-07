@@ -225,6 +225,8 @@ public class AccountService {
                 accountRepository.save(accountMysqlModel);
             }
         }
+        CacheObjects.putAccount(accountMysqlModel);
+
         LoginAccountInfo.getInstance().put(accountMysqlModel.getId(), accountInfo);
         return accountToSsoLoginOutput(accountMysqlModel);
     }

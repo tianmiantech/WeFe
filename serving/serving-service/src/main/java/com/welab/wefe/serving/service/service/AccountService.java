@@ -108,6 +108,8 @@ public class AccountService {
             }
         }
 
+        CacheObjects.putAccount(accountMysqlModel);
+
         SsoLoginApi.Output output = new SsoLoginApi.Output();
         output.setId(accountInfo.getId());
         output.setToken(accountInfo.getId());
