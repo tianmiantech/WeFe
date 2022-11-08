@@ -84,4 +84,16 @@ public class Validator {
 
         return MATCH_UNSIGNED_INTEGER_PATTERN.matcher(String.valueOf(value)).find();
     }
+
+    /**
+     * 判断一个字符串是否是 DateTime 格式
+     */
+    public static boolean isDateTime(String value) {
+        try {
+            Convert.toDate(value);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

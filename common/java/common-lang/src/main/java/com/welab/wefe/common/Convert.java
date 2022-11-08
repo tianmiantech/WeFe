@@ -172,6 +172,18 @@ public class Convert {
     //region LocalDateTime
 
     public static Date toDate(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        // 最大限度兼容各种格式的时间格式
+        if (value instanceof String) {
+            value = String.valueOf(value)
+                    .replaceAll("T", " ")
+                    .replaceAll("/", "-")
+                    .replaceAll("(?<=-)(\\d)(?=\\b)", "0$1")
+                    .replaceAll("(?<= )(\\d{1,2}:\\d{1,2})(?=$)", "$1:00");
+        }
         return TypeUtils.castToDate(value);
     }
 
