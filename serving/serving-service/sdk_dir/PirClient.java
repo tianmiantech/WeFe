@@ -33,7 +33,7 @@ public class PirClient {
     // Serving服务地址
     private static final String serverUrl = "https://****/serving-service-01/"; // TODO
     // Service Api name
-    private String apiName = "api/*****"; // TODO
+    private static final String apiName = "api/*****"; // TODO
 
 	public static void main(String[] args) {
 		CommunicationConfig communicationConfig = new CommunicationConfig();

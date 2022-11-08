@@ -182,6 +182,7 @@ public class ServiceService {
     }
 
     public String displayServiceQueryParams(String queryParams, String queryParamsConfig) {
+        String result = "";
         if (StringUtils.isNotBlank(queryParamsConfig)) {
             List<JSONObject> params = new ArrayList<>();
             JSONArray arr = JSONObject.parseArray(queryParamsConfig);
@@ -194,9 +195,14 @@ public class ServiceService {
                 j.put("描述:", desc);
                 params.add(j);
             }
-            return JSONObject.toJSONString(params);
+            result = JSONObject.toJSONString(params);
+        } else {
+            result = queryParams;
         }
-        return queryParams;
+        if (StringUtils.isBlank(result)) {
+            return "";
+        }
+        return result;
     }
 
     private List<JobMemberRole> findMyRoles(String modelId) {
