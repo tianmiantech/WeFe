@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-package com.wolaidai.wefe.sdk;
 
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.mpc.config.CommunicationConfig;
