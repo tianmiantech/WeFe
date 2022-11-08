@@ -16,7 +16,9 @@
             v-if="!frontStatus.has_c_v"
         />
     </div>
-    <el-button @click="showDrawer" :disabled="loading"> 选择特征 </el-button>
+    <el-button @click="showDrawer" :disabled="disabled || loading">
+        选择特征
+    </el-button>
     <FeatureFilter
         ref="tezhenRef"
         :allFeatures="allFeatures"

@@ -52,27 +52,25 @@
                         v-if="frontStatus.has_c_v"
                     />
                     <el-table-column label="操作">
-                        <template v-slot="scope">
+                        <template #default="{ row }">
                             <el-link
+                                v-if="campareItem(computedSelectData, row)"
                                 type="text"
                                 disabled
-                                v-if="
-                                    campareItem(computedSelectData, scope.row)
-                                "
                             >
                                 已选择
                             </el-link>
                             <el-link
                                 v-else
-                                @click="selectItemHandle(scope.row)"
+                                @click="selectItemHandle(row)"
                                 :type="
-                                    campareItem(manulSelectData, scope.row)
+                                    campareItem(manulSelectData, row)
                                         ? 'danger'
                                         : 'primary'
                                 "
                             >
                                 {{
-                                    campareItem(manulSelectData, scope.row)
+                                    campareItem(manulSelectData, row)
                                         ? '移除'
                                         : '选择'
                                 }}
@@ -173,51 +171,21 @@
             <el-button @click="open = false"> 取消 </el-button>
         </template>
     </el-drawer>
-    <el-dialog v-model="dialogOpen" title="根据条件选择" width="460px">
-        <el-form :rules="dialogRules" ref="dialogRef" :model="featureForm">
-            <el-form-item label="特征" prop="feature">
-                <el-select v-model="featureForm.feature" class="m-2">
-                    <el-option
-                        v-for="item in featureOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                        :disabled="
-                            visibleFeatureOptions.every(
-                                ({ value }) => item.value !== value
-                            )
-                        "
-                    />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="条件" prop="range">
-                <el-select v-model="featureForm.range" class="m-2">
-                    <el-option
-                        v-for="item in rangeOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="值" prop="value">
-                <el-input v-model="featureForm.value">
-                    <template #append v-if="needPercent">%</template>
-                </el-input>
-            </el-form-item>
-        </el-form>
-        <template #footer>
-            <el-button type="primary" @click="DialogConfirmHandle">
-                确定
-            </el-button>
-            <el-button @click="dialogOpen = false"> 取消 </el-button>
-        </template>
-    </el-dialog>
+    <AddFeatureDialogVue
+        ref="AddFeatureDialogRef"
+        :featureOptions="featureOptions"
+        :visibleFeatureOptions="visibleFeatureOptions"
+        :rangeOptions="rangeOptions"
+        @addFeature="
+            (value) => (conditionList = [...conditionList, value])
+        "
+    />
 </template>
 <script setup>
-import { ref, reactive, computed, watch, nextTick } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
+import AddFeatureDialogVue from './AddFeatureDialog.vue';
 const open = ref(false);
 const props = defineProps({
     allFeatures: Array,
@@ -256,9 +224,6 @@ const featureOptions = [
         label: 'CV值',
     },
 ];
-const {
-    frontStatus: { has_c_v, has_i_v },
-} = props;
 const visibleFeatureOptions = computed(() => {
     const temp = [];
     const [ivItem, ...cvItem] = featureOptions;
@@ -288,7 +253,6 @@ const rangeOptions = [
 const findLabelByValue = (value, options) =>
     options.find((each) => each.value === value).label;
 
-const featureInput = ref();
 const visibleFeatures = ref();
 watch(
     () => props.allFeatures,
@@ -319,6 +283,7 @@ watch(
         }
     }
 );
+const featureInput = ref();
 const searchHandle = () => {
     visibleFeatures.value = props.allFeatures.filter((each) =>
         each.name.includes(featureInput.value)
@@ -358,39 +323,13 @@ const selectItemHandle = (row) => {
     } else manulSelectData.value = [...manulSelectData.value, row];
 };
 
-const dialogOpen = ref(false);
-const dialogRef = ref();
-const openDialogHandle = () => (dialogOpen.value = true);
-const dialogRules = reactive({
-    feature: [{ required: true, message: '请选择特征' }],
-    range: [{ required: true, message: '请选择条件' }],
-    value: [{ required: true, message: '请输入值' }],
-});
-const featureForm = reactive({
-    feature: '',
-    range: '',
-    value: '',
-});
+const AddFeatureDialogRef = ref();
+const openDialogHandle = () => (AddFeatureDialogRef.value.open = true);
 const conditionList = ref([]);
-const needPercent = computed(() => featureForm.feature === 'missing_rate');
 const removeFeature = ({ feature }) => {
     conditionList.value = conditionList.value.filter(
         (each) => each.feature !== feature
     );
-};
-const DialogConfirmHandle = async () => {
-    const formEl = dialogRef.value;
-    if (!formEl) return;
-    const valid = await formEl.validate();
-    if (!valid) return;
-    conditionList.value = [
-        ...conditionList.value,
-        JSON.parse(JSON.stringify(featureForm)),
-    ];
-    await nextTick();
-    formEl.resetFields();
-    dialogOpen.value = false;
-    dialogOpen.value = false;
 };
 watch(
     () => conditionList.value,
@@ -415,6 +354,7 @@ watch(
         computedSelectData.value = result;
     }
 );
+
 const saveResult = () => {
     let flag = true;
     for (const key in membersInfo.value) {
