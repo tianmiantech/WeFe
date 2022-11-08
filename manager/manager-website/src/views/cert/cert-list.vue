@@ -9,19 +9,27 @@
         >
             <template #empty>
                 <el-form
-                    class="mb30"
                     inline
                     :model="init_form"
+                    label-width="100px"
                 >
-                    <el-form-item label="所属组织名称:">
-                        <el-input v-model="init_form.organization_name" placeholder="Welab Inc." clearable />
-                    </el-form-item><br/>
-                    <el-form-item label="常用名:">
-                        <el-input v-model="init_form.common_name" placeholder="Welab" clearable />
-                    </el-form-item><br/>
-                    <el-form-item label="所属单位名称:">
-                        <el-input v-model="init_form.organization_unit_name" placeholder="IT" clearable />
-                    </el-form-item>
+                    <el-row>
+                        <el-col :span="24" style="">
+                            <el-form-item label="所属组织名称:">
+                                <el-input v-model="init_form.organization_name" placeholder="Welab Inc." />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="24">
+                        <el-form-item label="常用名:">
+                                <el-input v-model="init_form.common_name" placeholder="Welab" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="24">
+                            <el-form-item label="所属单位名称:">
+                                <el-input v-model="init_form.organization_unit_name" placeholder="IT" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
                 </el-form>
                 <el-button
                     type="primary"
