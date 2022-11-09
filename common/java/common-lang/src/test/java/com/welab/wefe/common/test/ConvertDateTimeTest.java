@@ -15,7 +15,7 @@
  */
 package com.welab.wefe.common.test;
 
-import com.alibaba.fastjson.util.TypeUtils;
+import com.welab.wefe.common.Convert;
 
 import java.util.Date;
 
@@ -53,12 +53,7 @@ public class ConvertDateTimeTest {
             for (String str : array) {
 //                System.out.println(str);
 
-                str = str
-                        .replaceAll("T", " ")
-                        .replaceAll("/", "-")
-                        .replaceAll("(?<=-)(\\d)(?=\\b)", "0$1")
-                        .replaceAll("(?<= )(\\d{1,2}:\\d{1,2})(?=$)", "$1:00");
-                Date date = TypeUtils.castToDate(str);
+                Date date = Convert.toDate(str);
 
 //                System.out.println(Convert.toString(date));
 //                System.out.println();

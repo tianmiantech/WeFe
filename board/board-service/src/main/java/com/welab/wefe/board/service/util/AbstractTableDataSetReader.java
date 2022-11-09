@@ -187,6 +187,9 @@ public abstract class AbstractTableDataSetReader implements Closeable {
                     }
                     isValid = Validator.isInteger(value);
                     break;
+                case DateTime:
+
+                    break;
                 case Enum:
                 case String:
                 default:

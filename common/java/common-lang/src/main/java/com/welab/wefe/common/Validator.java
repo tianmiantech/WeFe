@@ -90,8 +90,7 @@ public class Validator {
      */
     public static boolean isDateTime(String value) {
         try {
-            Convert.toDate(value);
-            return true;
+            return Convert.toDate(value) != null;
         } catch (Exception e) {
             return false;
         }
