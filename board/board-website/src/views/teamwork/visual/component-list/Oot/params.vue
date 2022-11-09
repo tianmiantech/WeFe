@@ -140,11 +140,11 @@
         </div>
         <el-form>
             <el-form-item v-if="vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
-                <el-switch v-model="vData.need_PSI" active-color="#13ce66"/>
+                <el-switch v-model="vData.need_psi" active-color="#13ce66"/>
             </el-form-item>
         </el-form>
         <psi-bin 
-            v-if="vData.need_PSI"
+            v-if="vData.need_psi"
             v-model:binValue="vData.binValue" 
             title="PSI分箱方式（预测概率/评分）"
             :disabled="disabled"
@@ -369,7 +369,7 @@
                     pos_label: 1,
                 },
                 oot_job_id: '',
-                need_PSI: false,
+                need_psi: false,
                 binValue:   {
                     method:       'bucket',
                     binNumber:    6,
@@ -427,11 +427,11 @@
                         vData.form.eval_type = eval_type || 'binary';
                         vData.form.pos_label = pos_label || 1;
                         if(psi_param){
-                            const { bin_method, bin_number, need_PSI, split_points } = psi_param;
-                            vData.need_PSI = need_PSI;
+                            const { bin_method, bin_num, need_psi, split_points } = psi_param;
+                            vData.need_psi = need_psi;
                             vData.binValue = {
                                 method:       bin_method,
-                                binNumber:    bin_number ,
+                                binNumber:    bin_num ,
                                 split_points: split_points ? split_points.join() : '',
                             };
                         }
@@ -727,7 +727,7 @@
                 },
 
                 checkParams() {
-                    const { binValue, exitVertComponent, need_PSI } = vData;
+                    const { binValue, exitVertComponent, need_psi } = vData;
                     const { method, binNumber, split_points } = binValue;
                     const isCustom = method === 'custom';
                     const array = replace(split_points).replace(/，/g,',').replace(/,$/, '').split(',');
@@ -743,9 +743,9 @@
                         job_id:          props.ootJobId,
                         modelFlowNodeId: props.ootModelFlowNodeId,
                         psi_param: {
-                            need_PSI,
+                            need_psi,
                             bin_method:      exitVertComponent ? method : undefined,
-                            bin_number:      exitVertComponent && !isCustom ? binNumber : undefined,
+                            bin_num:      exitVertComponent && !isCustom ? binNumber : undefined,
                             split_points:    exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])] : undefined,
                         }
                     };

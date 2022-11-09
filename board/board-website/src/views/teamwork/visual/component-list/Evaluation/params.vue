@@ -50,12 +50,12 @@
             <span style="color: #999;">（建议设置10-20箱）</span>
         </el-form-item>
         <el-form-item v-if="vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
-            <el-switch v-model="vData.form.need_PSI" active-color="#13ce66"/>
+            <el-switch v-model="vData.form.need_psi" active-color="#13ce66"/>
         </el-form-item>
     </el-form>
 
     <psi-bin 
-        v-if="vData.form.need_PSI"
+        v-if="vData.form.need_psi"
         title=""
         v-model:binValue="vData.binValue"
         :disabled="disabled"
@@ -103,13 +103,13 @@
                     prob_need_to_bin: false,
                     bin_num:          10,
                     bin_method:       'bucket',
-                    need_PSI:         false,
+                    need_psi:         false,
                 },
                 originForm: {
                     eval_type:        'binary',
                     pos_label:        1,
                     prob_need_to_bin: false,
-                    need_PSI:         false,
+                    need_psi:         false,
                     bin_num:          10,
                     bin_method:       'bucket',
                 },
@@ -138,7 +138,7 @@
 
                 re.sort((a, b) => a - b);
 
-                const { eval_type, pos_label, prob_need_to_bin, bin_num, bin_method, need_PSI } = form;
+                const { eval_type, pos_label, prob_need_to_bin, bin_num, bin_method, need_psi } = form;
 
                 return {
                     params: {
@@ -150,9 +150,9 @@
                             bin_method,
                         },
                         psi_param: {
-                            need_PSI,
+                            need_psi,
                             bin_method: exitVertComponent ? method : undefined,
-                            bin_number:
+                            bin_num:
                                 exitVertComponent && !isCustom
                                     ? binNumber
                                     : undefined,
@@ -197,9 +197,9 @@
                             pos_label,
                         });
                         if(psi_param) {
-                            const { need_PSI, bin_method, bin_number, split_points } = psi_param;
-                            vData.form.need_PSI = need_PSI;
-                            if(need_PSI) {
+                            const { need_psi, bin_method, bin_number, split_points } = psi_param;
+                            vData.form.need_psi = need_psi;
+                            if(need_psi) {
                                 vData.binValue = {
                                     method:       bin_method,
                                     binNumber:    bin_number,
