@@ -49,7 +49,7 @@
             />箱
             <span style="color: #999;">（建议设置10-20箱）</span>
         </el-form-item>
-        <el-form-item v-if="true || vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
+        <el-form-item v-if="vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
             <el-switch v-model="vData.form.need_psi" active-color="#13ce66"/>
         </el-form-item>
     </el-form>
