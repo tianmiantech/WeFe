@@ -371,7 +371,8 @@ class Oot(ModelBase):
         # 计算PSI
         if train_data_table is not None:
             psi_result = self.oot_evaluate_psi(train_data_table, sub_component_model_output_data)
-            oot_task_result['psi'] = psi_result
+            if psi_result:
+                oot_task_result['psi'] = psi_result
         else:
             LOGGER.info('oot psi->job_id:{},not need to run psi.'.format(self.tracker.job_id))
 
@@ -418,7 +419,7 @@ class Oot(ModelBase):
         if module_name is None or evaluation_eval_type is None or self.role != consts.PROMOTER:
             return False
         if module_name == ComponentName.VERT_LR or module_name == ComponentName.VERT_SECURE_BOOST or module_name == ComponentName.VERT_FAST_SECURE_BOOST or module_name == ComponentName.VERT_DP_SECURE_BOOST:
-            if evaluation_eval_type == consts.BINARY:
+            if evaluation_eval_type == consts.BINARY and self.model_param.psi_param.need_psi:
                 return True
 
         return False
