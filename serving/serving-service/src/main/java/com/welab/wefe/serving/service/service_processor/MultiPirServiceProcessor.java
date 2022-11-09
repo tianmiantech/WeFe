@@ -85,7 +85,7 @@ public class MultiPirServiceProcessor extends AbstractServiceProcessor<TableServ
                 request.put("otMethod", otMethod);
                 // add calllog
                 addCalllog(config.getRequestId(), url, JSONObject.parseObject(JSONObject.toJSONString(request)),
-                        JSONObject.parseObject(JSONObject.toJSONString(result)));
+                        JSONObject.parseObject(result));
                 JObject tmp = JObject.create("memberId", memberId).append("memberName", memberName)
                         .append("index", idx).append("result", result);
                 results.add(tmp);
