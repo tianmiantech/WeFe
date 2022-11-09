@@ -65,6 +65,9 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 		private String dataSource;// json
 		@Check(name = "服务配置")
 		private String serviceConfig;// json
+		@Check(name = "服务算子")
+        private String operator;
+		
 
 		@Override
 		public void checkAndStandardize() throws StatusCodeWithException {
@@ -154,6 +157,14 @@ public class UpdateApi extends AbstractApi<UpdateApi.Input, AddApi.Output> {
 
         public void setQueryParamsConfig(List<JSONObject> queryParamsConfig) {
             this.queryParamsConfig = queryParamsConfig;
+        }
+
+        public String getOperator() {
+            return operator;
+        }
+
+        public void setOperator(String operator) {
+            this.operator = operator;
         }
 	}
 

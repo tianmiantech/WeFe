@@ -497,6 +497,9 @@ public class ServiceService {
         if (StringUtils.isNotBlank(input.getUrl())) {
             model.setUrl(input.getUrl());
         }
+        if (StringUtils.isNotBlank(input.getOperator())) {
+            model.setOperator(input.getOperator());
+        }
         if (!CollectionUtils.isEmpty(input.getQueryParams())) {
             model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
         }
