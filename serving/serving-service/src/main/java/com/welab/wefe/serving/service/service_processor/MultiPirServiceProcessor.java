@@ -93,7 +93,6 @@ public class MultiPirServiceProcessor extends AbstractServiceProcessor<TableServ
                 throw e;
             }
         }
-
         return JObject.create("result", results);
     }
 }
