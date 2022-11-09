@@ -775,26 +775,7 @@ public class ProjectFlowJobService extends AbstractService {
 
         String promoterId = null;
         for (ProjectFlowNodeMySqlModel node : nodes) {
-            List<? extends AbstractDataSetItem> dataSetItemList = null;
-
-            AbstractDataIOParam params = (AbstractDataIOParam) Components
-                    .get(node.getComponentType())
-                    .deserializationParam(node.getParams());
-
-            switch (node.getComponentType()) {
-                case DataIO:
-                case ImageDataIO:
-                    dataSetItemList = params.getDataSetList();
-                    break;
-                case Oot:
-                    OotComponent.Params ootParams = (OotComponent.Params) params;
-                    dataSetItemList = StringUtil.isNotEmpty(ootParams.getJobId())
-                            ? params.getDataSetList()
-                            : dataSetItemList;
-                    break;
-                default:
-                    StatusCode.UNEXPECTED_ENUM_CASE.throwException();
-            }
+            List<? extends AbstractDataSetItem> dataSetItemList = listNodeDataSetItems(node);
 
             if (CollectionUtils.isEmpty(dataSetItemList)) {
                 continue;
@@ -845,6 +826,30 @@ public class ProjectFlowJobService extends AbstractService {
         jobMembers.sort(Comparator.comparingInt(o -> o.getJobRole().getIndex()));
 
         return jobMembers;
+    }
+
+    public List<? extends AbstractDataSetItem> listNodeDataSetItems(ProjectFlowNodeMySqlModel node) throws StatusCodeWithException {
+        List<? extends AbstractDataSetItem> dataSetItemList = null;
+
+        AbstractDataIOParam params = (AbstractDataIOParam) Components
+                .get(node.getComponentType())
+                .deserializationParam(node.getParams());
+
+        switch (node.getComponentType()) {
+            case DataIO:
+            case ImageDataIO:
+                dataSetItemList = params.getDataSetList();
+                break;
+            case Oot:
+                OotComponent.Params ootParams = (OotComponent.Params) params;
+                dataSetItemList = StringUtil.isNotEmpty(ootParams.getJobId())
+                        ? params.getDataSetList()
+                        : dataSetItemList;
+                break;
+            default:
+                StatusCode.UNEXPECTED_ENUM_CASE.throwException();
+        }
+        return dataSetItemList;
     }
 
 

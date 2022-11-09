@@ -16,15 +16,19 @@
 
 package com.welab.wefe.board.service.service;
 
+import com.welab.wefe.board.service.api.project.dataset.GetFeatures;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetColumnMysqlModel;
+import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.repository.DataSetColumnRepository;
 import com.welab.wefe.board.service.dto.base.PagingInput;
 import com.welab.wefe.board.service.dto.base.PagingOutput;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnInputModel;
 import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnOutputModel;
+import com.welab.wefe.board.service.dto.vo.FeatureOutput;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
-import org.modelmapper.ModelMapper;
+import com.welab.wefe.common.web.util.ModelMapper;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -38,8 +42,40 @@ import java.util.List;
 public class DataSetColumnService extends AbstractService {
     @Autowired
     DataSetColumnRepository dataSetColumnRepository;
+    @Autowired
+    private ProjectDataSetService projectDataSetService;
 
-    public PagingOutput<DataSetColumnOutputModel> list(String dataSetId) {
+    /**
+     * 获取项目中数据集的特征列表
+     * <p>
+     * 由于特征数据类型没有上报到 union，所以在编辑训练时，看不到对方的特征数据类型，这个方法就是为了提供数据类型。
+     */
+    public List<FeatureOutput> listProjectDataSetFeatures(String memberId,String projectId, String dataSetId) {
+        // 如果是取其它成员的特征列表，走gateway。
+        if(!CacheObjects.getMemberId().equals(memberId)){
+            gatewayService.callOtherMemberBoard(
+                    memberId,
+                    GetFeatures.class
+            );
+        }
+
+        ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(projectId, dataSetId);
+        if (projectDataSet == null || projectDataSet.getAuditStatus() != AuditStatus.agree) {
+            return null;
+        }
+
+        Specification<DataSetColumnMysqlModel> where = Where
+                .create()
+                .equal("dataSetId", dataSetId)
+                .orderBy("index", OrderBy.asc)
+                .build(DataSetColumnMysqlModel.class);
+
+        List<DataSetColumnMysqlModel> list = dataSetColumnRepository.findAll(where);
+
+        return ModelMapper.maps(list, FeatureOutput.class);
+    }
+
+    public PagingOutput<DataSetColumnOutputModel> query(String dataSetId) {
         Specification<DataSetColumnMysqlModel> where = Where
                 .create()
                 .equal("dataSetId", dataSetId)
@@ -64,7 +100,7 @@ public class DataSetColumnService extends AbstractService {
         for (int i = 0; i < list.size(); i++) {
             DataSetColumnInputModel item = list.get(i);
 
-            DataSetColumnMysqlModel column = new ModelMapper().map(item, DataSetColumnMysqlModel.class);
+            DataSetColumnMysqlModel column = ModelMapper.map(item, DataSetColumnMysqlModel.class);
             column.setDataSetId(dataSetId);
             column.setIndex(i);
 
