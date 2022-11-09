@@ -1747,6 +1747,7 @@ export default {
                     this.form.service_type = type;
                     this.form.processor = data.processor;
                     this.form.status = data.status;
+                    this.form.operator = data.operator;
                     if(data.my_role) {
                         this.myRole = data.my_role[0];
                     }
