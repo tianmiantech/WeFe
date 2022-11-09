@@ -54,7 +54,7 @@
         </el-form-item>
     </el-form>
 
-    <psi-bin 
+    <psi-bin
         v-if="vData.form.need_psi"
         title=""
         v-model:binValue="vData.binValue"
@@ -68,7 +68,7 @@
     import dataStore from '../data-store-mixin';
     import psiBin from '../../components/psi/psi-bin';
     import { checkExitVertModelComponet } from '@src/service';
-    import { psiCustomSplit,replace } from '../common/utils';
+    import { psiCustomSplit, replace } from '../common/utils';
 
     export default {
         name:       'Evaluation',
