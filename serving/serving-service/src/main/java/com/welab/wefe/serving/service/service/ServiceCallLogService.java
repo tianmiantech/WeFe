@@ -112,7 +112,7 @@ public class ServiceCallLogService {
             model.setResponsePartnerId(responsePartnerId);
             model.setResponsePartnerName(responsePartnerName);
             model.setResponseId(responseId);
-            model.setResponseData(ServiceUtil.abbreviate(responseData, 2500));
+            model.setResponseData(ServiceUtil.abbreviate(responseData, 12500));
             model.setResponseCode(responseCode);
             model.setResponseStatus(responseStatus);
             model.setSpendTime(spendTime);
