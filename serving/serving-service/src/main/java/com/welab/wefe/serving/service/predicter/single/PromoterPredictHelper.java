@@ -192,7 +192,7 @@ public class PromoterPredictHelper {
         callLog.setOrderId(orderId);
         callLog.setServiceId(serviceId);
         callLog.setServiceName(CacheObjects.getServiceName(serviceId));
-        callLog.setRequestData(ServiceUtil.abbreviate(requestData, 2500));
+        callLog.setRequestData(ServiceUtil.abbreviate(requestData, 12500));
         callLog.setRequestPartnerId(CacheObjects.getMemberId());
         callLog.setRequestPartnerName(CacheObjects.getMemberName());
         callLog.setRequestId(requestId);

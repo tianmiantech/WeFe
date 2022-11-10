@@ -717,7 +717,7 @@ public class ServiceService {
         callLog.setOrderId(orderId);
         callLog.setServiceId(input.getServiceId());
         callLog.setServiceName(CacheObjects.getServiceName(input.getServiceId()));
-        callLog.setRequestData(ServiceUtil.abbreviate(input.getData(), 2500));
+        callLog.setRequestData(ServiceUtil.abbreviate(input.getData(), 12500));
         callLog.setRequestPartnerId(input.getPartnerCode());
         callLog.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
         callLog.setRequestId(input.getRequestId());
@@ -726,7 +726,7 @@ public class ServiceService {
         callLog.setResponseId(responseId);
         callLog.setResponsePartnerId(CacheObjects.getMemberId());
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
-        callLog.setResponseData(ServiceUtil.abbreviate(JSON.toJSONString(result), 2500));
+        callLog.setResponseData(ServiceUtil.abbreviate(JSON.toJSONString(result), 12500));
         callLog.setCallByMe(
                 input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
                         : CallByMeEnum.NO.getCode());
