@@ -139,7 +139,7 @@
             </div>
         </div>
         <el-form>
-            <el-form-item v-if="vData.check_result" label="是否计算分布">
+            <el-form-item v-if="!vData.check_result" label="是否计算分布">
                 <el-switch v-model="vData.prob_need_to_bin" active-color="#13ce66"/>
             </el-form-item>
             <el-form-item v-if="vData.prob_need_to_bin">

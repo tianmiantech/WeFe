@@ -171,7 +171,7 @@ module.exports = {
          */
         proxy:      {
             '/api': {
-                target:       'http://localhost:8080/serving-service',
+                target:       'https://xbd-fat.wolaidai.com/serving-service-01/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,
