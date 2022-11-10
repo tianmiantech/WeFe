@@ -24,11 +24,11 @@ import java.util.List;
 // 两方匿踪查询 pir 
 // 配合 mpc-pir-sdk-1.0.0.jar使用
 public class PirClient {
-    // 我的私钥
+    // 私钥
     private static final String 测试客户1_privateKey="***"; // TODO
-    // 我的公钥
+    // 公钥
     private static final String 测试客户1_publicKey="***"; // TODO
-    // 我的code
+    // code
     private static final String 测试客户1_code = "TEST***25"; // TODO
     // Serving服务地址
     private static final String serverUrl = "https://****/serving-service-01/"; // TODO
