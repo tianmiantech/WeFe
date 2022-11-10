@@ -281,9 +281,9 @@
                             <el-select
                                 v-model="form.data_source.return_fields"
                                 :placeholder="
-                                    form.service_type !== 1
-                                        ? '单选'
-                                        : '支持多选'
+                                    form.service_type === 1
+                                        ? '支持多选'
+                                        : '单选'
                                 "
                                 :multiple="form.service_type === 1"
                                 value-key="value"
@@ -1527,9 +1527,6 @@ export default {
                 }
             },
         },
-        'form.data_source.return_fields'(newValue, oldValue){
-            console.log({newValue, oldValue})
-        }
     },
     created() {
         this.serviceId = this.$route.query.id;
@@ -2456,7 +2453,8 @@ export default {
                             }
                         });
                     } else {
-                        const item = this.data_fields.find(y => y.name === this.form.data_source.return_fields);
+                        const temp = this.form.data_source.return_fields;
+                        const item = this.data_fields.find(y => y.name === Array.isArray(temp) ? temp[0] : temp);
 
                         if (item) {
                             return_fields.push(item);
