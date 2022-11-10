@@ -35,15 +35,16 @@ public class SaClient {
     // Serving服务地址
     private static final String serverUrl = "https://****/serving-service-01/"; // TODO
     // Service Api name
-    private String apiName = "api/*****"; // TODO
+    private static final String apiName = "api/*****"; // TODO
 
     public static void main(String[] args) throws Exception {
         // params
         String dataStr = "{\n" + "  \"query_params\": {\n" + "    \"mobile\": \"*******\"\n" + "  }\n" + "}";
-        System.out.println("多方安全统计参数:\t" + request(dataStr));
+        String params = request(dataStr);
+        System.out.println("多方安全统计参数:\t" + params);
         // 服务地址
         System.out.println("多方安全统计 url:" + serverUrl + apiName);
-        System.out.println("返回结果:" + sendPost(serverUrl + apiName, request(dataStr)));
+        System.out.println("响应结果:" + sendPost(serverUrl + apiName, params));
     }
 
     protected static String request(String dataStr) throws Exception {
