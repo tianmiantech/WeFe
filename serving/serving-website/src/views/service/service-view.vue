@@ -1,26 +1,13 @@
 <template>
-    <el-card
-        v-loading="loading"
-        class="page service_view"
-        shadow="never"
-    >
+    <el-card v-loading="loading" class="page service_view" shadow="never">
         <div class="left_box">
-            <el-form
-                :model="form"
-                :rules="rules"
-                class="form-box"
-            >
-                <p
-                    name="基本信息"
-                    class="nav-title mb10"
-                >
-                    基本信息：
-                </p>
-                <div style="display: flex; margin-bottom: -10px;">
+            <el-form :model="form" :rules="rules" class="form-box">
+                <p name="基本信息" class="nav-title mb10">基本信息：</p>
+                <div style="display: flex; margin-bottom: -10px">
                     <el-form-item
                         prop="service_type"
                         label="服务类型:"
-                        style="min-width: 280px;min-height:50px"
+                        style="min-width: 280px; min-height: 50px"
                         label-width="100px"
                     >
                         <el-select
@@ -41,7 +28,7 @@
                     <div
                         v-if="currentDesc"
                         class="ml5"
-                        style="font-size: 13px; color: #666; line-height: 36px;"
+                        style="font-size: 13px; color: #666; line-height: 36px"
                     >
                         <el-tooltip
                             class="item"
@@ -50,10 +37,7 @@
                             placement="right"
                             popper-class="service_tips"
                         >
-                            <i
-                                class="el-icon-info"
-                                style="margin-right: 4px"
-                            />
+                            <i class="el-icon-info" style="margin-right: 4px" />
                         </el-tooltip>
                     </div>
                 </div>
@@ -87,12 +71,15 @@
                 </el-form-item>
 
                 <template v-if="form.service_type">
-                    <template v-if="form.service_type === 4 || form.service_type === 5 || form.service_type === 6">
+                    <template
+                        v-if="
+                            form.service_type === 4 ||
+                            form.service_type === 5 ||
+                            form.service_type === 6
+                        "
+                    >
                         <el-divider />
-                        <p
-                            class="mb10 nav-title"
-                            name="配置联邦服务"
-                        >
+                        <p class="mb10 nav-title" name="配置联邦服务">
                             配置联邦服务：
                         </p>
                         <el-form-item
@@ -107,14 +94,24 @@
                                     @click="service_config.splice(index, 1)"
                                 />
                             </p>
-                            <p><strong>成员:</strong> {{ item.supplier_name }}</p>
-                            <p><strong>URL:</strong> {{ item.base_url }}{{ item.api_name }}</p>
-                            <p v-if="item.key_calc_rule"><strong>求交主键:</strong> {{ item.key_calc_rule }}</p>
-                            <p v-if="item.params && item.params.length"><strong>Param:</strong></p>
+                            <p>
+                                <strong>成员:</strong> {{ item.supplier_name }}
+                            </p>
+                            <p>
+                                <strong>URL:</strong> {{ item.base_url
+                                }}{{ item.api_name }}
+                            </p>
+                            <p v-if="item.key_calc_rule">
+                                <strong>求交主键:</strong>
+                                {{ item.key_calc_rule }}
+                            </p>
+                            <p v-if="item.params && item.params.length">
+                                <strong>Param:</strong>
+                            </p>
                             <p
                                 v-for="each in item.params"
                                 :key="each"
-                                style="padding-left:50px;"
+                                style="padding-left: 50px"
                             >
                                 参数名称: {{ each }}
                             </p>
@@ -128,36 +125,35 @@
                                 + 添加联邦服务
                             </el-button>
                             <div
-                                v-if="form.service_type === 4 && service_config.length > 0"
+                                v-if="
+                                    form.service_type === 4 &&
+                                    service_config.length > 0
+                                "
                                 style="margin-top: 10px"
                             >
-                                <label style="color: #6C757D;">
+                                <label style="color: #6c757d">
                                     <span>服务算子:</span>
                                 </label>
-                                <el-radio
-                                    v-model="form.operator"
-                                    label="sum"
-                                >
+                                <el-radio v-model="form.operator" label="sum">
                                     SUM
                                 </el-radio>
-                                <el-radio
-                                    v-model="form.operator"
-                                    label="avg"
-                                >
+                                <el-radio v-model="form.operator" label="avg">
                                     AVG
                                 </el-radio>
                             </div>
                         </el-form-item>
                     </template>
                     <template
-                        v-if="form.service_type !== 2 && form.service_type !== 5 && form.service_type !== 7 && form.service_type !== 8"
+                        v-if="
+                            form.service_type !== 2 &&
+                            form.service_type !== 5 &&
+                            form.service_type !== 7 &&
+                            form.service_type !== 8
+                        "
                     >
                         <el-divider />
-                        <p
-                            name="查询参数配置"
-                            class="mb10 nav-title"
-                        >
-                            查询参数配置：<span style="color:#F85564">*</span>
+                        <p name="查询参数配置" class="mb10 nav-title">
+                            查询参数配置：<span style="color: #f85564">*</span>
                         </p>
                         <el-button
                             v-if="form.paramsArr.length === 0"
@@ -168,23 +164,27 @@
                             v-for="(item, index) in form.paramsArr"
                             :key="`paramsArr-${index}`"
                             :prop="`paramsArr.${index}.value`"
-                            :rules="{ required: true, message: '参数名称不能为空', trigger: 'blur' }"
+                            :rules="{
+                                required: true,
+                                message: '参数名称不能为空',
+                                trigger: 'blur',
+                            }"
                             label-width="30px"
                         >
-                            <label style="color: #6C757D;">
+                            <label style="color: #6c757d">
                                 <span>参数名称：</span>
                                 <el-input
                                     v-model.trim="item.value"
-                                    style="width: 24%;"
+                                    style="width: 24%"
                                     clearable
                                     @blur="paramsValidate(index)"
                                 />
                             </label>
-                            <label style="margin-left: 10px; color: #6C757D;">
+                            <label style="margin-left: 10px; color: #6c757d">
                                 <span>参数描述：</span>
                                 <el-input
                                     v-model="item.desc"
-                                    style="width: 230px;"
+                                    style="width: 230px"
                                     clearable
                                 />
                             </label>
@@ -198,31 +198,31 @@
                                 @click="add_params"
                             />
                         </el-form-item>
-                    <!--                    <el-form-item>-->
-                    <!--                        <el-button-->
-                    <!--                            type="primary"-->
-                    <!--                            @click="add_params"-->
-                    <!--                            class="dashed-btn"-->
-                    <!--                        >-->
-                    <!--                            + 新增-->
-                    <!--                        </el-button>-->
-                    <!--                    </el-form-item>-->
+                        <!--                    <el-form-item>-->
+                        <!--                        <el-button-->
+                        <!--                            type="primary"-->
+                        <!--                            @click="add_params"-->
+                        <!--                            class="dashed-btn"-->
+                        <!--                        >-->
+                        <!--                            + 新增-->
+                        <!--                        </el-button>-->
+                        <!--                    </el-form-item>-->
                     </template>
 
                     <template
-                        v-if="form.service_type !== 4 && form.service_type !== 5 && form.service_type !== 6 && form.service_type !== 7 && form.service_type !== 8"
+                        v-if="
+                            form.service_type !== 4 &&
+                            form.service_type !== 5 &&
+                            form.service_type !== 6 &&
+                            form.service_type !== 7 &&
+                            form.service_type !== 8
+                        "
                     >
                         <el-divider />
-                        <p
-                            name="SQL 配置"
-                            class="mb10 nav-title"
-                        >
-                            SQL 配置：<span style="color:#F85564">*</span>
+                        <p name="SQL 配置" class="mb10 nav-title">
+                            SQL 配置：<span style="color: #f85564">*</span>
                         </p>
-                        <el-form-item
-                            label="数据源:"
-                            label-width="100px"
-                        >
+                        <el-form-item label="数据源:" label-width="100px">
                             <el-select
                                 v-model="form.data_source.id"
                                 clearable
@@ -243,10 +243,7 @@
                                 添加数据源
                             </el-button>
                         </el-form-item>
-                        <el-form-item
-                            label="数据表:"
-                            label-width="100px"
-                        >
+                        <el-form-item label="数据表:" label-width="100px">
                             <el-select
                                 v-model="form.data_source.table"
                                 clearable
@@ -267,13 +264,12 @@
                                 required
                                 label-width="100px"
                             >
-                                <el-button
-                                    type="primary"
-                                    @click="setKeyMap"
-                                >
+                                <el-button type="primary" @click="setKeyMap">
                                     设置
                                 </el-button>
-                                <p v-if="form.stringResult">结果: {{ form.stringResult }}</p>
+                                <p v-if="form.stringResult">
+                                    结果: {{ form.stringResult }}
+                                </p>
                             </el-form-item>
                         </template>
 
@@ -284,7 +280,11 @@
                         >
                             <el-select
                                 v-model="form.data_source.return_fields"
-                                :placeholder="form.service_type !== 1 ? '单选' : '支持多选'"
+                                :placeholder="
+                                    form.service_type !== 1
+                                        ? '单选'
+                                        : '支持多选'
+                                "
                                 :multiple="form.service_type === 1"
                                 value-key="value"
                                 clearable
@@ -299,9 +299,15 @@
                             </el-select>
                         </el-form-item>
 
-                        <template v-if="form.service_type === 1 || form.service_type === 3">
+                        <template
+                            v-if="
+                                form.service_type === 1 ||
+                                form.service_type === 3
+                            "
+                        >
                             <el-form-item
-                                v-for="(item, $index) in form.data_source.condition_fields"
+                                v-for="(item, $index) in form.data_source
+                                    .condition_fields"
                                 :key="`condition_field-${$index}`"
                                 class="condition_fields"
                                 label="查询条件:"
@@ -310,17 +316,11 @@
                                 <el-select
                                     v-model="sqlOperator"
                                     class="no-arrow"
-                                    style="width:40px;"
+                                    style="width: 40px"
                                     @change="sqlShow"
                                 >
-                                    <el-option
-                                        label="AND"
-                                        value="and"
-                                    />
-                                    <el-option
-                                        label="OR"
-                                        value="or"
-                                    />
+                                    <el-option label="AND" value="and" />
+                                    <el-option label="OR" value="or" />
                                 </el-select>
                                 <el-select
                                     v-model="item.field_on_table"
@@ -339,21 +339,12 @@
                                 <el-select
                                     v-model="item.condition"
                                     class="ml10 no-arrow"
-                                    style="width:40px;"
+                                    style="width: 40px"
                                     @change="sqlShow"
                                 >
-                                    <el-option
-                                        label="="
-                                        value="="
-                                    />
-                                    <el-option
-                                        label=">"
-                                        value="gt"
-                                    />
-                                    <el-option
-                                        label="<"
-                                        value="lt"
-                                    />
+                                    <el-option label="=" value="=" />
+                                    <el-option label=">" value="gt" />
+                                    <el-option label="<" value="lt" />
                                 </el-select>
 
                                 <el-select
@@ -367,17 +358,27 @@
                                     <el-option
                                         v-for="($item, index) in form.paramsArr"
                                         :key="index"
-                                        :label="$item.label"
                                         :value="$item.value"
                                     />
                                 </el-select>
                                 <i
-                                    v-if="form.data_source.condition_fields.length > 1"
+                                    v-if="
+                                        form.data_source.condition_fields
+                                            .length > 1
+                                    "
                                     class="icons el-icon-delete color-danger"
-                                    @click="deleteParams($index, form.data_source.condition_fields)"
+                                    @click="
+                                        deleteParams(
+                                            $index,
+                                            form.data_source.condition_fields
+                                        )
+                                    "
                                 />
                                 <el-button
-                                    v-if="$index + 1 === form.data_source.condition_fields.length"
+                                    v-if="
+                                        $index + 1 ===
+                                        form.data_source.condition_fields.length
+                                    "
                                     class="icons el-icon-circle-plus-outline"
                                     @click="addConditionFields"
                                 />
@@ -386,18 +387,22 @@
                                 v-if="form.service_type !== 3"
                                 class="mt5 mb20"
                             >
-                                <el-button
-                                    size="mt10"
-                                    @click="sqlTest"
-                                >
+                                <el-button size="mt10" @click="sqlTest">
                                     在线测试
                                 </el-button>
-                                <span style="font-size:12px;padding-left: 5px">{{ show_sql_result }}</span>
+                                <span
+                                    style="font-size: 12px; padding-left: 5px"
+                                    >{{ show_sql_result }}</span
+                                >
                             </div>
                             <el-divider />
                         </template>
                     </template>
-                    <template v-if="form.service_type === 7 || form.service_type === 8">
+                    <template
+                        v-if="
+                            form.service_type === 7 || form.service_type === 8
+                        "
+                    >
                         <el-form-item
                             v-if="!form.model_data.model_id"
                             label="选择文件："
@@ -413,40 +418,59 @@
                                 @file-added="fileAdded"
                             >
                                 <uploader-unsupport />
-                                <uploader-drop v-if="file_upload_options.files.length === 0">
-                                    <p class="mb10">将文件（.txt/.zip）拖到此处</p>或
+                                <uploader-drop
+                                    v-if="
+                                        file_upload_options.files.length === 0
+                                    "
+                                >
+                                    <p class="mb10">
+                                        将文件（.txt/.zip）拖到此处
+                                    </p>
+                                    或
                                     <uploader-btn
-                                        :attrs="{accept: ['.txt','.zip']}"
+                                        :attrs="{ accept: ['.txt', '.zip'] }"
                                         :single="true"
                                     >
                                         点击上传
                                     </uploader-btn>
                                 </uploader-drop>
-                                <uploader-list :file-list="file_upload_options.files.length" />
+                                <uploader-list
+                                    :file-list="
+                                        file_upload_options.files.length
+                                    "
+                                />
                             </uploader>
                         </el-form-item>
 
                         <el-divider />
                         <div
-                            v-if="form.service_type === 7 && form.model_data.model_id"
+                            v-if="
+                                form.service_type === 7 &&
+                                form.model_data.model_id
+                            "
                             class="model_preview"
                         >
-                            <p
-                                name="模型概览"
-                                class="nav-title mb10"
-                            >
+                            <p name="模型概览" class="nav-title mb10">
                                 模型概览：
                             </p>
-                            <el-form-item
-                                class="service-list"
-                            >
-                                <p><strong>Id：</strong> {{ form.model_data.model_id }}</p>
-                                <p><strong>算法：</strong> {{ form.model_data.model_algorithm }}</p>
-                                <p><strong>训练类型：</strong> {{ flType(form.model_data.model_fl_type) }}</p>
+                            <el-form-item class="service-list">
+                                <p>
+                                    <strong>Id：</strong>
+                                    {{ form.model_data.model_id }}
+                                </p>
+                                <p>
+                                    <strong>算法：</strong>
+                                    {{ form.model_data.model_algorithm }}
+                                </p>
+                                <p>
+                                    <strong>训练类型：</strong>
+                                    {{ flType(form.model_data.model_fl_type) }}
+                                </p>
                                 <p>
                                     <strong>我的角色：</strong>
                                     <el-tag
-                                        v-for="each in form.model_data.model_roles"
+                                        v-for="each in form.model_data
+                                            .model_roles"
                                         :key="each"
                                     >
                                         {{ each }}
@@ -474,7 +498,10 @@
                         </div>
 
                         <p
-                            v-if="modelStatusVisible && form.model_data.model_fl_type !== 'horizontal'"
+                            v-if="
+                                modelStatusVisible &&
+                                form.model_data.model_fl_type !== 'horizontal'
+                            "
                             class="mb10 nav-title"
                             name="合作方模型状态"
                         >
@@ -488,7 +515,10 @@
                             />
                         </p>
                         <el-form-item
-                            v-if="modelStatusVisible && form.model_data.model_fl_type !== 'horizontal'"
+                            v-if="
+                                modelStatusVisible &&
+                                form.model_data.model_fl_type !== 'horizontal'
+                            "
                             class="service-list"
                         >
                             <el-table
@@ -505,14 +535,13 @@
                                     prop="member_name"
                                     width="160"
                                 />
-                                <el-table-column
-                                    label="URL"
-                                    prop="url"
-                                />
+                                <el-table-column label="URL" prop="url" />
                                 <el-table-column label="状态">
                                     <template slot-scope="scope">
                                         <el-popover
-                                            v-if="scope.row.status === 'available'"
+                                            v-if="
+                                                scope.row.status === 'available'
+                                            "
                                             placement="top-start"
                                             width="100"
                                             trigger="hover"
@@ -527,7 +556,10 @@
                                         </el-popover>
 
                                         <el-popover
-                                            v-if="scope.row.status === 'unavailable'"
+                                            v-if="
+                                                scope.row.status ===
+                                                'unavailable'
+                                            "
                                             placement="top-start"
                                             title="⚠️警告"
                                             width="200"
@@ -543,7 +575,9 @@
                                         </el-popover>
 
                                         <el-popover
-                                            v-if="scope.row.status === 'offline'"
+                                            v-if="
+                                                scope.row.status === 'offline'
+                                            "
                                             placement="top-start"
                                             title="⚠️警告"
                                             width="200"
@@ -570,13 +604,16 @@
                                             icon="el-icon-refresh"
                                             type="text"
                                             :loading="checkLoading"
-                                            @click="refreshPartnerStatus( scope.row.member_id)"
+                                            @click="
+                                                refreshPartnerStatus(
+                                                    scope.row.member_id
+                                                )
+                                            "
                                         />
                                     </template>
                                 </el-table-column>
                             </el-table>
                         </el-form-item>
-
 
                         <el-dialog
                             title="模型结构"
@@ -585,11 +622,14 @@
                             :width="'70%'"
                         >
                             <div
-                                v-if="form.model_data.model_algorithm === 'XGBoost'"
+                                v-if="
+                                    form.model_data.model_algorithm ===
+                                    'XGBoost'
+                                "
                                 id="canvas"
                                 ref="canvas"
                                 class="mb20"
-                                style="background: #f9f9f9;"
+                                style="background: #f9f9f9"
                             />
                         </el-dialog>
 
@@ -608,16 +648,10 @@
                                         v-model="activeName"
                                         class="ml-4"
                                     >
-                                        <el-radio
-                                            label="code"
-                                            size="small"
-                                        >
+                                        <el-radio label="code" size="small">
                                             代码配置
                                         </el-radio>
-                                        <el-radio
-                                            label="sql"
-                                            size="small"
-                                        >
+                                        <el-radio label="sql" size="small">
                                             SQL配置
                                         </el-radio>
                                     </el-radio-group>
@@ -628,11 +662,13 @@
                                         :span="24"
                                     >
                                         <el-col :span="3">
-                                            <p class="mb10"><strong>处理器：</strong></p>
+                                            <p class="mb10">
+                                                <strong>处理器：</strong>
+                                            </p>
                                         </el-col>
                                         <el-col
                                             :span="12"
-                                            style="margin-right: 10px;"
+                                            style="margin-right: 10px"
                                         >
                                             <el-input
                                                 v-model="form.processor"
@@ -645,15 +681,24 @@
                                         <el-form-item
                                             label="数据源："
                                             label-width="121px"
-                                            :rules="[{required: true, message: '数据源必填!'}]"
+                                            :rules="[
+                                                {
+                                                    required: true,
+                                                    message: '数据源必填!',
+                                                },
+                                            ]"
                                         >
                                             <el-select
-                                                v-model="form.model_data.model_sql_config.data_source_id"
+                                                v-model="
+                                                    form.model_data
+                                                        .model_sql_config
+                                                        .data_source_id
+                                                "
                                                 placeholder="请选择数据源"
                                                 clearable
                                             >
                                                 <el-option
-                                                    v-for="(item) in dataBaseOptions"
+                                                    v-for="item in dataBaseOptions"
                                                     :key="item.value"
                                                     :value="item.value"
                                                     :label="item.label"
@@ -663,10 +708,19 @@
                                         <el-form-item
                                             label="SQL脚本："
                                             label-width="121px"
-                                            :rules="[{required: true, message: 'SQL脚本必填!'}]"
+                                            :rules="[
+                                                {
+                                                    required: true,
+                                                    message: 'SQL脚本必填!',
+                                                },
+                                            ]"
                                         >
                                             <el-input
-                                                v-model="form.model_data.model_sql_config.sql_script"
+                                                v-model="
+                                                    form.model_data
+                                                        .model_sql_config
+                                                        .sql_script
+                                                "
                                                 type="textarea"
                                                 placeholder="如：select x0,x1,x2 form table"
                                                 clearable
@@ -676,17 +730,31 @@
                                         <el-form-item
                                             label="查询条件字段："
                                             label-width="121px"
-                                            :rules="[{required: true, message: '查询条件字段必填!'}]"
+                                            :rules="[
+                                                {
+                                                    required: true,
+                                                    message:
+                                                        '查询条件字段必填!',
+                                                },
+                                            ]"
                                         >
                                             <el-input
-                                                v-model="form.model_data.model_sql_config.sql_condition_field"
+                                                v-model="
+                                                    form.model_data
+                                                        .model_sql_config
+                                                        .sql_condition_field
+                                                "
                                                 type="text"
                                                 placeholder="例如：id"
                                                 class="user-tips"
                                                 clearable
                                             />=
                                             <el-input
-                                                v-model="form.model_data.model_sql_config.user_id"
+                                                v-model="
+                                                    form.model_data
+                                                        .model_sql_config
+                                                        .user_id
+                                                "
                                                 type="text"
                                                 placeholder="查询的字段对应的值"
                                                 class="user-tips"
@@ -694,7 +762,7 @@
                                             />
                                             <el-button
                                                 type="primary"
-                                                style="width: 95px;"
+                                                style="width: 95px"
                                                 @click="sqlTestPreview"
                                             >
                                                 脚本测试
@@ -713,7 +781,11 @@
                             <p class="mt10">可用性测试：</p>
                             <div
                                 class="mt10"
-                                style="border: 1px solid #ccc; padding: 20px; border-radius: 4px;"
+                                style="
+                                    border: 1px solid #ccc;
+                                    padding: 20px;
+                                    border-radius: 4px;
+                                "
                             >
                                 <div class="can_use_test">
                                     <div>
@@ -721,42 +793,72 @@
                                             label="输入特征："
                                             label-width="94px"
                                         >
-                                            <el-switch v-model="isEnterCharacter" />
+                                            <el-switch
+                                                v-model="isEnterCharacter"
+                                            />
                                         </el-form-item>
                                         <el-form-item
                                             v-if="isEnterCharacter"
                                             label="样本特征："
                                             label-width="94px"
-                                            :rules="[{required: true, message: '样本特征必填!'}]"
-                                            :style="{marginBottom: isEnterCharacter && myRole === 'promoter' ? '10px' : 'unset'}"
+                                            :rules="[
+                                                {
+                                                    required: true,
+                                                    message: '样本特征必填!',
+                                                },
+                                            ]"
+                                            :style="{
+                                                marginBottom:
+                                                    isEnterCharacter &&
+                                                    myRole === 'promoter'
+                                                        ? '10px'
+                                                        : 'unset',
+                                            }"
                                         >
                                             <el-input
-                                                v-model="form.model_data.check_data.feature_data"
+                                                v-model="
+                                                    form.model_data.check_data
+                                                        .feature_data
+                                                "
                                                 type="textarea"
                                                 clearable
                                                 rows="4"
-                                                placeholder="如:{&quot;x0&quot;: 0.1, &quot;x1&quot;: 0.2}"
+                                                placeholder='如:{"x0": 0.1, "x1": 0.2}'
                                             />
                                         </el-form-item>
                                         <el-form-item
-                                            v-if="!isEnterCharacter || (myRole === 'promoter' && form.model_data.model_fl_type !== 'horizontal')"
+                                            v-if="
+                                                !isEnterCharacter ||
+                                                (myRole === 'promoter' &&
+                                                    form.model_data
+                                                        .model_fl_type !==
+                                                        'horizontal')
+                                            "
                                             label="样本ID："
                                             label-width="94px"
-                                            :rules="[{required: true, message: '样本特征必填!'}]"
-                                            style="margin-bottom: unset;"
+                                            :rules="[
+                                                {
+                                                    required: true,
+                                                    message: '样本特征必填!',
+                                                },
+                                            ]"
+                                            style="margin-bottom: unset"
                                         >
                                             <el-input
-                                                v-model="form.model_data.check_data.sample_id"
+                                                v-model="
+                                                    form.model_data.check_data
+                                                        .sample_id
+                                                "
                                                 type="text"
                                                 clearable
-                                                style="width: 50%;"
+                                                style="width: 50%"
                                             />
                                         </el-form-item>
                                     </div>
                                     <el-button
                                         type="primary"
                                         class="ml10 mr10"
-                                        style="text-align: right;"
+                                        style="text-align: right"
                                         @click="testModel"
                                     >
                                         可用性校验
@@ -765,13 +867,20 @@
 
                                 <div>
                                     <div
-                                        v-if="predictResult && predictResult.result.score_card && predictResult.result.score_card.length"
+                                        v-if="
+                                            predictResult &&
+                                            predictResult.result.score_card &&
+                                            predictResult.result.score_card
+                                                .length
+                                        "
                                         class="mt10"
                                     >
                                         <el-table
                                             id="table_debug"
                                             ref="tableDebug"
-                                            :data="predictResult.result.score_card"
+                                            :data="
+                                                predictResult.result.score_card
+                                            "
                                             stripe
                                             border
                                             height="300"
@@ -806,9 +915,15 @@
                                         </el-table>
                                     </div>
                                     <div
-                                        v-if="predictResult && !predictResult.result.score_card"
+                                        v-if="
+                                            predictResult &&
+                                            !predictResult.result.score_card
+                                        "
                                         class="test_result"
-                                        style="margin-top: 30px; margin-left: 35px;"
+                                        style="
+                                            margin-top: 30px;
+                                            margin-left: 35px;
+                                        "
                                     >
                                         结果：
                                         <JsonViewer
@@ -849,22 +964,16 @@
                 >
                     点击下载工具包
                 </el-link>
-                <p v-if="form.status === 1" style="font-size: 10px;color:red">已上线服务不允许修改</p>
+                <p v-if="form.status === 1" style="font-size: 10px; color: red">
+                    已上线服务不允许修改
+                </p>
                 <div
                     v-if="api.params || api.method || api.url"
                     class="api-preview"
                 >
                     <el-divider />
-                    <p
-                        name="API 预览"
-                        class="mb20 f16 nav-title"
-                    >
-                        API 预览:
-                    </p>
-                    <el-form-item
-                        v-if="api.params"
-                        label="查询参数:"
-                    >
+                    <p name="API 预览" class="mb20 f16 nav-title">API 预览:</p>
+                    <el-form-item v-if="api.params" label="查询参数:">
                         {{ api.params }}
                     </el-form-item>
                     <el-form-item label="请求方式:">
@@ -911,11 +1020,10 @@
                     </el-form-item>
                 </el-form>
                 <span slot="footer">
-                    <el-button @click="sql_test.visible=false">取消</el-button>
-                    <el-button
-                        type="primary"
-                        @click="testConnection"
+                    <el-button @click="sql_test.visible = false"
+                        >取消</el-button
                     >
+                    <el-button type="primary" @click="testConnection">
                         查询
                     </el-button>
                 </span>
@@ -961,10 +1069,12 @@
                         </el-select>
                         <i
                             class="icons el-icon-circle-plus-outline"
-                            @click="keyMaps.key_calc_rules.push({
-                                field: [],
-                                operator: ''
-                            })"
+                            @click="
+                                keyMaps.key_calc_rules.push({
+                                    field: [],
+                                    operator: '',
+                                })
+                            "
                         />
                         <i
                             v-if="keyMaps.key_calc_rules.length > 1"
@@ -972,12 +1082,12 @@
                             @click="deleteKeyMaps(index)"
                         />
                     </el-form-item>
-                    <p v-if="keyMaps.stringResult">结果: {{ keyMaps.stringResult }}</p>
+                    <p v-if="keyMaps.stringResult">
+                        结果: {{ keyMaps.stringResult }}
+                    </p>
                 </el-form>
                 <template #footer>
-                    <el-button @click="cancelKeyMaps">
-                        取消
-                    </el-button>
+                    <el-button @click="cancelKeyMaps"> 取消 </el-button>
                     <el-button
                         type="primary"
                         @click="calcKeyMaps($event, { action: 'confirm' })"
@@ -1001,7 +1111,7 @@
             >
                 <el-table
                     :data="gridData"
-                    style="width: 100%;"
+                    style="width: 100%"
                     height="500"
                     border
                 >
@@ -1012,38 +1122,32 @@
                                 stripe
                                 border
                             >
-                                <el-table-column
-                                    label="分箱"
-                                    prop="binning"
-                                />
-                                <el-table-column
-                                    label="评分"
-                                    prop="score"
-                                />
-                                <el-table-column
-                                    label="woe"
-                                    prop="woe"
-                                />
+                                <el-table-column label="分箱" prop="binning" />
+                                <el-table-column label="评分" prop="score" />
+                                <el-table-column label="woe" prop="woe" />
                             </el-table>
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        property="feature"
-                        label="特征"
-                    />
-                    <el-table-column
-                        property="weight"
-                        label="权重"
-                    />
+                    <el-table-column property="feature" label="特征" />
+                    <el-table-column property="weight" label="权重" />
                 </el-table>
             </el-dialog>
 
-            <el-dialog
-                title="查询结果预览"
-                :visible.sync="sqlResultDialog"
-            >
+            <el-dialog title="查询结果预览" :visible.sync="sqlResultDialog">
                 <p class="mb10">
-                    <span class="code_1">{{ form.model_data.model_sql_config.sql_script }}</span> where <span class="code_2">{{ form.model_data.model_sql_config.sql_condition_field }}=</span><span class="code_2">{{ form.model_data.model_sql_config.user_id }}</span> limit 1
+                    <span class="code_1">{{
+                        form.model_data.model_sql_config.sql_script
+                    }}</span>
+                    where
+                    <span class="code_2"
+                        >{{
+                            form.model_data.model_sql_config
+                                .sql_condition_field
+                        }}=</span
+                    ><span class="code_2">{{
+                        form.model_data.model_sql_config.user_id
+                    }}</span>
+                    limit 1
                 </p>
                 <el-table
                     :data="tableDataPreview"
@@ -1065,56 +1169,60 @@
         </div>
         <div class="right_box">
             <!-- <el-divider content-position="center">配置说明</el-divider> -->
-            <h3
-                v-if="form.service_type"
-                class="f16"
-            >
-                服务配置说明
-            </h3>
+            <h3 v-if="form.service_type" class="f16">服务配置说明</h3>
             <div class="config_box">
-                <div
-                    v-if="currentDesc"
-                    class="service_item"
-                >
+                <div v-if="currentDesc" class="service_item">
                     <h3>服务类型：</h3>
                     <div class="service_desc">{{ currentDesc }}</div>
                 </div>
                 <div
-                    v-if="modelStatusVisible && form.model_data.model_fl_type !== 'horizontal'"
+                    v-if="
+                        modelStatusVisible &&
+                        form.model_data.model_fl_type !== 'horizontal'
+                    "
                     class="service_item"
                 >
                     <h3>合作方模型状态：</h3>
                     <div class="service_desc">
                         联邦学习的纵向训练可能有多个参与方，发起
-                        方在建立模型服务的时候需要依赖于协作方的模
-                        型服务， 如果协作方的模型服务不可用或未上线
+                        方在建立模型服务的时候需要依赖于协作方的模 型服务，
+                        如果协作方的模型服务不可用或未上线
                         ，则发起方配置的服务无法进行正确预测。
-                        <p class="highlight mt10">注意：需保证协作方的模型服务可用！</p>
+                        <p class="highlight mt10">
+                            注意：需保证协作方的模型服务可用！
+                        </p>
                     </div>
                 </div>
-                <div
-                    v-if="form.model_data.model_id"
-                    class="service_item"
-                >
+                <div v-if="form.model_data.model_id" class="service_item">
                     <h3>特征配置：</h3>
                     <div class="service_desc">
                         <p>模型服务的入模特征需要进行配置，包含两种方式：</p>
-                        <p>1、代码配置：使用者根据自己的数据源获取方式，编写一段通过输入的样本ID获取样本特征的代码。指定该模型服务使用代码配置。具体做法：</p>
+                        <p>
+                            1、代码配置：使用者根据自己的数据源获取方式，编写一段通过输入的样本ID获取样本特征的代码。指定该模型服务使用代码配置。具体做法：
+                        </p>
                         <p>a) 继承AbstractFeatureDataProcessor类。</p>
-                        <p>b) 添加FeatureProcessor注解，注解的值使用模型服务ID。</p>
+                        <p>
+                            b)
+                            添加FeatureProcessor注解，注解的值使用模型服务ID。
+                        </p>
                         <p>c) 实现processor方法，方法里面实现获取特征代码。</p>
-                        <p>提示：默认处理器EmptyFeatureDataProcessor,不做任何处理返回为空。</p>
-                        <p>2、SQL配置：使用指定已经配置好的数据源，编写相应的SQL查询语句，并选定样本的查询条件值。</p>
-                        <p class="highlight mt10">注意：样本的特征也可以在调用时，由接口传入。</p>
+                        <p>
+                            提示：默认处理器EmptyFeatureDataProcessor,不做任何处理返回为空。
+                        </p>
+                        <p>
+                            2、SQL配置：使用指定已经配置好的数据源，编写相应的SQL查询语句，并选定样本的查询条件值。
+                        </p>
+                        <p class="highlight mt10">
+                            注意：样本的特征也可以在调用时，由接口传入。
+                        </p>
                     </div>
                 </div>
-                <div
-                    v-if="form.model_data.model_id"
-                    class="service_item"
-                >
+                <div v-if="form.model_data.model_id" class="service_item">
                     <h3>可用性测试：</h3>
                     <div class="service_desc">
-                        <p>模型的可用性测试的特征可自行填写(格式参照输入样例)或从已配置的来源中获取。</p>
+                        <p>
+                            模型的可用性测试的特征可自行填写(格式参照输入样例)或从已配置的来源中获取。
+                        </p>
                         <p class="mt10 mb10">预测返回参数说明：</p>
                         <el-table
                             :data="canUseTestList"
@@ -1131,10 +1239,7 @@
                                 label="类型"
                                 width="90"
                             />
-                            <el-table-column
-                                prop="desc"
-                                label="描述"
-                            />
+                            <el-table-column prop="desc" label="描述" />
                         </el-table>
                     </div>
                 </div>
@@ -1422,6 +1527,9 @@ export default {
                 }
             },
         },
+        'form.data_source.return_fields'(newValue, oldValue){
+            console.log({newValue, oldValue})
+        }
     },
     created() {
         this.serviceId = this.$route.query.id;
@@ -2016,33 +2124,31 @@ export default {
             }
         },
         async sqlShow() {
-            const { data_source: obj } = this.form;
-            const $params = {
-                data_source: {
-                    id:            obj.id,
-                    table:         obj.table,
-                    return_fields: [],
-                },
-            };
+            const {
+                data_source: { id, table, return_fields, condition_fields },
+            } = this.form;
 
-            $params.data_source.return_fields = obj.return_fields.map(x => {
-                return {
-                    name:  x,
-                    value: '',
-                };
-            });
-            $params.data_source.condition_fields = obj.condition_fields.map(x => {
-                x.operator = this.sqlOperator;
-                return x;
-            });
+            const data_source = {
+                id,
+                table,
+                return_fields: Array.isArray(return_fields)
+                    ? return_fields.map((name) => ({ value: '', name }))
+                    : [{ value: '', name: return_fields }],
+                condition_fields: condition_fields.map((x) => ({
+                    ...x,
+                    operator: this.sqlOperator,
+                })),
+            };
             const { code, data } = await this.$http.post({
                 url:     '/service/show_sql',
                 timeout: 1000 * 60 * 24 * 30,
-                data:    $params,
+                data:    {
+                    data_source,
+                },
             });
 
             if (code === 0 && data) {
-                this.show_sql_result = '预览:' + data.result['sql'];
+                this.show_sql_result = '预览:' + data.result.sql;
             }
         },
         sqlTest() {
@@ -2422,7 +2528,7 @@ export default {
     }
     .right_box {
         max-width: 320px;
-        >h3 {
+        > h3 {
             padding-left: 10px;
             border-left: 1px dashed #ccc;
         }
@@ -2444,10 +2550,10 @@ export default {
                 line-height: 18px;
                 text-align: justify;
                 text-indent: 14px;
-                color: #5A5A5A;
+                color: #5a5a5a;
                 .highlight {
                     color: #cc0000;
-                    opacity: .8;
+                    opacity: 0.8;
                 }
             }
         }
@@ -2460,10 +2566,11 @@ export default {
     .can_use_test {
         display: flex;
         align-items: flex-end;
-        >div:first-child {
+        > div:first-child {
             width: 100%;
         }
-        .el-input, .el-textarea {
+        .el-input,
+        .el-textarea {
             width: 100% !important;
         }
     }
@@ -2494,7 +2601,8 @@ export default {
 .condition_fields {
     margin-bottom: 10px;
 
-    .el-select, .el-input {
+    .el-select,
+    .el-input {
         margin-bottom: 10px;
     }
 }
@@ -2543,7 +2651,8 @@ export default {
 }
 
 .form-box {
-    .el-textarea, .el-input {
+    .el-textarea,
+    .el-input {
         width: 70%;
     }
 
@@ -2571,7 +2680,9 @@ export default {
 </style>
 
 <style lang="scss">
-.service_tips {max-width: 400px !important;}
+.service_tips {
+    max-width: 400px !important;
+}
 .service_view .el-card__body {
     display: flex;
     justify-content: space-between;
@@ -2588,5 +2699,5 @@ export default {
     background-position-y: -34px;
     margin-left: auto;
     float: none;
-  }
+}
 </style>
