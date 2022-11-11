@@ -38,7 +38,7 @@ public class GetFeatures extends AbstractApi<GetFeatures.Input, GetFeatures.Outp
 
     @Override
     protected ApiResult<GetFeatures.Output> handle(GetFeatures.Input input) throws Exception {
-        List<FeatureOutput> list = dataSetColumnService.listProjectDataSetFeatures(input.memberId,input.projectId, input.dataSetId);
+        List<FeatureOutput> list = dataSetColumnService.listProjectDataSetFeatures(input);
         return success(new Output(list));
     }
 
@@ -53,12 +53,21 @@ public class GetFeatures extends AbstractApi<GetFeatures.Input, GetFeatures.Outp
         }
     }
 
-    public class Input extends AbstractApiInput {
+    public static class Input extends AbstractApiInput {
         @Check(require = true)
         public String projectId;
         @Check(require = true)
         public String memberId;
         @Check(require = true)
         public String dataSetId;
+
+        public Input() {
+        }
+
+        public Input(String projectId, String memberId, String dataSetId) {
+            this.projectId = projectId;
+            this.memberId = memberId;
+            this.dataSetId = dataSetId;
+        }
     }
 }

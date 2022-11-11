@@ -27,6 +27,7 @@ import com.welab.wefe.board.service.dto.entity.data_set.DataSetColumnOutputModel
 import com.welab.wefe.board.service.dto.vo.FeatureOutput;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.AuditStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,23 +51,26 @@ public class DataSetColumnService extends AbstractService {
      * <p>
      * 由于特征数据类型没有上报到 union，所以在编辑训练时，看不到对方的特征数据类型，这个方法就是为了提供数据类型。
      */
-    public List<FeatureOutput> listProjectDataSetFeatures(String memberId,String projectId, String dataSetId) {
+    public List<FeatureOutput> listProjectDataSetFeatures(GetFeatures.Input input) throws StatusCodeWithException {
         // 如果是取其它成员的特征列表，走gateway。
-        if(!CacheObjects.getMemberId().equals(memberId)){
-            gatewayService.callOtherMemberBoard(
-                    memberId,
-                    GetFeatures.class
+        if (!CacheObjects.getMemberId().equals(input.memberId)) {
+            GetFeatures.Output output = gatewayService.callOtherMemberBoard(
+                    input.memberId,
+                    GetFeatures.class,
+                    input,
+                    GetFeatures.Output.class
             );
+            return output.list;
         }
 
-        ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(projectId, dataSetId);
+        ProjectDataSetMySqlModel projectDataSet = projectDataSetService.findOne(input.projectId, input.dataSetId);
         if (projectDataSet == null || projectDataSet.getAuditStatus() != AuditStatus.agree) {
             return null;
         }
 
         Specification<DataSetColumnMysqlModel> where = Where
                 .create()
-                .equal("dataSetId", dataSetId)
+                .equal("dataSetId", input.dataSetId)
                 .orderBy("index", OrderBy.asc)
                 .build(DataSetColumnMysqlModel.class);
 
