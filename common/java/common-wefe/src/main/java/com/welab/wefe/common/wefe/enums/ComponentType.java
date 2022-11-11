@@ -17,6 +17,7 @@
 package com.welab.wefe.common.wefe.enums;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,11 +39,11 @@ public enum ComponentType {
     FeatureStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "纵向统计组件的各项指标"),
     HorzStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "横向统计组件的各项指标"),
     MixStatistic("特征统计", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "混合统计组件的各项指标"),
-    MixBinning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "对特征进行分箱，并进行 woe 编码。"),
+    MixBinning("WOE编码", new ArrayList<>(Arrays.asList(FederatedLearningType.mix)), "对特征进行分箱，并进行 woe 编码。"),
     FillMissingValue("缺失值填充", null, "填充缺失值"),
 
-    Binning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "对特征进行纵向分箱，并进行 woe 编码。"),
-    HorzFeatureBinning("分箱并编码", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "对特征进行横向分箱，并进行 woe 编码。"),
+    Binning("WOE编码", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "对特征进行纵向分箱，并进行 woe 编码。"),
+    HorzFeatureBinning("WOE编码", new ArrayList<>(Arrays.asList(FederatedLearningType.horizontal)), "对特征进行横向分箱，并进行 woe 编码。"),
     FeatureCalculation("计算特征价值", new ArrayList<>(Arrays.asList(FederatedLearningType.vertical)), "计算特征的 CV/IV，需要在分箱之后。"),
 
     FeatureSelection("特征筛选", null, "挑选出需要入模的特征"),
@@ -96,6 +97,18 @@ public enum ComponentType {
             VertNN
     );
 
+    private static List<ComponentType> STATISTIC_TYPES = Arrays.asList(
+            MixStatistic,
+            FeatureStatistic,
+            HorzStatistic
+    );
+
+    private static List<ComponentType> BINNING_TYPES = Arrays.asList(
+            MixBinning,
+            Binning,
+            HorzFeatureBinning
+    );
+
     /**
      * 深度学习相关组件列表
      */
@@ -142,6 +155,14 @@ public enum ComponentType {
      */
     public boolean isModeling() {
         return MODELING_TYPES.contains(this);
+    }
+
+    public boolean isStatistic() {
+        return STATISTIC_TYPES.contains(this);
+    }
+
+    public boolean isBinning() {
+        return BINNING_TYPES.contains(this);
     }
 
     public boolean isDeepLearningComponents() {
