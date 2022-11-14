@@ -66,7 +66,7 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
      */
     private final static List<ComponentType> EXCLUDE_COMPONENT_TYPE_LIST = Arrays.asList(ComponentType.FeatureStatistic,
             ComponentType.FeatureCalculation, ComponentType.MixStatistic,
-            ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot, ComponentType.VertFeaturePSI,ComponentType.VertFilter);
+            ComponentType.Segment, ComponentType.VertPearson, ComponentType.Oot, ComponentType.VertFeaturePSI, ComponentType.VertFilter);
     /**
      * List of temporarily unsupported components
      */
@@ -274,17 +274,12 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         }
 
         // Create input parameters for OOT components
-        JObject output = JObject.create(newDataIoParam)
+        return JObject.create(newDataIoParam)
                 .append("flow_node_id", node.getNodeId())
                 .append("task_id", node.createTaskId(graph.getJob()))
                 .append("sub_component_name_list", subTaskNameList)
                 .append("sub_component_task_config_dick", subTaskConfigMap)
-                .append("bin_method", params.binMethod)
-                .append("bin_num", params.binNumber)
-                .append("split_points", CollectionUtils.isEmpty(params.splitPoints) ? new ArrayList<>() : params.splitPoints);
-
-        // OotParam
-        return output;
+                .append("psi_param", createPsiParam(params));
     }
 
     @Override
@@ -616,9 +611,8 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         JObject evaluationParam = JObject.create();
         evaluationParam.append("eval_type", ootParams.evalType)
                 .append("pos_label", ootParams.posLabel)
-                .append("bin_method", ootParams.binMethod)
-                .append("bin_num", ootParams.binNumber)
-                .append("split_points", CollectionUtils.isEmpty(ootParams.splitPoints) ? new ArrayList<>() : ootParams.splitPoints);
+                .append("psi_param", createPsiParam(ootParams))
+                .append("score_param", createScoreParam(ootParams));
         taskConfig.setParams(evaluationParam);
         evaluationTaskMySqlModel.setTaskConf(JSON.toJSONString(taskConfig));
         return evaluationTaskMySqlModel;
@@ -676,6 +670,21 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
         return "";
     }
 
+    private JObject createPsiParam(Params params) {
+        return JObject.create()
+                .append("need_psi", params.psiParam.getNeedPsi())
+                .append("bin_num", params.psiParam.getBinNum())
+                .append("bin_method", params.psiParam.getBinMethod())
+                .append("split_points", CollectionUtils.isEmpty(params.getPsiParam().getSplitPoints()) ? new ArrayList<>() : params.getPsiParam().getSplitPoints());
+    }
+
+    private JObject createScoreParam(Params params) {
+        return JObject.create()
+                .append("bin_num", params.scoreParam.getBinNum())
+                .append("bin_method", params.scoreParam.getBinNum())
+                .append("prob_need_to_bin", params.scoreParam.isProbNeedToBin());
+    }
+
     /**
      * Is it OOT mode
      * <p>
@@ -705,11 +714,9 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
          */
         private Integer posLabel;
 
-        private String binMethod;
+        private EvaluationComponent.PsiParam psiParam;
 
-        private Integer binNumber;
-
-        private List<Double> splitPoints;
+        private EvaluationComponent.ScoreParam scoreParam;
 
 
         public String getJobId() {
@@ -744,28 +751,20 @@ public class OotComponent extends AbstractComponent<OotComponent.Params> {
             this.modelFlowNodeId = modelFlowNodeId;
         }
 
-        public String getBinMethod() {
-            return binMethod;
+        public EvaluationComponent.PsiParam getPsiParam() {
+            return psiParam;
         }
 
-        public void setBinMethod(String binMethod) {
-            this.binMethod = binMethod;
+        public void setPsiParam(EvaluationComponent.PsiParam psiParam) {
+            this.psiParam = psiParam;
         }
 
-        public Integer getBinNumber() {
-            return binNumber;
+        public EvaluationComponent.ScoreParam getScoreParam() {
+            return scoreParam;
         }
 
-        public void setBinNumber(Integer binNumber) {
-            this.binNumber = binNumber;
-        }
-
-        public List<Double> getSplitPoints() {
-            return splitPoints;
-        }
-
-        public void setSplitPoints(List<Double> splitPoints) {
-            this.splitPoints = splitPoints;
+        public void setScoreParam(EvaluationComponent.ScoreParam scoreParam) {
+            this.scoreParam = scoreParam;
         }
     }
 }

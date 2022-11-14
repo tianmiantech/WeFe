@@ -21,7 +21,7 @@ workdir=$(pwd)/$(dirname $0)/../../ ; cd $workdir
 nvm use 16.13.0 || :
 echo "当前git源"
 npm config get registry
-npm install --registry=http://npm.wolaidai.com:8080/
+npm install --registry=http://registry.npm.taobao.org
 npm run build -- $CI_DEPLOY_ENV=$CI_SERVICE_NAME tail=2
 
 ## 生成 JSON 配置文件，此文件作用告知运维怎么拿到实际要部署的代码、配置文件（以目录形式存放）

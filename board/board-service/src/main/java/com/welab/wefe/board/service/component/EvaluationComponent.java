@@ -76,14 +76,23 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             return null;
         }
 
-        // Reassembly parameters
-        return JObject.create()
-                .append("eval_type", params.getEvalType())
+        JObject taskParams = JObject.create()
                 .append("pos_label", params.getPosLabel())
-                .append("prob_need_to_bin", params.isProbNeedToBin())
-                .append("bin_method", params.binMethod)
-                .append("bin_num", params.binNum)
-                .append("split_points", CollectionUtils.isEmpty(params.splitPoints) ? new ArrayList<>() : params.splitPoints);
+                .append("eval_type", params.getEvalType());
+        JObject scoreParam = JObject.create()
+                .append("bin_num", params.scoreParam.binNum)
+                .append("bin_method", params.scoreParam.binMethod)
+                .append("prob_need_to_bin", params.scoreParam.probNeedToBin);
+
+        JObject psiParam = JObject.create()
+                .append("need_psi", params.psiParam.needPsi)
+                .append("bin_num", params.psiParam.binNum)
+                .append("bin_method", params.psiParam.binMethod)
+                .append("split_points", CollectionUtils.isEmpty(params.getPsiParam().splitPoints) ? new ArrayList<>() : params.getPsiParam().splitPoints);
+
+
+        return taskParams.append("psi_param", psiParam)
+                .append("score_param", scoreParam);
     }
 
     @Override
@@ -123,7 +132,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
 
         final JObject trainObj = getTrainObjByTaskId(taskId);
         final JObject validateObj = getValidateObjByTaskId(taskId);
-        final JObject psiObj = getPsiObjByTaskId(taskId);
+        final JObject scoreAndSpiObj = getPsiObjByTaskId(taskId);
 
         switch (type) {
             case "ks":
@@ -165,15 +174,12 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 topn.putAll(parserTopN(trainObj, normalName, "train"));
                 topn.putAll(parserTopN(validateObj, normalName, "validate"));
                 return topn;
-            case "scores_distribution":
-                final JObject distributionObj = getDistributionObjByTaskId(taskId);
-                JObject scores_distribution = JObject.create();
-                scores_distribution.putAll(parserScoresDistributionCurveData(distributionObj, normalName));
-                return scores_distribution;
+            case "scored":
+                return JObject.create()
+                        .append("scored", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_scored.data")));
             case "psi":
-                JObject psi = JObject.create();
-                psi.put("psi", psiObj.getJObjectByPath("train_validate_" + normalName + ".data"));
-                return psi;
+                return JObject.create()
+                        .append("psi", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_psi.data")));
             default:
                 return JObject.create();
         }
@@ -425,14 +431,10 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
         private int posLabel;
 
         @Check(require = true)
-        private boolean probNeedToBin;
+        private PsiParam psiParam;
 
-        private String binMethod;
-
-        private Integer binNum;
-
-        private List<Double> splitPoints;
-
+        @Check(require = true)
+        private ScoreParam scoreParam;
 
         public String getEvalType() {
             return evalType;
@@ -450,20 +452,35 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             this.posLabel = posLabel;
         }
 
-        public boolean isProbNeedToBin() {
-            return probNeedToBin;
+        public PsiParam getPsiParam() {
+            return psiParam;
         }
 
-        public void setProbNeedToBin(boolean probNeedToBin) {
-            this.probNeedToBin = probNeedToBin;
+        public void setPsiParam(PsiParam psiParam) {
+            this.psiParam = psiParam;
         }
 
-        public String getBinMethod() {
-            return binMethod;
+        public ScoreParam getScoreParam() {
+            return scoreParam;
         }
 
-        public void setBinMethod(String binMethod) {
-            this.binMethod = binMethod;
+        public void setScoreParam(ScoreParam scoreParam) {
+            this.scoreParam = scoreParam;
+        }
+    }
+
+    public static class PsiParam {
+        private Boolean needPsi;
+        private Integer binNum;
+        private String binMethod;
+        private List<Double> splitPoints;
+
+        public Boolean getNeedPsi() {
+            return needPsi;
+        }
+
+        public void setNeedPsi(Boolean needPsi) {
+            this.needPsi = needPsi;
         }
 
         public Integer getBinNum() {
@@ -474,6 +491,14 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             this.binNum = binNum;
         }
 
+        public String getBinMethod() {
+            return binMethod;
+        }
+
+        public void setBinMethod(String binMethod) {
+            this.binMethod = binMethod;
+        }
+
         public List<Double> getSplitPoints() {
             return splitPoints;
         }
@@ -482,4 +507,35 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             this.splitPoints = splitPoints;
         }
     }
+
+    public static class ScoreParam {
+        private Integer binNum;
+        private String binMethod;
+        private boolean probNeedToBin;
+
+        public Integer getBinNum() {
+            return binNum;
+        }
+
+        public void setBinNum(Integer binNum) {
+            this.binNum = binNum;
+        }
+
+        public String getBinMethod() {
+            return binMethod;
+        }
+
+        public void setBinMethod(String binMethod) {
+            this.binMethod = binMethod;
+        }
+
+        public boolean isProbNeedToBin() {
+            return probNeedToBin;
+        }
+
+        public void setProbNeedToBin(boolean probNeedToBin) {
+            this.probNeedToBin = probNeedToBin;
+        }
+    }
+
 }

@@ -94,6 +94,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         private JSONArray queryParamsConfig;// json
         private JSONObject dataSource;// json
         private JSONArray serviceConfig;
+        private String operator;
         private String createdBy;
         private String updatedBy;
         private Date createdTime;
@@ -353,6 +354,15 @@ public class DetailApi extends AbstractApi<DetailApi.Input, DetailApi.Output> {
         public void setScoreCardInfo(JObject scoreCardInfo) {
             this.scoreCardInfo = scoreCardInfo;
         }
+
+        public String getOperator() {
+            return operator;
+        }
+
+        public void setOperator(String operator) {
+            this.operator = operator;
+        }
+        
     }
 
 }
