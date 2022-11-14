@@ -105,18 +105,16 @@ public class AccountService extends AbstractAccountService {
         model.setPassword(password);
         model.setSuperAdminRole(accountRepository.count() < 1);
         model.setAdminRole(model.getSuperAdminRole());
-
+        model.setEnable(true);
 
         // Super administrator does not need to review
         if (model.getSuperAdminRole()) {
             model.setAuditStatus(AuditStatus.agree);
             model.setAuditComment("超级管理员自动通过");
-            model.setEnable(true);
         }
         // Whether others want to review it depends on the configuration.
         else {
             model.setAuditStatus(AuditStatus.auditing);
-            model.setEnable(false);
         }
         accountRepository.save(model);
 
