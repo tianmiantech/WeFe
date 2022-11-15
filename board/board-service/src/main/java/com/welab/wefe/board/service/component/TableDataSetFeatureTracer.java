@@ -98,5 +98,7 @@ public class TableDataSetFeatureTracer {
 
     }
 
-    private FlowDataSetOutputModel getDateSet()
+    private FlowDataSetOutputModel getDateSet() {
+        return null;
+    }
 }
