@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.api.project.flow;
 
-import com.welab.wefe.board.service.api.project.dataset.GetFeatures;
+import com.welab.wefe.board.service.api.project.dataset.GetFeaturesApi;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
@@ -78,7 +78,7 @@ public class ListFlowTableDataSetApi extends AbstractApi<ListFlowTableDataSetApi
 
                 FlowDataSetOutputModel dataSet = new FlowDataSetOutputModel();
 
-                dataSet.setFeatures(dataSetColumnService.listProjectDataSetFeatures(new GetFeatures.Input(node.getProjectId(), item.getMemberId(), item.getDataSetId())));
+                dataSet.setFeatures(dataSetColumnService.listProjectDataSetFeatures(new GetFeaturesApi.Input(node.getProjectId(), item.getMemberId(), item.getDataSetId())));
                 dataSet.setProjectId(flow.getProjectId());
                 dataSet.setFlowId(flow.getFlowId());
                 dataSet.setJobRole(flow.getMyRole());

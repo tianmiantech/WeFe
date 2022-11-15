@@ -31,13 +31,13 @@ import java.util.List;
  * @date 2022/11/9
  */
 @Api(path = "project/table_data_set/feature/list", name = "获取项目中数据集的特征列表", desc = "这里返回的特征列表会包含特征的数据类型，这个信息在union中不存在，所以需要额外获取。", allowAccessWithSign = true)
-public class GetFeatures extends AbstractApi<GetFeatures.Input, GetFeatures.Output> {
+public class GetFeaturesApi extends AbstractApi<GetFeaturesApi.Input, GetFeaturesApi.Output> {
 
     @Autowired
     private DataSetColumnService dataSetColumnService;
 
     @Override
-    protected ApiResult<GetFeatures.Output> handle(GetFeatures.Input input) throws Exception {
+    protected ApiResult<GetFeaturesApi.Output> handle(GetFeaturesApi.Input input) throws Exception {
         List<FeatureOutput> list = dataSetColumnService.listProjectDataSetFeatures(input);
         return success(new Output(list));
     }

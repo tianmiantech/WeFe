@@ -16,7 +16,7 @@
 
 package com.welab.wefe.board.service.service;
 
-import com.welab.wefe.board.service.api.project.dataset.GetFeatures;
+import com.welab.wefe.board.service.api.project.dataset.GetFeaturesApi;
 import com.welab.wefe.board.service.database.entity.data_set.DataSetColumnMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectDataSetMySqlModel;
 import com.welab.wefe.board.service.database.repository.DataSetColumnRepository;
@@ -51,14 +51,14 @@ public class DataSetColumnService extends AbstractService {
      * <p>
      * 由于特征数据类型没有上报到 union，所以在编辑训练时，看不到对方的特征数据类型，这个方法就是为了提供数据类型。
      */
-    public List<FeatureOutput> listProjectDataSetFeatures(GetFeatures.Input input) throws StatusCodeWithException {
+    public List<FeatureOutput> listProjectDataSetFeatures(GetFeaturesApi.Input input) throws StatusCodeWithException {
         // 如果是取其它成员的特征列表，走gateway。
         if (!CacheObjects.getMemberId().equals(input.memberId)) {
-            GetFeatures.Output output = gatewayService.callOtherMemberBoard(
+            GetFeaturesApi.Output output = gatewayService.callOtherMemberBoard(
                     input.memberId,
-                    GetFeatures.class,
+                    GetFeaturesApi.class,
                     input,
-                    GetFeatures.Output.class
+                    GetFeaturesApi.Output.class
             );
             return output.list;
         }

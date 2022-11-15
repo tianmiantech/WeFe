@@ -27,6 +27,7 @@ import com.welab.wefe.board.service.component.base.io.OutputItem;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
 import com.welab.wefe.board.service.dto.entity.MemberFeatureInfoModel;
+import com.welab.wefe.board.service.dto.vo.FlowDataSetOutputModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
@@ -199,6 +200,11 @@ public class FeatureCalculationComponent extends AbstractComponent<FeatureCalcul
     @Override
     protected boolean needIntersectedDataSetBeforeMe() {
         return true;
+    }
+
+    @Override
+    public List<FlowDataSetOutputModel> getTableDataSetOutputFeatures(List<FlowDataSetOutputModel> dataSetList, Params params) {
+        return null;
     }
 
     @Override

@@ -16,7 +16,8 @@
 
 package com.welab.wefe.board.service.dto.vo;
 
-import com.welab.wefe.board.service.dto.entity.job.JobMemberOutputModel;
+import com.welab.wefe.board.service.dto.entity.MemberModel;
+import com.welab.wefe.common.fieldvalidate.annotation.Check;
 
 import java.util.List;
 
@@ -24,10 +25,21 @@ import java.util.List;
  * @author zane
  * @date 2022/11/9
  */
-public class FlowDataSetOutputModel extends JobMemberOutputModel {
+public class FlowDataSetOutputModel extends MemberModel {
+    @Check(name = "数据集 Id")
+    private String dataSetId;
     private List<FeatureOutput> features;
 
     // region getter/setter
+
+
+    public String getDataSetId() {
+        return dataSetId;
+    }
+
+    public void setDataSetId(String dataSetId) {
+        this.dataSetId = dataSetId;
+    }
 
     public List<FeatureOutput> getFeatures() {
         return features;

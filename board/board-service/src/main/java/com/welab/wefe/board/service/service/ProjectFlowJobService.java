@@ -23,6 +23,7 @@ import com.welab.wefe.board.service.api.project.job.StopJobApi;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
+import com.welab.wefe.board.service.component.TableDataSetFeatureTracer;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
@@ -186,6 +187,8 @@ public class ProjectFlowJobService extends AbstractService {
             if (jobMember.getJobRole() == JobMemberRole.promoter && !input.fromGateway()) {
                 checkBeforeStartFlow(graph, project, isOotMode);
             }
+
+            new TableDataSetFeatureTracer(graph, input.getEndNodeId()).check();
 
             // create task
             createJobTasks(jobBuilder, project, graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
