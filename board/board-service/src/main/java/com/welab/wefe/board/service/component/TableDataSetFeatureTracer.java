@@ -89,9 +89,9 @@ public class TableDataSetFeatureTracer {
         for (List<String> path : pathList) {
 
         }
-        for (FlowGraphNode step : steps) {
-            step.check
-        }
+//        for (FlowGraphNode step : steps) {
+//            step.check
+//        }
     }
 
     public void putTableDataSet(DataIOComponent.DataSetItem dataSetItem) {
