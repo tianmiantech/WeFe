@@ -16,7 +16,6 @@
 
 package com.welab.wefe.board.service.api.project.fusion.actuator.psi;
 
-import com.welab.wefe.board.service.fusion.actuator.psi.ServerActuator;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.common.fieldvalidate.annotation.Check;
 import com.welab.wefe.common.util.JObject;
@@ -37,12 +36,8 @@ public class ServerSynStatusApi extends AbstractApi<ServerSynStatusApi.Input, JO
 
     @Override
     protected ApiResult<JObject> handle(Input input) throws Exception {
-        ServerActuator actuator = (ServerActuator) ActuatorManager.get(input.getBusinessId());
-        if (actuator == null) {
-            return success(JObject.create().append("ready", false));
-        }
-
-        return success(JObject.create().append("ready", true));
+        boolean isReady = ActuatorManager.isReady(input.getBusinessId());
+        return success(JObject.create().append("ready", isReady));
     }
 
     public static class Input extends AbstractApiInput {
