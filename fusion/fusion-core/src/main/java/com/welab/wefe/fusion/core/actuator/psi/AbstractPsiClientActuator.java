@@ -67,7 +67,7 @@ public abstract class AbstractPsiClientActuator extends AbstractPsiActuator impl
 
         CountDownLatch latch = new CountDownLatch(bucketSize());
 
-        for (int j = 1; j <= bucketSize(); j++) {
+        for (int j = 0; j < bucketSize(); j++) {
             int index = j;
             CommonThreadPool.run(() -> execute(index), latch);
         }
