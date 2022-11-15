@@ -70,11 +70,11 @@ public class GrpcServerContext {
             Integer internalPort = config.getGrpcServerInternalPort();
             Integer externalPort = config.getGrpcServerExternalPort();
             if(null == internalPort) {
-                LOG.error("Grpc server start fail, the internal network port cannot be empty");
+                LOG.error("Grpc server start fail, the internal network port cannot be empty!");
                 return false;
             }
             if(null == externalPort) {
-                LOG.error("Grpc server start fail, the external network port cannot be empty");
+                LOG.error("Grpc server start fail, the external network port cannot be empty!");
                 return false;
             }
             if ((internalPort.intValue() == externalPort.intValue())) {
