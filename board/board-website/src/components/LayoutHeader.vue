@@ -30,7 +30,7 @@
                 class="heading-bar-title text-l f14"
             />
             <div class="heading-tools">
-                <el-tooltip
+                <!-- <el-tooltip
                     v-model="vData.videoTip"
                     popper-class="video-guide-tip"
                     placement="left"
@@ -45,33 +45,7 @@
                         href="javascript:;"
                         @click="showVideoGuide"
                     >操作指引</a>
-                </el-tooltip>
-                <a
-                    href="https://www.wjx.top/vj/hW9y0cp.aspx"
-                    target="_blank"
-                >建议与反馈</a>
-                <el-tooltip
-                    effect="light"
-                    content="开启聊天"
-                    placement="bottom"
-                >
-                    <i
-                        class="iconfont icon-chat"
-                        @click="getConnect"
-                    >
-                        <i
-                            v-if="vData.hasUnreadNums"
-                            class="unread-num"
-                        >{{ vData.hasUnreadNums >= 99 ? `99+` : vData.hasUnreadNums }}</i>
-                    </i>
-                </el-tooltip>
-                <el-tooltip
-                    effect="light"
-                    :content="vData.isFullScreen ? '退出全屏' : '切换全屏'"
-                    placement="bottom"
-                >
-                    <el-icon class="el-icon-full-screen" @click="fullScreenSwitch"><elicon-full-screen /></el-icon>
-                </el-tooltip>
+                </el-tooltip> -->
                 <div class="heading-user ml10">
                     你好,
                     <el-dropdown
@@ -96,20 +70,47 @@
                         </template>
                     </el-dropdown>
                 </div>
+                <el-tooltip
+                    effect="light"
+                    content="开启聊天"
+                    placement="bottom"
+                >
+                    <i
+                        class="iconfont icon-chat"
+                        @click="getConnect"
+                    >
+                        <i
+                            v-if="vData.hasUnreadNums"
+                            class="unread-num"
+                        >{{ vData.hasUnreadNums >= 99 ? `99+` : vData.hasUnreadNums }}</i>
+                    </i>
+                </el-tooltip>
+                <a
+                    href="https://www.wjx.top/vj/hW9y0cp.aspx"
+                    target="_blank"
+                    class="help"
+                >建议与反馈</a>
+                <el-tooltip
+                    effect="light"
+                    :content="vData.isFullScreen ? '退出全屏' : '切换全屏'"
+                    placement="bottom"
+                >
+                    <el-icon class="el-icon-full-screen" @click="fullScreenSwitch"><elicon-full-screen /></el-icon>
+                </el-tooltip>
             </div>
         </div>
         <layout-tags v-show="tagsList.length" />
 
-        <VideoGuideDialog
+        <!-- <VideoGuideDialog
             ref="VideoGuideDialog"
             @show-video-tip="showVideoTip"
-        />
+        /> -->
     </div>
 </template>
 
 <script>
     import {
-        ref,
+        // ref,
         computed,
         reactive,
         getCurrentInstance,
@@ -136,7 +137,7 @@
             const { appContext } = getCurrentInstance();
             const { $bus } = appContext.config.globalProperties;
 
-            const VideoGuideDialog = ref();
+            // const VideoGuideDialog = ref();
             const vData = reactive({
                 headingTitle:  '',
                 videoTip:      false,
@@ -238,9 +239,9 @@
                 }
             };
             // show video help
-            const showVideoGuide = () => {
+            /* const showVideoGuide = () => {
                 VideoGuideDialog.value.vData.show = true;
-            };
+            }; */
             const showVideoTip = () => {
                 vData.videoTip = true;
                 setTimeout(() => {
@@ -295,15 +296,15 @@
 
             return {
                 vData,
+                backward,
                 userInfo: userInfo.value,
                 tagsList: tagsList.value,
-                backward,
                 handleCommand,
                 fullScreenSwitch,
-                VideoGuideDialog,
-                getConnect,
-                showVideoGuide,
+                // VideoGuideDialog,
+                // showVideoGuide,
                 showVideoTip,
+                getConnect,
             };
         },
     };
@@ -337,6 +338,9 @@
 </style>
 
 <style lang="scss" scoped>
+    .help{
+        font-size: 14px;
+    }
     .heading-bar {
         white-space: nowrap;
         text-align: right;

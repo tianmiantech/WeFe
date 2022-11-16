@@ -43,8 +43,17 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<QueryApi.
     }
 
     public static class Input extends PagingInput {
+        @Check(name = "数据源Id")
+        private String id;
         @Check(name = "数据源名称")
         private String name;
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
 
         public String getName() {
             return name;

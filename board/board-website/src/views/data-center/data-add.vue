@@ -318,7 +318,20 @@
                             width="110"
                         >
                             <template v-slot="scope">
+                                <template v-if="scope.row.name === 'y'">
+                                    <span >{{scope.row.data_type}}</span>
+                                    <el-tooltip
+                                    >
+                                        <template #content>
+                                            <p>y 值必须为 Integer</p>
+                                        </template>
+                                        <el-icon class="ml5">
+                                            <elicon-info-filled />
+                                        </el-icon>
+                                    </el-tooltip>
+                                </template>
                                 <el-select
+                                    v-else
                                     v-model="scope.row.data_type"
                                     placeholder="请选择"
                                     @change="dataTypeChange(scope.row)"

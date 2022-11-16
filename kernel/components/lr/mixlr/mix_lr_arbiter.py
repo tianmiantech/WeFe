@@ -37,7 +37,6 @@ from common.python.utils import log_utils
 from kernel.components.lr.base_lr_model import BaseLRModel
 from kernel.components.lr.lr_model_weight import LRModelWeights as LogisticRegressionWeights
 from kernel.components.lr.param import MixLogisticParam
-from kernel.optimizer.optimizer import optimizer_factory
 from kernel.protobuf.generated import lr_model_meta_pb2
 from kernel.transfer.framework.horz.procedure import aggregator
 from kernel.transfer.variables.transfer_class.mix_lr_transfer_variable import MixLRTransferVariable
@@ -70,7 +69,6 @@ class MixLRArbiter(BaseLRModel):
 
         self.transfer_variable = MixLRTransferVariable()
         self.aggregator.register_aggregator(self.transfer_variable)
-        self.optimizer = optimizer_factory(params)
         self.aggregate_iters = params.aggregate_iters
 
     def sync_begin_iter(self):

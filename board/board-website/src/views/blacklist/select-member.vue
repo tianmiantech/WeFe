@@ -28,12 +28,14 @@
                     clearable
                 />
             </el-form-item>
-            <el-button
-                type="primary"
-                @click="loadDataList({ resetPagination: true })"
-            >
-                查询
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="loadDataList({ resetPagination: true })"
+                >
+                    查询
+                </el-button>
+            </el-form-item>
             <el-table
                 :data="list"
                 max-height="500"

@@ -16,9 +16,15 @@
 package com.welab.wefe.board.service.model;
 
 /**
+ * 用于储存创建 job 过程中的中间变量
+ *
  * @author zane
  * @date 2022/4/19
  */
 public class JobBuilder {
+    /**
+     * 数据集的版本号，目前只用在图像数据集。
+     * 版本号标记可以使 visual fl 服务根据版本号减少下载图像数据集的次数
+     */
     public String dataSetVersion;
 }

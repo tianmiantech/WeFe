@@ -377,7 +377,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         ).as("total");
 
 
-        Aggregation aggregation = Aggregation.newAggregation(facetOperation);
+        Aggregation aggregation = Aggregation.newAggregation(facetOperation).withOptions(AggregationOptions.builder().allowDiskUse(true).build());
         JObject result = mongoUnionTemplate.aggregate(aggregation, MongodbTable.Union.DATA_RESOURCE, JObject.class).getUniqueMappedResult();
         Long total = 0L;
         List<DataResourceQueryOutput> list = result.getJSONList("data", DataResourceQueryOutput.class);

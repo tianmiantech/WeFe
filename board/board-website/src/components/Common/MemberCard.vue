@@ -128,7 +128,7 @@
             }
         }
         :deep(.el-input__inner){
-            color: #fff;
+            color: #000;
             box-shadow:none;
         }
     }

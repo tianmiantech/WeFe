@@ -48,20 +48,20 @@ public class CheckMemberRouteConnectApi extends AbstractNoneOutputApi<CheckMembe
         @Check(require = true, name = "Gateway IP:PORT. If the value is not empty, it means to directly test its own gateway alive")
         private String memberGatewayUri;
 
-        public String getMemberGatewayUri() {
-            return memberGatewayUri;
-        }
-
-        public void setMemberGatewayUri(String memberGatewayUri) {
-            this.memberGatewayUri = memberGatewayUri;
-        }
-
         public String getMemberId() {
             return memberId;
         }
 
         public void setMemberId(String memberId) {
             this.memberId = memberId;
+        }
+
+        public String getMemberGatewayUri() {
+            return memberGatewayUri;
+        }
+
+        public void setMemberGatewayUri(String memberGatewayUri) {
+            this.memberGatewayUri = memberGatewayUri;
         }
     }
 }

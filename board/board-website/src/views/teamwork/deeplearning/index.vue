@@ -750,44 +750,6 @@
                         vData.showDataIOResult = false;
                     }
                 },
-                async getImageDataIOResult() {
-                    const params = {
-                        jobId:      vData.jobInfo.job_id,
-                        flowId:     vData.flow_id,
-                        flowNodeId: vData.formImageDataIO.nodeId,
-                        type:       '',
-                    };
-
-                    const { code, data } = await $http.post({
-                        url:  '/flow/job/task/result',
-                        data: params,
-                    });
-
-                    nextTick(_=> {
-                        if (code === 0) {
-                            console.log(data);
-                        }
-                    });
-                },
-                async getDeeplearningOResult() {
-                    const params = {
-                        jobId:      vData.jobInfo.job_id,
-                        flowId:     vData.flow_id,
-                        flowNodeId: vData.deepLearnNodeId,
-                        type:       'loss',
-                    };
-
-                    const { code, data } = await $http.post({
-                        url:  '/flow/job/task/result',
-                        data: params,
-                    });
-
-                    nextTick(_=> {
-                        if (code === 0) {
-                            console.log(data);
-                        }
-                    });
-                },
                 changeSteps(val) {
                     vData.active = val;
                 },

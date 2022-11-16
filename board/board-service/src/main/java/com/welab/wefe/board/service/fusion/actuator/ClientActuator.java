@@ -16,9 +16,18 @@
 package com.welab.wefe.board.service.fusion.actuator;
 
 
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.welab.wefe.board.service.api.project.fusion.actuator.psi.*;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.DownloadBFApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.PsiCryptoApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ReceiveResultApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ServerCloseApi;
+import com.welab.wefe.board.service.api.project.fusion.actuator.psi.ServerSynStatusApi;
 import com.welab.wefe.board.service.dto.fusion.PsiMeta;
 import com.welab.wefe.board.service.service.DataSetStorageService;
 import com.welab.wefe.board.service.service.GatewayService;
@@ -39,16 +48,12 @@ import com.welab.wefe.fusion.core.dto.PsiActuatorMeta;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.enums.PSIActuatorStatus;
 
-import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
-
 /**
  * @author hunter.zhao
  */
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public class ClientActuator extends AbstractPsiClientActuator {
-    public List<String> columnList;
+    public Set<String> columnList;
 
     /**
      * Fragment size, default 10000

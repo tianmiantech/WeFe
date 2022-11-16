@@ -72,8 +72,8 @@ start() {
 stop() {
     getpid
     if [[ -n ${pid} ]]; then
-        echo "clean before stop"
-        curl ${flowUrl}/flow/clean
+        echo "stop running task"
+        curl ${flowUrl}/flow/stop
 
         getpid
         echo "killing:
