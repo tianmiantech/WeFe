@@ -38,7 +38,6 @@ from kernel.components.lr.base_lr_model import BaseLRModel
 from kernel.components.lr.lr_model_weight import LRModelWeights
 from kernel.components.lr.param import HorzLogisticParam
 from kernel.optimizer import activation
-from kernel.optimizer.optimizer import optimizer_factory
 from kernel.protobuf.generated import lr_model_meta_pb2
 from kernel.transfer.variables.transfer_class.horz_lr_transfer_variable import HorzLRTransferVariable
 from kernel.utils import base_operator
@@ -67,7 +66,6 @@ class HorzLRBaseModel(BaseLRModel):
         # and no arbiter blocks when creating the following object
         if self.component_properties.federated_learning_mode is None:
             self.aggregator.register_aggregator(self.transfer_variable)
-        self.optimizer = optimizer_factory(params)
         self.aggregate_iters = params.aggregate_iters
 
     @property

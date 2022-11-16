@@ -1,10 +1,10 @@
 <template>
     <el-card class="service-box">
-        <template #header>
-            <div style="line-height:32px;">
+        <header>
+            <div style="line-height:60px; border-bottom: 1px solid lightgray;">
                 服务状态
             </div>
-        </template>
+        </header>
         <ServiceStatusItem
             service="UnionService"
             desc="联邦服务"
@@ -68,7 +68,7 @@
 }
 .service-box {
     :deep(.el-card__body) {
-        max-height: 500px;
+        max-height: 700px;
         overflow-y: auto;
     }
 }

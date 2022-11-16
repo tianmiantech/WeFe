@@ -154,10 +154,10 @@
                                               placeholder="请输入密码"></el-input>
                                 </el-form-item>
                             </el-form>
-                            <div class="dialog-footer">
-                                <el-button @click="dialogVisibleInfo = false">取 消</el-button>
-                                <el-button type="primary" @click="init">确 定</el-button>
-                            </div>
+                            <template #footer>
+                                <el-button @click="dialogVisibleInfo = false">取消</el-button>
+                                <el-button type="primary" @click="init">确定</el-button>
+                            </template>
                         </el-dialog>
                     </el-col>
                     <el-col :span="12">

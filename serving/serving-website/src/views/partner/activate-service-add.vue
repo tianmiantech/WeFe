@@ -137,7 +137,7 @@ export default {
             });
 
             if (code === 0) {
-                this.clientService.privateKey=data.identity_info.rsa_private_key;
+                this.clientService.privateKey="******************";
                 this.clientService.publicKey=data.identity_info.rsa_public_key;
                 setTimeout(() => {
                     this.$message('填充成功!');
@@ -168,7 +168,7 @@ export default {
                             serviceName: this.clientService.serviceName,
                             clientName: this.clientService.clientName,
                             createdBy: this.userInfo.nickname,
-                            privateKey:this.clientService.privateKey,
+                            privateKey:this.clientService.privateKey === "******************" ? "" : this.clientService.privateKey,
                             url:this.clientService.url,
                             code: this.clientService.code,
                         },

@@ -2,7 +2,7 @@
     <div class="page register-wrapper">
         <div class="sign-box">
             <div class="logo">
-                <img src="../../assets/images/favicon.png">
+                <img src="../../assets/images/x-logo.png">
             </div>
             <h4 class="sign-title">初始化系统 · 配置系统变量</h4>
             <el-divider />

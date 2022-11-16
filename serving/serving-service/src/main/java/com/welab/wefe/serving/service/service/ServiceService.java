@@ -182,6 +182,7 @@ public class ServiceService {
     }
 
     public String displayServiceQueryParams(String queryParams, String queryParamsConfig) {
+        String result = "";
         if (StringUtils.isNotBlank(queryParamsConfig)) {
             List<JSONObject> params = new ArrayList<>();
             JSONArray arr = JSONObject.parseArray(queryParamsConfig);
@@ -194,9 +195,14 @@ public class ServiceService {
                 j.put("描述:", desc);
                 params.add(j);
             }
-            return JSONObject.toJSONString(params);
+            result = JSONObject.toJSONString(params);
+        } else {
+            result = queryParams;
         }
-        return queryParams;
+        if (StringUtils.isBlank(result)) {
+            return "";
+        }
+        return result;
     }
 
     private List<JobMemberRole> findMyRoles(String modelId) {
@@ -491,6 +497,9 @@ public class ServiceService {
         if (StringUtils.isNotBlank(input.getUrl())) {
             model.setUrl(input.getUrl());
         }
+        if (StringUtils.isNotBlank(input.getOperator())) {
+            model.setOperator(input.getOperator());
+        }
         if (!CollectionUtils.isEmpty(input.getQueryParams())) {
             model.setQueryParams(StringUtils.join(input.getQueryParams(), ","));
         }
@@ -665,6 +674,7 @@ public class ServiceService {
             return result;
 
         } catch (Exception e) {
+            e.printStackTrace();
             status = ServiceResultEnum.SERVICE_FAIL;
             result.append("message", "服务调用失败: url = " + service.getUrl() + ", message= " + e.getMessage());
             return result;
@@ -707,7 +717,7 @@ public class ServiceService {
         callLog.setOrderId(orderId);
         callLog.setServiceId(input.getServiceId());
         callLog.setServiceName(CacheObjects.getServiceName(input.getServiceId()));
-        callLog.setRequestData(input.getData());
+        callLog.setRequestData(ServiceUtil.abbreviate(input.getData(), 12500));
         callLog.setRequestPartnerId(input.getPartnerCode());
         callLog.setRequestPartnerName(CacheObjects.getPartnerName(input.getPartnerCode()));
         callLog.setRequestId(input.getRequestId());
@@ -716,7 +726,7 @@ public class ServiceService {
         callLog.setResponseId(responseId);
         callLog.setResponsePartnerId(CacheObjects.getMemberId());
         callLog.setResponsePartnerName(CacheObjects.getMemberName());
-        callLog.setResponseData(JSON.toJSONString(result));
+        callLog.setResponseData(ServiceUtil.abbreviate(JSON.toJSONString(result), 12500));
         callLog.setCallByMe(
                 input.getPartnerCode().equalsIgnoreCase(CacheObjects.getMemberId()) ? CallByMeEnum.YES.getCode()
                         : CallByMeEnum.NO.getCode());

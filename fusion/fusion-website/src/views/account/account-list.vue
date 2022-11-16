@@ -14,6 +14,7 @@
             >
                 <el-input
                     v-model="search.phone_number"
+                    width="80px"
                     clearable
                 />
             </el-form-item>
@@ -23,17 +24,19 @@
             >
                 <el-input
                     v-model="search.nickname"
+                    width="80px"
                     clearable
                 />
             </el-form-item>
             <el-form-item
+                v-if="userInfo.admin_role || userInfo.super_admin_role"
                 label="审核状态："
-                label-width="100px"
+                label-width="90px"
             >
                 <el-select
                     v-model="search.audit_status"
-                    style="width: 176px;"
                     clearable
+                    style="width: 100px;"
                 >
                     <el-option
                         label="待审核"
@@ -51,7 +54,7 @@
             </el-form-item>
             <el-button
                 type="primary"
-                @click="getList({ to: true, resetPagination: true })"
+                @click="query"
             >
                 查询
             </el-button>
@@ -59,7 +62,7 @@
                 <el-button
                     v-if="userInfo.super_admin_role"
                     type="danger"
-                    @click="transformSuperUserDialog.visible=true"
+                    @click="transformSuperUserDialog.visible = true"
                 >
                     超级管理员转移
                 </el-button>
@@ -71,7 +74,7 @@
             :data="list"
             stripe
             border
-            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
+            :style="{ width: userInfo.admin_role ? '100%' : '60%' }"
         >
             <template #empty>
                 <TableEmptyData />
@@ -142,14 +145,10 @@
                 width="70"
             >
                 <template v-slot="scope">
-                    <span
-                        v-if="scope.row.cancelled"
-                    >
+                    <span v-if="scope.row.cancelled">
                         <i class="el-icon-check" />
                     </span>
-                    <span
-                        v-else
-                    >
+                    <span v-else>
                         <i class="el-icon-close" />
                     </span>
                 </template>
@@ -228,7 +227,7 @@
         <div
             v-if="pagination.total"
             class="mt20 text-r"
-            :style="{width: userInfo.admin_role ? '100%' : '60%'}"
+            :style="{ width: userInfo.admin_role ? '100%' : '60%' }"
         >
             <el-pagination
                 :total="pagination.total"
@@ -285,18 +284,20 @@
             </template>
         </el-dialog>
 
-
         <el-dialog
             width="340px"
             title="重置用户密码"
             :visible.sync="resetPwDialog.visible"
             destroy-on-close
         >
-            将重置 <strong class="primary-color">
+            将重置
+            <strong class="primary-color">
                 {{ resetPwDialog.nickname }}
-            </strong> 的登录密码!
+            </strong>
+            的登录密码!
             <p class="mt10 mb10 color-danger">原密码将失效, 请谨慎操作</p>
-            <span class="color-danger">*</span> 操作人登录密码:
+            <span class="color-danger">*</span>
+            操作人登录密码:
             <el-input
                 v-model="resetPwDialog.operatorPassword"
                 style="width: 200px;"
@@ -324,10 +325,17 @@
             :visible.sync="userRoleDialog.visible"
             destroy-on-close
         >
-            是否将 <strong>{{ userRoleDialog.nickname }}</strong> 设置为 <strong class="primary-color">
+            是否将
+            <strong>{{ userRoleDialog.nickname }}</strong>
+            设置为
+            <strong class="primary-color">
                 {{ userRoleDialog.admin_role ? '普通用户' : '管理员' }}
-            </strong>?
-            <p class="f12 mt10 color-danger">* 只有管理员能对“全局设置”中的配置项进行变更<br>* 只有超级管理员能对“成员信息”中的配置项进行变更</p>
+            </strong>
+            ?
+            <p class="f12 mt10 color-danger">
+                * 只有管理员能对“全局设置”中的配置项进行变更
+                <br>* 只有超级管理员能对“成员信息”中的配置项进行变更
+            </p>
             <template #footer>
                 <el-button
                     type="danger"
@@ -347,7 +355,9 @@
             :visible.sync="disableUserDialog.visible"
             destroy-on-close
         >
-            将{{ disableUserDialog.enable ? '禁止' : '允许' }} <strong>{{ disableUserDialog.nickname }}</strong> 的
+            将{{ disableUserDialog.enable ? '禁止' : '允许' }}
+            <strong>{{ disableUserDialog.nickname }}</strong>
+            的
             <strong class="primary-color">
                 登录权限
             </strong>
@@ -358,7 +368,7 @@
                 >
                     是
                 </el-button>
-                <el-button @click="disableUserDialog.visible=false">
+                <el-button @click="disableUserDialog.visible = false">
                     否
                 </el-button>
             </template>
@@ -397,12 +407,15 @@
             <template #footer>
                 <el-button
                     type="primary"
-                    :disabled="!transformSuperUserDialog.id || transformSuperUserDialog.id === userInfo.id"
+                    :disabled="
+                        !transformSuperUserDialog.id ||
+                            transformSuperUserDialog.id === userInfo.id
+                    "
                     @click="transformSuperUser"
                 >
                     确定
                 </el-button>
-                <el-button @click="transformSuperUserDialog.visible=false">
+                <el-button @click="transformSuperUserDialog.visible = false">
                     取消
                 </el-button>
             </template>
@@ -417,282 +430,286 @@ import { baseLogout } from '@src/router/auth';
 import md5 from 'js-md5';
 
 export default {
-    mixins: [table],
-    inject: ['refresh'],
-    data() {
-        return {
-            dialogAuditAccountVisible: false,
-            allowLoginVisible:         false,
-            formLabelWidth:            '100px',
+  mixins: [table],
+  inject: ['refresh'],
+  data() {
+    return {
+      dialogAuditAccountVisible: false,
+      allowLoginVisible:         false,
+      formLabelWidth:            '100px',
+      search:                    {
+        phone_number: '',
+        nickname:     '',
+        audit_status: '',
+      },
+      getListApi:     '/account/query',
+      viewDataDialog: {
+        visible: false,
+        list:    [],
+      },
 
-            search: {
-                phone_number: '',
-                nickname:     '',
-                audit_status: '',
-            },
-            getListApi:     '/account/query',
-            viewDataDialog: {
-                visible: false,
-                list:    [],
-            },
+      form: {
+        account_id:    '',
+        audit_status:  'agree',
+        audit_comment: '',
+      },
+      resetPwDialog: {
+        visible:          false,
+        id:               '',
+        nickname:         '',
+        operatorPassword: '',
+      },
+      userRoleDialog: {
+        id:         '',
+        nickname:   '',
+        visible:    false,
+        admin_role: false,
+      },
+      disableUserDialog: {
+        visible:  false,
+        enable:   false,
+        nickname: '',
+        id:       '',
+      },
+      transformSuperUserDialog: {
+        visible: false,
+        user:    '',
+        id:      '',
+      },
+    };
+  },
+  computed: {
+    ...mapGetters(['userInfo']),
+  },
+  created() {
+    this.query();
+  },
+  methods: {
+    query() {
+      this.getList({ to: true, resetPagination: true });
+    },
+    async allowLogin(row, $event) {
+      this.$alert('是否允许登录？', '警告', {
+        confirmButtonText: '确定',
+        callback:          action => {
+          if (action === 'confirm') {
+            this.changeAuditStatus(row, $event);
+            setTimeout(() => {
+              this.refresh();
+            }, 1000);
+          }
+        },
+      });
+    },
 
-            form: {
-                account_id:    '',
-                audit_status:  'agree',
-                audit_comment: '',
-            },
-            resetPwDialog: {
-                visible:          false,
-                id:               '',
-                nickname:         '',
-                operatorPassword: '',
-            },
-            userRoleDialog: {
-                id:         '',
-                nickname:   '',
-                visible:    false,
-                admin_role: false,
-            },
-            disableUserDialog: {
-                visible:  false,
-                enable:   false,
-                nickname: '',
-                id:       '',
-            },
-            transformSuperUserDialog: {
-                visible: false,
-                user:    '',
-                id:      '',
-            },
-        };
-    },
-    computed: {
-        ...mapGetters(['userInfo']),
-    },
-    created() {
+    async changeAuditStatus(row, $event) {
+      this.form.audit_status = 'agree';
+      this.form.account_id = row.id;
+
+      const { code } = await this.$http.post({
+        url:      '/account/audit',
+        data:     this.form,
+        btnState: {
+          target: $event,
+        },
+      });
+
+      if (code === 0) {
         this.getList();
+      }
     },
-    methods: {
 
-        async allowLogin(row, $event) {
+    // show audit dialog
+    showAuditPanel(row) {
+      this.form.account_id = row.id;
+      this.form.audit_status = 'agree';
+      this.form.audit_comment = '';
 
-            this.$alert('是否允许登录？', '警告', {
-                confirmButtonText: '确定',
-                callback:          action => {
-                    if (action === 'confirm') {
-                        this.changeAuditStatus(row, $event);
-                        setTimeout(() => {
-                            this.refresh();
-                        }, 1000);
-                    }
-                },
-            });
-        },
-
-        async changeAuditStatus(row, $event) {
-            this.form.audit_status = 'agree';
-            this.form.account_id = row.id;
-
-            const { code } = await this.$http.post({
-                url:      '/account/audit',
-                data:     this.form,
-                btnState: {
-                    target: $event,
-                },
-            });
-
-            if (code === 0) {
-                this.getList();
-            }
-        },
-
-        // show audit dialog
-        showAuditPanel(row) {
-            this.form.account_id = row.id;
-            this.form.audit_status = 'agree';
-            this.form.audit_comment = '';
-
-            this.dialogAuditAccountVisible = true;
-        },
-        async audit($event) {
-            const { code } = await this.$http.post({
-                url:      '/account/audit',
-                data:     this.form,
-                btnState: {
-                    target: $event,
-                },
-            });
-
-            this.dialogAuditAccountVisible = false;
-
-            if (code === 0) {
-                this.getList();
-            }
-        },
-        resetPassword(row) {
-            this.resetPwDialog.id = row.id;
-            this.resetPwDialog.nickname = row.nickname;
-            this.resetPwDialog.visible = true;
-        },
-        async confirmReset($event) {
-            const { operatorPassword } = this.resetPwDialog;
-            const { phone_number } = this.userInfo;
-
-            if(!operatorPassword) {
-                return this.$message.error('请输入你的帐号密码');
-            }
-
-            const password = [
-                phone_number,
-                operatorPassword,
-                phone_number,
-                phone_number.substr(0, 3),
-                operatorPassword.substr(operatorPassword.length - 3),
-            ].join('');
-            const { code, data } = await this.$http.post({
-                url:  '/account/reset/password',
-                data: {
-                    id:       this.resetPwDialog.id,
-                    password: md5(password),
-                },
-                btnState: {
-                    target: $event,
-                },
-            });
-
-            if (code === 0) {
-                this.resetPwDialog.operatorPassword = '';
-                this.resetPwDialog.visible = false;
-                this.$alert(`该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`, '操作成功', {
-                    type:                     'warning',
-                    dangerouslyUseHTMLString: true,
-                    confirmButtonText:        '确定',
-                });
-                setTimeout(() => {
-                    this.refresh();
-                }, 300);
-            }
-        },
-        changeUserRole(row) {
-            this.userRoleDialog.visible = true;
-            this.userRoleDialog.nickname = row.nickname;
-            this.userRoleDialog.admin_role = row.admin_role;
-            this.userRoleDialog.id = row.id;
-        },
-        async confirmChangeUserRole($event) {
-            const { code } = await this.$http.post({
-                url:  '/account/update',
-                data: {
-                    id:        this.userRoleDialog.id,
-                    adminRole: !this.userRoleDialog.admin_role,
-                },
-                btnState: {
-                    target: $event,
-                },
-            });
-
-            if (code === 0) {
-                this.getList();
-                this.userRoleDialog.visible = false;
-                this.$message.success('操作成功!');
-            }
-        },
-        disableUser(row) {
-            this.disableUserDialog.id = row.id;
-            this.disableUserDialog.enable = row.enable;
-            this.disableUserDialog.nickname = row.nickname;
-            this.disableUserDialog.visible = true;
-        },
-        async confirmDisableUser($event) {
-            const { code } = await this.$http.post({
-                url:  '/account/enable',
-                data: {
-                    id:     this.disableUserDialog.id,
-                    enable: !this.disableUserDialog.enable,
-                },
-                btnState: {
-                    target: $event,
-                },
-            });
-
-            if (code === 0) {
-                this.getList();
-                this.disableUserDialog.visible = false;
-                this.$message.success('操作成功!');
-            }
-        },
-
-        async getUsers(value, cb) {
-            if (value === '') {
-                return cb([]);
-            }
-
-            const params = {};
-
-            if (/^1[3-9]\d{9}/.test(value)) {
-                params.phone_number = value;
-            } else {
-                params.nickname = value;
-            }
-
-            const { code, data } = await this.$http.get({
-                url: this.getListApi,
-                params,
-            });
-
-            if (code === 0) {
-                const list = data.list.map(x => {
-                    return {
-                        value: `${x.nickname} (${x.phone_number})`,
-                        id:    x.id,
-                    };
-                });
-
-                cb(list);
-            }
-        },
-
-        clearSuggestions() {
-            this.transformSuperUserDialog.id = '';
-        },
-
-        selectUser(item) {
-            if (item.id === this.userInfo.id) {
-                return this.$message.error('不能将超级管理员转移给自己!');
-            }
-            this.transformSuperUserDialog.id = item.id;
-        },
-
-        async transformSuperUser($event) {
-            const { code } = await this.$http.post({
-                url:  '/super/admin/change',
-                data: {
-                    id: this.transformSuperUserDialog.id,
-                },
-                btnState: {
-                    target: $event,
-                },
-            });
-
-            if (code === 0) {
-                baseLogout();
-                this.$message.success('操作成功, 请重新登录!');
-            }
-        },
+      this.dialogAuditAccountVisible = true;
     },
+    async audit($event) {
+      const { code } = await this.$http.post({
+        url:      '/account/audit',
+        data:     this.form,
+        btnState: {
+          target: $event,
+        },
+      });
+
+      this.dialogAuditAccountVisible = false;
+
+      if (code === 0) {
+        this.getList();
+      }
+    },
+    resetPassword(row) {
+      this.resetPwDialog.id = row.id;
+      this.resetPwDialog.nickname = row.nickname;
+      this.resetPwDialog.visible = true;
+    },
+    async confirmReset($event) {
+      const { operatorPassword } = this.resetPwDialog;
+      const { phone_number } = this.userInfo;
+
+      if (!operatorPassword) {
+        return this.$message.error('请输入你的帐号密码');
+      }
+
+      const password = [
+        phone_number,
+        operatorPassword,
+        phone_number,
+        phone_number.substr(0, 3),
+        operatorPassword.substr(operatorPassword.length - 3),
+      ].join('');
+      const { code, data } = await this.$http.post({
+        url:  '/account/reset/password',
+        data: {
+          id:       this.resetPwDialog.id,
+          password: md5(password),
+        },
+        btnState: {
+          target: $event,
+        },
+      });
+
+      if (code === 0) {
+        this.resetPwDialog.operatorPassword = '';
+        this.resetPwDialog.visible = false;
+        this.$alert(
+          `该用户密码已重置为 <strong>${data}</strong> <p class="color-danger">此密码仅可查看一次, 请勿随意传播</p>`,
+          '操作成功',
+          {
+            type:                     'warning',
+            dangerouslyUseHTMLString: true,
+            confirmButtonText:        '确定',
+          },
+        );
+        setTimeout(() => {
+          this.refresh();
+        }, 300);
+      }
+    },
+    changeUserRole(row) {
+      this.userRoleDialog.visible = true;
+      this.userRoleDialog.nickname = row.nickname;
+      this.userRoleDialog.admin_role = row.admin_role;
+      this.userRoleDialog.id = row.id;
+    },
+    async confirmChangeUserRole($event) {
+      const { code } = await this.$http.post({
+        url:  '/account/update',
+        data: {
+          id:        this.userRoleDialog.id,
+          adminRole: !this.userRoleDialog.admin_role,
+        },
+        btnState: {
+          target: $event,
+        },
+      });
+
+      if (code === 0) {
+        this.getList();
+        this.userRoleDialog.visible = false;
+        this.$message.success('操作成功!');
+      }
+    },
+    disableUser(row) {
+      this.disableUserDialog.id = row.id;
+      this.disableUserDialog.enable = row.enable;
+      this.disableUserDialog.nickname = row.nickname;
+      this.disableUserDialog.visible = true;
+    },
+    async confirmDisableUser($event) {
+      const { code } = await this.$http.post({
+        url:  '/account/enable',
+        data: {
+          id:     this.disableUserDialog.id,
+          enable: !this.disableUserDialog.enable,
+        },
+        btnState: {
+          target: $event,
+        },
+      });
+
+      if (code === 0) {
+        this.getList();
+        this.disableUserDialog.visible = false;
+        this.$message.success('操作成功!');
+      }
+    },
+
+    async getUsers(value, cb) {
+      if (value === '') {
+        return cb([]);
+      }
+
+      const params = {};
+
+      if (/^1[3-9]\d{9}/.test(value)) {
+        params.phone_number = value;
+      } else {
+        params.nickname = value;
+      }
+
+      const { code, data } = await this.$http.get({
+        url: this.getListApi,
+        params,
+      });
+
+      if (code === 0) {
+        const list = data.list.map(x => {
+          return {
+            value: `${x.nickname} (${x.phone_number})`,
+            id:    x.id,
+          };
+        });
+
+        cb(list);
+      }
+    },
+
+    clearSuggestions() {
+      this.transformSuperUserDialog.id = '';
+    },
+
+    selectUser(item) {
+      if (item.id === this.userInfo.id) {
+        return this.$message.error('不能将超级管理员转移给自己!');
+      }
+      this.transformSuperUserDialog.id = item.id;
+    },
+
+    async transformSuperUser($event) {
+      const { code } = await this.$http.post({
+        url:  '/super/admin/change',
+        data: {
+          id: this.transformSuperUserDialog.id,
+        },
+        btnState: {
+          target: $event,
+        },
+      });
+
+      if (code === 0) {
+        baseLogout();
+        this.$message.success('操作成功, 请重新登录!');
+      }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .primary-color {
-    color: $color-link-base-hover;
+  color: $color-link-base-hover;
 }
 
 .new_password {
-    margin: 10px 0;
-    padding: 5px 10px;
-    border-radius: 2px;
-    border: 1px solid #e5e5e5;
-    background: #f9f9f9;
+  margin: 10px 0;
+  padding: 5px 10px;
+  border-radius: 2px;
+  border: 1px solid #e5e5e5;
+  background: #f9f9f9;
 }
 </style>

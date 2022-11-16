@@ -63,6 +63,7 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
 
     def fit(self, data_instances):
         LOGGER.info("Start feature binning fit and transform")
+
         self._abnormal_detection(data_instances)
 
         label_counts_dict = data_util.get_label_count(data_instances)
@@ -116,8 +117,10 @@ class VertFeatureBinningPromoter(BaseVertFeatureBinning):
 
         self.set_schema(data_instances)
         LOGGER.debug("Finish set_schema,data_instances{}".format(data_instances.first()))
-        self.transform_v2(data_instances)
+        self.transform(data_instances)
         LOGGER.debug("Finish feature binning fit and transform,data_output,{}".format(self.data_output))
+        LOGGER.info('transform_type====>:{}, bining_data_output：{}'.format(self.transform_type,
+                                                                      self.data_output.first()[1].features))
         return self.data_output
 
     @staticmethod

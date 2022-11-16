@@ -15,7 +15,7 @@
     "is_serving_model": false,
     "transform_cols": -1,
     "transform_names": [],
-    "transform_type": "bin_num",
+    "transform_type": "woe",
     "model_save_to_storage": true
   },
   "optimal_binning_param": {
@@ -24,7 +24,6 @@
     "metric_method": "chi_square",
     "max_bin": null,
     "mixture": true,
-    "max_bin_pct": 0.8,
     "min_bin_pct": 0.05,
     "init_bin_nums": 100,
     "adjustment_factor": null

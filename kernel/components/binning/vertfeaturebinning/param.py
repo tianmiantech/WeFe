@@ -60,7 +60,7 @@ class TransformParam(BaseParam):
          3. None: nothing will be replaced.
     """
 
-    def __init__(self, transform_cols=-1, transform_names=None, transform_type="bin_num"):
+    def __init__(self, transform_cols=-1, transform_names=None, transform_type="woe"):
         super(TransformParam, self).__init__()
         self.transform_cols = transform_cols
         self.transform_names = transform_names

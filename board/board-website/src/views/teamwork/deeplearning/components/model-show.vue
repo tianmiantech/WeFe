@@ -54,7 +54,6 @@
                 editLabelStage(scaleX, scaleY) {
                     // 模型校验标注框与标注系统的不一致
                     if (props.currentImage.item) {
-                        console.log(props.currentImage.item);
                         const list = props.currentImage.item.bbox_results;
 
                         list.forEach(item => {

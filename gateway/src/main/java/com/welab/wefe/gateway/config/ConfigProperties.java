@@ -32,12 +32,6 @@ import org.springframework.stereotype.Component;
 public class ConfigProperties {
 
     /**
-     * rpc service port number
-     */
-    @Value("${rpc.server.port}")
-    private Integer rpcServerPort;
-
-    /**
      * Grpc private service port number
      */
     @Value("${grpc.server.internal.port:}")
@@ -90,14 +84,6 @@ public class ConfigProperties {
      */
     @Value("${persistent.storage.batch.insert.size:3}")
     private double persistentStorageBatchInsertSize;
-
-    public Integer getRpcServerPort() {
-        return rpcServerPort;
-    }
-
-    public void setRpcServerPort(Integer rpcServerPort) {
-        this.rpcServerPort = rpcServerPort;
-    }
 
     public String getSendTransferMetaPersistentTempDir() {
         return sendTransferMetaPersistentTempDir;

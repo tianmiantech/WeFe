@@ -14,19 +14,3 @@ Content-Type: application/json
 client.global.set("token", response.body.data.token);
 %}
 
-
-### 登录
-POST http://localhost:8080/board-service/account/login
-Content-Type: application/json
-
-{
-  "phone_number": "13168730657",
-  "password": "5a2f744ed01397c9b031de7cb46b8359",
-  "key": "10f61545-9f83-414f-8235-9801658b0f79",
-  "code": "123"
-}
-
-> {%
-client.global.set("token", response.body.data.token);
-%}
-

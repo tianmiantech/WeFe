@@ -44,6 +44,7 @@ from kernel.utils import consts
 from kernel.utils import data_util
 from kernel.utils.base_operator import vec_dot
 from kernel.utils.validation_strategy import ValidationStrategy
+from kernel.model_selection.grid_search import GridSearch
 
 LOGGER = log_utils.get_logger()
 
@@ -52,6 +53,12 @@ class BaseLRModel(ModelBase):
     def __init__(self):
         super(BaseLRModel, self).__init__()
         # attribute:
+        self.optimizer = None
+        self.optimizer_type = None
+        self.alpha = None
+        self.learning_rate = None
+        self.max_iter = None
+        self.batch_size = None
         self.n_iter_ = 0
         self.classes_ = None
         self.feature_shape = None
@@ -85,12 +92,17 @@ class BaseLRModel(ModelBase):
 
     def _init_model(self, params):
         self.model_param = params
-        self.alpha = params.alpha
         self.init_param_obj = params.init_param
         # self.fit_intercept = self.init_param_obj.fit_intercept
         self.batch_size = params.batch_size
         self.max_iter = params.max_iter
-        self.optimizer = optimizer_factory(params)
+        self.learning_rate = params.learning_rate
+        self.alpha = params.alpha
+        self.optimizer_type = params.optimizer
+        self.penalty = params.penalty
+        self.decay = params.decay
+        self.decay_sqrt = params.decay_sqrt
+        self.optimizer = optimizer_factory(self)
         self.converge_func = converge_func_factory(params.early_stop, params.tol)
         self.encrypted_calculator = None
         self.validation_freqs = params.validation_freqs
@@ -99,7 +111,7 @@ class BaseLRModel(ModelBase):
         self.metrics = params.metrics
         self.use_first_metric_only = params.use_first_metric_only
 
-        self.tracker.init_task_progress(params.max_iter)
+        self.tracker.init_task_progress(params.max_iter, self.need_grid_search)
 
         self.one_vs_rest_obj = one_vs_rest_factory(self, role=self.role, mode=self.mode, has_arbiter=True)
 
@@ -182,12 +194,6 @@ class BaseLRModel(ModelBase):
         json_result = json_format.MessageToJson(param_protobuf_obj)
         LOGGER.debug("json_result: {}".format(json_result))
         return param_protobuf_obj
-
-    # if __name__ == '__main__':
-    #     rs = {'iters': 30, 'loss_history': [], 'is_converged': True, 'weight': {'x0': -0.37593292862612715, 'x1': 0.051038257304800556, 'x2': 0.33922291754252504, 'x3': 0.2849122956560564, 'x4': 0.04835349028386403, 'x5': -0.1327609025895212, 'x6': 0.2486081899501936, 'x7': -0.4083127306751853, 'x8': -0.09128201671412293, 'x9': 0.2877323954765944, 'x10': -0.09912534070670494, 'x11': 0.008587187307896293, 'x12': 0.19415649701119336, 'x13': -0.2240128725396232, 'x14': -0.007320813873523055, 'x15': 0.10377277303709516, 'x16': 0.09214901146505608, 'x17': 0.1559231270728811, 'x18': -0.12093531048335666, 'x19': -0.20804639436497643}, 'intercept': 0.0, 'header': ['x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12', 'x13', 'x14', 'x15', 'x16', 'x17', 'x18', 'x19'], 'need_one_vs_rest': False, 'one_vs_rest_result': None}
-    #     param_protobuf_obj = lr_model_param_pb2.LRModelParam(**rs)
-    #     json_result = json_format.MessageToJson(param_protobuf_obj)
-    #     print(json_result)
 
     def load_model(self, model_dict):
         LOGGER.debug("Start Loading model")
@@ -286,6 +292,13 @@ class BaseLRModel(ModelBase):
         raise NotImplementedError("This method should be be called here")
 
     def export_model(self):
+
+        if self.model_output is not None:
+            return self.model_output
+
+        if self.need_cv and not self.need_grid_search:
+            return
+
         meta_obj = self._get_meta()
         param_obj = self._get_param()
         result = {
@@ -321,10 +334,38 @@ class BaseLRModel(ModelBase):
     def cross_validation(self, data_instances):
         return start_cross_validation.run(self, data_instances)
 
-    def _get_cv_param(self):
-        self.model_param.cv_param.role = self.role
-        self.model_param.cv_param.mode = self.mode
-        return self.model_param.cv_param
+    def grid_search(self, train_data, eval_data, need_cv=False):
+        if not self.need_run:
+            return train_data
+        grid_obj = GridSearch()
+        grid_search_param = self._get_grid_search_param()
+        output_data = grid_obj.run(grid_search_param, train_data, eval_data, self, need_cv, False)
+        return output_data
+
+    def set_grid_search_params(self, params_name, params_value):
+        if params_name is None or params_value is None:
+            return
+        if len(params_name) != len(params_value):
+            raise ValueError(
+                "grid search params name_list size: {} vs value_list size: {} not match".format(len(params_name), len(params_value)))
+
+        # "optimizer", "max_iter", "batch_size", "learning_rate", "alpha"
+        for i, name in enumerate(params_name):
+            if name == 'max_iter':
+                self.max_iter = params_value[i]
+            elif name == "batch_size":
+                self.batch_size = params_value[i]
+            elif name == "learning_rate":
+                self.learning_rate = params_value[i]
+            elif name == "alpha":
+                self.alpha = params_value[i]
+            elif name == "optimizer":
+                self.optimizer_type = params_value[i]
+            else:
+                raise NotImplementedError("grid search param: {} cannot be support.".format(name))
+        self.optimizer = optimizer_factory(self)
+
+        return dict(zip(params_name, params_value))
 
     def set_schema(self, data_instance, header=None):
         if header is None:
@@ -364,6 +405,4 @@ class BaseLRModel(ModelBase):
             raise OverflowError("The value range of features is too large for GLM, please have "
                                 "a check for input data")
         LOGGER.info("Check for abnormal value passed")
-
-
 

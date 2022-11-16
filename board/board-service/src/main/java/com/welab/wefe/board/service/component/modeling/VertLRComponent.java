@@ -16,12 +16,6 @@
 
 package com.welab.wefe.board.service.component.modeling;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.board.service.component.base.io.IODataType;
 import com.welab.wefe.board.service.component.base.io.InputMatcher;
@@ -40,6 +34,11 @@ import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.dto.AbstractLRInput;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author lonnie
@@ -91,6 +90,8 @@ public class VertLRComponent extends AbstractModelingComponent<VertLRComponent.P
                 .append("shuffle", params.getCvParam().isShuffle())
                 .append("need_cv", params.getCvParam().isNeedCv())
                 .append("lr_method", params.getOtherParam().getLrMethod());
+
+        output.append("grid_search_param",params.getGridSearchParam().toKernelParam());
 
         return output;
     }

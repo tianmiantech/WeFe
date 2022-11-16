@@ -3,7 +3,6 @@
  * date 07/05/2021
  * app entry
  */
-
 import { createApp, h } from 'vue';
 import store from '@src/store/store';
 import router from '@src/router/index';
@@ -32,7 +31,6 @@ const app = createApp({
     },
     render: () => h(App),
 });
-
 // add router/vuex
 app.use(router).use(store(app)).mount('#app');
 // global error handler

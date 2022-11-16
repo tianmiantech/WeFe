@@ -62,6 +62,9 @@ class IntersectModelBase(ModelBase):
         self.set_show_name("(Data Intersect)")
         self.source_type = DataSetSourceType.INTERSECT
         self.transfer_variable = DhIntersectTransferVariable()
+        self.intersect_ids_map = None
+
+        self.need_data_check = False
 
     def __init_intersect_method(self):
         LOGGER.info("Using {} intersection, role is {}".format(self.model_param.intersect_method, self.role))
@@ -107,7 +110,7 @@ class IntersectModelBase(ModelBase):
             proc_obj = RepeatedIDIntersect(repeated_id_owner=self.model_param.repeated_id_owner, role=self.role)
             data = proc_obj.run(data=data)
 
-        self.intersect_ids = self.intersection_obj.run(data)
+        self.intersect_ids, self.intersect_ids_map = self.intersection_obj.run(data)
         LOGGER.info("Finish intersection")
 
         if self.intersect_ids:
@@ -124,6 +127,9 @@ class IntersectModelBase(ModelBase):
 
     def output_data(self):
         return self.intersect_ids
+
+    def output_ids_map(self):
+        return self.intersect_ids_map
 
 
 class IntersectProvider(IntersectModelBase):

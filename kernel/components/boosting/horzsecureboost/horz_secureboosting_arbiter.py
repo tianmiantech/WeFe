@@ -58,7 +58,7 @@ class HorzSecureBoostingArbiter(BoostingTree):
         self.global_loss_history = []
 
         # federated_binning obj
-        self.binning_obj = HorzFeatureBinningServer()
+        self.binning_obj = None
 
     def sample_valid_feature(self):
 
@@ -115,6 +115,8 @@ class HorzSecureBoostingArbiter(BoostingTree):
         return label_mapping
 
     def federated_binning(self):
+        if self.binning_obj is None:
+            self.binning_obj = HorzFeatureBinningServer()
         self.binning_obj.average_run()
 
     def send_valid_features(self, valid_features, epoch_idx, t_idx):
@@ -163,7 +165,7 @@ class HorzSecureBoostingArbiter(BoostingTree):
                 if should_stop:
                     break
 
-            self.tracker.add_task_progress(1)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         self.callback_metric("loss",
                              "train",

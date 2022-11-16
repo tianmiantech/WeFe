@@ -171,7 +171,7 @@ public class PartnerService {
     }
 
     public PagingOutput<Output> queryList(Input input) {
-        Specification<PartnerMysqlModel> where = Where.create().like("name", "%" + input.getPartnerName() + "%")
+        Specification<PartnerMysqlModel> where = Where.create().contains("name", input.getPartnerName())
                 .build(PartnerMysqlModel.class);
 
         PagingOutput<PartnerMysqlModel> page = partnerRepository.paging(where, input);
