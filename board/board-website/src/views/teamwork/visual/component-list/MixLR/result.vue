@@ -51,6 +51,32 @@
                         <el-divider v-if="index === 0"></el-divider>
                     </template>
                 </el-collapse-item>
+                <!-- <el-collapse-item
+                    v-if="vData.gridParams"
+                    title="网格搜索结果"
+                    name="4"
+                >
+                    <el-descriptions>
+                        <el-descriptions-item
+                            v-for="(values, key) in vData.gridParams"
+                            :key="key"
+                            :label="mapGridName(key)"
+                        >
+                            <el-tag
+                                v-for="item in values"
+                                :key="item"
+                                :style="{ margin: '8px' }"
+                            >{{ item.value }}
+                                <el-tooltip v-if="item.best">
+                                    <template #content> 最优参数 </template>
+                                    <el-icon color="gold"
+                                    ><elicon-trophy
+                                    /></el-icon>
+                                </el-tooltip>
+                            </el-tag>
+                        </el-descriptions-item>
+                    </el-descriptions>
+                </el-collapse-item> -->
             </el-collapse>
         </template>
         <div
@@ -68,6 +94,7 @@
     } from 'vue';
     import CommonResult from '../common/CommonResult';
     import resultMixin from '../result-mixin';
+    import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
 
     const mixin = resultMixin();
 
@@ -117,6 +144,23 @@
                 },
             };
 
+            const toCamelCase = (str) =>
+                str
+                    .split('_')
+                    .reduce((acc, cur, index) =>
+                        index === 0
+                            ? cur
+                            : acc +
+                                String.prototype.toUpperCase.call(cur[0]) +
+                                cur.slice(1),
+                    );
+            const mapGridName = (key) =>
+                gridSearchParams.xgboost
+                    .concat(gridSearchParams.lr)
+                    .find(
+                        (each) => each.key === key || each.key === toCamelCase(key),
+                    ).label;
+
             const { $data, $methods } = mixin.mixin({
                 props,
                 context,
@@ -131,6 +175,7 @@
                 vData,
                 activeName,
                 methods,
+                mapGridName,
             };
         },
     };

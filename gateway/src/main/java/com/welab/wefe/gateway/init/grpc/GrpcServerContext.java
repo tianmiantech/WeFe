@@ -69,12 +69,13 @@ public class GrpcServerContext {
             ConfigProperties config = GatewayServer.CONTEXT.getBean(ConfigProperties.class);
             Integer internalPort = config.getGrpcServerInternalPort();
             Integer externalPort = config.getGrpcServerExternalPort();
-            if (null == internalPort) {
-                LOG.error("Grpc server start fail, Please set the gateway internal port.");
+            if(null == internalPort) {
+                LOG.error("Grpc server start fail, the internal network port cannot be empty!");
                 return false;
             }
-            if (null == externalPort) {
-                LOG.error("Grpc server start fail, Please set the gateway external port.");
+            if(null == externalPort) {
+                LOG.error("Grpc server start fail, the external network port cannot be empty!");
+                return false;
             }
             if ((internalPort.intValue() == externalPort.intValue())) {
                 LOG.error("Grpc server start fail, the internal network port is the same as the external network port[" + internalPort + "]");

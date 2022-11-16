@@ -23,6 +23,7 @@ import com.welab.wefe.common.util.RSAUtil;
 import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.common.web.config.ApiBeanNameGenerator;
 import com.welab.wefe.common.web.dto.SignedApiInput;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.data.fusion.service.database.entity.PartnerMySqlModel;
 import com.welab.wefe.data.fusion.service.operation.FusionApiLogger;
 import com.welab.wefe.data.fusion.service.service.PartnerService;
@@ -50,7 +51,7 @@ public class FusionService implements ApplicationContextAware {
         Launcher
                 .instance()
                 .apiPackageClass(FusionService.class)
-                //.checkSessionTokenFunction((api, annotation, token) -> CurrentAccount.get() != null)
+                .checkSessionTokenFunction((api, annotation, token) -> CurrentAccountUtil.get() != null || annotation.allowAccessWithSign())
                 .apiPermissionPolicy((api, annotation, params) -> {
                     if (annotation.allowAccessWithSign()) {
                         rsaVerify(params);

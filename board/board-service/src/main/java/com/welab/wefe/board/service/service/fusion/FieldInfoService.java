@@ -40,7 +40,7 @@ public class FieldInfoService extends AbstractService {
     @Autowired
     private FieldInfoRepository fieldInfoRepository;
 
-    public List<String> columnList(String businessId) {
+    public Set<String> columnList(String businessId) {
 
         List<FieldInfoMySqlModel> modelList = findByBusinessId(businessId);
 
@@ -49,7 +49,7 @@ public class FieldInfoService extends AbstractService {
             fields.addAll(Arrays.asList(x.getColumns().split(",")));
         });
 
-        return fields.stream().collect(Collectors.toList());
+        return fields;
     }
 
 

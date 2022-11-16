@@ -15,6 +15,7 @@ from kernel.transfer.variables.base_transfer_variable import BaseTransferVariabl
 class VertDPSecureBoostingTransferVariable(BaseTransferVariables):
     def __init__(self, flowid=0):
         super().__init__(flowid)
+        self.anonymous_name_mapping = self._create_variable(name='anonymous_name_mapping')
         self.begin_iter = self._create_variable(name='begin_iter')
         self.bin_split_points = self._create_variable(name='bin_split_points')
         self.data_bin_with_dp = self._create_variable(name='data_bin_with_dp')

@@ -2,7 +2,7 @@
     <div class="page register-wrapper" v-loading="pageLoading">
         <div class="sign-box">
             <div class="logo">
-                <img src="../../assets/images/logo.png">
+                <img src="../../assets/images/x-logo.png">
             </div>
             <h4 class="sign-title mt10" align="center">初始化系统</h4>
             <el-divider/>

@@ -64,6 +64,9 @@ public class QueryApi extends AbstractApi<QueryApi.Input, PagingOutput<ModelingI
         @Check(name = "组件类型")
         private ComponentType componentType;
 
+        @Check(name = "是否包含建模节点的参数")
+        public boolean withModelingParams = false;
+
         public String getProjectId() {
             return projectId;
         }

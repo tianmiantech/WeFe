@@ -39,6 +39,10 @@ LOGGER = log_utils.get_logger()
 
 
 def select_columns(self, data_instance):
+    LOGGER.debug("data_instance.first()[1].features : {}".format(data_instance.first()[1].features))
+    if len(data_instance.first()[1].features)==0:
+        return data_instance.mapValues(lambda inst: inst.features)
+
     col_names = data_instance.schema["header"]
     if self.model_param.column_indexes == -1 and len(self.model_param.column_names) < 1:
         self.names = col_names

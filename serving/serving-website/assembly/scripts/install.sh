@@ -19,7 +19,6 @@ workdir=$(pwd)/$(dirname $0)/../../ ; cd $workdir
 
 rm -rf node_modules
 nvm use 16.13.0 || :
-nrm use npm
 npm install
 npm run build -- $CI_DEPLOY_ENV=$CI_SERVICE_NAME tail=2
 

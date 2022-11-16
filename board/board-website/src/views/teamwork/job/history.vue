@@ -17,12 +17,14 @@
                     />
                 </el-select>
             </el-form-item>
-            <el-button
-                type="primary"
-                @click="getList"
-            >
-                搜索
-            </el-button>
+            <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="getList"
+                >
+                    搜索
+                </el-button>
+            </el-form-item>
             <el-button
                 type="primary"
                 class="job-history mb10"
@@ -143,11 +145,12 @@
                 width="150"
             >
                 <template v-slot="scope">
+                    <!-- 可能出现start_time为null的情况，此时取created_time -->
                     <span v-if="scope.row.finish_time > 0">
-                        {{ timeFormat((scope.row.finish_time - scope.row.start_time) / 1000) }}
+                        {{ timeFormat((scope.row.finish_time - (scope.row.start_time || scope.row.created_time)) / 1000) }}
                     </span>
                     <span v-else>
-                        {{ timeFormat((new Date().valueOf() - scope.row.start_time) / 1000) }}
+                        {{ timeFormat((Date.now() - (scope.row.start_time || scope.row.created_time)) / 1000) }}
                     </span>
                 </template>
             </el-table-column>

@@ -22,7 +22,7 @@
             <el-button
                 type="primary"
                 native-type="submit"
-                @click="getList({ to: true, resetPagination: true })"
+                @click="query"
             >
                 搜索
             </el-button>
@@ -51,6 +51,14 @@
             <el-table-column label="用户名" prop="nickname" min-width="140" />
             <el-table-column label="手机号" prop="phone_number" min-width="140" />
             <el-table-column label="邮箱" prop="email" min-width="180" />
+            <el-table-column
+                label="注册时间"
+                min-width="140"
+            >
+                <template v-slot="scope">
+                    {{ dateFormat(scope.row.create_time) }}
+                </template>
+            </el-table-column>
             <template v-if="userInfo.admin_role">
                 <el-table-column label="用户角色" width="140">
                     <template v-slot="scope">
@@ -252,6 +260,7 @@
     import { mapGetters } from 'vuex';
     import table from '@src/mixins/table';
     import { baseLogout } from '@src/router/auth';
+    import { dateFormat } from '@src/utils/date';
 
     export default {
         mixins: [table],
@@ -264,7 +273,7 @@
                     adminRole: '',
                 },
                 watchRoute:    true,
-                defaultSearch: true,
+                defaultSearch: false,
                 requestMethod: 'post',
                 getListApi:    '/account/query',
                 resetPwDialog: {
@@ -283,7 +292,13 @@
         computed: {
             ...mapGetters(['userInfo']),
         },
+        created() {
+            this.query();
+        },
         methods: {
+            query() {
+                this.getList({ to: true, resetPagination: true });
+            },
             changeRole(event, row) {
                 this.$confirm(`确定要将该用户设为${row.admin_role ? '普通用户' : '管理员'}吗?`, '警告', {
                     type:              'warning',

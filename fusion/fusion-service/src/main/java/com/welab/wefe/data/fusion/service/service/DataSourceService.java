@@ -127,6 +127,7 @@ public class DataSourceService extends AbstractService {
     public PagingOutput<QueryApi.Output> query(QueryApi.Input input) {
         Specification<DataSourceMySqlModel> where = Where.create()
                 .equal("name", input.getName())
+                .equal("id", input.getId())
                 .build(DataSourceMySqlModel.class);
 
         return dataSourceRepo.paging(where, input, QueryApi.Output.class);

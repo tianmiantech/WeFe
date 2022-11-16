@@ -39,7 +39,7 @@ public class SendTransferMetaCacheTask extends Thread {
         // because this method is invoked before starting the GRPC service.
         ThreadUtil.sleep(5000);
         boolean flag = true;
-        while (flag && !InitRpcServer.SERVER_IS_SHUTDOWN) {
+        while (flag) {
             SendTransferMetaCache sendTransferMetaCache = SendTransferMetaCache.getInstance();
             GatewayMetaProto.TransferMeta transferMeta = sendTransferMetaCache.poll();
             if (null == transferMeta) {

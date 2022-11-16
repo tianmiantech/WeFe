@@ -36,7 +36,6 @@ from kernel.components.lr.vertlr.sync import converg_sync
 from kernel.components.lr.vertlr.sync import iter_sync, paillier_keygen_sync, batch_info_sync
 from kernel.optimizer import activation
 from kernel.optimizer.loss import SigmoidBinaryCrossEntropyLoss
-from kernel.optimizer.optimizer import optimizer_factory
 from kernel.security import EncryptModeCalculator
 from kernel.transfer.framework.horz.procedure import aggregator
 from kernel.utils import consts
@@ -66,7 +65,6 @@ class MixLRPromoter(MixLRBaseModel):
         super()._init_model(params)
 
         self.aggregator.register_aggregator(self.transfer_variable)
-        self.optimizer = optimizer_factory(params)
         self.aggregate_iters = params.aggregate_iters
 
     def fit(self, data_instances, validate_data=None):
@@ -126,7 +124,7 @@ class MixLRPromoter(MixLRBaseModel):
             continue_flag = iteration + 1
         self.n_iter_ = continue_flag
         self.iter_transfer.sync_cur_iter(self.n_iter_)
-        self.tracker.set_task_progress(self.n_iter_)
+        self.tracker.set_task_progress(self.n_iter_, self.need_grid_search)
         batch_model_weights = self.model_weights
         degree = 0
         iter_loss = None
@@ -195,8 +193,8 @@ class MixLRPromoter(MixLRBaseModel):
                     break
             self.n_iter_ += 1
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
         # if self.validation_strategy and self.validation_strategy.has_saved_best_model():
         #     self.load_model(self.validation_strategy.cur_best_model)
 

@@ -27,7 +27,7 @@
                 <el-input-number
                     v-model="item.count"
                     type="number"
-                    :min="1"
+                    :min="2"
                     controls-position="right"
                     @blur="methods.changeMethodCount(item, index)"
                     @change="methods.changeMethodCount(item, index)"
@@ -89,6 +89,7 @@
                                     v-model.trim="scope.row.points"
                                     style="width:160px;"
                                     clearable
+                                    @input="methods.pointsInput(scope.row.points, index, scope.$index)"
                                 />
                             </template>
                             <template v-else-if="scope.row.method">
@@ -281,6 +282,11 @@
 
                     return true;
                 },
+                pointsInput(val, idx, sidx){
+                    val = val.replace(/，/g, ',');
+                    val = val.replace(/。/g, '.');
+                    vData.featureSelectTab[idx].$feature_list[sidx].points = val;
+                },
             };
 
             // merge mixin
@@ -308,9 +314,5 @@
     .el-input-number{
         width: 104px;
         margin-right:10px;
-        :deep(.el-input__inner){
-            padding-left:5px;
-            padding-right: 40px;
-        }
     }
 </style>

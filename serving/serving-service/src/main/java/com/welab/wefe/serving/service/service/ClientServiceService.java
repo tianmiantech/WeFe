@@ -113,12 +113,13 @@ public class ClientServiceService {
                 model.setServiceType(-1);
                 model.setCode(input.getCode());
                 model.setServiceName(input.getServiceName());
-                if (StringUtils.isBlank(input.getPrivateKey()) || !input.getPrivateKey().contains("******")) {
-                    model.setPrivateKey(input.getPrivateKey());
-                    model.setPublicKey(input.getPublicKey());
-                } else if (input.getPrivateKey().contains("******")) {
+                if (StringUtils.isNotBlank(input.getPublicKey()) && StringUtils.isBlank(input.getPrivateKey())
+                        && input.getPublicKey().equalsIgnoreCase(CacheObjects.getRsaPublicKey())) {
                     model.setPrivateKey(CacheObjects.getRsaPrivateKey());
                     model.setPublicKey(CacheObjects.getRsaPublicKey());
+                } else if (StringUtils.isBlank(input.getPublicKey())) {
+                    model.setPrivateKey(input.getPrivateKey());
+                    model.setPublicKey(input.getPublicKey());
                 }
                 if (StringUtils.isNotBlank(input.getUrl()) && input.getUrl().endsWith("/")) {
                     input.setUrl(input.getUrl().substring(0, input.getUrl().length() - 1));
@@ -272,12 +273,13 @@ public class ClientServiceService {
                 model.setCode(input.getCode());
                 model.setClientName(input.getClientName());
                 model.setServiceName(input.getServiceName());
-                if (StringUtils.isBlank(input.getPublicKey()) || !input.getPublicKey().contains("******")) {
+                if (StringUtils.isNotBlank(input.getPublicKey()) && StringUtils.isNotBlank(input.getPrivateKey())
+                        && !input.getPublicKey().contains("******") && !input.getPrivateKey().contains("******")) { // 自己填写
                     model.setPrivateKey(input.getPrivateKey());
                     model.setPublicKey(input.getPublicKey());
-                } else if (input.getPublicKey().contains("******")) {
-                    model.setPrivateKey(CacheObjects.getRsaPrivateKey());
-                    model.setPublicKey(CacheObjects.getRsaPublicKey());
+                } else if (StringUtils.isBlank(input.getPrivateKey()) && StringUtils.isBlank(input.getPublicKey())) {
+                    model.setPrivateKey("");
+                    model.setPublicKey("");
                 }
             }
             clientServiceRepository.save(model);

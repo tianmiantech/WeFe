@@ -16,8 +16,19 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONObject;
-import com.welab.wefe.board.service.api.project.flow.*;
+import com.welab.wefe.board.service.api.project.flow.AddFlowApi;
+import com.welab.wefe.board.service.api.project.flow.CopyFlowApi;
+import com.welab.wefe.board.service.api.project.flow.DeleteApi;
+import com.welab.wefe.board.service.api.project.flow.UpdateFlowBaseInfoApi;
+import com.welab.wefe.board.service.api.project.flow.UpdateFlowGraphApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.api.project.project.AddApi;
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
@@ -35,13 +46,10 @@ import com.welab.wefe.common.web.dto.AbstractApiInput;
 import com.welab.wefe.common.web.dto.ApiResult;
 import com.welab.wefe.common.wefe.checkpoint.dto.ServiceAvailableCheckOutput;
 import com.welab.wefe.common.wefe.dto.global_config.GatewayConfigModel;
-import com.welab.wefe.common.wefe.enums.*;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import com.welab.wefe.common.wefe.enums.AuditStatus;
+import com.welab.wefe.common.wefe.enums.FederatedLearningType;
+import com.welab.wefe.common.wefe.enums.GatewayProcessorType;
+import com.welab.wefe.common.wefe.enums.JobMemberRole;
 
 /**
  * @author zane.luo
@@ -261,6 +269,16 @@ public class GatewayService extends BaseGatewayService {
     }
 
     /**
+     * Notify the gateway to update the partner config cache
+     */
+    public void refreshPartnerConfigCache() throws StatusCodeWithException {
+        sendToMyselfGateway(
+                "",
+                GatewayProcessorType.refreshPartnerConfigCacheProcessor
+        );
+    }
+
+    /**
      * Notify the gateway to update the IP whitelist cache
      */
     public void refreshIpWhiteListCache() throws StatusCodeWithException {
@@ -402,18 +420,15 @@ public class GatewayService extends BaseGatewayService {
                                 .toString()
                 )
                 .toStringWithNull();
-
         sendToMyselfGateway(gatewayUri, data, GatewayProcessorType.boardHttpProcessor).toJavaObject(ApiResult.class);
     }
 
+
     /**
      * Check the alive of the gateway
-     *
-     * @param gatewayUri Gateway IP: prot address. If the value is not empty, it means to directly test its own gateway alive
      */
     public void pingGatewayAlive(String dstMemberId, String gatewayUri) throws StatusCodeWithException {
         sendToOtherGateway(dstMemberId, gatewayUri, JObject.create().toString(), GatewayProcessorType.gatewayAliveProcessor);
     }
-
 
 }

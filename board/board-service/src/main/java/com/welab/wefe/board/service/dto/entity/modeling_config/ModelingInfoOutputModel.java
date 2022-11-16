@@ -54,6 +54,9 @@ public class ModelingInfoOutputModel extends AbstractOutputModel {
     @Check(name = "模型Id")
     private String modelId;
 
+    @Check(name = "建模节点参数")
+    private JSONObject modelingParams;
+
     public String getJobId() {
         return jobId;
     }
@@ -156,5 +159,13 @@ public class ModelingInfoOutputModel extends AbstractOutputModel {
 
     public void setModelId(String modelId) {
         this.modelId = modelId;
+    }
+
+    public JSONObject getModelingParams() {
+        return modelingParams;
+    }
+
+    public void setModelingParams(JSONObject modelingParams) {
+        this.modelingParams = modelingParams;
     }
 }

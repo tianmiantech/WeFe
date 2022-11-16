@@ -16,6 +16,12 @@
 
 package com.welab.wefe.serving.service.service;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.welab.wefe.common.SecurityUtil;
 import com.welab.wefe.common.constant.SecretKeyType;
@@ -32,19 +38,12 @@ import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.UUID;
 
 /**
  * @author Zane
  */
 @Service
 public class AccountService {
-
     @Autowired
     private AccountRepository accountRepository;
 
@@ -94,7 +93,8 @@ public class AccountService {
                 accountMysqlModel.setNickname(accountInfo.getName());
                 needUpdate = true;
             }
-            if (!needUpdate && StringUtil.isNotEmpty(phoneNumber) && !phoneNumber.equals(accountInfo.getPhoneNumber())) {
+            if (!needUpdate && StringUtil.isNotEmpty(phoneNumber)
+                    && !phoneNumber.equals(accountInfo.getPhoneNumber())) {
                 accountMysqlModel.setPhoneNumber(accountInfo.getPhoneNumber());
                 needUpdate = true;
             }

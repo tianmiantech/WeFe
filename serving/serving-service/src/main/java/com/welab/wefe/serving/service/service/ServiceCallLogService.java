@@ -15,6 +15,7 @@
  */
 package com.welab.wefe.serving.service.service;
 
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.web.util.ModelMapper;
@@ -23,6 +24,8 @@ import com.welab.wefe.serving.service.database.entity.ServiceCallLogMysqlModel;
 import com.welab.wefe.serving.service.database.repository.ServiceCallLogRepository;
 import com.welab.wefe.serving.service.dto.PagingOutput;
 import com.welab.wefe.serving.service.dto.ServiceCallLogInput;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -109,7 +112,7 @@ public class ServiceCallLogService {
             model.setResponsePartnerId(responsePartnerId);
             model.setResponsePartnerName(responsePartnerName);
             model.setResponseId(responseId);
-            model.setResponseData(responseData);
+            model.setResponseData(ServiceUtil.abbreviate(responseData, 12500));
             model.setResponseCode(responseCode);
             model.setResponseStatus(responseStatus);
             model.setSpendTime(spendTime);

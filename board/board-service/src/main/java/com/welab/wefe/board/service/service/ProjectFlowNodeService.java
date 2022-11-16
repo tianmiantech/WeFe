@@ -16,6 +16,18 @@
 
 package com.welab.wefe.board.service.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.api.project.node.CheckExistEvaluationComponentApi;
 import com.welab.wefe.board.service.api.project.node.UpdateApi;
 import com.welab.wefe.board.service.component.Components;
@@ -36,20 +48,11 @@ import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.StringUtil;
+import com.welab.wefe.common.web.util.CurrentAccountUtil;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.ProjectFlowStatus;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author zane.luo
@@ -157,8 +160,11 @@ public class ProjectFlowNodeService {
     @Transactional(rollbackFor = Exception.class)
     public List<ProjectFlowNodeOutputModel> updateFlowNode(UpdateApi.Input input) throws StatusCodeWithException {
 
-        // Update flow status
-        projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
+        // 对于网格搜索任务参数自动回写等程序自动修改参数的场景，不需要将状态修改为 editing
+        if (CurrentAccountUtil.get() != null || input.fromGateway()) {
+            // Update flow status
+            projectFlowService.updateFlowStatus(input.getFlowId(), ProjectFlowStatus.editing);
+        }
 
         ProjectFlowNodeMySqlModel node = findOne(input.getFlowId(), input.getNodeId());
 
@@ -180,6 +186,14 @@ public class ProjectFlowNodeService {
         }
         // If the node already exists, update it.
         else {
+            // 如果参数没有变化，不执行更新，避免刷新 params_version 字段导致缓存不可用。
+            // 这里为了增强鲁棒性，使用相同的序列化方式消除因字段顺序差异等原因导致的字符串不一致。
+            String oldParams = node.getParams() == null ? "" : JSON.parseObject(node.getParams()).toString();
+            String newParams = JSON.parseObject(input.getParams()).toString();
+            if (newParams.equals(oldParams)) {
+                return list;
+            }
+
             node.setParams(input.getParams());
             node.setParamsVersion(System.currentTimeMillis());
             node.setUpdatedBy(input);
@@ -216,9 +230,9 @@ public class ProjectFlowNodeService {
     }
 
     /**
-     * Check whether the current node has an evaluation node type
+     * Check whether the current node has specific node type
      */
-    public boolean checkExistEvaluationComponent(CheckExistEvaluationComponentApi.Input input) throws StatusCodeWithException {
+    public boolean checkExistSpecificComponent(CheckExistEvaluationComponentApi.Input input, List<ComponentType> targetComponentList) throws StatusCodeWithException {
         // Whether it is oot mode (click into the canvas in the model list, that is,
         // oot mode, in oot mode, only check whether there is an evaluation node)
         boolean isOotMode = StringUtil.isNotEmpty(input.getJobId());
@@ -243,7 +257,7 @@ public class ProjectFlowNodeService {
             String modelTaskId = myRoleTaskMySqlModelList.get(0).getTaskId();
             List<TaskMySqlModel> resultList = taskService.baseFindHomologousBranch(totalTaskMySqlModelList, modelTaskId);
             for (TaskMySqlModel taskMySqlModel : resultList) {
-                if (ComponentType.Evaluation == taskMySqlModel.getTaskType()) {
+                if (targetComponentList.contains(taskMySqlModel.getTaskType())) {
                     return true;
                 }
             }
@@ -266,7 +280,11 @@ public class ProjectFlowNodeService {
         }
 
         // Find related parent node types
-        FlowGraphNode preModelNode = flowGraph.findOneNodeFromParent(node, ComponentType.Evaluation);
-        return null != preModelNode;
+        for (ComponentType componentType : targetComponentList) {
+            if (null != flowGraph.findOneNodeFromParent(node, componentType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

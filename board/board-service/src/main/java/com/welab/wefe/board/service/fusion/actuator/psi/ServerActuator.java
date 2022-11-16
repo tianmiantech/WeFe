@@ -1,5 +1,10 @@
 package com.welab.wefe.board.service.fusion.actuator.psi;
 
+import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /*
  * Copyright 2021 Tianmian Tech. All Rights Reserved.
  *
@@ -18,7 +23,6 @@ package com.welab.wefe.board.service.fusion.actuator.psi;
 
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
 import com.welab.wefe.board.service.fusion.actuator.PsiDumpHelper;
 import com.welab.wefe.board.service.fusion.manager.ActuatorManager;
 import com.welab.wefe.board.service.service.fusion.FusionTaskService;
@@ -27,9 +31,6 @@ import com.welab.wefe.common.web.Launcher;
 import com.welab.wefe.fusion.core.actuator.psi.AbstractPsiServerActuator;
 import com.welab.wefe.fusion.core.enums.FusionTaskStatus;
 import com.welab.wefe.fusion.core.utils.bf.BloomFilters;
-
-import java.math.BigInteger;
-import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -43,7 +44,7 @@ public class ServerActuator extends AbstractPsiServerActuator {
     public void dump(List<JObject> fruit) {
         LOG.info("fruit insert ready...");
 
-        List<String> headers = Lists.newArrayList();
+        Set<String> headers = new HashSet<>();
         if (fruit.isEmpty()) {
             return;
         }
@@ -65,8 +66,6 @@ public class ServerActuator extends AbstractPsiServerActuator {
 
     @Override
     public void close() throws Exception {
-        //remove Actuator
-        ActuatorManager.remove(businessId);
 
         //update task status
         FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
