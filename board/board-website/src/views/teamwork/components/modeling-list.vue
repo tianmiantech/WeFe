@@ -427,6 +427,7 @@
                     data: {
                         ootJobId:           row.job_id,
                         ootModelFlowNodeId: row.flow_node_id,
+                        ootModelName:       `${scope.row.role}: ${scope.row.flow_name} - ${scope.row.name}`
                     },
                 });
 
