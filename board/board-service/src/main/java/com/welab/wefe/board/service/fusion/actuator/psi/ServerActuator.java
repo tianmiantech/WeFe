@@ -66,8 +66,6 @@ public class ServerActuator extends AbstractPsiServerActuator {
 
     @Override
     public void close() throws Exception {
-        //remove Actuator
-        ActuatorManager.remove(businessId);
 
         //update task status
         FusionTaskService fusionTaskService = Launcher.CONTEXT.getBean(FusionTaskService.class);
