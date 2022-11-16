@@ -301,8 +301,7 @@
 
                         <template
                             v-if="
-                                form.service_type === 1 ||
-                                form.service_type === 3
+                                form.service_type === 1 || form.service_type === 3
                             "
                         >
                             <el-form-item
@@ -2455,7 +2454,7 @@ export default {
                         });
                     } else {
                         const temp = this.form.data_source.return_fields;
-                        const item = this.data_fields.find(y => y.name === Array.isArray(temp) ? temp[0] : temp);
+                        const item = this.data_fields.find(y => y.name === (Array.isArray(temp) ? temp[0] : temp));
 
                         if (item) {
                             return_fields.push(item);
