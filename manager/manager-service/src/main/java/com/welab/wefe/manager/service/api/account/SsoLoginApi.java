@@ -21,23 +21,19 @@ import com.welab.wefe.common.web.api.base.AbstractNoneInputApi;
 import com.welab.wefe.common.web.api.base.Api;
 import com.welab.wefe.common.web.dto.AbstractApiOutput;
 import com.welab.wefe.common.web.dto.ApiResult;
-import com.welab.wefe.common.web.service.account.SsoAccountInfo;
-import com.welab.wefe.common.web.util.CurrentAccountUtil;
+import com.welab.wefe.manager.service.service.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 @Api(path = "account/sso_login", name = "sso_login", login = false)
 public class SsoLoginApi extends AbstractNoneInputApi<SsoLoginApi.Output> {
 
+    @Autowired
+    private AccountService accountService;
+
     @Override
     protected ApiResult<Output> handle() throws StatusCodeWithException {
-        SsoAccountInfo accountInfo = CurrentAccountUtil.get();
-        Output output = new Output();
-        output.setId(accountInfo.getId());
-        output.setToken(accountInfo.getId());
-        output.setPhoneNumber(accountInfo.getPhoneNumber());
-        output.setNickname(accountInfo.getName());
-
-        return success(output);
+        return success(accountService.ssoLogin());
     }
 
     public static class Output extends AbstractApiOutput {

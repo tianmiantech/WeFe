@@ -58,19 +58,20 @@ public class AccountService {
             // sha hash
             String password = Sha1.of(UUID.randomUUID().toString().replace("-", "") + salt);
 
-            AccountMysqlModel model = new AccountMysqlModel();
-            model.setCreatedBy(CurrentAccountUtil.get().getId());
-            model.setPhoneNumber(accountInfo.getPhoneNumber());
-            model.setNickname(accountInfo.getName());
-            model.setEmail(accountInfo.getEmail());
-            model.setPassword(password);
-            model.setSalt(salt);
-            model.setSuperAdminRole(accountRepository.count() < 1);
-            model.setAdminRole(model.getSuperAdminRole());
-            model.setEnable(true);
-            model.setAuditStatus(AuditStatus.agree);
-            model.setLastActionTime(new Date());
-            accountRepository.save(model);
+            accountMysqlModel = new AccountMysqlModel();
+            accountMysqlModel.setId(accountInfo.getId());
+            accountMysqlModel.setCreatedBy(CurrentAccountUtil.get().getId());
+            accountMysqlModel.setPhoneNumber(accountInfo.getPhoneNumber());
+            accountMysqlModel.setNickname(accountInfo.getName());
+            accountMysqlModel.setEmail(accountInfo.getEmail());
+            accountMysqlModel.setPassword(password);
+            accountMysqlModel.setSalt(salt);
+            accountMysqlModel.setSuperAdminRole(true);
+            accountMysqlModel.setAdminRole(true);
+            accountMysqlModel.setEnable(true);
+            accountMysqlModel.setAuditStatus(AuditStatus.agree);
+            accountMysqlModel.setLastActionTime(new Date());
+            accountRepository.save(accountMysqlModel);
         } else {
             String nickName = accountMysqlModel.getNickname();
             String phoneNumber = accountMysqlModel.getPhoneNumber();
@@ -93,6 +94,9 @@ public class AccountService {
                 accountRepository.save(accountMysqlModel);
             }
         }
+
+        CacheObjects.putAccount(accountMysqlModel);
+
         SsoLoginApi.Output output = new SsoLoginApi.Output();
         output.setId(accountInfo.getId());
         output.setToken(accountInfo.getId());

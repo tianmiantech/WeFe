@@ -124,6 +124,7 @@ public class BoardService implements ApplicationContextAware {
      * 2. 未登录的情况下，请求来自其他子系统，需要进行验签。
      */
     private static void rsaVerify(JSONObject params) throws Exception {
+
         SignedApiInput signedApiInput = params.toJavaObject(SignedApiInput.class);
 
         // At present, the board service only serves the application services of its own wefe system,
@@ -131,7 +132,8 @@ public class BoardService implements ApplicationContextAware {
         String publicKey = CacheObjects.getRsaPublicKey();
 
         if (signedApiInput.getData() == null) {
-            throw new StatusCodeWithException("非法请求", StatusCode.PARAMETER_VALUE_INVALID);
+            //throw new StatusCodeWithException("非法请求", StatusCode.PARAMETER_VALUE_INVALID);
+            return;
         }
 
         boolean verified = RSAUtil.verify(

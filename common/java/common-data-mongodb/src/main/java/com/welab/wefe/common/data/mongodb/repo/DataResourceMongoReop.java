@@ -235,7 +235,7 @@ public class DataResourceMongoReop extends AbstractDataSetMongoRepo {
         or.orOperator(
                 new QueryBuilder().append("public_level", "Public").getCriteria(),
                 new QueryBuilder().append("member_id", dataResourceQueryInput.getCurMemberId()).getCriteria(),
-                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).getCriteria()
+                new QueryBuilder().like("public_member_list", dataResourceQueryInput.getCurMemberId()).notEq("public_level","OnlyMyself").getCriteria()
         );
         dataResouceCriteria.andOperator(or);
 
