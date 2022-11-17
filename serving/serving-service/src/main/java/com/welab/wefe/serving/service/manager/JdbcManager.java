@@ -268,6 +268,7 @@ public class JdbcManager {
 					ps.executeBatch();
 					conn.commit();
 					ps.clearBatch();
+					log.info("JdbcManager batchInsert count: " + count + ", ids size = " + ids.size());
 				}
 			}
 			// 剩余数量不足1000
