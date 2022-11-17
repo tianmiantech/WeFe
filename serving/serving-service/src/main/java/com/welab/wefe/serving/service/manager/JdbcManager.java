@@ -249,7 +249,7 @@ public class JdbcManager {
 
 	public void batchInsert(Connection conn, String sql, Set<String> ids) throws SQLException {
 	    long start = System.currentTimeMillis();
-        log.info("JdbcManager batchInsert start: " + start);
+        log.info("JdbcManager batchInsert start: " + start + ", ids size = " + ids.size());
 		conn.setAutoCommit(false);
 		PreparedStatement ps = null;
 		try {
