@@ -264,7 +264,7 @@ public class JdbcManager {
 				ps.addBatch();
 				count++;
 				// 每1000条记录插入一次
-				if (count % 1000 == 0) {
+				if (count % 100000 == 0) {
 					ps.executeBatch();
 					conn.commit();
 					ps.clearBatch();
