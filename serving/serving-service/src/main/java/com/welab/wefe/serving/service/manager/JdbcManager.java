@@ -185,7 +185,7 @@ public class JdbcManager {
 		    // 使用流式获取数据
             ps = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ps.setFetchSize(Integer.MIN_VALUE);
-            ps.setLargeMaxRows(Integer.MAX_VALUE);
+            ps.setLargeMaxRows(50000000);
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				Map<String, String> fieldMap = new LinkedHashMap<>();
