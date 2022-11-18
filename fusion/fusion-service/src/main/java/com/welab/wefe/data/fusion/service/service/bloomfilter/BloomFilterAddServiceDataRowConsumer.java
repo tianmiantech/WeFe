@@ -201,7 +201,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     @Override
     public void accept(Map<String, Object> data) {
-        batchConsumer.setMaxBatchSize(1000);
+        batchConsumer.setMaxBatchSize(100000);
         batchConsumer.add(data);
     }
 

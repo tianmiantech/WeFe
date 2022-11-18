@@ -94,7 +94,7 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<Map<String, Ob
     public void accept(Map<String, Object> data) {
 
         // Save data row
-        batchConsumer.setMaxBatchSize(1000);
+        batchConsumer.setMaxBatchSize(100000);
         batchConsumer.add(data);
 
     }
