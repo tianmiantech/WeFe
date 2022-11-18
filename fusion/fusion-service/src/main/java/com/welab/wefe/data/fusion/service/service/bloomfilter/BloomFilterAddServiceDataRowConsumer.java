@@ -217,7 +217,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         long start = System.currentTimeMillis();
         LOG.info("generateFilter begin , size = " + rows.size());
         // 创建定长线程池
-        int poolSize = 100;
+        int poolSize = 50;
         ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(poolSize);
         final BloomFilterAddServiceDataRowConsumer consumer = this;
         for (Map<String, Object> data : rows) {
@@ -229,7 +229,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
                         String key = PrimaryKeyUtils.create(JObject.create(data), fieldInfoList);
                         BigInteger h = PSIUtils.stringToBigInteger(key);
                         BigInteger z = h.modPow(d, N);
-                        consumer.addToBf(z);
+                         consumer.addToBf(z);
                         if (consumer.getCheckCount().get() <= 10) {
                             consumer.getCheckData().add(data);
                             consumer.getCheckCount().incrementAndGet();
