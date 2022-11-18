@@ -19,7 +19,7 @@ package com.welab.wefe.union.service.config;
 
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.union.service.constant.ContractName;
+import com.welab.wefe.common.wefe.enums.ContractName;
 import com.welab.wefe.union.service.contract.*;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.collections4.CollectionUtils;

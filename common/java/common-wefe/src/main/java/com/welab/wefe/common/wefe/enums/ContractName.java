@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.welab.wefe.union.service.constant;
+package com.welab.wefe.common.wefe.enums;
 
 /**
  * 合约名
@@ -64,4 +64,20 @@ public class ContractName {
      * 普通二维表资源
      */
     public final static String TABLE_DATA_SET_CONTRACT = "TableDataSetContract";
+    /**
+     * CA证书
+     */
+    public final static String TRUST_CERTS_CONTRACT = "TrustCertsContract";
+    /**
+     * 实名认证
+     */
+    public final static String REAL_NAME_AUTH_AGREEMENT_TEMPLATE_CONTRACT = "RealnameAuthAgreementTemplateContract";
+    /**
+     * 数据集标签
+     */
+    public final static String DATA_RESOURCE_DEFAULT_TAG_CONTRACT = "DataResourceDefaultTagContract";
+    /**
+     * 数据集标签
+     */
+    public final static String DATA_SET_DEFAULT_TAG_CONTRACT = "DataSetDefaultTagContract";
 }
