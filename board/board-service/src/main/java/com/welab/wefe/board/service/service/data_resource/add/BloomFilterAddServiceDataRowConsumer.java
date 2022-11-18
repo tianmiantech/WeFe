@@ -157,7 +157,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<LinkedHash
         this.bloomFilterRepository.save(model);
 
         this.bloomfilterPath = outFile.getPath();
-        batchConsumer = new BatchConsumer<>(10, 1_000, rows -> {
+        batchConsumer = new BatchConsumer<>(102400, 1_000, rows -> {
             try {
                 generateFilter(bloomfilterId, rows);
                 // update bloom_filter upload progress
