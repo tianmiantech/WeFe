@@ -42,6 +42,7 @@ import com.welab.wefe.common.data.mysql.enums.OrderBy;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.DateUtil;
 import com.welab.wefe.common.util.JObject;
+import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
 import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.*;
@@ -92,6 +93,7 @@ public class ProjectFlowService extends AbstractService {
     private ModelOotRecordService modelOotRecordService;
     @Autowired
     private TaskRepository taskRepository;
+
     /**
      * delete flow
      */
@@ -780,7 +782,8 @@ public class ProjectFlowService extends AbstractService {
         addFlowInput.setProjectId(jobMySqlModel.getProjectId());
         addFlowInput.setTemplateId(ootFlowTemplateMySqlModel.getId());
         addFlowInput.setFederatedLearningType(jobMySqlModel.getFederatedLearningType());
-        addFlowInput.setName(jobMySqlModel.getName() + "- [打分验证-" + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()).substring(11, 19) + "]");
+        String flowNameSuffix = "- [打分验证-" + DateUtil.toStringYYYY_MM_DD_HH_MM_SS2(new Date()).substring(11, 19) + "]";
+        addFlowInput.setName(StringUtil.isEmpty(input.getOotModelName()) ? (jobMySqlModel.getName() + flowNameSuffix) : (input.getOotModelName() + flowNameSuffix));
         addFlowInput.setOotMode(true);
         output.setFlowId(addFlow(addFlowInput));
 
