@@ -217,7 +217,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         long start = System.currentTimeMillis();
         LOG.info("generateFilter begin , size = " + rows.size());
         // 创建定长线程池
-        int poolSize = 100;
+        int poolSize = 8;
         ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(poolSize);
         final BloomFilterAddServiceDataRowConsumer consumer = this;
         for (Map<String, Object> data : rows) {
