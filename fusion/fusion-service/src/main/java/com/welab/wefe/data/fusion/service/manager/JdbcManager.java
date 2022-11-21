@@ -131,6 +131,8 @@ public class JdbcManager {
     }
 
     public boolean testQuery(Connection conn, String sql, boolean judgeFieldNum) throws StatusCodeWithException {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager testQuery start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -161,6 +163,8 @@ public class JdbcManager {
             return false;
         } finally {
             close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager testQuery duration: " + duration);
         }
 
         return true;
@@ -191,6 +195,8 @@ public class JdbcManager {
      * Iterate over the data read from the database
      */
     public void readWithSelectRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, long maxReadLineCount, List<String> rows) {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager readWithSelectRow4 start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
         long readLineCount = 0;
@@ -222,6 +228,8 @@ public class JdbcManager {
             LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager readWithSelectRow4 duration: " + duration);
         }
     }
 
@@ -230,6 +238,8 @@ public class JdbcManager {
      * Iterate over the data read from the database
      */
     public void readWithFieldRow(Connection conn, String sql, Consumer<List<String>> headRowConsumer, Consumer<JSONObject> dataRowConsumer, long maxReadLineCount) {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager readWithFieldRow3 start: " + start);
         List<String> heads = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -270,6 +280,8 @@ public class JdbcManager {
             LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager readWithFieldRow3 duration: " + duration);
         }
     }
 
@@ -277,6 +289,8 @@ public class JdbcManager {
      * Iterate over the data read from the database
      */
     public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, long maxReadLineCount) {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager readWithFieldRow2 start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
         long readLineCount = 0;
@@ -306,6 +320,8 @@ public class JdbcManager {
             LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager readWithFieldRow2 duration: " + duration);
         }
     }
 
@@ -313,6 +329,8 @@ public class JdbcManager {
      * Iterate over the data read from the database
      */
     public void readWithFieldRow(Connection conn, String sql, Consumer<Map<String, Object>> dataRowConsumer, long maxReadLineCount, List<String> rowsList) {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager readWithFieldRow1 start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
         long readLineCount = 0;
@@ -347,6 +365,8 @@ public class JdbcManager {
             LOG.error(e.getMessage(), e);
         } finally {
             close(conn, ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager readWithFieldRow1 duration: " + duration);
         }
     }
 
@@ -355,6 +375,8 @@ public class JdbcManager {
      * 获取查询数据的总记录数
      */
     public long count(Connection conn, String sql) throws Exception {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager count start: " + start);
         PreparedStatement ps = null;
         ResultSet rs = null;
         long totalCount = 0;
@@ -370,6 +392,8 @@ public class JdbcManager {
             throw e;
         } finally {
             close(ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager count duration: " + duration);
         }
 
         return totalCount;
@@ -383,6 +407,8 @@ public class JdbcManager {
      * @return
      */
     public List<String> getRowHeaders(Connection conn, String sql) {
+        long start = System.currentTimeMillis();
+        LOG.info("JdbcManager getRowHeaders start: " + start);
         List<String> headers = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -410,6 +436,8 @@ public class JdbcManager {
             LOG.error(e.getMessage(), e);
         } finally {
             close(ps, rs);
+            long duration = System.currentTimeMillis() - start;
+            LOG.info("JdbcManager getRowHeaders duration: " + duration);
         }
 
         return headers;

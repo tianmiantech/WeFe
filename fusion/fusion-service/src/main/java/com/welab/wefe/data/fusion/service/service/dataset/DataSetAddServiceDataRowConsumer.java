@@ -63,7 +63,7 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<Map<String, Ob
         this.dataSetId = model.getId();
         this.file = file;
         this.rows = headers;
-        batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
+        batchConsumer = new BatchConsumer<>(102400, 10_000, rows -> {
             DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
             dataSetRepository.updateById(model.getId(), "process", Progress.Running, DataSetMySqlModel.class);
             saveDataRows(model, rows);
@@ -75,7 +75,7 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<Map<String, Ob
         this.rowCountFromDB = rowCountFromDB;
         this.rows = headers;
 
-        batchConsumer = new BatchConsumer<>(1024, 1_000, rows -> {
+        batchConsumer = new BatchConsumer<>(102400, 10_000, rows -> {
             DataSetRepository dataSetRepository = Launcher.CONTEXT.getBean(DataSetRepository.class);
             dataSetRepository.updateById(model.getId(), "process", Progress.Running, DataSetMySqlModel.class);
             saveDataRows(model, rows);
@@ -92,9 +92,8 @@ public class DataSetAddServiceDataRowConsumer implements Consumer<Map<String, Ob
 
     @Override
     public void accept(Map<String, Object> data) {
-
         // Save data row
-        batchConsumer.setMaxBatchSize(1000);
+        batchConsumer.setMaxBatchSize(10000);
         batchConsumer.add(data);
 
     }
