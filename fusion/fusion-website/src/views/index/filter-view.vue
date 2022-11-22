@@ -25,6 +25,7 @@
                 <el-input
                     v-model="form.description"
                     placeholder="简介, 描述"
+                    maxlength="32"
                     type="textarea"
                     clearable
                     rows="4"
