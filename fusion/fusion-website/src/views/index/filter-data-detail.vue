@@ -9,10 +9,12 @@
             <p class="subtitle">
                 上传于 <span>{{ dataInfo.created_time | dateFormat }}</span> ，参与了
                 <span>{{ dataInfo.used_count }}</span> 任务。
+                状态：{{ dataInfo.process }}
             </p>
             <el-row :gutter="20">
                 <el-col :span="6">描述: {{ dataInfo.description }}</el-col>
                 <el-col :span="6">数据量: {{ dataInfo.row_count }}</el-col>
+                <el-col :span="6">已处理量: {{ dataInfo.process_count }}</el-col>
                 <el-col
                     v-if="dataInfo.rows"
                     :span="6"
