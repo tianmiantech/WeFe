@@ -144,8 +144,8 @@ public class JdbcManager {
         try {
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
-            ps.setFetchSize(1);
-            ps.setMaxRows(1);
+//            ps.setFetchSize(1);
+//            ps.setMaxRows(1);
             if (!rs.next()) {
                 return false;
             }
