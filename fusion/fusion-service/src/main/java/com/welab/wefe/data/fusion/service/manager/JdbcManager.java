@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -144,8 +145,8 @@ public class JdbcManager {
         try {
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
-//            ps.setFetchSize(1);
-//            ps.setMaxRows(1);
+            ps.setFetchSize(1);
+            ps.setMaxRows(1);
             if (!rs.next()) {
                 return false;
             }
