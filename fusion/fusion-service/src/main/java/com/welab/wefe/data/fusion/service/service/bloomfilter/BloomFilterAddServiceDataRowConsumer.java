@@ -215,9 +215,9 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
      */
     public void generateFilter(BloomFilterMySqlModel model, List<Map<String, Object>> rows) throws IOException {
         long start = System.currentTimeMillis();
-        LOG.info("generateFilter begin , size = " + rows.size());
+        LOG.info("generateFilter begin , size = " + rows.size() + ", id = " + model.getId());
         // 创建定长线程池
-        int poolSize = 50;
+        int poolSize = 100;
         ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(poolSize);
         final BloomFilterAddServiceDataRowConsumer consumer = this;
         for (Map<String, Object> data : rows) {
@@ -252,7 +252,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         }
         newFixedThreadPool = null;
         long duration1 = System.currentTimeMillis() - start;
-        LOG.info("generateFilter duration = " + duration1 + ", size = " + rows.size());
+        LOG.info("generateFilter duration = " + duration1 + ", size = " + rows.size() + ", id = " + model.getId());
         this.processCount = this.processCount + rows.size();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id", model.getId(),
@@ -268,7 +268,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
             outputStream.close();
         }
         long duration2 = System.currentTimeMillis() - start;
-        LOG.info("generateFilter end duration = " + duration2);
+        LOG.info("generateFilter end duration = " + duration2 + ", id = " + model.getId());
     }
 
 
