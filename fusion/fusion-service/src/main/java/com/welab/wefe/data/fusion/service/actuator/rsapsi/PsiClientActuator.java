@@ -156,6 +156,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
                 count++;
             }
             if(socket == null) {
+                LOG.error("fusion task log , socket connect error");
                 this.status = PSIActuatorStatus.exception;
                 throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, "connect " + ip + ":" + port + "error");
             }
@@ -414,6 +415,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
     @Override
     public void close() throws Exception {
+        if(!status.name().equalsIgnoreCase(PSIActuatorStatus.success.name())) {
+            closeByHttp(CallbackType.stop);
+        }
         // Notifies the server that no further action is required
         Socket closeSocket = SocketUtils.create(ip, port).setRetryCount(3).builder();
         List<String> stringList = new ArrayList<>();
@@ -421,9 +425,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
         stringList.add(status.name());
         PSIUtils.sendStringList(closeSocket, stringList);
         SocketUtils.close(closeSocket);
-        if(!status.name().equalsIgnoreCase(PSIActuatorStatus.success.name())) {
-            closeByHttp(CallbackType.stop);
-        }
     }
 
     public void closeByHttp(CallbackType type) throws StatusCodeWithException {
