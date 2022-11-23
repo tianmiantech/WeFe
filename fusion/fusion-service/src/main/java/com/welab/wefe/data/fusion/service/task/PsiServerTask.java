@@ -19,6 +19,7 @@ package com.welab.wefe.data.fusion.service.task;
 import java.util.concurrent.CountDownLatch;
 
 import com.welab.wefe.data.fusion.service.actuator.rsapsi.PsiServerActuator;
+import com.welab.wefe.data.fusion.service.manager.ActuatorManager;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilterUtils;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 
@@ -38,14 +39,20 @@ public class PsiServerTask extends AbstractPsiTask<PsiServerActuator> {
 
 
     BloomFilters findBloomFilters(String src) {
-        return BloomFilterUtils.readFrom(src);
+        BloomFilters bf = ActuatorManager.getBloomFilters(src);
+        if(bf == null) {
+            return BloomFilterUtils.readFrom(src);            
+        }
+        return bf;
     }
 
     @Override
     protected void preprocess() {
         LOG.info("preprocess start");
         long start = System.currentTimeMillis();
-        actuator.fillBloomFilters(findBloomFilters(src));
+        BloomFilters bf = findBloomFilters(src);
+        ActuatorManager.setBloomFilters(src, bf);
+        actuator.fillBloomFilters(bf);
         LOG.info("preprocess end, duration = " + (System.currentTimeMillis() - start));
     }
     
