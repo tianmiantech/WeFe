@@ -68,7 +68,7 @@ public class SocketUtils {
         for (int remainingCount = retryCount; remainingCount >= 0; remainingCount--) {
             try {
                 socket = new Socket(InetAddress.getByName(ip), port);
-
+                socket.setSoTimeout(10000);
                 if (socket != null) {
                     break;
                 }

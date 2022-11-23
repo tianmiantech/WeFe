@@ -137,7 +137,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
             socket = SocketUtils
                     .create(ip, port)
                     .setRetryCount(3)
-                    .setRetryDelay(10000)
+                    .setRetryDelay(1000)
                     .builder();
 
             LOG.info("fusion task log , socket: {} ", socket);
