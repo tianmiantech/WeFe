@@ -38,12 +38,6 @@ import java.util.TreeMap;
  */
 @Service
 public class ThirdPartyService {
-    @Autowired
-    private TaskService taskService;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
 
     @Autowired
     private PartnerService partnerService;

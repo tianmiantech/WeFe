@@ -54,7 +54,7 @@ public abstract class AbstractPsiTask<T extends AbstractPsiActuator> extends Abs
     @Override
     public void close() throws Exception {
         TaskService taskService = Launcher.CONTEXT.getBean(TaskService.class);
-
+        LOG.info("fusion task log , close actuator.status= " + actuator.status);
         switch (actuator.status) {
             case success:
                 taskService.updateByBusinessId(businessId, TaskStatus.Success, getFusionCount(), getProcessedCount(), getSpend());
