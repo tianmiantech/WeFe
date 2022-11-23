@@ -421,14 +421,18 @@ public class PsiClientActuator extends AbstractPsiActuator {
         stringList.add(status.name());
         PSIUtils.sendStringList(closeSocket, stringList);
         SocketUtils.close(closeSocket);
-        closeByHttp();
+        if(status.name().equalsIgnoreCase(PSIActuatorStatus.success.name())) {
+            closeByHttp(CallbackType.success);
+        }
+        else {
+            closeByHttp(CallbackType.stop);
+        }
     }
 
-    public void closeByHttp() throws StatusCodeWithException {
+    public void closeByHttp(CallbackType type) throws StatusCodeWithException {
         // The callback
         if (this.partnerModel != null) {
-            JSONObject response = thirdPartyService.callback(partnerModel.getBaseUrl(), businessId, CallbackType.stop,
-                    -1);
+            JSONObject response = thirdPartyService.callback(partnerModel.getBaseUrl(), businessId, type, -1);
             LOG.info("fusion task log ,closeByHttp callback, url = " + partnerModel.getBaseUrl() + ", response = "
                     + JSONObject.toJSONString(response));
         }

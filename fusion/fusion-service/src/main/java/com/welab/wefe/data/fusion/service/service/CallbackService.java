@@ -71,11 +71,6 @@ public class CallbackService {
                 taskRepository.save(task);
 
                 break;
-            case falsify:
-                //Alignment data check invalid, shut down task
-                AbstractTask job = ActuatorManager.get(input.getBusinessId());
-                job.finish();
-                break;
             case success:
                 //Mission completed. Destroy task
                 AbstractTask successTask = ActuatorManager.get(input.getBusinessId());

@@ -31,11 +31,6 @@ public enum CallbackType {
     init,
 
     /**
-     * Data check false
-     */
-    falsify,
-
-    /**
      * success
      */
     success,
