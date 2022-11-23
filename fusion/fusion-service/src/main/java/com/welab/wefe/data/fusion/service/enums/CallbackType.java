@@ -38,5 +38,10 @@ public enum CallbackType {
     /**
      * success
      */
-    success
+    success,
+    
+    /**
+     * stop
+     * */
+    stop
 }

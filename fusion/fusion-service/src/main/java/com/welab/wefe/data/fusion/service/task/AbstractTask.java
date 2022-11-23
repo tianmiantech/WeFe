@@ -164,6 +164,7 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
         } catch (Exception e) {
             LOG.error("execute error ", e);
             error = e.getMessage();
+            
         }
     }
 
