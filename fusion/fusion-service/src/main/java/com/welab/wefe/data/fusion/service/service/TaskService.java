@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static com.welab.wefe.common.StatusCode.DATA_NOT_FOUND;
@@ -306,24 +307,22 @@ public class TaskService extends AbstractService {
         /**
          * Generate the corresponding task handler
          */
-        AbstractTask server = new PsiServerTask(
-                task.getBusinessId(),
-                bf.getSrc(),
-                new PsiServerActuator(task.getBusinessId(),
-                        task.getDataCount(),
-                        "localhost",
-                        CacheObjects.getOpenSocketPort(),
-                        new BigInteger(bf.getN()),
-                        new BigInteger(bf.getE()),
-                        new BigInteger(bf.getD())
-                )
-        );
-
+        CountDownLatch latch =  new CountDownLatch(1);
+        AbstractTask server = new PsiServerTask(task.getBusinessId(), bf.getSrc(),
+                new PsiServerActuator(task.getBusinessId(), task.getDataCount(), "localhost",
+                        CacheObjects.getOpenSocketPort(), new BigInteger(bf.getN()), new BigInteger(bf.getE()),
+                        new BigInteger(bf.getD())),
+                latch);
+        try {
+            latch.await();// 等待服务端bloomfilter等相关数据加载好
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         ActuatorManager.set(server);
         LOG.info("fusion task log , server run");
         server.run();
 
-        //The callback
+        //通知客户端，服务端已经准备好了，客户端可以跑了
         JSONObject response = thirdPartyService.callback(
                 partner.getBaseUrl(),
                 task.getBusinessId(),

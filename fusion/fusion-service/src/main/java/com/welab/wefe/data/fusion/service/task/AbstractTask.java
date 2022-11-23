@@ -149,22 +149,18 @@ public abstract class AbstractTask<T extends AbstractActuator> implements AutoCl
 
     private void execute() {
         try {
-
-            LOG.info("fusion task log , task execute...");
-
+            LOG.info("fusion task log , task execute, begin");
             preprocess();
-
+            LOG.info("fusion task log , task execute, preprocess finished");
             actuator.init();
-
+            LOG.info("fusion task log , task execute, init finished");
             actuator.handle();
-
+            LOG.info("fusion task log , task execute, handle finished");
             postprocess();
-
             LOG.info("fusion task log , execute() status ： {} ", status().name());
         } catch (Exception e) {
             LOG.error("execute error ", e);
             error = e.getMessage();
-            
         }
     }
 
