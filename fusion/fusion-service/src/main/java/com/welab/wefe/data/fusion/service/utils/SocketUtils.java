@@ -73,13 +73,13 @@ public class SocketUtils {
                     break;
                 }
             } catch (IOException e) {
-                LOG.warn("new socket error , {}", e.getMessage());
+                LOG.warn("fusion task log , new socket error ,", e);
             } finally {
                 if (retryDelay > 0) {
                     try {
                         Thread.sleep(retryDelay);
                     } catch (InterruptedException e) {
-                        LOG.warn("thread sleep error , {}", e.getMessage());
+                        LOG.warn("fusion task log , thread sleep error ,", e);
                     }
                 }
             }
