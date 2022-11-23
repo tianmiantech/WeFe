@@ -17,6 +17,7 @@
 package com.welab.wefe.data.fusion.service.actuator.rsapsi;
 
 import com.google.common.collect.Lists;
+import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 import com.welab.wefe.common.util.Base64Util;
 import com.welab.wefe.common.util.JObject;
@@ -129,8 +130,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
     /**
      * Download the Server Square Bloom filter
+     * @throws StatusCodeWithException 
      */
-    private void downloadBloomFilter() {
+    private void downloadBloomFilter() throws StatusCodeWithException {
         Socket socket = null;
         try {
             LOG.info("fusion task log , Server@" + ip + ":" + port + " connecting!");
@@ -139,7 +141,10 @@ public class PsiClientActuator extends AbstractPsiActuator {
                     .setRetryCount(3)
                     .setRetryDelay(1000)
                     .builder();
-
+            if(socket == null) {
+                this.status = PSIActuatorStatus.exception;
+                throw new StatusCodeWithException(StatusCode.REMOTE_SERVICE_ERROR, "connect " + ip + ":" + port + "error");
+            }
             LOG.info("fusion task log , socket: {} ", socket);
 
             List<String> body = new ArrayList();
