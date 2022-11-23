@@ -325,14 +325,14 @@ public class TaskService extends AbstractService {
                             CacheObjects.getOpenSocketPort(), new BigInteger(bf.getN()), new BigInteger(bf.getE()),
                             new BigInteger(bf.getD())),
                     latch);
+            ActuatorManager.set(server);
+            LOG.info("fusion task log , server run");
+            server.run();
             try {
                 latch.await();// 等待服务端bloomfilter等相关数据加载好
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            ActuatorManager.set(server);
-            LOG.info("fusion task log , server run");
-            server.run();
             // 通知客户端，服务端已经准备好了，客户端可以跑了
             try {
                 task.setStatus(TaskStatus.Running);
