@@ -125,11 +125,11 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     private void listen() {
         LOG.info("fusion task log , PsiServerActuator listening...");
-
         try {
             while (true) {
                 // listen PORT;
                 Socket socket = serverSocket.accept();
+                LOG.info("fusion task log , PsiServerActuator accept return");
                 CommonThreadPool.run(() -> execute(socket));
             }
         } catch (Exception e) {
@@ -249,6 +249,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
     public void close() {
         try {
             if (serverSocket != null) {
+                LOG.info("fusion task log , serverSocket close");
                 serverSocket.close();
             }
         } catch (Exception e) {

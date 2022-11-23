@@ -69,5 +69,6 @@ public abstract class AbstractPsiTask<T extends AbstractPsiActuator> extends Abs
         }
 
         ActuatorManager.remove(businessId);
+        LOG.info("fusion task log , close success");
     }
 }
