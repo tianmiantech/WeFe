@@ -421,10 +421,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
         stringList.add(status.name());
         PSIUtils.sendStringList(closeSocket, stringList);
         SocketUtils.close(closeSocket);
-        if(status.name().equalsIgnoreCase(PSIActuatorStatus.success.name())) {
-            closeByHttp(CallbackType.success);
-        }
-        else {
+        if(!status.name().equalsIgnoreCase(PSIActuatorStatus.success.name())) {
             closeByHttp(CallbackType.stop);
         }
     }
