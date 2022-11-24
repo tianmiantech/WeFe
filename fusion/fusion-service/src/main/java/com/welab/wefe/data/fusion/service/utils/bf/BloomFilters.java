@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author hunter.zhao
  */
 public class BloomFilters<E> implements Serializable {
-    protected final Logger LOG = LoggerFactory.getLogger(BloomFilters.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(BloomFilters.class);
     private static final long serialVersionUID = -2326638072608273135L;
     private BitSet bitset;
     private int bitSetSize;
@@ -92,7 +92,7 @@ public class BloomFilters<E> implements Serializable {
     public BloomFilters(int bitSetSize, int expectedNumberOElements) {
         this(bitSetSize / (double) expectedNumberOElements, expectedNumberOElements,
                 (int) Math.round((bitSetSize / (double) expectedNumberOElements) * Math.log(2.0)));
-        LOG.info("BloomFilters invoke bitSetSize = " + bitSetSize + ", "+ expectedNumberOElements);
+        LOG.info("BloomFilters invoke bitSetSize = " + this.bitSetSize + ", "+ expectedNumberOElements);
     }
 
     /**
@@ -419,7 +419,7 @@ public class BloomFilters<E> implements Serializable {
             for (int i = 0; i < data.length; ++i) {
                 data[i] = din.readByte();
             }
-
+            LOG.info("read From file, bitSetSize = " + bitSetSize);
             return new BloomFilters(bitSetSize, expectedNumberOfFilterElements, expectedNumberOfFilterElements, BitSet.valueOf(data));
         } catch (RuntimeException var9) {
             String message = "Unable to deserialize BloomFilter from InputStream.";
