@@ -177,7 +177,10 @@ public class PsiClientActuator extends AbstractPsiActuator {
             int bitSetSize = (int) PSIUtils.receiveInteger(d_in);
             byte[] b = PSIUtils.receiveBytes(socket);
             BitSet bs = BitSet.valueOf(b);
-
+            LOG.info("fusion task log , download bf success : e = " + e);
+            LOG.info("fusion task log , download bf success : N = " + N);
+            LOG.info("fusion task log , download bf success : DB_size = " + DB_size);
+            LOG.info("fusion task log , download bf success : bitSetSize = " + bitSetSize);
             bf = new BloomFilters(bitSetSize, DB_size, DB_size, bs);
             LOG.info("fusion task log , download bf success : " + JSONObject.toJSONString(bf));
         } catch (IOException e1) {
@@ -340,7 +343,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
                 BigInteger y = PSIUtils.bytesToBigInteger(ret[i], 0, ret[i].length);
                 BigInteger z = y.multiply(rInv.get(index).get(i)).mod(N);
-
+                LOG.info("fusion task log , z： {} ", index);
                 if (bf.contains(z)) {
                     rs.add(Base64Util.encode(cur.get(i).toString().getBytes()));
                     fruit.add(cur.get(i));

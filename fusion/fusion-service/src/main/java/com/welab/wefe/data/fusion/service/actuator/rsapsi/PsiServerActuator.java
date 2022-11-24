@@ -142,19 +142,20 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     private void sendBloomFilter(Socket socket) {
 
-        LOG.info("fusion task log , server send bloom_filter, bf = " + JSONObject.toJSONString(bf));
+        LOG.info("fusion task log , server send bloom_filter, bf = " + JSONObject.toJSONString(socket));
         try {
             DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
-
+            LOG.info("fusion task log , server send bloom_filter, e = " + e);
+            LOG.info("fusion task log , server send bloom_filter, N = " + N);
             byte[][] ret = new byte[2][];
             ret[0] = PSIUtils.bigIntegerToBytes(e, false);
             ret[1] = PSIUtils.bigIntegerToBytes(N, false);
-
             PSIUtils.send2DBytes(socket, ret);
             PSIUtils.sendInteger(d_out, bf.count());
             PSIUtils.sendInteger(d_out, bf.size());
             PSIUtils.sendBytes(socket, bf.getBitSet().toByteArray());
-            LOG.info("fusion task log , sendBloomFilter, size = " + bf.size());
+            LOG.info("fusion task log , server send bloom_filter, bf.count() = " + bf.count());
+            LOG.info("fusion task log , server send bloom_filter, bf.size() = " + bf.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
