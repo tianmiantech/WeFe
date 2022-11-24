@@ -82,6 +82,15 @@ public class BloomFilters<E> implements Serializable {
         numberOfAddedElements = 0;
         this.bitset = new BitSet(bitSetSize);
     }
+    
+    public BloomFilters(int bitSetSize, double c, int n, int k) {
+        this.expectedNumberOfFilterElements = n;
+        this.k = k;
+        this.bitsPerElement = c;
+        this.bitSetSize = bitSetSize;
+        numberOfAddedElements = 0;
+        this.bitset = new BitSet(bitSetSize);
+    }
 
     /**
      * Construct an empty Bloom filter. The number of optimal hash functions will be determined by the total size of the filter and the expected number of elements.
@@ -90,7 +99,7 @@ public class BloomFilters<E> implements Serializable {
      * @param expectedNumberOElements Specifies the maximum number of elements that a filter can add
      */
     public BloomFilters(int bitSetSize, int expectedNumberOElements) {
-        this(bitSetSize / (double) expectedNumberOElements, expectedNumberOElements,
+        this(bitSetSize, bitSetSize / (double) expectedNumberOElements, expectedNumberOElements,
                 (int) Math.round((bitSetSize / (double) expectedNumberOElements) * Math.log(2.0)));
         LOG.info("BloomFilters invoke bitSetSize = " + this.bitSetSize + ", "+ expectedNumberOElements);
     }
@@ -415,11 +424,12 @@ public class BloomFilters<E> implements Serializable {
             int expectedNumberOfFilterElements = din.readInt();
             int dataLength = din.readInt();
             byte[] data = new byte[dataLength];
-
-            for (int i = 0; i < data.length; ++i) {
-                data[i] = din.readByte();
-            }
-            LOG.info("read From file, bitSetSize = " + bitSetSize);
+//            for (int i = 0; i < data.length; ++i) {
+//                data[i] = din.readByte();
+//            }
+//            din.read(data);
+            din.readFully(data);
+            LOG.info("read From file, bitSetSize = " + bitSetSize); // 2019773058
             return new BloomFilters(bitSetSize, expectedNumberOfFilterElements, expectedNumberOfFilterElements, BitSet.valueOf(data));
         } catch (RuntimeException var9) {
             String message = "Unable to deserialize BloomFilter from InputStream.";
