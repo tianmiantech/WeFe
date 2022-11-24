@@ -39,7 +39,7 @@
                 </el-form-item>
                 <el-form-item
                     prop="learning_rate"
-                    label="学习率"
+                    label="学习率："
                 >
                     <el-input
                         v-model="vData.form.learning_rate"

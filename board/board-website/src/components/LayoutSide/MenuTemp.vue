@@ -110,7 +110,7 @@ export default {
                 return false;
             }
 
-            if (item.meta.normalUserCanSee !== false) {
+            if(item.meta.normalUserCanSee !== false){
                 return true;
             }
 

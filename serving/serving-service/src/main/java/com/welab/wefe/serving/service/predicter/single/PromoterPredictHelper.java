@@ -36,6 +36,8 @@ import com.welab.wefe.serving.service.enums.ServiceTypeEnum;
 import com.welab.wefe.serving.service.service.CacheObjects;
 import com.welab.wefe.serving.service.service.ServiceCallLogService;
 import com.welab.wefe.serving.service.service.ServiceOrderService;
+import com.welab.wefe.serving.service.utils.ServiceUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +192,7 @@ public class PromoterPredictHelper {
         callLog.setOrderId(orderId);
         callLog.setServiceId(serviceId);
         callLog.setServiceName(CacheObjects.getServiceName(serviceId));
-        callLog.setRequestData(requestData);
+        callLog.setRequestData(ServiceUtil.abbreviate(requestData, 12500));
         callLog.setRequestPartnerId(CacheObjects.getMemberId());
         callLog.setRequestPartnerName(CacheObjects.getMemberName());
         callLog.setRequestId(requestId);
@@ -199,7 +201,7 @@ public class PromoterPredictHelper {
         callLog.setResponseId(responseId);
         callLog.setResponsePartnerId(memberId);
         callLog.setResponsePartnerName(CacheObjects.getPartnerName(memberId));
-        callLog.setResponseData(result.toJSONString());
+        callLog.setResponseData(ServiceUtil.abbreviate(result.toJSONString(), 2500));
         callLog.setResponseStatus(getResponseStatus(result));
         callLog.setCallByMe(CallByMeEnum.YES.getCode());
 

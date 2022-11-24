@@ -138,7 +138,41 @@
                 </el-form>
             </div>
         </div>
-
+        <el-form>
+            <el-form-item v-if="!vData.check_result" label="是否计算分布">
+                <el-switch v-model="vData.prob_need_to_bin" active-color="#13ce66"/>
+            </el-form-item>
+            <el-form-item v-if="vData.prob_need_to_bin">
+                <el-select
+                    v-model="vData.calcDistribution.bin_method"
+                    placeholder="请选择"
+                    style="width: 84px;"
+                >
+                    <el-option
+                        v-for="item in vData.bin_method"
+                        :key="item.value"
+                        :label="item.text"
+                        :value="item.value"
+                    />
+                </el-select>
+                <el-input-number
+                    v-model="vData.calcDistribution.bin_num"
+                    type="number"
+                    controls-position="right"
+                />箱
+                <span style="color: #999;">（建议设置10-20箱）</span>
+            </el-form-item>
+            <el-form-item v-if="vData.exitVertComponent" label="是否启用PSI分箱（预测概览概率/评分）">
+                <el-switch v-model="vData.need_psi" active-color="#13ce66"/>
+            </el-form-item>
+        </el-form>
+        <psi-bin 
+            v-if="vData.need_psi"
+            v-model:binValue="vData.binValue" 
+            title="PSI分箱方式（预测概率/评分）"
+            :disabled="disabled"
+            :filterMethod="['quantile']"
+        />
         <!-- Select the dataset for the specified member -->
         <el-dialog
             title="选择数据资源"
@@ -278,11 +312,15 @@
     import { useStore } from 'vuex';
     import { useRoute, useRouter } from 'vue-router';
     import DataSetList from '@comp/views/data-set-list';
+    import psiBin from '../../components/psi/psi-bin';
+    import { checkExitVertModelComponet } from '@src/service';
+    import { psiCustomSplit,replace } from '../common/utils';
 
     export default {
         name:       'Oot',
         components: {
             DataSetList,
+            psiBin,
         },
         props: {
             projectId:          String,
@@ -349,15 +387,31 @@
                     { value: 'regression',text: 'regression' },
                     { value: 'multi',text: 'multi' },
                 ],
+                bin_method: [
+                    { value: 'bucket',text: '等宽' },
+                ],
                 form: {
                     eval_type: 'binary',
                     pos_label: 1,
                 },
                 oot_job_id: '',
+                need_psi: false,
+                prob_need_to_bin: false,
+                binValue:   {
+                    method:       'bucket',
+                    binNumber:    6,
+                    split_points: '',
+                },
+                calcDistribution: {
+                    bin_method: 'bucket',
+                    bin_num: 10
+                },
+                exitVertComponent: false,
             });
 
             const methods = {
                 async getNodeDetail(model) {
+                    methods.checkExistVertModel(model);
                     const { code, data } = await $http.get({
                         url:    '/project/flow/node/detail',
                         params: {
@@ -367,7 +421,7 @@
                     });
 
                     if (code === 0 && data && data.params && data.params.dataset_list) {
-                        const { dataset_list, eval_type, pos_label } = data.params;
+                        const { dataset_list, eval_type, pos_label, psi_param, score_param } = data.params;
 
                         for(const memberIndex in vData.member_list) {
                             const member = vData.member_list[memberIndex];
@@ -403,7 +457,41 @@
 
                         vData.form.eval_type = eval_type || 'binary';
                         vData.form.pos_label = pos_label || 1;
+                        if(psi_param) {
+                            const { bin_method, bin_num, need_psi, split_points } = psi_param;
+                            vData.need_psi = need_psi;
+                            vData.binValue = {
+                                method:       bin_method,
+                                binNumber:    bin_num ,
+                                split_points: split_points ? split_points.join() : '',
+                            };
+                        }
+                        if(score_param) {
+                            const { prob_need_to_bin, bin_num, bin_method } = score_param;
+                            vData.prob_need_to_bin = prob_need_to_bin;
+                            if(prob_need_to_bin) {
+                                vData.calcDistribution = {
+                                    bin_num,
+                                    bin_method,
+                                }
+                            }
+                        }
                     }
+                },
+
+                /**
+                 * 判断是否展示psi组件
+                 */
+                checkExistVertModel(model){
+                    const { ootModelFlowNodeId,flowId,ootJobId } = props;
+
+                    checkExitVertModelComponet({
+                        nodeId:      model.id,
+                        modelNodeId: ootModelFlowNodeId,
+                        flowId,jobId:       ootJobId,
+                    }).then((bool = false)=>{
+                        vData.exitVertComponent = bool;
+                    });
                 },
 
                 async getNodeData() {
@@ -680,10 +768,33 @@
                 },
 
                 checkParams() {
+                    const { binValue, exitVertComponent, need_psi, prob_need_to_bin, calcDistribution } = vData;
+                    const { method, binNumber, split_points } = binValue;
+                    const { bin_num, bin_method } = calcDistribution;
+                    const isCustom = method === 'custom';
+                    const array = replace(split_points).replace(/，/g,',').replace(/,$/, '').split(',');
+
+                    if(isCustom && !psiCustomSplit(array)){
+                        return false;
+                    }
                     const dataset_list = [];
+                    const re = array.map(parseFloat);
+
+                    re.sort(((a,b) => a-b));
                     const params = {
                         job_id:          props.ootJobId,
                         modelFlowNodeId: props.ootModelFlowNodeId,
+                        psi_param: {
+                            need_psi,
+                            bin_method:      exitVertComponent ? method : undefined,
+                            bin_num:      exitVertComponent && !isCustom ? binNumber : undefined,
+                            split_points:    exitVertComponent && isCustom ?  [...new Set([0, ...re ,1])] : undefined,
+                        },
+                        score_param: vData.check_result ? undefined : {
+                            prob_need_to_bin,
+                            bin_num,
+                            bin_method,
+                        },
                     };
 
                     vData.member_list.forEach((member, index) => {

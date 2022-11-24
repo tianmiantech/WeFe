@@ -16,10 +16,6 @@
 
 package com.welab.wefe.data.fusion.service.utils;
 
-import com.welab.wefe.common.CommonThreadPool;
-import com.welab.wefe.common.StatusCode;
-import com.welab.wefe.common.exception.StatusCodeWithException;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import com.welab.wefe.common.CommonThreadPool;
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 
 /**
  * @author zane.luo
@@ -191,8 +191,6 @@ public abstract class AbstractDataSetReader implements Closeable {
 
         LinkedHashMap<String, Object> line;
         while ((line = readOneRow()) != null) {
-
-
             List<Object> fields = new ArrayList<>(line.keySet());
             List<Object> values = new ArrayList<>(line.values());
             LinkedHashMap<String, Object> newLine = new LinkedHashMap<>();

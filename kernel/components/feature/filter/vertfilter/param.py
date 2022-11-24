@@ -26,6 +26,7 @@ class VertSampleFilterParam(BaseParam):
     def check(self):
         pass
 
-    def __init__(self, filter_rules=None):
+    def __init__(self, filter_rules=None,save_dataset=True):
         super(VertSampleFilterParam, self).__init__()
         self.filter_rules = filter_rules
+        self.save_dataset = save_dataset

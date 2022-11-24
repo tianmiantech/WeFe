@@ -112,7 +112,7 @@ class VertLRPromoter(VertLRBaseModel):
             self.load_single_model(model_param)
             self.n_iter_ = iteration + 1
             self.iter_transfer.sync_cur_iter(self.n_iter_)
-            self.tracker.set_task_progress(self.n_iter_)
+            self.tracker.set_task_progress(self.n_iter_, self.need_grid_search)
         while self.n_iter_ < self.max_iter:
             LOGGER.info("iter:{}".format(self.n_iter_))
             total_gradient = None
@@ -187,8 +187,8 @@ class VertLRPromoter(VertLRBaseModel):
             if self.is_converged:
                 break
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
         if self.validation_strategy and self.validation_strategy.has_saved_best_model():
             self.load_model(self.validation_strategy.cur_best_model)
 

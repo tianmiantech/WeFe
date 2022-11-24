@@ -13,24 +13,27 @@
  * @param {meta: asmenu} Boolean                 show as a menu, no children menu
  * @param {meta: navigation} Boolean             show page fixed navigation on the right
  */
-const prefixPath = process.env.NODE_ENV === 'development' ? '/' : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
+const prefixPath =
+    process.env.NODE_ENV === 'development'
+        ? '/'
+        : `${process.env.CONTEXT_ENV ? `/${process.env.CONTEXT_ENV}/` : '/'}`;
 
 // all routes
 const baseRoutes = [
     {
         path: prefixPath,
         meta: {
-            title:          '联邦管理',
+            title: '联邦管理',
             requiresLogout: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
-        children:  [
+        children: [
             {
                 path: prefixPath,
                 name: 'index',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '成员列表',
+                    title: '成员列表',
                 },
                 component: () => import('../views/account/member-list'),
             },
@@ -39,7 +42,7 @@ const baseRoutes = [
                 name: 'data-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '联邦资源',
+                    title: '联邦资源',
                 },
                 component: () => import('../views/data-center/data-list'),
             },
@@ -48,9 +51,9 @@ const baseRoutes = [
                 name: 'data-view',
                 meta: {
                     loginAndRefresh: true,
-                    hidden:          true,
-                    title:           '联邦资源详情',
-                    active:          `${prefixPath}data-list`,
+                    hidden: true,
+                    title: '联邦资源详情',
+                    active: `${prefixPath}data-list`,
                 },
                 component: () => import('../views/data-center/data-view'),
             },
@@ -59,7 +62,7 @@ const baseRoutes = [
                 name: 'keywords',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '关键词管理',
+                    title: '关键词管理',
                 },
                 component: () => import('../views/data-center/keywords'),
             },
@@ -68,17 +71,17 @@ const baseRoutes = [
     {
         path: `${prefixPath}authorize`,
         meta: {
-            title:          '企业实名认证管理',
+            title: '企业实名认证管理',
             requiresLogout: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
-        children:  [
+        children: [
             {
                 path: `${prefixPath}authorize-types`,
                 name: 'authorize-types',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '认证类型',
+                    title: '认证类型',
                 },
                 component: () => import('../views/authorize-list'),
             },
@@ -87,7 +90,7 @@ const baseRoutes = [
                 name: 'agreement',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '认证协议',
+                    title: '认证协议',
                 },
                 component: () => import('../views/agreement'),
             },
@@ -145,17 +148,17 @@ const baseRoutes = [
     {
         path: `${prefixPath}union-list`,
         meta: {
-            title:          'union节点管理',
+            title: 'union节点管理',
             requiresLogout: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
-        children:  [
+        children: [
             {
                 path: `${prefixPath}union-list`,
                 name: 'union-list',
                 meta: {
                     loginAndRefresh: true,
-                    title:           'union节点管理',
+                    title: 'union节点管理',
                 },
                 component: () => import('../views/union-list'),
             },
@@ -164,17 +167,17 @@ const baseRoutes = [
     {
         path: `${prefixPath}user-list`,
         meta: {
-            title:          '用户管理',
+            title: '用户管理',
             requiresLogout: false,
         },
         component: () => import('@comp/LayoutBase.vue'),
-        children:  [
+        children: [
             {
                 path: `${prefixPath}user-list`,
                 name: 'user-list',
                 meta: {
-                    loginAndRefresh:  true,
-                    title:            '用户列表',
+                    loginAndRefresh: true,
+                    title: '用户列表',
                     normalUserCanSee: true,
                 },
                 component: () => import('../views/system/user-list'),
@@ -183,8 +186,8 @@ const baseRoutes = [
                 path: `${prefixPath}log-list`,
                 name: 'log-list',
                 meta: {
-                    loginAndRefresh:  true,
-                    title:            '用户日志',
+                    loginAndRefresh: true,
+                    title: '用户日志',
                     normalUserCanSee: false,
                 },
                 component: () => import('../views/account/log-list'),
@@ -194,7 +197,7 @@ const baseRoutes = [
                 name: 'account-setting',
                 meta: {
                     loginAndRefresh: true,
-                    title:           '账户设置',
+                    title: '账户设置',
                 },
                 component: () => import('../views/system/account-setting'),
             },
@@ -204,8 +207,8 @@ const baseRoutes = [
         path: `${prefixPath}login`,
         name: 'login',
         meta: {
-            title:          '登录',
-            requiresAuth:   false,
+            title: '登录',
+            requiresAuth: false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/login.vue'),
@@ -214,8 +217,8 @@ const baseRoutes = [
         path: `${prefixPath}register`,
         name: 'register',
         meta: {
-            title:          '注册',
-            requiresAuth:   false,
+            title: '注册',
+            requiresAuth: false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/register.vue'),
@@ -224,8 +227,8 @@ const baseRoutes = [
         path: `${prefixPath}change-password`,
         name: 'change-password',
         meta: {
-            title:        '修改登录密码',
-            hidden:       true,
+            title: '修改登录密码',
+            hidden: true,
             requiresAuth: true,
         },
         component: () => import('../views/sign/change-password.vue'),
@@ -234,8 +237,8 @@ const baseRoutes = [
         path: `${prefixPath}find-password`,
         name: 'find-password',
         meta: {
-            title:          '找回密码',
-            requiresAuth:   false,
+            title: '找回密码',
+            requiresAuth: false,
             requiresLogout: true,
         },
         component: () => import('../views/sign/find-password.vue'),
@@ -245,7 +248,7 @@ const baseRoutes = [
         name: 'notfound',
         meta: {
             requiresAuth: false,
-            hidden:       true,
+            hidden: true,
         },
         component: () => import('../views/error/404.vue'),
     },
@@ -254,12 +257,12 @@ const baseRoutes = [
         name: 'forbidden',
         meta: {
             requiresAuth: false,
-            hidden:       true,
+            hidden: true,
         },
         component: () => import('../views/error/403.vue'),
     },
     {
-        path:     `${prefixPath}:catchAll(.*)`,
+        path: `${prefixPath}:catchAll(.*)`,
         redirect: {
             path: `${prefixPath}notfound`,
         },

@@ -133,7 +133,7 @@
                     </el-form-item>
                     <el-form-item
                         prop="validation_freqs"
-                        label="验证频次"
+                        label="验证频次："
                     >
                         <el-input
                             v-model="vData.form.other_param.validation_freqs"
@@ -142,7 +142,7 @@
                     </el-form-item>
                     <el-form-item
                         prop="early_stopping_rounds"
-                        label="提前结束的迭代次数"
+                        label="提前结束的迭代次数："
                     >
                         <el-input
                             v-model="vData.form.other_param.early_stopping_rounds"
@@ -196,7 +196,21 @@
                     </el-form-item>
                 </el-collapse-item>
                 <el-collapse-item title="cv param" name="4">
-                    <el-form-item label="在KFold中使用分割符次数：">
+                    <el-form-item label="是否执行cv：">
+                        <el-radio
+                            v-model="vData.form.cv_param.need_cv"
+                            :label="true"
+                        >
+                            是
+                        </el-radio>
+                        <el-radio
+                            v-model="vData.form.cv_param.need_cv"
+                            :label="false"
+                        >
+                            否
+                        </el-radio>
+                    </el-form-item>
+                    <el-form-item label="KFold分割次数：">
                         <el-input
                             v-model.number="vData.form.cv_param.n_splits"
                             placeholder="n_splits"
@@ -204,7 +218,7 @@
                         />
                     </el-form-item>
 
-                    <el-form-item label="在KFold之前是否进行洗牌：">
+                    <el-form-item label="KFold之前洗牌：">
                         <el-radio
                             v-model="vData.form.cv_param.shuffle"
                             :label="true"
@@ -218,20 +232,38 @@
                             否
                         </el-radio>
                     </el-form-item>
-                    <el-form-item label="是否需要进行此模块：">
-                        <el-radio
-                            v-model="vData.form.cv_param.need_cv"
-                            :label="true"
+                </el-collapse-item>
+                <el-collapse-item title="grid search param" name="5">
+                    <el-form-item label="是否开启网格搜索">
+                        <el-radio-group
+                            v-model="
+                                vData.form.grid_search_param.need_grid_search
+                            "
                         >
-                            是
-                        </el-radio>
-                        <el-radio
-                            v-model="vData.form.cv_param.need_cv"
-                            :label="false"
-                        >
-                            否
-                        </el-radio>
+                            <el-radio :label="true">是</el-radio>
+                            <el-radio :label="false">否</el-radio>
+                        </el-radio-group>
                     </el-form-item>
+                    <template
+                        v-if="vData.form.grid_search_param.need_grid_search"
+                    >
+                        <MultiGridSearchTag
+                            v-for="{ key, label, items, rule } in lrGrid"
+                            :key="key"
+                            :label="label"
+                            :disabled="disabled"
+                            :items="items"
+                            :rule="rule"
+                            v-model="vData.form.grid_search_param[key]"
+                        />
+                        <p :style="{ textAlign: 'center' }">
+                            当前设置的超参会执行
+                            {{ runTime }} 次模型训练，任务耗时会延长。
+                        </p>
+                        <p :style="{ textAlign: 'center' }">
+                            任务执行完毕后会自动将最优参数回写到当前节点的参数中。
+                        </p>
+                    </template>
                 </el-collapse-item>
             </el-collapse>
         </el-form>
@@ -239,8 +271,15 @@
 </template>
 
 <script>
-    import { reactive, getCurrentInstance } from 'vue';
+    import { reactive, getCurrentInstance, computed } from 'vue';
+    import MultiGridSearchTag from '../../../../../components/Common/MultiGridSearchTag.vue';
+    import gridSearchParams from '../../../../../assets/js/const/gridSearchParams';
     import dataStore from '../data-store-mixin';
+
+    const lrGrid = gridSearchParams.lr;
+    const grid_search_param = { need_grid_search: false };
+
+    lrGrid.forEach(({ key }) => (grid_search_param[key] = []));
 
     const LogisticRegression = {
         init_param: {
@@ -268,6 +307,7 @@
             validation_freqs:      10,
             early_stopping_rounds: 5,
         },
+        grid_search_param,
     };
 
     export default {
@@ -281,6 +321,7 @@
             jobId:        String,
             class:        String,
         },
+        components: { MultiGridSearchTag },
         setup(props) {
             const { appContext } = getCurrentInstance();
             const { $http } = appContext.config.globalProperties;
@@ -354,7 +395,7 @@
                     });
 
                     if (code === 0 && data && data.params && Object.keys(data.params).length) {
-                        vData.form = data.params;
+                        Object.assign(vData.form, data.params);
                     }
                 },
             };
@@ -368,9 +409,18 @@
             vData = $data;
             methods = $methods;
 
+            const runTime = computed(() =>
+                Object.values(vData.form.grid_search_param).reduce(
+                    (acc, cur) => acc * (cur.length || 1),
+                    1,
+                ),
+            );
+
             return {
                 vData,
                 methods,
+                lrGrid,
+                runTime,
             };
         },
     };

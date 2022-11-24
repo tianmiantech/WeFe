@@ -169,14 +169,16 @@ class Tracking(object):
                 data_table_namespace=save_namespace, data_table_name=save_name)
 
             data_input = {'table_name': save_name, 'table_namespace': save_namespace, 'partition': save_partitions,
-                          'table_create_count': data_table.count() if data_table else 0, 'fcs_info': fcs_info}
+                          'table_create_count': data_table.count() if data_table else 0, 'fcs_info': fcs_info,
+                          'show_name': None}
 
             # self.save_data_info(data_input=data_input, mark=True, data_name=data_name)
+            if save_dataset:
+                self.save_dataset(data_input, data_table.schema, data_table)
 
             self.save_task_result(data_input, self._get_task_result_type(TaskResultDataType.DATA, data_name))
 
-            if save_dataset:
-                self.save_dataset(data_input, data_table.schema, data_table)
+
 
     def get_output_data_table(self, data_name: str = 'component'):
         """
@@ -342,7 +344,9 @@ class Tracking(object):
 
         return TaskResultDao.get(*tuple(where_condition))
 
-    def save_training_best_model(self, model_buffers):
+    def save_training_best_model(self, model_buffers, need_grid_search=False):
+        if need_grid_search or model_buffers is None:
+            return
         # save to task_result
         model_json_obj = self._model_buffers_to_json_obj(model_buffers, self.member_model_id, self.model_version,
                                                          component_model_key='{}.{}'.format(self.component_name,
@@ -575,10 +579,7 @@ class Tracking(object):
         -------
 
         """
-        if metric_namespace == "train_validate":
-            result_type = self._get_task_result_type(TaskResultDataType.METRIC, metric_namespace)
-        else:
-            result_type = self._get_task_result_type(TaskResultDataType.METRIC, metric_namespace)
+        result_type = self._get_task_result_type(TaskResultDataType.METRIC, metric_namespace)
         metric_task_result = self.get_task_result(result_type, self.task_id)
 
         result = {}
@@ -676,6 +677,9 @@ class Tracking(object):
         table_data_set.y_name_list = data_set_old.y_name_list
         table_data_set.primary_key_column = data_set_old.primary_key_column
         table_data_set.y_count = data_set_old.y_count
+
+        # save resource name to task result
+        data_input['show_name'] = data_resource.name
 
         # column = primary_key + y + feature
         if table_data_set.y_name_list is None:
@@ -820,7 +824,7 @@ class Tracking(object):
 
         return model
 
-    def init_task_progress(self, work_amount: int):
+    def init_task_progress(self, work_amount: int, to_disable=False):
         """
 
         Initialize the total engineering quantity of the task schedule
@@ -839,6 +843,9 @@ class Tracking(object):
 
         """
         if self.oot:
+            return
+
+        if to_disable:
             return
 
         is_insert = True
@@ -884,7 +891,7 @@ class Tracking(object):
 
         TaskProgressDao.save(model, force_insert=is_insert)
 
-    def set_task_progress(self, work_amount: int):
+    def set_task_progress(self, work_amount: int, to_disable=False):
         """
         Update the progress according to the specified work amount
 
@@ -900,6 +907,9 @@ class Tracking(object):
         if self.oot:
             return
 
+        if to_disable:
+            return
+
         if work_amount >= 0:
             model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)
             if model:
@@ -908,7 +918,7 @@ class Tracking(object):
                 self._calc_progress(model)
                 TaskProgressDao.save(model)
 
-    def add_task_progress(self, step: int = 1):
+    def add_task_progress(self, step: int = 1, to_disable=False):
         """
 
         Increase progress according to step
@@ -922,6 +932,9 @@ class Tracking(object):
 
         """
         if self.oot:
+            return
+
+        if to_disable:
             return
 
         model = TaskProgressDao.get_by_unique_id(self.task_id, self.role)

@@ -19,7 +19,7 @@
                 />
                 <i
                     v-else
-                    title="网页全屏"
+                    title="全屏显示"
                     class="iconfont icon-enlarge"
                     @click="changeSize"
                 />
@@ -121,11 +121,11 @@
                                         trigger="manual"
                                         effect="dark"
                                     >
-                                        <components-params-explain
+                                        <!-- <components-params-explain
                                             :is="`${key}`"
                                             :components-name="`${key}`"
                                             @closeExplainPop="closeExplainPop"
-                                        />
+                                        /> -->
 
                                         <template #reference>
                                             <component
@@ -179,6 +179,7 @@
                                         :flow-id="flowId"
                                         :job-id="jobId"
                                         :project-type="projectType"
+                                        :learning-type="learningType"
                                     />
                                 </el-scrollbar>
                             </el-tab-pane>
@@ -477,13 +478,14 @@
 .drag-resize{
     min-width: 350px;
     background: #fff;
-    z-index: 10;
+    z-index: 100;
     :deep(.drag-content){overflow: visible;}
     :deep(.ctrl-left){
-        left: -24px;
+        left: -9px;
         padding:12px 3px;
-        background: #fff;
-        border-radius:4px 0 0 4px;
+        color: white;
+        background: gray;
+        border-radius:4px 4px 0px 0px;
         border: 1px solid #e5e9f2;
     }
     :deep(.control-points.covered){
@@ -491,18 +493,23 @@
     }
 }
 .ctrl-btns{
-    position: absolute;
-    top: 10px;
-    right:15px;
-    z-index: 200;
+    position: relative;
+    top: 57.3%;
+    right:9px;
+    z-index: 101;
     .iconfont{
         cursor: pointer;
-        font-size: 20px;
-        color: $color-light;
-        background: #fff;
-        border-radius: 4px;
-        padding:5px;
-        &:hover{color:$--color-primary;}
+        font-size: 22px;
+        color: white;
+        background: gray;
+        border-radius: 0px 0px 4px 4px;
+        
+        padding:0px;
+        border-left: 1px solid #e5e9f2;
+        border-right: 1px solid #e5e9f2;
+        border-bottom: 1px solid #e5e9f2;
+
+        
     }
 }
 .component-form{
@@ -532,6 +539,7 @@
     position: relative;
     overflow: visible;
     height:100%;
+    left: 8px;
     border:0;
     & > :deep(.el-tabs__header) {
         margin:0;
@@ -566,7 +574,8 @@
         left:0;
         right:0;
         height:100%;
-        overflow-y: hidden;
+        overflow-y: auto;
+        z-index: 100000;
     }
 }
 .readonly-form{

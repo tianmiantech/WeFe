@@ -56,7 +56,7 @@ public class DetailApi extends AbstractApi<DetailApi.Input, ProjectFlowNodeOutpu
             if (output.getParams() != null) {
                 ImageDataIOComponent.Params params = output.getParams().toJavaObject(ImageDataIOComponent.Params.class);
                 params.fillDataSetDetail();
-                output.setParams(JObject.create(params));
+                output.setParams(JObject.create(params).toString());
             }
         }
 

@@ -1,9 +1,9 @@
 /*
-* component configs
-*/
+ * component configs
+ */
 
 const defaultCfg = {
-    jsonParams: false,  // is json string
+    jsonParams: false, // is json string
     autoSave:   false,
 };
 
@@ -104,6 +104,10 @@ export default {
     },
     /* 评分卡 */
     ScoreCard: {
+        ...defaultCfg,
+    },
+    /* 特征PSI */
+    VertFeaturePSI: {
         ...defaultCfg,
     },
 };

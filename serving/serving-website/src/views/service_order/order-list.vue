@@ -390,7 +390,11 @@ export default {
             this.requestDataDialog = true;
             this.title = '响应体';
             setTimeout(() => {
-                this.jsonData = JSON.parse(data);
+                try{
+                    this.jsonData = JSON.parse(data);
+                }catch(error){
+                    this.jsonData = data;
+                }
             });
         },
 

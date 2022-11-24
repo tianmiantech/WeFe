@@ -16,6 +16,19 @@
 
 package com.welab.wefe.gateway.util;
 
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLException;
+
+import com.welab.wefe.gateway.cache.PartnerConfigCache;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
 import com.welab.wefe.common.util.DateUtil;
@@ -34,6 +47,7 @@ import com.welab.wefe.gateway.interceptor.AntiTamperMetadataBuilder;
 import com.welab.wefe.gateway.interceptor.RemoteGrpcProxyCallCredentials;
 import com.welab.wefe.gateway.interceptor.SignVerifyMetadataBuilder;
 import com.welab.wefe.gateway.interceptor.SystemTimestampMetadataBuilder;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -42,16 +56,6 @@ import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Grpc tool class
@@ -218,19 +222,22 @@ public class GrpcUtil {
                     }
                     if (GrpcUtil.checkIsConnectionDisableExp(e)) {
                         //The connection is unavailable. The address may have been updated. You need to refresh the destination address and try again
-                        MemberEntity dstMemberEntity = MemberCache.getInstance().refreshCacheById(dstMember.getMemberId());
-                        if (null != dstMemberEntity) {
-                            channelCache.remove(dstGatewayUri);
-                            // Reset destination member IP and port
-                            dstMember = dstMember.toBuilder().setEndpoint(EndpointBuilder.create(dstMemberEntity.getGatewayExternalUri())).build();
+                        // 用户没指定具体的专有网络地址
+                        if (null == PartnerConfigCache.getInstance().get(dstMember.getMemberId())) {
+                            MemberEntity dstMemberEntity = MemberCache.getInstance().refreshCacheById(dstMember.getMemberId());
+                            if (null != dstMemberEntity) {
+                                channelCache.remove(dstGatewayUri);
+                                // Reset destination member IP and port
+                                dstMember = dstMember.toBuilder().setEndpoint(EndpointBuilder.create(dstMemberEntity.getGatewayExternalUri())).build();
 
-                        } else {
-                            LOG.error("Message push failed,re obtain destination address information is empty, dst member id is:" + dstMember.getMemberId());
-                        }
+                            } else {
+                                LOG.error("Message push failed,re obtain destination address information is empty, dst member id is:" + dstMember.getMemberId());
+                            }
 
-                        // Record the last error message
-                        if (i >= failTryCount) {
-                            return ReturnStatusBuilder.sysExc("访问成员方[" + dstName + "]的网关[" + endpoint + "]不通，请检查网络连接是否正常以及对方网关是否已启动" + (tlsEnable ? "(PS:该网关启用了SSL通道)" : ""), transferMeta.getSessionId());
+                            // Record the last error message
+                            if (i >= failTryCount) {
+                                return ReturnStatusBuilder.sysExc("访问成员方[" + dstName + "]的网关[" + endpoint + "]不通，请检查网络连接是否正常以及对方网关是否已启动" + (tlsEnable ? "(PS:该网关启用了SSL通道)" : ""), transferMeta.getSessionId());
+                            }
                         }
                     } else if (GrpcUtil.checkSystemTimestampPermissionExp(e)) {
                         // The system time between the two exceeds the allowable range

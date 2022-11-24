@@ -34,6 +34,7 @@ import com.welab.wefe.common.web.util.ModelMapper;
 import com.welab.wefe.common.wefe.enums.ComponentType;
 import com.welab.wefe.common.wefe.enums.JobMemberRole;
 import com.welab.wefe.common.wefe.enums.TaskResultType;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,13 +76,23 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             return null;
         }
 
-        // Reassembly parameters
-        return JObject.create()
-                .append("eval_type", params.getEvalType())
+        JObject taskParams = JObject.create()
                 .append("pos_label", params.getPosLabel())
-                .append("prob_need_to_bin", params.isProbNeedToBin())
-                .append("bin_method", params.getBinMethod())
-                .append("bin_num", params.getBinNum());
+                .append("eval_type", params.getEvalType());
+        JObject scoreParam = JObject.create()
+                .append("bin_num", params.scoreParam.binNum)
+                .append("bin_method", params.scoreParam.binMethod)
+                .append("prob_need_to_bin", params.scoreParam.probNeedToBin);
+
+        JObject psiParam = JObject.create()
+                .append("need_psi", params.psiParam.needPsi)
+                .append("bin_num", params.psiParam.binNum)
+                .append("bin_method", params.psiParam.binMethod)
+                .append("split_points", CollectionUtils.isEmpty(params.getPsiParam().splitPoints) ? new ArrayList<>() : params.getPsiParam().splitPoints);
+
+
+        return taskParams.append("psi_param", psiParam)
+                .append("score_param", scoreParam);
     }
 
     @Override
@@ -121,7 +132,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
 
         final JObject trainObj = getTrainObjByTaskId(taskId);
         final JObject validateObj = getValidateObjByTaskId(taskId);
-
+        final JObject scoreAndSpiObj = getPsiObjByTaskId(taskId);
 
         switch (type) {
             case "ks":
@@ -163,11 +174,12 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
                 topn.putAll(parserTopN(trainObj, normalName, "train"));
                 topn.putAll(parserTopN(validateObj, normalName, "validate"));
                 return topn;
-            case "scores_distribution":
-                final JObject distributionObj = getDistributionObjByTaskId(taskId);
-                JObject scores_distribution = JObject.create();
-                scores_distribution.putAll(parserScoresDistributionCurveData(distributionObj, normalName));
-                return scores_distribution;
+            case "scored":
+                return JObject.create()
+                        .append("scored", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_scored.data")));
+            case "psi":
+                return JObject.create()
+                        .append("psi", JObject.create(scoreAndSpiObj.getJObjectByPath("train_validate_" + normalName + "_psi.data")));
             default:
                 return JObject.create();
         }
@@ -236,6 +248,11 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
         return result != null ? JObject.create(result.getResult()) : JObject.create("");
     }
 
+    private JObject getPsiObjByTaskId(String taskId) {
+        TaskResultMySqlModel psiTaskResult = findPsiTaskResultByTaskId(taskId);
+        return psiTaskResult != null ? JObject.create(psiTaskResult.getResult()) : JObject.create("");
+    }
+
     private TaskResultMySqlModel findEvaluationTaskResultByTaskId(String taskId) {
         TaskResultMySqlModel trainTaskResult = findEvaluationTrainTaskResultByTaskId(taskId);
         // Training and validation evaluation task_result only has different types,
@@ -255,6 +272,10 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
     }
 
     private TaskResultMySqlModel findEvaluationDistributionTaskResultByTaskId(String taskId) {
+        return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train_validate.name());
+    }
+
+    private TaskResultMySqlModel findPsiTaskResultByTaskId(String taskId) {
         return taskResultService.findByTaskIdAndType(taskId, TaskResultType.metric_train_validate.name());
     }
 
@@ -334,7 +355,7 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
     }
 
     public static String scoreDistributionKey(String taskResultName) {
-        return "train_validate_" + taskResultName + "_metric";
+        return "train_validate_" + taskResultName + "_scored";
     }
 
 
@@ -410,14 +431,10 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
         private int posLabel;
 
         @Check(require = true)
-        private boolean probNeedToBin;
+        private PsiParam psiParam;
 
-        @Check
-        private String binMethod;
-
-        @Check
-        private int binNum;
-
+        @Check(require = true)
+        private ScoreParam scoreParam;
 
         public String getEvalType() {
             return evalType;
@@ -435,12 +452,43 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             this.posLabel = posLabel;
         }
 
-        public boolean isProbNeedToBin() {
-            return probNeedToBin;
+        public PsiParam getPsiParam() {
+            return psiParam;
         }
 
-        public void setProbNeedToBin(boolean probNeedToBin) {
-            this.probNeedToBin = probNeedToBin;
+        public void setPsiParam(PsiParam psiParam) {
+            this.psiParam = psiParam;
+        }
+
+        public ScoreParam getScoreParam() {
+            return scoreParam;
+        }
+
+        public void setScoreParam(ScoreParam scoreParam) {
+            this.scoreParam = scoreParam;
+        }
+    }
+
+    public static class PsiParam {
+        private Boolean needPsi;
+        private Integer binNum;
+        private String binMethod;
+        private List<Double> splitPoints;
+
+        public Boolean getNeedPsi() {
+            return needPsi;
+        }
+
+        public void setNeedPsi(Boolean needPsi) {
+            this.needPsi = needPsi;
+        }
+
+        public Integer getBinNum() {
+            return binNum;
+        }
+
+        public void setBinNum(Integer binNum) {
+            this.binNum = binNum;
         }
 
         public String getBinMethod() {
@@ -451,12 +499,43 @@ public class EvaluationComponent extends AbstractComponent<EvaluationComponent.P
             this.binMethod = binMethod;
         }
 
-        public int getBinNum() {
+        public List<Double> getSplitPoints() {
+            return splitPoints;
+        }
+
+        public void setSplitPoints(List<Double> splitPoints) {
+            this.splitPoints = splitPoints;
+        }
+    }
+
+    public static class ScoreParam {
+        private Integer binNum;
+        private String binMethod;
+        private boolean probNeedToBin;
+
+        public Integer getBinNum() {
             return binNum;
         }
 
-        public void setBinNum(int binNum) {
+        public void setBinNum(Integer binNum) {
             this.binNum = binNum;
         }
+
+        public String getBinMethod() {
+            return binMethod;
+        }
+
+        public void setBinMethod(String binMethod) {
+            this.binMethod = binMethod;
+        }
+
+        public boolean isProbNeedToBin() {
+            return probNeedToBin;
+        }
+
+        public void setProbNeedToBin(boolean probNeedToBin) {
+            this.probNeedToBin = probNeedToBin;
+        }
     }
+
 }

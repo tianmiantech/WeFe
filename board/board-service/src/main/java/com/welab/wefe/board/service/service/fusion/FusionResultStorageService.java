@@ -16,6 +16,15 @@
 package com.welab.wefe.board.service.service.fusion;
 
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.welab.wefe.board.service.service.AbstractService;
 import com.welab.wefe.common.data.storage.common.Constant;
@@ -24,13 +33,6 @@ import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
 import com.welab.wefe.common.util.StringUtil;
-import org.springframework.stereotype.Service;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author hunter.zhao
@@ -59,7 +61,7 @@ public class FusionResultStorageService extends AbstractService {
     /**
      * save data set header info to storage
      */
-    public void saveHeaderRow(String businessId, List<String> row) throws Exception {
+    public void saveHeaderRow(String businessId, Set<String> row) throws Exception {
         String sid = null;
         List<String> header = new ArrayList<>();
 

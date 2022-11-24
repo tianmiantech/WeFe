@@ -138,6 +138,11 @@ class VertDPSecureBoostingProvider(BoostingTree):
                                                        role=consts.PROMOTER,
                                                        idx=-1)
 
+    def sync_anonymous_name_mapping(self, anonymous_name_mapping):
+        LOGGER.info("sync anonymous name mapping {}".format(anonymous_name_mapping))
+        self.transfer_variable.anonymous_name_mapping.remote(anonymous_name_mapping,
+                                                             role=consts.PROMOTER,
+                                                             idx=-1)
 
     def fit(self, data_inst, validate_data=None):
 
@@ -158,7 +163,7 @@ class VertDPSecureBoostingProvider(BoostingTree):
             model_param = cur_best_model["Model_Param"]
             self.set_model_param(model_param)
             bestIteration = self.sync_begin_iter()
-            self.tracker.set_task_progress(bestIteration)
+            self.tracker.set_task_progress(bestIteration, self.need_grid_search)
         for epoch_idx in range(bestIteration, self.num_trees):
             # n_tree = []
             for tidx in range(self.tree_dim):
@@ -182,8 +187,8 @@ class VertDPSecureBoostingProvider(BoostingTree):
                 if stop_flag:
                     break
 
-            self.tracker.save_training_best_model(self.export_model())
-            self.tracker.add_task_progress(1)
+            self.tracker.save_training_best_model(self.export_model(), self.need_grid_search)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
         if self.validation_strategy and self.validation_strategy.has_saved_best_model():
             self.load_model(self.validation_strategy.cur_best_model)
@@ -320,6 +325,7 @@ class VertDPSecureBoostingProvider(BoostingTree):
         member_id = self.component_properties.local_member_id
         for fid, name in self.feature_name_fid_mapping.items():
             anonymous_name_mapping[generate_anonymous(fid, role=consts.PROVIDER, party_id=member_id, )] = name
+        self.sync_anonymous_name_mapping(anonymous_name_mapping)
 
         model_param.anonymous_name_mapping.update(anonymous_name_mapping)
         model_param.feature_name_fid_mapping.update(self.feature_name_fid_mapping)
@@ -356,8 +362,11 @@ class VertDPSecureBoostingProvider(BoostingTree):
             self.feature_name_fid_mapping.update(model_param.feature_name_fid_mapping)
 
     def export_model(self):
-        if self.need_cv:
-            return None
+        if self.model_output is not None:
+            return self.model_output
+
+        if self.need_cv and not self.need_grid_search:
+            return
 
         meta_name, meta_protobuf = self.get_model_meta()
         param_name, param_protobuf = self.get_model_param()

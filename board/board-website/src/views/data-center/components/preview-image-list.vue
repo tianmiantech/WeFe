@@ -32,7 +32,6 @@
             });
             const methods = {
                 async getSampleList(id) {
-                    console.log(vData.sampleList);
                     vData.imgLoading = true;
                     const params = {
                         page_index:  vData.search.page_index - 1,

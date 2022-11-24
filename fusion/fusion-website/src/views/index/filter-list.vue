@@ -66,6 +66,16 @@
                 width="100"
             />
             <el-table-column
+                label="已处理数量"
+                prop="process_count"
+                width="100"
+            />
+            <el-table-column
+                label="处理进度"
+                prop="process"
+                width="100"
+            />
+            <el-table-column
                 label="描述"
                 prop="description"
                 width="160"

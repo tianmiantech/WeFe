@@ -53,6 +53,12 @@
       "dst": [
         "promoter"
       ]
+    },
+    "anonymous_name_mapping": {
+      "src": "provider",
+      "dst": [
+        "promoter"
+      ]
     }
   }
 }

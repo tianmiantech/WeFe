@@ -21,6 +21,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -43,6 +44,15 @@ public abstract class AbstractServiceProcessor<T> {
     }
 
     public void addCalllog(String requestId, String url, JSONObject request, JSONObject response) {
+        JSONObject calllog = new JSONObject();
+        calllog.put("url", url);
+        calllog.put("requestId", requestId);
+        calllog.put("request", request);
+        calllog.put("response", response);
+        calllogs.add(calllog);
+    }
+    
+    public void addCalllog(String requestId, String url, JSONObject request, JSONArray response) {
         JSONObject calllog = new JSONObject();
         calllog.put("url", url);
         calllog.put("requestId", requestId);

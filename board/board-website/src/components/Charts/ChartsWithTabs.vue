@@ -7,7 +7,7 @@
         <el-tabs
             v-if="ChartsMap[componentType].tabs && ChartsMap[componentType].tabs.length"
             v-model="tabName"
-            @tab-click="tabChange"
+            @tab-change="tabChange"
         >
             <el-tab-pane
                 v-for="(tab, index) in ChartsMap[componentType].tabs"
@@ -29,7 +29,9 @@
                                 训练结果: auc: {{ config.train.auc }} <span class="ml10">ks: {{ config.train.ks }}</span>
                                 <br />
                             </template>
-                            验证结果: auc: {{ config.validate.auc }} <span class="ml10">ks: {{ config.validate.ks }}</span>
+                            <template v-if="config.validate.auc">
+                                验证结果: auc: {{ config.validate.auc }} <span class="ml10">ks: {{ config.validate.ks }}</span>
+                            </template>
                         </div>
                     </template>
                 </component>
@@ -43,6 +45,7 @@
             :config="charts[tab.name].config"
         />
     </div>
+    <div v-else style="text-align: center">暂无数据</div>
 </template>
 
 <script>
@@ -54,20 +57,22 @@
     export default {
         name:  'ChartsWithTabs',
         props: {
-            resultApi:  String,
-            jobId:      String,
-            flowId:     String,
-            flowNodeId: String,
-            showTopn:   Boolean,
+            resultApi:    String,
+            jobId:        String,
+            flowId:       String,
+            flowNodeId:   String,
+            showTopn:     Boolean,
+            isTabLinkage: Boolean,
         },
         components: { TopN },
         data() {
             return {
-                ChartsMap,
+                ChartsMap:        JSON.parse(JSON.stringify(ChartsMap)),
                 componentType:    '',
                 tabName:          '',
                 loading:          false,
                 charts:           {},
+                originChartsMap:  JSON.parse(JSON.stringify(ChartsMap)),
                 prob_need_to_bin: false,
             };
         },
@@ -155,6 +160,10 @@
                         } else {
                             const { train_loss } = result;
 
+                            this.charts[this.tabName].config.validate.ks = null;
+                            this.charts[this.tabName].config.validate.auc = null;
+                            this.charts[this.tabName].config.train.ks = null;
+                            this.charts[this.tabName].config.train.auc = null;
                             this.charts[this.tabName].config.legend = ['loss'];
                             this.charts[this.tabName].config.series = [train_loss.data.map((value, index) => {
                                 return {
@@ -165,13 +174,26 @@
                         }
                         this.charts[this.tabName].config.loading = false;
                     }
+                } else {
+                    this.ChartsMap = this.originChartsMap;
+                    this.charts = {};
                 }
             },
 
-            tabChange() {
+            tabChange(row) {
                 this.$nextTick(() => {
                     this.getChartsData();
+                    this.$emit('change-tabname', this.tabName);
                 });
+                // if (this.isTabLinkage) { // tab联动
+                //     const currentClick = row.props.name;
+                //     const container = document.getElementById('result-box');
+                //     const allClickTab = container.getElementById(`tab-${currentClick}`);
+
+                //     console.log(allClickTab);
+                //     console.log(`tab-${currentClick}`);
+                //     console.log(container);
+                // }
             },
 
             async getChartsData() {
@@ -264,7 +286,7 @@
                             if(validate_ks_fpr) {
                                 this.charts[tabName].config.legend.push('validate_ks_fpr', 'validate_ks_tpr');
                                 validate_ks_fpr.data.forEach((data, index) => {
-                                    if(xAxis.length === 0) xAxis.push(data[0]);
+                                    if(xAxis.length === 0 || this.componentType === 'Oot') xAxis.push(data[0]);
                                     validate_ks_fpr_data.push(validate_ks_fpr.data[index][1]);
                                     validate_ks_tpr_data.push(validate_ks_tpr.data[index][1]);
                                 });
@@ -482,7 +504,7 @@
 
                 if (validate_ks_tpr) {
                     validate_ks_tpr.data.forEach((row, index) => {
-                        if(xAxis.length === 0) xAxis.push(row[0]);
+                        if(xAxis.length === 0 || this.componentType === 'Oot') xAxis.push(row[0]);
                         validate_roc.push(validate_ks_tpr.data[index][1]);
                     });
                 }
@@ -496,7 +518,7 @@
                 const train = result[lineNames[0]];
                 const validate = result[lineNames[1]];
 
-                if(train) {
+                if(train && validate) {
                     const lines = [train, validate];
                     const xAxis = [];
                     const train_data = [],
@@ -516,8 +538,24 @@
                     }
                     this.charts[tabName].config.xAxis = xAxis;
                     this.charts[tabName].config.series = [train_data, validate_data];
+                    this.charts[tabName].config.legend = [...lineNames];
+                } else {
+                    const lines = [validate];
+                    const xAxis = [];
+                    const validate_data = [];
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const { data } = lines[i]; // data[0] fpr x, data[1] tpr y
+
+                        for (let j = 0; j < data.length; j++) {
+                            xAxis.push(data[j][0]);
+                            validate_data.push(data[j][1]);
+                        }
+                    }
+                    this.charts[tabName].config.xAxis = xAxis;
+                    this.charts[tabName].config.legend = [lineNames[1]];
+                    this.charts[tabName].config.series = [validate_data];
                 }
-                this.charts[tabName].config.legend = [...lineNames];
             },
         },
     };

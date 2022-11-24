@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * @author hunter.zhao
  */
-public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
+public abstract class AbstractPsiServerActuator extends AbstractPsiActuator implements PsiServerInterface {
 
     protected BigInteger n;
     protected BigInteger d;
@@ -39,6 +39,7 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
     protected BigInteger q;
     protected BigInteger cp;
     protected BigInteger cq;
+    protected BloomFilters bf;
 
     public AbstractPsiServerActuator(String businessId, BloomFilters bloomFilters, BigInteger n, BigInteger e, BigInteger d, BigInteger p, BigInteger q, Long dataCount) {
         super(businessId);
@@ -53,16 +54,14 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
         this.dataCount = dataCount;
     }
 
+    @Override
     public PsiActuatorMeta getActuatorParam() {
         return PsiActuatorMeta.of(e, n, bf);
     }
 
-    public byte[][] compute(List<String> bsList) throws StatusCodeWithException {
+    @Override
+    public byte[][] dataTransform(List<String> bsList) {
 
-//        if (processedCount.longValue() >= dataCount) {
-//            status = PSIActuatorStatus.falsify;
-//            throw new StatusCodeWithException(StatusCode.PERMISSION_DENIED, PSIActuatorStatus.falsify.description());
-//        }
         LOG.info("align start...");
 
         byte[][] bs = new byte[bsList.size()][];
@@ -90,6 +89,7 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
      *
      * @param rs
      */
+    @Override
     public void receiveResult(List<String> rs) {
 
         fusionCount.add(rs.size());
@@ -100,10 +100,6 @@ public abstract class AbstractPsiServerActuator extends AbstractPsiActuator {
         }
 
         dump(fruit);
-    }
-
-    @Override
-    public void init() throws StatusCodeWithException {
     }
 
     @Override

@@ -64,7 +64,6 @@
                         const { result } = data[0], outerTable = [];
 
                         for (const key in result) {
-                            console.log(key);
                             outerTable.push({
                                 feature:     key,
                                 inlineTable: [...result[key]],

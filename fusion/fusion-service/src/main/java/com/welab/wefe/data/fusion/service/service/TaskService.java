@@ -16,6 +16,7 @@
 
 package com.welab.wefe.data.fusion.service.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -226,6 +227,7 @@ public class TaskService extends AbstractService {
      * RSA-psi Algorithm to deal with
      */
     private void psi(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
+        LOG.info("fusion task log , role = " + task.getPsiActuatorRole());
         switch (task.getPsiActuatorRole()) {
             case server:
                 psiServer(input, task, partner);
@@ -242,6 +244,7 @@ public class TaskService extends AbstractService {
      * psi-client
      */
     private void psiClient(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
+        LOG.info("fusion task log , psiClient begin");
         if (StringUtil.isEmpty(input.getDataResourceId())) {
             throw new StatusCodeWithException(input.getDataResourceId(), PARAMETER_VALUE_INVALID);
         }
@@ -266,7 +269,9 @@ public class TaskService extends AbstractService {
         taskRepository.save(task);
 
         //The callback
-        thirdPartyService.callback(partner.getBaseUrl(), task.getBusinessId(), CallbackType.init, dataSet.getRowCount());
+        JSONObject response = thirdPartyService.callback(partner.getBaseUrl(), task.getBusinessId(), CallbackType.init, dataSet.getRowCount());
+        LOG.info("fusion task log ,psiClient callback, url = " + partner.getBaseUrl() + ", response = "
+                + JSONObject.toJSONString(response));
     }
 
 
@@ -278,7 +283,7 @@ public class TaskService extends AbstractService {
      * @throws StatusCodeWithException
      */
     private void psiServer(HandleApi.Input input, TaskMySqlModel task, PartnerMySqlModel partner) throws StatusCodeWithException {
-
+        LOG.info("fusion task log , psiServer begin");
         task.setStatus(TaskStatus.Running);
         task.setDataResourceId(input.getDataResourceId());
         task.setDataResourceType(input.getDataResourceType());
@@ -297,7 +302,7 @@ public class TaskService extends AbstractService {
         if (bf == null) {
             throw new StatusCodeWithException("未查找到布隆过滤器", StatusCode.PARAMETER_VALUE_INVALID);
         }
-
+        LOG.info("fusion task log , psiServer bf = " + JSONObject.toJSONString(bf));
         /**
          * Generate the corresponding task handler
          */
@@ -315,17 +320,18 @@ public class TaskService extends AbstractService {
         );
 
         ActuatorManager.set(server);
-
+        LOG.info("fusion task log , server run");
         server.run();
 
         //The callback
-        thirdPartyService.callback(
+        JSONObject response = thirdPartyService.callback(
                 partner.getBaseUrl(),
                 task.getBusinessId(),
                 CallbackType.running,
                 ActuatorManager.ip(),
                 CacheObjects.getOpenSocketPort()
         );
+        LOG.info("fusion task log , call " + partner.getBaseUrl() + ", response = " + JSONObject.toJSONString(response));
     }
 
 

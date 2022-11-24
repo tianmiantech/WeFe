@@ -2,11 +2,10 @@
     <div class="layout-sider">
         <div class="heading-logo">
             <img
-                width="50px"
+                width="80px"
                 class="logo"
                 src="../../assets/images/x-logo.png"
             >
-            <span class="we">We</span><span class="fe">Fe</span>
         </div>
         <el-aside style="width: 200px;">
             <el-scrollbar>
@@ -36,10 +35,10 @@
     background: $nav-background;
     .heading-logo {
         color: #fff;
-        height: 60px;
-        line-height: 60px;
+        height: 120px;
+        line-height: 120px;
         font-weight: bold;
-        background: $nav-background-active;
+        text-align: center;
     }
     .heading-logo {
         .we {color: #ea8022;}

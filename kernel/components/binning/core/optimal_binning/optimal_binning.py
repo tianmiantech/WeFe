@@ -59,7 +59,9 @@ class OptimalBinning(Binning):
         self.optimal_param.adjustment_factor = params.adjustment_factor
         self.optimal_param.max_bin = int(params.bin_num)
         if math.ceil(1.0 / self.optimal_param.max_bin_pct) > int(self.optimal_param.max_bin):
-            raise ValueError("Arguments logical error, ceil(1.0/max_bin_pct) should be smaller or equal than bin_num")
+            raise ValueError("Arguments logical error, ceil(1.0/max_bin_pct) :{} "
+                             "should be smaller or equal than bin_num :{}".format
+                             (math.ceil(1.0 / self.optimal_param.max_bin_pct),int(params.bin_num)))
 
         self.adjustment_factor = params.adjustment_factor
 

@@ -41,6 +41,7 @@ from kernel.model_selection import MiniBatch
 from kernel.transfer.framework.horz.procedure import aggregator
 from kernel.utils import base_operator
 from kernel.utils import consts
+from kernel.model_selection.grid_search import GridSearch
 
 LOGGER = log_utils.get_logger()
 
@@ -111,7 +112,7 @@ class HorzLRClient(HorzLRBaseModel):
 
             validation_strategy.validate(self, self.n_iter_)
             self.n_iter_ += 1
-            self.tracker.add_task_progress(1)
+            self.tracker.add_task_progress(1, self.need_grid_search)
 
     def predict(self, data_instances):
         self._abnormal_detection(data_instances)
@@ -127,3 +128,11 @@ class HorzLRClient(HorzLRBaseModel):
             return x
         predict_result = predict_result.join(predict_wx,lambda x,y : _append_linear_result(x,y))
         return predict_result
+
+    def grid_search(self, train_data, eval_data, need_cv=False):
+        if not self.need_run:
+            return train_data
+        grid_obj = GridSearch()
+        grid_search_param = self._get_grid_search_param()
+        output_data = grid_obj.run(grid_search_param, train_data, eval_data, self, need_cv, True)
+        return output_data

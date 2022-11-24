@@ -365,6 +365,7 @@
                 this.message_list = [];
                 this.noMore = false;
                 this.message_search.page_index = 0;
+                this.noMore = false;
                 if(!value){
                     this.message_search.unread = null;
                 }
@@ -376,7 +377,7 @@
 
 <style lang="scss">
     .box-card{
-        height: 571px;
+        height: 563px;
         .empty-message-list{
             text-align: center;
             padding-top:15px;

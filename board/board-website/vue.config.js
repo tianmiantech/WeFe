@@ -8,6 +8,12 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const resolvers = require('unplugin-vue-components/resolvers');
 const components = require('unplugin-vue-components/webpack');
 // const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
+const { program } = require('commander');
+
+// 使用program去获取参数, 和参数顺序无关
+program.option('-p, --prod <string>', 'prod');
+program.parse(process.argv);
+const options = program.opts();
 
 const argvs = argv._[1] ? argv._[1].split('=') : '';
 const tailSplit = argv._[2] ? argv._[2].split('=')[1] : '';
@@ -75,6 +81,7 @@ module.exports = {
 
             config.plugins.push(
                 new webpack.DefinePlugin({
+                    'process.env.prod':        JSON.stringify(`${options.prod}`),
                     'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
                     'process.env.CONTEXT_ENV': JSON.stringify(`${CONTEXT_ENV}`),
                     'process.env.VERSION':     JSON.stringify(`${buildDate}`),
@@ -94,6 +101,7 @@ module.exports = {
 
             config.plugins.push(
                 new webpack.DefinePlugin({
+                    'process.env.prod':        JSON.stringify(`${options.prod}`),
                     'process.env.DEPLOY_ENV':  JSON.stringify(`${DEPLOY_ENV}`),
                     'process.env.VERSION':     JSON.stringify(`${buildDate}`),
                     'process.env.CONTEXT_ENV': '""',
@@ -173,9 +181,12 @@ module.exports = {
          * @author claude
          * @description webpack devServer proxy
          */
-        proxy:      {
+         headers:    {
+            'Access-Control-Allow-Origin': '*',
+        },
+        proxy: {
             '/api': {
-                target:       'https://xbd-dev.wolaidai.com/board-service-03/',
+                target:       'https://xbd-fat.wolaidai.com/board-service-02/',
                 secure:       false,
                 timeout:      1000000,
                 changeOrigin: true,

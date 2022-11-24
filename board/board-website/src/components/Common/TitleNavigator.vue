@@ -5,10 +5,10 @@
             :key="index"
         >
             <el-link
-                :type="item.highlight ? 'primary' : 'default'"
+                :type="item?.highlight ? 'primary' : 'default'"
                 :underline="false"
                 @click="jumpto(item)"
-            >{{ item.title }}</el-link>
+            >{{ item?.title }}</el-link>
         </li>
     </ul>
     <div v-if="vData.show" class="navigator">
@@ -138,16 +138,18 @@
                 if(route.meta.navigation) {
                     const titles = container.querySelectorAll('.nav-title');
 
-                    vData.list.forEach(item => item.highlight = false);
+                    vData.list.forEach(item => item.highlight = true);
                     for(let i = 0; i < titles.length; i++) {
                         const item = titles[i];
                         const { top, bottom } = item.getBoundingClientRect();
 
                         if(top <= 120 && bottom >= 90 && vData.list[i]) {
                             vData.list[i].highlight = true;
+                            
                         }
                     }
                     vData.isTitleOk = true;
+                    
                 }
             };
             const init = () => {
@@ -167,6 +169,9 @@
                     if(vData.list.length) {
                         vData.list[0].highlight = true;
                     }
+                    
+                
+
                 }
             };
 
@@ -179,6 +184,7 @@
 
                 $bus.$on('update-title-navigator', e => {
                     init();
+                    
                 });
             });
 

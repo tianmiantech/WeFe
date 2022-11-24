@@ -6,30 +6,37 @@
         shadow="never"
         :show="project_type !== 'DeepLearning'"
         :idx="sortIndex"
+        style="background: white"
     >
         <template #header>
             <div class="clearfix mb10 flex-row">
                 <div style="display: flex; align-items: center;">
-                    <h3 class="card-title f19">数据融合</h3>
+                    <h3 class="card-title f19" style="position: relative; right: 10px; top: -10px;">
+                        <el-icon :class="['el-icon-connection', 'mr10', 'ml10']" style="font-size: xx-large; top:8px; right: -3px; color: dodgerblue"><elicon-connection />
+                            </el-icon>
+                                数据融合
+                    </h3>
                     <template v-if="form.isPromoter">
                         <router-link v-if="form.is_project_admin" class="el-link" :to="{ name: 'fusion-edit', query: { project_id: form.project_id, is_project_admin: form.is_project_admin } }">
                             <el-button
+                                
                                 v-if="!form.closed && !form.is_exited"
                                 type="primary"
                                 class="ml10"
                                 size="small"
+                                style="position: relative; top:-4px; left: -15px; background: lightgreen; border: none;"
                             >
-                                新建数据融合任务
+                            发起数据融合
                             </el-button>
                         </router-link>
                     </template>
                     <span v-else class="ml10 f12">(协作方无法创建任务)</span>
                 </div>
                 <div v-if="form.is_project_admin" class="right-sort-area">
-                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp"><elicon-top /></el-icon>
-                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'ml10', 'mr10']" @click="moveDown"><elicon-bottom /></el-icon>
-                    <span v-if="sortIndex !== 0 && sortIndex !== 1" :class="['f12', {'mr10': sortIndex === 2}]" @click="toTop">置顶</span>
-                    <span v-if="sortIndex !== maxIndex && sortIndex !== maxIndex -1" class="f12" @click="toBottom">置底</span>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-top', {'mr10': maxIndex === sortIndex}]" @click="moveUp" title="向上" style="color: lightgray"><elicon-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-bottom', 'mr10', 'ml10']" @click="moveDown" title="向下" style="color: lightgray"><elicon-bottom /></el-icon>
+                    <el-icon v-if="sortIndex !== 0" :sidx="sortIndex" :midx="maxIndex" :class="['el-icon-caret-top', {'mr10': maxIndex === sortIndex}]" @click="toTop" title="置顶" style="color: lightgray"><elicon-caret-top /></el-icon>
+                    <el-icon v-if="maxIndex !== sortIndex" :class="['el-icon-caret-bottom', 'mr10', 'ml10']" @click="toBottom" title="置底" style="color: lightgray"><elicon-caret-bottom /></el-icon>
                 </div>
             </div>
         </template>
@@ -287,6 +294,10 @@
         },
     };
 </script>
+
+<style lang="scss">
+
+</style>
 
 <style lang="scss" scoped>
     .el-alert__description{

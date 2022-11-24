@@ -51,7 +51,7 @@ public class PsiCryptoApi extends AbstractApi<PsiCryptoApi.Input, PsiMeta> {
             throw new StatusCodeWithException("Actuator not found", StatusCode.DATA_NOT_FOUND);
         }
 
-        return success(PsiMeta.of(actuator.compute(input.getBs())));
+        return success(PsiMeta.of(actuator.dataTransform(input.getBs())));
     }
 
 

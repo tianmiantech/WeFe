@@ -68,18 +68,18 @@ public class SocketUtils {
         for (int remainingCount = retryCount; remainingCount >= 0; remainingCount--) {
             try {
                 socket = new Socket(InetAddress.getByName(ip), port);
-
+                socket.setSoTimeout(10000);
                 if (socket != null) {
                     break;
                 }
             } catch (IOException e) {
-                LOG.warn("new socket error , {}", e.getMessage());
+                LOG.warn("fusion task log , new socket error ,", e);
             } finally {
                 if (retryDelay > 0) {
                     try {
                         Thread.sleep(retryDelay);
                     } catch (InterruptedException e) {
-                        LOG.warn("thread sleep error , {}", e.getMessage());
+                        LOG.warn("fusion task log , thread sleep error ,", e);
                     }
                 }
             }
