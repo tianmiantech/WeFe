@@ -344,7 +344,6 @@ public class PsiClientActuator extends AbstractPsiActuator {
                 BigInteger y = PSIUtils.bytesToBigInteger(ret[i], 0, ret[i].length);
                 BigInteger z = y.multiply(rInv.get(index).get(i)).mod(N);
                 if (bf.contains(z)) {
-                    LOG.info("fusion task log , z success： {} ", z);
                     rs.add(Base64Util.encode(cur.get(i).toString().getBytes()));
                     fruit.add(cur.get(i));
                     fusionCount.increment();
