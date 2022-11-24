@@ -139,7 +139,7 @@ public class BloomFilterAddService extends AbstractService {
      *
      * @return Returns the number of repeated rows of data in a dataset
      */
-    private int readAndSaveFile(BloomFilterMySqlModel model, File file, List<String> rows) throws IOException, StatusCodeWithException {
+    private int readAndSaveFile(BloomFilterMySqlModel model, File file, List<String> idFeatureFields) throws IOException, StatusCodeWithException {
         long startTime = System.currentTimeMillis();
         LOG.info("Start parsing the data set：" + model.getId());
 
@@ -171,7 +171,7 @@ public class BloomFilterAddService extends AbstractService {
         int finalProcessCount = model.getProcessCount();
         CommonThreadPool.run(() -> {
             try {
-                dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, rows, finalProcessCount);
+                dataSetReader.readAllWithSelectRow(bloomFilterAddServiceDataRowConsumer, idFeatureFields, finalProcessCount);
             } catch (StatusCodeWithException e) {
 
             } catch (IOException e) {

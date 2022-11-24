@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -141,7 +142,7 @@ public class PsiServerActuator extends AbstractPsiActuator {
 
     private void sendBloomFilter(Socket socket) {
 
-        LOG.info("fusion task log , server send bloom_filter data...");
+        LOG.info("fusion task log , server send bloom_filter, bf = " + JSONObject.toJSONString(bf));
         try {
             DataOutputStream d_out = new DataOutputStream(socket.getOutputStream());
 

@@ -162,6 +162,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
             }
             LOG.info("fusion task log , socket: {} ", socket);
 
+            // 告知server端，把bloomfilter传过来
             List<String> body = new ArrayList();
             body.add(ActionType.download.name());
             PSIUtils.sendStringList(socket, body);
@@ -178,6 +179,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
             BitSet bs = BitSet.valueOf(b);
 
             bf = new BloomFilters(bitSetSize, DB_size, DB_size, bs);
+            LOG.info("fusion task log , download bf success : " + JSONObject.toJSONString(bf));
         } catch (IOException e1) {
             LOG.error("fusion task log , download bf error : ", e1);
             //Interrupt tasks

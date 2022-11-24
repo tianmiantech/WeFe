@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.BatchConsumer;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -229,7 +230,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
                         String key = PrimaryKeyUtils.create(JObject.create(data), fieldInfoList);
                         BigInteger h = PSIUtils.stringToBigInteger(key);
                         BigInteger z = h.modPow(d, N);
-                         consumer.addToBf(z);
+                        consumer.addToBf(z);
                         if (consumer.getCheckCount().get() <= 10) {
                             consumer.getCheckData().add(data);
                             consumer.getCheckCount().incrementAndGet();
