@@ -86,7 +86,7 @@ public class BloomFilters<E> implements Serializable {
         this.expectedNumberOfFilterElements = n;
         this.k = k;
         this.bitsPerElement = c;
-        this.bitSetSize = (int) Math.ceil(c * n);
+        this.bitSetSize = (long) Math.ceil(c * n);
         numberOfAddedElements = 0;
         this.bitset = new BitArray(bitSetSize);
     }
@@ -109,7 +109,6 @@ public class BloomFilters<E> implements Serializable {
     public BloomFilters(long bitSetSize, long expectedNumberOElements) {
         this(bitSetSize, bitSetSize / (double) expectedNumberOElements, expectedNumberOElements,
                 (int) Math.round((bitSetSize / (double) expectedNumberOElements) * Math.log(2.0)));
-        LOG.info("BloomFilters invoke bitSetSize = " + this.bitSetSize + ", "+ expectedNumberOElements);
     }
 
     /**
@@ -125,7 +124,6 @@ public class BloomFilters<E> implements Serializable {
         this(Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))) / Math.log(2), expectedNumberOfElements,
                 // k = ln(2)m/n
                 (int) Math.ceil(-(Math.log(falsePositiveProbability) / Math.log(2))));
-        LOG.info("BloomFilters invoke falsePositiveProbability = " + falsePositiveProbability);
     }
 
     /**

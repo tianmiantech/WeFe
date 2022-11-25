@@ -201,7 +201,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     @Override
     public void accept(Map<String, Object> data) {
-        batchConsumer.setMaxBatchSize(100000);
+        batchConsumer.setMaxBatchSize(1000000);
         batchConsumer.add(data);
     }
     
@@ -249,10 +249,10 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         long duration1 = System.currentTimeMillis() - start;
         LOG.info("generateFilter duration = " + duration1 + ", size = " + rows.size() + ", id = " + model.getId());
         this.processCount = this.processCount + rows.size();
-
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id", model.getId(),
                 BloomFilterMySqlModel.class);
         int count = bloomFilterMySqlModel.getProcessCount();
+        LOG.info("processCount = " + this.processCount + ", count = " + count);
         if (processCount >= count) {
             bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount,
                     BloomFilterMySqlModel.class);
@@ -292,7 +292,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.processCount = this.processCount + rows.size();
 
         BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id", model.getId(), BloomFilterMySqlModel.class);
-        int count = bloomFilterMySqlModel.getProcessCount();
+        int count = bloomFilterMySqlModel.getProcessCount(); //当前consumer处理量
         if (processCount >= count) {
             bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount, BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "process", Progress.Success, BloomFilterMySqlModel.class);
