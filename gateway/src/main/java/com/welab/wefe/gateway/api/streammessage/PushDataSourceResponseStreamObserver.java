@@ -53,7 +53,7 @@ public class PushDataSourceResponseStreamObserver implements StreamObserver<Gate
     @Override
     public void onError(Throwable t) {
         LOG.error("push data error: ", t);
-        onCompleted();
+        finishFuture.set(null);
     }
 
     @Override

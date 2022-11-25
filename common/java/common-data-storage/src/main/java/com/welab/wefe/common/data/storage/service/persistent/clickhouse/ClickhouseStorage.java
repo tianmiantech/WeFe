@@ -19,6 +19,7 @@ import com.welab.wefe.common.data.storage.model.DataItemModel;
 import com.welab.wefe.common.data.storage.model.PageInputModel;
 import com.welab.wefe.common.data.storage.model.PageOutputModel;
 import com.welab.wefe.common.data.storage.service.persistent.PersistentStorage;
+import com.welab.wefe.common.data.storage.service.persistent.PersistentStorageStreamHandler;
 import com.welab.wefe.common.wefe.dto.storage.ClickhouseConfig;
 import net.razorvine.pickle.Pickler;
 import net.razorvine.pickle.Unpickler;
@@ -389,5 +390,61 @@ public class ClickhouseStorage extends PersistentStorage {
     @Override
     protected String validationQuery() {
         return config.getValidationQuery();
+    }
+
+    @Override
+    public <K, V> void putAllNew(String dbName, String tbName, List<DataItemModel<K, V>> list) throws Exception {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        try {
+            checkTbStream(dbName, tbName);
+            conn = getConnection();
+            conn.setAutoCommit(false);
+            String sql = "INSERT INTO " + formatTableName(dbName, tbName) + " (eventDate,k,v) values(?,?,?)";
+            statement = conn.prepareStatement(sql);
+            Pickler pickler = new Pickler();
+            for (DataItemModel<K, V> item : list) {
+                statement.setDate(1, item.getEventDate());
+                byte[] key = item.getK() instanceof byte[] ? (byte[]) item.getK() : pickler.dumps(item.getK());
+                byte[] value = item.getV() instanceof byte[] ? (byte[]) item.getV() : pickler.dumps(item.getV());
+                statement.setBytes(2, key);
+                statement.setBytes(3, value);
+                statement.addBatch();
+            }
+            statement.executeBatch();
+            conn.commit();
+        } finally {
+            close(statement, conn);
+        }
+    }
+
+    @Override
+    public void getByStream(String dbName, String tbName, int pageSize, PersistentStorageStreamHandler handler) throws Exception {
+        Connection conn = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            conn = getConnection();
+            String sql = "select eventDate,k,v from " + formatTableName(dbName, tbName);
+            statement = conn.prepareStatement(sql);
+            statement.setFetchSize(Integer.MAX_VALUE);
+            rs = statement.executeQuery();
+            List<DataItemModel<byte[], byte[]>> resultList = new ArrayList<>();
+            while (rs.next()) {
+                DataItemModel<byte[], byte[]> model = new DataItemModel<>();
+                Date eventDate = rs.getDate(1);
+                model.setEventDate(eventDate);
+                model.setK(rs.getBytes(2));
+                model.setV(rs.getBytes(3));
+                resultList.add(model);
+
+                if ((pageSize > 0 && resultList.size() >= pageSize) || rs.isLast()) {
+                    handler.handler(new ArrayList<>(resultList));
+                    resultList.clear();
+                }
+            }
+        } finally {
+            close(rs, statement, conn);
+        }
     }
 }

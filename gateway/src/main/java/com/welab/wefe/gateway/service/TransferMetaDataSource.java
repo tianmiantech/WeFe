@@ -350,7 +350,7 @@ public class TransferMetaDataSource extends AbstractTransferMetaDataSource {
                     }
                 }
                 // If the maximum number of failed retries is exceeded, the exception can be thrown directly
-                if (i >= FAIL_RETRY_COUNT) {
+                if (i == FAIL_RETRY_COUNT) {
                     throw e;
                 }
             }
