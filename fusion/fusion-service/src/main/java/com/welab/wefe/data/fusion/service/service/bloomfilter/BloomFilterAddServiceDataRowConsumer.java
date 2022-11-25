@@ -279,7 +279,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
                 BigInteger h = PSIUtils.stringToBigInteger(key);
                 BigInteger z = h.modPow(d, N);
                 this.bf.add(z);
-
                 if (this.getCheckCount().get() <= 10) {
                     this.getCheckData().add(data);
                     this.getCheckCount().incrementAndGet();

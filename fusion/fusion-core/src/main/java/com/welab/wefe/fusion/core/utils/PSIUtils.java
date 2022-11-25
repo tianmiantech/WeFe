@@ -39,6 +39,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
 
@@ -47,6 +50,8 @@ import com.welab.wefe.common.exception.StatusCodeWithException;
  */
 public class PSIUtils {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(PSIUtils.class);
+    
     private static BufferedOutputStream out = null;
 
     public static void writeLineToFile(File file, byte[] line, int begin, int end) {
@@ -76,10 +81,12 @@ public class PSIUtils {
     
     // 使用socket快速传输一个long数组
     public static void sendLongs(Socket socket, long[] longs) {
+        LOG.info("begin send longs, length=" + longs.length);
         try {
             DataOutputStream sender = new DataOutputStream(socket.getOutputStream());
             sender.writeInt(longs.length);
-            for (int i = 0; i < 100; i++) {
+            LOG.info("send longs, writeInt " + longs.length);
+            for (long i : longs) {
                 sender.writeLong(i);
                 // 批量发送，可以提高性能。
                 if (i % 500 == 0) {
@@ -91,13 +98,16 @@ public class PSIUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        LOG.info("end send longs");
     }
     
     // 使用socket快速接收一个long数组
     public static long[] receiveLongs(Socket socket) throws StatusCodeWithException {
+        LOG.info("begin receive longs");
         try {
             DataInputStream receiver = new DataInputStream(socket.getInputStream());
             int length = receiver.readInt();
+            LOG.info("receive longs, length = " + length);
             if (length <= 0) {
                 throw new StatusCodeWithException("receiveLongs error, first int = " + length,
                         StatusCode.REMOTE_SERVICE_ERROR);
@@ -108,6 +118,7 @@ public class PSIUtils {
                 long item = receiver.readLong();
                 datas[count++] = item;
             }
+            return datas;
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
