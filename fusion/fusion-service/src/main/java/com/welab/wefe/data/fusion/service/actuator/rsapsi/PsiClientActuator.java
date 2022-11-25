@@ -173,9 +173,9 @@ public class PsiClientActuator extends AbstractPsiActuator {
             e = PSIUtils.bytesToBigInteger(pk[0], 0, pk[0].length);
             N = PSIUtils.bytesToBigInteger(pk[1], 0, pk[1].length);
             DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            long DB_size =  PSIUtils.receiveLong(d_in); // 元素个数
+            long DB_size = PSIUtils.receiveLong(d_in); // 元素个数
             long bitSetSize = PSIUtils.receiveLong(d_in); // 位数
-            long[] data = PSIUtils.receiveLongs(socket);
+            long[] data = PSIUtils.receiveLongs(socket);// long数组
             BitArray bs = BitArray.valueOf(data);
             LOG.info("fusion task log , download bf success : e = " + e);
             LOG.info("fusion task log , download bf success : N = " + N);
@@ -185,7 +185,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
             LOG.info("fusion task log , download bf success : " + JSONObject.toJSONString(bf));
         } catch (IOException e1) {
             LOG.error("fusion task log , download bf error : ", e1);
-            //Interrupt tasks
+            // Interrupt tasks
             this.status = PSIActuatorStatus.exception;
         } finally {
             try {
