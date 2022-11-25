@@ -16,13 +16,31 @@
 
 package com.welab.wefe.fusion.core.utils;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+
+import com.welab.wefe.common.StatusCode;
+import com.welab.wefe.common.exception.StatusCodeWithException;
 
 /**
  * @author hunter.zhao
@@ -55,7 +73,56 @@ public class PSIUtils {
             }
         }
     }
-
+    
+    // 使用socket快速传输一个long数组
+    public static void sendLongs(Socket socket, long[] longs) {
+        try {
+            DataOutputStream sender = new DataOutputStream(socket.getOutputStream());
+            sender.writeInt(longs.length);
+            for (int i = 0; i < 100; i++) {
+                sender.writeLong(i);
+                // 批量发送，可以提高性能。
+                if (i % 500 == 0) {
+                    sender.flush();
+                }
+            }
+            sender.writeLong(-1);
+            sender.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // 使用socket快速接收一个long数组
+    public static long[] receiveLongs(Socket socket) throws StatusCodeWithException {
+        try {
+            DataInputStream receiver = new DataInputStream(socket.getInputStream());
+            int length = receiver.readInt();
+            if (length <= 0) {
+                throw new StatusCodeWithException("receiveLongs error, first int = " + length,
+                        StatusCode.REMOTE_SERVICE_ERROR);
+            }
+            long[] datas = new long[length];
+            int count = 0;
+            while (count < length) {
+                long item = receiver.readLong();
+                datas[count++] = item;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (socket != null) {
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return new long[0];
+    }
+    
+    
     public static void sendBytes(Socket socket, byte[] bytes) {
         try {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -79,7 +146,7 @@ public class PSIUtils {
 
         return bytes;
     }
-
+    
     public static byte[][] receive2DBytes(Socket socket) {
         byte[][] bytes = null;
         try {
@@ -122,7 +189,7 @@ public class PSIUtils {
         return stringList;
     }
 
-    public static long receiveInteger(DataInputStream dIn) {
+    public static long receiveLong(DataInputStream dIn) {
         try {
             return dIn.readLong();
         } catch (IOException e) {
@@ -158,8 +225,15 @@ public class PSIUtils {
         }
     }
 
+    public static void sendInteger(DataOutputStream dOut, int integer) {
+        try {
+            dOut.writeInt(integer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    public static void sendInteger(DataOutputStream dOut, long integer) {
+    public static void sendLong(DataOutputStream dOut, long integer) {
         try {
             dOut.writeLong(integer);
         } catch (IOException e) {

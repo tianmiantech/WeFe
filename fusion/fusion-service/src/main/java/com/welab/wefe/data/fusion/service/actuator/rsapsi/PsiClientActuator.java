@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +49,7 @@ import com.welab.wefe.data.fusion.service.service.ThirdPartyService;
 import com.welab.wefe.data.fusion.service.service.dataset.DataSetService;
 import com.welab.wefe.data.fusion.service.utils.FusionUtils;
 import com.welab.wefe.data.fusion.service.utils.SocketUtils;
+import com.welab.wefe.data.fusion.service.utils.bf.BitArray;
 import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
@@ -173,10 +173,10 @@ public class PsiClientActuator extends AbstractPsiActuator {
             e = PSIUtils.bytesToBigInteger(pk[0], 0, pk[0].length);
             N = PSIUtils.bytesToBigInteger(pk[1], 0, pk[1].length);
             DataInputStream d_in = new DataInputStream(socket.getInputStream());
-            int DB_size = (int) PSIUtils.receiveInteger(d_in);
-            int bitSetSize = (int) PSIUtils.receiveInteger(d_in);
-            byte[] b = PSIUtils.receiveBytes(socket);
-            BitSet bs = BitSet.valueOf(b);
+            long DB_size =  PSIUtils.receiveLong(d_in); // 元素个数
+            long bitSetSize = PSIUtils.receiveLong(d_in); // 位数
+            long[] data = PSIUtils.receiveLongs(socket);
+            BitArray bs = BitArray.valueOf(data);
             LOG.info("fusion task log , download bf success : e = " + e);
             LOG.info("fusion task log , download bf success : N = " + N);
             LOG.info("fusion task log , download bf success : DB_size = " + DB_size);
