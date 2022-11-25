@@ -66,8 +66,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     private BloomFilters bf;
 
-    private BloomFilters bf1;
-
     private RSAKeyParameters pk;
 
     private BigInteger e;
@@ -98,10 +96,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     public BloomFilters getBf() {
         return bf;
-    }
-
-    public BloomFilters getBf1() {
-        return bf1;
     }
 
     public void setBf(BloomFilters bf) {
@@ -263,7 +257,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
             bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount,
                     BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "process", Progress.Success, BloomFilterMySqlModel.class);
-
+            LOG.info("this.src = " + this.src);
             FileOutputStream outputStream = new FileOutputStream(this.src);
             this.bf.writeTo(outputStream);
             outputStream.close();

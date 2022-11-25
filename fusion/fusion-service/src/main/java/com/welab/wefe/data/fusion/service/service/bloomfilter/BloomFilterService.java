@@ -16,6 +16,20 @@
 
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.data.mysql.Where;
 import com.welab.wefe.common.exception.StatusCodeWithException;
@@ -33,16 +47,8 @@ import com.welab.wefe.data.fusion.service.dto.entity.dataset.DataSetPreviewOutpu
 import com.welab.wefe.data.fusion.service.enums.DataResourceSource;
 import com.welab.wefe.data.fusion.service.service.AbstractService;
 import com.welab.wefe.data.fusion.service.service.DataSourceService;
+import com.welab.wefe.data.fusion.service.utils.bf.BloomFilters;
 import com.welab.wefe.data.fusion.service.utils.dataresouce.DataResouceHelper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author hunter.zhao
@@ -122,14 +128,18 @@ public class BloomFilterService extends AbstractService {
      * Filter Detail
      *
      * @param id
+     * @throws IOException 
+     * @throws FileNotFoundException 
      */
-    public BloomfilterOutputModel detail(String id) throws StatusCodeWithException {
+    public BloomfilterOutputModel detail(String id) throws StatusCodeWithException, FileNotFoundException, IOException {
         BloomFilterMySqlModel model = bloomFilterRepository.findById(id).orElse(null);
         if (model == null) {
             throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
         }
-
-
+        
+        BloomFilters bf = BloomFilters.readFrom(new FileInputStream(Paths.get(model.getSrc()).toString()));
+        LOG.info("detail readFrom " + Paths.get(model.getSrc()).toString());
+        LOG.info("detail readFrom bf = " + JSONObject.toJSONString(bf));
         BloomfilterOutputModel outputModel = ModelMapper.map(model, BloomfilterOutputModel.class);
 
         return outputModel;

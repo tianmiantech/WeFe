@@ -398,6 +398,7 @@ public class BloomFilters<E> implements Serializable {
 
 
     public void writeTo(OutputStream out) throws IOException {
+        LOG.info("writeTo in file begin");
         DataOutputStream dout = new DataOutputStream(out);
         dout.writeLong(bitSetSize); // 位数
         dout.writeLong(expectedNumberOfFilterElements); // 元素个数
@@ -405,15 +406,20 @@ public class BloomFilters<E> implements Serializable {
         for(long a : getBitSet().getData()) {
             dout.writeLong(a);
         }
+        dout.flush();
+        LOG.info("writeTo in file end");
     }
 
     public static BloomFilters readFrom(InputStream in) throws IOException {
+        LOG.info("read From file begin");
         Preconditions.checkNotNull(in, "InputStream");
         try {
             DataInputStream din = new DataInputStream(in);
             long bitSetSize = din.readLong(); // 位数
-            int expectedNumberOfFilterElements = din.readInt();// 元素个数
+            long expectedNumberOfFilterElements = din.readLong();// 元素个数
+            LOG.info("read From file, expectedNumberOfFilterElements = " + expectedNumberOfFilterElements);
             int dataLength = din.readInt();// 底层数组大小
+            LOG.info("read From file, dataLength = " + dataLength);
             long[] data = new long[dataLength];
             for (int i = 0; i < data.length; ++i) {
                 data[i] = din.readLong();
