@@ -187,7 +187,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         this.bloomFilterRepository.save(model);
 
-        batchConsumer = new BatchConsumer<>(102400, 1_000, rows -> {
+        batchConsumer = new BatchConsumer<>(102400, 10_000, rows -> {
             this.process = Progress.Running;
             bloomFilterRepository.updateById(model.getId(), "process", this.process, BloomFilterMySqlModel.class);
             try {
