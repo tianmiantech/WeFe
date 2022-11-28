@@ -249,11 +249,12 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         LOG.info("generateFilter duration = " + duration + ", size = " + rows.size() + ", id = " + model.getId());
         this.processCount = this.processCount + rows.size();
         LOG.info("processCount = " + this.processCount + ", rowCount = " + model.getRowCount());
+        bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount, BloomFilterMySqlModel.class);
         if (processCount >= model.getRowCount()) {
             bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount,
                     BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "process", Progress.Success, BloomFilterMySqlModel.class);
-            LOG.info("this.src = " + this.src);
+            LOG.info("save bloomfilter in file, this.src = " + this.src);
             FileOutputStream outputStream = new FileOutputStream(this.src);
             this.bf.writeTo(outputStream);
             outputStream.close();
