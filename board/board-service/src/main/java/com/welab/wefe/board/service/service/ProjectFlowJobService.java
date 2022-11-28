@@ -23,7 +23,6 @@ import com.welab.wefe.board.service.api.project.job.StopJobApi;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
-import com.welab.wefe.board.service.component.TableDataSetFeatureTracer;
 import com.welab.wefe.board.service.component.base.AbstractComponent;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataIOParam;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
@@ -188,7 +187,8 @@ public class ProjectFlowJobService extends AbstractService {
                 checkBeforeStartFlow(graph, project, isOotMode);
             }
 
-            new TableDataSetFeatureTracer(graph, input.getEndNodeId()).check();
+            // 跟踪并检查特征列表是否满足各组件要求
+            // new TableDataSetFeatureTracer(graph, input.getEndNodeId()).check();
 
             // create task
             createJobTasks(jobBuilder, project, graph, input.isUseCache(), input.getEndNodeId(), flow.getFederatedLearningType());
