@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
@@ -94,7 +95,7 @@ public class BloomFilterService extends AbstractService {
                 .create()
                 .equal("id", input.getId())
                 .contains("name", input.getName())
-                .build(BloomFilterMySqlModel.class);
+                .build();
 
         return bloomFilterRepository.paging(where, input, BloomfilterOutputModel.class);
     }

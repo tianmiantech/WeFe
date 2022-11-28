@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
@@ -37,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.alibaba.fastjson.JSONObject;
 import com.welab.wefe.common.BatchConsumer;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.web.Launcher;
@@ -64,7 +62,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     private AsymmetricCipherKeyPair keyPair;
 
-    private BloomFilters bf;
+    private BloomFilters<BigInteger> bf;
 
     private RSAKeyParameters pk;
 
@@ -94,11 +92,11 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
     private BatchConsumer<Map<String, Object>> batchConsumer;
 
 
-    public BloomFilters getBf() {
+    public BloomFilters<BigInteger> getBf() {
         return bf;
     }
 
-    public void setBf(BloomFilters bf) {
+    public void setBf(BloomFilters<BigInteger> bf) {
         this.bf = bf;
     }
 
@@ -150,15 +148,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         return model;
     }
 
-    /**
-     * The amount of duplicate data
-     */
-    private LongAdder repeatDataCount = new LongAdder();
-
-    /**
-     * If the data comes from reading data from a table in the database, this field represents the total number of rows derived from the query statement
-     */
-    private long rowCount = 0;
 
     public BloomFilterAddServiceDataRowConsumer(BloomFilterMySqlModel model, File file) {
         if (model.getProcessCount() != 0) {
@@ -166,9 +155,8 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         }
         this.process = Progress.Ready;
         this.src = model.getSrc();
-        this.rowCount = model.getRowCount();
         this.keyPair = CryptoUtils.generateKeys(1024);
-        this.bf = new BloomFilters(0.0001, model.getRowCount());
+        this.bf = new BloomFilters<BigInteger>(0.0001, model.getRowCount());
         this.pk = (RSAKeyParameters) keyPair.getPublic();
         this.e = pk.getExponent();
         this.N = pk.getModulus();
