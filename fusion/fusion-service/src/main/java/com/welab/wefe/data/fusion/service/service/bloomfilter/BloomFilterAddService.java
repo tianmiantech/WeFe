@@ -176,20 +176,9 @@ public class BloomFilterAddService extends AbstractService {
             }
 
         });
-
-        System.out.println("-----------------ThreadPoolExecutor Time used:" + (System.currentTimeMillis() - startTime) + "ms");
-
         return rowCount;
     }
 
-
-    public static void main(String[] args) {
-        File outFile = Paths
-                .get("/Users/hunter.zhao/Documents/temp/")
-                .resolve("test").toFile();
-        outFile.mkdir();
-        System.out.println(outFile.toString());
-    }
 
     /**
      * Read data from the specified database according to SQL and save to mysql
