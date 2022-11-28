@@ -17,10 +17,25 @@
 package com.welab.wefe.data.fusion.service.service.bloomfilter;
 
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.math.BigInteger;
+import java.nio.file.Paths;
+import java.security.SecureRandom;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.welab.wefe.common.CommonThreadPool;
 import com.welab.wefe.common.StatusCode;
 import com.welab.wefe.common.exception.StatusCodeWithException;
-import com.welab.wefe.common.util.FileUtil;
 import com.welab.wefe.common.util.JObject;
 import com.welab.wefe.common.util.StringUtil;
 import com.welab.wefe.common.web.CurrentAccount;
@@ -44,21 +59,6 @@ import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import com.welab.wefe.fusion.core.utils.CryptoUtils;
 import com.welab.wefe.fusion.core.utils.PSIUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.math.BigInteger;
-import java.nio.file.Paths;
-import java.security.SecureRandom;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Adding a Filter
@@ -156,10 +156,7 @@ public class BloomFilterAddService extends AbstractService {
         AbstractDataSetReader dataSetReader = isCsv
                 ? new CsvDataSetReader(file)
                 : new ExcelDataSetReader(file);
-
-        List<String> headers = dataSetReader.getHeader();
-
-
+        dataSetReader.getHeader();
         File src = Paths.get(config.getBloomFilterDir())
                 .resolve(model.getName()).toFile();
 
@@ -203,7 +200,7 @@ public class BloomFilterAddService extends AbstractService {
     public int readAndSaveFromDB(BloomFilterMySqlModel model, List<String> headers) throws Exception {
         long startTime = System.currentTimeMillis();
 
-        BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());
+//        BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.getOne(model.getId());
 //        int processCount = bloomFilterMySqlModel.getProcessCount();
 
 
@@ -212,12 +209,11 @@ public class BloomFilterAddService extends AbstractService {
             throw new StatusCodeWithException("dataSourceId在数据库不存在", StatusCode.DATA_NOT_FOUND);
         }
 
-        JdbcManager jdbcManager = new JdbcManager();
-        Connection conn = jdbcManager.getConnection(dsModel.getDatabaseType(), dsModel.getHost(), dsModel.getPort()
+        Connection conn = JdbcManager.getConnection(dsModel.getDatabaseType(), dsModel.getHost(), dsModel.getPort()
                 , dsModel.getUserName(), dsModel.getPassword(), dsModel.getDatabaseName());
 
         String sql_script = model.getStatement();
-        int rowCount = (int) jdbcManager.count(conn, sql_script);
+        int rowCount = (int) JdbcManager.count(conn, sql_script);
         BloomFilterRepository bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         bloomFilterRepository.updateById(model.getId(), "process", Progress.Ready, BloomFilterMySqlModel.class);
         bloomFilterRepository.updateById(model.getId(), "rowCount", rowCount, BloomFilterMySqlModel.class);
@@ -233,7 +229,7 @@ public class BloomFilterAddService extends AbstractService {
 
 
         CommonThreadPool.run(() -> {
-            jdbcManager.readWithSelectRow(conn, sql_script, bloomFilterAddServiceDataRowConsumer, headers);
+            JdbcManager.readWithSelectRow(conn, sql_script, bloomFilterAddServiceDataRowConsumer, headers);
         });
 
 //        bloomFilterAddServiceDataRowConsumer.waitForFinishAndClose();

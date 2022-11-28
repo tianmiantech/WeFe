@@ -187,7 +187,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         this.bloomFilterRepository = Launcher.CONTEXT.getBean(BloomFilterRepository.class);
         this.bloomFilterRepository.save(model);
 
-        batchConsumer = new BatchConsumer<>(102400, 10_000, rows -> {
+        batchConsumer = new BatchConsumer<>(5000000, 10_000, rows -> {
             this.process = Progress.Running;
             bloomFilterRepository.updateById(model.getId(), "process", this.process, BloomFilterMySqlModel.class);
             try {
@@ -201,7 +201,6 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
 
     @Override
     public void accept(Map<String, Object> data) {
-        batchConsumer.setMaxBatchSize(1000000);
         batchConsumer.add(data);
     }
     
@@ -212,7 +211,7 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
         long start = System.currentTimeMillis();
         LOG.info("generateFilter begin , size = " + rows.size() + ", id = " + model.getId());
         // 创建定长线程池
-        int poolSize = 100;
+        int poolSize = 120;
         ExecutorService newFixedThreadPool = Executors.newFixedThreadPool(poolSize);
         final BloomFilterAddServiceDataRowConsumer consumer = this;
         for (Map<String, Object> data : rows) {
@@ -246,14 +245,11 @@ public class BloomFilterAddServiceDataRowConsumer implements Consumer<Map<String
             e.printStackTrace();
         }
         newFixedThreadPool = null;
-        long duration1 = System.currentTimeMillis() - start;
-        LOG.info("generateFilter duration = " + duration1 + ", size = " + rows.size() + ", id = " + model.getId());
+        long duration = System.currentTimeMillis() - start;
+        LOG.info("generateFilter duration = " + duration + ", size = " + rows.size() + ", id = " + model.getId());
         this.processCount = this.processCount + rows.size();
-        BloomFilterMySqlModel bloomFilterMySqlModel = bloomFilterRepository.findOne("id", model.getId(),
-                BloomFilterMySqlModel.class);
-        int count = bloomFilterMySqlModel.getProcessCount();
-        LOG.info("processCount = " + this.processCount + ", count = " + count);
-        if (processCount >= count) {
+        LOG.info("processCount = " + this.processCount + ", rowCount = " + model.getRowCount());
+        if (processCount >= model.getRowCount()) {
             bloomFilterRepository.updateById(model.getId(), "processCount", this.processCount,
                     BloomFilterMySqlModel.class);
             bloomFilterRepository.updateById(model.getId(), "process", Progress.Success, BloomFilterMySqlModel.class);

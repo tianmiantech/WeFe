@@ -1,11 +1,7 @@
 package com.welab.wefe.data.fusion.service.utils.bf;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.BitSet;
 
 import javax.annotation.Nullable;
 
@@ -18,6 +14,8 @@ import com.google.common.primitives.Ints;
  * @create 2022/11/24 17:52
  */
 public class BitArray implements Cloneable, java.io.Serializable{
+    
+    private static final long serialVersionUID = -138867652760714173L;
     private final long[] data;
     long bitCount;
 

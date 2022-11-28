@@ -22,19 +22,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.BitSet;
 import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.math.LongMath;
-import com.google.common.primitives.Ints;
 
 /**
  * Bloom filter implementation class
@@ -278,8 +274,8 @@ public class BloomFilters<E> implements Serializable {
         String valString = element.toString();
         for (int x = 0; x < k; x++) {
             hash = createHash(valString + Integer.toString(x));
-            hash = hash % (long) bitSetSize;
-            bitset.set(Math.abs((int) hash));
+            hash = hash % bitSetSize;
+            bitset.set(Math.abs(hash));
         }
         numberOfAddedElements++;
     }
@@ -306,8 +302,8 @@ public class BloomFilters<E> implements Serializable {
         String valString = element.toString();
         for (int x = 0; x < k; x++) {
             hash = createHash(valString + Integer.toString(x));
-            hash = hash % (long) bitSetSize;
-            if (!bitset.get(Math.abs((int) hash))) {
+            hash = hash % bitSetSize;
+            if (!bitset.get(Math.abs(hash))) {
                 return false;
             }
         }
@@ -328,16 +324,6 @@ public class BloomFilters<E> implements Serializable {
         }
 
         return true;
-    }
-
-    /**
-     * I'm going to get some value
-     *
-     * @param bit The location of the bit.
-     * @return Returns true if the bit is set.
-     */
-    public boolean getBit(int bit) {
-        return bitset.get(bit);
     }
 
     /**
