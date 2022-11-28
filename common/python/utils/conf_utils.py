@@ -72,10 +72,13 @@ def get_value_by_enable(value):
         sm4_cipher = SM4CBC()
         try:
             de_result = sm4_cipher.decrypt(sm4_key, value)
-            LOGGER.debug(f"解密成功，原值:{value}, 解密结果:{de_result}")
+
+            # 解密成功，但结果为空的情况，也认作解密失败
+            if value != de_result and de_result == '':
+                return value
+
             return de_result
         except Exception as e:
-            LOGGER.debug(f"解密失败，返回原值:{value}")
             return value
     else:
         return value
