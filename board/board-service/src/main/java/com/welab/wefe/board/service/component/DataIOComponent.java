@@ -29,7 +29,6 @@ import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMy
 import com.welab.wefe.board.service.database.entity.job.JobMemberMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.TaskResultMySqlModel;
-import com.welab.wefe.board.service.dto.vo.FlowDataSetOutputModel;
 import com.welab.wefe.board.service.dto.vo.data_set.table_data_set.LabelDistribution;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
@@ -67,15 +66,15 @@ public class DataIOComponent extends AbstractComponent<DataIOComponent.Params> {
         return ComponentType.DataIO;
     }
 
-    @Override
-    public List<FlowDataSetOutputModel> traceFeatures(TableDataSetFeatureTracer checker, Params params) {
-        for (DataSetItem dataSetItem : params.getDataSetList()) {
-            checker.putTableDataSet(dataSetItem);
-        }
-
-
-        return null;
-    }
+//    @Override
+//    public List<FlowDataSetOutputModel> traceFeatures(TableDataSetFeatureTracer checker, Params params) {
+//        for (DataSetItem dataSetItem : params.getDataSetList()) {
+//            checker.putTableDataSet(dataSetItem);
+//        }
+//
+//
+//        return null;
+//    }
 
     @Override
     protected void checkBeforeBuildTask(FlowGraph graph, List<TaskMySqlModel> preTasks, FlowGraphNode node, Params params) throws FlowNodeException {

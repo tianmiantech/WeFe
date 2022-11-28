@@ -22,7 +22,6 @@ import com.alibaba.fastjson.TypeReference;
 import com.welab.wefe.board.service.component.Components;
 import com.welab.wefe.board.service.component.DataIOComponent;
 import com.welab.wefe.board.service.component.OotComponent;
-import com.welab.wefe.board.service.component.TableDataSetFeatureTracer;
 import com.welab.wefe.board.service.component.base.io.*;
 import com.welab.wefe.board.service.database.entity.data_resource.TableDataSetMysqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectMySqlModel;
@@ -33,7 +32,6 @@ import com.welab.wefe.board.service.dto.entity.job.TaskResultOutputModel;
 import com.welab.wefe.board.service.dto.kernel.Member;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.KernelTask;
 import com.welab.wefe.board.service.dto.kernel.machine_learning.TaskConfig;
-import com.welab.wefe.board.service.dto.vo.FlowDataSetOutputModel;
 import com.welab.wefe.board.service.exception.FlowNodeException;
 import com.welab.wefe.board.service.model.FlowGraph;
 import com.welab.wefe.board.service.model.FlowGraphNode;
@@ -709,7 +707,7 @@ public abstract class AbstractComponent<T extends AbstractCheckModel> {
     /**
      * 跟踪各组件特征列表的输入与输出
      */
-    public abstract List<FlowDataSetOutputModel> traceFeatures(TableDataSetFeatureTracer checker, T params);
+//    public abstract List<FlowDataSetOutputModel> traceFeatures(TableDataSetFeatureTracer checker, T params);
 
     /**
      * Check the validity of the input parameters and throw an exception when the requirements are not met.

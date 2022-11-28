@@ -20,6 +20,7 @@ import com.welab.wefe.board.service.api.project.dataset.GetFeaturesApi;
 import com.welab.wefe.board.service.component.base.dto.AbstractDataSetItem;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowMySqlModel;
 import com.welab.wefe.board.service.database.entity.job.ProjectFlowNodeMySqlModel;
+import com.welab.wefe.board.service.dto.vo.FeatureOutput;
 import com.welab.wefe.board.service.dto.vo.FlowDataSetOutputModel;
 import com.welab.wefe.board.service.service.DataSetColumnService;
 import com.welab.wefe.board.service.service.ProjectFlowJobService;
@@ -70,18 +71,23 @@ public class ListFlowTableDataSetApi extends AbstractApi<ListFlowTableDataSetApi
             }
 
             for (AbstractDataSetItem item : dataSetItemList) {
-                boolean dataSetExisted = list.stream().anyMatch(x -> x.getMemberId().equals(item.getMemberId()) && x.getJobRole().equals(item.getMemberRole()) && x.getDataSetId().equals(item.getDataSetId()));
+                boolean dataSetExisted = list.stream()
+                        .anyMatch(x ->
+                                x.getMemberId().equals(item.getMemberId())
+                                        && x.getMemberRole().equals(item.getMemberRole())
+                                        && x.getDataSetId()
+                        .equals(item.getDataSetId()));
 
                 if (dataSetExisted) {
                     continue;
                 }
 
                 FlowDataSetOutputModel dataSet = new FlowDataSetOutputModel();
-
-                dataSet.setFeatures(dataSetColumnService.listProjectDataSetFeatures(new GetFeaturesApi.Input(node.getProjectId(), item.getMemberId(), item.getDataSetId())));
-                dataSet.setProjectId(flow.getProjectId());
-                dataSet.setFlowId(flow.getFlowId());
-                dataSet.setJobRole(flow.getMyRole());
+                List<FeatureOutput> featureOutputs = dataSetColumnService.listProjectDataSetFeatures(
+                        new GetFeaturesApi.Input(node.getProjectId(), item.getMemberId(), item.getDataSetId())
+                );
+                dataSet.setFeatures(featureOutputs);
+                dataSet.setMemberRole(flow.getMyRole());
                 dataSet.setMemberId(item.getMemberId());
                 dataSet.setDataSetId(item.getDataSetId());
 
