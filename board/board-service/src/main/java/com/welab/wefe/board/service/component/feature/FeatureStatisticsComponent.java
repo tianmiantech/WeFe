@@ -192,7 +192,6 @@ public class FeatureStatisticsComponent extends AbstractComponent<FeatureStatist
     }
 
     public static class Params extends AbstractCheckModel {
-        @Check(require = true)
         private List<Method> featureMethods;
 
         @Check(name = "模式状态")
