@@ -73,6 +73,7 @@ def get_value_by_enable(value):
         try:
             de_result = sm4_cipher.decrypt(sm4_key, value)
             LOGGER.debug(f"解密成功，原值:{value}, 解密结果:{de_result}")
+            return de_result
         except Exception as e:
             LOGGER.debug(f"解密失败，返回原值:{value}")
             return value
