@@ -19,7 +19,7 @@
                 :width="item === table_data.header[0] ? 240 : 'auto'"
                 :column-style="{textOverflow: 'ellipsis'}"
             >
-                {{ item }}
+                {{ item }}{{featureType[item] ? `(${featureType[item]})`: ''}}
             </c-grid-column>
         </c-grid>
     </div>
@@ -27,6 +27,12 @@
 
 <script>
     export default {
+        props: {
+            featureType: {
+                type:    Object,
+                default: () => ({}),
+            },
+        },
         data() {
             return {
                 loading:    true,
@@ -40,6 +46,16 @@
                 },
                 gridHeight: 0,
             };
+        },
+        watch: {
+            featureType() {
+                this.loading = true;
+                const that = this;
+
+                setTimeout(() =>{
+                    that.loading = false;
+                }, 100);
+            },
         },
         methods: {
             // data_set preview

@@ -53,6 +53,7 @@ export default _ => {
         uiConfig,
         isDemo,
         adminUserList,
+        featureType: [],
     };
 
     const getters = {
@@ -63,6 +64,7 @@ export default _ => {
         uiConfig:      state => state.uiConfig,
         isDemo:        state => state.isDemo,
         adminUserList: state => state.adminUserList,
+        featureType:   state => state.featureType,
     };
 
     const mutations = {
@@ -94,6 +96,10 @@ export default _ => {
         'ADMIN_USER_LIST' (state, data) {
             state.adminUserList = data;
             setStorage().setItem(ADMIN_USER_LIST, JSON.stringify(data));
+        },
+        'UPDATE_FEATURE_TYPE'(state, data){
+            console.log(data, 'featureType')
+            state.featureType = data;
         },
     };
 

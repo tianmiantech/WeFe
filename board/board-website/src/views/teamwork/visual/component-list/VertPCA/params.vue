@@ -114,7 +114,10 @@
                                     <span class="el-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="el-checkbox__label">
+                                    {{ list[index * 5 + i - 1] }}
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -142,6 +145,7 @@
         reactive,
         getCurrentInstance,
     } from 'vue';
+    import FeatureTagVue from '../common/featureTag.vue';
 
     export default {
         name:  'VertPCA',
@@ -153,6 +157,9 @@
             currentObj:   Object,
             jobId:        String,
             class:        String,
+        },
+        components: {
+            FeatureTagVue,
         },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
@@ -170,6 +177,7 @@
                 columnListLoading: false,
                 indeterminate:     false,
                 checkedAll:        false,
+                check_data_set_id: '',
             });
 
             const methods = {
@@ -197,6 +205,7 @@
                                     member_id:   member.member_id,
                                     member_role: member.member_role,
                                     member_name: member.member_name,
+                                    data_set_id: member.data_set_id,
                                     columns:     member.features.length,
                                     show:        true,
                                     features:    [],
@@ -234,6 +243,7 @@
                 },
 
                 checkColumns(row, index) {
+                    vData.check_data_set_id = row.data_set_id;
                     vData.row_index = index;
                     vData.checkedAll = false;
                     vData.indeterminate = false;

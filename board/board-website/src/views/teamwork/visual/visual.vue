@@ -207,6 +207,7 @@
     import ComponentsPanel from './components/components-panel';
     import toolbarMixin from './graph/toolbar.mixin';
     import graphMixin from './graph/graph.mixin';
+    import { getFeatureType } from '../../../service';
 
     export default {
         components: {
@@ -601,6 +602,13 @@
                 componentPanelChangeSize(maxSize) {
                     vData.componentsHide = maxSize;
                 },
+
+                getFeatureType(flow_id){
+                    /** 获取特征type并存储到vuex */
+                    getFeatureType({ flow_id }).then((res) => {
+                        store.commit('UPDATE_FEATURE_TYPE', res);
+                    });
+                },
             };
 
             // mixin function
@@ -631,6 +639,7 @@
 
                 if(flow_id) {
                     methods.init();
+                    methods.getFeatureType(flow_id);
                 } else {
                     $message.error('缺少流程 id, 请重新创建流程!');
                 }

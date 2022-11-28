@@ -187,7 +187,10 @@
                                     <span class="el-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="el-checkbox__label">
+                                    {{ list[index * 5 + i - 1] }}
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -337,11 +340,13 @@
     } from 'vue';
     import { useStore } from 'vuex';
     import DataSetList from '@comp/views/data-set-list';
+    import FeatureTagVue from '../common/featureTag.vue';
 
     export default {
         name:       'DataIO',
         components: {
             DataSetList,
+            FeatureTagVue,
         },
         props: {
             projectId:    String,
@@ -381,6 +386,7 @@
                 column_list:       [],
                 checkedColumns:    '',
                 checkedColumnsArr: [],
+                check_data_set_id: '',
                 showColumnList:    false,
                 columnListLoading: false,
                 indeterminate:     false,
@@ -665,6 +671,7 @@
                 },
 
                 checkColumns(row, index) {
+                    vData.check_data_set_id = row.data_set_id;
                     vData.checkedColumns = '';
                     vData.memberIndex = index;
                     vData.checkedAll = false;
@@ -783,6 +790,7 @@
                 confirmCheck() {
                     vData.member_list[vData.memberIndex].$data_set_list[0].$column_name_list = [...vData.checkedColumnsArr];
                     vData.checkedColumnsArr = [];
+                    vData.check_data_set_id = '';
                     vData.showColumnList = false;
                 },
 

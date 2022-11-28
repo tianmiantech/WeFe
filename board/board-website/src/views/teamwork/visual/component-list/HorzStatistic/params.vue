@@ -116,7 +116,10 @@
                                     <span class="el-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="el-checkbox__label">
+                                    {{ list[index * 5 + i - 1] }}
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -140,9 +143,13 @@
 
 <script>
     import { reactive, getCurrentInstance, nextTick } from 'vue';
+    import FeatureTagVue from '../common/featureTag.vue';
 
     export default {
         name:  'HorzStatistic',
+        components: {
+            FeatureTagVue,
+        },
         props: {
             projectId:    String,
             flowId:       String,
@@ -163,6 +170,7 @@
                 column_list:       [],
                 checkedColumns:    '',
                 checkedColumnsArr: [],
+                check_data_set_id: '',
                 showColumnList:    false,
                 columnListLoading: false,
                 indeterminate:     false,
@@ -228,6 +236,7 @@
                 },
 
                 checkColumns(row, index) {
+                    vData.check_data_set_id = row.data_set_id;
                     vData.row_index = index;
                     vData.checkedAll = false;
                     vData.indeterminate = false;
@@ -383,6 +392,7 @@
                         ...row,
                         features: vData.checkedColumnsArr,
                     };
+                    vData.check_data_set_id = '';
                     vData.showColumnList = false;
                     vData.colChecked = true;
                 },

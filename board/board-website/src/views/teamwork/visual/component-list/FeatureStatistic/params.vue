@@ -147,7 +147,10 @@
                                     <span class="el-checkbox__inner"></span>
                                     <input :id="`label-${index * 5 + i - 1}`" class="el-checkbox__original" type="checkbox" />
                                 </span>
-                                <span class="el-checkbox__label">{{ list[index * 5 + i - 1] }}</span>
+                                <span class="el-checkbox__label">
+                                    {{ list[index * 5 + i - 1] }}
+                                    <FeatureTagVue :name="list[index * 5 + i - 1]" :data_set_id="vData.check_data_set_id" />
+                                </span>
                             </label>
                         </template>
                     </template>
@@ -171,6 +174,7 @@
 
 <script>
     import { reactive, getCurrentInstance, nextTick } from 'vue';
+    import FeatureTagVue from '../common/featureTag.vue';
 
     export default {
         name:  'FeatureStatistic',
@@ -183,6 +187,9 @@
             jobId:        String,
             class:        String,
         },
+        components: {
+            FeatureTagVue,
+        },
         setup(props, context) {
             const { appContext } = getCurrentInstance();
             const { $http, $alert } = appContext.config.globalProperties;
@@ -194,6 +201,7 @@
                 column_list:       [],
                 checkedColumns:    '',
                 checkedColumnsArr: [],
+                check_data_set_id: '',
                 showColumnList:    false,
                 columnListLoading: false,
                 indeterminate:     false,
@@ -258,6 +266,7 @@
                                     member_id:   member.member_id,
                                     member_role: member.member_role,
                                     member_name: member.member_name,
+                                    data_set_id: member.data_set_id,
                                     columns:     member.features.length,
                                     show:        true,
                                     features:    [],
@@ -353,6 +362,7 @@
                     vData.checkedAll = false;
                     vData.indeterminate = false;
                     vData.showColumnList = true;
+                    vData.check_data_set_id = row.data_set_id;
                     vData.column_list = row.$features;
                     vData.checkedColumnsArr = [];
                     vData.checkedColumns = '';
@@ -481,6 +491,7 @@
                         ...row,
                         features: vData.checkedColumnsArr,
                     };
+                    vData.check_data_set_id = '';
                     vData.showColumnList = false;
                 },
 

@@ -85,3 +85,42 @@ export const getNodeDetail = ({ id, flowId }) => {
         });
     });
 };
+
+/**
+ * 获取流程详情中的特征类型
+ */
+
+export const getFeatureType = ({ flow_id }) => {
+    return new Promise((resolve, reject) => {
+        $http.get({
+                url:    '/project/flow/table_data_set/list',
+                params: {
+                    flow_id,
+                },
+            }).then(res => {
+                const { code, data } = res;
+
+                let { list } = data || {};
+
+    
+                if(code !== 0) {
+                    list = [];
+                    console.log('获取特征类型失败');
+                }
+        
+        
+                // window.localStorage.setItem(`${window.api.baseUrl}_featureType`, JSON.stringify(list));
+                resolve(list.map(item => {
+                    const obj = {};
+        
+                    (item.features || []).forEach(item => {
+                        obj[item.name] = item.data_type;
+                    });
+                    item.features = obj;
+                    return item;
+                }));
+            });
+
+        
+    });
+};

@@ -58,6 +58,7 @@ export default () => {
                                         member_id:          row.member_id,
                                         member_name:        row.member_name,
                                         member_role:        row.member_role,
+                                        data_set_id:        row.data_set_id,
                                         $checkedAll:        false,
                                         $indeterminate:     false,
                                         $checkedColumnsArr: [],
