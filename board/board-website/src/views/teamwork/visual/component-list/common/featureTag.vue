@@ -13,7 +13,14 @@
             type:    String,
             default: '',
         },
-        name: String,
+        name:        String,
+        /**
+         * 如果上层传递下来，直接用
+         */
+        featureType: {
+            type:    String,
+            default: '',
+        },
     });
 
     const store = useStore();
@@ -33,7 +40,7 @@
             return item.data_set_id === props.data_set_id;
         }) || [])[0] || {};
 
-        return data.features[props.name];
+        return props.featureType || data.features[props.name];
     });
 
     const showColor = computed(() => {

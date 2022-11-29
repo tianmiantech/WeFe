@@ -815,10 +815,15 @@
                             });
                         }
                     });
-
+                
                     return {
                         params: {
                             dataset_list,
+                        },
+                        callback: () => {
+                            store.dispatch('getFeatureType', {
+                                flow_id: props.flowId,
+                            });
                         },
                     };
                 },

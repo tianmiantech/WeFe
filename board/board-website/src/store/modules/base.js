@@ -1,3 +1,5 @@
+import { getFeatureType } from '../../service';
+
 function setStorage () {
     /* let keepAlive = localStorage.getItem(KEEPALIVE);
 
@@ -103,9 +105,19 @@ export default _ => {
         },
     };
 
+    const actions = {
+        getFeatureType({ commit }, { flow_id }){
+            /** 获取特征type并存储到vuex */
+            getFeatureType({ flow_id }).then((res) => {
+                commit('UPDATE_FEATURE_TYPE', res);
+            });
+        },
+    };
+
     return {
         getters,
         mutations,
         state,
+        actions,
     };
 };

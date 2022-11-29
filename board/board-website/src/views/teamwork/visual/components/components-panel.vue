@@ -203,7 +203,7 @@
 </template>
 
 <script>
-    import {
+import {
         componentsList,
         helpComponents,
         paramComponents,
@@ -420,13 +420,13 @@
                         const formData = refInstance.methods.checkParams();
 
                         if(formData) {
-                            this.submitFormData($event, formData.params);
+                            this.submitFormData($event, formData.params, formData.callback);
                         }
                     }
                 }
             },
 
-            async submitFormData($event, params) {
+            async submitFormData($event, params,callback) {
                 const btnState = {};
 
                 if($event !== 'node-update') {
@@ -467,6 +467,10 @@
                             title:    '提示',
                             message:  '保存成功!',
                         });
+                    }
+
+                    if(typeof callback === 'function'){
+                        callback();
                     }
                 }
             },

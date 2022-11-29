@@ -207,7 +207,6 @@
     import ComponentsPanel from './components/components-panel';
     import toolbarMixin from './graph/toolbar.mixin';
     import graphMixin from './graph/graph.mixin';
-    import { getFeatureType } from '../../../service';
 
     export default {
         components: {
@@ -605,8 +604,8 @@
 
                 getFeatureType(flow_id){
                     /** 获取特征type并存储到vuex */
-                    getFeatureType({ flow_id }).then((res) => {
-                        store.commit('UPDATE_FEATURE_TYPE', res);
+                    store.dispatch('getFeatureType', {
+                        flow_id,
                     });
                 },
             };
