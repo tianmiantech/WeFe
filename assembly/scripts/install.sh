@@ -33,7 +33,7 @@ case "$application" in
         /bin/bash ./serving/serving-website/assembly/scripts/install.sh $application
         ;;
     wefe-blockchain-data-sync)
-        /bin/bash ./blockchain/wefe-blockchain-data-sync/assembly/scripts/install.sh $application
+        /bin/bash ./union/blockchain-data-sync/assembly/scripts/install.sh $application
         ;;
     wefe-data-fusion-service)
         /bin/bash ./fusion/fusion-service/assembly/scripts/install.sh $application
@@ -46,6 +46,12 @@ case "$application" in
         ;;
     wefe-manager-service)
         /bin/bash ./manager/manager-service/assembly/scripts/install.sh $application
+        ;;
+    wefe-flow)
+        /bin/bash ./flow/assembly/scripts/install.sh $application
+        ;;
+    *)
+        exit 1
         ;;
 esac
 
