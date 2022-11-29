@@ -80,11 +80,6 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
         model.setSourcePath(sourceFilePath);
         model.setDataSourceId(input.getDataSourceId());
         model.setHashFunction(input.getHashFunction());
-        fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
-
-        // save bloom_filter info to file
-        model.setUpdatedTime(new Date());
-        bloomFilterRepository.save(model);
 
         // Parse and save the original data
         try {
@@ -95,6 +90,12 @@ public class BloomFilterAddService extends AbstractDataResourceAddService {
             dataResourceUploadTaskService.onError(task.getId(), e);
             return;
         }
+
+        fieldInfoService.saveAll(model.getId(), input.getFieldInfoList());
+
+        // save bloom_filter info to file
+        model.setUpdatedTime(new Date());
+        bloomFilterRepository.save(model);
 
         // save bloom_filter column info to database
 //        bloomfilterColumnService.update(model.getId(), input.getMetadataList());
