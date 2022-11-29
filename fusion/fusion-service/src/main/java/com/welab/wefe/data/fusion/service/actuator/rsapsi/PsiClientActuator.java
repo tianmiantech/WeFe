@@ -182,7 +182,7 @@ public class PsiClientActuator extends AbstractPsiActuator {
             LOG.info("fusion task log , download bf success : DB_size = " + DB_size);
             LOG.info("fusion task log , download bf success : bitSetSize = " + bitSetSize);
             bf = new BloomFilters(bitSetSize, DB_size, DB_size, bs);
-            LOG.info("fusion task log , download bf success : " + JSONObject.toJSONString(bf));
+            LOG.info("fusion task log , download bf success");
         } catch (IOException e1) {
             LOG.error("fusion task log , download bf error : ", e1);
             // Interrupt tasks
