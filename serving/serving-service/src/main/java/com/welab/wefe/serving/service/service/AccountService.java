@@ -18,7 +18,9 @@ package com.welab.wefe.serving.service.service;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ import com.welab.wefe.serving.service.database.repository.AccountRepository;
 import com.welab.wefe.serving.service.dto.globalconfig.IdentityInfoModel;
 import com.welab.wefe.serving.service.enums.ServingModeEnum;
 import com.welab.wefe.serving.service.service.globalconfig.GlobalConfigService;
+import com.welab.wefe.serving.service.api.account.QueryAllApi.Output;
 
 /**
  * @author Zane
@@ -49,6 +52,12 @@ public class AccountService {
 
     @Autowired
     private GlobalConfigService globalConfigService;
+
+    public List<Output> queryAll() {
+        List<AccountMySqlModel> accounts = accountRepository.findAll();
+        return accounts.stream().map(x -> com.welab.wefe.common.web.util.ModelMapper.map(x, Output.class))
+                .collect(Collectors.toList());
+    }
 
     public SsoLoginApi.Output ssoLogin() throws StatusCodeWithException {
         if (!globalConfigService.isInitialized()) {
