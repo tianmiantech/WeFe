@@ -93,7 +93,6 @@ public class PSIUtils {
                     sender.flush();
                 }
             }
-            sender.writeLong(-1);
             sender.flush();
         } catch (IOException e) {
             e.printStackTrace();
