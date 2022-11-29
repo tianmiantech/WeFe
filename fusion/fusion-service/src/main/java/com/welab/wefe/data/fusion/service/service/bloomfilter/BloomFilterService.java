@@ -138,11 +138,8 @@ public class BloomFilterService extends AbstractService {
             throw new StatusCodeWithException("数据不存在！", StatusCode.DATA_NOT_FOUND);
         }
         
-        BloomFilters bf = BloomFilters.readFrom(new FileInputStream(Paths.get(model.getSrc()).toString()));
         LOG.info("detail readFrom " + Paths.get(model.getSrc()).toString());
-        LOG.info("detail readFrom bf = " + JSONObject.toJSONString(bf));
         BloomfilterOutputModel outputModel = ModelMapper.map(model, BloomfilterOutputModel.class);
-
         return outputModel;
     }
 
