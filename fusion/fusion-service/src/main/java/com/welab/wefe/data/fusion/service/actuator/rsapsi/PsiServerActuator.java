@@ -151,9 +151,9 @@ public class PsiServerActuator extends AbstractPsiActuator {
             ret[0] = PSIUtils.bigIntegerToBytes(e, false);
             ret[1] = PSIUtils.bigIntegerToBytes(N, false);
             PSIUtils.send2DBytes(socket, ret);
-            PSIUtils.sendInteger(d_out, bf.count());
-            PSIUtils.sendInteger(d_out, bf.size());
-            PSIUtils.sendBytes(socket, bf.getBitSet().toByteArray());
+            PSIUtils.sendLong(d_out, bf.count()); // 元素个数
+            PSIUtils.sendLong(d_out, bf.size()); // 位数
+            PSIUtils.sendLongs(socket, bf.getBitSet().getData());// long数组
             LOG.info("fusion task log , server send bloom_filter, bf.count() = " + bf.count());
             LOG.info("fusion task log , server send bloom_filter, bf.size() = " + bf.size());
         } catch (Exception e) {

@@ -45,6 +45,7 @@ import com.welab.wefe.data.fusion.service.task.PsiServerTask;
 import com.welab.wefe.data.fusion.service.utils.primarykey.FieldInfo;
 import com.welab.wefe.data.fusion.service.utils.primarykey.PrimaryKeyUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -313,6 +314,9 @@ public class TaskService extends AbstractService {
         BloomFilterMySqlModel bf = bloomFilterService.findById(input.getDataResourceId());
         if (bf == null) {
             throw new StatusCodeWithException("未查找到布隆过滤器", StatusCode.PARAMETER_VALUE_INVALID);
+        }
+        if (StringUtils.isBlank(ActuatorManager.ip())) {
+            throw new StatusCodeWithException("socket.servier.ip 配置未找到", StatusCode.SYSTEM_ERROR);
         }
         LOG.info("fusion task log , psiServer bf = " + JSONObject.toJSONString(bf));
         /**
