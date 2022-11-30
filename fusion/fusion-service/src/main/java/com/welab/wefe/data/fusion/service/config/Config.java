@@ -51,6 +51,9 @@ public class Config extends CommonConfig {
 
     @Value("${sms.aliyun.member.register.verification.code.template.code:xxx}")
     private String smsAliyunMemberregisterVerificationCodeTemplateCode;
+    
+    @Value("${socket.server.ip}")
+    private String socketServerIp;
 
 
     // region getter/setter
@@ -110,6 +113,14 @@ public class Config extends CommonConfig {
 
     public String getSourceFilterDir() {
         return Paths.get(getFileUploadDir()).resolve("file").toString();
+    }
+
+    public String getSocketServerIp() {
+        return socketServerIp;
+    }
+
+    public void setSocketServerIp(String socketServerIp) {
+        this.socketServerIp = socketServerIp;
     }
 
     // endregion

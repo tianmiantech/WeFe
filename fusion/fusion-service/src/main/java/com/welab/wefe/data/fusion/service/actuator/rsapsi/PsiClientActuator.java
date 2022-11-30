@@ -467,10 +467,10 @@ public class PsiClientActuator extends AbstractPsiActuator {
 
 
         int dataSetRowCount = dataSetService.count(dataSetId);
-        if (dataSetRowCount != dataCount) {
-            LOG.error("数据集 {} 数据量有误！！", dataSetId);
-            status = PSIActuatorStatus.falsify;
-        }
+//        if (dataSetRowCount != dataCount) {
+//            LOG.error("数据集 {} 数据量有误！！dataSetRowCount = {} , dataCount = {}", dataSetId, dataSetRowCount, dataCount);
+//            status = PSIActuatorStatus.falsify;
+//        }
 
         LOG.info("数据量 {}", dataSetRowCount);
     }
